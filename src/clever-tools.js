@@ -10,8 +10,8 @@ var argv = require("yargs").argv;
 switch(argv._[0]) {
   case "app":
     switch(argv._[1]) {
-      case "add":
-        app.add(api, argv);
+      case "create":
+        app.create(api, argv);
         break;
     }
     break;
