@@ -8,17 +8,40 @@ var error = _.partial(console.error.bind(console), "[ERROR]");
 
 var Git = module.exports;
 
+Git.GIT_BRANCH_LOCAL = 1;
+
+Git.getRepository = function() {
+  debug("Open the local repository…");
+  return Bacon.fromPromise(nodegit.Repository.open(path.resolve("."))).toProperty();
+};
+
+Git.getRemote = function(name) {
+  return Git.getRepository().flatMapLatest(function(repository) {
+    debug("Load the \"" + name + "\" remote…");
+    return Bacon.fromPromise(nodegit.Remote.load(repository, name)).toProperty().map(function(remote) {
+      debug("Use ssh-agent for authentication…");
+      remote.setCallbacks({
+        credentials: function(url, username) {
+          return nodegit.Cred.sshKeyFromAgent(username);
+        }
+      });
+
+      return remote;
+    });
+  });
+};
+
+Git.getBranch = function(name) {
+  return Git.getRepository().flatMapLatest(function(repository) {
+    return Bacon.fromPromise(nodegit.Branch.lookup(repository, name, Git.GIT_BRANCH_LOCAL));
+  }).toProperty();
+};
+
 Git.createRemote = function(name, remoteUrl) {
   // Replace git+ssh:// by ssh://, otherwise we get a "Malformed URL" error by nodegit
   var url = remoteUrl.replace(/^git\+/, "");
 
-  debug("Open the local repository…");
-  var s_repository = Bacon.fromPromise(nodegit.Repository.open(path.resolve("."))).toProperty();
-
-  var s_existingRemote = s_repository.flatMapLatest(function(repository) {
-    debug("Load the \"" + name + "\" remote…");
-    return Bacon.fromPromise(nodegit.Remote.load(repository, name))
-  });
+  var s_existingRemote = Git.getRemote(name);
 
   var s_existingValidRemote = s_existingRemote.skipErrors().flatMapLatest(function(remote) {
     debug("Check that the current \"" + name + "\" remote point to the right URL…");
@@ -28,21 +51,21 @@ Git.createRemote = function(name, remoteUrl) {
   // Create a remote only if it does not already exist
   var s_newRemote = s_existingRemote.errors().flatMapError(function() {
     debug("Create a \"" + name + "\" remote pointing to " + url);
-    return !nodegit.Remote.validUrl(url) ? new Bacon.Error("The remote url (" + url + ") is invalid.") : s_repository.flatMapLatest(function(repository) {
-      return Bacon.fromPromise(nodegit.Remote.create(repository, name, url));
+    return !nodegit.Remote.validUrl(url) ? new Bacon.Error("The remote url (" + url + ") is invalid.") : Git.getRepository().flatMapLatest(function(repository) {
+      return Bacon.fromPromise(nodegit.Remote.create(repository, name, url)).map(function(remote) {
+        debug("Use ssh-agent for authentication…");
+        remote.setCallbacks({
+          credentials: function(url, username) {
+            return nodegit.Cred.sshKeyFromAgent(username);
+          }
+        });
+
+        return remote;
+      });
     });
   });
 
-  debug("Use ssh-agent for authentication…");
-  return Bacon.mergeAll(s_existingValidRemote, s_newRemote).map(function(remote) {
-    remote.setCallbacks({
-      credentials: function(url, username) {
-        return nodegit.Cred.sshKeyFromAgent(username);
-      }
-    });
-
-    return remote;
-  });
+  return Bacon.mergeAll(s_existingValidRemote, s_newRemote);
 };
 
 Git.fetch = function(remote) {
@@ -75,15 +98,16 @@ Git.keepFetching = function(timeout, remote) {
   return s_fetch;
 };
 
-Git.push = function(remote) {
+Git.push = function(remote, branch) {
   debug("Prepare the push…");
   return Bacon.fromPromise(nodegit.Push.create(remote))
     .flatMapLatest(function(push) {
       debug("Add the refspec…");
 
-      var retval = push.addRefspec("refs/heads/master:refs/heads/master");
-
-      return retval == 0 ? Bacon.once(push) : new Bacon.Error();
+      return Git.getBranch(branch).flatMapLatest(function(branch) {
+        var retval = push.addRefspec(branch + ":refs/heads/master");
+        return retval == 0 ? Bacon.once(push) : new Bacon.Error();
+      });
     })
     .flatMapLatest(function(push) {
       debug("Send data…");

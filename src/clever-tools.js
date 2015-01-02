@@ -4,6 +4,7 @@ var api = require("clever-client")({
 });
 
 var app = require("./app.js");
+var push = require("./push.js");
 
 var argv = require("yargs").argv;
 
@@ -14,5 +15,8 @@ switch(argv._[0]) {
         app.create(api, argv);
         break;
     }
+    break;
+  case "push":
+    push(api, argv);
     break;
 }
