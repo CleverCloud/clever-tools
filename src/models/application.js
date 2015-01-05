@@ -33,3 +33,8 @@ Application.create = function(api, name, instanceType, region) {
     "zone": region
   }));
 };
+
+Application.get = function(api, appId) {
+  debug("Get information for the app: " + appId);
+  return api.owner().applications._.get().withParams([appId]).send();
+};
