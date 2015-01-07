@@ -10,15 +10,17 @@ var error = _.partial(console.error.bind(console), "[ERROR]");
 
 var timeout = 5 * 60 * 1000;
 
-module.exports = function(api) {
-  var argv = require("yargs")
-    .usage("Usage: $0 push <remote> [--branch <branch>]")
-    .alias("b", "branch")
-    .demand(2)
-    .argv;
+var push = module.exports = function(api) {
+  var yargs = push.yargs();
+  var argv = yargs.argv;
+
+  if(argv.help) {
+    yargs.showHelp();
+    return;
+  }
 
   var remote = argv._[1];
-  var branch = argv.branch || "master";
+  var branch = argv.branch;
 
   var s_remote = Git.getRemote(remote).toProperty();
 
@@ -53,4 +55,21 @@ module.exports = function(api) {
     console.log(log._source["@timestamp"] + ": ", log._source["@message"]);
   });
   s_logs.onError(error);
+};
+
+push.usage = "Usage: $0 push <remote> [--branch <branch>]";
+push.yargs = function() {
+  return require("yargs")
+    .usage(push.usage)
+    .options("help", {
+      alias: "h",
+      boolean: true,
+      description: "Show an help message"
+    })
+    .options("branch", {
+      alias: "b",
+      default: "master",
+      description: "The branch to push"
+    })
+    .demand(2);
 };

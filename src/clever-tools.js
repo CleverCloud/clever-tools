@@ -1,24 +1,25 @@
+var _ = require("lodash");
+
 function run(api) {
-  var app = require("./app.js");
-  var login = require("./login.js");
-  var push = require("./push.js");
+  var commands = {};
 
-  var argv = require("yargs").argv;
+  var app = commands.app = require("./app.js");
+  var login = commands.login = require("./login.js");
+  var push = commands.push = require("./push.js");
 
-  switch(argv._[0]) {
-    case "app":
-      switch(argv._[1]) {
-        case "create":
-          app.create(api, argv);
-          break;
+  if(commands[process.argv[2]]) {
+    commands[process.argv[2]](api);
+  }
+  else {
+    console.error("Unknown command:", process.argv[2], "\n");
+    _.each(commands, function(command, name) {
+      if(command.usage) {
+        console.error(command.usage);
       }
-      break;
-    case "login":
-      login(api);
-      break;
-    case "push":
-      push(api, argv);
-      break;
+      _.each(command.subcommands, function(subcommand, name) {
+        console.error(subcommand.usage);
+      });
+    });
   }
 }
 
