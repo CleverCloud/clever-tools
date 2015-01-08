@@ -1,8 +1,7 @@
 var _ = require("lodash");
 var Bacon = require("baconjs");
 
-var debug = _.partial(console.log.bind(console), "[APP]");
-var error = _.partial(console.error.bind(console), "[ERROR]");
+var Logger = require("../logger.js");
 
 var Application = module.exports;
 
@@ -19,7 +18,7 @@ Application.getInstanceType = function(api, type) {
 };
 
 Application.create = function(api, name, instanceType, region) {
-  debug("Create the application…");
+  Logger.debug("Create the application…");
   return api.owner().applications.post().send(JSON.stringify({
     "deploy": "git",
     "description": name,
@@ -35,6 +34,6 @@ Application.create = function(api, name, instanceType, region) {
 };
 
 Application.get = function(api, appId) {
-  debug("Get information for the app: " + appId);
+  Logger.debug("Get information for the app: " + appId);
   return api.owner().applications._.get().withParams([appId]).send();
 };

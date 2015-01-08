@@ -3,23 +3,22 @@ var path = require("path");
 var Bacon = require("baconjs");
 var nodegit = require("nodegit");
 
-var debug = _.partial(console.log.bind(console), "[GIT]");
-var error = _.partial(console.error.bind(console), "[ERROR]");
+var Logger = require("../logger.js");
 
 var Git = module.exports;
 
 Git.GIT_BRANCH_LOCAL = 1;
 
 Git.getRepository = function() {
-  debug("Open the local repository…");
+  Logger.debug("Open the local repository…");
   return Bacon.fromPromise(nodegit.Repository.open(path.resolve("."))).toProperty();
 };
 
 Git.getRemote = function(name) {
   return Git.getRepository().flatMapLatest(function(repository) {
-    debug("Load the \"" + name + "\" remote…");
+    Logger.debug("Load the \"" + name + "\" remote…");
     return Bacon.fromPromise(nodegit.Remote.load(repository, name)).toProperty().map(function(remote) {
-      debug("Use ssh-agent for authentication…");
+      Logger.debug("Use ssh-agent for authentication…");
       remote.setCallbacks({
         credentials: function(url, username) {
           return nodegit.Cred.sshKeyFromAgent(username);
@@ -44,16 +43,16 @@ Git.createRemote = function(name, remoteUrl) {
   var s_existingRemote = Git.getRemote(name);
 
   var s_existingValidRemote = s_existingRemote.skipErrors().flatMapLatest(function(remote) {
-    debug("Check that the current \"" + name + "\" remote point to the right URL…");
+    Logger.debug("Check that the current \"" + name + "\" remote point to the right URL…");
     return remote.url() == url ? Bacon.once(remote) : new Bacon.Error("The \"" + name + "\" remote already exist and does not point to " + url);
   });
 
   // Create a remote only if it does not already exist
   var s_newRemote = s_existingRemote.errors().flatMapError(function() {
-    debug("Create a \"" + name + "\" remote pointing to " + url);
+    Logger.debug("Create a \"" + name + "\" remote pointing to " + url);
     return !nodegit.Remote.validUrl(url) ? new Bacon.Error("The remote url (" + url + ") is invalid.") : Git.getRepository().flatMapLatest(function(repository) {
       return Bacon.fromPromise(nodegit.Remote.create(repository, name, url)).map(function(remote) {
-        debug("Use ssh-agent for authentication…");
+        Logger.debug("Use ssh-agent for authentication…");
         remote.setCallbacks({
           credentials: function(url, username) {
             return nodegit.Cred.sshKeyFromAgent(username);
@@ -69,15 +68,15 @@ Git.createRemote = function(name, remoteUrl) {
 };
 
 Git.fetch = function(remote) {
-  debug("Create a git signature…");
+  Logger.debug("Create a git signature…");
   var signature = nodegit.Signature.now("clever-tools", "support@clever-cloud.com");
 
-  debug("Fetch " + remote.name() + "…");
+  Logger.debug("Fetch " + remote.name() + "…");
   return Bacon.fromPromise(remote.fetch(signature, null)).map(remote);
 };
 
 Git.keepFetching = function(timeout, remote) {
-  debug("Create a git signature…");
+  Logger.debug("Create a git signature…");
   var signature = nodegit.Signature.now("clever-tools", "support@clever-cloud.com");
 
   var s_timeout = timeout > 0 ? Bacon.later(timeout, {}) : Bacon.never();
@@ -90,7 +89,7 @@ Git.keepFetching = function(timeout, remote) {
     });
   };
 
-  debug("Wait for " + remote.name() + " to be fetchable…");
+  Logger.debug("Wait for " + remote.name() + " to be fetchable…");
   var s_fetch = fetch().takeUntil(s_timeout).doAction(function() {
     process.stdout.write("\n");
   });
@@ -99,10 +98,10 @@ Git.keepFetching = function(timeout, remote) {
 };
 
 Git.push = function(remote, branch) {
-  debug("Prepare the push…");
+  Logger.debug("Prepare the push…");
   return Bacon.fromPromise(nodegit.Push.create(remote))
     .flatMapLatest(function(push) {
-      debug("Add the refspec…");
+      Logger.debug("Add the refspec…");
 
       return Git.getBranch(branch).flatMapLatest(function(branch) {
         var retval = push.addRefspec(branch + ":refs/heads/master");
@@ -110,7 +109,7 @@ Git.push = function(remote, branch) {
       });
     })
     .flatMapLatest(function(push) {
-      debug("Send data…");
+      Logger.debug("Send data…");
 
       return Bacon.fromPromise(push.finish()).map(push);
     })

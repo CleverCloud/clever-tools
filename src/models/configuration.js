@@ -4,8 +4,6 @@ var path = require("path");
 var _ = require("lodash");
 var Bacon = require("baconjs");
 
-var debug = _.partial(console.log.bind(console), "[DEBUG]");
-
 var conf = module.exports = {
   API_HOST: "https://api.clever-cloud.com/v2",
   OAUTH_CONSUMER_KEY: "DVXgEDKLATkZkSRqN7iQ0KwWSvtNaD",
