@@ -5,9 +5,6 @@ var Application = require("./models/application.js");
 var Git = require("./models/git.js");
 var Log = require("./models/log.js");
 
-var debug = console.log.bind(console);
-var error = _.partial(console.error.bind(console), "[ERROR]");
-
 var timeout = 5 * 60 * 1000;
 
 var push = module.exports = function(api) {
@@ -33,7 +30,7 @@ var push = module.exports = function(api) {
   }).toProperty();
 
   s_push.onValue(function() {
-    console.log("Your source code has been pushed to Clever-Cloud.");
+    Logger.println("Your source code has been pushed to Clever-Cloud.");
   });
 
   var s_app = s_push
@@ -41,20 +38,20 @@ var push = module.exports = function(api) {
       return s_remote;
     })
     .flatMapLatest(function(remote) {
-      debug("Fetch application information…")
+      Logger.debug("Fetch application information…")
       var appId = remote.url().replace(/^.*(app_.*)\.git$/, "$1");
       return Application.get(api, appId);
     });
 
   var s_logs = s_app.flatMapLatest(function(app) {
-    debug("Fetch application logs…");
+    Logger.debug("Fetch application logs…");
     return Log.getAppLogs(app.id, api.session.getAuthorization());
   });
 
   s_logs.onValue(function(log) {
-    console.log(log._source["@timestamp"] + ": ", log._source["@message"]);
+    Logger.println(log._source["@timestamp"] + ": ", log._source["@message"]);
   });
-  s_logs.onError(error);
+  s_logs.onError(Logger.error);
 };
 
 push.usage = "Usage: $0 push <remote> [--branch <branch>]";

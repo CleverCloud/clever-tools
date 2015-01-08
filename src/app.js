@@ -3,11 +3,10 @@ var path = require("path");
 var Bacon = require("baconjs");
 var nodegit = require("nodegit");
 
+var Logger = require("./logger.js");
+
 var Application = require("./models/application.js");
 var Git = require("./models/git.js");
-
-var debug = console.log.bind(console);
-var error = _.partial(console.error.bind(console), "[ERROR]");
 
 var app = module.exports = function(api) {
   if(app.subcommands[process.argv[3]]) {
@@ -15,7 +14,7 @@ var app = module.exports = function(api) {
   }
   else {
     _.each(app.subcommands, function(subcommand) {
-      console.error(subcommand.usage);
+      Logger.error(subcommand.usage);
     });
   }
 };
@@ -47,7 +46,7 @@ var create = app.subcommands.create = function(api) {
     console.log("Your application has been successfully created!");
   });
 
-  s_app.onError(error);
+  s_app.onError(Logger.error);
 };
 
 create.usage = "Usage: $0 app create <name> -t <type> [-r <region>] [--remote <remote>]";

@@ -5,14 +5,11 @@ var path = require("path");
 var _ = require("lodash");
 var Bacon = require("baconjs");
 
+var Logger = require("./logger.js");
 var conf = require("./models/configuration.js");
 
-var print = console.log.bind(console);
-var debug = _.partial(console.log.bind(console), "[DEBUG]");
-var error = _.partial(console.error.bind(console), "[ERROR]");
-
 function getOpenCommand() {
-  debug("Get the right command to open a tab in a browser…")
+  Logger.debug("Get the right command to open a tab in a browser…")
   switch(process.platform) {
     case "darwin":
       return Bacon.constant("open " + conf.CONSOLE_TOKEN_URL);
@@ -24,7 +21,7 @@ function getOpenCommand() {
 }
 
 function runCommand(command) {
-  debug("Open the token management page in a browser…")
+  Logger.debug("Open the token management page in a browser…")
   return Bacon.fromBinder(function(sink) {
     exec(command, function(error, stdout, stderr) {
       if(error || stderr) {
@@ -50,7 +47,7 @@ function ask(question) {
 }
 
 function getOAuthData() {
-  debug("Ask for tokens…");
+  Logger.debug("Ask for tokens…");
   var s_token = ask("Enter CLI token: ");
   var s_secret = s_token.flatMapLatest(_.partial(ask, "Enter CLI secret: "));
 
@@ -61,7 +58,7 @@ function getOAuthData() {
 }
 
 function writeLoginConfig(oauthData) {
-  debug("Write the tokens in the configuration file…")
+  Logger.debug("Write the tokens in the configuration file…")
   return Bacon.fromNodeCallback(_.partial(fs.writeFile, conf.CONFIGURATION_FILE, JSON.stringify(oauthData)));
 }
  
@@ -74,15 +71,15 @@ var login = module.exports = function(api) {
     return;
   }
 
-  debug("Try to login to Clever-Cloud…")
+  Logger.debug("Try to login to Clever-Cloud…")
   var result = getOpenCommand()
     .flatMapLatest(runCommand)
     .flatMapLatest(getOAuthData)
     .flatMapLatest(writeLoginConfig)
     .map(conf.CONFIGURATION_FILE + " has been updated.");
   
-  result.onValue(print);
-  result.onError(error);
+  result.onValue(Logger.println);
+  result.onError(Logger.error);
 };
 
 login.usage = "Usage: $0 login";

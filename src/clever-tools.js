@@ -1,4 +1,5 @@
 var _ = require("lodash");
+var Logger = require("./logger.js");
 
 function run(api) {
   var commands = {};
@@ -11,13 +12,13 @@ function run(api) {
     commands[process.argv[2]](api);
   }
   else {
-    console.error("Unknown command:", process.argv[2], "\n");
+    Logger.error("Unknown command:", process.argv[2], "\n");
     _.each(commands, function(command, name) {
       if(command.usage) {
-        console.error(command.usage);
+        Logger.error(command.usage);
       }
       _.each(command.subcommands, function(subcommand, name) {
-        console.error(subcommand.usage);
+        Logger.error(subcommand.usage);
       });
     });
   }
@@ -25,4 +26,4 @@ function run(api) {
 
 var s_api = require("./models/api.js")();
 s_api.onValue(run);
-s_api.onError(console.error.bind(console));
+s_api.onError(Logger.error.bind(console));
