@@ -5,6 +5,8 @@ var Application = require("./models/application.js");
 var Git = require("./models/git.js");
 var Log = require("./models/log.js");
 
+var Logger = require("./logger.js");
+
 var timeout = 5 * 60 * 1000;
 
 var push = module.exports = function(api) {
