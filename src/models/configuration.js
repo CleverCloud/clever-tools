@@ -4,6 +4,8 @@ var path = require("path");
 var _ = require("lodash");
 var Bacon = require("baconjs");
 
+var Logger = require("../logger.js");
+
 var conf = module.exports = {
   API_HOST: "https://api.clever-cloud.com/v2",
   OAUTH_CONSUMER_KEY: "DVXgEDKLATkZkSRqN7iQ0KwWSvtNaD",
@@ -14,7 +16,7 @@ var conf = module.exports = {
 };
 
 conf.loadOAuthConf = function() {
-  debug("Load configuration from " + conf.CONFIGURATION_FILE);
+  Logger.debug("Load configuration from " + conf.CONFIGURATION_FILE);
   var s_oauthData = Bacon.fromNodeCallback(_.partial(fs.readFile, conf.CONFIGURATION_FILE)).flatMapLatest(function(content) {
     try {
       return Bacon.once(JSON.parse(content));
@@ -25,7 +27,7 @@ conf.loadOAuthConf = function() {
   });
 
   return s_oauthData.mapError(function(error) {
-    debug("Cannot load configuration from " + conf.CONFIGURATION_FILE);
+    Logger.warn("Cannot load configuration from " + conf.CONFIGURATION_FILE + " (" + error + ")");
     return {};
   });
 };
