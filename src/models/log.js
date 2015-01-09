@@ -3,6 +3,7 @@ var Bacon = require("baconjs");
 var _ = require("lodash");
 
 var Logger = require("../logger.js");
+var conf = require("./configuration.js");
 
 var Log = module.exports;
 
@@ -39,6 +40,14 @@ Log.getLogsFromWS = function(url, authorization) {
   });
 };
 
+Log.getLogUrl = _.partial(function(template, appId, timestamp) {
+  return template({
+    appId: appId,
+    timestamp: timestamp
+  });
+}, _.template(conf.LOG_URL));
+
 Log.getAppLogs = function(appId, authorization) {
-  return Log.getLogsFromWS("wss://logs-api.clever-cloud.com/logs-socket/" + appId + "?since=" + new Date().toISOString(), authorization);
+  var url = Log.getLogUrl(appId, new Date().toISOString());
+  return Log.getLogsFromWS(url, authorization);
 };
