@@ -6,7 +6,7 @@ var nodegit = require("nodegit");
 var Logger = require("./logger.js");
 
 var Application = require("./models/application.js");
-var Git = require("./models/git.js");
+var Git = require("./models/git.js")(path.resolve("."));
 
 var app = module.exports = function(api) {
   if(app.subcommands[process.argv[3]]) {
