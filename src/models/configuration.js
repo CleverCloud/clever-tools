@@ -13,7 +13,7 @@ var conf = module.exports = {
   OAUTH_CONSUMER_SECRET: "GPKbDuphYWFr3faS5dg64eCjsrpxGY",
 
   CONFIGURATION_FILE: path.resolve(process.env.HOME, ".cleverrc"),
-  CONSOLE_TOKEN_URL: "http://console3.local:8080/users/me/tokens"
+  CONSOLE_TOKEN_URL: "https://console.clever-cloud.com/users/me/tokens?tokens-for=cli"
 };
 
 conf.loadOAuthConf = function() {
