@@ -11,7 +11,7 @@ Run `npm install -g` in the root directory of the project.
 How to use
 ----------
 
-- Login: clever login (at the moment, you need to run the console locally)
+- Login: clever login
 - Create an application: clever app create <name> -t <type> [-r <region>] [--remote <remote>]
 - Deploy your application: clever deploy <remote> [--branch <branch>]
 
