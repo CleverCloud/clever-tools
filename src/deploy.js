@@ -11,8 +11,8 @@ var Logger = require("./logger.js");
 
 var timeout = 5 * 60 * 1000;
 
-var push = module.exports = function(api) {
-  var yargs = push.yargs();
+var deploy = module.exports = function(api) {
+  var yargs = deploy.yargs();
   var argv = yargs.argv;
 
   if(argv.help) {
@@ -58,10 +58,10 @@ var push = module.exports = function(api) {
   s_logs.onError(Logger.error);
 };
 
-push.usage = "Usage: $0 push <remote> [--branch <branch>]";
-push.yargs = function() {
+deploy.usage = "Usage: $0 deploy <remote> [--branch <branch>]";
+deploy.yargs = function() {
   return require("yargs")
-    .usage(push.usage)
+    .usage(deploy.usage)
     .options("help", {
       alias: "h",
       boolean: true,

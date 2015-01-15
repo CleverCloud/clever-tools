@@ -8,7 +8,7 @@ function run(api) {
 
   var app = commands.app = require("../src/app.js");
   var login = commands.login = require("../src/login.js");
-  var push = commands.push = require("../src/push.js");
+  var deploy = commands.deploy = require("../src/deploy.js");
 
   if(commands[process.argv[2]]) {
     commands[process.argv[2]](api);
