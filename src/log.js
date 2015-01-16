@@ -27,7 +27,7 @@ var appLogs = module.exports = function(api) {
   s_logs.onError(Logger.error);
 };
 
-appLogs.usage = "Usage: $0 logs <app-id>";
+appLogs.usage = "Usage: $0 log <app-id>";
 appLogs.yargs = function() {
   return require("yargs")
     .usage(appLogs.usage)
