@@ -13,8 +13,9 @@ var conf = module.exports = {
   OAUTH_CONSUMER_SECRET: "GPKbDuphYWFr3faS5dg64eCjsrpxGY",
 
   CONFIGURATION_FILE: path.resolve(process.env.HOME, ".cleverrc"),
-  CONSOLE_TOKEN_URL: "https://console.clever-cloud.com/users/me/tokens?tokens-for=cli"
+  CONSOLE_TOKEN_URL: "https://console.clever-cloud.com/users/me/tokens?tokens-for=cli",
 
+  APP_CONFIGURATION_DIR: path.resolve(".", "clevercloud"),
   APP_CONFIGURATION_FILE: path.resolve(".", "clevercloud/cli.json")
 };
 
@@ -31,23 +32,6 @@ conf.loadOAuthConf = function() {
 
   return s_oauthData.mapError(function(error) {
     Logger.warn("Cannot load configuration from " + conf.CONFIGURATION_FILE + " (" + error + ")");
-    return {};
-  });
-};
-
-conf.loadApplicationConf = function() {
-  Logger.debug("Loading app configuration from " + conf.APP_CONFIGURATION_FILE);
-  var s_appData = Bacon.fromNodeCallback(_.partial(fs.readFile, conf.APP_CONFIGURATION_FILE)).flatMapLatest(function(content) {
-    try {
-      return Bacon.once(JSON.parse(content));
-    }
-    catch(e) {
-      return new Bacon.Error(e);
-    }
-  });
-
-  return s_appData.mapError(function(error) {
-    Logger.warn("Cannot load app configuration from " + conf.APP_CONFIGURATION_FILE + " (" + error + ")");
     return {};
   });
 };
