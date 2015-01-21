@@ -85,9 +85,8 @@ var link = app.subcommands.link = function(api) {
   }
 
   var appId = argv._[2];
-  var orgaId = argv._[3];
 
-  var s_app = Application.linkRepo(api, appId, orgaId);
+  var s_app = Application.linkRepo(api, appId, argv.orga, argv.alias);
 
   s_app.onValue(function(app) {
     console.log("Your application has been successfully linked!");
@@ -96,7 +95,7 @@ var link = app.subcommands.link = function(api) {
   s_app.onError(Logger.error);
 };
 
-link.usage = "Usage: $0 app link <app_id> [<orga_id>]";
+link.usage = "Usage: $0 app link <app_id> [--orga=<orga_id>] [--alias=<alias>]";
 link.yargs = function() {
   return require("yargs")
     .usage(app.subcommands.link.usage)
@@ -104,6 +103,12 @@ link.yargs = function() {
       alias: "h",
       boolean: true,
       description: "Show an help message"
+    })
+    .options("orga", {
+      description: "Id of the app's organisation"
+    })
+    .options("alias", {
+      description: "short name for this application"
     })
     .demand(2);
 };

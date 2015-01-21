@@ -3,6 +3,7 @@ var path = require("path");
 
 var _ = require("lodash");
 var Bacon = require("baconjs");
+var unidecode = require("unidecode");
 
 var Config = require("./configuration.js");
 var Logger = require("../logger.js");
@@ -39,12 +40,15 @@ AppConfiguration.ensureAppConfigDir = function() {
   return s_ensuredConfigDir;
 };
 
-AppConfiguration.addLinkedApplication = function(appData, orgaId) {
+AppConfiguration.addLinkedApplication = function(appData, orgaId, alias) {
   var currentConfig = AppConfiguration.loadApplicationConf();
   var appEntry = {
     app_id: appData.id,
-    deploy_url: appData.deployUrl
+    deploy_url: appData.deployUrl,
+    name: appData.name,
+    alias: alias || unidecode(appData.name).replace(/[^a-zA-z0-9]/gi, "-").toLowerCase()
   };
+
   if(orgaId) appEntry.org_id = orgaId;
 
   var newConfig = currentConfig.flatMapLatest(function(config) {
