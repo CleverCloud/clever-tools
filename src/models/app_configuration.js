@@ -72,3 +72,21 @@ AppConfiguration.addLinkedApplication = function(appData, orgaId, alias) {
 
   return savedFile;
 };
+
+AppConfiguration.getAppData = function(alias) {
+  var currentConfig = AppConfiguration.loadApplicationConf();
+
+  return currentConfig.flatMap(function(config) {
+    var matchingApps = _.filter(config.apps, function(app) { return app.alias === alias; });
+
+    if(!alias && config.apps.length === 1) {
+      return Bacon.once(config.apps[0]);
+    } else if(matchingApps.length === 1) {
+      return Bacon.once(matchingApps[0]);
+    } else if(matchingApps.length === 0) {
+      return new Bacon.Error("no matching application");
+    } else if(matchingApps.length > 1) {
+      return new Bacon.Error("multiple matching applications");
+    }
+  });
+};
