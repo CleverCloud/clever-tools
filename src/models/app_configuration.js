@@ -56,6 +56,8 @@ AppConfiguration.addLinkedApplication = function(appData, orgaId, alias) {
       return app.app_id === appEntry.app_id;
     });
 
+    // ToDo see what to do when there is a conflict between an existing entry
+    // and the entry we want to add (same app_id, different other values)
     if(isPresent) {
       config.apps.push(appEntry);
     }
