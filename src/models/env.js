@@ -17,9 +17,9 @@ Env.list = function(api, appId, orgaId) {
 
 Env.create = function(api, name, value, appId, orgaId) {
   if(orgaId) {
-    return api.organisations._.applications._.env._.put().withParams([orgaId, appId, name]).send(value);
+    return api.organisations._.applications._.env._.put().withParams([orgaId, appId, name]).send(JSON.stringify(value));
   } else {
-    return api.owner().applications._.env._.put().withParams([appId, name]).send(value);
+    return api.owner().applications._.env._.put().withParams([appId, name]).send(JSON.stringify(value));
   }
 };
 
