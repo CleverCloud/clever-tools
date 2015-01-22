@@ -10,6 +10,7 @@ function run(api) {
   var login = commands.login = require("../src/login.js");
   var deploy = commands.deploy = require("../src/deploy.js");
   var domain = commands.domain = require("../src/domain.js");
+  var env = commands.env = require("../src/env.js");
 
   if(commands[process.argv[2]]) {
     commands[process.argv[2]](api);
