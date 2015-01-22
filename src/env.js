@@ -61,8 +61,8 @@ list.yargs = function() {
     .demand(1);
 };
 
-var create = env.subcommands.create = function(api) {
-  var yargs = create.yargs();
+var set = env.subcommands.set = function(api) {
+  var yargs = set.yargs();
   var argv = yargs.argv;
 
   if(argv.help) {
@@ -76,7 +76,7 @@ var create = env.subcommands.create = function(api) {
   var s_appData = AppConfig.getAppData(argv.alias);
 
   var s_env = s_appData.flatMap(function(appData) {
-    return Env.create(api, name, value, appData.app_id, appData.org_id);
+    return Env.set(api, name, value, appData.app_id, appData.org_id);
   });
 
   s_env.onValue(function() {
@@ -86,10 +86,10 @@ var create = env.subcommands.create = function(api) {
   s_env.onError(Logger.error);
 };
 
-create.usage = "Usage: $0 env create <name> <value> [--alias=<alias>]";
-create.yargs = function() {
+set.usage = "Usage: $0 env set <name> <value> [--alias=<alias>]";
+set.yargs = function() {
   return require("yargs")
-    .usage(env.subcommands.create.usage)
+    .usage(env.subcommands.set.usage)
     .options("help", {
       alias: "h",
       boolean: true,

@@ -13,7 +13,7 @@ Env.list = function(api, appId, orgaId) {
   return api.owner(orgaId).applications._.env.get().withParams(params).send();
 };
 
-Env.create = function(api, name, value, appId, orgaId) {
+Env.set = function(api, name, value, appId, orgaId) {
   var params = orgaId ? [orgaId, appId, name] : [appId, name];
 
   return api.owner(orgaId).applications._.env._.put().withParams(params).send(JSON.stringify(value));
