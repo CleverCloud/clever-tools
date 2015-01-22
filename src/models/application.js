@@ -19,9 +19,11 @@ Application.getInstanceType = function(api, type) {
   });
 };
 
-Application.create = function(api, name, instanceType, region) {
+Application.create = function(api, name, instanceType, region, orgaId) {
   Logger.debug("Create the application…");
-  return api.owner().applications.post().send(JSON.stringify({
+  var params = orgaId ? [orgaId] : [];
+
+  return api.owner(orgaId).applications.post().withParams(params).send(JSON.stringify({
     "deploy": "git",
     "description": name,
     "instanceType": instanceType.type,

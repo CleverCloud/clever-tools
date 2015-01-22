@@ -10,11 +10,12 @@
   "author": "Rodolphe Belouin <rodolphe.belouin@gmail.com>",
   "license": "MIT",
   "bin": {
-    "clever": "./bin/clever"
+    "clever": "./bin/clever.js"
   },
   "dependencies": {
     "baconjs": "^0.7.41",
     "clever-client": "^0.2.0-beta.2",
+    "cliparse": "^0.1.1",
     "lodash": "^2.4.1",
     "nodegit": "^0.2.4",
     "shelljs": "^0.3.0",
