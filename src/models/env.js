@@ -8,25 +8,19 @@ var Logger = require("../logger.js");
 var Env = module.exports;
 
 Env.list = function(api, appId, orgaId) {
-  if(orgaId) {
-    return api.organisations._.applications._.env.get().withParams([orgaId, appId]).send();
-  } else {
-    return api.owner().applications._.env.get().withParams([appId]).send();
-  }
+  var params = orgaId ? [orgaId, appId] : [appId];
+
+  return api.owner(orgaId).applications._.env.get().withParams(params).send();
 };
 
 Env.create = function(api, name, value, appId, orgaId) {
-  if(orgaId) {
-    return api.organisations._.applications._.env._.put().withParams([orgaId, appId, name]).send(JSON.stringify(value));
-  } else {
-    return api.owner().applications._.env._.put().withParams([appId, name]).send(JSON.stringify(value));
-  }
+  var params = orgaId ? [orgaId, appId, name] : [appId, name];
+
+  return api.owner(orgaId).applications._.env._.put().withParams(params).send(JSON.stringify(value));
 };
 
 Env.remove = function(api, name, appId, orgaId) {
-  if(orgaId) {
-    return api.organisations._.applications._.env._.delete().withParams([orgaId, appId, name]).send();
-  } else {
-    return api.owner().applications._.env._.delete().withParams([appId, name]).send();
-  }
+  var params = orgaId ? [orgaId, appId, name] : [appId, name];
+
+  return api.owner(orgaId).applications._.env._.delete().withParams(params).send();
 };

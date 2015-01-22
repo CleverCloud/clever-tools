@@ -15,17 +15,13 @@ Domain.list = function(api, appId, orgaId) {
 };
 
 Domain.create = function(api, fqdn, appId, orgaId) {
-  if(orgaId) {
-    return api.organisations._.applications._.vhosts._.put().withParams([orgaId, appId, fqdn]).send();
-  } else {
-    return api.owner().applications._.vhosts._.put().withParams([appId, fqdn]).send();
-  }
+  var params = orgaId ? [orgaId, appId, fqdn] : [appId, fqdn];
+
+  return api.owner(orgaId).applications._.vhosts._.put().withParams(params).send();
 };
 
 Domain.remove = function(api, fqdn, appId, orgaId) {
-  if(orgaId) {
-    return api.organisations._.applications._.vhosts._.delete().withParams([orgaId, appId, fqdn]).send();
-  } else {
-    return api.owner().applications._.vhosts._.delete().withParams([appId, fqdn]).send();
-  }
+  var params = orgaId ? [orgaId, appId, fqdn] : [appId, fqdn];
+
+  return api.owner(orgaId).applications._.vhosts._.delete().withParams(params).send();
 };
