@@ -3,6 +3,8 @@ var Bacon = require("baconjs");
 
 var Logger = require("../logger.js");
 
+var AppConfiguration = require("./app_configuration.js");
+
 var Application = module.exports;
 
 Application.getInstanceType = function(api, type) {
@@ -33,7 +35,27 @@ Application.create = function(api, name, instanceType, region) {
   }));
 };
 
-Application.get = function(api, appId) {
+Application.get = function(api, appId, orgaId) {
   Logger.debug("Get information for the app: " + appId);
-  return api.owner().applications._.get().withParams([appId]).send();
+
+  if(orgaId) {
+    return api.organisations._.get().withParams([orgaId]).send()
+      .map(function(organisation) {
+        return _.find(organisation.apps, function(app) {
+          return app.id === appId;
+        });
+      });
+  } else {
+    return api.owner().applications._.get().withParams([appId]).send();
+  }
+};
+
+Application.linkRepo = function(api, appId, orgaId) {
+  Logger.debug("Linking current repository to the app: " + appId);
+
+  var s_app = Application.get(api, appId, orgaId);
+
+  return s_app.flatMapLatest(function(appData) {
+    return AppConfiguration.addLinkedApplication(appData, orgaId);
+  });
 };

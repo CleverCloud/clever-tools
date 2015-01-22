@@ -74,3 +74,41 @@ create.yargs = function() {
     .demand(2)
     .demand(["type"]);
 };
+
+var link = app.subcommands.link = function(api) {
+  var yargs = link.yargs();
+  var argv = yargs.argv;
+
+  if(argv.help) {
+    yargs.showHelp();
+    return;
+  }
+
+  var appId = argv._[2];
+
+  var s_app = Application.linkRepo(api, appId, argv.orga, argv.alias);
+
+  s_app.onValue(function(app) {
+    console.log("Your application has been successfully linked!");
+  });
+
+  s_app.onError(Logger.error);
+};
+
+link.usage = "Usage: $0 app link <app_id> [--orga=<orga_id>] [--alias=<alias>]";
+link.yargs = function() {
+  return require("yargs")
+    .usage(app.subcommands.link.usage)
+    .options("help", {
+      alias: "h",
+      boolean: true,
+      description: "Show an help message"
+    })
+    .options("orga", {
+      description: "Id of the app's organisation"
+    })
+    .options("alias", {
+      description: "short name for this application"
+    })
+    .demand(2);
+};
