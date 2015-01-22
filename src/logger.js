@@ -9,3 +9,6 @@ var Logger = _.foldl(["debug", "info", "warn", "error"], function(logger, severi
 
 // No decoration for Logger.println
 Logger.println = console.log.bind(console.log);
+
+// No decoration for Logger.printErrorLine
+Logger.printErrorLine = console.error.bind(console.error);

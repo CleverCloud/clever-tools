@@ -20,10 +20,10 @@ function run(api) {
     Logger.error("Unknown command:", process.argv[2], "\n");
     _.each(commands, function(command, name) {
       if(command.usage) {
-        Logger.error(command.usage);
+        Logger.printErrorLine(command.usage);
       }
       _.each(command.subcommands, function(subcommand, name) {
-        Logger.error(subcommand.usage);
+        Logger.printErrorLine(subcommand.usage);
       });
     });
   }

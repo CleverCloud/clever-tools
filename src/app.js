@@ -14,7 +14,7 @@ var app = module.exports = function(api) {
   }
   else {
     _.each(app.subcommands, function(subcommand) {
-      Logger.error(subcommand.usage);
+      Logger.printErrorLine(subcommand.usage);
     });
   }
 };

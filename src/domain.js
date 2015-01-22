@@ -15,7 +15,7 @@ var domain = module.exports = function(api) {
   }
   else {
     _.each(domain.subcommands, function(subcommand) {
-      Logger.error(subcommand.usage);
+      Logger.printErrorLine(subcommand.usage);
     });
   }
 };
