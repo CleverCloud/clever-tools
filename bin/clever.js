@@ -20,6 +20,7 @@ var cancelDeploy = require("../src/commands/cancel-deploy.js");
 var domain = require("../src/commands/domain.js");
 var stop = require("../src/commands/stop.js");
 var status = require("../src/commands/status.js");
+var activity = require("../src/commands/activity.js");
 
 var Application = require("../src/models/application.js");
 
@@ -185,6 +186,15 @@ function run(api) {
     ]
   }, _.partial(status, api));
 
+  // ACTIVITY COMMAND
+  var activityCommand = cliparse.command("activity", {
+    description: "Show last deployments of a Clever-Cloud application",
+    options: [
+      aliasOption
+    ]
+  }, _.partial(activity, api));
+
+
   // CLI PARSER
   var cliParser = cliparse.cli({
     name: "clever",
@@ -200,7 +210,8 @@ function run(api) {
       deployCommand,
       domainCommands,
       stopCommand,
-      statusCommand
+      statusCommand,
+      activityCommand
     ]
   });
 
