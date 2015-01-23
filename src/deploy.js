@@ -3,6 +3,7 @@ var path = require("path");
 var _ = require("lodash");
 var Bacon = require("baconjs");
 
+var AppConfig = require("./models/app_configuration.js");
 var Application = require("./models/application.js");
 var Git = require("./models/git.js")(path.resolve("."));
 var Log = require("./models/log.js");
@@ -11,19 +12,15 @@ var Logger = require("./logger.js");
 
 var timeout = 5 * 60 * 1000;
 
-var deploy = module.exports = function(api) {
-  var yargs = deploy.yargs();
-  var argv = yargs.argv;
+var deploy = module.exports = function(api, params) {
+  var alias = params.options.alias;
+  var branch = params.options.branch;
 
-  if(argv.help) {
-    yargs.showHelp();
-    return;
-  }
+  var s_appData = AppConfig.getAppData(alias);
 
-  var remote = argv._[1];
-  var branch = argv.branch;
-
-  var s_remote = Git.getRemote(remote).toProperty();
+  var s_remote = s_appData.flatMapLatest(function(app_data) {
+    return Git.createRemote(app_data.alias, app_data.deploy_url).toProperty();
+  });
 
   var s_fetch = s_remote.flatMapLatest(function(remote) {
     return Git.keepFetching(timeout, remote);
@@ -56,21 +53,4 @@ var deploy = module.exports = function(api) {
     Logger.println(log._source["@timestamp"] + ": ", log._source["@message"]);
   });
   s_logs.onError(Logger.error);
-};
-
-deploy.usage = "Usage: $0 deploy <remote> [--branch <branch>]";
-deploy.yargs = function() {
-  return require("yargs")
-    .usage(deploy.usage)
-    .options("help", {
-      alias: "h",
-      boolean: true,
-      description: "Show an help message"
-    })
-    .options("branch", {
-      alias: "b",
-      default: "master",
-      description: "The branch to push"
-    })
-    .demand(2);
 };

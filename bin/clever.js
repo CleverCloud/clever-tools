@@ -9,6 +9,7 @@ var app = require("../src/app.js");
 var env = require("../src/env.js");
 var log = require("../src/log.js");
 var login = require("../src/login.js");
+var deploy = require("../src/deploy.js");
 
 function run(api) {
   // ARGUMENTS
@@ -105,6 +106,15 @@ function run(api) {
     description: "Login to Clever-Cloud"
   }, _.partial(login, api));
 
+  // DEPLOY COMMAND
+  var deployCommand = cliparse.command("deploy", {
+    description: "Deploy an application to Clever-Cloud",
+    options: [
+      aliasOption,
+      branchOption
+    ]
+  }, _.partial(deploy, api));
+
   // CLI PARSER
   var cliParser = cliparse.cli({
     name: "clever",
@@ -113,7 +123,8 @@ function run(api) {
       appCommands,
       envCommands,
       logCommand,
-      loginCommand
+      loginCommand,
+      deployCommand
     ]
   });
 
