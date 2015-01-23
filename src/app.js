@@ -20,7 +20,7 @@ var create = app.create = function(api, params) {
 
   var s_app = s_type
     .flatMapLatest(function(type) {
-      return Application.create(api, name, type, region, orga)
+      return Application.create(api, name, type, region, orga);
     })
     .flatMapLatest(function(app) {
       return Application.linkRepo(api, app.id, orga);
