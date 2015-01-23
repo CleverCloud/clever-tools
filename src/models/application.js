@@ -44,12 +44,12 @@ Application.get = function(api, appId, orgaId) {
   return api.owner(orgaId).applications._.get().withParams(params).send();
 };
 
-Application.linkRepo = function(api, appId, orgaId) {
+Application.linkRepo = function(api, appId, orgaId, alias) {
   Logger.debug("Linking current repository to the app: " + appId);
 
   var s_app = Application.get(api, appId, orgaId);
 
   return s_app.flatMapLatest(function(appData) {
-    return AppConfiguration.addLinkedApplication(appData, orgaId);
+    return AppConfiguration.addLinkedApplication(appData, orgaId, alias);
   });
 };
