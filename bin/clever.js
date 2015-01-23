@@ -7,6 +7,7 @@ var Logger = require("../src/logger.js");
 
 var app = require("../src/app.js");
 var env = require("../src/env.js");
+var log = require("../src/log.js");
 
 function run(api) {
   // ARGUMENTS
@@ -90,13 +91,22 @@ function run(api) {
     ]
   });
 
+  // LOG COMMAND
+  var logCommand = cliparse.command("log", {
+    description: "Fetch some application logs, continuously",
+    options: [
+      aliasOption
+    ]
+  }, _.partial(log, api));
+
   // CLI PARSER
   var cliParser = cliparse.cli({
     name: "clever",
     description: "CLI tool to manage Clever-Cloud data and products",
     commands: [
       appCommands,
-      envCommands
+      envCommands,
+      logCommand,
     ]
   });
 
