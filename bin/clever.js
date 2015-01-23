@@ -49,11 +49,17 @@ function run(api) {
     ]
   }, _.partial(app.link, api));
 
+  var appUnlinkCommand = cliparse.command("unlink", {
+    description: "Unlink this repo from an existing Clever-Cloud application",
+    args: [aliasArgument]
+  }, _.partial(app.unlink, api));
+
   var appCommands = cliparse.command("app", {
     description: "Manage Clever-Cloud applications",
     commands: [
       appCreateCommand,
-      appLinkCommand
+      appLinkCommand,
+      appUnlinkCommand
     ]
   });
 

@@ -53,3 +53,9 @@ Application.linkRepo = function(api, appId, orgaId, alias) {
     return AppConfiguration.addLinkedApplication(appData, orgaId, alias);
   });
 };
+
+Application.unlinkRepo = function(api, alias) {
+  Logger.debug("Unlinking current repository from the app: " + alias);
+
+  return AppConfiguration.removeLinkedApplication(alias);
+};

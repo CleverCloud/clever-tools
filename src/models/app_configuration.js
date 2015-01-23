@@ -51,7 +51,7 @@ AppConfiguration.addLinkedApplication = function(appData, orgaId, alias) {
 
   if(orgaId) appEntry.org_id = orgaId;
 
-  var newConfig = currentConfig.flatMapLatest(function(config) {
+  var s_newConfig = currentConfig.flatMapLatest(function(config) {
     var isPresent = !_.find(config.apps, function(app) {
       return app.app_id === appEntry.app_id;
     });
@@ -64,13 +64,20 @@ AppConfiguration.addLinkedApplication = function(appData, orgaId, alias) {
     return config;
   });
 
-  var savedFile = AppConfiguration.ensureAppConfigDir()
-    .flatMapLatest(function(___) { return newConfig; })
-    .flatMapLatest(function(config) {
-      return Bacon.fromNodeCallback(_.partial(fs.writeFile, Config.APP_CONFIGURATION_FILE, JSON.stringify(config)));
-    });
+  return s_newConfig.flatMapLatest(AppConfiguration.persistConfig);
+};
 
-  return savedFile;
+AppConfiguration.removeLinkedApplication = function(alias) {
+  var currentConfig = AppConfiguration.loadApplicationConf();
+
+  var s_newConfig = currentConfig.flatMapLatest(function(config) {
+    config.apps = _.reject(config.apps, function(appEntry) {
+      return appEntry.alias === alias;
+    });
+    return config;
+  });
+
+  return s_newConfig.flatMapLatest(AppConfiguration.persistConfig);
 };
 
 AppConfiguration.getAppData = function(alias) {
@@ -89,4 +96,13 @@ AppConfiguration.getAppData = function(alias) {
       return new Bacon.Error("multiple matching applications");
     }
   });
+};
+
+AppConfiguration.persistConfig = function(modifiedConfig) {
+  var savedFile = AppConfiguration.ensureAppConfigDir()
+    .flatMapLatest(function(___) {
+      return Bacon.fromNodeCallback(_.partial(fs.writeFile, Config.APP_CONFIGURATION_FILE, JSON.stringify(modifiedConfig)));
+    });
+
+  return savedFile;
 };
