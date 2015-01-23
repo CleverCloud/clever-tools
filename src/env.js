@@ -9,29 +9,12 @@ var AppConfig = require("./models/app_configuration.js");
 var Env = require("./models/env.js");
 var Git = require("./models/git.js")(path.resolve("."));
 
-var env = module.exports = function(api) {
-  if(env.subcommands[process.argv[3]]) {
-    env.subcommands[process.argv[3]](api);
-  }
-  else {
-    _.each(env.subcommands, function(subcommand) {
-      Logger.error(subcommand.usage);
-    });
-  }
-};
+var env = module.exports;
 
-env.subcommands = {};
+var list = env.list = function(api, params) {
+  var alias = params.options.alias;
 
-var list = env.subcommands.list = function(api) {
-  var yargs = list.yargs();
-  var argv = yargs.argv;
-
-  if(argv.help) {
-    yargs.showHelp();
-    return;
-  }
-
-  var s_appData = AppConfig.getAppData(argv.alias);
+  var s_appData = AppConfig.getAppData(alias);
 
   var s_env = s_appData.flatMap(function(appData) {
     return Env.list(api, appData.app_id, appData.org_id);
@@ -46,34 +29,12 @@ var list = env.subcommands.list = function(api) {
   s_env.onError(Logger.error);
 };
 
-list.usage = "Usage: $0 env list [--alias=<alias>]";
-list.yargs = function() {
-  return require("yargs")
-    .usage(env.subcommands.list.usage)
-    .options("help", {
-      alias: "h",
-      boolean: true,
-      description: "Show an help message"
-    })
-    .options("alias", {
-      description: "Application alias"
-    })
-    .demand(1);
-};
+var set = env.set = function(api, params) {
+  var name = params.args[0];
+  var value = params.args[1];
+  var alias = params.options.alias;
 
-var set = env.subcommands.set = function(api) {
-  var yargs = set.yargs();
-  var argv = yargs.argv;
-
-  if(argv.help) {
-    yargs.showHelp();
-    return;
-  }
-
-  var name = argv._[2];
-  var value = argv._[3];
-
-  var s_appData = AppConfig.getAppData(argv.alias);
+  var s_appData = AppConfig.getAppData(alias);
 
   var s_env = s_appData.flatMap(function(appData) {
     return Env.set(api, name, value, appData.app_id, appData.org_id);
@@ -86,34 +47,11 @@ var set = env.subcommands.set = function(api) {
   s_env.onError(Logger.error);
 };
 
-set.usage = "Usage: $0 env set <name> <value> [--alias=<alias>]";
-set.yargs = function() {
-  return require("yargs")
-    .usage(env.subcommands.set.usage)
-    .options("help", {
-      alias: "h",
-      boolean: true,
-      description: "Show an help message"
-    })
-    .options("alias", {
-      description: "Application alias"
-    })
-    .demand(3);
-};
+var remove = env.remove = function(api, params) {
+  var name = params.args[0];
+  var alias = params.options.alias;
 
-var remove = env.subcommands.remove = function(api) {
-  var yargs = remove.yargs();
-  var argv = yargs.argv;
-
-  if(argv.help) {
-    yargs.showHelp();
-    return;
-  }
-
-  var name = argv._[2];
-  var value = argv._[3];
-
-  var s_appData = AppConfig.getAppData(argv.alias);
+  var s_appData = AppConfig.getAppData(alias);
 
   var s_env = s_appData.flatMap(function(appData) {
     return Env.remove(api, name, appData.app_id, appData.org_id);
@@ -124,19 +62,4 @@ var remove = env.subcommands.remove = function(api) {
   });
 
   s_env.onError(Logger.error);
-};
-
-remove.usage = "Usage: $0 env remove <name> [--alias=<alias>]";
-remove.yargs = function() {
-  return require("yargs")
-    .usage(env.subcommands.remove.usage)
-    .options("help", {
-      alias: "h",
-      boolean: true,
-      description: "Show an help message"
-    })
-    .options("alias", {
-      description: "Application alias"
-    })
-    .demand(2);
 };
