@@ -8,6 +8,7 @@ var Logger = require("../src/logger.js");
 var app = require("../src/app.js");
 var env = require("../src/env.js");
 var log = require("../src/log.js");
+var login = require("../src/login.js");
 
 function run(api) {
   // ARGUMENTS
@@ -99,6 +100,11 @@ function run(api) {
     ]
   }, _.partial(log, api));
 
+  // LOGIN COMMAND
+  var loginCommand = cliparse.command("login", {
+    description: "Login to Clever-Cloud"
+  }, _.partial(login, api));
+
   // CLI PARSER
   var cliParser = cliparse.cli({
     name: "clever",
@@ -107,6 +113,7 @@ function run(api) {
       appCommands,
       envCommands,
       logCommand,
+      loginCommand
     ]
   });
 

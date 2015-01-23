@@ -62,15 +62,7 @@ function writeLoginConfig(oauthData) {
   return Bacon.fromNodeCallback(_.partial(fs.writeFile, conf.CONFIGURATION_FILE, JSON.stringify(oauthData)));
 }
  
-var login = module.exports = function(api) {
-  var yargs = login.yargs();
-  var argv = yargs.argv;
-
-  if(argv.help) {
-    yargs.showHelp();
-    return;
-  }
-
+var login = module.exports = function(api, params) {
   Logger.debug("Try to login to Clever-Cloud…")
   var result = getOpenCommand()
     .flatMapLatest(runCommand)
@@ -80,15 +72,4 @@ var login = module.exports = function(api) {
   
   result.onValue(Logger.println);
   result.onError(Logger.error);
-};
-
-login.usage = "Usage: $0 login";
-login.yargs = function() {
-  return require("yargs")
-    .usage(login.usage)
-    .options("help", {
-      alias: "h",
-      boolean: true,
-      description: "Show an help message"
-    });
 };
