@@ -10,6 +10,7 @@ var env = require("../src/env.js");
 var log = require("../src/log.js");
 var login = require("../src/login.js");
 var deploy = require("../src/deploy.js");
+var domain = require("../src/domain.js");
 
 function run(api) {
   // ARGUMENTS
@@ -18,6 +19,7 @@ function run(api) {
   var aliasArgument = cliparse.argument("app-alias", { helpT: "Application alias" });
   var envVariableName = cliparse.argument("variable-name", { helpT: "Name of the environment variable" });
   var envVariableValue = cliparse.argument("variable-value", { helpT: "Value of the environment variable" });
+  var fqdnArgument = cliparse.argument("fqdn", { helpT: "Domain name of the Clever-Cloud application" });
 
   // OPTIONS
   var orgaOption = cliparse.option("orga", { aliases: ["o"], helpT: "Organisation ID" });
@@ -115,6 +117,43 @@ function run(api) {
     ]
   }, _.partial(deploy, api));
 
+  // DOMAIN COMMANDS
+  var domainListCommand = cliparse.command("list", {
+    description: "List the domain names that are set for a Clever-Cloud application",
+    options: [
+      aliasOption
+    ]
+  }, _.partial(domain.list, api));
+
+  var domainCreateCommand = cliparse.command("create", {
+    description: "Add a domain name to a Clever-Cloud application",
+    args: [
+      fqdnArgument
+    ],
+    options: [
+      aliasOption
+    ]
+  }, _.partial(domain.create, api));
+
+  var domainRemoveCommand = cliparse.command("remove", {
+    description: "Remove a domain name from a Clever-Cloud application",
+    args: [
+      fqdnArgument
+    ],
+    options: [
+      aliasOption
+    ]
+  }, _.partial(domain.remove, api));
+
+  var domainCommands = cliparse.command("domain", {
+    description: "Manage Clever-Cloud application domain names",
+    commands: [
+      domainListCommand,
+      domainCreateCommand,
+      domainRemoveCommand
+    ]
+  });
+
   // CLI PARSER
   var cliParser = cliparse.cli({
     name: "clever",
@@ -124,7 +163,8 @@ function run(api) {
       envCommands,
       logCommand,
       loginCommand,
-      deployCommand
+      deployCommand,
+      domainCommands
     ]
   });
 
