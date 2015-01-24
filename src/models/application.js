@@ -53,3 +53,10 @@ Application.linkRepo = function(api, appId, orgaId) {
     return AppConfiguration.addLinkedApplication(appData, orgaId);
   });
 };
+
+Application.stop = function(api, appId, orgaId) {
+  Logger.debug("Stopping the app: " + appId);
+  var params = orgaId ? [orgaId, appId] : [appId];
+
+  return api.owner(orgaId).applications._.instances.delete().withParams(params).send();
+};
