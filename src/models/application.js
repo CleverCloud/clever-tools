@@ -44,6 +44,13 @@ Application.get = function(api, appId, orgaId) {
   return api.owner(orgaId).applications._.get().withParams(params).send();
 };
 
+Application.getInstances = function(api, appId, orgaId) {
+  Logger.debug("Get instances for the app: " + appId);
+  var params = orgaId ? [orgaId, appId] : [appId];
+
+  return api.owner(orgaId).applications._.instances.get().withParams(params).send();
+};
+
 Application.linkRepo = function(api, appId, orgaId) {
   Logger.debug("Linking current repository to the app: " + appId);
 
