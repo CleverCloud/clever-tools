@@ -109,13 +109,23 @@ function run(api) {
   }, _.partial(login, api));
 
   // DEPLOY COMMAND
+  var cancelDeployCommand = cliparse.command("cancel", {
+    description: "Cancel an ongoing deployment on Clever-Cloud",
+    options: [
+      aliasOption
+    ]
+  }, _.partial(deploy.cancel, api));
+
   var deployCommand = cliparse.command("deploy", {
     description: "Deploy an application to Clever-Cloud",
     options: [
       aliasOption,
       branchOption
+    ],
+    commands: [
+      cancelDeployCommand
     ]
-  }, _.partial(deploy, api));
+  }, _.partial(deploy.perform, api));
 
   // DOMAIN COMMANDS
   var domainListCommand = cliparse.command("list", {
