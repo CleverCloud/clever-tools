@@ -20,22 +20,26 @@ function fakeApi() {
     };
   };
 
+  var request;
+  request = function() {
+    return {
+      withParams: request,
+      send: function(body) {
+        try {
+          var json = JSON.parse(body);
+          return require("./application.app.js")(json);
+        }
+        catch(e) {
+          return Bacon.once(new Bacon.Error(e));
+        }
+      }
+    };
+  };
+
   api.owner = function() {
     return {
       applications: {
-        post: function() {
-          return {
-            send: function(body) {
-              try {
-                var json = JSON.parse(body);
-                return require("./application.app.js")(json);
-              }
-              catch(e) {
-                return Bacon.once(new Bacon.Error(e));
-              }
-            }
-          };
-        }
+        post: request
       }
     };
   };
