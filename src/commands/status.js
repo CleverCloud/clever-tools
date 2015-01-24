@@ -2,6 +2,7 @@ var path = require("path");
 
 var _ = require("lodash");
 var Bacon = require("baconjs");
+var colors = require("colors");
 
 var AppConfig = require("../models/app_configuration.js");
 var Application = require("../models/application.js");
@@ -29,7 +30,7 @@ var displayFlavors = function(instances) {
           }).join(', ');
 };
 
-var computeStatus = function(instances) {
+var computeStatus = function(instances, app) {
   var upInstances = _.filter(instances, function(instance) { return instance.state === 'UP'; });
   var isUp = !_.isEmpty(upInstances);
   var upCommit = _.head(_.pluck(upInstances, 'commit'));
@@ -38,7 +39,7 @@ var computeStatus = function(instances) {
   var deployingInstances = _.filter(instances, function(instance) { return instance.state === 'DEPLOYING'; });
   var deployingCommit = _.head(_.pluck(upInstances, 'commit'));
 
-  var statusLine = 'App status: ' + (isUp ? 'running ' +  displayGroupInfo(upInstances, upCommit) : 'stopped');
+  var statusLine = app.name + ': ' + (isUp ? 'running '.bold.green +  displayGroupInfo(upInstances, upCommit) : 'stopped'.bold.red);
   var deploymentLine = isDeploying ? 'Deployment in progress ' + displayGroupInfo(deployingInstances, deployingCommit) : '';
 
   return [statusLine, deploymentLine].join('\n');
@@ -54,16 +55,16 @@ var displayScalability = function(scalability) {
   }
 
   if(scalability.minInstances === scalability.maxInstances) {
-    horizontal = scalability.minInstances;
+    horizontal = scalability.minInstances + '';
   } else {
     horizontal = scalability.minInstances + ' to ' + scalability.maxInstances;
     enabled = true;
   }
 
   return 'Scalability:\n' +
-         '  Auto scalability: ' + (enabled ? 'enabled' : 'disabled') + '\n' +
-         '  Scalers: ' + horizontal + '\n' +
-         '  Sizes: ' + vertical;
+         '  Auto scalability: ' + (enabled ? 'enabled'.green : 'disabled'.red) + '\n' +
+         '  Scalers: ' + horizontal.bold + '\n' +
+         '  Sizes: ' + vertical.bold;
 };
 
 var status = module.exports = function(api, params) {
@@ -81,7 +82,7 @@ var status = module.exports = function(api, params) {
   s_appInstances
     .zip(s_app, function(instances, app) { return [instances, app]; })
     .onValue(function(data) {
-      console.log(computeStatus(data[0]));
+      console.log(computeStatus(data[0], data[1]));
       console.log(displayScalability(data[1].instance));
     });
   s_appInstances.onError(Logger.error);
