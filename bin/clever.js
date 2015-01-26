@@ -67,10 +67,6 @@ function run(api) {
   });
 
   // ENV COMMANDS
-  var envListCommand = cliparse.command("list", {
-    description: "List the environment variables that are set for a Clever-Cloud application"
-  }, _.partial(env.list, api));
-
   var envSetCommand = cliparse.command("set", {
     description: "Add or update an environment variable named <variable-name> with the value <variable-value>",
     args: [
@@ -92,11 +88,10 @@ function run(api) {
       aliasOption
     ],
     commands: [
-      envListCommand,
       envSetCommand,
       envRemoveCommand
     ]
-  });
+  }, _.partial(env.list, api));
 
   // LOG COMMAND
   var logCommand = cliparse.command("log", {
@@ -129,10 +124,6 @@ function run(api) {
   }, _.partial(deploy, api));
 
   // DOMAIN COMMANDS
-  var domainListCommand = cliparse.command("list", {
-    description: "List the domain names that are set for a Clever-Cloud application"
-  }, _.partial(domain.list, api));
-
   var domainCreateCommand = cliparse.command("create", {
     description: "Add a domain name to a Clever-Cloud application",
     args: [
@@ -153,11 +144,10 @@ function run(api) {
       aliasOption
     ],
     commands: [
-      domainListCommand,
       domainCreateCommand,
       domainRemoveCommand
     ]
-  });
+  }, _.partial(domain.list, api));
 
   // STOP COMMAND
   var stopCommand = cliparse.command("stop", {
