@@ -11,6 +11,7 @@ var log = require("../src/log.js");
 var login = require("../src/login.js");
 var deploy = require("../src/deploy.js");
 var domain = require("../src/domain.js");
+var stop = require("../src/stop.js");
 
 function run(api) {
   // ARGUMENTS
@@ -160,6 +161,14 @@ function run(api) {
     ]
   });
 
+  // STOP COMMAND
+  var stopCommand = cliparse.command("stop", {
+    description: "Stop a running application on Clever-Cloud",
+    options: [
+      aliasOption
+    ]
+  }, _.partial(stop, api));
+
   // CLI PARSER
   var cliParser = cliparse.cli({
     name: "clever",
@@ -170,7 +179,8 @@ function run(api) {
       logCommand,
       loginCommand,
       deployCommand,
-      domainCommands
+      domainCommands,
+      stopCommand
     ]
   });
 

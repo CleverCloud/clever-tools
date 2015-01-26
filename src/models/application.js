@@ -59,3 +59,10 @@ Application.unlinkRepo = function(api, alias) {
 
   return AppConfiguration.removeLinkedApplication(alias);
 };
+
+Application.stop = function(api, appId, orgaId) {
+  Logger.debug("Stopping the app: " + appId);
+  var params = orgaId ? [orgaId, appId] : [appId];
+
+  return api.owner(orgaId).applications._.instances.delete().withParams(params).send();
+};
