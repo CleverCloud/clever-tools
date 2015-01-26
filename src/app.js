@@ -20,7 +20,7 @@ var create = app.create = function(api, params) {
 
   var s_app = s_type
     .flatMapLatest(function(type) {
-      return Application.create(api, name, type, region, orga)
+      return Application.create(api, name, type, region, orga);
     })
     .flatMapLatest(function(app) {
       return Application.linkRepo(api, app.id, orga);
@@ -42,6 +42,18 @@ var link = app.link = function(api, params) {
 
   s_app.onValue(function(app) {
     console.log("Your application has been successfully linked!");
+  });
+
+  s_app.onError(Logger.error);
+};
+
+var unlink = app.unlink = function(api, params) {
+  var alias = params.args[0];
+
+  var s_app = Application.unlinkRepo(api, alias);
+
+  s_app.onValue(function(app) {
+    console.log("Your application has been successfully unlinked!");
   });
 
   s_app.onError(Logger.error);
