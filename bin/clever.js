@@ -26,7 +26,7 @@ function run(api) {
 
   // OPTIONS
   var orgaOption = cliparse.option("orga", { aliases: ["o"], helpT: "Organisation ID" });
-  var aliasOption = cliparse.option("alias", { helpT: "Short name for the application" });
+  var aliasOption = cliparse.option("alias", { aliases: ["a"], helpT: "Short name for the application" });
   var instanceTypeOption = cliparse.option("type", { aliases: ["t"], required: true, helpT: "Instance type" });
   var regionOption = cliparse.option("region", { aliases: ["r"], defaultValue: "par", helpT: "Region, can be 'par' for Paris or 'mtl' for Montreal" });
   var branchOption = cliparse.option("branch", { aliases: ["b"], defaultValue: "master", helpT: "Branch to push (master by default)" });
