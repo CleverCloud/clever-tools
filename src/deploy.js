@@ -5,7 +5,6 @@ var Bacon = require("baconjs");
 
 var AppConfig = require("./models/app_configuration.js");
 var Application = require("./models/application.js");
-var Deployment = require("./models/deployment.js");
 var Git = require("./models/git.js")(path.resolve("."));
 var Log = require("./models/log.js");
 
@@ -13,9 +12,7 @@ var Logger = require("./logger.js");
 
 var timeout = 5 * 60 * 1000;
 
-var deploy = module.exports;
-
-var perform = deploy.perform = function(api, params) {
+var deploy = module.exports = function(api, params) {
   var alias = params.options.alias;
   var branch = params.options.branch;
 
@@ -56,29 +53,4 @@ var perform = deploy.perform = function(api, params) {
     Logger.println(log._source["@timestamp"] + ": ", log._source["@message"]);
   });
   s_logs.onError(Logger.error);
-};
-
-var cancel = deploy.cancel = function(api, params) {
-  var alias = params.options.alias;
-
-  var s_appData = AppConfig.getAppData(alias);
-
-  var s_deployment = s_appData.flatMapLatest(function(appData) {
-    return Bacon.once(appData)
-            .zip(
-              Deployment.last(api, appData.app_id, appData.org_id),
-              function(data, deployment) {
-                return [data, _.head(deployment) || {}];
-              }
-           );
-  });
-
-  var s_cancel = s_deployment.flatMapLatest(function(data) {
-    return Deployment.cancel(api, data[1], data[0].app_id, data[0].org_id);
-  });
-
-  s_cancel.onValue(function(___) {
-    console.log("Deployment cancelled!");
-  });
-  s_cancel.onError(Logger.error);
 };
