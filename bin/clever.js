@@ -68,10 +68,7 @@ function run(api) {
 
   // ENV COMMANDS
   var envListCommand = cliparse.command("list", {
-    description: "List the environment variables that are set for a Clever-Cloud application",
-    options: [
-      aliasOption
-    ]
+    description: "List the environment variables that are set for a Clever-Cloud application"
   }, _.partial(env.list, api));
 
   var envSetCommand = cliparse.command("set", {
@@ -79,9 +76,6 @@ function run(api) {
     args: [
       envVariableName,
       envVariableValue
-    ],
-    options: [
-      aliasOption
     ]
   }, _.partial(env.set, api));
 
@@ -89,14 +83,14 @@ function run(api) {
     description: "Remove an environment variable from a Clever-Cloud application",
     args: [
       envVariableName
-    ],
-    options: [
-      aliasOption
     ]
   }, _.partial(env.remove, api));
 
   var envCommands = cliparse.command("env", {
     description: "Manage Clever-Cloud application environment",
+    options: [
+      aliasOption
+    ],
     commands: [
       envListCommand,
       envSetCommand,
@@ -136,19 +130,13 @@ function run(api) {
 
   // DOMAIN COMMANDS
   var domainListCommand = cliparse.command("list", {
-    description: "List the domain names that are set for a Clever-Cloud application",
-    options: [
-      aliasOption
-    ]
+    description: "List the domain names that are set for a Clever-Cloud application"
   }, _.partial(domain.list, api));
 
   var domainCreateCommand = cliparse.command("create", {
     description: "Add a domain name to a Clever-Cloud application",
     args: [
       fqdnArgument
-    ],
-    options: [
-      aliasOption
     ]
   }, _.partial(domain.create, api));
 
@@ -156,14 +144,14 @@ function run(api) {
     description: "Remove a domain name from a Clever-Cloud application",
     args: [
       fqdnArgument
-    ],
-    options: [
-      aliasOption
     ]
   }, _.partial(domain.remove, api));
 
   var domainCommands = cliparse.command("domain", {
     description: "Manage Clever-Cloud application domain names",
+    options: [
+      aliasOption
+    ],
     commands: [
       domainListCommand,
       domainCreateCommand,

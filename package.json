@@ -15,7 +15,7 @@
   "dependencies": {
     "baconjs": "^0.7.41",
     "clever-client": "^0.2.0-beta.2",
-    "cliparse": "^0.1.1",
+    "cliparse": "^0.1.3",
     "lodash": "^2.4.1",
     "nodegit": "^0.2.4",
     "shelljs": "^0.3.0",
