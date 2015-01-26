@@ -12,6 +12,7 @@ var login = require("../src/login.js");
 var deploy = require("../src/deploy.js");
 var domain = require("../src/domain.js");
 var stop = require("../src/stop.js");
+var status = require("../src/status.js");
 
 function run(api) {
   // ARGUMENTS
@@ -169,6 +170,14 @@ function run(api) {
     ]
   }, _.partial(stop, api));
 
+  // STATUS COMMAND
+  var statusCommand = cliparse.command("status", {
+    description: "See the status of an application on Clever-Cloud",
+    options: [
+      aliasOption
+    ]
+  }, _.partial(status, api));
+
   // CLI PARSER
   var cliParser = cliparse.cli({
     name: "clever",
@@ -180,7 +189,8 @@ function run(api) {
       loginCommand,
       deployCommand,
       domainCommands,
-      stopCommand
+      stopCommand,
+      statusCommand
     ]
   });
 
