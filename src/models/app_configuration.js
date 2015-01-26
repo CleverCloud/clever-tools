@@ -27,19 +27,6 @@ AppConfiguration.loadApplicationConf = function() {
   });
 };
 
-AppConfiguration.ensureAppConfigDir = function() {
-  var s_configDir = Bacon.fromNodeCallback(_.partial(fs.readFile, Config.APP_CONFIGURATION_DIR));
-  var s_ensuredConfigDir = s_configDir.flatMapError(function(error) {
-    if(error.code === 'ENOENT') {
-      return Bacon.fromNodeCallback(_.partial(fs.mkdir, Config.APP_CONFIGURATION_DIR));
-    } else {
-      return Bacon.once(error);
-    }
-  });
-
-  return s_ensuredConfigDir;
-};
-
 AppConfiguration.addLinkedApplication = function(appData, orgaId, alias) {
   var currentConfig = AppConfiguration.loadApplicationConf();
   var appEntry = {
@@ -99,10 +86,7 @@ AppConfiguration.getAppData = function(alias) {
 };
 
 AppConfiguration.persistConfig = function(modifiedConfig) {
-  var savedFile = AppConfiguration.ensureAppConfigDir()
-    .flatMapLatest(function(___) {
-      return Bacon.fromNodeCallback(_.partial(fs.writeFile, Config.APP_CONFIGURATION_FILE, JSON.stringify(modifiedConfig)));
-    });
+  var savedFile = Bacon.fromNodeCallback(_.partial(fs.writeFile, Config.APP_CONFIGURATION_FILE, JSON.stringify(modifiedConfig)));
 
   return savedFile;
 };
