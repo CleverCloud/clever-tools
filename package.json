@@ -27,5 +27,8 @@
     "grunt": "^0.4.5",
     "grunt-cli": "^0.1.13",
     "grunt-jasmine-node": "^0.2.1"
+  },
+  "scripts": {
+    "test": "./node_modules/.bin/grunt test"
   }
 }
