@@ -3,8 +3,8 @@ var path = require("path");
 var _ = require("lodash");
 var Bacon = require("baconjs");
 
-var AppConfig = require("./models/app_configuration.js");
-var Deployment = require("./models/deployment.js");
+var AppConfig = require("../models/app_configuration.js");
+var Deployment = require("../models/deployment.js");
 
 var Logger = require("./logger.js");
 

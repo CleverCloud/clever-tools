@@ -5,9 +5,9 @@ var nodegit = require("nodegit");
 
 var Logger = require("./logger.js");
 
-var AppConfig = require("./models/app_configuration.js");
-var Domain = require("./models/domain.js");
-var Git = require("./models/git.js")(path.resolve("."));
+var AppConfig = require("../models/app_configuration.js");
+var Domain = require("../models/domain.js");
+var Git = require("../models/git.js")(path.resolve("."));
 
 var domain = module.exports;
 
@@ -27,7 +27,7 @@ var list = domain.list = function(api, params) {
   s_domain.onError(Logger.error);
 };
 
-var create = domain.create = function(api, params) {
+var add = domain.add = function(api, params) {
   var fqdn = params.args[0];
   var alias = params.options.alias;
 
@@ -44,7 +44,7 @@ var create = domain.create = function(api, params) {
   s_domain.onError(Logger.error);
 };
 
-var remove = domain.remove = function(api, params) {
+var rm = domain.rm = function(api, params) {
   var fqdn = params.args[0];
   var alias = params.options.alias;
 

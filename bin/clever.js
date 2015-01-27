@@ -5,15 +5,17 @@ var cliparse = require("cliparse");
 
 var Logger = require("../src/logger.js");
 
-var app = require("../src/app.js");
-var env = require("../src/env.js");
-var log = require("../src/log.js");
-var login = require("../src/login.js");
-var deploy = require("../src/deploy.js");
-var cancelDeploy = require("../src/cancel-deploy.js");
-var domain = require("../src/domain.js");
-var stop = require("../src/stop.js");
-var status = require("../src/status.js");
+var create = require("../src/commands/create.js");
+var link = require("../src/commands/link.js");
+var unlink = require("../src/commands/unlink.js");
+var env = require("../src/commands/env.js");
+var log = require("../src/commands/log.js");
+var login = require("../src/commands/login.js");
+var deploy = require("../src/commands/deploy.js");
+var cancelDeploy = require("../src/commands/cancel-deploy.js");
+var domain = require("../src/commands/domain.js");
+var stop = require("../src/commands/stop.js");
+var status = require("../src/commands/status.js");
 
 function run(api) {
   // ARGUMENTS
@@ -31,7 +33,7 @@ function run(api) {
   var regionOption = cliparse.option("region", { aliases: ["r"], defaultValue: "par", helpT: "Region, can be 'par' for Paris or 'mtl' for Montreal" });
   var branchOption = cliparse.option("branch", { aliases: ["b"], defaultValue: "master", helpT: "Branch to push (master by default)" });
 
-  // APPLICATION COMMANDS
+  // CREATE COMMAND
   var appCreateCommand = cliparse.command("create", {
     description: "Create a Clever-Cloud application",
     args: [appNameArgument],
@@ -41,8 +43,9 @@ function run(api) {
       instanceTypeOption,
       regionOption
     ]
-  }, _.partial(app.create, api));
+  }, _.partial(create, api));
 
+  // LINK COMMAND
   var appLinkCommand = cliparse.command("link", {
     description: "Link this repo to an existing Clever-Cloud application",
     args: [appIdArgument],
@@ -50,21 +53,13 @@ function run(api) {
       orgaOption,
       aliasOption
     ]
-  }, _.partial(app.link, api));
+  }, _.partial(link, api));
 
+  // UNLINK COMMAND
   var appUnlinkCommand = cliparse.command("unlink", {
     description: "Unlink this repo from an existing Clever-Cloud application",
     args: [aliasArgument]
-  }, _.partial(app.unlink, api));
-
-  var appCommands = cliparse.command("app", {
-    description: "Manage Clever-Cloud applications",
-    commands: [
-      appCreateCommand,
-      appLinkCommand,
-      appUnlinkCommand
-    ]
-  });
+  }, _.partial(unlink, api));
 
   // ENV COMMANDS
   var envSetCommand = cliparse.command("set", {
@@ -75,12 +70,12 @@ function run(api) {
     ]
   }, _.partial(env.set, api));
 
-  var envRemoveCommand = cliparse.command("remove", {
+  var envRemoveCommand = cliparse.command("rm", {
     description: "Remove an environment variable from a Clever-Cloud application",
     args: [
       envVariableName
     ]
-  }, _.partial(env.remove, api));
+  }, _.partial(env.rm, api));
 
   var envCommands = cliparse.command("env", {
     description: "Manage Clever-Cloud application environment",
@@ -124,19 +119,19 @@ function run(api) {
   }, _.partial(deploy, api));
 
   // DOMAIN COMMANDS
-  var domainCreateCommand = cliparse.command("create", {
+  var domainCreateCommand = cliparse.command("add", {
     description: "Add a domain name to a Clever-Cloud application",
     args: [
       fqdnArgument
     ]
-  }, _.partial(domain.create, api));
+  }, _.partial(domain.add, api));
 
-  var domainRemoveCommand = cliparse.command("remove", {
+  var domainRemoveCommand = cliparse.command("rm", {
     description: "Remove a domain name from a Clever-Cloud application",
     args: [
       fqdnArgument
     ]
-  }, _.partial(domain.remove, api));
+  }, _.partial(domain.rm, api));
 
   var domainCommands = cliparse.command("domain", {
     description: "Manage Clever-Cloud application domain names",
@@ -170,7 +165,9 @@ function run(api) {
     name: "clever",
     description: "CLI tool to manage Clever-Cloud data and products",
     commands: [
-      appCommands,
+      appCreateCommand,
+      appLinkCommand,
+      appUnlinkCommand,
       envCommands,
       logCommand,
       loginCommand,

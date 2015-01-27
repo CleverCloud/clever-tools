@@ -6,7 +6,7 @@ var _ = require("lodash");
 var Bacon = require("baconjs");
 
 var Logger = require("./logger.js");
-var conf = require("./models/configuration.js");
+var conf = require("../models/configuration.js");
 
 function getOpenCommand() {
   Logger.debug("Get the right command to open a tab in a browser…")

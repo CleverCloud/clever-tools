@@ -5,9 +5,9 @@ var nodegit = require("nodegit");
 
 var Logger = require("./logger.js");
 
-var AppConfig = require("./models/app_configuration.js");
-var Env = require("./models/env.js");
-var Git = require("./models/git.js")(path.resolve("."));
+var AppConfig = require("../models/app_configuration.js");
+var Env = require("../models/env.js");
+var Git = require("../models/git.js")(path.resolve("."));
 
 var env = module.exports;
 
@@ -47,7 +47,7 @@ var set = env.set = function(api, params) {
   s_env.onError(Logger.error);
 };
 
-var remove = env.remove = function(api, params) {
+var rm = env.rm = function(api, params) {
   var name = params.args[0];
   var alias = params.options.alias;
 
