@@ -7,7 +7,7 @@ var AppConfig = require("../models/app_configuration.js");
 var Application = require("../models/application.js");
 var Log = require("../models/log.js");
 
-var Logger = require("./logger.js");
+var Logger = require("../logger.js");
 
 var appLogs = module.exports = function(api, params) {
   var alias = params.options.alias;

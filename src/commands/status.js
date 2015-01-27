@@ -8,7 +8,7 @@ var Application = require("../models/application.js");
 var Git = require("../models/git.js")(path.resolve("."));
 var Log = require("../models/log.js");
 
-var Logger = require("./logger.js");
+var Logger = require("../logger.js");
 
 var displayGroupInfo = function(instances, commit) {
   return '(' + displayFlavors(instances) + ', ' +

@@ -5,7 +5,7 @@ var path = require("path");
 var _ = require("lodash");
 var Bacon = require("baconjs");
 
-var Logger = require("./logger.js");
+var Logger = require("../logger.js");
 var conf = require("../models/configuration.js");
 
 function getOpenCommand() {

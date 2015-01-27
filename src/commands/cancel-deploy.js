@@ -6,7 +6,7 @@ var Bacon = require("baconjs");
 var AppConfig = require("../models/app_configuration.js");
 var Deployment = require("../models/deployment.js");
 
-var Logger = require("./logger.js");
+var Logger = require("../logger.js");
 
 var cancelDeployment = module.exports = function(api, params) {
   var alias = params.options.alias;
