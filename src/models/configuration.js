@@ -15,8 +15,8 @@ var conf = module.exports = {
   CONFIGURATION_FILE: path.resolve(process.env.HOME, ".cleverrc"),
   CONSOLE_TOKEN_URL: "https://console.clever-cloud.com/users/me/tokens?tokens-for=cli",
 
-  APP_CONFIGURATION_DIR: path.resolve(".", "clevercloud"),
-  APP_CONFIGURATION_FILE: path.resolve(".", "clevercloud/cli.json")
+  CLEVER_CONFIGURATION_DIR: path.resolve(".", "clevercloud"),
+  APP_CONFIGURATION_FILE: path.resolve(".", ".clever.json")
 };
 
 conf.loadOAuthConf = function() {
