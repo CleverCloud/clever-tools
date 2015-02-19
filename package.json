@@ -29,6 +29,6 @@
     "grunt-jasmine-node": "^0.2.1"
   },
   "scripts": {
-    "test": "./node_modules/.bin/grunt test"
+    "test": "grunt test"
   }
 }
