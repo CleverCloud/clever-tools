@@ -5,8 +5,9 @@ var _ = require("lodash");
 var Bacon = require("baconjs");
 
 var Logger = require("../logger.js");
+var env = require("common-env")(Logger);
 
-var conf = module.exports = {
+var conf = module.exports = env.getOrElseAll({
   API_HOST: "https://api.clever-cloud.com/v2",
   LOG_URL: "wss://logs-api.clever-cloud.com/logs-socket/<%- appId %>?since=<%- timestamp %>",
   OAUTH_CONSUMER_KEY: "DVXgEDKLATkZkSRqN7iQ0KwWSvtNaD",
@@ -17,7 +18,7 @@ var conf = module.exports = {
 
   CLEVER_CONFIGURATION_DIR: path.resolve(".", "clevercloud"),
   APP_CONFIGURATION_FILE: path.resolve(".", ".clever.json")
-};
+});
 
 conf.loadOAuthConf = function() {
   Logger.debug("Load configuration from " + conf.CONFIGURATION_FILE);
