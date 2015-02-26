@@ -23,7 +23,8 @@ module.exports = function() {
   var s_api = s_authorization.map(function(authorization) {
     var api = require("clever-client")({
       API_HOST: conf.API_HOST,
-      API_AUTHORIZATION: authorization
+      API_AUTHORIZATION: authorization,
+      logger: console
     });
 
     // Waiting for clever-client to be fully node compliant
