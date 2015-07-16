@@ -1,5 +1,6 @@
 var fs = require("fs");
 var path = require("path");
+var xdg = require("xdg");
 
 var _ = require("lodash");
 var Bacon = require("baconjs");
@@ -13,7 +14,7 @@ var conf = module.exports = env.getOrElseAll({
   OAUTH_CONSUMER_KEY: "DVXgEDKLATkZkSRqN7iQ0KwWSvtNaD",
   OAUTH_CONSUMER_SECRET: "GPKbDuphYWFr3faS5dg64eCjsrpxGY",
 
-  CONFIGURATION_FILE: path.resolve(process.env.HOME, ".cleverrc"),
+  CONFIGURATION_FILE: xdg.basedir.configPath("clever-cloud"),
   CONSOLE_TOKEN_URL: "https://console.clever-cloud.com/users/me/tokens?tokens-for=cli",
 
   CLEVER_CONFIGURATION_DIR: path.resolve(".", "clevercloud"),

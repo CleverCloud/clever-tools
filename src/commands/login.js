@@ -59,6 +59,7 @@ function getOAuthData() {
 
 function writeLoginConfig(oauthData) {
   Logger.debug("Write the tokens in the configuration file…")
+  // ToDo ensure the directory exists
   return Bacon.fromNodeCallback(_.partial(fs.writeFile, conf.CONFIGURATION_FILE, JSON.stringify(oauthData)));
 }
  
