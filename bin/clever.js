@@ -20,7 +20,7 @@ var status = require("../src/commands/status.js");
 function run(api) {
   // ARGUMENTS
   var appNameArgument = cliparse.argument("app-name", { helpT: "Application name" });
-  var appIdArgument = cliparse.argument("app-id", { helpT: "Application ID" });
+  var appIdArgument = cliparse.argument("app-id", { helpT: "Application ID (or name, if unambiguous)" });
   var aliasArgument = cliparse.argument("app-alias", { helpT: "Application alias" });
   var envVariableName = cliparse.argument("variable-name", { helpT: "Name of the environment variable" });
   var envVariableValue = cliparse.argument("variable-value", { helpT: "Value of the environment variable" });

@@ -4,6 +4,7 @@ var Bacon = require("baconjs");
 var Logger = require("../logger.js");
 
 var AppConfiguration = require("./app_configuration.js");
+var Organisation = require("./organisation.js");
 
 var Application = module.exports;
 
@@ -37,11 +38,53 @@ Application.create = function(api, name, instanceType, region, orgaId) {
   }));
 };
 
-Application.get = function(api, appId, orgaId) {
-  Logger.debug("Get information for the app: " + appId);
-  var params = orgaId ? [orgaId, appId] : [appId];
+var getApplicationByName = function(s_apps, name) {
+  var s_app = s_apps.flatMapLatest(function(apps) {
+    var filtered_apps = _.filter(apps, function(app) {
+      return app.name === name;
+    });
+    if(filtered_apps.length === 1) {
+      return Bacon.once(filtered_apps[0]);
+    } else if(filtered_apps.length === 0) {
+      return Bacon.once(new Bacon.Error("Ambiguous application name"));
+    } else {
+      return Bacon.once(new Bacon.Error("Application not found"));
+    }
+  });
 
-  return api.owner(orgaId).applications._.get().withParams(params).send();
+  return s_app;
+};
+
+Application.getByName = function(api, name) {
+  var components = name.split("/");
+  if(components.length == 1) {
+    var s_apps = api.owner().applications.get().send()
+    return getApplicationByName(s_apps, components[0]);
+  } else if(components.length == 2) {
+    var s_org = Organisation.getByName(api, components[0]);
+    var s_apps = s_org.flatMapLatest(function(org) {
+      return api.owner(org.id).applications.get().withParams([org.id]).send();
+    });
+    return getApplicationByName(s_apps, components[1]);
+  } else {
+   return Bacon.once(new Bacon.Error("Invalid application name"));
+  }
+};
+
+var appIdPattern = /^app_[a-f0-9]{8}-(?:[a-f0-9]{4}-){3}[a-f0-9]{12}$/;
+var isAppId = function(str) {
+  return appIdPattern.exec(str) !== null;
+};
+
+Application.get = function(api, appId, orgaId) {
+  if(isAppId(appId)) {
+    Logger.debug("Get information for the app: " + appId);
+    var params = orgaId ? [orgaId, appId] : [appId];
+
+    return api.owner(orgaId).applications._.get().withParams(params).send();
+  } else {
+    return Bacon.once(new Bacon.Error("Invalid application id"));
+  }
 };
 
 Application.getInstances = function(api, appId, orgaId) {
