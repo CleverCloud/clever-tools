@@ -1,6 +1,7 @@
 var fs = require("fs");
 var exec = require("child_process").exec;
 var path = require("path");
+var mkdirp = require("mkdirp");
 
 var _ = require("lodash");
 var Bacon = require("baconjs");
@@ -57,10 +58,19 @@ function getOAuthData() {
   });
 }
 
+function ensureConfigDir() {
+  return Bacon.fromNodeCallback(
+    mkdirp,
+    path.dirname(conf.CONFIGURATION_FILE,
+    { mode: parseInt('0700', 8) }));
+}
+
 function writeLoginConfig(oauthData) {
   Logger.debug("Write the tokens in the configuration file…")
-  // ToDo ensure the directory exists
-  return Bacon.fromNodeCallback(_.partial(fs.writeFile, conf.CONFIGURATION_FILE, JSON.stringify(oauthData)));
+  return ensureConfigDir()
+    .flatMapLatest(
+      Bacon.fromNodeCallback(
+        _.partial(fs.writeFile, conf.CONFIGURATION_FILE, JSON.stringify(oauthData))));
 }
  
 var login = module.exports = function(api, params) {
