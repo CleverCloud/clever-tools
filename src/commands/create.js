@@ -21,7 +21,7 @@ var create = module.exports = function(api, params) {
       return Application.create(api, name, type, region, orga);
     })
     .flatMapLatest(function(app) {
-      return Application.linkRepo(api, app.id, orga);
+      return Application.linkRepo(api, app.id);
     });
 
   s_app.onValue(function(app) {

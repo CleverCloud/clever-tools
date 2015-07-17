@@ -27,7 +27,7 @@ AppConfiguration.loadApplicationConf = function() {
   });
 };
 
-AppConfiguration.addLinkedApplication = function(appData, orgaId, alias) {
+AppConfiguration.addLinkedApplication = function(appData, alias) {
   var currentConfig = AppConfiguration.loadApplicationConf();
   var appEntry = {
     app_id: appData.id,
@@ -36,7 +36,7 @@ AppConfiguration.addLinkedApplication = function(appData, orgaId, alias) {
     alias: alias || unidecode(appData.name).replace(/[^a-zA-z0-9]/gi, "-").toLowerCase()
   };
 
-  if(orgaId) appEntry.org_id = orgaId;
+  if(appData.ownerId.substr(0,5) === "orga_") appEntry.org_id = appData.ownerId;
 
   var s_newConfig = currentConfig.flatMapLatest(function(config) {
     var isPresent = !_.find(config.apps, function(app) {

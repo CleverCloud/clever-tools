@@ -51,13 +51,14 @@ Application.getInstances = function(api, appId, orgaId) {
   return api.owner(orgaId).applications._.instances.get().withParams(params).send();
 };
 
-Application.linkRepo = function(api, appId, orgaId, alias) {
+Application.linkRepo = function(api, appId, alias) {
   Logger.debug("Linking current repository to the app: " + appId);
 
-  var s_app = Application.get(api, appId, orgaId);
+  var s_app = Application.get(api, appId)
+    .flatMapError(function() {return Application.getByName(api, appId)});
 
   return s_app.flatMapLatest(function(appData) {
-    return AppConfiguration.addLinkedApplication(appData, orgaId, alias);
+    return AppConfiguration.addLinkedApplication(appData, alias);
   });
 };
 

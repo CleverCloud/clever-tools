@@ -50,7 +50,6 @@ function run(api) {
     description: "Link this repo to an existing Clever-Cloud application",
     args: [appIdArgument],
     options: [
-      orgaOption,
       aliasOption
     ]
   }, _.partial(link, api));

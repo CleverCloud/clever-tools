@@ -10,10 +10,9 @@ var Git = require("../models/git.js")(path.resolve("."));
 
 var link = module.exports = function(api, params) {
   var appId = params.args[0];
-  var orga = params.options.orga;
   var alias = params.options.alias;
 
-  var s_app = Application.linkRepo(api, appId, orga, alias);
+  var s_app = Application.linkRepo(api, appId, alias);
 
   s_app.onValue(function(app) {
     console.log("Your application has been successfully linked!");
