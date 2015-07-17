@@ -1,5 +1,9 @@
 #! /usr/bin/env node
 
+if(process.argv.indexOf("-v") >= 0 || process.argv.indexOf("--verbose") >= 0) {
+  process.env["CLEVER_VERBOSE"] = "1";
+}
+
 var _ = require("lodash");
 var cliparse = require("cliparse");
 
@@ -32,6 +36,7 @@ function run(api) {
   var instanceTypeOption = cliparse.option("type", { aliases: ["t"], required: true, helpT: "Instance type" });
   var regionOption = cliparse.option("region", { aliases: ["r"], defaultValue: "par", helpT: "Region, can be 'par' for Paris or 'mtl' for Montreal" });
   var branchOption = cliparse.option("branch", { aliases: ["b"], defaultValue: "master", helpT: "Branch to push (master by default)" });
+  var verboseOption = cliparse.flag("verbose", { aliases: ["v"], helpT: "Verbose output" });
 
   // CREATE COMMAND
   var appCreateCommand = cliparse.command("create", {
