@@ -16,6 +16,8 @@ function getOpenCommand() {
       return Bacon.constant("open " + conf.CONSOLE_TOKEN_URL);
     case "linux":
       return Bacon.constant("xdg-open " + conf.CONSOLE_TOKEN_URL);
+    case "win32":
+      return Bacon.constant("start " + conf.CONSOLE_TOKEN_URL);
     default:
       return new Bacon.Error("Unsupported platform: " + process.platform);
   }
