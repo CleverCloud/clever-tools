@@ -21,6 +21,8 @@ var domain = require("../src/commands/domain.js");
 var stop = require("../src/commands/stop.js");
 var status = require("../src/commands/status.js");
 
+var Application = require("../src/models/application.js");
+
 function run(api) {
   // ARGUMENTS
   var appNameArgument = cliparse.argument("app-name", { description: "Application name" });
@@ -33,8 +35,8 @@ function run(api) {
   // OPTIONS
   var orgaOption = cliparse.option("orga", { aliases: ["o"], description: "Organisation ID" });
   var aliasOption = cliparse.option("alias", { aliases: ["a"], description: "Short name for the application" });
-  var instanceTypeOption = cliparse.option("type", { aliases: ["t"], required: true, description: "Instance type" });
-  var regionOption = cliparse.option("region", { aliases: ["r"], default: "par", description: "Region, can be 'par' for Paris or 'mtl' for Montreal" });
+  var instanceTypeOption = cliparse.option("type", { aliases: ["t"], required: true, metavar: "type", description: "Instance type", complete: Application.listAvailableTypes });
+  var regionOption = cliparse.option("region", { aliases: ["r"], default: "par", metavar: "ZONE", description: "Region, can be 'par' for Paris or 'mtl' for Montreal", complete: Application.listAvailableZones });
   var branchOption = cliparse.option("branch", { aliases: ["b"], default: "master", description: "Branch to push (master by default)" });
   var verboseOption = cliparse.flag("verbose", { aliases: ["v"], description: "Verbose output" });
 

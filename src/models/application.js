@@ -1,11 +1,36 @@
 var _ = require("lodash");
 var Bacon = require("baconjs");
+var autocomplete = require("cliparse").autocomplete;
 
 var Logger = require("../logger.js");
 
 var AppConfiguration = require("./app_configuration.js");
 
 var Application = module.exports;
+
+Application.listAvailableTypes = function() {
+  return autocomplete.words([
+    "apache+php54",
+    "apache+php55",
+    "docker",
+    "go",
+    "java+maven",
+    "java+play1",
+    "java+war",
+    "node",
+    "python27",
+    "ruby",
+    "sbt",
+    "static"
+  ]);
+};
+
+Application.listAvailableZones = function() {
+  return autocomplete.words([
+    "par",
+    "mtl"
+  ]);
+};
 
 Application.getInstanceType = function(api, type) {
   var s_types = api.products.instances.get().send();
