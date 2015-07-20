@@ -33,7 +33,7 @@ AppConfiguration.addLinkedApplication = function(appData, orgaId, alias) {
     app_id: appData.id,
     deploy_url: appData.deployUrl,
     name: appData.name,
-    alias: alias || unidecode(appData.name).replace(/[^a-zA-z0-9]/gi, "-").toLowerCase()
+    alias: alias || unidecode(appData.name).replace(/[^a-zA-z0-9]+/gi, "-").toLowerCase()
   };
 
   if(orgaId) appEntry.org_id = orgaId;
