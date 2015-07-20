@@ -7,8 +7,14 @@ var Logger = require("../logger.js");
 
 var Activity = module.exports;
 
-Activity.list = function(api, appId, orgaId) {
-  var params = orgaId ? [orgaId, appId] : [appId];
+Activity.list = function(api, appId, orgaId, showAll) {
+  var params = [];
+  if(orgaId) params.push(orgaId)
+  params.push(appId);
+  var query = showAll ? {} : { limit: 10 };
 
-  return api.owner(orgaId).applications._.deployments.get().withParams(params).send();
+  return api.owner(orgaId).applications._.deployments.get()
+    .withParams(params)
+    .withQuery(query)
+    .send();
 };
