@@ -58,6 +58,7 @@ function run(api) {
       complete: Application.listAvailableZones });
   var branchOption = cliparse.option("branch", { aliases: ["b"], default: "", description: "Branch to push (current branch by default)" });
   var verboseOption = cliparse.flag("verbose", { aliases: ["v"], description: "Verbose output" });
+  var showAllOption = cliparse.flag("show-all", { description: "Show all activity" });
 
   // CREATE COMMAND
   var appCreateCommand = cliparse.command("create", {
@@ -190,7 +191,8 @@ function run(api) {
   var activityCommand = cliparse.command("activity", {
     description: "Show last deployments of a Clever-Cloud application",
     options: [
-      aliasOption
+      aliasOption,
+      showAllOption
     ]
   }, _.partial(activity, api));
 
