@@ -1,6 +1,7 @@
 var _ = require("lodash");
 var Bacon = require("baconjs");
 var autocomplete = require("cliparse").autocomplete;
+var Promise = require("bluebird");
 
 var Logger = require("../logger.js");
 
@@ -30,6 +31,14 @@ Application.listAvailableZones = function() {
     "par",
     "mtl"
   ]);
+};
+
+Application.listAvailableAliases = function() {
+  var s_aliases = AppConfiguration.loadApplicationConf().map(function(conf) {
+    return _.pluck(conf.apps, "alias");
+  });
+
+  return s_aliases.toPromise(Promise).then(autocomplete.words);
 };
 
 Application.getInstanceType = function(api, type) {

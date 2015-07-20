@@ -13,7 +13,8 @@
     "clever": "./bin/clever.js"
   },
   "dependencies": {
-    "baconjs": "^0.7.41",
+    "baconjs": "^0.7.70",
+    "bluebird": "^2.9.34",
     "clever-client": "^0.2.0-beta.6",
     "cliparse": "^0.2.3",
     "common-env": "^1.1.0",

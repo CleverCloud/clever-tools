@@ -34,13 +34,25 @@ function run(api) {
 
   // OPTIONS
   var orgaOption = cliparse.option("orga", { aliases: ["o"], description: "Organisation ID" });
-  var aliasOption = cliparse.option("alias", { aliases: ["a"], description: "Short name for the application" });
+  var aliasCreationOption = cliparse.option("alias", {
+      aliases: ["a"],
+      metavar: "alias",
+      description: "Short name for the application" });
+  var aliasOption = cliparse.option("alias", {
+      aliases: ["a"],
+      metavar: "alias",
+      description: "Short name for the application",
+      complete: Application.listAvailableAliases });
   var instanceTypeOption = cliparse.option("type", {
-      aliases: ["t"], required: true, metavar: "type",
+      aliases: ["t"],
+      required: true,
+      metavar: "type",
       description: "Instance type",
       complete: Application.listAvailableTypes });
   var regionOption = cliparse.option("region", {
-      aliases: ["r"], default: "par", metavar: "zone",
+      aliases: ["r"],
+      default: "par",
+      metavar: "zone",
       description: "Region, can be 'par' for Paris or 'mtl' for Montreal",
       complete: Application.listAvailableZones });
   var branchOption = cliparse.option("branch", { aliases: ["b"], default: "master", description: "Branch to push (master by default)" });
@@ -52,7 +64,7 @@ function run(api) {
     args: [appNameArgument],
     options: [
       orgaOption,
-      aliasOption,
+      aliasCreationOption,
       instanceTypeOption,
       regionOption
     ]
@@ -64,7 +76,7 @@ function run(api) {
     args: [appIdArgument],
     options: [
       orgaOption,
-      aliasOption
+      aliasCreationOption
     ]
   }, _.partial(link, api));
 
