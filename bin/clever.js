@@ -23,20 +23,20 @@ var status = require("../src/commands/status.js");
 
 function run(api) {
   // ARGUMENTS
-  var appNameArgument = cliparse.argument("app-name", { helpT: "Application name" });
-  var appIdArgument = cliparse.argument("app-id", { helpT: "Application ID" });
-  var aliasArgument = cliparse.argument("app-alias", { helpT: "Application alias" });
-  var envVariableName = cliparse.argument("variable-name", { helpT: "Name of the environment variable" });
-  var envVariableValue = cliparse.argument("variable-value", { helpT: "Value of the environment variable" });
-  var fqdnArgument = cliparse.argument("fqdn", { helpT: "Domain name of the Clever-Cloud application" });
+  var appNameArgument = cliparse.argument("app-name", { description: "Application name" });
+  var appIdArgument = cliparse.argument("app-id", { description: "Application ID" });
+  var aliasArgument = cliparse.argument("app-alias", { description: "Application alias" });
+  var envVariableName = cliparse.argument("variable-name", { description: "Name of the environment variable" });
+  var envVariableValue = cliparse.argument("variable-value", { description: "Value of the environment variable" });
+  var fqdnArgument = cliparse.argument("fqdn", { description: "Domain name of the Clever-Cloud application" });
 
   // OPTIONS
-  var orgaOption = cliparse.option("orga", { aliases: ["o"], helpT: "Organisation ID" });
-  var aliasOption = cliparse.option("alias", { aliases: ["a"], helpT: "Short name for the application" });
-  var instanceTypeOption = cliparse.option("type", { aliases: ["t"], required: true, helpT: "Instance type" });
-  var regionOption = cliparse.option("region", { aliases: ["r"], defaultValue: "par", helpT: "Region, can be 'par' for Paris or 'mtl' for Montreal" });
-  var branchOption = cliparse.option("branch", { aliases: ["b"], defaultValue: "master", helpT: "Branch to push (master by default)" });
-  var verboseOption = cliparse.flag("verbose", { aliases: ["v"], helpT: "Verbose output" });
+  var orgaOption = cliparse.option("orga", { aliases: ["o"], description: "Organisation ID" });
+  var aliasOption = cliparse.option("alias", { aliases: ["a"], description: "Short name for the application" });
+  var instanceTypeOption = cliparse.option("type", { aliases: ["t"], required: true, description: "Instance type" });
+  var regionOption = cliparse.option("region", { aliases: ["r"], default: "par", description: "Region, can be 'par' for Paris or 'mtl' for Montreal" });
+  var branchOption = cliparse.option("branch", { aliases: ["b"], default: "master", description: "Branch to push (master by default)" });
+  var verboseOption = cliparse.flag("verbose", { aliases: ["v"], description: "Verbose output" });
 
   // CREATE COMMAND
   var appCreateCommand = cliparse.command("create", {
@@ -184,7 +184,7 @@ function run(api) {
     ]
   });
 
-  cliparse.parseValues(cliParser);
+  cliparse.parse(cliParser);
 }
 
 var s_api = require("../src/models/api.js")();
