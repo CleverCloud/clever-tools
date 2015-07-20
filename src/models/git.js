@@ -31,6 +31,12 @@ module.exports = function(repositoryPath) {
     });
   };
 
+  Git.getCurrentBranch = function() {
+    return Git.getRepository().flatMapLatest(function(repository) {
+      return Bacon.fromPromise(repository.getCurrentBranch());
+    });
+  };
+
   Git.getBranch = function(name) {
     return Git.getRepository().flatMapLatest(function(repository) {
       return Bacon.fromPromise(nodegit.Branch.lookup(repository, name, Git.GIT_BRANCH_LOCAL));
@@ -104,7 +110,11 @@ module.exports = function(repositoryPath) {
       .flatMapLatest(function(push) {
         Logger.debug("Add the refspec…");
 
-        return Git.getBranch(branch).flatMapLatest(function(branch) {
+        var s_current_branch = Git.getCurrentBranch();
+
+        var s_branch = branch == "" ? s_current_branch : Git.getBranch(branch);
+
+        return s_branch.flatMapLatest(function(branch) {
           var retval = push.addRefspec(branch + ":refs/heads/master");
           return retval == 0 ? Bacon.once(push) : new Bacon.Error();
         });

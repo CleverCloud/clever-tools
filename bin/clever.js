@@ -55,7 +55,7 @@ function run(api) {
       metavar: "zone",
       description: "Region, can be 'par' for Paris or 'mtl' for Montreal",
       complete: Application.listAvailableZones });
-  var branchOption = cliparse.option("branch", { aliases: ["b"], default: "master", description: "Branch to push (master by default)" });
+  var branchOption = cliparse.option("branch", { aliases: ["b"], default: "", description: "Branch to push (current branch by default)" });
   var verboseOption = cliparse.flag("verbose", { aliases: ["v"], description: "Verbose output" });
 
   // CREATE COMMAND
