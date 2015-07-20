@@ -11,10 +11,11 @@ Application.getInstanceType = function(api, type) {
   var s_types = api.products.instances.get().send();
 
   return s_types.flatMapLatest(function(types) {
-    var instanceType = _.find(types, function(instanceType) {
+    var matchingTypes = _.filter(types, function(instanceType) {
       return instanceType.type == type;
     });
 
+    var instanceType = _.sortBy(matchingTypes, "version").reverse()[0];
     return instanceType ? Bacon.once(instanceType) : new Bacon.Error(type + " type does not exist.");
   });
 };
