@@ -27,8 +27,10 @@ function runCommand(command) {
   Logger.debug("Open the token management page in a browser…")
   return Bacon.fromBinder(function(sink) {
     exec(command, function(error, stdout, stderr) {
-      if(error || stderr) {
-        sink(new Bacon.Error(error || stderr));
+      // Don't consider output in stderr as a blocking error because of
+      // firefox
+      if(error) {
+        sink(new Bacon.Error(error));
       }
       else {
         sink(stdout);

@@ -3,7 +3,11 @@ var _ = require("lodash");
 // For each severity, print "[SEVERITY] <message>"
 var Logger = _.foldl(["debug", "info", "warn", "error"], function(logger, severity) {
   var f = console[severity] || console.log;
-  logger[severity] = _.partial(f.bind(console), "[" + severity.toUpperCase() + "]");
+  if(process.env["CLEVER_VERBOSE"] || (severity !== "debug" && severity !== "info")) {
+    logger[severity] = _.partial(f.bind(console), "[" + severity.toUpperCase() + "]");
+  } else {
+    logger[severity] = function() {};
+  }
   return logger;
 }, module.exports);
 
