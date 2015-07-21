@@ -18,7 +18,6 @@ var lazyRequiref = function(path, name) {
       if(name) {
         module[name].apply(this, args);
       } else {
-        console.log(path);
         module.apply(this, args);
       }
     });
