@@ -1,6 +1,7 @@
 var fs = require("fs");
 var exec = require("child_process").exec;
 var path = require("path");
+var mkdirp = require("mkdirp");
 
 var _ = require("lodash");
 var Bacon = require("baconjs");
@@ -15,6 +16,8 @@ function getOpenCommand() {
       return Bacon.constant("open " + conf.CONSOLE_TOKEN_URL);
     case "linux":
       return Bacon.constant("xdg-open " + conf.CONSOLE_TOKEN_URL);
+    case "win32":
+      return Bacon.constant("start " + conf.CONSOLE_TOKEN_URL);
     default:
       return new Bacon.Error("Unsupported platform: " + process.platform);
   }
@@ -59,9 +62,19 @@ function getOAuthData() {
   });
 }
 
+function ensureConfigDir() {
+  return Bacon.fromNodeCallback(
+    mkdirp,
+    path.dirname(conf.CONFIGURATION_FILE,
+    { mode: parseInt('0700', 8) }));
+}
+
 function writeLoginConfig(oauthData) {
   Logger.debug("Write the tokens in the configuration file…")
-  return Bacon.fromNodeCallback(_.partial(fs.writeFile, conf.CONFIGURATION_FILE, JSON.stringify(oauthData)));
+  return ensureConfigDir()
+    .flatMapLatest(
+      Bacon.fromNodeCallback(
+        _.partial(fs.writeFile, conf.CONFIGURATION_FILE, JSON.stringify(oauthData))));
 }
  
 var login = module.exports = function(api, params) {

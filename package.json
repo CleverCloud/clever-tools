@@ -19,10 +19,12 @@
     "cliparse": "^0.2.3",
     "common-env": "^1.1.0",
     "lodash": "^2.4.1",
+    "mkdirp": "^0.5.1",
     "nodegit": "0.2.4",
     "shelljs": "^0.3.0",
     "unidecode": "^0.1.3",
     "ws": "^0.6.4",
+    "xdg": "^0.1.1",
     "yargs": "^1.3.3"
   },
   "devDependencies": {
