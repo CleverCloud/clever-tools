@@ -9,22 +9,60 @@ var cliparse = require("cliparse");
 
 var Logger = require("../src/logger.js");
 
-var create = require("../src/commands/create.js");
-var link = require("../src/commands/link.js");
-var unlink = require("../src/commands/unlink.js");
-var env = require("../src/commands/env.js");
-var log = require("../src/commands/log.js");
-var login = require("../src/commands/login.js");
-var deploy = require("../src/commands/deploy.js");
-var cancelDeploy = require("../src/commands/cancel-deploy.js");
-var domain = require("../src/commands/domain.js");
-var stop = require("../src/commands/stop.js");
-var status = require("../src/commands/status.js");
-var activity = require("../src/commands/activity.js");
+var lazyRequiref = function(path, name) {
+  return function() {
+    var args = Array.prototype.slice.call(arguments);
+    s_api.onValue(function(api) {
+      var module = require(path);
+      args.unshift(api);
+      if(name) {
+        module[name].apply(this, args);
+      } else {
+        console.log(path);
+        module.apply(this, args);
+      }
+    });
+  };
+};
 
-var Application = require("../src/models/application.js");
+var lazyRequire = function(path) {
+  return function(name) {
+    return function() {
+      var args = Array.prototype.slice.call(arguments);
+      s_api.onValue(function(api) {
+        args.unshift(api);
+        var module = require(path);
+        module[name].apply(this, args);
+      });
+    };
+  };
+};
 
-function run(api) {
+var lr = function(path) {
+  return function(name) {
+    return function() {
+      var module = require(path);
+      return module[name].apply(this, arguments);
+    };
+  };
+};
+
+var create = lazyRequiref("../src/commands/create.js");
+var link = lazyRequiref("../src/commands/link.js");
+var unlink = lazyRequiref("../src/commands/unlink.js");
+var env = lazyRequire("../src/commands/env.js");
+var log = lazyRequiref("../src/commands/log.js");
+var login = lazyRequiref("../src/commands/login.js");
+var deploy = lazyRequiref("../src/commands/deploy.js");
+var cancelDeploy = lazyRequiref("../src/commands/cancel-deploy.js");
+var domain = lazyRequire("../src/commands/domain.js");
+var stop = lazyRequiref("../src/commands/stop.js");
+var status = lazyRequiref("../src/commands/status.js");
+var activity = lazyRequiref("../src/commands/activity.js");
+
+var Application = lr("../src/models/application.js");
+
+function run() {
   // ARGUMENTS
   var appNameArgument = cliparse.argument("app-name", { description: "Application name" });
   var appIdArgument = cliparse.argument("app-id", { description: "Application ID" });
@@ -43,19 +81,19 @@ function run(api) {
       aliases: ["a"],
       metavar: "alias",
       description: "Short name for the application",
-      complete: Application.listAvailableAliases });
+      complete: Application("listAvailableAliases") });
   var instanceTypeOption = cliparse.option("type", {
       aliases: ["t"],
       required: true,
       metavar: "type",
       description: "Instance type",
-      complete: Application.listAvailableTypes });
+      complete: Application("listAvailableTypes") });
   var regionOption = cliparse.option("region", {
       aliases: ["r"],
       default: "par",
       metavar: "zone",
       description: "Region, can be 'par' for Paris or 'mtl' for Montreal",
-      complete: Application.listAvailableZones });
+      complete: Application("listAvailableZones") });
   var branchOption = cliparse.option("branch", { aliases: ["b"], default: "", description: "Branch to push (current branch by default)" });
   var verboseOption = cliparse.flag("verbose", { aliases: ["v"], description: "Verbose output" });
   var showAllOption = cliparse.flag("show-all", { description: "Show all activity" });
@@ -70,7 +108,7 @@ function run(api) {
       instanceTypeOption,
       regionOption
     ]
-  }, _.partial(create, api));
+  }, create);
 
   // LINK COMMAND
   var appLinkCommand = cliparse.command("link", {
@@ -80,13 +118,13 @@ function run(api) {
       orgaOption,
       aliasCreationOption
     ]
-  }, _.partial(link, api));
+  }, link);
 
   // UNLINK COMMAND
   var appUnlinkCommand = cliparse.command("unlink", {
     description: "Unlink this repo from an existing Clever-Cloud application",
     args: [aliasArgument]
-  }, _.partial(unlink, api));
+  }, unlink);
 
   // ENV COMMANDS
   var envSetCommand = cliparse.command("set", {
@@ -95,14 +133,14 @@ function run(api) {
       envVariableName,
       envVariableValue
     ]
-  }, _.partial(env.set, api));
+  }, env("set"));
 
   var envRemoveCommand = cliparse.command("rm", {
     description: "Remove an environment variable from a Clever-Cloud application",
     args: [
       envVariableName
     ]
-  }, _.partial(env.rm, api));
+  }, env("rm"));
 
   var envCommands = cliparse.command("env", {
     description: "Manage Clever-Cloud application environment",
@@ -113,7 +151,7 @@ function run(api) {
       envSetCommand,
       envRemoveCommand
     ]
-  }, _.partial(env.list, api));
+  }, env("list"));
 
   // LOG COMMAND
   var logCommand = cliparse.command("log", {
@@ -121,12 +159,12 @@ function run(api) {
     options: [
       aliasOption
     ]
-  }, _.partial(log, api));
+  }, log);
 
   // LOGIN COMMAND
   var loginCommand = cliparse.command("login", {
     description: "Login to Clever-Cloud"
-  }, _.partial(login, api));
+  }, login);
 
   // CANCEL DEPLOY COMMAND
   var cancelDeployCommand = cliparse.command("cancel-deploy", {
@@ -134,7 +172,7 @@ function run(api) {
     options: [
       aliasOption
     ]
-  }, _.partial(cancelDeploy, api));
+  }, cancelDeploy);
 
   // DEPLOY COMMAND
   var deployCommand = cliparse.command("deploy", {
@@ -143,7 +181,7 @@ function run(api) {
       aliasOption,
       branchOption
     ]
-  }, _.partial(deploy, api));
+  }, deploy);
 
   // DOMAIN COMMANDS
   var domainCreateCommand = cliparse.command("add", {
@@ -151,14 +189,14 @@ function run(api) {
     args: [
       fqdnArgument
     ]
-  }, _.partial(domain.add, api));
+  }, domain("add"));
 
   var domainRemoveCommand = cliparse.command("rm", {
     description: "Remove a domain name from a Clever-Cloud application",
     args: [
       fqdnArgument
     ]
-  }, _.partial(domain.rm, api));
+  }, domain("rm"));
 
   var domainCommands = cliparse.command("domain", {
     description: "Manage Clever-Cloud application domain names",
@@ -169,7 +207,7 @@ function run(api) {
       domainCreateCommand,
       domainRemoveCommand
     ]
-  }, _.partial(domain.list, api));
+  }, domain("list"));
 
   // STOP COMMAND
   var stopCommand = cliparse.command("stop", {
@@ -177,7 +215,7 @@ function run(api) {
     options: [
       aliasOption
     ]
-  }, _.partial(stop, api));
+  }, stop);
 
   // STATUS COMMAND
   var statusCommand = cliparse.command("status", {
@@ -185,7 +223,7 @@ function run(api) {
     options: [
       aliasOption
     ]
-  }, _.partial(status, api));
+  }, status);
 
   // ACTIVITY COMMAND
   var activityCommand = cliparse.command("activity", {
@@ -194,7 +232,7 @@ function run(api) {
       aliasOption,
       showAllOption
     ]
-  }, _.partial(activity, api));
+  }, activity);
 
 
   // CLI PARSER
@@ -219,7 +257,7 @@ function run(api) {
 
   cliparse.parse(cliParser);
 }
-
 var s_api = require("../src/models/api.js")();
-s_api.onValue(run);
+
 s_api.onError(Logger.error.bind(console));
+run();
