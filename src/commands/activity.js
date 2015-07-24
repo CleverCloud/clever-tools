@@ -10,15 +10,23 @@ var AppConfig = require("../models/app_configuration.js");
 
 var Logger = require("../logger.js");
 
-var displayState = function(state) {
+var displayState = function(state, isFirst) {
   switch(state) {
-    case "OK":        return "OK       ".bold.green;
-    case "FAIL":      return "FAIL     ".bold.red;
-    case "CANCELLED": return "CANCELLED".bold.red;
-    default:          return "UNKNOWN  ";
+    case "OK":        return "OK         ".bold.green;
+    case "FAIL":      return "FAIL       ".bold.red;
+    case "CANCELLED": return "CANCELLED  ".bold.red;
+    case "WIP":
+      if(isFirst) {
+                      return "IN PROGRESS".bold.blue;
+      } else {
+                      return "FAIL       ".bold.red;
+      }
+    default:
+      Logger.warn("Unknown deployment state: " + state);
+                      return "UNKNOWN    ";
   }
 };
-var unspecifiedCommitId = "not specified                           ";
+var unspecifiedCommitId = _.padRight("not specified", 40); // a git commit id is 40 chars long
 
 var activity = module.exports = function(api, params) {
   var alias = params.options.alias;
@@ -30,9 +38,9 @@ var activity = module.exports = function(api, params) {
   });
 
   s_activity.onValue(function(deployments) {
-    console.log(deployments.map(function(deployment) {
+    console.log(deployments.map(function(deployment, index) {
       return moment(deployment.date).format() + " - " +
-             displayState(deployment.state) + " " +
+             displayState(deployment.state, index == 0) + " " +
              _.padRight(deployment.action, 8) + " " +
              (deployment.commit || unspecifiedCommitId) + " " +
              deployment.cause;
