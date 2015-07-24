@@ -20,7 +20,7 @@ var deploy = module.exports = function(api, params) {
 
   var s_remote = s_appData.flatMapLatest(function(app_data) {
     return Git.createRemote(app_data.alias, app_data.deploy_url).toProperty();
-  });
+  }).toProperty();
 
   var s_fetch = s_remote.flatMapLatest(function(remote) {
     return Git.keepFetching(timeout, remote);
