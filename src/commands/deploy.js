@@ -15,6 +15,7 @@ var timeout = 5 * 60 * 1000;
 var deploy = module.exports = function(api, params) {
   var alias = params.options.alias;
   var branch = params.options.branch;
+  var quiet = params.options.quiet;
 
   var s_appData = AppConfig.getAppData(alias);
 
@@ -34,23 +35,25 @@ var deploy = module.exports = function(api, params) {
     Logger.println("Your source code has been pushed to Clever-Cloud.");
   });
 
-  var s_app = s_push
-    .flatMapLatest(function() {
-      return s_remote;
-    })
-    .flatMapLatest(function(remote) {
-      Logger.debug("Fetch application information…")
-      var appId = remote.url().replace(/^.*(app_.*)\.git$/, "$1");
-      return Application.get(api, appId);
+  if(!quiet) {
+    var s_app = s_push
+      .flatMapLatest(function() {
+        return s_remote;
+      })
+      .flatMapLatest(function(remote) {
+        Logger.debug("Fetch application information…")
+        var appId = remote.url().replace(/^.*(app_.*)\.git$/, "$1");
+        return Application.get(api, appId);
+      });
+
+    var s_logs = s_app.flatMapLatest(function(app) {
+      Logger.debug("Fetch application logs…");
+      return Log.getAppLogs(app.id, api.session.getAuthorization());
     });
 
-  var s_logs = s_app.flatMapLatest(function(app) {
-    Logger.debug("Fetch application logs…");
-    return Log.getAppLogs(app.id, api.session.getAuthorization());
-  });
-
-  s_logs.onValue(function(log) {
-    Logger.println(log._source["@timestamp"] + ": ", log._source["@message"]);
-  });
-  s_logs.onError(Logger.error);
+    s_logs.onValue(function(log) {
+      Logger.println(log._source["@timestamp"] + ": ", log._source["@message"]);
+    });
+    s_logs.onError(Logger.error);
+  }
 };

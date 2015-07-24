@@ -96,6 +96,7 @@ function run() {
   var branchOption = cliparse.option("branch", { aliases: ["b"], default: "", description: "Branch to push (current branch by default)" });
   var verboseOption = cliparse.flag("verbose", { aliases: ["v"], description: "Verbose output" });
   var showAllOption = cliparse.flag("show-all", { description: "Show all activity" });
+  var quietOption = cliparse.flag("quiet", { aliases: ["q"], description: "Don't show logs during deployment" });
 
   // CREATE COMMAND
   var appCreateCommand = cliparse.command("create", {
@@ -178,7 +179,8 @@ function run() {
     description: "Deploy an application to Clever-Cloud",
     options: [
       aliasOption,
-      branchOption
+      branchOption,
+      quietOption
     ]
   }, deploy);
 
