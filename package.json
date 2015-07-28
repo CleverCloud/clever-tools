@@ -15,7 +15,7 @@
   "dependencies": {
     "baconjs": "^0.7.70",
     "bluebird": "^2.9.34",
-    "clever-client": "^0.2.3",
+    "clever-client": "^0.2.4",
     "cliparse": "^0.2.4",
     "common-env": "^1.1.0",
     "colors": "^1.0.3",
