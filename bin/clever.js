@@ -64,7 +64,7 @@ var Application = lr("../src/models/application.js");
 function run() {
   // ARGUMENTS
   var appNameArgument = cliparse.argument("app-name", { description: "Application name" });
-  var appIdArgument = cliparse.argument("app-id", { description: "Application ID" });
+  var appIdArgument = cliparse.argument("app-id", { description: "Application ID (or name, if unambiguous)" });
   var aliasArgument = cliparse.argument("app-alias", { description: "Application alias" });
   var envVariableName = cliparse.argument("variable-name", { description: "Name of the environment variable" });
   var envVariableValue = cliparse.argument("variable-value", { description: "Value of the environment variable" });
@@ -115,7 +115,6 @@ function run() {
     description: "Link this repo to an existing Clever-Cloud application",
     args: [appIdArgument],
     options: [
-      orgaOption,
       aliasCreationOption
     ]
   }, link);
