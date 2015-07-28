@@ -1,5 +1,6 @@
 var _ = require("lodash");
 var conf = require("./configuration.js");
+var Logger = require("../logger.js");
 
 module.exports = function() {
   var s_oauthData = conf.loadOAuthConf();
@@ -24,7 +25,7 @@ module.exports = function() {
     var api = require("clever-client")({
       API_HOST: conf.API_HOST,
       API_AUTHORIZATION: authorization,
-      logger: console
+      logger: Logger
     });
 
     // Waiting for clever-client to be fully node compliant
