@@ -41,7 +41,7 @@ var activity = module.exports = function(api, params) {
     console.log(deployments.map(function(deployment, index) {
       return moment(deployment.date).format() + " - " +
              displayState(deployment.state, index == 0) + " " +
-             _.padRight(deployment.action, 8) + " " +
+             _.padRight(deployment.action, 9) + " " + // longest action name is downscale
              (deployment.commit || unspecifiedCommitId) + " " +
              deployment.cause;
     }).join('\n'));
