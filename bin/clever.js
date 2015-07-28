@@ -234,7 +234,6 @@ function run() {
     ]
   }, activity);
 
-
   // CLI PARSER
   var cliParser = cliparse.cli({
     name: "clever",
