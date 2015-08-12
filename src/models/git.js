@@ -20,14 +20,14 @@ module.exports = function(repositoryPath) {
   Git.getRemote = function(name) {
     return Git.getRepository().flatMapLatest(function(repository) {
       Logger.debug("Load the \"" + name + "\" remote…");
-      return Bacon.fromPromise(nodegit.Remote.load(repository, name)).toProperty().map(function(remote) {
+      return Bacon.fromPromise(nodegit.Remote.lookup(repository, name)).toProperty().map(function(remote) {
         Logger.debug("Use ssh-agent for authentication…");
         remote.setCallbacks({
+          certificateCheck: function() { return 1; },
           credentials: function(url, username) {
             return nodegit.Cred.sshKeyFromAgent(username);
           }
         });
-
         return remote;
       });
     });
@@ -96,7 +96,7 @@ module.exports = function(repositoryPath) {
     var signature = nodegit.Signature.now("clever-tools", "support@clever-cloud.com");
 
     Logger.debug("Fetch " + remote.name() + "…");
-    return Bacon.fromPromise(remote.fetch(signature, null)).map(remote);
+    return Bacon.fromPromise(remote.fetch([remote.name()], signature, null)).map(remote);
   };
 
   Git.keepFetching = function(timeout, remote) {
