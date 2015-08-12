@@ -2,6 +2,8 @@ var _ = require("lodash");
 var path = require("path");
 var Bacon = require("baconjs");
 var nodegit = require("nodegit");
+var autocomplete = require("cliparse").autocomplete;
+var Promise = require("bluebird");
 
 var Logger = require("../logger.js");
 
@@ -41,6 +43,21 @@ module.exports = function(repositoryPath) {
     return Git.getRepository().flatMapLatest(function(repository) {
       return Bacon.fromPromise(nodegit.Branch.lookup(repository, name, Git.GIT_BRANCH_LOCAL));
     }).toProperty();
+  };
+
+  Git.getBranches = function() {
+    return Git.getRepository().flatMapLatest(function(repository) {
+      return Bacon.fromPromise(repository.getReferences())
+      .map(function(refs) {
+        return _.map(_.filter(refs, function(ref) {
+          return ref.isBranch();
+        }), function(ref) { return ref.shorthand(); });
+      });
+    }).toProperty();
+  };
+
+  Git.completeBranches = function() {
+    return Git.getBranches().firstToPromise(Promise).then(autocomplete.words);
   };
 
   Git.createRemote = function(name, remoteUrl) {

@@ -93,7 +93,15 @@ function run() {
       metavar: "zone",
       description: "Region, can be 'par' for Paris or 'mtl' for Montreal",
       complete: Application("listAvailableZones") });
-  var branchOption = cliparse.option("branch", { aliases: ["b"], default: "", description: "Branch to push (current branch by default)" });
+  var branchOption = cliparse.option("branch", {
+      aliases: ["b"],
+      default: "",
+      metavar: "branch",
+      description: "Branch to push (current branch by default)",
+      complete: function() {
+        var path = require("path");
+        var Git = require("../src/models/git.js")(path.resolve("."));
+        return Git.completeBranches() } });
   var verboseOption = cliparse.flag("verbose", { aliases: ["v"], description: "Verbose output" });
   var showAllOption = cliparse.flag("show-all", { description: "Show all activity" });
   var quietOption = cliparse.flag("quiet", { aliases: ["q"], description: "Don't show logs during deployment" });
