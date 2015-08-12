@@ -8,6 +8,7 @@ var conf = require("./configuration.js");
 var Log = module.exports;
 
 Log.getLogsFromWS = function(url, authorization) {
+  console.log("Waiting for application logs…");
   Logger.debug("Opening a websocket in order to fetch logs…")
   return Bacon.fromBinder(function(sink) {
     var ws = new WebSocket(url);
