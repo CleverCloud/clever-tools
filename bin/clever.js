@@ -104,6 +104,7 @@ function run() {
         return Git.completeBranches() } });
   var verboseOption = cliparse.flag("verbose", { aliases: ["v"], description: "Verbose output" });
   var showAllOption = cliparse.flag("show-all", { description: "Show all activity" });
+  var followOption = cliparse.flag("follow", { aliases: ["f"], description: "Track new deployments in activity list" });
   var quietOption = cliparse.flag("quiet", { aliases: ["q"], description: "Don't show logs during deployment" });
 
   // CREATE COMMAND
@@ -238,6 +239,7 @@ function run() {
     description: "Show last deployments of a Clever-Cloud application",
     options: [
       aliasOption,
+      followOption,
       showAllOption
     ]
   }, activity);
