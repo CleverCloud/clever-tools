@@ -81,9 +81,9 @@ var getApplicationByName = function(s_apps, name) {
     if(filtered_apps.length === 1) {
       return Bacon.once(filtered_apps[0]);
     } else if(filtered_apps.length === 0) {
-      return Bacon.once(new Bacon.Error("Ambiguous application name"));
-    } else {
       return Bacon.once(new Bacon.Error("Application not found"));
+    } else {
+      return Bacon.once(new Bacon.Error("Ambiguous application name"));
     }
   });
 

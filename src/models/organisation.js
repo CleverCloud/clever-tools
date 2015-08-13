@@ -16,9 +16,9 @@ Organisation.getByName = function(api, name) {
     if(filtered_orgs.length === 1) {
       return Bacon.once(filtered_orgs[0]);
     } else if(filtered_orgs.length === 0) {
-      return Bacon.once(new Bacon.Error("Ambiguous organisation name"));
-    } else {
       return Bacon.once(new Bacon.Error("Organisation not found"));
+    } else {
+      return Bacon.once(new Bacon.Error("Ambiguous organisation name"));
     }
   });
 
