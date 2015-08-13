@@ -15,11 +15,9 @@ var appLogs = module.exports = function(api, params) {
   var s_appData = AppConfig.getAppData(alias);
 
   var s_logs = s_appData.flatMapLatest(function(app_data) {
-    return Log.getAppLogs(app_data.app_id, api.session.getAuthorization());
+    return Log.getAppLogs(api, app_data.app_id);
   });
 
-  s_logs.onValue(function(log) {
-    Logger.println(log._source["@timestamp"] + ": ", log._source["@message"]);
-  });
+  s_logs.onValue(Logger.println);
   s_logs.onError(Logger.error);
 };

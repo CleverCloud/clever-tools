@@ -48,12 +48,10 @@ var deploy = module.exports = function(api, params) {
 
     var s_logs = s_app.flatMapLatest(function(app) {
       Logger.debug("Fetch application logs…");
-      return Log.getAppLogs(app.id, api.session.getAuthorization());
+      return Log.getAppLogs(api, app.id);
     });
 
-    s_logs.onValue(function(log) {
-      Logger.println(log._source["@timestamp"] + ": ", log._source["@message"]);
-    });
+    s_logs.onValue(Logger.println);
     s_logs.onError(Logger.error);
   }
 };

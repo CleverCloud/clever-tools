@@ -1,6 +1,7 @@
 var WebSocket = require("ws");
 var Bacon = require("baconjs");
 var _ = require("lodash");
+var request = require("request");
 
 var Logger = require("../logger.js");
 var conf = require("./configuration.js");
@@ -8,7 +9,7 @@ var conf = require("./configuration.js");
 var Log = module.exports;
 
 Log.getLogsFromWS = function(url, authorization) {
-  console.log("Waiting for application logs…");
+  Logger.println("Waiting for application logs…");
   Logger.debug("Opening a websocket in order to fetch logs…")
   return Bacon.fromBinder(function(sink) {
     var ws = new WebSocket(url);
@@ -48,7 +49,28 @@ Log.getLogUrl = _.partial(function(template, appId, timestamp) {
   });
 }, _.template(conf.LOG_URL));
 
-Log.getAppLogs = function(appId, authorization) {
+Log.getNewLogs = function(api, appId) {
   var url = Log.getLogUrl(appId, new Date().toISOString());
-  return Log.getLogsFromWS(url, authorization);
+  return Log.getLogsFromWS(url, api.session.getAuthorization())
+        .map(function(line) {
+          return line._source["@timestamp"] + ": " + line._source["@message"];
+        });
+};
+
+Log.getOldLogs = function(api, app_id) {
+  var s_res= Bacon.fromNodeCallback(request, {
+      url: "https://logs-api.clever-cloud.com/logs/" + app_id,
+      qs: { limit: 300 },
+      headers: {
+        authorization: api.session.getAuthorization()
+      }
+  })
+  return s_res.flatMapLatest(function(res) {
+    return Bacon.fromArray(res.body.split("\n").reverse());
+  });
+}
+
+Log.getAppLogs = function(api, appId) {
+  return Log.getOldLogs(api, appId)
+        .merge(Log.getNewLogs(api, appId));
 };
