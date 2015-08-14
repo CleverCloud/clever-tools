@@ -50,10 +50,11 @@ var create = addon.create = function(api, params) {
   var alias = params.options.alias;
   var plan = params.options.plan;
   var region = params.options.region;
+  var confirm = params.options.yes;
 
   var s_appData = AppConfig.getAppData(alias);
   var s_result = s_appData.flatMap(function(appData) {
-    return Addon.create(api, appData.app_id, appData.org_id, name, providerName, plan, region);
+    return Addon.create(api, appData.app_id, appData.org_id, name, providerName, plan, region, confirm);
   });
 
   s_result.onValue(function(r) {

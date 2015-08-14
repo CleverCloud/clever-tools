@@ -48,7 +48,7 @@ Addon.list = function(api, appId, orgaId, showAll) {
   });
 };
 
-Addon.create = function(api, appId, orgaId, name, providerName, planName, region) {
+Addon.create = function(api, appId, orgaId, name, providerName, planName, region, confirm) {
   var s_providers = api.products.addonproviders.get().send();
 
   var s_provider = s_providers.flatMapLatest(function(providers) {
@@ -67,7 +67,7 @@ Addon.create = function(api, appId, orgaId, name, providerName, planName, region
   });
 
   var s_confirmedPlan = s_plan.flatMapLatest(function(plan) {
-    if(plan.price > 0) {
+    if(!confirm && plan.price > 0) {
       var s_confirm = Interact.confirm("This addon costs "+plan.price+"€/month, confirm? ", "No confirmation, aborting addon creation");
       return s_confirm.map(_.constant(plan));
     } else {

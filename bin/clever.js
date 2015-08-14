@@ -125,6 +125,7 @@ function run() {
       description: "Addon plan, depends on the provider",
       complete: addon("completePlan")
   });
+  var confirmAddonCreationOption = cliparse.flag("yes", { aliases: ["y"], description: "Skip confirmation even if the addon is not free" });
 
   // CREATE COMMAND
   var appCreateCommand = cliparse.command("create", {
@@ -268,6 +269,7 @@ function run() {
     description: "Create an addon and link it to this application",
     args: [ addonProviderArgument, addonNameArgument ],
     options: [
+      confirmAddonCreationOption,
       addonPlanOption,
       addonRegionOption
     ]
