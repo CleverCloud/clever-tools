@@ -45,7 +45,21 @@ var list = addon.list = function(api, params) {
 };
 
 var create = addon.create = function(api, params) {
-  Logger.println("Create addon");
+  var providerName = params.args[0];
+  var name = params.args[1];
+  var alias = params.options.alias;
+  var plan = params.options.plan;
+  var region = params.options.region;
+
+  var s_appData = AppConfig.getAppData(alias);
+  var s_result = s_appData.flatMap(function(appData) {
+    return Addon.create(api, appData.app_id, appData.org_id, name, providerName, plan, region);
+  });
+
+  s_result.onValue(function(r) {
+    Logger.println("Addon " + name + " sucessfully created and linked to the application");
+  });
+  s_result.onError(Logger.error);
 };
 
 var link = addon.link = function(api, params) {

@@ -71,6 +71,8 @@ function run() {
   var envVariableValue = cliparse.argument("variable-value", { description: "Value of the environment variable" });
   var fqdnArgument = cliparse.argument("fqdn", { description: "Domain name of the Clever-Cloud application" });
   var addonIdArgument = cliparse.argument("addon-id", { description: "Addon ID" });
+  var addonNameArgument = cliparse.argument("addon-name", { description: "Addon name" });
+  var addonProviderArgument = cliparse.argument("addon-provider", { description: "Addon provider" });
 
   // OPTIONS
   var orgaOption = cliparse.option("orga", { aliases: ["o"], description: "Organisation ID" });
@@ -109,6 +111,20 @@ function run() {
   var showAllAddonsOption = cliparse.flag("show-all", { description: "Show all available addons" });
   var followOption = cliparse.flag("follow", { aliases: ["f"], description: "Track new deployments in activity list" });
   var quietOption = cliparse.flag("quiet", { aliases: ["q"], description: "Don't show logs during deployment" });
+  var addonRegionOption = cliparse.option("region", {
+      alias: ["r"],
+      default: "eu",
+      metavar: "region",
+      description: "Region to provision the addon in, depends on the provider",
+      complete: addon("completeRegion")
+  });
+  var addonPlanOption = cliparse.option("plan", {
+      alias: ["p"],
+      default: "dev",
+      metavar: "plan",
+      description: "Addon plan, depends on the provider",
+      complete: addon("completePlan")
+  });
 
   // CREATE COMMAND
   var appCreateCommand = cliparse.command("create", {
@@ -250,7 +266,10 @@ function run() {
   // ADDON COMMANDS
   var addonCreateCommand = cliparse.command("create", {
     description: "Create an addon and link it to this application",
-    args: [
+    args: [ addonProviderArgument, addonNameArgument ],
+    options: [
+      addonPlanOption,
+      addonRegionOption
     ]
   }, addon("create"));
 
