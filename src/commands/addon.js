@@ -93,3 +93,44 @@ var unlink = addon.unlink = function(api, params) {
   });
   s_result.onError(Logger.error);
 };
+
+var listProviders = addon.listProviders = function(api, params) {
+  var s_providers = Addon.listProviders(api);
+
+  s_providers.onValue(function(providers) {
+    var idWidth = Math.max.apply(null, _(providers).pluck("id").pluck("length").value());
+    var nameWidth = Math.max.apply(null, _(providers).pluck("name").pluck("length").value());
+    _.each(providers, function(provider) {
+       Logger.println(
+         _.padRight(provider.id, idWidth).bold + ' ' +
+         _.padRight(provider.name, nameWidth) + ' ' +
+         provider.shortDesc
+       );
+    });
+  });
+  s_providers.onError(Logger.error);
+};
+
+var showProvider = addon.showProvider = function(api, params) {
+  var providerName = params.args[0];
+
+  var s_provider = Addon.getProvider(api, providerName);
+
+  s_provider.onValue(function(provider) {
+
+    Logger.println(provider.id.bold);
+    Logger.println(provider.name + ': ' + provider.shortDesc);
+    Logger.println();
+    Logger.println("Available regions: " + provider.regions.join(", "));
+    Logger.println();
+    Logger.println("Available plans");
+
+    _.each(provider.plans, function(plan) {
+      Logger.println("Plan " + plan.slug.bold);
+      _.each(_.sortBy(plan.features, "name"), function(f) {
+        Logger.println("  " + f.name + ": " + f.value);
+      });
+    });
+  });
+  s_provider.onError(Logger.error);
+};

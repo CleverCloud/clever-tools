@@ -287,6 +287,19 @@ function run() {
     ]
   }, addon("unlink"));
 
+  var addonShowProviderCommand = cliparse.command("show", {
+    description: "Show information about an addon provider",
+    args: [addonProviderArgument]
+  }, addon("showProvider"));
+
+  var addonProvidersCommand = cliparse.command("providers", {
+    description: "List available addon providers",
+    args: [],
+    commands: [
+      addonShowProviderCommand
+    ]
+  }, addon("listProviders"));
+
   var addonCommands = cliparse.command("addon", {
     description: "Manage addons",
     options: [
@@ -296,7 +309,8 @@ function run() {
     commands: [
       addonCreateCommand,
       addonLinkCommand,
-      addonUnlinkCommand
+      addonUnlinkCommand,
+      addonProvidersCommand
     ]
   }, addon("list"));
 

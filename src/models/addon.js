@@ -10,6 +10,22 @@ var Logger = require("../logger.js");
 
 var Addon = module.exports;
 
+Addon.listProviders = function(api) {
+  var s_providers = api.products.addonproviders.get().send();
+  return s_providers;
+};
+
+Addon.getProvider = function(api, providerName) {
+  var s_providers = api.products.addonproviders.get().send();
+
+  var s_provider = s_providers.flatMapLatest(function(providers) {
+    var provider = _.find(providers, function(p) { return p.id == providerName })
+    return provider || new Bacon.Error("invalid provider name");
+  });
+
+  return s_provider;
+};
+
 Addon.list = function(api, appId, orgaId, showAll) {
   var params = orgaId ? [orgaId, appId] : [appId];
 
