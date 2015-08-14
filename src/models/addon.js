@@ -30,3 +30,14 @@ Addon.list = function(api, appId, orgaId, showAll) {
   });
 };
 
+Addon.link = function(api, appId, orgaId, addonId) {
+  var params = orgaId ? [orgaId, appId] : [appId];
+
+  return api.owner(orgaId).applications._.addons.post().withParams(params).send(JSON.stringify(addonId));
+};
+
+Addon.unlink = function(api, appId, orgaId, addonId) {
+  var params = orgaId ? [orgaId, appId, addonId] : [appId, addonId];
+
+  return api.owner(orgaId).applications._.addons._.delete().withParams(params).send();
+};

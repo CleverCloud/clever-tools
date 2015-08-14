@@ -70,6 +70,7 @@ function run() {
   var envVariableName = cliparse.argument("variable-name", { description: "Name of the environment variable" });
   var envVariableValue = cliparse.argument("variable-value", { description: "Value of the environment variable" });
   var fqdnArgument = cliparse.argument("fqdn", { description: "Domain name of the Clever-Cloud application" });
+  var addonIdArgument = cliparse.argument("addon-id", { description: "Addon ID" });
 
   // OPTIONS
   var orgaOption = cliparse.option("orga", { aliases: ["o"], description: "Organisation ID" });
@@ -256,12 +257,14 @@ function run() {
   var addonLinkCommand = cliparse.command("link", {
     description: "Link an existing addon to this application",
     args: [
+      addonIdArgument
     ]
   }, addon("link"));
 
   var addonUnlinkCommand = cliparse.command("unlink", {
     description: "Unlink an addon from this application",
     args: [
+      addonIdArgument
     ]
   }, addon("unlink"));
 

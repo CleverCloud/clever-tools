@@ -49,9 +49,33 @@ var create = addon.create = function(api, params) {
 };
 
 var link = addon.link = function(api, params) {
-  Logger.println("Link addon");
+  var alias = params.options.alias;
+  var addonId = params.args[0];
+
+  var s_appData = AppConfig.getAppData(alias);
+
+  var s_result = s_appData.flatMap(function(appData) {
+    return Addon.link(api, appData.app_id, appData.org_id, addonId);
+  });
+
+  s_result.onValue(function() {
+    Logger.println("Addon " + addonId + " sucessfully linked");
+  });
+  s_result.onError(Logger.error);
 };
 
-var unlink = addon.link = function(api, params) {
-  Logger.println("Unlink addon");
+var unlink = addon.unlink = function(api, params) {
+  var alias = params.options.alias;
+  var addonId = params.args[0];
+
+  var s_appData = AppConfig.getAppData(alias);
+
+  var s_result = s_appData.flatMap(function(appData) {
+    return Addon.unlink(api, appData.app_id, appData.org_id, addonId);
+  });
+
+  s_result.onValue(function() {
+    Logger.println("Addon " + addonId + " sucessfully unlinked");
+  });
+  s_result.onError(Logger.error);
 };
