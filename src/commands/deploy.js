@@ -7,6 +7,7 @@ var AppConfig = require("../models/app_configuration.js");
 var Application = require("../models/application.js");
 var Git = require("../models/git.js")(path.resolve("."));
 var Log = require("../models/log.js");
+var Event = require("../models/events.js");
 
 var Logger = require("../logger.js");
 
@@ -18,6 +19,7 @@ var deploy = module.exports = function(api, params) {
   var quiet = params.options.quiet;
 
   var s_appData = AppConfig.getAppData(alias);
+  var s_commitId = Git.getCommitId(branch);
 
   var s_remote = s_appData.flatMapLatest(function(app_data) {
     return Git.createRemote(app_data.alias, app_data.deploy_url).toProperty();
@@ -35,7 +37,35 @@ var deploy = module.exports = function(api, params) {
     Logger.println("Your source code has been pushed to Clever-Cloud.");
   });
 
-  if(!quiet) {
+  if(quiet) {
+    var s_deploymentEvents = s_appData.flatMapLatest(function(appData) {
+      return s_commitId.flatMapLatest(function(commitId) {
+        return Event.getEvents(api, appData.app_id)
+              .filter(function(e) {
+                return e.data && e.data.commit == commitId;
+              });
+      });
+    });
+
+    var s_deploymentStart = s_deploymentEvents.filter(function(e) {
+      return e.event === 'DEPLOYMENT_ACTION_BEGIN';
+     }).first();
+    s_deploymentStart.onValue(function(e) {
+      Logger.println("Deployment started");
+    });
+
+    var s_deploymentEnd = s_deploymentEvents.filter(function(e) {
+      return e.event === 'DEPLOYMENT_ACTION_END';
+     }).first();
+
+    s_deploymentEnd.onValue(function(e) {
+      if(e.data.state === 'OK') {
+        Logger.println('Deployment successful');
+      } else {
+        Logger.println('Deployment failed. Please check the logs');
+      }
+    });
+  } else {
     var s_app = s_push
       .flatMapLatest(function() {
         return s_remote;

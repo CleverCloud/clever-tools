@@ -121,6 +121,19 @@ module.exports = function(repositoryPath) {
     return s_fetch;
   };
 
+  Git.getCommitId = function(branchName) {
+    var s_branch = branchName == "" ? Git.getCurrentBranch() : Git.getBranch(branchName);
+
+    return Git.getRepository().flatMapLatest(function(repo) {
+      return s_branch.flatMapLatest(function(branch) {
+        return Bacon.fromPromise(repo.getBranchCommit(branch.name()))
+              .map(function(commit) {
+                return commit.id().toString();
+              });
+      });
+    });
+  };
+
   Git.push = function(remote, branch) {
     Logger.debug("Prepare the push…");
     return Bacon.fromPromise(nodegit.Push.create(remote))
