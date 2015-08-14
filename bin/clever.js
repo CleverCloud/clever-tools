@@ -58,6 +58,7 @@ var domain = lazyRequire("../src/commands/domain.js");
 var stop = lazyRequiref("../src/commands/stop.js");
 var status = lazyRequiref("../src/commands/status.js");
 var activity = lazyRequiref("../src/commands/activity.js");
+var addon = lazyRequire("../src/commands/addon.js");
 
 var Application = lr("../src/models/application.js");
 
@@ -103,7 +104,8 @@ function run() {
         var Git = require("../src/models/git.js")(path.resolve("."));
         return Git.completeBranches() } });
   var verboseOption = cliparse.flag("verbose", { aliases: ["v"], description: "Verbose output" });
-  var showAllOption = cliparse.flag("show-all", { description: "Show all activity" });
+  var showAllActivityOption = cliparse.flag("show-all", { description: "Show all activity" });
+  var showAllAddonsOption = cliparse.flag("show-all", { description: "Show all available addons" });
   var followOption = cliparse.flag("follow", { aliases: ["f"], description: "Track new deployments in activity list" });
   var quietOption = cliparse.flag("quiet", { aliases: ["q"], description: "Don't show logs during deployment" });
 
@@ -240,9 +242,41 @@ function run() {
     options: [
       aliasOption,
       followOption,
-      showAllOption
+      showAllActivityOption
     ]
   }, activity);
+
+  // ADDON COMMANDS
+  var addonCreateCommand = cliparse.command("create", {
+    description: "Create an addon and link it to this application",
+    args: [
+    ]
+  }, addon("create"));
+
+  var addonLinkCommand = cliparse.command("link", {
+    description: "Link an existing addon to this application",
+    args: [
+    ]
+  }, addon("link"));
+
+  var addonUnlinkCommand = cliparse.command("unlink", {
+    description: "Unlink an addon from this application",
+    args: [
+    ]
+  }, addon("unlink"));
+
+  var addonCommands = cliparse.command("addon", {
+    description: "Manage addons",
+    options: [
+      aliasOption,
+      showAllAddonsOption
+    ],
+    commands: [
+      addonCreateCommand,
+      addonLinkCommand,
+      addonUnlinkCommand
+    ]
+  }, addon("list"));
 
   // CLI PARSER
   var cliParser = cliparse.cli({
@@ -262,7 +296,8 @@ function run() {
       domainCommands,
       stopCommand,
       statusCommand,
-      activityCommand
+      activityCommand,
+      addonCommands
     ]
   });
 
