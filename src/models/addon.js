@@ -31,21 +31,21 @@ Addon.list = function(api, appId, orgaId, showAll) {
 
   var s_myAddons =  api.owner(orgaId).applications._.addons.get().withParams(params).send();
 
-  var s_enrichedAddons = s_myAddons.flatMapLatest(function(myAddons) {
-    return api.owner(orgaId).addons.get().withParams(params).send()
-          .map(function(allAddons) {
-            return allAddons.map(function(a) {
-              a.isLinked = _.pluck(myAddons, "id").indexOf(a.id) >= 0;
-              return a;
+  if(!showAll) {
+    return s_myAddons;
+  } else {
+    var s_enrichedAddons = s_myAddons.flatMapLatest(function(myAddons) {
+      return api.owner(orgaId).addons.get().withParams(params).send()
+            .map(function(allAddons) {
+              return allAddons.map(function(a) {
+                a.isLinked = _.pluck(myAddons, "id").indexOf(a.id) >= 0;
+                return a;
+              });
             });
-          });
-  });
-
-  return s_enrichedAddons.map(function(addons) {
-    return addons.filter(function(a) {
-      return showAll || a.isLinked;
     });
-  });
+
+    return s_enrichedAddons;
+  }
 };
 
 Addon.create = function(api, appId, orgaId, name, providerName, planName, region, skipConfirmation) {
