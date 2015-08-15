@@ -58,6 +58,7 @@ var domain = lazyRequire("../src/commands/domain.js");
 var stop = lazyRequiref("../src/commands/stop.js");
 var status = lazyRequiref("../src/commands/status.js");
 var activity = lazyRequiref("../src/commands/activity.js");
+var addon = lazyRequire("../src/commands/addon.js");
 
 var Application = lr("../src/models/application.js");
 
@@ -69,6 +70,9 @@ function run() {
   var envVariableName = cliparse.argument("variable-name", { description: "Name of the environment variable" });
   var envVariableValue = cliparse.argument("variable-value", { description: "Value of the environment variable" });
   var fqdnArgument = cliparse.argument("fqdn", { description: "Domain name of the Clever-Cloud application" });
+  var addonIdArgument = cliparse.argument("addon-id", { description: "Addon ID" });
+  var addonNameArgument = cliparse.argument("addon-name", { description: "Addon name" });
+  var addonProviderArgument = cliparse.argument("addon-provider", { description: "Addon provider" });
 
   // OPTIONS
   var orgaOption = cliparse.option("orga", { aliases: ["o"], description: "Organisation ID" });
@@ -103,9 +107,26 @@ function run() {
         var Git = require("../src/models/git.js")(path.resolve("."));
         return Git.completeBranches() } });
   var verboseOption = cliparse.flag("verbose", { aliases: ["v"], description: "Verbose output" });
-  var showAllOption = cliparse.flag("show-all", { description: "Show all activity" });
+  var showAllActivityOption = cliparse.flag("show-all", { description: "Show all activity" });
+  var showAllAddonsOption = cliparse.flag("show-all", { description: "Show all available addons" });
   var followOption = cliparse.flag("follow", { aliases: ["f"], description: "Track new deployments in activity list" });
   var quietOption = cliparse.flag("quiet", { aliases: ["q"], description: "Don't show logs during deployment" });
+  var addonRegionOption = cliparse.option("region", {
+      alias: ["r"],
+      default: "eu",
+      metavar: "region",
+      description: "Region to provision the addon in, depends on the provider",
+      complete: addon("completeRegion")
+  });
+  var addonPlanOption = cliparse.option("plan", {
+      alias: ["p"],
+      default: "dev",
+      metavar: "plan",
+      description: "Addon plan, depends on the provider",
+      complete: addon("completePlan")
+  });
+  var confirmAddonCreationOption = cliparse.flag("yes", { aliases: ["y"], description: "Skip confirmation even if the addon is not free" });
+  var confirmAddonDeletionOption = cliparse.flag("yes", { aliases: ["y"], description: "Skip confirmation and delete the addon directly" });
 
   // CREATE COMMAND
   var appCreateCommand = cliparse.command("create", {
@@ -240,9 +261,72 @@ function run() {
     options: [
       aliasOption,
       followOption,
-      showAllOption
+      showAllActivityOption
     ]
   }, activity);
+
+  // ADDON COMMANDS
+  var addonCreateCommand = cliparse.command("create", {
+    description: "Create an addon and link it to this application",
+    args: [ addonProviderArgument, addonNameArgument ],
+    options: [
+      confirmAddonCreationOption,
+      addonPlanOption,
+      addonRegionOption
+    ]
+  }, addon("create"));
+
+  var addonLinkCommand = cliparse.command("link", {
+    description: "Link an existing addon to this application",
+    args: [
+      addonIdArgument
+    ]
+  }, addon("link"));
+
+  var addonUnlinkCommand = cliparse.command("unlink", {
+    description: "Unlink an addon from this application",
+    args: [
+      addonIdArgument
+    ]
+  }, addon("unlink"));
+
+  var addonDeleteCommand = cliparse.command("delete", {
+    description: "Delete an addon",
+    options: [
+      confirmAddonDeletionOption,
+    ],
+    args: [
+      addonIdArgument
+    ]
+  }, addon("delete"));
+
+  var addonShowProviderCommand = cliparse.command("show", {
+    description: "Show information about an addon provider",
+    args: [addonProviderArgument]
+  }, addon("showProvider"));
+
+  var addonProvidersCommand = cliparse.command("providers", {
+    description: "List available addon providers",
+    args: [],
+    commands: [
+      addonShowProviderCommand
+    ]
+  }, addon("listProviders"));
+
+  var addonCommands = cliparse.command("addon", {
+    description: "Manage addons",
+    options: [
+      aliasOption,
+      showAllAddonsOption
+    ],
+    commands: [
+      addonCreateCommand,
+      addonLinkCommand,
+      addonUnlinkCommand,
+      addonDeleteCommand,
+      addonProvidersCommand
+    ]
+  }, addon("list"));
 
   // CLI PARSER
   var cliParser = cliparse.cli({
@@ -262,7 +346,8 @@ function run() {
       domainCommands,
       stopCommand,
       statusCommand,
-      activityCommand
+      activityCommand,
+      addonCommands
     ]
   });
 

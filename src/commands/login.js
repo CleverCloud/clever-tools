@@ -8,6 +8,7 @@ var Bacon = require("baconjs");
 
 var Logger = require("../logger.js");
 var conf = require("../models/configuration.js");
+var Interact = require("../models/interact.js");
 
 function getOpenCommand() {
   Logger.debug("Get the right command to open a tab in a browser…")
@@ -42,19 +43,12 @@ function runCommand(command) {
   });
 }
 
-function ask(question) {
-  var readline = require("readline").createInterface({
-    input: process.stdin,
-    output: process.stdout
-  });
 
-  return Bacon.fromCallback(_.partial(readline.question.bind(readline), question)).doAction(readline.close.bind(readline));
-}
 
 function getOAuthData() {
   Logger.debug("Ask for tokens…");
-  var s_token = ask("Enter CLI token: ");
-  var s_secret = s_token.flatMapLatest(_.partial(ask, "Enter CLI secret: "));
+  var s_token = Interact.ask("Enter CLI token: ");
+  var s_secret = s_token.flatMapLatest(_.partial(Interact.ask, "Enter CLI secret: "));
 
   return Bacon.combineTemplate({
     token: s_token,
