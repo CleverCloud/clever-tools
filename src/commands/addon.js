@@ -95,6 +95,25 @@ var unlink = addon.unlink = function(api, params) {
   s_result.onError(Logger.error);
 };
 
+var adelete = addon.delete = function(api, params) {
+  var alias = params.options.alias;
+  var skipConfirmation = params.options.yes;
+  var addonId = params.args[0];
+
+  var s_appData = AppConfig.getAppData(alias);
+
+
+  var s_result = s_appData.flatMap(function(appData) {
+    return Addon.delete(api, appData.org_id, addonId, skipConfirmation);
+  });
+
+  s_result.onValue(function() {
+    Logger.println("Addon " + addonId + " sucessfully deleted");
+  });
+  s_result.onError(Logger.error);
+};
+
+
 var listProviders = addon.listProviders = function(api, params) {
   var s_providers = Addon.listProviders(api);
 

@@ -108,6 +108,18 @@ Addon.unlink = function(api, appId, orgaId, addonId) {
   return api.owner(orgaId).applications._.addons._.delete().withParams(params).send();
 };
 
+Addon.delete = function(api, orgaId, addonId, skipConfirmation) {
+  var params = orgaId ? [orgaId, addonId] : [addonId];
+
+  var confirmation = skipConfirmation
+    ? Bacon.once()
+    : Interact.confirm("Deleting the addon can't be undone, are you sure? ", "No confirmation, aborting addon deletion");
+
+  return confirmation.flatMapLatest(function() {
+    return api.owner(orgaId).addons._.delete().withParams(params).send();
+  });
+};
+
 Addon.completeRegion = function() {
   return autocomplete.words(["eu", "us"]);
 };

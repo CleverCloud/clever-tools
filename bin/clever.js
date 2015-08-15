@@ -126,6 +126,7 @@ function run() {
       complete: addon("completePlan")
   });
   var confirmAddonCreationOption = cliparse.flag("yes", { aliases: ["y"], description: "Skip confirmation even if the addon is not free" });
+  var confirmAddonDeletionOption = cliparse.flag("yes", { aliases: ["y"], description: "Skip confirmation and delete the addon directly" });
 
   // CREATE COMMAND
   var appCreateCommand = cliparse.command("create", {
@@ -289,6 +290,16 @@ function run() {
     ]
   }, addon("unlink"));
 
+  var addonDeleteCommand = cliparse.command("delete", {
+    description: "Delete an addon",
+    options: [
+      confirmAddonDeletionOption,
+    ],
+    args: [
+      addonIdArgument
+    ]
+  }, addon("delete"));
+
   var addonShowProviderCommand = cliparse.command("show", {
     description: "Show information about an addon provider",
     args: [addonProviderArgument]
@@ -312,6 +323,7 @@ function run() {
       addonCreateCommand,
       addonLinkCommand,
       addonUnlinkCommand,
+      addonDeleteCommand,
       addonProvidersCommand
     ]
   }, addon("list"));
