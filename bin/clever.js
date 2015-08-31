@@ -50,7 +50,7 @@ var create = lazyRequiref("../src/commands/create.js");
 var link = lazyRequiref("../src/commands/link.js");
 var unlink = lazyRequiref("../src/commands/unlink.js");
 var env = lazyRequire("../src/commands/env.js");
-var log = lazyRequiref("../src/commands/log.js");
+var logs = lazyRequiref("../src/commands/logs.js");
 var login = lazyRequiref("../src/commands/login.js");
 var deploy = lazyRequiref("../src/commands/deploy.js");
 var cancelDeploy = lazyRequiref("../src/commands/cancel-deploy.js");
@@ -182,13 +182,13 @@ function run() {
     ]
   }, env("list"));
 
-  // LOG COMMAND
-  var logCommand = cliparse.command("log", {
-    description: "Fetch some application logs, continuously",
+  // LOGS COMMAND
+  var logsCommand = cliparse.command("logs", {
+    description: "Fetch application logs, continuously",
     options: [
       aliasOption
     ]
-  }, log);
+  }, logs);
 
   // LOGIN COMMAND
   var loginCommand = cliparse.command("login", {
@@ -339,7 +339,7 @@ function run() {
       appLinkCommand,
       appUnlinkCommand,
       envCommands,
-      logCommand,
+      logsCommand,
       loginCommand,
       cancelDeployCommand,
       deployCommand,
