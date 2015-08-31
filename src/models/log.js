@@ -2,6 +2,7 @@ var WebSocket = require("ws");
 var Bacon = require("baconjs");
 var _ = require("lodash");
 var request = require("request");
+var colors = require("colors");
 
 var Logger = require("../logger.js");
 var conf = require("./configuration.js");
@@ -68,10 +69,30 @@ Log.getOldLogs = function(api, app_id) {
   });
 }
 
+var isCleverMessage = function(line) {
+  return line._source.syslog_program === "/home/bas/rubydeployer/deployer.rb";
+};
+
+var isDeploymentSuccessMessage = function(line) {
+  return isCleverMessage(line) &&
+  _.startsWith(line._source["@message"].toLowerCase(), "successfully deployed in");
+};
+
+var isDeploymentFailedMessage = function(line) {
+  return isCleverMessage(line) &&
+  _.startsWith(line._source["@message"].toLowerCase(), "deploy failed in");
+};
+
 Log.getAppLogs = function(api, appId) {
   return Log.getOldLogs(api, appId)
         .merge(Log.getNewLogs(api, appId))
         .map(function(line) {
-          return line._source["@timestamp"] + ": " + line._source["@message"];
+          if(isDeploymentSuccessMessage(line)) {
+            return line._source["@timestamp"] + ": " + line._source["@message"].bold.green;
+          } else if(isDeploymentFailedMessage(line)) {
+            return line._source["@timestamp"] + ": " + line._source["@message"].bold.red;
+          } else {
+            return line._source["@timestamp"] + ": " + line._source["@message"];
+          }
         });
 };
