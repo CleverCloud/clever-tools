@@ -51,10 +51,7 @@ Log.getLogUrl = _.partial(function(template, appId, timestamp) {
 
 Log.getNewLogs = function(api, appId) {
   var url = Log.getLogUrl(appId, new Date().toISOString());
-  return Log.getLogsFromWS(url, api.session.getAuthorization())
-        .map(function(line) {
-          return line._source["@timestamp"] + ": " + line._source["@message"];
-        });
+  return Log.getLogsFromWS(url, api.session.getAuthorization());
 };
 
 Log.getOldLogs = function(api, app_id) {
@@ -62,15 +59,19 @@ Log.getOldLogs = function(api, app_id) {
       url: "https://logs-api.clever-cloud.com/logs/" + app_id,
       qs: { limit: 300 },
       headers: {
-        authorization: api.session.getAuthorization()
+        authorization: api.session.getAuthorization(),
+        "Accept": "application/json"
       }
   })
   return s_res.flatMapLatest(function(res) {
-    return Bacon.fromArray(res.body.split("\n").reverse());
+    return Bacon.fromArray(JSON.parse(res.body).reverse());
   });
 }
 
 Log.getAppLogs = function(api, appId) {
   return Log.getOldLogs(api, appId)
-        .merge(Log.getNewLogs(api, appId));
+        .merge(Log.getNewLogs(api, appId))
+        .map(function(line) {
+          return line._source["@timestamp"] + ": " + line._source["@message"];
+        });
 };
