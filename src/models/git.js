@@ -95,7 +95,7 @@ module.exports = function(repositoryPath) {
     Logger.debug("Create a git signature…");
     var signature = nodegit.Signature.now("clever-tools", "support@clever-cloud.com");
 
-    Logger.debug("Fetch " + remote.name() + "…");
+    Logger.debug("Fetching " + remote.name() + "…");
     return Bacon.fromPromise(remote.fetch([remote.name()], signature, null)).map(remote);
   };
 
@@ -105,8 +105,8 @@ module.exports = function(repositoryPath) {
 
     var s_timeout = timeout > 0 ? Bacon.later(timeout, {}) : Bacon.never();
     var fetch = function() {
-      process.stdout.write(".");
-      return Bacon.fromPromise(remote.fetch(signature, null)).map(remote).flatMapError(function(error) {
+      Logger.debug("Fetching " + remote.name());
+      return Bacon.fromPromise(remote.fetch(["refs/heads/master"], signature, null)).map(remote).flatMapError(function(error) {
         return (error.message != "Early EOF") ? new Bacon.Error(error) : Bacon.later(10000, {}).flatMapLatest(function() {
           return fetch();
         });
@@ -115,7 +115,7 @@ module.exports = function(repositoryPath) {
 
     Logger.debug("Wait for " + remote.name() + " to be fetchable…");
     var s_fetch = fetch().takeUntil(s_timeout).doAction(function() {
-      process.stdout.write("\n");
+      Logger.debug("Fetched " + remote.name());
     });
 
     return s_fetch;
@@ -136,36 +136,21 @@ module.exports = function(repositoryPath) {
 
   Git.push = function(remote, branch) {
     Logger.debug("Prepare the push…");
-    return Bacon.fromPromise(nodegit.Push.create(remote))
-      .flatMapLatest(function(push) {
-        Logger.debug("Add the refspec…");
 
-        var s_current_branch = Git.getCurrentBranch();
+    var s_current_branch = Git.getCurrentBranch();
+    var s_branch = branch == "" ? s_current_branch : Git.getBranch(branch);
 
-        var s_branch = branch == "" ? s_current_branch : Git.getBranch(branch);
-
-        return s_branch.flatMapLatest(function(branch) {
-          var retval = push.addRefspec(branch + ":refs/heads/master");
-          return retval == 0 ? Bacon.once(push) : new Bacon.Error();
-        });
-      })
-      .flatMapLatest(function(push) {
-        Logger.debug("Send data…");
-
-        return Bacon.fromPromise(push.finish()).map(push);
-      })
-      .flatMapLatest(function(push) {
-        var success = push.unpackOk();
-
-        return success ? Bacon.once(push) : new Bacon.Error();
-      })
-      .flatMapError(function(error) {
-        var errors = (error ? [new Bacon.Error(error)] : []).concat([
-          new Bacon.Error("Cannot push your source code to Clever-Cloud.")
-        ]);
-
-        return Bacon.fromArray(errors);
+    return s_branch.flatMapLatest(function(branch) {
+      remote.setCallbacks({
+        certificateCheck: function() { return 1; },
+        credentials: function(url, userName) {
+          return nodegit.Cred.sshKeyFromAgent(userName);
+        }
       });
+
+      Logger.debug("Pushing to Clever Cloud");
+      return Bacon.fromPromise(remote.push([branch + ":refs/heads/master"]));
+    });
   };
 
   return Git;
