@@ -61,8 +61,10 @@ var deploy = module.exports = function(api, params) {
     s_deploymentEnd.onValue(function(e) {
       if(e.data.state === 'OK') {
         Logger.println('Deployment successful');
+        process.exit(0);
       } else {
         Logger.println('Deployment failed. Please check the logs');
+        process.exit(1);
       }
     });
   } else {
