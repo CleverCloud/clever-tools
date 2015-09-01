@@ -51,7 +51,7 @@ var deploy = module.exports = function(api, params) {
       return e.event === 'DEPLOYMENT_ACTION_BEGIN';
      }).first();
     s_deploymentStart.onValue(function(e) {
-      Logger.println("Deployment started");
+      Logger.println("Deployment started".bold.blue);
     });
 
     var s_deploymentEnd = s_deploymentEvents.filter(function(e) {
@@ -60,10 +60,10 @@ var deploy = module.exports = function(api, params) {
 
     s_deploymentEnd.onValue(function(e) {
       if(e.data.state === 'OK') {
-        Logger.println('Deployment successful');
+        Logger.println('Deployment successful'.bold.green);
         process.exit(0);
       } else {
-        Logger.println('Deployment failed. Please check the logs');
+        Logger.println('Deployment failed. Please check the logs'.bold.red);
         process.exit(1);
       }
     });
