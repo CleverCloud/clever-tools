@@ -89,7 +89,7 @@ describe("log", function() {
   });
 
   it("should be able to fetch some logs", function(done) {
-    var s_logs = log.getAppLogs("app_12345", "AUTHORIZATION");
+    var s_logs = log.getAppLogs("app_12345", "AUTHORIZATION", true);
     var context = this;
 
     s_logs.subscribe(function(event) {

@@ -88,9 +88,15 @@ var isDeploymentFailedMessage = function(line) {
   _.startsWith(line._source["@message"].toLowerCase(), "deploy failed in");
 };
 
-Log.getAppLogs = function(api, appId) {
-  return Log.getOldLogs(api, appId)
-        .merge(Log.getNewLogs(api, appId))
+Log.getAppLogs = function(api, appId, fetchOldLogs) {
+  var s_logs;
+  if(fetchOldLogs) {
+    s_logs = Log.getOldLogs(api, appId)
+            .merge(Log.getNewLogs(api, appId));
+  } else {
+    s_logs = Log.getNewLogs(api, appId);
+  }
+  return s_logs
         .map(function(line) {
           if(isDeploymentSuccessMessage(line)) {
             return line._source["@timestamp"] + ": " + line._source["@message"].bold.green;
