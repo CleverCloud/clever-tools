@@ -65,6 +65,7 @@ Log.getOldLogs = function(api, app_id) {
       }
   })
   return s_res.flatMapLatest(function(res) {
+    Logger.debug("Received old logs");
     var jsonBody = _.attempt(JSON.parse, res.body);
     if(_.isError(jsonBody)) {
       return new Bacon.Error("Received invalid JSON");
