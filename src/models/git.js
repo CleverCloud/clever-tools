@@ -74,17 +74,19 @@ module.exports = function(repositoryPath) {
     // Create a remote only if it does not already exist
     var s_newRemote = s_existingRemote.errors().flatMapError(function() {
       Logger.debug("Create a \"" + name + "\" remote pointing to " + url);
-      return !nodegit.Remote.validUrl(url) ? new Bacon.Error("The remote url (" + url + ") is invalid.") : Git.getRepository().flatMapLatest(function(repository) {
-        return Bacon.fromPromise(nodegit.Remote.create(repository, name, url)).map(function(remote) {
-          Logger.debug("Use ssh-agent for authentication…");
-          remote.setCallbacks({
-            credentials: function(url, username) {
-              return nodegit.Cred.sshKeyFromAgent(username);
-            }
-          });
-
-          return remote;
+      return Git.getRepository().flatMapLatest(function(repository) {
+        Bacon.fromPromise(nodegit.Remote.create(repository, name, url));
+        Logger.debug("Created remote " + name);
+        return Git.getRemote(name);
+      }).flatMapLatest(function(remote) {
+        Logger.debug("Use ssh-agent for authentication…");
+        remote.setCallbacks({
+          credentials: function(url, username) {
+            return nodegit.Cred.sshKeyFromAgent(username);
+          }
         });
+
+        return remote;
       });
     });
 
