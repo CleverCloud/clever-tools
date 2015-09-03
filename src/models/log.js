@@ -60,7 +60,7 @@ Log.getOldLogs = function(api, app_id) {
       url: "https://logs-api.clever-cloud.com/logs/" + app_id,
       qs: { limit: 300 },
       headers: {
-        authorization: api.session.getAuthorization('GET', conf.API_HOST + '/logs/' + app_id, {})
+        authorization: api.session.getAuthorization('GET', conf.API_HOST + '/logs/' + app_id, {}),
         "Accept": "application/json"
       }
   });
