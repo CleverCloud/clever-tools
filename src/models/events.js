@@ -42,7 +42,7 @@ Event.getEventsFromWS = function(url, authorization) {
 
 Event.getEvents = function(api, appId) {
   var url = conf.EVENT_URL;
-  return Event.getEventsFromWS(url, api.session.getAuthorization())
+  return Event.getEventsFromWS(url, api.session.getAuthorization('GET', conf.API_HOST + '/events/', {}))
         .map(function(event) {
           try {
             var data = JSON.parse(event.data);

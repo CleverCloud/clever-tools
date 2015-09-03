@@ -5,32 +5,22 @@ var Logger = require("../logger.js");
 module.exports = function() {
   var s_oauthData = conf.loadOAuthConf();
 
-  var s_authorization = s_oauthData.map(function(oauthData) {
-    var data = {
-      realm: conf.API_HOST,
-      oauth_consumer_key: conf.OAUTH_CONSUMER_KEY,
-      oauth_token: oauthData.token,
-      oauth_signature_method: "PLAINTEXT",
-      oauth_signature: conf.OAUTH_CONSUMER_SECRET + "&" + oauthData.secret,
-      oauth_timestamp: Math.floor(Date.now() / 1000),
-      oauth_nonce: Math.floor(Math.random() * 1000000)
-    };
-
-    return "OAuth " + _.map(data, function(value, key) {
-      return key + "=\"" + value + "\"";
-    }).join(", ");
-  });
-
-  var s_api = s_authorization.map(function(authorization) {
-    var api = require("clever-client")({
+  var s_api = s_oauthData.map(function(tokens) {
+    var api = require("clever-client")(_.defaults(conf, {
       API_HOST: conf.API_HOST,
-      API_AUTHORIZATION: authorization,
+      API_CONSUMER_KEY: conf.OAUTH_CONSUMER_KEY,
+      API_CONSUMER_SECRET: conf.OAUTH_CONSUMER_SECRET,
+      API_OAUTH_TOKEN: tokens.token,
+      API_OAUTH_TOKEN_SECRET: tokens.secret,
       logger: Logger
-    });
+    }));
 
     // Waiting for clever-client to be fully node compliant
-    api.session.getAuthorization = function() {
-      return authorization;
+    api.session.getAuthorization = function(httpMethod, url, params) {
+      return api.session.getHMACAuthorization(httpMethod, url, params, {
+        user_oauth_token: tokens.token,
+        user_oauth_token_secret: tokens.secret
+      });
     };
 
     return api;

@@ -52,7 +52,7 @@ Log.getLogUrl = _.partial(function(template, appId, timestamp) {
 
 Log.getNewLogs = function(api, appId) {
   var url = Log.getLogUrl(appId, new Date().toISOString());
-  return Log.getLogsFromWS(url, api.session.getAuthorization());
+  return Log.getLogsFromWS(url, api.session.getAuthorization('GET', conf.API_HOST + '/logs/' + appId, {}))
 };
 
 Log.getOldLogs = function(api, app_id) {
@@ -61,10 +61,11 @@ Log.getOldLogs = function(api, app_id) {
       url: "https://logs-api.clever-cloud.com/logs/" + app_id,
       qs: { limit: 300 },
       headers: {
-        authorization: api.session.getAuthorization(),
+        authorization: api.session.getAuthorization('GET', conf.API_HOST + '/logs/' + app_id, {}),
         "Accept": "application/json"
       }
-  })
+  });
+
   return s_res.flatMapLatest(function(res) {
     Logger.debug("Received old logs");
     var jsonBody = _.attempt(JSON.parse, res.body);
@@ -74,7 +75,7 @@ Log.getOldLogs = function(api, app_id) {
       return Bacon.fromArray(jsonBody.reverse());
     }
   });
-}
+};
 
 var isCleverMessage = function(line) {
   return line._source.syslog_program === "/home/bas/rubydeployer/deployer.rb";
