@@ -56,7 +56,8 @@ Log.getNewLogs = function(api, appId) {
 };
 
 Log.getOldLogs = function(api, app_id) {
-  var s_res= Bacon.fromNodeCallback(request, {
+  var s_res = Bacon.fromNodeCallback(request, {
+      agent: new (require("https").Agent)({ keepAlive: true }),
       url: "https://logs-api.clever-cloud.com/logs/" + app_id,
       qs: { limit: 300 },
       headers: {
