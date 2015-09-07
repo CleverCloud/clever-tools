@@ -123,6 +123,15 @@ module.exports = function(repositoryPath) {
     return s_fetch;
   };
 
+  Git.getRemoteCommitId = function(remoteName) {
+    return Git.getRepository().flatMapLatest(function(repo) {
+      return Bacon.fromPromise(repo.getReferenceCommit(remoteName + '/master'))
+            .map(function(commit) {
+              return commit.id().toString();
+            });
+    });
+  };
+
   Git.getCommitId = function(branchName) {
     var s_branch = branchName == "" ? Git.getCurrentBranch() : Git.getBranch(branchName);
 
@@ -136,22 +145,31 @@ module.exports = function(repositoryPath) {
     });
   };
 
-  Git.push = function(remote, branch) {
+  Git.push = function(remote, branch, s_commitId) {
     Logger.debug("Prepare the push…");
 
     var s_current_branch = Git.getCurrentBranch();
     var s_branch = branch == "" ? s_current_branch : Git.getBranch(branch);
 
     return s_branch.flatMapLatest(function(branch) {
-      remote.setCallbacks({
-        certificateCheck: function() { return 1; },
-        credentials: function(url, userName) {
-          return nodegit.Cred.sshKeyFromAgent(userName);
-        }
-      });
 
-      Logger.debug("Preparing the push");
-      return Bacon.fromPromise(remote.push([branch + ":refs/heads/master"]));
+      return s_commitId.flatMapLatest(function(commitIdToPush) {
+        return Git.getRemoteCommitId(remote.name()).flatMapLatest(function(remoteCommitId) {
+          if(remoteCommitId != commitIdToPush) {
+            remote.setCallbacks({
+              certificateCheck: function() { return 1; },
+              credentials: function(url, userName) {
+                return nodegit.Cred.sshKeyFromAgent(userName);
+              }
+            });
+
+            Logger.debug("Preparing the push");
+            return Bacon.fromPromise(remote.push([branch + ":refs/heads/master"]));
+          } else {
+            return new Bacon.Error("Nothing to push");
+          }
+        });
+      });
     });
   };
 

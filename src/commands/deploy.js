@@ -31,7 +31,7 @@ var deploy = module.exports = function(api, params) {
 
   var s_push = s_fetch.flatMapLatest(function(remote) {
     Logger.println("Pushing source code to Clever-Cloud.");
-    return Git.push(remote, branch);
+    return Git.push(remote, branch, s_commitId);
   }).toProperty();
 
   s_push.onValue(function() {
