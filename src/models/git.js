@@ -150,7 +150,7 @@ module.exports = function(repositoryPath) {
         }
       });
 
-      Logger.debug("Pushing to Clever Cloud");
+      Logger.debug("Preparing the push");
       return Bacon.fromPromise(remote.push([branch + ":refs/heads/master"]));
     });
   };
