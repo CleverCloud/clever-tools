@@ -89,12 +89,16 @@ describe("log", function() {
   });
 
   it("should be able to fetch some logs", function(done) {
-    var s_logs = log.getAppLogs("app_12345", "AUTHORIZATION", true);
+    var fakeApi = {
+      session: {
+        getAuthorization: function() { return "AUTHORIZATION"; }
+      }
+    };
+    var s_logs = log.getAppLogs(fakeApi, "app_12345", "AUTHORIZATION", true);
     var context = this;
-
     s_logs.subscribe(function(event) {
       context.expect(event.hasValue()).toBe(true);
-      context.expect(event.value()._source["@message"]).toBe("Received signal 15; terminating.");
+      context.expect(event.value()).toBe("2015-01-06T18:10:37.606Z: Received signal 15; terminating.");
       done();
 
       return Bacon.noMore;
