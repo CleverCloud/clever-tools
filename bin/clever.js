@@ -127,6 +127,7 @@ function run() {
   });
   var confirmAddonCreationOption = cliparse.flag("yes", { aliases: ["y"], description: "Skip confirmation even if the addon is not free" });
   var confirmAddonDeletionOption = cliparse.flag("yes", { aliases: ["y"], description: "Skip confirmation and delete the addon directly" });
+  var sourceableEnvVarsList = cliparse.flag("add-export", { aliases: [], description: "Display sourceable env variables setting" });
 
   // CREATE COMMAND
   var appCreateCommand = cliparse.command("create", {
@@ -171,14 +172,22 @@ function run() {
     ]
   }, env("rm"));
 
+  var envImportCommand = cliparse.command("import", {
+    description: "Load environment variables from STDIN",
+    args: [
+    ]
+  }, env("importEnv"));
+
   var envCommands = cliparse.command("env", {
     description: "Manage Clever-Cloud application environment",
     options: [
-      aliasOption
+      aliasOption,
+      sourceableEnvVarsList
     ],
     commands: [
       envSetCommand,
-      envRemoveCommand
+      envRemoveCommand,
+      envImportCommand
     ]
   }, env("list"));
 

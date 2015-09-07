@@ -13,6 +13,7 @@ var env = module.exports;
 
 var list = env.list = function(api, params) {
   var alias = params.options.alias;
+  var addExport = params.options["add-export"];
 
   var s_appData = AppConfig.getAppData(alias);
 
@@ -22,7 +23,11 @@ var list = env.list = function(api, params) {
 
   s_env.onValue(function(envs) {
     console.log(_.map(envs, function(x) {
-      return x.name + "=" + x.value;
+      if(addExport) {
+        return "export " + x.name + "='" + x.value.replace(/'/g, "'\\''") + "'";
+      } else {
+        return x.name + "=" + x.value;
+      }
     }).join('\n'));
   });
 
@@ -62,4 +67,40 @@ var rm = env.rm = function(api, params) {
   });
 
   s_env.onError(Logger.error);
+};
+
+var importEnv = env.importEnv = function(api, params) {
+  var name = params.args[0];
+  var alias = params.options.alias;
+
+  var s_appData = AppConfig.getAppData(alias);
+
+  var readline = require('readline');
+  var rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+    terminal: false
+  });
+
+  var pairs = [];
+
+  rl.on('line', function(line){
+    var p = line.split('=');
+    pairs.push(_.map(line.split('='), function(x) { return x.trim(); }));
+  });
+
+  rl.on('close', function(){
+    var s_env = s_appData.flatMap(function(appData) {
+
+      return Env.bulkSet(api, pairs, appData.app_id, appData.org_id);
+    });
+
+    s_env.onValue(function() {
+      console.log("Environment variables have been set");
+    });
+
+    s_env.onError(Logger.error);
+  });
+
+
 };
