@@ -53,13 +53,9 @@ var deploy = module.exports = function(api, params) {
 
   s_deploy.onValue(function(v) {
     Logger.println("Your source code has been pushed to Clever-Cloud.");
-  });
 
-  s_deploy.onError(Logger.error);
-
-  if(quiet) {
-    var s_deploymentEvents = s_deploy.flatMapLatest(function() {
-      s_appData.flatMapLatest(function(appData) {
+    if(quiet) {
+      var s_deploymentEvents = s_appData.flatMapLatest(function(appData) {
         return s_commitId.flatMapLatest(function(commitId) {
           return Event.getEvents(api, appData.app_id)
                 .filter(function(e) {
@@ -67,45 +63,45 @@ var deploy = module.exports = function(api, params) {
                 });
         });
       });
-    });
 
-    var s_deploymentStart = s_deploymentEvents.filter(function(e) {
-      return e.event === 'DEPLOYMENT_ACTION_BEGIN';
-     }).first();
-    s_deploymentStart.onValue(function(e) {
-      Logger.println("Deployment started".bold.blue);
-    });
-
-    var s_deploymentEnd = s_deploymentEvents.filter(function(e) {
-      return e.event === 'DEPLOYMENT_ACTION_END';
-     }).first();
-
-    s_deploymentEnd.onValue(function(e) {
-      if(e.data.state === 'OK') {
-        Logger.println('Deployment successful'.bold.green);
-        process.exit(0);
-      } else {
-        Logger.println('Deployment failed. Please check the logs'.bold.red);
-        process.exit(1);
-      }
-    });
-  } else {
-    var s_app = s_deploy
-      .flatMapLatest(function() {
-        return s_remote;
-      })
-      .flatMapLatest(function(remote) {
-        Logger.debug("Fetch application information…")
-        var appId = remote.url().replace(/^.*(app_.*)\.git$/, "$1");
-        return Application.get(api, appId);
+      var s_deploymentStart = s_deploymentEvents.filter(function(e) {
+        return e.event === 'DEPLOYMENT_ACTION_BEGIN';
+       }).first();
+      s_deploymentStart.onValue(function(e) {
+        Logger.println("Deployment started".bold.blue);
       });
 
-    var s_logs = s_app.flatMapLatest(function(app) {
-      Logger.debug("Fetch application logs…");
-      return Log.getAppLogs(api, app.id);
-    });
+      var s_deploymentEnd = s_deploymentEvents.filter(function(e) {
+        return e.event === 'DEPLOYMENT_ACTION_END';
+       }).first();
 
-    s_logs.onValue(Logger.println);
-    s_logs.onError(Logger.error);
-  }
+      s_deploymentEnd.onValue(function(e) {
+        if(e.data.state === 'OK') {
+          Logger.println('Deployment successful'.bold.green);
+          process.exit(0);
+        } else {
+          Logger.println('Deployment failed. Please check the logs'.bold.red);
+          process.exit(1);
+        }
+      });
+    } else {
+      var s_app = s_remote
+        .flatMapLatest(function(remote) {
+          Logger.debug("Fetch application information…")
+          var appId = remote.url().replace(/^.*(app_.*)\.git$/, "$1");
+          return Application.get(api, appId);
+        });
+
+      var s_logs = s_app.flatMapLatest(function(app) {
+        Logger.debug("Fetch application logs…");
+        return Log.getAppLogs(api, app.id);
+      });
+
+      s_logs.onValue(Logger.println);
+      s_logs.onError(Logger.error);
+    }
+  });
+
+  s_deploy.onError(Logger.error);
+
 };
