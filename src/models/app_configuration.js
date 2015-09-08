@@ -76,9 +76,13 @@ AppConfiguration.getAppData = function(alias) {
     if(matchingApps.length === 1) {
       return Bacon.once(matchingApps[0]);
     } else if(matchingApps.length === 0) {
-      return new Bacon.Error("no matching application");
+      if(alias) {
+        return new Bacon.Error("There are no applications matching this alias");
+      } else {
+        return new Bacon.Error("There are no applications linked. You can add one with `clever link`");
+      }
     } else if(matchingApps.length > 1) {
-      return new Bacon.Error("multiple matching applications");
+      return new Bacon.Error("Several applications are linked. You can specify one with the `--alias` option");
     }
   });
 };
