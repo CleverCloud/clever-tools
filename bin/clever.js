@@ -111,6 +111,8 @@ function run() {
   var showAllAddonsOption = cliparse.flag("show-all", { description: "Show all available addons" });
   var followOption = cliparse.flag("follow", { aliases: ["f"], description: "Track new deployments in activity list" });
   var quietOption = cliparse.flag("quiet", { aliases: ["q"], description: "Don't show logs during deployment" });
+  var redeployOption = cliparse.flag("redeploy", { aliases: [], description: "Trigger a redeploy even if nothing has changed" });
+  var forceDeployOption = cliparse.flag("force", { aliases: ["f"], description: "Force deploy even if it's not fast-forwardable" });
   var addonRegionOption = cliparse.option("region", {
       alias: ["r"],
       default: "eu",
@@ -218,7 +220,9 @@ function run() {
     options: [
       aliasOption,
       branchOption,
-      quietOption
+      quietOption,
+      redeployOption,
+      forceDeployOption
     ]
   }, deploy);
 

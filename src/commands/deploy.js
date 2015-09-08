@@ -17,8 +17,10 @@ var deploy = module.exports = function(api, params) {
   var alias = params.options.alias;
   var branch = params.options.branch;
   var quiet = params.options.quiet;
+  var redeploy = params.options.redeploy;
+  var force = params.options.force;
 
-  var s_appData = AppConfig.getAppData(alias);
+  var s_appData = AppConfig.getAppData(alias).toProperty();
   var s_commitId = Git.getCommitId(branch);
 
   var s_remote = s_appData.flatMapLatest(function(app_data) {
@@ -31,20 +33,39 @@ var deploy = module.exports = function(api, params) {
 
   var s_push = s_fetch.flatMapLatest(function(remote) {
     Logger.println("Pushing source code to Clever-Cloud.");
-    return Git.push(remote, branch, s_commitId);
+    return Git.push(remote, branch, s_commitId, force);
   }).toProperty();
 
-  s_push.onValue(function() {
+  var s_deploy = s_push.flatMapError(function(error) {
+    if(error == "Nothing to push") {
+      if(redeploy) {
+        return s_appData.flatMapLatest(function(app_data) {
+          Logger.println("Nothing to push, launching manual redeploy");
+          return Application.redeploy(api, app_data.app_id, app_data.org_id);
+        });
+      } else {
+        return new Bacon.Error(error);
+      }
+    } else {
+      return new Bacon.Error(error);
+    }
+  });
+
+  s_deploy.onValue(function(v) {
     Logger.println("Your source code has been pushed to Clever-Cloud.");
   });
 
+  s_deploy.onError(Logger.error);
+
   if(quiet) {
-    var s_deploymentEvents = s_appData.flatMapLatest(function(appData) {
-      return s_commitId.flatMapLatest(function(commitId) {
-        return Event.getEvents(api, appData.app_id)
-              .filter(function(e) {
-                return e.data && e.data.commit == commitId;
-              });
+    var s_deploymentEvents = s_deploy.flatMapLatest(function() {
+      s_appData.flatMapLatest(function(appData) {
+        return s_commitId.flatMapLatest(function(commitId) {
+          return Event.getEvents(api, appData.app_id)
+                .filter(function(e) {
+                  return e.data && e.data.commit == commitId;
+                });
+        });
       });
     });
 
@@ -69,7 +90,7 @@ var deploy = module.exports = function(api, params) {
       }
     });
   } else {
-    var s_app = s_push
+    var s_app = s_deploy
       .flatMapLatest(function() {
         return s_remote;
       })

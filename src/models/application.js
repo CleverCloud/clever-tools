@@ -152,3 +152,10 @@ Application.stop = function(api, appId, orgaId) {
 
   return api.owner(orgaId).applications._.instances.delete().withParams(params).send();
 };
+
+Application.redeploy = function(api, appId, orgaId) {
+  Logger.debug("Redeploying the app: " + appId);
+  var params = orgaId ? [orgaId, appId] : [appId];
+
+  return api.owner(orgaId).applications._.instances.post().withParams(params).send();
+};

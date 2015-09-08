@@ -145,9 +145,10 @@ module.exports = function(repositoryPath) {
     });
   };
 
-  Git.push = function(remote, branch, s_commitId) {
+  Git.push = function(remote, branch, s_commitId, force) {
     Logger.debug("Prepare the push…");
 
+    var forcePush = force ? '+' : '';
     var s_current_branch = Git.getCurrentBranch();
     var s_branch = branch == "" ? s_current_branch : Git.getBranch(branch);
 
@@ -164,7 +165,7 @@ module.exports = function(repositoryPath) {
             });
 
             Logger.debug("Preparing the push");
-            return Bacon.fromPromise(remote.push([branch + ":refs/heads/master"]));
+            return Bacon.fromPromise(remote.push([forcePush + branch + ":refs/heads/master"]));
           } else {
             return new Bacon.Error("Nothing to push");
           }
