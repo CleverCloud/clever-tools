@@ -83,8 +83,25 @@ describe("git", function() {
     });
   });
 
-  it("should be able to push to the origin remote", function(done) {
-    git.getRemote("origin").flatMapLatest(_.partialRight(git.push, "master")).subscribe(function(event) {
+  it("should not push to the origin remote if the remote is up-to-date", function(done) {
+    var s_push = git.getRemote("origin").flatMapLatest(function(remote) {
+      return git.push(remote, "master", git.getCommitId("master"), false);
+    });
+
+    s_push.subscribe(function(event) {
+      expect(event.hasValue()).toBe(false);
+      done();
+
+      return Bacon.noMore;
+    });
+  });
+
+  it("should push to the origin remote", function(done) {
+    var s_push = git.getRemote("origin").flatMapLatest(function(remote) {
+      return git.push(remote, "master", Bacon.once("0000000000000000000000000000000000000000"), false);
+    });
+
+    s_push.subscribe(function(event) {
       expect(event.hasValue()).toBe(true);
       done();
 
