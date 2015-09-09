@@ -9,15 +9,6 @@ Command Line Interface for Clever Cloud.
 npm install -g clever-tools
 ```
 
-
-```
-# To enable auto-completion in bash
-clever --bash-autocomplete-script $(whereis clever | cut -d' ' -f2) > ~/.bash_completion.d/clever
-
-# To enable auto-completion in zsh
-clever --zsh-autocomplete-script $(whereis clever | cut -d' ' -f2) > ~/.zsh.d/completion/_clever
-```
-
 ## How to use
 
 ### Login
