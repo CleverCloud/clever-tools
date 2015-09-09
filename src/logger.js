@@ -11,7 +11,7 @@ var processApiError = function(error) {
 // For each severity, print "[SEVERITY] <message>"
 var Logger = _.foldl(["debug", "info", "warn", "error"], function(logger, severity) {
   var f = console[severity] || console.log;
-  if(process.env["CLEVER_VERBOSE"] || (severity !== "debug" && severity !== "info")) {
+  if(!process.env["CLEVER_QUIET"] && (process.env["CLEVER_VERBOSE"] || (severity !== "debug" && severity !== "info"))) {
     logger[severity] = _.compose(_.partial(f.bind(console), "[" + severity.toUpperCase() + "]"), processApiError);
   } else {
     logger[severity] = function() {};

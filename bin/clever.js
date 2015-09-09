@@ -4,6 +4,11 @@ if(process.argv.indexOf("-v") >= 0 || process.argv.indexOf("--verbose") >= 0) {
   process.env["CLEVER_VERBOSE"] = "1";
 }
 
+if(process.argv.indexOf('--autocomplete-index') >= 0) {
+  // Don't log anything in autocomplete mode
+  process.env["CLEVER_QUIET"] = "1";
+}
+
 var _ = require("lodash");
 var cliparse = require("cliparse");
 
