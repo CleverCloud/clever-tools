@@ -59,6 +59,7 @@ var stop = lazyRequiref("../src/commands/stop.js");
 var status = lazyRequiref("../src/commands/status.js");
 var activity = lazyRequiref("../src/commands/activity.js");
 var addon = lazyRequire("../src/commands/addon.js");
+var list = lazyRequiref("../src/commands/list.js");
 
 var Application = lr("../src/models/application.js");
 
@@ -130,6 +131,7 @@ function run() {
   var confirmAddonCreationOption = cliparse.flag("yes", { aliases: ["y"], description: "Skip confirmation even if the addon is not free" });
   var confirmAddonDeletionOption = cliparse.flag("yes", { aliases: ["y"], description: "Skip confirmation and delete the addon directly" });
   var sourceableEnvVarsList = cliparse.flag("add-export", { aliases: [], description: "Display sourceable env variables setting" });
+  var onlyAliasesOption = cliparse.flag("only-aliases", { aliases: [], description: "List only application aliases" });
 
   // CREATE COMMAND
   var appCreateCommand = cliparse.command("create", {
@@ -341,6 +343,11 @@ function run() {
     ]
   }, addon("list"));
 
+  var listCommand = cliparse.command("list", {
+    description: "List linked applications",
+    options: [ onlyAliasesOption ],
+  }, list);
+
   // CLI PARSER
   var cliParser = cliparse.cli({
     name: "clever",
@@ -360,7 +367,8 @@ function run() {
       stopCommand,
       statusCommand,
       activityCommand,
-      addonCommands
+      addonCommands,
+      listCommand
     ]
   });
 
