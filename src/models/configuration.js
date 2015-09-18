@@ -42,7 +42,7 @@ conf.loadOAuthConf = function() {
   });
 
   return s_oauthData.mapError(function(error) {
-    Logger.warn("Cannot load configuration from " + conf.CONFIGURATION_FILE + " (" + error + ")");
+    Logger.notice("Cannot load configuration from " + conf.CONFIGURATION_FILE + " (" + error + ")");
     return {};
   });
 };
