@@ -109,7 +109,9 @@ var importEnv = env.importEnv = function(api, params) {
 
   rl.on('line', function(line){
     var p = line.split('=');
-    pairs.push(_.map(line.split('='), function(x) { return x.trim(); }));
+    if(line[0] !== '#' && p.length > 0) {
+      pairs.push(_.map(line.split('='), function(x) { return x.trim(); }));
+    }
   });
 
   rl.on('close', function(){
