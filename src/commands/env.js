@@ -14,7 +14,7 @@ var env = module.exports;
 var renderEnvVariables = function(list, addExport) {
   Logger.println(_.map(list, function(x) {
     if(addExport) {
-      return "export " + x.name + "='" + x.value.replace(/'/g, "'\\''") + "'";
+      return "export " + x.name + "='" + x.value.replace(/'/g, "'\\''") + "';";
     } else {
       return x.name + "=" + x.value;
     }
