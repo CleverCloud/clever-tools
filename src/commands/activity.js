@@ -50,7 +50,7 @@ var activity = module.exports = function(api, params) {
   if(!follow) {
     s_activity.onValue(function(deployments) {
       Logger.println(deployments.map(function(deployment, index) {
-        return renderActivityLine(deployment, index == 0);
+        return renderActivityLine(deployment, index == deployments.length - 1);
       }).join('\n'));
     });
     s_activity.onError(Logger.error);
