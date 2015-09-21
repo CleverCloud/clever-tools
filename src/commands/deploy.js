@@ -21,7 +21,7 @@ var deploy = module.exports = function(api, params) {
   var force = params.options.force;
 
   var s_appData = AppConfig.getAppData(alias).toProperty();
-  var s_commitId = Git.getCommitId(branch);
+  var s_commitId = Git.getCommitId(branch).toProperty();
 
   var s_remote = s_appData.flatMapLatest(function(app_data) {
     return Git.createRemote(app_data.alias, app_data.deploy_url).toProperty();
@@ -57,6 +57,7 @@ var deploy = module.exports = function(api, params) {
     if(quiet) {
       var s_deploymentEvents = s_appData.flatMapLatest(function(appData) {
         return s_commitId.flatMapLatest(function(commitId) {
+          Logger.debug("Waiting for events related to commit #" + commitId);
           return Event.getEvents(api, appData.app_id)
                 .filter(function(e) {
                   return e.data && e.data.commit == commitId;
