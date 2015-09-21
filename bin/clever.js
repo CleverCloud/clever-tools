@@ -320,6 +320,14 @@ function run() {
     ]
   }, addon("delete"));
 
+  var addonRenameCommand = cliparse.command("rename", {
+    description: "Rename an addon",
+    args: [
+      addonIdArgument,
+      addonNameArgument
+    ]
+  }, addon("rename"));
+
   var addonShowProviderCommand = cliparse.command("show", {
     description: "Show information about an addon provider",
     args: [addonProviderArgument]
@@ -344,6 +352,7 @@ function run() {
       addonLinkCommand,
       addonUnlinkCommand,
       addonDeleteCommand,
+      addonRenameCommand,
       addonProvidersCommand
     ]
   }, addon("list"));

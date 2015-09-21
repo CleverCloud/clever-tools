@@ -113,6 +113,22 @@ var adelete = addon.delete = function(api, params) {
   s_result.onError(Logger.error);
 };
 
+var rename = addon.rename = function(api, params) {
+  var alias = params.options.alias;
+  var addonId = params.args[0];
+  var newName = params.args[1];
+
+  var s_appData = AppConfig.getAppData(alias);
+
+  var s_result = s_appData.flatMap(function(appData) {
+    return Addon.rename(api, appData.org_id, addonId, newName);
+  });
+
+  s_result.onValue(function() {
+    Logger.println("Addon " + addonId + " sucessfully renamed to " + newName);
+  });
+  s_result.onError(Logger.error);
+};
 
 var listProviders = addon.listProviders = function(api, params) {
   var s_providers = Addon.listProviders(api);

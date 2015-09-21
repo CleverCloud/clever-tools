@@ -120,6 +120,14 @@ Addon.delete = function(api, orgaId, addonId, skipConfirmation) {
   });
 };
 
+Addon.rename = function(api, orgaId, addonId, newName) {
+  var params = orgaId ? [orgaId, addonId] : [addonId];
+
+  return api.owner(orgaId).addons._.put().withParams(params).send(JSON.stringify({
+    name: newName
+  }));
+};
+
 Addon.completeRegion = function() {
   return autocomplete.words(["eu", "us"]);
 };
