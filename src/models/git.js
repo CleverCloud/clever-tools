@@ -128,6 +128,9 @@ module.exports = function(repositoryPath) {
       return Bacon.fromPromise(repo.getReferenceCommit(remoteName + '/master'))
             .map(function(commit) {
               return commit.id().toString();
+            })
+            .mapError(function(e) {
+              return null;
             });
     });
   };
