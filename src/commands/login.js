@@ -25,7 +25,7 @@ function getOpenCommand() {
 }
 
 function runCommand(command) {
-  Logger.debug("Open the token management page in a browser…")
+  Logger.println("Check your browser to get your tokens…")
   return Bacon.fromBinder(function(sink) {
     exec(command, function(error, stdout, stderr) {
       // Don't consider output in stderr as a blocking error because of
