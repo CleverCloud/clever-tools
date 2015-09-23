@@ -1,3 +1,8 @@
+# 0.3.2
+
+ - Fix crash when config files were missing
+ - More information in clever login
+
 # 0.3.1
 
  - Fix postinstall script
