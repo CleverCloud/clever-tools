@@ -1,3 +1,7 @@
+# 0.3.1
+
+ - Fix postinstall script
+
 # 0.3.0
 
  - Add color to deployment related log lines
