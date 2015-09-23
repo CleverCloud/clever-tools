@@ -1,4 +1,4 @@
-#!/bin/env sh
+#!/usr/bin/env sh
 
 cat <<"EOF"
 To enable autocompletion, run 'install-clever-completion' (needs sudo)
