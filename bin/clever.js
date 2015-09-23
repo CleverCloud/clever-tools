@@ -1,5 +1,12 @@
 #! /usr/bin/env node
 
+// Exit cleanly if the program we pipe to exits abruptly
+process.stdout.on('error', function(error) {
+  if(error.code == 'EPIPE') {
+    process.exit(0);
+  }
+});
+
 if(process.argv.indexOf("-v") >= 0 || process.argv.indexOf("--verbose") >= 0) {
   process.env["CLEVER_VERBOSE"] = "1";
 }
