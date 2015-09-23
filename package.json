@@ -14,7 +14,9 @@
   "author": "Rodolphe Belouin <rodolphe.belouin@gmail.com>",
   "license": "MIT",
   "bin": {
-    "clever": "./bin/clever.js"
+    "clever": "./bin/clever.js",
+    "install-clever-completion": "./scripts/install-autocomplete.sh",
+    "uninstall-clever-completion": "./scripts/uninstall-autocomplete.sh"
   },
   "dependencies": {
     "baconjs": "^0.7.70",
@@ -40,7 +42,6 @@
   },
   "scripts": {
     "test": "grunt test",
-    "postinstall": "./scripts/install-autocomplete.sh",
-    "postuninstall": "./scripts/uninstall-autocomplete.sh"
+    "postinstall": "./scripts/postinstall.sh"
   }
 }

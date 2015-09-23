@@ -7,6 +7,9 @@ Command Line Interface for Clever Cloud.
 
 ```
 npm install -g clever-tools
+
+# Install completion scripts
+install-clever-completion
 ```
 
 ## How to use
