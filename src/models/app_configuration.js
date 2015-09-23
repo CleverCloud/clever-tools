@@ -22,7 +22,7 @@ AppConfiguration.loadApplicationConf = function() {
   });
 
   return s_appData.mapError(function(error) {
-    Logger.notice("Cannot load app configuration from " + Config.APP_CONFIGURATION_FILE + " (" + error + ")");
+    Logger.info("Cannot load app configuration from " + Config.APP_CONFIGURATION_FILE + " (" + error + ")");
     return { apps: [] };
   });
 };
