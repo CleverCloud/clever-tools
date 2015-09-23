@@ -96,4 +96,4 @@ clever status [--alias <alias>]
 
 ## How to send feedback?
 
-[Send us an email!](mailto:support@clever-cloud.com) or [submit an issue](https://gitlab.clever-cloud.com/clever-cloud/clever-tools/issues) if you are allowed to.
+[Send us an email!](mailto:support@clever-cloud.com) or [submit an issue](https://github.com/CleverCloud/clever-tools/issues).
