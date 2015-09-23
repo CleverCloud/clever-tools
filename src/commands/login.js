@@ -32,8 +32,7 @@ function runCommand(command) {
       // firefox
       if(error) {
         sink(new Bacon.Error(error));
-      }
-      else {
+      } else {
         sink(stdout);
       }
       sink(new Bacon.End());
@@ -78,7 +77,7 @@ var login = module.exports = function(api, params) {
     .flatMapLatest(getOAuthData)
     .flatMapLatest(writeLoginConfig)
     .map(conf.CONFIGURATION_FILE + " has been updated.");
-  
+
   result.onValue(Logger.println);
   result.onError(Logger.error);
 };
