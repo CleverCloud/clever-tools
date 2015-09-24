@@ -32,7 +32,7 @@ var deploy = module.exports = function(api, params) {
   }).toProperty();
 
   var s_push = s_fetch.flatMapLatest(function(remote) {
-    Logger.println("Pushing source code to Clever-Cloud.");
+    Logger.println("Pushing source code to Clever Cloud.");
     return Git.push(remote, branch, s_commitId, force);
   }).toProperty();
 
@@ -54,7 +54,7 @@ var deploy = module.exports = function(api, params) {
   }).toProperty();
 
   s_deploy.onValue(function(v) {
-    Logger.println("Your source code has been pushed to Clever-Cloud.");
+    Logger.println("Your source code has been pushed to Clever Cloud.");
 
     var s_deploymentEvents = s_appData.flatMapLatest(function(appData) {
       return s_commitId.flatMapLatest(function(commitId) {

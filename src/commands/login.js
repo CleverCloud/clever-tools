@@ -69,9 +69,9 @@ function writeLoginConfig(oauthData) {
       Bacon.fromNodeCallback(
         _.partial(fs.writeFile, conf.CONFIGURATION_FILE, JSON.stringify(oauthData))));
 }
- 
+
 var login = module.exports = function(api, params) {
-  Logger.debug("Try to login to Clever-Cloud…")
+  Logger.debug("Try to login to Clever Cloud…")
   var result = getOpenCommand()
     .flatMapLatest(runCommand)
     .flatMapLatest(getOAuthData)

@@ -82,7 +82,7 @@ function run() {
   var aliasArgument = cliparse.argument("app-alias", { description: "Application alias" });
   var envVariableName = cliparse.argument("variable-name", { description: "Name of the environment variable" });
   var envVariableValue = cliparse.argument("variable-value", { description: "Value of the environment variable" });
-  var fqdnArgument = cliparse.argument("fqdn", { description: "Domain name of the Clever-Cloud application" });
+  var fqdnArgument = cliparse.argument("fqdn", { description: "Domain name of the Clever Cloud application" });
   var addonIdArgument = cliparse.argument("addon-id", { description: "Addon ID" });
   var addonNameArgument = cliparse.argument("addon-name", { description: "Addon name" });
   var addonProviderArgument = cliparse.argument("addon-provider", { description: "Addon provider" });
@@ -147,7 +147,7 @@ function run() {
 
   // CREATE COMMAND
   var appCreateCommand = cliparse.command("create", {
-    description: "Create a Clever-Cloud application",
+    description: "Create a Clever Cloud application",
     args: [appNameArgument],
     options: [
       orgaOption,
@@ -159,7 +159,7 @@ function run() {
 
   // LINK COMMAND
   var appLinkCommand = cliparse.command("link", {
-    description: "Link this repo to an existing Clever-Cloud application",
+    description: "Link this repo to an existing Clever Cloud application",
     args: [appIdArgument],
     options: [
       aliasCreationOption
@@ -168,7 +168,7 @@ function run() {
 
   // UNLINK COMMAND
   var appUnlinkCommand = cliparse.command("unlink", {
-    description: "Unlink this repo from an existing Clever-Cloud application",
+    description: "Unlink this repo from an existing Clever Cloud application",
     args: [aliasArgument]
   }, unlink);
 
@@ -182,7 +182,7 @@ function run() {
   }, env("set"));
 
   var envRemoveCommand = cliparse.command("rm", {
-    description: "Remove an environment variable from a Clever-Cloud application",
+    description: "Remove an environment variable from a Clever Cloud application",
     args: [
       envVariableName
     ]
@@ -195,7 +195,7 @@ function run() {
   }, env("importEnv"));
 
   var envCommands = cliparse.command("env", {
-    description: "Manage Clever-Cloud application environment",
+    description: "Manage Clever Cloud application environment",
     options: [
       aliasOption,
       sourceableEnvVarsList
@@ -217,12 +217,12 @@ function run() {
 
   // LOGIN COMMAND
   var loginCommand = cliparse.command("login", {
-    description: "Login to Clever-Cloud"
+    description: "Login to Clever Cloud"
   }, login);
 
   // CANCEL DEPLOY COMMAND
   var cancelDeployCommand = cliparse.command("cancel-deploy", {
-    description: "Cancel an ongoing deployment on Clever-Cloud",
+    description: "Cancel an ongoing deployment on Clever Cloud",
     options: [
       aliasOption
     ]
@@ -230,7 +230,7 @@ function run() {
 
   // DEPLOY COMMAND
   var deployCommand = cliparse.command("deploy", {
-    description: "Deploy an application to Clever-Cloud",
+    description: "Deploy an application to Clever Cloud",
     options: [
       aliasOption,
       branchOption,
@@ -242,21 +242,21 @@ function run() {
 
   // DOMAIN COMMANDS
   var domainCreateCommand = cliparse.command("add", {
-    description: "Add a domain name to a Clever-Cloud application",
+    description: "Add a domain name to a Clever Cloud application",
     args: [
       fqdnArgument
     ]
   }, domain("add"));
 
   var domainRemoveCommand = cliparse.command("rm", {
-    description: "Remove a domain name from a Clever-Cloud application",
+    description: "Remove a domain name from a Clever Cloud application",
     args: [
       fqdnArgument
     ]
   }, domain("rm"));
 
   var domainCommands = cliparse.command("domain", {
-    description: "Manage Clever-Cloud application domain names",
+    description: "Manage Clever Cloud application domain names",
     options: [
       aliasOption
     ],
@@ -268,7 +268,7 @@ function run() {
 
   // STOP COMMAND
   var stopCommand = cliparse.command("stop", {
-    description: "Stop a running application on Clever-Cloud",
+    description: "Stop a running application on Clever Cloud",
     options: [
       aliasOption
     ]
@@ -276,7 +276,7 @@ function run() {
 
   // STATUS COMMAND
   var statusCommand = cliparse.command("status", {
-    description: "See the status of an application on Clever-Cloud",
+    description: "See the status of an application on Clever Cloud",
     options: [
       aliasOption
     ]
@@ -284,7 +284,7 @@ function run() {
 
   // ACTIVITY COMMAND
   var activityCommand = cliparse.command("activity", {
-    description: "Show last deployments of a Clever-Cloud application",
+    description: "Show last deployments of a Clever Cloud application",
     options: [
       aliasOption,
       followOption,
@@ -372,7 +372,7 @@ function run() {
   // CLI PARSER
   var cliParser = cliparse.cli({
     name: "clever",
-    description: "CLI tool to manage Clever-Cloud data and products",
+    description: "CLI tool to manage Clever Cloud data and products",
     version: "0.3.2",
     options: [ verboseOption ],
     commands: [

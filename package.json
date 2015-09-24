@@ -1,11 +1,11 @@
 {
   "name": "clever-tools",
   "version": "0.3.2",
-  "description": "CLI tool to manage Clever-Cloud applications",
+  "description": "CLI tool to manage Clever Cloud applications",
   "main": "src/clever-tools.js",
   "keywords": [
     "cli",
-    "clever-cloud"
+    "clever cloud"
   ],
   "engines" : {
       "node" : ">=0.12.7 <0.13",
