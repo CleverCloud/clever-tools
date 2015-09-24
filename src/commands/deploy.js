@@ -46,6 +46,8 @@ var deploy = module.exports = function(api, params) {
       } else {
         return new Bacon.Error(error);
       }
+    } else if(error.message && error.message.trim() === "error authenticating:"){
+      return new Bacon.Error(error.message.trim() + " Did you add your ssh key ?");
     } else {
       return new Bacon.Error(error);
     }
