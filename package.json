@@ -43,5 +43,13 @@
   "scripts": {
     "test": "grunt test",
     "postinstall": "./scripts/postinstall.sh"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/CleverCloud/clever-tools.git"
+  },
+  "bugs": {
+    "url": "https://github.com/CleverCloud/clever-tools/issues"
+  },
+  "homepage": "https://github.com/CleverCloud/clever-tools"
 }
