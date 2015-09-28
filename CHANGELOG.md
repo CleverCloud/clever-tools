@@ -1,3 +1,9 @@
+# 0.3.3
+
+ - Fix crash when pushing for the first time
+ - Quit at the end of a deployment with the right exit code
+ - Display more information when SSH auth fails
+
 # 0.3.2
 
  - Fix crash when config files were missing
