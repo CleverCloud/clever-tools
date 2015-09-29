@@ -22,7 +22,7 @@ Env.listFromAddons = function(api, appId, orgaId) {
 Env.set = function(api, name, value, appId, orgaId) {
   var params = orgaId ? [orgaId, appId, name] : [appId, name];
 
-  return api.owner(orgaId).applications._.env._.put().withParams(params).send(JSON.stringify(value));
+  return api.owner(orgaId).applications._.env._.put().withParams(params).send(JSON.stringify({ value: value }));
 };
 
 Env.remove = function(api, name, appId, orgaId) {
