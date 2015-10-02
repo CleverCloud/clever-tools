@@ -1,5 +1,6 @@
 var _ = require("lodash");
 var path = require("path");
+var fs = require("fs");
 var Bacon = require("baconjs");
 var nodegit = require("nodegit");
 var autocomplete = require("cliparse").autocomplete;
@@ -12,9 +13,29 @@ module.exports = function(repositoryPath) {
   var Git = {};
   Git.GIT_BRANCH_LOCAL = 1;
 
-  Git.getRepository = function() {
-    Logger.debug("Open the local repository…");
-    return Bacon.fromPromise(nodegit.Repository.open(repositoryPath)).toProperty();
+  Git.getRepository = function(candidatePath) {
+    if(typeof candidatePath == "undefined") {
+      candidatePath = repositoryPath;
+    }
+    Logger.debug("Open the local repository… (from " + candidatePath + ")");
+    var s_repository = Bacon.fromNodeCallback(
+      _.partial(fs.stat, path.join(candidatePath, ".git"))
+    ).flatMapLatest(function(stats) {
+      if(stats.isDirectory()) {
+        return Bacon.fromPromise(nodegit.Repository.open(path.join(candidatePath, ".git")));
+      } else {
+        return new Bacon.Error("No repository found in " + candidatePath);
+      }
+    });
+
+    return s_repository.flatMapError(function(error) {
+      Logger.info("Cannot open repository in " + candidatePath + " (error: " + error + ")");
+      if(path.parse(candidatePath).root == candidatePath) {
+        return new Bacon.Error("No repository found");
+      } else {
+        return Git.getRepository(path.normalize(path.join(candidatePath, "..")));
+      }
+    }).toProperty();
   };
 
   Git.getRemote = function(name) {

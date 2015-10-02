@@ -10,9 +10,14 @@ var Logger = require("../logger.js");
 
 var AppConfiguration = module.exports = {};
 
-AppConfiguration.loadApplicationConf = function() {
-  Logger.debug("Loading app configuration from " + Config.APP_CONFIGURATION_FILE);
-  var s_appData = Bacon.fromNodeCallback(_.partial(fs.readFile, Config.APP_CONFIGURATION_FILE)).flatMapLatest(function(content) {
+AppConfiguration.loadApplicationConf = function(pathToFolder) {
+  if(typeof pathToFolder == "undefined") {
+    pathToFolder = path.dirname(Config.APP_CONFIGURATION_FILE);
+  }
+  var fileName = path.basename(Config.APP_CONFIGURATION_FILE);
+  var fullPath = path.join(pathToFolder, fileName)
+  Logger.debug("Loading app configuration from " + fullPath);
+  var s_appData = Bacon.fromNodeCallback(_.partial(fs.readFile, fullPath)).flatMapLatest(function(content) {
     try {
       return Bacon.once(JSON.parse(content));
     }
@@ -21,9 +26,13 @@ AppConfiguration.loadApplicationConf = function() {
     }
   });
 
-  return s_appData.mapError(function(error) {
+  return s_appData.flatMapError(function(error) {
     Logger.info("Cannot load app configuration from " + Config.APP_CONFIGURATION_FILE + " (" + error + ")");
-    return { apps: [] };
+    if(path.parse(pathToFolder).root == pathToFolder) {
+      return { apps: [] };
+    } else {
+      return AppConfiguration.loadApplicationConf(path.normalize(path.join(pathToFolder, "..")));
+    }
   });
 };
 
