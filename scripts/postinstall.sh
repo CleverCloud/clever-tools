@@ -3,8 +3,9 @@
 set -euo pipefail
 
 cat << EOF
-To enable autocompletion, run 'install-clever-completion' (needs sudo)
-If you don't have sudo or want to install completion manually,
+To enable autocompletion automatically, run 'install-clever-completion'
+
+If you want to install completion manually (requires root privileges):
 
     clever --bash-autocomplete-script "\$(which clever)" > /usr/share/bash-completion/completions/clever
     clever --zsh-autocomplete-script "\$(which clever)" > /usr/share/zsh/site-functions/_clever
