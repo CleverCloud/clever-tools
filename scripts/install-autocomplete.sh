@@ -6,14 +6,14 @@ install_bash_root() {
   local us="${1}"
 
   echo "Installing bash completion script"
-  clever --bash-autocomplete-script "${us}" | sudo tee "/usr/share/bash-completion/completions/clever" > /dev/null
+  clever --bash-autocomplete-script "${us}" > "/usr/share/bash-completion/completions/clever"
 }
 
 install_zsh_root() {
   local us="${1}"
 
   echo "Installing zsh completion script"
-  clever --zsh-autocomplete-script "${us}" | sudo tee "/usr/share/zsh/site-functions/_clever" > /dev/null
+  clever --zsh-autocomplete-script "${us}" > "/usr/share/zsh/site-functions/_clever"
 }
 
 install() {
@@ -33,4 +33,13 @@ You can uninstall completion scripts at any time by running uninstall-clever-com
 EOF
 }
 
-install
+main() {
+    if [ "$(id -u)" -ne 0 ]; then
+        echo "This program requires root privileges" >&2
+        echo "Please run it as root or try either 'pkexec ${0}' or 'sudo ${0}'" >&2
+        exit 1
+    fi
+    install
+}
+
+main
