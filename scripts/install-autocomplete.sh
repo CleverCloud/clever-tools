@@ -4,16 +4,20 @@ set -euo pipefail
 
 install_bash_root() {
   local us="${1}"
+  local compdir="/usr/share/bash-completion/completions"
 
   echo "Installing bash completion script"
-  clever --bash-autocomplete-script "${us}" > "/usr/share/bash-completion/completions/clever"
+  mkdir -p "${compdir}"
+  clever --bash-autocomplete-script "${us}" > "${compdir}"/clever
 }
 
 install_zsh_root() {
   local us="${1}"
+  local compdir="/usr/share/zsh/site-functions"
 
   echo "Installing zsh completion script"
-  clever --zsh-autocomplete-script "${us}" > "/usr/share/zsh/site-functions/_clever"
+  mkdir -p "${compdir}"
+  clever --zsh-autocomplete-script "${us}" > "${compdir}"/_clever
 }
 
 install() {
