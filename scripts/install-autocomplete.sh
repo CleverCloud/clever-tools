@@ -1,5 +1,7 @@
 #!/usr/bin/env sh
 
+set -euo pipefail
+
 install_bash_root() {
   local us="${1}"
 

@@ -1,5 +1,7 @@
 #!/usr/bin/env sh
 
+set -euo pipefail
+
 uninstall_zsh_root() {
   echo "Removing bash completion script"
   sudo 'rm /usr/share/zsh/site-functions/_clever'

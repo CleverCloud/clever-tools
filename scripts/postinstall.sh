@@ -1,5 +1,7 @@
 #!/usr/bin/env sh
 
+set -euo pipefail
+
 cat << EOF
 To enable autocompletion, run 'install-clever-completion' (needs sudo)
 If you don't have sudo or want to install completion manually,
