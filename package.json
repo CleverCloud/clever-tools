@@ -28,7 +28,7 @@
     "lodash": "^3.10.0",
     "mkdirp": "^0.5.1",
     "moment": "^2.10.3",
-    "nodegit": "0.4.1",
+    "nodegit": "0.5.0",
     "request": "^2.60.0",
     "shelljs": "^0.3.0",
     "unidecode": "^0.1.3",
