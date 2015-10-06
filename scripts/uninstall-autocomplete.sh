@@ -4,12 +4,12 @@ set -euo pipefail
 
 uninstall_zsh_root() {
   echo "Removing bash completion script"
-  sudo 'rm /usr/share/zsh/site-functions/_clever'
+  rm "/usr/share/zsh/site-functions/_clever"
 }
 
 uninstall_bash_root() {
   echo "Removing zsh completion script"
-  sudo 'rm /usr/share/bash-completion/completions/clever'
+  rm "/usr/share/bash-completion/completions/clever"
 }
 
 uninstall() {
@@ -21,4 +21,13 @@ uninstall() {
   fi
 }
 
-uninstall
+main() {
+  if [ "$(id -u)" -ne 0 ]; then
+    echo "This program requires root privileges" >&2
+    echo "Please run it as root or try either 'pkexec ${0}' or 'sudo ${0}'" >&2
+    exit 1
+  fi
+  uninstall
+}
+
+main
