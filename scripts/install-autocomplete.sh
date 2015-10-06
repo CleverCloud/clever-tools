@@ -15,7 +15,9 @@ install_zsh_root() {
 }
 
 install() {
-  local us="$(which clever)"
+  local us
+
+  us="$(which clever)"
 
   if which bash >/dev/null 2>&1; then
     install_bash_root "${us}"
