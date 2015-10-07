@@ -13,12 +13,8 @@ uninstall_bash_root() {
 }
 
 uninstall() {
-  if which zsh >/dev/null 2>&1; then
-    uninstall_zsh_root
-  fi
-  if which bash >/dev/null 2>&1; then
-    uninstall_bash_root
-  fi
+  uninstall_zsh_root
+  uninstall_bash_root
 }
 
 main() {
