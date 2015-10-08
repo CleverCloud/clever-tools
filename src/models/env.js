@@ -37,3 +37,14 @@ Env.bulkSet = function(api, pairs, appId, orgaId) {
 
   return api.owner(orgaId).applications._.env.put().withParams(params).send(JSON.stringify(payload));
 };
+
+Env.parseEnvLine = function(line) {
+    var p = line.split('=');
+    var key = p[0];
+    p.shift();
+    var value = p.join('=');
+    if(line.trim()[0] !== '#' && p.length > 0) {
+      return [ key.trim(), value.trim() ];
+    }
+    return null;
+};
