@@ -1,3 +1,10 @@
+# 0.3.4
+
+ - Support for node v4 (Alexandre Berthaud)
+ - Support being called from a directory (Alexandre Berthaud)
+ - Clean up autocompletion installation scripts (Marc-Antoine Perennou)
+ - Fix environment variables definition
+
 # 0.3.3
 
  - Fix crash when pushing for the first time
