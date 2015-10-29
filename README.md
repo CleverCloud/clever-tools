@@ -84,6 +84,11 @@ clever deploy [--alias <alias>]
 clever status [--alias <alias>]
 ```
 
+### Change application scale
+
+```
+clever scale [--alias <alias>] [--min-flavor <minflavor>] [--max-flavor <maxflavor>] [--min-instances <mininstances>] [--max-instances <maxinstances>]
+```
 
 ## Examples
 
