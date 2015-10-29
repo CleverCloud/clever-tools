@@ -14,6 +14,17 @@ var scale = module.exports = function(api, params) {
     return Logger.error("You should provide at least 1 option")
   }
 
+  if (params.options["min-instances"] && params.options["max-instances"] &&
+      params.options["min-instances"] > params.options["max-instances"]) {
+    return Logger.error("min-instances can't be greater than max-instances");
+  }
+
+  if (params.options["min-flavor"] && params.options["max-flavor"] &&
+      Application.listAvailableFlavors().words.indexOf(params.options["min-flavor"]) >
+      Application.listAvailableFlavors().words.indexOf(params.options["max-flavor"])) {
+    return Logger.error("min-flavor can't be a greater flavor than max-flavor");
+  }
+
   var alias = params.options.alias;
 
   var s_appData = AppConfig.getAppData(alias);
