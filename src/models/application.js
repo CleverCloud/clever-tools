@@ -42,6 +42,18 @@ Application.listAvailableAliases = function() {
   return s_aliases.toPromise(Promise).then(autocomplete.words);
 };
 
+Application.listAvailableFlavors = function() {
+  return autocomplete.words([
+    "pico",
+    "nano",
+    "XS",
+    "S",
+    "M",
+    "L",
+    "XL"
+  ]);
+};
+
 Application.getInstanceType = function(api, type) {
   var s_types = api.products.instances.get().send();
 
@@ -158,4 +170,32 @@ Application.redeploy = function(api, appId, orgaId) {
   var params = orgaId ? [orgaId, appId] : [appId];
 
   return api.owner(orgaId).applications._.instances.post().withParams(params).send();
+};
+
+Application.setScalability = function(api, appId, orgaId, scalabilityParameters) {
+  Logger.info("Scaling the app: " + appId);
+
+  var s_app = Application.get(api, appId, orgaId).toProperty();
+  var s_body = s_app.map(function(app) {
+    var instance = _.clone(app.instance);
+
+    instance.minFlavor = instance.minFlavor.name;
+    instance.maxFlavor = instance.maxFlavor.name;
+
+    if (scalabilityParameters.minFlavor)
+      instance.minFlavor = scalabilityParameters.minFlavor;
+    if (scalabilityParameters.maxFlavor)
+      instance.maxFlavor = scalabilityParameters.maxFlavor;
+    if (scalabilityParameters.minInstances)
+      instance.minInstances = scalabilityParameters.minInstances;
+    if (scalabilityParameters.maxInstances)
+      instance.maxInstances = scalabilityParameters.maxInstances;
+
+    return instance;
+  });
+
+  return s_body.flatMapLatest(function(instance) {
+    var params = orgaId ? [orgaId, appId] : [appId];
+    return api.owner(orgaId).applications._.put().withParams(params).send(JSON.stringify(instance));
+  })
 };
