@@ -178,18 +178,33 @@ Application.setScalability = function(api, appId, orgaId, scalabilityParameters)
   var s_app = Application.get(api, appId, orgaId).toProperty();
   var s_body = s_app.map(function(app) {
     var instance = _.clone(app.instance);
+    var flavors = Application.listAvailableFlavors().words;
 
     instance.minFlavor = instance.minFlavor.name;
     instance.maxFlavor = instance.maxFlavor.name;
 
-    if (scalabilityParameters.minFlavor)
+    if (scalabilityParameters.minFlavor) {
       instance.minFlavor = scalabilityParameters.minFlavor;
-    if (scalabilityParameters.maxFlavor)
+      if (flavors.indexOf(instance.minFlavor) > flavors.indexOf(instance.maxFlavor))
+        instance.maxFlavor = instance.minFlavor;
+    }
+    if (scalabilityParameters.maxFlavor) {
       instance.maxFlavor = scalabilityParameters.maxFlavor;
-    if (scalabilityParameters.minInstances)
+      if (flavors.indexOf(instance.minFlavor) > flavors.indexOf(instance.maxFlavor) &&
+          scalabilityParameters.minFlavor == null)
+        instance.minFlavor = instance.maxFlavor;
+    }
+
+    if (scalabilityParameters.minInstances) {
       instance.minInstances = scalabilityParameters.minInstances;
-    if (scalabilityParameters.maxInstances)
+      if (instance.minInstances > instance.maxInstances)
+        instance.maxInstances = instance.minInstances;
+    }
+    if (scalabilityParameters.maxInstances) {
       instance.maxInstances = scalabilityParameters.maxInstances;
+      if (instance.minInstances > instance.maxInstances && scalabilityParameters.minInstances == null)
+        instance.minInstances = instance.maxInstances;
+    }
 
     return instance;
   });
