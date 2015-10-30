@@ -91,6 +91,10 @@ var isDeploymentFailedMessage = function(line) {
   _.startsWith(line._source["@message"].toLowerCase(), "deploy failed in");
 };
 
+var isBuildSucessMessage = function(line){
+  return _.startsWith(line._source["@message"].toLowerCase(), "build succeeded in");
+};
+
 Log.getAppLogs = function(api, appId, fetchOldLogs) {
   var s_logs;
   if(fetchOldLogs) {
@@ -105,6 +109,8 @@ Log.getAppLogs = function(api, appId, fetchOldLogs) {
             return line._source["@timestamp"] + ": " + line._source["@message"].bold.green;
           } else if(isDeploymentFailedMessage(line)) {
             return line._source["@timestamp"] + ": " + line._source["@message"].bold.red;
+          } else if(isBuildSucessMessage(line)){
+            return line._source["@timestamp"] + ": " + line._source["@message"].bold.blue;
           } else {
             return line._source["@timestamp"] + ": " + line._source["@message"];
           }
