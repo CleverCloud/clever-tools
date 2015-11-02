@@ -181,6 +181,12 @@ function run() {
     description: "The maximum scale for your application",
     complete: function() {return cliparse.autocomplete.words(Application("listAvailableFlavors")())}
   });
+  var flavorOption = cliparse.option("flavor", {
+    metavar: "flavor",
+    parser: flavorParser,
+    description: "The scale of your application",
+    complete: function() {return cliparse.autocomplete.words(Application("listAvailableFlavors")())}
+  });
   var minInstancesOption = cliparse.option("min-instances", {
     metavar: "mininstances",
     parser: instancesParser,
@@ -190,6 +196,11 @@ function run() {
     metavar: "maxinstances",
     parser: instancesParser,
     description: "The maximum number of parallels instances"
+  });
+  var instancesOption = cliparse.option("instances", {
+    metavar: "instances",
+    parser: instancesParser,
+    description: "The number of parallels instances"
   });
 
   // CREATE COMMAND
@@ -422,8 +433,10 @@ function run() {
     description: "Change scalability of an application",
     options: [
       aliasOption,
+      flavorOption,
       minFlavorOption,
       maxFlavorOption,
+      instancesOption,
       minInstancesOption,
       maxInstancesOption
     ]

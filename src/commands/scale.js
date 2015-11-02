@@ -10,8 +10,23 @@ var Logger = require("../logger.js");
 
 var scale = module.exports = function(api, params) {
   if (params.options["min-flavor"] == null && params.options["max-flavor"] == null &&
-      params.options["min-instances"] == null && params.options["max-instances"] == null) {
+      params.options["min-instances"] == null && params.options["max-instances"] == null &&
+      params.options["flavor"] == null && params.options["instances"] == null) {
     return Logger.error("You should provide at least 1 option")
+  }
+
+  if (params.options["flavor"]) {
+    if (params.options["min-flavor"] || params.options["max-flavor"])
+      return Logger.error("You can't use --flavor and --min-flavor or --max-flavor at the same time");
+    params.options["min-flavor"] = params.options["flavor"];
+    params.options["max-flavor"] = params.options["flavor"];
+  }
+
+  if (params.options["instances"]) {
+    if (params.options["min-instances"] || params.options["max-instances"])
+      return Logger.error("You can't use --instances and --min-instances or --max-instances at the same time");
+    params.options["min-instances"] = params.options["instances"];
+    params.options["max-instances"] = params.options["instances"];
   }
 
   if (params.options["min-instances"] && params.options["max-instances"] &&
