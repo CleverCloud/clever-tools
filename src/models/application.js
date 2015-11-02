@@ -43,7 +43,7 @@ Application.listAvailableAliases = function() {
 };
 
 Application.listAvailableFlavors = function() {
-  return autocomplete.words([
+  return [
     "pico",
     "nano",
     "XS",
@@ -51,7 +51,7 @@ Application.listAvailableFlavors = function() {
     "M",
     "L",
     "XL"
-  ]);
+  ];
 };
 
 Application.getInstanceType = function(api, type) {
@@ -178,7 +178,7 @@ Application.setScalability = function(api, appId, orgaId, scalabilityParameters)
   var s_app = Application.get(api, appId, orgaId).toProperty();
   var s_body = s_app.map(function(app) {
     var instance = _.clone(app.instance);
-    var flavors = Application.listAvailableFlavors().words;
+    var flavors = Application.listAvailableFlavors();
 
     instance.minFlavor = instance.minFlavor.name;
     instance.maxFlavor = instance.maxFlavor.name;

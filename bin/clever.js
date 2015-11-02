@@ -92,7 +92,7 @@ function run() {
   var flavorParser = function(flavor) {
     var flavors = Application("listAvailableFlavors")();
 
-    if(flavors["words"].indexOf(flavor) == -1) {
+    if(flavors.indexOf(flavor) == -1) {
       return cliparse.parsers.error("Invalid value: " + flavor);
     } else {
       return cliparse.parsers.success(flavor);
@@ -173,13 +173,13 @@ function run() {
     metavar: "minflavor",
     parser: flavorParser,
     description: "The minimum scale for your application",
-    complete: Application("listAvailableFlavors")
+    complete: function() {return cliparse.autocomplete.words(Application("listAvailableFlavors")())}
   });
   var maxFlavorOption = cliparse.option("max-flavor", {
     metavar: "maxflavor",
     parser: flavorParser,
     description: "The maximum scale for your application",
-    complete: Application("listAvailableFlavors")
+    complete: function() {return cliparse.autocomplete.words(Application("listAvailableFlavors")())}
   });
   var minInstancesOption = cliparse.option("min-instances", {
     metavar: "mininstances",

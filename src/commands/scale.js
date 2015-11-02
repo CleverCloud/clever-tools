@@ -20,8 +20,8 @@ var scale = module.exports = function(api, params) {
   }
 
   if (params.options["min-flavor"] && params.options["max-flavor"] &&
-      Application.listAvailableFlavors().words.indexOf(params.options["min-flavor"]) >
-      Application.listAvailableFlavors().words.indexOf(params.options["max-flavor"])) {
+      Application.listAvailableFlavors().indexOf(params.options["min-flavor"]) >
+      Application.listAvailableFlavors().indexOf(params.options["max-flavor"])) {
     return Logger.error("min-flavor can't be a greater flavor than max-flavor");
   }
 
