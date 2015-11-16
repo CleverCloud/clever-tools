@@ -59,7 +59,7 @@ Application.getInstanceType = function(api, type) {
 
   return s_types.flatMapLatest(function(types) {
     var matchingTypes = _.filter(types, function(instanceType) {
-      return instanceType.type == type;
+      return instanceType.type == type || (instanceType.variant && instanceType.variant.slug == type);
     });
 
     var instanceType = _.sortBy(matchingTypes, "version").reverse()[0];
