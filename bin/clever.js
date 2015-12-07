@@ -72,6 +72,7 @@ var status = lazyRequiref("../src/commands/status.js");
 var activity = lazyRequiref("../src/commands/activity.js");
 var addon = lazyRequire("../src/commands/addon.js");
 var list = lazyRequiref("../src/commands/list.js");
+var scale = lazyRequiref("../src/commands/scale.js");
 
 var Application = lr("../src/models/application.js");
 
@@ -86,6 +87,30 @@ function run() {
   var addonIdArgument = cliparse.argument("addon-id", { description: "Addon ID" });
   var addonNameArgument = cliparse.argument("addon-name", { description: "Addon name" });
   var addonProviderArgument = cliparse.argument("addon-provider", { description: "Addon provider" });
+
+  //PARSERS
+  var flavorParser = function(flavor) {
+    var flavors = Application("listAvailableFlavors")();
+
+    if(flavors.indexOf(flavor) == -1) {
+      return cliparse.parsers.error("Invalid value: " + flavor);
+    } else {
+      return cliparse.parsers.success(flavor);
+    }
+  };
+
+  var instancesParser = function(instances) {
+    var parsedInstances = parseInt(instances, 10);
+    if (isNaN(parsedInstances)) {
+      return cliparse.parsers.error("Invalid number: " + instances);
+    } else {
+      if (parsedInstances < 1 || parsedInstances > 20) {
+        return cliparse.parsers.error("The number of instances must be between 1 and 20");
+      } else {
+        return cliparse.parsers.success(parsedInstances);
+      }
+    }
+  };
 
   // OPTIONS
   var orgaOption = cliparse.option("orga", { aliases: ["o"], description: "Organisation ID" });
@@ -144,6 +169,39 @@ function run() {
   var confirmAddonDeletionOption = cliparse.flag("yes", { aliases: ["y"], description: "Skip confirmation and delete the addon directly" });
   var sourceableEnvVarsList = cliparse.flag("add-export", { aliases: [], description: "Display sourceable env variables setting" });
   var onlyAliasesOption = cliparse.flag("only-aliases", { aliases: [], description: "List only application aliases" });
+  var minFlavorOption = cliparse.option("min-flavor", {
+    metavar: "minflavor",
+    parser: flavorParser,
+    description: "The minimum scale for your application",
+    complete: function() {return cliparse.autocomplete.words(Application("listAvailableFlavors")())}
+  });
+  var maxFlavorOption = cliparse.option("max-flavor", {
+    metavar: "maxflavor",
+    parser: flavorParser,
+    description: "The maximum scale for your application",
+    complete: function() {return cliparse.autocomplete.words(Application("listAvailableFlavors")())}
+  });
+  var flavorOption = cliparse.option("flavor", {
+    metavar: "flavor",
+    parser: flavorParser,
+    description: "The scale of your application",
+    complete: function() {return cliparse.autocomplete.words(Application("listAvailableFlavors")())}
+  });
+  var minInstancesOption = cliparse.option("min-instances", {
+    metavar: "mininstances",
+    parser: instancesParser,
+    description: "The minimum number of parallels instances"
+  });
+  var maxInstancesOption = cliparse.option("max-instances", {
+    metavar: "maxinstances",
+    parser: instancesParser,
+    description: "The maximum number of parallels instances"
+  });
+  var instancesOption = cliparse.option("instances", {
+    metavar: "instances",
+    parser: instancesParser,
+    description: "The number of parallels instances"
+  });
 
   // CREATE COMMAND
   var appCreateCommand = cliparse.command("create", {
@@ -364,10 +422,25 @@ function run() {
     ]
   }, addon("list"));
 
+  //LIST COMMAND
   var listCommand = cliparse.command("list", {
     description: "List linked applications",
     options: [ onlyAliasesOption ],
   }, list);
+
+  //SCALE COMMAND
+  var scaleCommand = cliparse.command("scale", {
+    description: "Change scalability of an application",
+    options: [
+      aliasOption,
+      flavorOption,
+      minFlavorOption,
+      maxFlavorOption,
+      instancesOption,
+      minInstancesOption,
+      maxInstancesOption
+    ]
+  }, scale);
 
   // CLI PARSER
   var cliParser = cliparse.cli({
@@ -389,7 +462,8 @@ function run() {
       statusCommand,
       activityCommand,
       addonCommands,
-      listCommand
+      listCommand,
+      scaleCommand
     ]
   });
 
