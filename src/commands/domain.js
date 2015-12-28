@@ -21,7 +21,7 @@ var list = domain.list = function(api, params) {
   });
 
   s_domain.onValue(function(domains) {
-    console.log(_.pluck(domains, 'fqdn').join('\n'));
+    Logger.println(_.pluck(domains, 'fqdn').join('\n'));
   });
 
   s_domain.onError(Logger.error);
@@ -38,7 +38,7 @@ var add = domain.add = function(api, params) {
   });
 
   s_domain.onValue(function() {
-    console.log("Your domain has been successfully saved");
+    Logger.println("Your domain has been successfully saved");
   });
 
   s_domain.onError(Logger.error);
@@ -55,7 +55,7 @@ var rm = domain.rm = function(api, params) {
   });
 
   s_domain.onValue(function() {
-    console.log("Your domain has been successfully removed");
+    Logger.println("Your domain has been successfully removed");
   });
 
   s_domain.onError(Logger.error);

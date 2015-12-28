@@ -20,7 +20,7 @@ var cancelDeployment = module.exports = function(api, params) {
   });
 
   s_cancel.onValue(function(___) {
-    console.log("Deployment cancelled!");
+    Logger.println("Deployment cancelled!");
   });
   s_cancel.onError(Logger.error);
 };
