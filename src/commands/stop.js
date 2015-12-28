@@ -22,7 +22,7 @@ var stop = module.exports = function(api, params) {
   });
 
   s_stoppedApp.onValue(function(___) {
-    console.log("App successfully stopped!");
+    Logger.println("App successfully stopped!");
   });
   s_stoppedApp.onError(Logger.error);
 };

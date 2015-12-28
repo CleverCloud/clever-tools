@@ -25,7 +25,7 @@ var create = module.exports = function(api, params) {
     });
 
   s_app.onValue(function(app) {
-    console.log("Your application has been successfully created!");
+    Logger.println("Your application has been successfully created!");
   });
 
   s_app.onError(Logger.error);

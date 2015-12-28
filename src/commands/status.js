@@ -82,8 +82,8 @@ var status = module.exports = function(api, params) {
   s_appInstances
     .zip(s_app, function(instances, app) { return [instances, app]; })
     .onValue(function(data) {
-      console.log(computeStatus(data[0], data[1]));
-      console.log(displayScalability(data[1].instance));
+      Logger.println(computeStatus(data[0], data[1]));
+      Logger.println(displayScalability(data[1].instance));
     });
   s_appInstances.onError(Logger.error);
 };

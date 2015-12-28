@@ -15,7 +15,7 @@ var link = module.exports = function(api, params) {
   var s_app = Application.linkRepo(api, appId, alias);
 
   s_app.onValue(function(app) {
-    console.log("Your application has been successfully linked!");
+    Logger.println("Your application has been successfully linked!");
   });
 
   s_app.onError(Logger.error);

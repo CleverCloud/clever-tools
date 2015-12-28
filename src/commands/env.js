@@ -69,7 +69,7 @@ var set = env.set = function(api, params) {
   });
 
   s_env.onValue(function() {
-    console.log("Your environment variable has been successfully saved");
+    Logger.println("Your environment variable has been successfully saved");
   });
 
   s_env.onError(Logger.error);
@@ -86,7 +86,7 @@ var rm = env.rm = function(api, params) {
   });
 
   s_env.onValue(function() {
-    console.log("Your environment variable has been successfully removed");
+    Logger.println("Your environment variable has been successfully removed");
   });
 
   s_env.onError(Logger.error);
@@ -121,7 +121,7 @@ var importEnv = env.importEnv = function(api, params) {
     });
 
     s_env.onValue(function() {
-      console.log("Environment variables have been set");
+      Logger.println("Environment variables have been set");
     });
 
     s_env.onError(Logger.error);
