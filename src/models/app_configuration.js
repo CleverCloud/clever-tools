@@ -91,7 +91,7 @@ AppConfiguration.getAppData = function(alias) {
         return new Bacon.Error("There are no applications linked. You can add one with `clever link`");
       }
     } else if(matchingApps.length > 1) {
-      return new Bacon.Error("Several applications are linked. You can specify one with the `--alias` option");
+      return new Bacon.Error("Several applications are linked. You can specify one with the `--alias` option. Run `clever list` to list linked applications. Available aliases: " + _.pluck(matchingApps, "alias").join(", "));
     }
   });
 };
