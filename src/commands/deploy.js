@@ -13,11 +13,12 @@ var Logger = require("../logger.js");
 
 var timeout = 5 * 60 * 1000;
 
-var deploy = module.exports = function(api, params) {
+var deploy = module.exports;
+
+deploy.deploy = function(api, params) {
   var alias = params.options.alias;
   var branch = params.options.branch;
   var quiet = params.options.quiet;
-  var redeploy = params.options.redeploy;
   var force = params.options.force;
 
   var s_appData = AppConfig.getAppData(alias).toProperty();
@@ -37,25 +38,41 @@ var deploy = module.exports = function(api, params) {
   }).toProperty();
 
   var s_deploy = s_push.flatMapError(function(error) {
-    if(error == "Nothing to push") {
-      if(redeploy) {
-        return s_appData.flatMapLatest(function(app_data) {
-          Logger.println("Nothing to push, launching manual redeploy");
-          return Application.redeploy(api, app_data.app_id, app_data.org_id);
-        });
-      } else {
-        return new Bacon.Error(error);
-      }
-    } else if(error.message && error.message.trim() === "error authenticating:"){
+    if(error.message && error.message.trim() === "error authenticating:"){
       return new Bacon.Error(error.message.trim() + " Did you add your ssh key ?");
     } else {
       return new Bacon.Error(error);
     }
   }).toProperty();
 
-  s_deploy.onValue(function(v) {
+  s_deploy.onValue(function() {
     Logger.println("Your source code has been pushed to Clever Cloud.");
+  });
 
+  handleDeployment(api, s_appData, s_deploy, s_commitId, quiet);
+};
+
+deploy.restart = function(api, params) {
+  var alias = params.options.alias;
+  var quiet = params.options.quiet;
+
+  var s_appData = AppConfig.getAppData(alias).toProperty();
+  var s_commitId = s_appData.flatMapLatest(function(app_data) {
+    return Application.get(api, app_data.app_id, app_data.app_orga);
+  }).flatMapLatest(function(app) {
+    return app.commitId;
+  });
+
+  var s_deploy = s_appData.flatMapLatest(function(app_data) {
+    Logger.println("Restarting " + app_data.name);
+    return Application.redeploy(api, app_data.app_id, app_data.org_id);
+  }).toProperty();
+
+  handleDeployment(api, s_appData, s_deploy, s_commitId, quiet);
+};
+
+var handleDeployment = function(api, s_appData, s_deploy, s_commitId, quiet) {
+  s_deploy.onValue(function(v) {
     var s_deploymentEvents = s_appData.flatMapLatest(function(appData) {
       return s_commitId.flatMapLatest(function(commitId) {
         Logger.debug("Waiting for events related to commit #" + commitId);
@@ -92,11 +109,10 @@ var deploy = module.exports = function(api, params) {
     });
 
     if(!quiet) {
-      var s_app = s_remote
-        .flatMapLatest(function(remote) {
-          Logger.debug("Fetch application information…")
-          var appId = remote.url().replace(/^.*(app_.*)\.git$/, "$1");
-          return Application.get(api, appId);
+      var s_app = s_appData
+        .flatMapLatest(function(appData) {
+          Logger.debug("Fetching application information…")
+          return Application.get(api, appData.app_id);
         });
 
       var s_logs = s_app.flatMapLatest(function(app) {
@@ -110,5 +126,4 @@ var deploy = module.exports = function(api, params) {
   });
 
   s_deploy.onError(Logger.error);
-
 };

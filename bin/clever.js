@@ -64,7 +64,7 @@ var unlink = lazyRequiref("../src/commands/unlink.js");
 var env = lazyRequire("../src/commands/env.js");
 var logs = lazyRequiref("../src/commands/logs.js");
 var login = lazyRequiref("../src/commands/login.js");
-var deploy = lazyRequiref("../src/commands/deploy.js");
+var deploy = lazyRequire("../src/commands/deploy.js");
 var cancelDeploy = lazyRequiref("../src/commands/cancel-deploy.js");
 var domain = lazyRequire("../src/commands/domain.js");
 var stop = lazyRequiref("../src/commands/stop.js");
@@ -149,7 +149,6 @@ function run() {
   var showAllAddonsOption = cliparse.flag("show-all", { description: "Show all available addons" });
   var followOption = cliparse.flag("follow", { aliases: ["f"], description: "Track new deployments in activity list" });
   var quietOption = cliparse.flag("quiet", { aliases: ["q"], description: "Don't show logs during deployment" });
-  var redeployOption = cliparse.flag("redeploy", { aliases: [], description: "Trigger a redeploy even if nothing has changed" });
   var forceDeployOption = cliparse.flag("force", { aliases: ["f"], description: "Force deploy even if it's not fast-forwardable" });
   var addonRegionOption = cliparse.option("region", {
       alias: ["r"],
@@ -293,10 +292,18 @@ function run() {
       aliasOption,
       branchOption,
       quietOption,
-      redeployOption,
       forceDeployOption
     ]
-  }, deploy);
+  }, deploy("deploy"));
+
+  // RESTART COMMAND
+  var restartCommand = cliparse.command("restart", {
+    description: "Start or restart a Clever Cloud application",
+    options: [
+      aliasOption,
+      quietOption
+    ]
+  }, deploy("restart"));
 
   // DOMAIN COMMANDS
   var domainCreateCommand = cliparse.command("add", {
@@ -457,6 +464,7 @@ function run() {
       loginCommand,
       cancelDeployCommand,
       deployCommand,
+      restartCommand,
       domainCommands,
       stopCommand,
       statusCommand,
