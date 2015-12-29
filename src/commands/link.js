@@ -14,9 +14,14 @@ var link = module.exports = function(api, params) {
 
   var s_app = Application.linkRepo(api, appId, alias);
 
-  s_app.onValue(function(app) {
+  var s_appWithRemote = s_app.flatMapLatest(function(app) {
+    return Git.createRemote(app.alias, app.deploy_url)
+              .flatMapLatest(function() { return app; });
+  });
+
+  s_appWithRemote.onValue(function() {
     Logger.println("Your application has been successfully linked!");
   });
 
-  s_app.onError(Logger.error);
+  s_appWithRemote.onError(Logger.error);
 };
