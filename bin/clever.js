@@ -453,7 +453,7 @@ function run() {
   var cliParser = cliparse.cli({
     name: "clever",
     description: "CLI tool to manage Clever Cloud data and products",
-    version: "0.3.4",
+    version: "0.4.0",
     options: [ verboseOption ],
     commands: [
       appCreateCommand,

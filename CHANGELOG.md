@@ -1,3 +1,10 @@
+# 0.4.0
+
+ - Add `clever restart` command to restart a running application (Clément Delafargue)
+ - Add `clever scale` command to edit scalability settinsg (Benjamin Drouard)
+ - Forward compatible support for new application creation API (Julien Durillon)
+ - Various bug fixes / UX improvements (Clément Delafargue, Marc-Antoine Perennou)
+
 # 0.3.4
 
  - Support for node v4 (Alexandre Berthaud)
