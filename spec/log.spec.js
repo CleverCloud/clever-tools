@@ -94,7 +94,7 @@ describe("log", function() {
         getAuthorization: function() { return "AUTHORIZATION"; }
       }
     };
-    var s_logs = log.getAppLogs(fakeApi, "app_12345", "AUTHORIZATION", true);
+    var s_logs = log.getAppLogs(fakeApi, "app_12345", true);
     var context = this;
     s_logs.subscribe(function(event) {
       context.expect(event.hasValue()).toBe(true);
