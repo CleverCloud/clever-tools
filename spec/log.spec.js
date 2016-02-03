@@ -1,4 +1,5 @@
 var path = require("path");
+var url = require('url');
 
 var _ = require("lodash");
 var Bacon = require("baconjs");
@@ -8,6 +9,34 @@ function fakeLogApi() {
 
   return Bacon.fromBinder(function(sink) {
     var authorized = false;
+    var closedAppCount = 0;
+
+    var responseLog = JSON.stringify({
+      "_index": "customers",
+      "_type": "syslog",
+      "_id": "uvbsPlTWSpaC8WiQjLswPw",
+      "_score": null,
+      "_source": {
+        "message": "Received signal 15; terminating.",
+        "@version": "1",
+        "@timestamp": "2015-01-06T18:10:37.606Z",
+        "host": "62411bb9-40ee-4cf0-aab8-a82e21d057e4",
+        "type": "syslog",
+        "tags": ["tcp", "syslog", "customers"],
+        "syslog_pri": "38",
+        "syslog_program": "sshd",
+        "syslog_pid": "186",
+        "syslog_severity_code": 6,
+        "syslog_facility_code": 4,
+        "syslog_facility": "security/authorization",
+        "syslog_severity": "informational",
+        "appId": "app_1246f211-d4a7-4787-ba62-56c163a8b4ef",
+        "@source": "195.154.183.92:57269",
+        "@source_host": "62411bb9-40ee-4cf0-aab8-a82e21d057e4",
+        "@message": "Received signal 15; terminating."
+      },
+      "sort": [1420567837606]
+    });
 
     var wss = new WebSocketServer({port: 12345}, function() {
       sink(new Bacon.Next(wss));
@@ -25,32 +54,19 @@ function fakeLogApi() {
         var json = JSON.parse(message);
         if(json.message_type == "oauth" && json.authorization == "AUTHORIZATION") {
           authorized = true;
-          ws.send(JSON.stringify({
-            "_index": "customers",
-            "_type": "syslog",
-            "_id": "uvbsPlTWSpaC8WiQjLswPw",
-            "_score": null,
-            "_source": {
-              "message": "Received signal 15; terminating.",
-              "@version": "1",
-              "@timestamp": "2015-01-06T18:10:37.606Z",
-              "host": "62411bb9-40ee-4cf0-aab8-a82e21d057e4",
-              "type": "syslog",
-              "tags": ["tcp", "syslog", "customers"],
-              "syslog_pri": "38",
-              "syslog_program": "sshd",
-              "syslog_pid": "186",
-              "syslog_severity_code": 6,
-              "syslog_facility_code": 4,
-              "syslog_facility": "security/authorization",
-              "syslog_severity": "informational",
-              "appId": "app_1246f211-d4a7-4787-ba62-56c163a8b4ef",
-              "@source": "195.154.183.92:57269",
-              "@source_host": "62411bb9-40ee-4cf0-aab8-a82e21d057e4",
-              "@message": "Received signal 15; terminating."
-            },
-            "sort": [1420567837606]
-          }));
+
+          var app = url.parse(ws.upgradeReq.url, true).pathname.replace(/\/logs-socket\//, '');
+          if(app === "app_12345"){
+            ws.send(responseLog);
+          } else if(app === "app_12345_close"){
+            if(closedAppCount >= 5){
+              ws.send(responseLog);
+              closedAppCount = 0;
+            } else{
+              ++closedAppCount;
+              ws.close();
+            }
+          }
         }
       });
     });
@@ -96,6 +112,25 @@ describe("log", function() {
     };
     var s_logs = log.getAppLogs(fakeApi, "app_12345", "AUTHORIZATION", true);
     var context = this;
+    s_logs.subscribe(function(event) {
+      context.expect(event.hasValue()).toBe(true);
+      context.expect(event.value()).toBe("2015-01-06T18:10:37.606Z: Received signal 15; terminating.");
+      done();
+
+      return Bacon.noMore;
+    });
+  });
+
+  it("should be able to reconnect to the websocket and fetch logs", function(done){
+    var fakeApi = {
+      session: {
+        getAuthorization: function() { return "AUTHORIZATION"; }
+      }
+    };
+
+    var s_logs = log.getAppLogs(fakeApi, "app_12345_close", false);
+    var context = this;
+
     s_logs.subscribe(function(event) {
       context.expect(event.hasValue()).toBe(true);
       context.expect(event.value()).toBe("2015-01-06T18:10:37.606Z: Received signal 15; terminating.");

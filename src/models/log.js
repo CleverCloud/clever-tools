@@ -10,13 +10,11 @@ var conf = require("./configuration.js");
 var Log = module.exports;
 
 Log.getLogsFromWS = function(url, authorization) {
-  Logger.println("Waiting for application logs…");
-  Logger.debug("Opening a websocket in order to fetch logs…")
   return Bacon.fromBinder(function(sink) {
     var ws = new WebSocket(url);
 
     ws.on("open", function open() {
-      Logger.debug("Websocket opened successfully.")
+      Logger.debug("Websocket opened successfully.");
       ws.send(JSON.stringify({
         message_type: "oauth",
         authorization: authorization
@@ -50,9 +48,26 @@ Log.getLogUrl = _.partial(function(template, appId, timestamp) {
   });
 }, _.template(conf.LOG_URL));
 
+Log.getContinuousLogs = function(api, appId, timestamp){
+  var url = Log.getLogUrl(appId, timestamp || new Date().toISOString());
+  var s_logs = Log.getLogsFromWS(url, api.session.getAuthorization('GET', conf.API_HOST + '/logs/' + appId, {}));
+  var s_end = s_logs
+    .filter(false)
+    .mapEnd(new Date().toISOString());
+
+  var s_interruption = s_end.flatMapLatest(function(endTimestamp){
+    Logger.debug("Websocket has been closed, reconnecting…");
+    return Log.getContinuousLogs(api, appId, endTimestamp);
+  });
+
+  return Bacon.mergeAll(s_logs, s_interruption);
+};
+
 Log.getNewLogs = function(api, appId) {
-  var url = Log.getLogUrl(appId, new Date().toISOString());
-  return Log.getLogsFromWS(url, api.session.getAuthorization('GET', conf.API_HOST + '/logs/' + appId, {}))
+  Logger.println("Waiting for application logs…");
+  Logger.debug("Opening a websocket in order to fetch logs…");
+
+  return Log.getContinuousLogs(api, appId);
 };
 
 Log.getOldLogs = function(api, app_id) {
