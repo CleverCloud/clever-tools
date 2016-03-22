@@ -117,7 +117,7 @@ var handleDeployment = function(api, s_appData, s_deploy, s_commitId, quiet) {
 
       var s_logs = s_app.flatMapLatest(function(app) {
         Logger.debug("Fetch application logs…");
-        return Log.getAppLogs(api, app.id);
+        return Log.getAppLogs(api, app.id, null, null, new Date());
       });
 
       s_logs.onValue(Logger.println);

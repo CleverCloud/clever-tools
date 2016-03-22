@@ -85,7 +85,7 @@ describe("log", function() {
 
   beforeEach(function(done) {
     conf = require("../src/models/configuration.js");
-    conf.LOG_URL = "ws://127.0.0.1:12345/logs-socket/<%- appId %>?since=<%- timestamp %>";
+    conf.LOG_WS_URL = "ws://127.0.0.1:12345/logs-socket/<%- appId %>?since=<%- timestamp %>";
 
     log = require("../src/models/log.js");
     unsubscribe = fakeLogApi().onValue(function(server) {
@@ -101,7 +101,7 @@ describe("log", function() {
 
   it("should get the correct log URL", function() {
     var t = new Date().toISOString();
-    expect(log.getLogUrl("app_12345", t)).toBe("ws://127.0.0.1:12345/logs-socket/app_12345?since=" + t);
+    expect(log.getWsLogUrl("app_12345", t)).toBe("ws://127.0.0.1:12345/logs-socket/app_12345?since=" + t);
   });
 
   it("should be able to fetch some logs", function(done) {
@@ -110,11 +110,13 @@ describe("log", function() {
         getAuthorization: function() { return "AUTHORIZATION"; }
       }
     };
-    var s_logs = log.getAppLogs(fakeApi, "app_12345", "AUTHORIZATION", true);
+    var s_logs = log.getAppLogs(fakeApi, "app_12345", null, null, new Date());
     var context = this;
     s_logs.subscribe(function(event) {
       context.expect(event.hasValue()).toBe(true);
-      context.expect(event.value()).toBe("2015-01-06T18:10:37.606Z: Received signal 15; terminating.");
+      if(event.hasValue()) {
+        context.expect(event.value()).toBe("2015-01-06T18:10:37.606Z: Received signal 15; terminating.");
+      }
       done();
 
       return Bacon.noMore;
