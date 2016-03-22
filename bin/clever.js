@@ -112,6 +112,15 @@ function run() {
     }
   };
 
+  var dateParser = function(dateString) {
+    var date = new Date(dateString);
+    if(isNaN(date.getTime())) {
+      return cliparse.parsers.error("Invalid date: " + dateString + " (timestamps or IS0 8601 dates are accepted)")
+    } else {
+      return cliparse.parsers.success(date);
+    }
+  }
+
   // OPTIONS
   var orgaOption = cliparse.option("orga", { aliases: ["o"], description: "Organisation ID" });
   var aliasCreationOption = cliparse.option("alias", {
@@ -201,6 +210,16 @@ function run() {
     parser: instancesParser,
     description: "The number of parallels instances"
   });
+  var beforeOption = cliparse.option("before", {
+    metavar: "before",
+    parser: dateParser,
+    description: "Fetch logs before this date"
+  });
+  var afterOption = cliparse.option("after", {
+    metavar: "after",
+    parser: dateParser,
+    description: "Fetch logs after this date"
+  });
 
   // CREATE COMMAND
   var appCreateCommand = cliparse.command("create", {
@@ -268,7 +287,9 @@ function run() {
   var logsCommand = cliparse.command("logs", {
     description: "Fetch application logs, continuously",
     options: [
-      aliasOption
+      aliasOption,
+      beforeOption,
+      afterOption
     ]
   }, logs);
 

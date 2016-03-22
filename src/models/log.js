@@ -10,13 +10,11 @@ var conf = require("./configuration.js");
 var Log = module.exports;
 
 Log.getLogsFromWS = function(url, authorization) {
-  Logger.println("Waiting for application logs…");
-  Logger.debug("Opening a websocket in order to fetch logs…")
   return Bacon.fromBinder(function(sink) {
     var ws = new WebSocket(url);
 
     ws.on("open", function open() {
-      Logger.debug("Websocket opened successfully.")
+      Logger.debug("Websocket opened successfully.");
       ws.send(JSON.stringify({
         message_type: "oauth",
         authorization: authorization
@@ -43,23 +41,62 @@ Log.getLogsFromWS = function(url, authorization) {
   });
 };
 
-Log.getLogUrl = _.partial(function(template, appId, timestamp) {
+Log.getWsLogUrl = _.partial(function(template, appId, timestamp) {
   return template({
     appId: appId,
     timestamp: timestamp
   });
-}, _.template(conf.LOG_URL));
+}, _.template(conf.LOG_WS_URL));
 
-Log.getNewLogs = function(api, appId) {
-  var url = Log.getLogUrl(appId, new Date().toISOString());
-  return Log.getLogsFromWS(url, api.session.getAuthorization('GET', conf.API_HOST + '/logs/' + appId, {}))
+Log.getHttpLogUrl = _.partial(function(template, appId) {
+  return template({
+    appId: appId
+  });
+}, _.template(conf.LOG_HTTP_URL));
+
+Log.getContinuousLogs = function(api, appId, before, after, timestamp){
+  var url = Log.getWsLogUrl(appId, timestamp || after.toISOString());
+  var s_WsLogs = Log.getLogsFromWS(url, api.session.getAuthorization('GET', conf.API_HOST + '/logs/' + appId, {}))
+  var s_logs = s_WsLogs.filter(function(line) {
+    var lineDate = Date.parse(line._source["@timestamp"]);
+    var isBefore = !before || lineDate < before.getTime();
+    var isAfter = !after || lineDate > after.getTime();
+    return isBefore && isAfter;
+  });
+
+  var s_end = s_logs
+    .filter(false)
+    .mapEnd(new Date().toISOString());
+
+  var s_interruption = s_end.flatMapLatest(function(endTimestamp){
+    Logger.debug("Websocket has been closed, reconnecting…");
+    return Log.getContinuousLogs(api, appId, endTimestamp);
+  });
+
+  return Bacon.mergeAll(s_logs, s_interruption);
 };
 
-Log.getOldLogs = function(api, app_id) {
+Log.getNewLogs = function(api, appId, before, after) {
+  Logger.println("Waiting for application logs…");
+  Logger.debug("Opening a websocket in order to fetch logs…");
+
+  return Log.getContinuousLogs(api, appId, before, after);
+};
+
+Log.getOldLogs = function(api, app_id, before, after) {
+  var query = {};
+
+  if(!before && !after) {
+    query.limit = 300;
+  } else {
+    if(before) query.before = before.toISOString();
+    if(after) query.after = after.toISOString();
+  }
+
   var s_res = Bacon.fromNodeCallback(request, {
       agent: new (require("https").Agent)({ keepAlive: true }),
-      url: "https://logs-api.clever-cloud.com/logs/" + app_id,
-      qs: { limit: 300 },
+      url: Log.getHttpLogUrl(app_id),
+      qs: query,
       headers: {
         authorization: api.session.getAuthorization('GET', conf.API_HOST + '/logs/' + app_id, {}),
         "Accept": "application/json"
@@ -99,15 +136,23 @@ var isBuildSucessMessage = function(line){
   return _.startsWith(line._source["@message"].toLowerCase(), "build succeeded in");
 };
 
-Log.getAppLogs = function(api, appId, fetchOldLogs) {
+Log.getAppLogs = function(api, appId, instances, before, after) {
   var s_logs;
+  var now = new Date();
+
+  var fetchOldLogs = !after || after < now;
+  var fetchNewLogs = !before || before > now;
+
   if(fetchOldLogs) {
-    s_logs = Log.getOldLogs(api, appId)
-            .merge(Log.getNewLogs(api, appId));
+    s_logs = Log.getOldLogs(api, appId, before, after)
+            .merge(Log.getNewLogs(api, appId, before, after || now));
   } else {
-    s_logs = Log.getNewLogs(api, appId);
+    s_logs = Log.getNewLogs(api, appId, before, after || now);
   }
   return s_logs
+        .filter(function(line) {
+          return !instances || instances.indexOf(line._source["@source_host"]) >= 0;
+        })
         .map(function(line) {
           if(isDeploymentSuccessMessage(line)) {
             return line._source["@timestamp"] + ": " + line._source["@message"].bold.green;
