@@ -8,7 +8,7 @@ var shell = require("shelljs");
 var exec = shell.exec;
 var rm = shell.rm;
 
-var repo = "git@github.com:urcadox/empty-repo.git";
+var repo = "https://github.com/CleverCloud/empty-repo";
 var repoPath = __dirname + "/empty-repo";
 
 if(fs.existsSync(repoPath)) {
