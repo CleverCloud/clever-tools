@@ -1,11 +1,13 @@
 module.exports = function(grunt) {
   grunt.initConfig({
-    jasmine_node: {
-      all: ['spec/']
+    mochaTest: {
+      test: {
+        src: ["spec/*.spec.js"]
+      }
     }
   });
 
-  grunt.loadNpmTasks('grunt-jasmine-node');
+  grunt.loadNpmTasks('grunt-mocha-test');
 
-  grunt.registerTask('test', ['jasmine_node']);
+  grunt.registerTask('test', ['mochaTest']);
 };

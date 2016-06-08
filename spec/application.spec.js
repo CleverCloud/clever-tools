@@ -2,6 +2,7 @@ var path = require("path");
 
 var _ = require("lodash");
 var Bacon = require("baconjs");
+var expect = require('chai').expect;
 
 var instanceTypes = require("./application.instance-types.js");
 var instanceTypeSlugNames = _.map(instanceTypes, function(instanceType) {
@@ -62,8 +63,8 @@ describe("application", function() {
     }));
 
     s_types.subscribe(function(event) {
-      expect(event.hasValue()).toBe(true);
-      expect(event.value().length).toBe(instanceTypeSlugNames.length);
+      expect(event.hasValue()).to.equal(true);
+      expect(event.value().length).to.equal(instanceTypeSlugNames.length);
       done();
 
       return Bacon.noMore;
@@ -72,7 +73,7 @@ describe("application", function() {
 
   it("should return an error when trying to get an invalid type", function(done) {
     app.getInstanceType(api, "blablablabla").subscribe(function(event) {
-      expect(event.isError()).toBe(true);
+      expect(event.isError()).to.equal(true);
       done();
 
       return Bacon.noMore;
@@ -85,8 +86,8 @@ describe("application", function() {
     }));
 
     s_apps.subscribe(function(event) {
-      expect(event.hasValue()).toBe(true);
-      expect(event.value().length).toBe(instanceTypes.length);
+      expect(event.hasValue()).to.equal(true);
+      expect(event.value().length).to.equal(instanceTypes.length);
       done();
 
       return Bacon.noMore;

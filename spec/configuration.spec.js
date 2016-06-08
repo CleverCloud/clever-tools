@@ -1,5 +1,6 @@
 var path = require("path");
 var Bacon = require("baconjs");
+var expect = require('chai').expect;
 
 describe("configuration", function() {
   var conf;
@@ -14,9 +15,9 @@ describe("configuration", function() {
     var s_oauth_data = conf.loadOAuthConf();
 
     s_oauth_data.subscribe(function(event) {
-      expect(event.hasValue()).toBe(true);
-      expect(event.value().token).toBe("aaaa");
-      expect(event.value().secret).toBe("bbbb");
+      expect(event.hasValue()).to.equal(true);
+      expect(event.value().token).to.equal("aaaa");
+      expect(event.value().secret).to.equal("bbbb");
       done();
 
       return Bacon.noMore;
@@ -29,9 +30,9 @@ describe("configuration", function() {
     var s_oauth_data = conf.loadOAuthConf();
 
     s_oauth_data.subscribe(function(event) {
-      expect(event.hasValue()).toBe(true);
-      expect(event.value().token).toBeUndefined();
-      expect(event.value().secret).toBeUndefined();
+      expect(event.hasValue()).to.equal(true);
+      expect(event.value().token).to.be.an('undefined');
+      expect(event.value().secret).to.be.an('undefined');
       done();
 
       return Bacon.noMore;
