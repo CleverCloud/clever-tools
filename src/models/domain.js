@@ -15,13 +15,13 @@ Domain.list = function(api, appId, orgaId) {
 };
 
 Domain.create = function(api, fqdn, appId, orgaId) {
-  var params = orgaId ? [orgaId, appId, fqdn] : [appId, fqdn];
+  var params = orgaId ? [orgaId, appId, encodeURIComponent(fqdn)] : [appId, encodeURIComponent(fqdn)];
 
   return api.owner(orgaId).applications._.vhosts._.put().withParams(params).send();
 };
 
 Domain.remove = function(api, fqdn, appId, orgaId) {
-  var params = orgaId ? [orgaId, appId, fqdn] : [appId, fqdn];
+  var params = orgaId ? [orgaId, appId, encodeURIComponent(fqdn)] : [appId, encodeURIComponent(fqdn)];
 
   return api.owner(orgaId).applications._.vhosts._.delete().withParams(params).send();
 };
