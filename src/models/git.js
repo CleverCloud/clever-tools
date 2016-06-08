@@ -97,8 +97,9 @@ module.exports = function(repositoryPath) {
     var s_newRemote = s_existingRemote.errors().flatMapError(function() {
       Logger.debug("Create a \"" + name + "\" remote pointing to " + url);
       return Git.getRepository().flatMapLatest(function(repository) {
-        Bacon.fromPromise(nodegit.Remote.create(repository, name, url));
         Logger.debug("Created remote " + name);
+        return Bacon.fromPromise(nodegit.Remote.create(repository, name, url));
+      }).flatMapLatest(function(){
         return Git.getRemote(name);
       });
     });
