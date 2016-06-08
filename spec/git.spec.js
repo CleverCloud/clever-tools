@@ -3,6 +3,7 @@ var path = require("path");
 
 var _ = require("lodash");
 var Bacon = require("baconjs");
+var expect = require('chai').expect;
 
 var shell = require("shelljs");
 var exec = shell.exec;
@@ -25,8 +26,8 @@ describe("git", function() {
 
   it("should be able to get the current repository", function(done) {
     git.getRepository().subscribe(function(event) {
-      expect(event.hasValue()).toBe(true);
-      expect(path.resolve(event.value().path())).toBe(path.resolve(repoPath, ".git"));
+      expect(event.hasValue()).to.equal(true);
+      expect(path.resolve(event.value().path())).to.equal(path.resolve(repoPath, ".git"));
       done();
 
       return Bacon.noMore;
@@ -35,8 +36,8 @@ describe("git", function() {
 
   it("should be able to get the \"origin\" remote", function(done) {
     git.getRemote("origin").subscribe(function(event) {
-      expect(event.hasValue()).toBe(true);
-      expect(event.value().url()).toBe(repo);
+      expect(event.hasValue()).to.equal(true);
+      expect(event.value().url()).to.equal(repo);
       done();
 
       return Bacon.noMore;
@@ -45,8 +46,8 @@ describe("git", function() {
 
   it("should be able to get the \"master\" branch", function(done) {
     git.getBranch("master").subscribe(function(event) {
-      expect(event.hasValue()).toBe(true);
-      expect(event.value().name()).toBe("refs/heads/master");
+      expect(event.hasValue()).to.equal(true);
+      expect(event.value().name()).to.equal("refs/heads/master");
       done();
 
       return Bacon.noMore;
@@ -55,8 +56,8 @@ describe("git", function() {
 
   it("should be able to create a \"origin2\" remote", function(done) {
     git.createRemote("origin2", repo).subscribe(function(event) {
-      expect(event.hasValue()).toBe(true);
-      expect(event.value().url()).toBe(repo);
+      expect(event.hasValue()).to.equal(true);
+      expect(event.value().url()).to.equal(repo);
       done();
 
       return Bacon.noMore;
@@ -65,8 +66,8 @@ describe("git", function() {
 
   it("should be able to fetch a remote", function(done) {
     git.getRemote("origin").flatMapLatest(git.fetch).subscribe(function(event) {
-      expect(event.hasValue()).toBe(true);
-      expect(event.value().url()).toBe(repo);
+      expect(event.hasValue()).to.equal(true);
+      expect(event.value().url()).to.equal(repo);
       done();
 
       return Bacon.noMore;
@@ -75,8 +76,8 @@ describe("git", function() {
 
   it("should be able to keep fetching a remote", function(done) {
     git.getRemote("origin").flatMapLatest(_.partial(git.keepFetching, 30000)).subscribe(function(event) {
-      expect(event.hasValue()).toBe(true);
-      expect(event.value().url()).toBe(repo);
+      expect(event.hasValue()).to.equal(true);
+      expect(event.value().url()).to.equal(repo);
       done();
 
       return Bacon.noMore;
@@ -89,20 +90,20 @@ describe("git", function() {
     });
 
     s_push.subscribe(function(event) {
-      expect(event.hasValue()).toBe(false);
+      expect(event.hasValue()).to.equal(false);
       done();
 
       return Bacon.noMore;
     });
   });
 
-  xit("should push to the origin remote", function(done) {
+  it.skip("should push to the origin remote", function(done) {
     var s_push = git.getRemote("origin").flatMapLatest(function(remote) {
       return git.push(remote, "master", Bacon.once("0000000000000000000000000000000000000000"), false);
     });
 
     s_push.subscribe(function(event) {
-      expect(event.hasValue()).toBe(true);
+      expect(event.hasValue()).to.equal(true);
       done();
 
       return Bacon.noMore;
