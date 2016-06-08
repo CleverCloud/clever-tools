@@ -7,25 +7,12 @@ var _ = require("lodash");
 var Bacon = require("baconjs");
 
 var Logger = require("../logger.js");
+var OpenBrowser = require("../open-browser.js");
 var conf = require("../models/configuration.js");
 var Interact = require("../models/interact.js");
 
-function getOpenCommand() {
-  Logger.debug("Get the right command to open a tab in a browser…")
-  switch(process.platform) {
-    case "darwin":
-      return Bacon.constant("open " + conf.CONSOLE_TOKEN_URL);
-    case "linux":
-      return Bacon.constant("xdg-open " + conf.CONSOLE_TOKEN_URL);
-    case "win32":
-      return Bacon.constant("start " + conf.CONSOLE_TOKEN_URL);
-    default:
-      return new Bacon.Error("Unsupported platform: " + process.platform);
-  }
-}
 
 function runCommand(command) {
-  Logger.println("Check your browser to get your tokens…")
   return Bacon.fromBinder(function(sink) {
     exec(command, function(error, stdout, stderr) {
       // Don't consider output in stderr as a blocking error because of
@@ -72,8 +59,8 @@ function writeLoginConfig(oauthData) {
 
 var login = module.exports = function(api, params) {
   Logger.debug("Try to login to Clever Cloud…")
-  var result = getOpenCommand()
-    .flatMapLatest(runCommand)
+  var result = OpenBrowser.getCommand(conf.CONSOLE_TOKEN_URL)
+    .flatMapLatest(function(command) { Logger.println("Check your browser to get your tokens…"); return OpenBrowser.run(command) })
     .flatMapLatest(getOAuthData)
     .flatMapLatest(writeLoginConfig)
     .map(conf.CONFIGURATION_FILE + " has been updated.");
