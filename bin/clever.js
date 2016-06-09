@@ -71,7 +71,7 @@ var stop = lazyRequiref("../src/commands/stop.js");
 var status = lazyRequiref("../src/commands/status.js");
 var activity = lazyRequiref("../src/commands/activity.js");
 var addon = lazyRequire("../src/commands/addon.js");
-var list = lazyRequiref("../src/commands/list.js");
+var applications = lazyRequiref("../src/commands/applications.js");
 var scale = lazyRequiref("../src/commands/scale.js");
 var open = lazyRequiref("../src/commands/open.js");
 
@@ -451,11 +451,11 @@ function run() {
     ]
   }, addon("list"));
 
-  //LIST COMMAND
-  var listCommand = cliparse.command("list", {
+  //APPLICATIONS COMMAND
+  var applicationsCommand = cliparse.command("applications", {
     description: "List linked applications",
     options: [ onlyAliasesOption ],
-  }, list);
+  }, applications);
 
   //SCALE COMMAND
   var scaleCommand = cliparse.command("scale", {
@@ -499,7 +499,7 @@ function run() {
       statusCommand,
       activityCommand,
       addonCommands,
-      listCommand,
+      applicationsCommand,
       scaleCommand,
       openCommand
     ]
