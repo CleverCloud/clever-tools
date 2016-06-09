@@ -80,7 +80,12 @@ AppConfiguration.getAppData = function(alias) {
   var currentConfig = AppConfiguration.loadApplicationConf();
 
   return currentConfig.flatMap(function(config) {
-    var matchingApps = _.filter(config.apps, function(app) { return !alias || app.alias === alias; });
+    var matchingApps = _.filter(config.apps, function(app) {
+      var nothingMatches = !alias && !config.default;
+      var aliasMatches = alias && app.alias === alias;
+      var isDefault = !alias && app.app_id == config.default;
+      return nothingMatches || aliasMatches || isDefault;
+    });
 
     if(matchingApps.length === 1) {
       return Bacon.once(matchingApps[0]);
