@@ -106,3 +106,22 @@ AppConfiguration.persistConfig = function(modifiedConfig) {
 
   return savedFile;
 };
+
+AppConfiguration.setDefault = function(alias) {
+  var s_currentConfig = AppConfiguration.loadApplicationConf();
+
+  var s_newConfig = s_currentConfig.flatMap(function(config) {
+    var app = _.find(config.apps, function(app) {
+      console.log(alias);
+      return app.alias === alias
+    });
+
+    if(app) {
+      return _.assign({}, config, { default: app.app_id });
+    } else {
+      return new Bacon.Error("There is no application with this alias");
+    }
+  });
+
+  return s_newConfig.flatMapLatest(AppConfiguration.persistConfig);
+}
