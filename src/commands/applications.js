@@ -5,7 +5,7 @@ var AppConfiguration = require("../models/app_configuration.js");
 
 var Logger = require("../logger.js");
 
-var list = module.exports = function(api, params) {
+var applications = module.exports = function(api, params) {
   AppConfiguration.loadApplicationConf().onValue(function(conf) {
       if(!params.options["only-aliases"]) {
         Logger.println(conf.apps.map(function(app) {
