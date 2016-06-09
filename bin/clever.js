@@ -73,6 +73,7 @@ var activity = lazyRequiref("../src/commands/activity.js");
 var addon = lazyRequire("../src/commands/addon.js");
 var list = lazyRequiref("../src/commands/list.js");
 var scale = lazyRequiref("../src/commands/scale.js");
+var open = lazyRequiref("../src/commands/open.js");
 
 var Application = lr("../src/models/application.js");
 
@@ -470,6 +471,13 @@ function run() {
     ]
   }, scale);
 
+  //OPEN COMMAND
+  var openCommand = cliparse.command("open", {
+    description: "Open an application in the browser",
+    options: [ aliasOption ]
+  }, open);
+
+
   // CLI PARSER
   var cliParser = cliparse.cli({
     name: "clever",
@@ -492,7 +500,8 @@ function run() {
       activityCommand,
       addonCommands,
       listCommand,
-      scaleCommand
+      scaleCommand,
+      openCommand
     ]
   });
 
