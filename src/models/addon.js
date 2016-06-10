@@ -38,7 +38,7 @@ Addon.list = function(api, appId, orgaId, showAll) {
       return api.owner(orgaId).addons.get().withParams(params).send()
             .map(function(allAddons) {
               return allAddons.map(function(a) {
-                a.isLinked = _.pluck(myAddons, "id").indexOf(a.id) >= 0;
+                a.isLinked = _.map(myAddons, "id").indexOf(a.id) >= 0;
                 return a;
               });
             });
@@ -55,14 +55,14 @@ Addon.create = function(api, appId, orgaId, name, providerName, planName, region
     var provider = _.find(providers, function(p) { return p.id == providerName })
     if(!provider) return new Bacon.Error("invalid provider name");
 
-    if(!_.contains(provider.regions, region)) return new Bacon.Error("invalid region name. Available regions: " + provider.regions.join(", "));
+    if(!_.includes(provider.regions, region)) return new Bacon.Error("invalid region name. Available regions: " + provider.regions.join(", "));
 
     return provider;
   });
 
   var s_plan = s_provider.flatMapLatest(function(provider) {
     var plan = _.find(provider.plans, function(p) { return p.slug == planName; });
-    var availablePlans = _.pluck(provider.plans, "slug");
+    var availablePlans = _.map(provider.plans, "slug");
     return plan || new Bacon.Error("invalid plan name. Available plans: " + availablePlans.join(", "));
   });
 

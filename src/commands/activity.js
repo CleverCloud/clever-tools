@@ -27,12 +27,12 @@ var displayState = function(state, isFirst) {
                       return "UNKNOWN    ";
   }
 };
-var unspecifiedCommitId = _.padRight("not specified", 40); // a git commit id is 40 chars long
+var unspecifiedCommitId = _.padEnd("not specified", 40); // a git commit id is 40 chars long
 
 var renderActivityLine = function(deployment, isFirst) {
   return moment(deployment.date).format() + " - " +
          displayState(deployment.state, isFirst) + " " +
-         _.padRight(deployment.action, 9) + " " + // longest action name is downscale
+         _.padEnd(deployment.action, 9) + " " + // longest action name is downscale
          (deployment.commit || unspecifiedCommitId) + " " +
          deployment.cause;
 };

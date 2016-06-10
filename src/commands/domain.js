@@ -21,7 +21,7 @@ var list = domain.list = function(api, params) {
   });
 
   s_domain.onValue(function(domains) {
-    Logger.println(_.pluck(domains, 'fqdn').join('\n'));
+    Logger.println(_.map(domains, 'fqdn').join('\n'));
   });
 
   s_domain.onError(Logger.error);

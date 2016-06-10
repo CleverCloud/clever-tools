@@ -23,8 +23,8 @@ var defaultScalabilityParameters = {
 describe("scale-merge-parameters", function() {
 
   it("should scale up max scalability", function() {
-    var instance = _.clone(defaultInstance);
-    var scalabilityParameters = _.clone(defaultScalabilityParameters);
+    var instance = _.cloneDeep(defaultInstance);
+    var scalabilityParameters = _.cloneDeep(defaultScalabilityParameters);
 
     scalabilityParameters.minFlavor = "M";
 
@@ -33,8 +33,8 @@ describe("scale-merge-parameters", function() {
   });
 
   it("should scale down min scalability", function() {
-    var instance = _.clone(defaultInstance);
-    var scalabilityParameters = _.clone(defaultScalabilityParameters);
+    var instance = _.cloneDeep(defaultInstance);
+    var scalabilityParameters = _.cloneDeep(defaultScalabilityParameters);
 
     scalabilityParameters.maxFlavor = "XS";
 
@@ -43,8 +43,8 @@ describe("scale-merge-parameters", function() {
   });
 
   it("should augment max instances", function() {
-    var instance = _.clone(defaultInstance);
-    var scalabilityParameters = _.clone(defaultScalabilityParameters);
+    var instance = _.cloneDeep(defaultInstance);
+    var scalabilityParameters = _.cloneDeep(defaultScalabilityParameters);
 
     scalabilityParameters.minInstances = 6;
 
@@ -53,8 +53,8 @@ describe("scale-merge-parameters", function() {
   });
 
   it("should diminue min instances", function() {
-    var instance = _.clone(defaultInstance);
-    var scalabilityParameters = _.clone(defaultScalabilityParameters);
+    var instance = _.cloneDeep(defaultInstance);
+    var scalabilityParameters = _.cloneDeep(defaultScalabilityParameters);
 
     scalabilityParameters.maxInstances = 4;
 

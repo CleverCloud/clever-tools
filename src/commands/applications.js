@@ -15,7 +15,7 @@ var applications = module.exports = function(api, params) {
                  "  deployment url: " + app.deploy_url
         }).join('\n\n'));
       } else {
-        Logger.println(_.pluck(conf.apps, "alias").join('\n'));
+        Logger.println(_.map(conf.apps, "alias").join('\n'));
       }
   });
 };
