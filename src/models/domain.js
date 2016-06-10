@@ -32,10 +32,10 @@ Domain.getBest = function(api, appId, orgaId) {
   var s_favourite =
      api.owner(orgaId).applications._.vhosts.favourite.get().withParams(params).send()
     .flatMapError(function(error) {
-      if(error.id === 4021) {
+      if(error.id === 4021) { // if no favourite is defined, it's not an error
         return new Bacon.Next(undefined);
       } else {
-        return error;
+        return new Bacon.Error(error);
       }
     });
 
