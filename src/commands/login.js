@@ -65,6 +65,15 @@ var login = module.exports = function(api, params) {
     .flatMapLatest(writeLoginConfig)
     .map(conf.CONFIGURATION_FILE + " has been updated.");
 
-  result.onValue(Logger.println);
-  result.onError(Logger.error);
+  // Force process exit, otherwhise, it will be kept alive
+  // because of the spawn() call (in src/open-browser.js)
+  result.onValue(function(message){
+    Logger.println(message);
+    process.exit(0);
+  });
+
+  result.onError(function(error){
+    Logger.error(error);
+    process.exit(1);
+  });
 };
