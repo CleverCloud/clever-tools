@@ -74,6 +74,7 @@ var addon = lazyRequire("../src/commands/addon.js");
 var applications = lazyRequiref("../src/commands/applications.js");
 var scale = lazyRequiref("../src/commands/scale.js");
 var open = lazyRequiref("../src/commands/open.js");
+var makeDefault = lazyRequiref("../src/commands/makeDefault.js");
 
 var Application = lr("../src/models/application.js");
 
@@ -248,6 +249,12 @@ function run() {
     description: "Unlink this repo from an existing Clever Cloud application",
     args: [aliasArgument]
   }, unlink);
+
+  // MAKE DEFAULT COMMAND
+  var makeDefaultCommand = cliparse.command("make-default", {
+      description: "Make a linked application the default one",
+      args: [aliasArgument]
+  }, makeDefault);
 
   // ENV COMMANDS
   var envSetCommand = cliparse.command("set", {
@@ -488,6 +495,7 @@ function run() {
       appCreateCommand,
       appLinkCommand,
       appUnlinkCommand,
+      makeDefaultCommand,
       envCommands,
       logsCommand,
       loginCommand,
