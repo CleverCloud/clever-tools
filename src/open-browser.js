@@ -16,7 +16,7 @@ OpenBrowser.getCommand = function(url) {
     if(parsed.protocol === null || parsed.hostname === null) {
       return new Bacon.Error("Invalid url provided");
     }
-  } catch {
+  } catch(e) {
     return new Bacon.Error("Invalid url provided");
   }
 
