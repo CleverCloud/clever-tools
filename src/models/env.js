@@ -33,7 +33,7 @@ Env.remove = function(api, name, appId, orgaId) {
 
 Env.bulkSet = function(api, pairs, appId, orgaId) {
   var params = orgaId ? [orgaId, appId] : [appId];
-  var payload = _.object(pairs);
+  var payload = _.fromPairs(pairs);
 
   return api.owner(orgaId).applications._.env.put().withParams(params).send(JSON.stringify(payload));
 };

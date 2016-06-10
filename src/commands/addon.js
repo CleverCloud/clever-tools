@@ -22,17 +22,17 @@ var list = addon.list = function(api, params) {
   });
 
   s_addon.onValue(function(addons) {
-    var nameWidth = Math.max.apply(null,   _(addons).pluck("name").filter().pluck("length").value());
-    var planWidth = Math.max.apply(null,   _(addons).pluck("plan").pluck("name").pluck("length").value());
-    var regionWidth = Math.max.apply(null, _(addons).pluck("region").pluck("length").value());
-    var typeWidth = Math.max.apply(null,   _(addons).pluck("provider").pluck("name").pluck("length").value());
+    var nameWidth = Math.max.apply(null,   _(addons).map("name").filter().map("length").value());
+    var planWidth = Math.max.apply(null,   _(addons).map("plan").map("name").map("length").value());
+    var regionWidth = Math.max.apply(null, _(addons).map("region").map("length").value());
+    var typeWidth = Math.max.apply(null,   _(addons).map("provider").map("name").map("length").value());
 
     var renderLine = function(addon, showLinked) {
       return (showLinked && addon.isLinked ? '* ' : '  ') +
-        '[' + _.padRight(addon.plan.name, planWidth) + ' ' +
-              _.padRight(addon.provider.name, typeWidth) + '] ' +
-              _.padRight(addon.region, regionWidth) + ' ' +
-              _.padRight(addon.name, nameWidth).bold.green + ' ' +
+        '[' + _.padEnd(addon.plan.name, planWidth) + ' ' +
+              _.padEnd(addon.provider.name, typeWidth) + '] ' +
+              _.padEnd(addon.region, regionWidth) + ' ' +
+              _.padEnd(addon.name, nameWidth).bold.green + ' ' +
               addon.id;
     };
 
@@ -134,12 +134,12 @@ var listProviders = addon.listProviders = function(api, params) {
   var s_providers = Addon.listProviders(api);
 
   s_providers.onValue(function(providers) {
-    var idWidth = Math.max.apply(null, _(providers).pluck("id").pluck("length").value());
-    var nameWidth = Math.max.apply(null, _(providers).pluck("name").pluck("length").value());
+    var idWidth = Math.max.apply(null, _(providers).map("id").map("length").value());
+    var nameWidth = Math.max.apply(null, _(providers).map("name").map("length").value());
     _.each(providers, function(provider) {
        Logger.println(
-         _.padRight(provider.id, idWidth).bold + ' ' +
-         _.padRight(provider.name, nameWidth) + ' ' +
+         _.padEnd(provider.id, idWidth).bold + ' ' +
+         _.padEnd(provider.name, nameWidth) + ' ' +
          provider.shortDesc
        );
     });

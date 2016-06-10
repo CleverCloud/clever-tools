@@ -44,10 +44,10 @@ module.exports = function(app) {
   else if(!app.instanceVersion) {
     return Bacon.once("Missing instance version.");
   }
-  else if(_.all(flavors, function(flavor) { return flavor.name != app.maxFlavor; })) {
+  else if(_.every(flavors, function(flavor) { return flavor.name != app.maxFlavor; })) {
     return Bacon.once("Invalid max flavor.");
   } 
-  else if(_.all(flavors, function(flavor) { return flavor.name != app.minFlavor; })) {
+  else if(_.every(flavors, function(flavor) { return flavor.name != app.minFlavor; })) {
     return Bacon.once("Invalid min flavor.");
   } 
   else if(!app.maxInstances || !app.minInstances) {

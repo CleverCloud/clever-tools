@@ -14,7 +14,7 @@ Interact.ask = function (question) {
 
 Interact.confirm = function(question, rejectionMessage) {
   return Interact.ask(question).flatMapLatest(function(answer) {
-    if(_.contains(["yes", "y"], answer)) {
+    if(_.includes(["yes", "y"], answer)) {
       return true;
     } else {
       return new Bacon.Error(rejectionMessage);

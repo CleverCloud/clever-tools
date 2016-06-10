@@ -24,7 +24,7 @@ var displayFlavors = function(instances) {
 
   return _(sizes)
           .groupBy()
-          .pairs()
+          .toPairs()
           .map(function(x) {
             return x[1].length + '*' + x[0];
           }).join(', ');
@@ -33,11 +33,11 @@ var displayFlavors = function(instances) {
 var computeStatus = function(instances, app) {
   var upInstances = _.filter(instances, function(instance) { return instance.state === 'UP'; });
   var isUp = !_.isEmpty(upInstances);
-  var upCommit = _.head(_.pluck(upInstances, 'commit'));
+  var upCommit = _.head(_.map(upInstances, 'commit'));
 
   var isDeploying = !_.isEmpty(deployingInstances);
   var deployingInstances = _.filter(instances, function(instance) { return instance.state === 'DEPLOYING'; });
-  var deployingCommit = _.head(_.pluck(upInstances, 'commit'));
+  var deployingCommit = _.head(_.map(upInstances, 'commit'));
 
   var statusLine = app.name + ': ' + (isUp ? 'running '.bold.green +  displayGroupInfo(upInstances, upCommit) : 'stopped'.bold.red);
   var deploymentLine = isDeploying ? 'Deployment in progress ' + displayGroupInfo(deployingInstances, deployingCommit) : '';

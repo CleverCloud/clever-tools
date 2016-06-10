@@ -36,7 +36,7 @@ Application.listAvailableZones = function() {
 
 Application.listAvailableAliases = function() {
   var s_aliases = AppConfiguration.loadApplicationConf().map(function(conf) {
-    return _.pluck(conf.apps, "alias");
+    return _.map(conf.apps, "alias");
   });
 
   return s_aliases.toPromise(Promise).then(autocomplete.words);
@@ -205,7 +205,7 @@ Application.setScalability = function(api, appId, orgaId, scalabilityParameters)
 
   var s_app = Application.get(api, appId, orgaId).toProperty();
   var s_body = s_app.map(function(app) {
-    var instance = _.clone(app.instance);
+    var instance = _.cloneDeep(app.instance);
 
     instance.minFlavor = instance.minFlavor.name;
     instance.maxFlavor = instance.maxFlavor.name;
