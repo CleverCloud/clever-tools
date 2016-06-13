@@ -54,8 +54,16 @@ Log.getHttpLogUrl = _.partial(function(template, appId) {
   });
 }, _.template(conf.LOG_HTTP_URL));
 
-Log.getContinuousLogs = function(api, appId, before, after, timestamp){
-  var url = Log.getWsLogUrl(appId, timestamp || after.toISOString());
+/** Get logs as they arrive from a web socket.
+ * Automatically reconnect if the connexion is closed.
+ *
+ * api: The API object
+ * appId: The appId of the application
+ * before (Date): only display log lines that happened before this date
+ * after  (Date): only display log lines that happened after this date
+ */
+Log.getContinuousLogs = function(api, appId, before, after){
+  var url = Log.getWsLogUrl(appId, after.toISOString());
   var s_WsLogs = Log.getLogsFromWS(url, api.session.getAuthorization('GET', conf.API_HOST + '/logs/' + appId, {}))
   var s_logs = s_WsLogs.filter(function(line) {
     var lineDate = Date.parse(line._source["@timestamp"]);
@@ -66,11 +74,12 @@ Log.getContinuousLogs = function(api, appId, before, after, timestamp){
 
   var s_end = s_logs
     .filter(false)
-    .mapEnd(new Date().toISOString());
+    .mapEnd(new Date());
 
   var s_interruption = s_end.flatMapLatest(function(endTimestamp){
     Logger.debug("Websocket has been closed, reconnecting…");
-    return Log.getContinuousLogs(api, appId, endTimestamp);
+    var newAfter = after.getTime() > endTimestamp.getTime() ? after : endTimestamp;
+    return Log.getContinuousLogs(api, appId, before, newAfter);
   });
 
   return Bacon.mergeAll(s_logs, s_interruption);
