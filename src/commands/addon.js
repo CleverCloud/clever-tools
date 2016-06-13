@@ -65,32 +65,32 @@ var create = addon.create = function(api, params) {
 
 var link = addon.link = function(api, params) {
   var alias = params.options.alias;
-  var addonId = params.args[0];
+  var addonIdOrName = params.args[0];
 
   var s_appData = AppConfig.getAppData(alias);
 
   var s_result = s_appData.flatMap(function(appData) {
-    return Addon.link(api, appData.app_id, appData.org_id, addonId);
+    return Addon.link(api, appData.app_id, appData.org_id, addonIdOrName);
   });
 
   s_result.onValue(function() {
-    Logger.println("Addon " + addonId + " sucessfully linked");
+    Logger.println("Addon " + (addonIdOrName.addon_id || addonIdOrName.addon_name) + " sucessfully linked");
   });
   s_result.onError(Logger.error);
 };
 
 var unlink = addon.unlink = function(api, params) {
   var alias = params.options.alias;
-  var addonId = params.args[0];
+  var addonIdOrName = params.args[0];
 
   var s_appData = AppConfig.getAppData(alias);
 
   var s_result = s_appData.flatMap(function(appData) {
-    return Addon.unlink(api, appData.app_id, appData.org_id, addonId);
+    return Addon.unlink(api, appData.app_id, appData.org_id, addonIdOrName);
   });
 
   s_result.onValue(function() {
-    Logger.println("Addon " + addonId + " sucessfully unlinked");
+    Logger.println("Addon " + (addonIdOrName.addon_id || addonIdOrName.addon_name) + " sucessfully unlinked");
   });
   s_result.onError(Logger.error);
 };
@@ -98,34 +98,34 @@ var unlink = addon.unlink = function(api, params) {
 var adelete = addon.delete = function(api, params) {
   var alias = params.options.alias;
   var skipConfirmation = params.options.yes;
-  var addonId = params.args[0];
+  var addonIdOrName = params.args[0];
 
   var s_appData = AppConfig.getAppData(alias);
 
 
   var s_result = s_appData.flatMap(function(appData) {
-    return Addon.delete(api, appData.org_id, addonId, skipConfirmation);
+    return Addon.delete(api, appData.org_id, addonIdOrName, skipConfirmation);
   });
 
   s_result.onValue(function() {
-    Logger.println("Addon " + addonId + " sucessfully deleted");
+    Logger.println("Addon " + (addonIdOrName.addon_id || addonIdOrName.addon_name) + " sucessfully deleted");
   });
   s_result.onError(Logger.error);
 };
 
 var rename = addon.rename = function(api, params) {
   var alias = params.options.alias;
-  var addonId = params.args[0];
+  var addonIdOrName = params.args[0];
   var newName = params.args[1];
 
   var s_appData = AppConfig.getAppData(alias);
 
   var s_result = s_appData.flatMap(function(appData) {
-    return Addon.rename(api, appData.org_id, addonId, newName);
+    return Addon.rename(api, appData.org_id, addonIdOrName, newName);
   });
 
   s_result.onValue(function() {
-    Logger.println("Addon " + addonId + " sucessfully renamed to " + newName);
+    Logger.println("Addon " + (addonIdOrName.addon_id || addonIdOrName.addon_name) + " sucessfully renamed to " + newName);
   });
   s_result.onError(Logger.error);
 };

@@ -112,7 +112,6 @@ AppConfiguration.setDefault = function(alias) {
 
   var s_newConfig = s_currentConfig.flatMap(function(config) {
     var app = _.find(config.apps, function(app) {
-      console.log(alias);
       return app.alias === alias
     });
 

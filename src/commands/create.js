@@ -10,7 +10,7 @@ var Git = require("../models/git.js")(path.resolve("."));
 
 var create = module.exports = function(api, params) {
   var name = params.args[0];
-  var orga = params.options.orga;
+  var orgaIdOrName = params.options.org;
   var alias = params.options.alias;
   var region = params.options.region;
   var github;
@@ -26,10 +26,10 @@ var create = module.exports = function(api, params) {
 
   var s_app = s_type
     .flatMapLatest(function(type) {
-      return Application.create(api, name, type, region, orga, github);
+      return Application.create(api, name, type, region, orgaIdOrName, github);
     })
     .flatMapLatest(function(app) {
-      return Application.linkRepo(api, app.id, alias);
+      return Application.linkRepo(api, { app_id: app.id }, null, alias);
     });
 
   s_app.onValue(function(app) {

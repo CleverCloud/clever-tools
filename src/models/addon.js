@@ -96,36 +96,80 @@ Addon.performCreation = function(api, orgaId, name, planId, providerId, region) 
   }));
 };
 
-Addon.link = function(api, appId, orgaId, addonId) {
-  var params = orgaId ? [orgaId, appId] : [appId];
+Addon.getByName = function(api, orgaId, addonName) {
+  var s_addons;
+  if(orgaId) {
+    s_addons = api.owner(orgaId).addons.get().withParams([orgaId]).send();
+  } else {
+    s_addons = api.owner().addons.get().withParams().send();
+  }
 
-  return api.owner(orgaId).applications._.addons.post().withParams(params).send(JSON.stringify(addonId));
-};
-
-Addon.unlink = function(api, appId, orgaId, addonId) {
-  var params = orgaId ? [orgaId, appId, addonId] : [appId, addonId];
-
-  return api.owner(orgaId).applications._.addons._.delete().withParams(params).send();
-};
-
-Addon.delete = function(api, orgaId, addonId, skipConfirmation) {
-  var params = orgaId ? [orgaId, addonId] : [addonId];
-
-  var confirmation = skipConfirmation
-    ? Bacon.once()
-    : Interact.confirm("Deleting the addon can't be undone, are you sure? ", "No confirmation, aborting addon deletion");
-
-  return confirmation.flatMapLatest(function() {
-    return api.owner(orgaId).addons._.delete().withParams(params).send();
+  return s_addons.flatMapLatest(function(addons) {
+    var filtered_addons = _.filter(addons, function(addon) {
+      return addon.name === addonName;
+    });
+    if(filtered_addons.length === 1) {
+      return Bacon.once(filtered_addons[0]);
+    } else if(filtered_addons.length === 0) {
+      return Bacon.once(new Bacon.Error("Addon not found"));
+    } else {
+      return Bacon.once(new Bacon.Error("Ambiguous addon name"));
+    }
   });
 };
 
-Addon.rename = function(api, orgaId, addonId, newName) {
-  var params = orgaId ? [orgaId, addonId] : [addonId];
+Addon.getId = function(api, orgaId, addonIdOrName) {
+  if(addonIdOrName.addon_id) {
+    return Bacon.once(addonIdOrName.addon_id);
+  } else {
+    return Addon.getByName(api, orgaId, addonIdOrName.addon_name).map(function(addon) {
+      return addon.id;
+    });
+  }
 
-  return api.owner(orgaId).addons._.put().withParams(params).send(JSON.stringify({
-    name: newName
-  }));
+};
+
+Addon.link = function(api, appId, orgaId, addonIdOrName) {
+  var s_addonId = Addon.getId(api, orgaId, addonIdOrName);
+
+  return s_addonId.flatMapLatest(function(addonId) {
+    var params = orgaId ? [orgaId, appId] : [appId];
+    return api.owner(orgaId).applications._.addons.post().withParams(params).send(JSON.stringify(addonId));
+  });
+};
+
+Addon.unlink = function(api, appId, orgaId, addonIdOrName) {
+  var s_addonId = Addon.getId(api, orgaId, addonIdOrName);
+
+  return s_addonId.flatMapLatest(function(addonId) {
+    var params = orgaId ? [orgaId, appId, addonId] : [appId, addonId];
+    return api.owner(orgaId).applications._.addons._.delete().withParams(params).send();
+  });
+};
+
+Addon.delete = function(api, orgaId, addonIdOrName, skipConfirmation) {
+  var s_addonId = Addon.getId(api, orgaId, addonIdOrName);
+  return s_addonId.flatMapLatest(function(addonId) {
+    var params = orgaId ? [orgaId, addonId] : [addonId];
+
+    var confirmation = skipConfirmation
+      ? Bacon.once()
+      : Interact.confirm("Deleting the addon can't be undone, are you sure? ", "No confirmation, aborting addon deletion");
+
+    return confirmation.flatMapLatest(function() {
+      return api.owner(orgaId).addons._.delete().withParams(params).send();
+    });
+  });
+};
+
+Addon.rename = function(api, orgaId, addonIdOrName, newName) {
+  var s_addonId = Addon.getId(api, orgaId, addonIdOrName);
+  return s_addonId.flatMapLatest(function(addonId) {
+    var params = orgaId ? [orgaId, addonId] : [addonId];
+    return api.owner(orgaId).addons._.put().withParams(params).send(JSON.stringify({
+      name: newName
+    }));
+  });
 };
 
 Addon.completeRegion = function() {
