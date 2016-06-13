@@ -66,30 +66,31 @@ Application.getInstanceType = function(api, type) {
   });
 };
 
-Application.create = function(api, name, instanceType, region, orgaId, github) {
+Application.create = function(api, name, instanceType, region, orgaIdOrName, github) {
   Logger.debug("Create the application…");
-  var params = orgaId ? [orgaId] : [];
+  return Organisation.getId(api, orgaIdOrName).flatMapLatest(function(orgaId) {
+    var params = orgaId ? [orgaId] : [];
 
-  var body = {
-    "deploy": "git",
-    "description": name,
-    "instanceType": instanceType.type,
-    "instanceVersion": instanceType.version,
-    "maxFlavor": "S",
-    "maxInstances": 1,
-    "minFlavor": "S",
-    "minInstances": 1,
-    "name": name,
-    "zone": region
-  };
+    var body = {
+      "deploy": "git",
+      "description": name,
+      "instanceType": instanceType.type,
+      "instanceVersion": instanceType.version,
+      "maxFlavor": "S",
+      "maxInstances": 1,
+      "minFlavor": "S",
+      "minInstances": 1,
+      "name": name,
+      "zone": region
+    };
 
-  if(github) {
-    body.oauthService = "github";
-    //body.oauthAppId = "28452153";
-    body.oauthApp = github;
-  }
+    if(github) {
+      body.oauthService = "github";
+      body.oauthApp = github;
+    }
 
-  return api.owner(orgaId).applications.post().withParams(params).send(JSON.stringify(body));
+    return api.owner(orgaId).applications.post().withParams(params).send(JSON.stringify(body));
+  });
 };
 
 var getApplicationByName = function(s_apps, name) {
@@ -109,19 +110,15 @@ var getApplicationByName = function(s_apps, name) {
   return s_app;
 };
 
-Application.getByName = function(api, name) {
-  var components = name.split("/");
-  if(components.length == 1) {
+Application.getByName = function(api, name, orgaIdOrName) {
+  if(!orgaIdOrName) {
     var s_apps = api.owner().applications.get().send()
-    return getApplicationByName(s_apps, components[0]);
-  } else if(components.length == 2) {
-    var s_org = Organisation.getByName(api, components[0]);
-    var s_apps = s_org.flatMapLatest(function(org) {
-      return api.owner(org.id).applications.get().withParams([org.id]).send();
+    return getApplicationByName(s_apps, name);
+  } else {
+    var s_apps = Organisation.getId(api, orgaIdOrName).flatMapLatest(function(orgaId) {
+      return api.owner(orgaId).applications.get().withParams([orgaId]).send();
     });
-    return getApplicationByName(s_apps, components[1]);
-  } else {
-   return Bacon.once(new Bacon.Error("Invalid application name"));
+    return getApplicationByName(s_apps, name);
   }
 };
 
@@ -148,11 +145,16 @@ Application.getInstances = function(api, appId, orgaId) {
   return api.owner(orgaId).applications._.instances.get().withParams(params).send();
 };
 
-Application.linkRepo = function(api, appId, alias) {
-  Logger.debug("Linking current repository to the app: " + appId);
+Application.linkRepo = function(api, appIdOrName, orgaIdOrName, alias) {
+  Logger.debug("Linking current repository to the app: " + (appIdOrName.app_id || appIdOrName.app_name));
 
-  var s_app = Application.get(api, appId)
-    .flatMapError(function() {return Application.getByName(api, appId)});
+  var s_app;
+
+  if(appIdOrName.app_id) {
+    s_app = Application.get(api, appIdOrName.app_id)
+  } else {
+    s_app = Application.getByName(api, appIdOrName.app_name, orgaIdOrName);
+  }
 
   return s_app.flatMapLatest(function(appData) {
     return AppConfiguration.addLinkedApplication(appData, alias);

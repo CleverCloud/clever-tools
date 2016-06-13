@@ -7,6 +7,18 @@ var AppConfiguration = require("./app_configuration.js");
 
 var Organisation = module.exports;
 
+Organisation.getId = function(api, orgaIdOrName) {
+  if(!orgaIdOrName) return Bacon.once(null);
+
+  if(orgaIdOrName.orga_id) {
+    return Bacon.once(orgaIdOrName.orga_id);
+  } else {
+    return Organisation.getByName(api, orgaIdOrName.orga_name).map(function(orga) {
+      return orga.id;
+    });
+  }
+};
+
 Organisation.getByName = function(api, name) {
   var s_orgs = api.summary.get().send().map(".organisations");
   var s_org = s_orgs.flatMapLatest(function(orgs) {
