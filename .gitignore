@@ -1,2 +1,3 @@
 node_modules/
 spec/empty-repo
+spec/application.instance-types.js
