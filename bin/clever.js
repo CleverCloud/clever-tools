@@ -79,17 +79,6 @@ var makeDefault = lazyRequiref("../src/commands/makeDefault.js");
 var Application = lr("../src/models/application.js");
 
 function run() {
-  // ARGUMENTS
-  var appNameArgument = cliparse.argument("app-name", { description: "Application name" });
-  var appIdArgument = cliparse.argument("app-id", { description: "Application ID (or name, if unambiguous)" });
-  var aliasArgument = cliparse.argument("app-alias", { description: "Application alias" });
-  var envVariableName = cliparse.argument("variable-name", { description: "Name of the environment variable" });
-  var envVariableValue = cliparse.argument("variable-value", { description: "Value of the environment variable" });
-  var fqdnArgument = cliparse.argument("fqdn", { description: "Domain name of the Clever Cloud application" });
-  var addonIdArgument = cliparse.argument("addon-id", { description: "Addon ID" });
-  var addonNameArgument = cliparse.argument("addon-name", { description: "Addon name" });
-  var addonProviderArgument = cliparse.argument("addon-provider", { description: "Addon provider" });
-
   //PARSERS
   var flavorParser = function(flavor) {
     var flavors = Application("listAvailableFlavors")();
@@ -123,8 +112,46 @@ function run() {
     }
   }
 
+  var appIdRegex = /^app_[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  var appIdOrNameParser = function(string) {
+    if(string.match(appIdRegex)) {
+      return cliparse.parsers.success({ app_id: string});
+    } else {
+      return cliparse.parsers.success({ app_name: string});
+    }
+  }
+
+  var orgaIdRegex = /^orga_[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  var orgaIdOrNameParser = function(string) {
+    if(string.match(orgaIdRegex)) {
+      return cliparse.parsers.success({ orga_id: string});
+    } else {
+      return cliparse.parsers.success({ orga_name: string});
+    }
+  }
+
+  var addonIdRegex = /^addon_[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  var addonIdOrNameParser = function(string) {
+    if(string.match(addonIdRegex)) {
+      return cliparse.parsers.success({ addon_id: string});
+    } else {
+      return cliparse.parsers.success({ addon_name: string});
+    }
+  }
+
+  // ARGUMENTS
+  var appNameCreationArgument = cliparse.argument("app-name", { description: "Application name" });
+  var appIdOrNameArgument = cliparse.argument("app-id", { description: "Application ID (or name, if unambiguous)", parser: appIdOrNameParser });
+  var aliasArgument = cliparse.argument("app-alias", { description: "Application alias" });
+  var envVariableName = cliparse.argument("variable-name", { description: "Name of the environment variable" });
+  var envVariableValue = cliparse.argument("variable-value", { description: "Value of the environment variable" });
+  var fqdnArgument = cliparse.argument("fqdn", { description: "Domain name of the Clever Cloud application" });
+  var addonIdOrNameArgument = cliparse.argument("addon-id", { description: "Addon ID (or name, if unambiguous)", parser: addonIdOrNameParser });
+  var addonNameArgument = cliparse.argument("addon-name", { description: "Addon name" });
+  var addonProviderArgument = cliparse.argument("addon-provider", { description: "Addon provider" });
+
   // OPTIONS
-  var orgaOption = cliparse.option("orga", { aliases: ["o"], description: "Organisation ID" });
+  var orgaIdOrNameOption = cliparse.option("org", { aliases: ["o"], description: "Organisation ID (or name, if unambiguous)", parser: orgaIdOrNameParser });
   var aliasCreationOption = cliparse.option("alias", {
       aliases: ["a"],
       metavar: "alias",
@@ -231,10 +258,10 @@ function run() {
   // CREATE COMMAND
   var appCreateCommand = cliparse.command("create", {
     description: "Create a Clever Cloud application",
-    args: [appNameArgument],
+    args: [appNameCreationArgument],
     options: [
       instanceTypeOption,
-      orgaOption,
+      orgaIdOrNameOption,
       aliasCreationOption,
       regionOption,
       githubOption
@@ -244,9 +271,10 @@ function run() {
   // LINK COMMAND
   var appLinkCommand = cliparse.command("link", {
     description: "Link this repo to an existing Clever Cloud application",
-    args: [appIdArgument],
+    args: [appIdOrNameArgument],
     options: [
-      aliasCreationOption
+      aliasCreationOption,
+      orgaIdOrNameOption
     ]
   }, link);
 
@@ -406,14 +434,14 @@ function run() {
   var addonLinkCommand = cliparse.command("link", {
     description: "Link an existing addon to this application",
     args: [
-      addonIdArgument
+      addonIdOrNameArgument,
     ]
   }, addon("link"));
 
   var addonUnlinkCommand = cliparse.command("unlink", {
     description: "Unlink an addon from this application",
     args: [
-      addonIdArgument
+      addonIdOrNameArgument
     ]
   }, addon("unlink"));
 
@@ -423,14 +451,14 @@ function run() {
       confirmAddonDeletionOption,
     ],
     args: [
-      addonIdArgument
+      addonIdOrNameArgument
     ]
   }, addon("delete"));
 
   var addonRenameCommand = cliparse.command("rename", {
     description: "Rename an addon",
     args: [
-      addonIdArgument,
+      addonIdOrNameArgument,
       addonNameArgument
     ]
   }, addon("rename"));
