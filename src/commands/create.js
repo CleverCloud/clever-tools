@@ -13,12 +13,20 @@ var create = module.exports = function(api, params) {
   var orga = params.options.orga;
   var alias = params.options.alias;
   var region = params.options.region;
+  var github;
+
+  if(params.options.github) {
+    github = {
+      "owner": params.options.github.split("/")[0],
+      "name": params.options.github.split("/")[1]
+    }
+  }
 
   var s_type = Application.getInstanceType(api, params.options.type);
 
   var s_app = s_type
     .flatMapLatest(function(type) {
-      return Application.create(api, name, type, region, orga);
+      return Application.create(api, name, type, region, orga, github);
     })
     .flatMapLatest(function(app) {
       return Application.linkRepo(api, app.id, alias);

@@ -67,11 +67,11 @@ Application.getInstanceType = function(api, type) {
   });
 };
 
-Application.create = function(api, name, instanceType, region, orgaId) {
+Application.create = function(api, name, instanceType, region, orgaId, github) {
   Logger.debug("Create the application…");
   var params = orgaId ? [orgaId] : [];
 
-  return api.owner(orgaId).applications.post().withParams(params).send(JSON.stringify({
+  var body = {
     "deploy": "git",
     "description": name,
     "instanceType": instanceType.type,
@@ -82,7 +82,15 @@ Application.create = function(api, name, instanceType, region, orgaId) {
     "minInstances": 1,
     "name": name,
     "zone": region
-  }));
+  };
+
+  if(github) {
+    body.oauthService = "github";
+    //body.oauthAppId = "28452153";
+    body.oauthApp = github;
+  }
+
+  return api.owner(orgaId).applications.post().withParams(params).send(JSON.stringify(body));
 };
 
 var getApplicationByName = function(s_apps, name) {
