@@ -77,81 +77,23 @@ var open = lazyRequiref("../src/commands/open.js");
 var makeDefault = lazyRequiref("../src/commands/makeDefault.js");
 
 var Application = lr("../src/models/application.js");
+var Parsers = require("../src/parsers.js");
 
 function run() {
-  //PARSERS
-  var flavorParser = function(flavor) {
-    var flavors = Application("listAvailableFlavors")();
-
-    if(flavors.indexOf(flavor) == -1) {
-      return cliparse.parsers.error("Invalid value: " + flavor);
-    } else {
-      return cliparse.parsers.success(flavor);
-    }
-  };
-
-  var instancesParser = function(instances) {
-    var parsedInstances = parseInt(instances, 10);
-    if (isNaN(parsedInstances)) {
-      return cliparse.parsers.error("Invalid number: " + instances);
-    } else {
-      if (parsedInstances < 1 || parsedInstances > 20) {
-        return cliparse.parsers.error("The number of instances must be between 1 and 20");
-      } else {
-        return cliparse.parsers.success(parsedInstances);
-      }
-    }
-  };
-
-  var dateParser = function(dateString) {
-    var date = new Date(dateString);
-    if(isNaN(date.getTime())) {
-      return cliparse.parsers.error("Invalid date: " + dateString + " (timestamps or IS0 8601 dates are accepted)")
-    } else {
-      return cliparse.parsers.success(date);
-    }
-  }
-
-  var appIdRegex = /^app_[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-  var appIdOrNameParser = function(string) {
-    if(string.match(appIdRegex)) {
-      return cliparse.parsers.success({ app_id: string});
-    } else {
-      return cliparse.parsers.success({ app_name: string});
-    }
-  }
-
-  var orgaIdRegex = /^orga_[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-  var orgaIdOrNameParser = function(string) {
-    if(string.match(orgaIdRegex)) {
-      return cliparse.parsers.success({ orga_id: string});
-    } else {
-      return cliparse.parsers.success({ orga_name: string});
-    }
-  }
-
-  var addonIdRegex = /^addon_[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-  var addonIdOrNameParser = function(string) {
-    if(string.match(addonIdRegex)) {
-      return cliparse.parsers.success({ addon_id: string});
-    } else {
-      return cliparse.parsers.success({ addon_name: string});
-    }
-  }
 
   // ARGUMENTS
   var appNameCreationArgument = cliparse.argument("app-name", { description: "Application name" });
-  var appIdOrNameArgument = cliparse.argument("app-id", { description: "Application ID (or name, if unambiguous)", parser: appIdOrNameParser });
+  var appIdOrNameArgument = cliparse.argument("app-id", { description: "Application ID (or name, if unambiguous)", parser: Parsers.appIdOrName });
   var aliasArgument = cliparse.argument("app-alias", { description: "Application alias" });
   var envVariableName = cliparse.argument("variable-name", { description: "Name of the environment variable" });
   var envVariableValue = cliparse.argument("variable-value", { description: "Value of the environment variable" });
   var fqdnArgument = cliparse.argument("fqdn", { description: "Domain name of the Clever Cloud application" });
-  var addonIdOrNameArgument = cliparse.argument("addon-id", { description: "Addon ID (or name, if unambiguous)", parser: addonIdOrNameParser });
+  var addonIdOrNameArgument = cliparse.argument("addon-id", { description: "Addon ID (or name, if unambiguous)", parser: Parsers.addonIdOrName });
   var addonNameArgument = cliparse.argument("addon-name", { description: "Addon name" });
   var addonProviderArgument = cliparse.argument("addon-provider", { description: "Addon provider" });
 
   // OPTIONS
-  var orgaIdOrNameOption = cliparse.option("org", { aliases: ["o"], description: "Organisation ID (or name, if unambiguous)", parser: orgaIdOrNameParser });
+  var orgaIdOrNameOption = cliparse.option("org", { aliases: ["o"], description: "Organisation ID (or name, if unambiguous)", parser: Parsers.orgaIdOrName });
   var aliasCreationOption = cliparse.option("alias", {
       aliases: ["a"],
       metavar: "alias",
@@ -213,45 +155,45 @@ function run() {
   var onlyAliasesOption = cliparse.flag("only-aliases", { aliases: [], description: "List only application aliases" });
   var minFlavorOption = cliparse.option("min-flavor", {
     metavar: "minflavor",
-    parser: flavorParser,
+    parser: Parsers.flavor,
     description: "The minimum scale for your application",
     complete: function() {return cliparse.autocomplete.words(Application("listAvailableFlavors")())}
   });
   var maxFlavorOption = cliparse.option("max-flavor", {
     metavar: "maxflavor",
-    parser: flavorParser,
+    parser: Parsers.flavor,
     description: "The maximum scale for your application",
     complete: function() {return cliparse.autocomplete.words(Application("listAvailableFlavors")())}
   });
   var flavorOption = cliparse.option("flavor", {
     metavar: "flavor",
-    parser: flavorParser,
+    parser: Parsers.flavor,
     description: "The scale of your application",
     complete: function() {return cliparse.autocomplete.words(Application("listAvailableFlavors")())}
   });
   var minInstancesOption = cliparse.option("min-instances", {
     metavar: "mininstances",
-    parser: instancesParser,
+    parser: Parsers.instances,
     description: "The minimum number of parallels instances"
   });
   var maxInstancesOption = cliparse.option("max-instances", {
     metavar: "maxinstances",
-    parser: instancesParser,
+    parser: Parsers.instances,
     description: "The maximum number of parallels instances"
   });
   var instancesOption = cliparse.option("instances", {
     metavar: "instances",
-    parser: instancesParser,
+    parser: Parsers.instances,
     description: "The number of parallels instances"
   });
   var beforeOption = cliparse.option("before", {
     metavar: "before",
-    parser: dateParser,
+    parser: Parsers.date,
     description: "Fetch logs before this date"
   });
   var afterOption = cliparse.option("after", {
     metavar: "after",
-    parser: dateParser,
+    parser: Parsers.date,
     description: "Fetch logs after this date"
   });
 

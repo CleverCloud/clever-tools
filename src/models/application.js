@@ -122,20 +122,11 @@ Application.getByName = function(api, name, orgaIdOrName) {
   }
 };
 
-var appIdPattern = /^app_[a-f0-9]{8}-(?:[a-f0-9]{4}-){3}[a-f0-9]{12}$/;
-var isAppId = function(str) {
-  return appIdPattern.exec(str) !== null;
-};
-
 Application.get = function(api, appId, orgaId) {
-  if(isAppId(appId)) {
-    Logger.debug("Get information for the app: " + appId);
-    var params = orgaId ? [orgaId, appId] : [appId];
+  Logger.debug("Get information for the app: " + appId);
+  var params = orgaId ? [orgaId, appId] : [appId];
 
-    return api.owner(orgaId).applications._.get().withParams(params).send();
-  } else {
-    return Bacon.once(new Bacon.Error("Invalid application id"));
-  }
+  return api.owner(orgaId).applications._.get().withParams(params).send();
 };
 
 Application.getInstances = function(api, appId, orgaId) {
