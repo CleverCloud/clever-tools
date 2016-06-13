@@ -146,6 +146,11 @@ function run() {
       metavar: "zone",
       description: "Region, can be 'par' for Paris or 'mtl' for Montreal",
       complete: Application("listAvailableZones") });
+  var githubOption = cliparse.option("github", {
+      aliases: [],
+      metavar: "OWNER/REPO",
+      description: "Github application to use for deployments"
+  });
   var branchOption = cliparse.option("branch", {
       aliases: ["b"],
       default: "",
@@ -228,10 +233,11 @@ function run() {
     description: "Create a Clever Cloud application",
     args: [appNameArgument],
     options: [
+      instanceTypeOption,
       orgaOption,
       aliasCreationOption,
-      instanceTypeOption,
-      regionOption
+      regionOption,
+      githubOption
     ]
   }, create);
 
