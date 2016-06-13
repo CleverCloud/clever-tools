@@ -36,8 +36,7 @@ clever create <name> --type <type> \
 
 Where `type` is one of:
 
- - `apache+php54`: for PHP applications
- - `apache+php55`: for PHP applications
+ - `php`: for PHP applications
  - `docker`: for Docker-based applications
  - `go`: for Go applications
  - `java+maven`: for standalone java applications

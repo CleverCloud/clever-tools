@@ -12,8 +12,7 @@ var Application = module.exports;
 
 Application.listAvailableTypes = function() {
   return autocomplete.words([
-    "apache+php54",
-    "apache+php55",
+    "php",
     "docker",
     "go",
     "java+maven",
