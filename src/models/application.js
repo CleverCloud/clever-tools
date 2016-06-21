@@ -220,3 +220,13 @@ Application.setScalability = function(api, appId, orgaId, scalabilityParameters)
     return api.owner(orgaId).applications._.put().withParams(params).send(JSON.stringify(instance));
   })
 };
+
+Application.listDependencies = function(api, appId, orgaId, showAll) {
+  if(!showAll) {
+    var params = orgaId ? [orgaId, appId] : [appId];
+    return api.owner(orgaId).applications._.dependencies.get().withParams(params).send();
+  } else {
+    var params = orgaId ? [orgaId] : [];
+    return api.owner(orgaId).applications.get().withParams(params).send();
+  }
+}
