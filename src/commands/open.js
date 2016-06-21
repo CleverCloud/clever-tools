@@ -10,7 +10,7 @@ var open = module.exports = function(api, params) {
   var alias = params.options.alias;
   var s_appData = AppConfiguration.getAppData(alias);
   var s_vhost = s_appData.flatMapLatest(function(appData) {
-    return Domain.getBest(api, appData.app_id, appData.orga_id);
+    return Domain.getBest(api, appData.app_id, appData.org_id);
   });
 
   var s_open = s_vhost.flatMapLatest(function(vhost) {

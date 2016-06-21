@@ -71,6 +71,7 @@ var stop = lazyRequiref("../src/commands/stop.js");
 var status = lazyRequiref("../src/commands/status.js");
 var activity = lazyRequiref("../src/commands/activity.js");
 var addon = lazyRequire("../src/commands/addon.js");
+var service = lazyRequire("../src/commands/service.js");
 var applications = lazyRequiref("../src/commands/applications.js");
 var scale = lazyRequiref("../src/commands/scale.js");
 var open = lazyRequiref("../src/commands/open.js");
@@ -131,6 +132,10 @@ function run() {
         return Git.completeBranches() } });
   var verboseOption = cliparse.flag("verbose", { aliases: ["v"], description: "Verbose output" });
   var showAllActivityOption = cliparse.flag("show-all", { description: "Show all activity" });
+  var showAllOption = cliparse.flag("show-all", { description: "Show all available dependencies" });
+  var onlyAppsOption = cliparse.flag("only-apps", { description: "Only show app dependencies" });
+  var onlyAddonsOption = cliparse.flag("only-addons", { description: "Only show addon dependencies" });
+  var showAllOption = cliparse.flag("show-all", { description: "Show all available dependencies" });
   var showAllAddonsOption = cliparse.flag("show-all", { description: "Show all available addons" });
   var followOption = cliparse.flag("follow", { aliases: ["f"], description: "Track new deployments in activity list" });
   var quietOption = cliparse.flag("quiet", { aliases: ["q"], description: "Don't show logs during deployment" });
@@ -149,6 +154,7 @@ function run() {
       description: "Addon plan, depends on the provider",
       complete: addon("completePlan")
   });
+  var linkAddonOption = cliparse.option("link", { aliases: ["l"], description: "Link the created addon to the specified app", complete: Application("listAvailableAliases") });
   var confirmAddonCreationOption = cliparse.flag("yes", { aliases: ["y"], description: "Skip confirmation even if the addon is not free" });
   var confirmAddonDeletionOption = cliparse.flag("yes", { aliases: ["y"], description: "Skip confirmation and delete the addon directly" });
   var sourceableEnvVarsList = cliparse.flag("add-export", { aliases: [], description: "Display sourceable env variables setting" });
@@ -362,30 +368,70 @@ function run() {
     ]
   }, activity);
 
+  // SERVICE COMMANDS
+  var serviceLinkAppCommand = cliparse.command("link-app", {
+    description: "Add an existing app as a dependency",
+    args: [
+      appIdOrNameArgument,
+    ]
+  }, service("linkApp"));
+
+  var serviceUnlinkAppCommand = cliparse.command("unlink-app", {
+    description: "Remove an app from the dependencies",
+    args: [
+      appIdOrNameArgument
+    ]
+  }, service("unlinkApp"));
+
+  var serviceLinkAddonCommand = cliparse.command("link-addon", {
+    description: "Link an existing addon to this application",
+    args: [
+      addonIdOrNameArgument,
+    ]
+  }, service("linkAddon"));
+
+  var serviceUnlinkAddonCommand = cliparse.command("unlink-addon", {
+    description: "Unlink an addon from this application",
+    args: [
+      addonIdOrNameArgument
+    ]
+  }, service("unlinkAddon"));
+
+  var serviceCommands = cliparse.command("service", {
+    description: "Manage service dependencies",
+    options: [
+      aliasOption,
+      onlyAppsOption,
+      onlyAddonsOption,
+      showAllOption
+    ],
+    commands: [
+      serviceLinkAppCommand,
+      serviceUnlinkAppCommand,
+      serviceLinkAddonCommand,
+      serviceUnlinkAddonCommand
+    ]
+  }, service("list"));
+
   // ADDON COMMANDS
   var addonCreateCommand = cliparse.command("create", {
-    description: "Create an addon and link it to this application",
+    description: "Create an addon",
     args: [ addonProviderArgument, addonNameArgument ],
     options: [
+      linkAddonOption,
       confirmAddonCreationOption,
       addonPlanOption,
       addonRegionOption
     ]
   }, addon("create"));
 
-  var addonLinkCommand = cliparse.command("link", {
-    description: "Link an existing addon to this application",
+  var addonRenameCommand = cliparse.command("rename", {
+    description: "Rename an addon",
     args: [
       addonIdOrNameArgument,
+      addonNameArgument
     ]
-  }, addon("link"));
-
-  var addonUnlinkCommand = cliparse.command("unlink", {
-    description: "Unlink an addon from this application",
-    args: [
-      addonIdOrNameArgument
-    ]
-  }, addon("unlink"));
+  }, addon("rename"));
 
   var addonDeleteCommand = cliparse.command("delete", {
     description: "Delete an addon",
@@ -396,14 +442,6 @@ function run() {
       addonIdOrNameArgument
     ]
   }, addon("delete"));
-
-  var addonRenameCommand = cliparse.command("rename", {
-    description: "Rename an addon",
-    args: [
-      addonIdOrNameArgument,
-      addonNameArgument
-    ]
-  }, addon("rename"));
 
   var addonShowProviderCommand = cliparse.command("show", {
     description: "Show information about an addon provider",
@@ -420,14 +458,9 @@ function run() {
 
   var addonCommands = cliparse.command("addon", {
     description: "Manage addons",
-    options: [
-      aliasOption,
-      showAllAddonsOption
-    ],
+    options: [ orgaIdOrNameOption ],
     commands: [
       addonCreateCommand,
-      addonLinkCommand,
-      addonUnlinkCommand,
       addonDeleteCommand,
       addonRenameCommand,
       addonProvidersCommand
@@ -483,6 +516,7 @@ function run() {
       statusCommand,
       activityCommand,
       addonCommands,
+      serviceCommands,
       applicationsCommand,
       scaleCommand,
       openCommand
