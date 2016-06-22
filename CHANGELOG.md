@@ -1,3 +1,21 @@
+# 0.5.0
+
+ - Node 6 support
+ - More friendly way to specify applications, organisations and addons by name
+   instead of ids. The syntax `org_name/app_name` is now deprecated
+   (issues #51/#67)
+ - Add support for service dependencies with `clever service` and `clever
+   published-config` commands (issue #55)
+ - Add `--before` and `--after` flags to `clever logs` to fetch logs at a
+   specific date/time (issue #49)
+ - Let the user create a github-linked application (issue #64)
+ - Let the user set a default application (issue #30)
+ - `clever addon` commands are now relative to owners, not applications
+ - Add `clever open` to open an application in the browser (issue #43)
+ - Rename command `list` to `applications` (issue #31)
+ - Automatically reconnect websocket when the connection is closed
+ - Use mocha to run tests
+
 # 0.4.0
 
  - Add `clever restart` command to restart a running application (Clément Delafargue)
