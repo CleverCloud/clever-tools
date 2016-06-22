@@ -62,6 +62,7 @@ var create = lazyRequiref("../src/commands/create.js");
 var link = lazyRequiref("../src/commands/link.js");
 var unlink = lazyRequiref("../src/commands/unlink.js");
 var env = lazyRequire("../src/commands/env.js");
+var publishedConfig = lazyRequire("../src/commands/published-config.js");
 var logs = lazyRequiref("../src/commands/logs.js");
 var login = lazyRequiref("../src/commands/login.js");
 var deploy = lazyRequire("../src/commands/deploy.js");
@@ -272,6 +273,40 @@ function run() {
       envImportCommand
     ]
   }, env("list"));
+
+  // PUBLISHED CONFIG COMMANDS
+  var publishedConfigSetCommand = cliparse.command("set", {
+    description: "Add or update a published configuration item named <variable-name> with the value <variable-value>",
+    args: [
+      envVariableName,
+      envVariableValue
+    ]
+  }, publishedConfig("set"));
+
+  var publishedConfigRemoveCommand = cliparse.command("rm", {
+    description: "Remove a published configuration item from a Clever Cloud application",
+    args: [
+      envVariableName
+    ]
+  }, publishedConfig("rm"));
+
+  var publishedConfigImportCommand = cliparse.command("import", {
+    description: "Load published configuration from STDIN",
+    args: [
+    ]
+  }, publishedConfig("importEnv"));
+
+  var publishedConfigCommands = cliparse.command("published-config", {
+    description: "Manage the configuration made available to other applications by this application",
+    options: [
+      aliasOption
+    ],
+    commands: [
+      publishedConfigSetCommand,
+      publishedConfigRemoveCommand,
+      publishedConfigImportCommand
+    ]
+  }, publishedConfig("list"));
 
   // LOGS COMMAND
   var logsCommand = cliparse.command("logs", {
@@ -506,6 +541,7 @@ function run() {
       appUnlinkCommand,
       makeDefaultCommand,
       envCommands,
+      publishedConfigCommands,
       logsCommand,
       loginCommand,
       cancelDeployCommand,
