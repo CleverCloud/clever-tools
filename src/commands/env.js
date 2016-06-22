@@ -11,7 +11,7 @@ var Git = require("../models/git.js")(path.resolve("."));
 
 var env = module.exports;
 
-var renderEnvVariables = function(list, addExport) {
+var renderEnvVariables = env.renderEnvVariables = function(list, addExport) {
   Logger.println(_.map(list, function(x) {
     if(addExport) {
       return "export " + x.name + "='" + x.value.replace(/'/g, "'\\''") + "';";
@@ -19,6 +19,31 @@ var renderEnvVariables = function(list, addExport) {
       return x.name + "=" + x.value;
     }
   }).join('\n'));
+};
+
+var readEnvVariablesFromStdin = env.readEnvVariablesFromStdin = function() {
+  return Bacon.fromBinder(function(sink) {
+    var readline = require('readline');
+    var rl = readline.createInterface({
+      input: process.stdin,
+      output: process.stdout,
+      terminal: false
+    });
+
+    var pairs = [];
+
+    rl.on('line', function(line){
+      var res = Env.parseEnvLine(line);
+      if(res) {
+        pairs.push(res);
+      }
+    });
+
+    rl.on('close', function(){
+      sink(new Bacon.Next(pairs));
+      sink(new Bacon.End());
+    });
+  });
 };
 
 var list = env.list = function(api, params) {
@@ -98,23 +123,9 @@ var importEnv = env.importEnv = function(api, params) {
 
   var s_appData = AppConfig.getAppData(alias);
 
-  var readline = require('readline');
-  var rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout,
-    terminal: false
-  });
+  var s_pairs = readEnvVariablesFromStdin();
 
-  var pairs = [];
-
-  rl.on('line', function(line){
-    var res = Env.parseEnvLine(line);
-    if(res) {
-      pairs.push(res);
-    }
-  });
-
-  rl.on('close', function(){
+  return s_pairs.flatMapLatest(function(pairs) {
     var s_env = s_appData.flatMap(function(appData) {
 
       return Env.bulkSet(api, pairs, appData.app_id, appData.org_id);
@@ -126,6 +137,4 @@ var importEnv = env.importEnv = function(api, params) {
 
     s_env.onError(Logger.error);
   });
-
-
 };

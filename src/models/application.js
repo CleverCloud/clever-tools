@@ -53,6 +53,16 @@ Application.listAvailableFlavors = function() {
   ];
 };
 
+Application.getId = function(api, orgaId, appIdOrName) {
+  if(appIdOrName.app_id) {
+    return Bacon.once(appIdOrName.app_id);
+  } else {
+    return Application.getByName(api, appIdOrName.app_name, orgaId && { orga_id: orgaId }).map(function(app) {
+      return app.id;
+    });
+  }
+};
+
 Application.getInstanceType = function(api, type) {
   var s_types = api.products.instances.get().send();
 
@@ -222,11 +232,41 @@ Application.setScalability = function(api, appId, orgaId, scalabilityParameters)
 };
 
 Application.listDependencies = function(api, appId, orgaId, showAll) {
+  var s_all = api.owner(orgaId).applications.get().withParams(orgaId ? [orgaId] : []).send();
+  var s_mine = api.owner(orgaId).applications._.dependencies.get().withParams(orgaId ? [orgaId, appId] : [appId]).send();
+
   if(!showAll) {
-    var params = orgaId ? [orgaId, appId] : [appId];
-    return api.owner(orgaId).applications._.dependencies.get().withParams(params).send();
+    return s_mine;
   } else {
-    var params = orgaId ? [orgaId] : [];
-    return api.owner(orgaId).applications.get().withParams(params).send();
+    return s_all.flatMapLatest(function(all) {
+      return s_mine.flatMapLatest(function(mine) {
+        var mineIds = _.map(mine, 'id');
+        return _.map(all, function(app) {
+          if(_.includes(mineIds, app.id)) {
+            return _.assign({}, app, { isLinked: true });
+          } else {
+            return app;
+          }
+        });
+      });
+    });
   }
-}
+};
+
+Application.link = function(api, appId, orgaId, appIdOrName) {
+  var s_appIdToLink = Application.getId(api, orgaId, appIdOrName);
+
+  return s_appIdToLink.flatMapLatest(function(appIdToLink) {
+    var params = orgaId ? [orgaId, appId, appIdToLink] : [appId, appIdToLink];
+    return api.owner(orgaId).applications._.dependencies._.put().withParams(params).send();
+  });
+};
+
+Application.unlink = function(api, appId, orgaId, appIdOrName) {
+  var s_linkedAppId = Application.getId(api, orgaId, appIdOrName);
+
+  return s_linkedAppId.flatMapLatest(function(linkedAppId) {
+    var params = orgaId ? [orgaId, appId, linkedAppId] : [appId, linkedAppId];
+    return api.owner(orgaId).applications._.dependencies._.delete().withParams(params).send();
+  });
+};

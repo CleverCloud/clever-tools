@@ -26,15 +26,44 @@ Addon.getProvider = function(api, providerName) {
   return s_provider;
 };
 
-Addon.list = function(api, orgaId) {
-  var params = orgaId ? [orgaId] : [];
-  return api.owner(orgaId).addons.get().withParams(params).send()
+Addon.getAllForOrga = function(api, orgaId) {
+  return api.owner(orgaId).addons.get().withParams(orgaId ? [orgaId] : []).send()
+};
+
+Addon.getAllForApp = function(api, orgaId, appId) {
+  return api.owner(orgaId).applications._.addons.get().withParams(orgaId ? [orgaId, appId] : [appId]).send()
+};
+
+Addon.list = function(api, orgaId, appId, showAll) {
+  var s_allAddons = Addon.getAllForOrga(api, orgaId);
+  if(appId) {
+    var s_myAddons = Addon.getAllForApp(api, orgaId, appId);
+    if(showAll) {
+      return s_allAddons.flatMapLatest(function(allAddons) {
+        return s_myAddons.flatMapLatest(function(myAddons) {
+          var myAddonIds = _.map(myAddons, 'id');
+          return _.map(allAddons, function(addon) {
+            if(_.includes(myAddonIds, addon.id)) {
+              return _.assign({}, addon, { isLinked: true });
+            } else {
+              return addon;
+            }
+          });
+        });
+      });
+    } else {
+      return s_myAddons;
+    }
+
+  } else { // Not linked to a specific app, show everything
+    return s_allAddons;
+  }
 };
 
 Addon.createAndLink = function(api, name, providerName, plan, region, skipConfirmation, appData) {
-  var s_creation = Addon.create(api, appData.orgaId, name, providerName, plan, region, skipConfirmation);
+  var s_creation = Addon.create(api, appData.orgId, name, providerName, plan, region, skipConfirmation);
   var s_link = s_creation.flatMapLatest(function(addon) {
-    return Addon.link(api, appData.app_id, appData.orga_id, addon.id);
+    return Addon.link(api, appData.app_id, appData.org_id, { "addon_id": addon.id });
   });
 
   return s_link;
@@ -118,7 +147,7 @@ Addon.getId = function(api, orgaId, addonIdOrName) {
 };
 
 Addon.link = function(api, appId, orgaId, addonIdOrName) {
-  var s_addonId = Addon.getId(api, orgaId, { addon_id: addonIdOrName });
+  var s_addonId = Addon.getId(api, orgaId, addonIdOrName);
 
   return s_addonId.flatMapLatest(function(addonId) {
     var params = orgaId ? [orgaId, appId] : [appId];
