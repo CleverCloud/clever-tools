@@ -41,7 +41,7 @@ Domain.getBest = function(api, appId, orgaId) {
 
   var s_vhost = s_favourite.flatMapLatest(function(favourite) {
     if(typeof favourite === 'undefined') {
-      Logger.debug("No favourite vhost defined for " + appId + ", taking the first one");
+      Logger.debug("No favourite vhost defined for " + appId + ", selecting the best one");
       var s_all = api.owner(orgaId).applications._.vhosts.get().withParams(params).send();
       return s_all.map(function(vhosts) {
         var result = Domain.selectBest(vhosts);
