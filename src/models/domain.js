@@ -61,6 +61,6 @@ Domain.getBest = function(api, appId, orgaId) {
 
 Domain.selectBest = function(vhosts) {
   var withoutDefaultDomain = _.filter(vhosts, function(vhost) { return !vhost.fqdn.match(/^app_[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\.cleverapps\.io$/); });
-  var customVhost = vhosts.find(function(vhost) { return !vhost.fqdn.match(/\.cleverapps\.io$/); });
+  var customVhost = _.find(vhosts, function(vhost) { return !vhost.fqdn.match(/\.cleverapps\.io$/); });
   return customVhost || withoutDefaultDomain[0] || vhosts[0];
 }
