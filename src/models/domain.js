@@ -44,9 +44,7 @@ Domain.getBest = function(api, appId, orgaId) {
       Logger.debug("No favourite vhost defined for " + appId + ", taking the first one");
       var s_all = api.owner(orgaId).applications._.vhosts.get().withParams(params).send();
       return s_all.map(function(vhosts) {
-        var customVhosts = vhosts.find(function(vhost) { return !vhost.fqdn.match(/\.cleverapps\.io/); });
-        var result = customVhosts || vhosts[0];
-
+        var result = Domain.selectBest(vhosts);
         if(result) {
           return new Bacon.Next(result);
         } else {
@@ -59,4 +57,10 @@ Domain.getBest = function(api, appId, orgaId) {
   });
 
   return s_vhost;
+}
+
+Domain.selectBest = function(vhosts) {
+  var withoutDefaultDomain = _.filter(vhosts, function(vhost) { return !vhost.fqdn.match(/^app_[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\.cleverapps\.io$/); });
+  var customVhost = vhosts.find(function(vhost) { return !vhost.fqdn.match(/\.cleverapps\.io$/); });
+  return customVhost || withoutDefaultDomain[0] || vhosts[0];
 }
