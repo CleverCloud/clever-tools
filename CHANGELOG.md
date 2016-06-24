@@ -1,6 +1,6 @@
 # 0.5.0
 
- - Node 6 support
+ - Node 6 support (Arnaud Lefebvre)
  - More friendly way to specify applications, organisations and addons by name
    instead of ids. The syntax `org_name/app_name` is now deprecated
    (issues #51/#67)
@@ -13,8 +13,9 @@
  - `clever addon` commands are now relative to owners, not applications
  - Add `clever open` to open an application in the browser (issue #43)
  - Rename command `list` to `applications` (issue #31)
- - Automatically reconnect websocket when the connection is closed
- - Use mocha to run tests
+ - Automatically reconnect websocket when the connection is closed (Arnaud
+   Lefebvre)
+ - Use mocha to run tests (Arnaud Lefebvre)
 
 # 0.4.0
 
