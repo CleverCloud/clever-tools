@@ -20,6 +20,7 @@ var _ = require("lodash");
 var cliparse = require("cliparse");
 
 var Logger = require("../src/logger.js");
+var pkg = require("../package.json");
 
 var lazyRequiref = function(path, name) {
   return function() {
@@ -533,7 +534,7 @@ function run() {
   var cliParser = cliparse.cli({
     name: "clever",
     description: "CLI tool to manage Clever Cloud data and products",
-    version: "0.5.0",
+    version: pkg.version,
     options: [ verboseOption ],
     commands: [
       appCreateCommand,
