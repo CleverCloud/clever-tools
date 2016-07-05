@@ -21,7 +21,7 @@
     "baconjs": "^0.7.83",
     "bluebird": "^3.1.1",
     "clever-client": "^0.2.13",
-    "cliparse": "^0.2.5",
+    "cliparse": "^0.2.6",
     "colors": "^1.1.2",
     "common-env": "^5.2.0",
     "lodash": "^4.13.1",
