@@ -36,16 +36,19 @@ clever create <name> --type <type> \
 
 Where `type` is one of:
 
- - `php`: for PHP applications
  - `docker`: for Docker-based applications
  - `go`: for Go applications
- - `java+maven`: for standalone java applications
- - `java+play1`: for Play1 applications
- - `java+war`: for java applications deployed in an application server
+ - `gradle`: for applications launched with gradle
+ - `jar`: for applications deployed as standalone jar files
+ - `war`: for applications deployed as war files
+ - `play1`: for Play1 applications
+ - `play2`: for Play2 applications
+ - `sbt`: for applications launched with SBT
+ - `maven`: for applications launched with maven
  - `node`: for node.js applications
- - `python27`: for python27 applications
+ - `php`: for PHP applications
+ - `python`: for python27 applications
  - `ruby`: for ruby applications
- - `sbt`: for applications build with SBT (java, scala, Play2)
  - `static`: for static (HTML only) websites
 
 Where region is one of:

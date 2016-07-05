@@ -12,17 +12,20 @@ var Application = module.exports;
 
 Application.listAvailableTypes = function() {
   return autocomplete.words([
-    "php",
     "docker",
     "go",
-    "java+maven",
-    "java+play1",
-    "java+war",
     "node",
-    "python27",
-    "ruby",
+    "static",
+    "python",
+    "php",
+    "jar",
+    "gradle",
+    "war",
+    "maven",
+    "play1",
+    "play2",
     "sbt",
-    "static"
+    "ruby"
   ]);
 };
 
