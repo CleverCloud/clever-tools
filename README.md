@@ -29,9 +29,9 @@ codes in the CLI.
 
 ```
 clever create <name> --type <type> \
-  [-region <region>] \
-  [-orga <organisation>] \
-  [-alias <alias>]
+  [--region <region>] \
+  [--org <organisation>] \
+  [--alias <alias>]
 ```
 
 Where `type` is one of:
@@ -65,11 +65,11 @@ created.
 ### Link an existing application
 
 ```
-clever link <APP-ID> [--alias <alias>]
+clever link [--org <ORG-NAME>] <APP-NAME> [--alias <alias>]
 ```
-
-Where `APP-ID` is the name or id of your application (`application_name` or
-`organisation_name/application_name`).
+Where `APP-NAME` is the name of your application, and `ORG-NAME` is the name
+of the organisation it's in. You can specify a complete application id instead
+of its name (in that case, `--org` can be omitted).
 
 ### Deploy an application
 
@@ -90,6 +90,15 @@ clever status [--alias <alias>]
 
 ```
 clever scale [--alias <alias>] [--min-flavor <minflavor>] [--max-flavor <maxflavor>] [--min-instances <mininstances>] [--max-instances <maxinstances>]
+```
+
+### Display help
+
+You can display help about each command with `clever help`.
+
+```
+clever help
+clever help deploy
 ```
 
 ## Examples
