@@ -56,7 +56,7 @@ Where region is one of:
  - `par` (for Paris)
  - `mtl` (for Montreal)
 
-`--organisation` allows you to chose the organisation in which your app is
+`--org` allows you to chose the organisation in which your app is
 created.
 
 `--alias` allows you to deploy your application several times on Clever Cloud
