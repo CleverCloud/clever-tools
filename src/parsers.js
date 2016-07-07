@@ -6,7 +6,7 @@ var Parsers = module.exports;
 
 //PARSERS
 Parsers.flavor = function(flavor) {
-  var flavors = Application("listAvailableFlavors")();
+  var flavors = Application.listAvailableFlavors();
 
   if(flavors.indexOf(flavor) == -1) {
     return cliparse.parsers.error("Invalid value: " + flavor);
