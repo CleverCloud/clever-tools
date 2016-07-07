@@ -1,3 +1,10 @@
+# 0.5.1
+
+ - Update readme with `0.5.0` changes
+ - Update completion and documentation for new java instances
+ - Fix issue with installation on ubuntu machines
+ - Fix `clever scale` behaviour
+
 # 0.5.0
 
  - Node 6 support (Arnaud Lefebvre)
