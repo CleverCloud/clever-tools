@@ -12,7 +12,7 @@ describe("domain.selectBest", function() {
     var domains = [
       { fqdn: "example.com" },
       { fqdn: "example.cleverapps.io" },
-      { fqdn: "app_c677ea0c-0729-4e66-9820-23568be77468.cleverapps.io" }
+      { fqdn: "app-c677ea0c-0729-4e66-9820-23568be77468.cleverapps.io" }
     ];
     expect(Domain.selectBest(domains)).to.deep.equal({ fqdn: "example.com" });
   });
