@@ -55,6 +55,8 @@ deploy.deploy = function(api, params) {
 deploy.restart = function(api, params) {
   var alias = params.options.alias;
   var quiet = params.options.quiet;
+  var commitId = params.options.commit;
+  var withoutCache = params.options["without-cache"];
 
   var s_appData = AppConfig.getAppData(alias).toProperty();
   var s_commitId = s_appData.flatMapLatest(function(app_data) {
@@ -64,8 +66,12 @@ deploy.restart = function(api, params) {
   });
 
   var s_deploy = s_appData.flatMapLatest(function(app_data) {
-    Logger.println("Restarting " + app_data.name);
-    return Application.redeploy(api, app_data.app_id, app_data.org_id);
+    var suffix = "";
+    if(commitId) suffix += " on commit #" + commitId;
+    if(withoutCache) suffix += " without using cache";
+
+    Logger.println("Restarting " + app_data.name + suffix);
+    return Application.redeploy(api, app_data.app_id, app_data.org_id, commitId, withoutCache);
   }).toProperty();
 
   handleDeployment(api, s_appData, s_deploy, s_commitId, quiet);

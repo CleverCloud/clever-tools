@@ -132,6 +132,10 @@ function run() {
         var path = require("path");
         var Git = require("../src/models/git.js")(path.resolve("."));
         return Git.completeBranches() } });
+  var commitOption = cliparse.option("commit", {
+      metavar: "commit id",
+      description: "Restart the application with a specific commit id"
+  });
   var verboseOption = cliparse.flag("verbose", { aliases: ["v"], description: "Verbose output" });
   var showAllActivityOption = cliparse.flag("show-all", { description: "Show all activity" });
   var showAllOption = cliparse.flag("show-all", { description: "Show all available dependencies" });
@@ -142,6 +146,7 @@ function run() {
   var followOption = cliparse.flag("follow", { aliases: ["f"], description: "Track new deployments in activity list" });
   var quietOption = cliparse.flag("quiet", { aliases: ["q"], description: "Don't show logs during deployment" });
   var forceDeployOption = cliparse.flag("force", { aliases: ["f"], description: "Force deploy even if it's not fast-forwardable" });
+  var withoutCacheOption = cliparse.flag("without-cache", { description: "Restart the application without using cache" });
   var addonRegionOption = cliparse.option("region", {
       alias: ["r"],
       default: "eu",
@@ -348,6 +353,8 @@ function run() {
     description: "Start or restart a Clever Cloud application",
     options: [
       aliasOption,
+      commitOption,
+      withoutCacheOption,
       quietOption
     ]
   }, deploy("restart"));

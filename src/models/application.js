@@ -178,11 +178,17 @@ Application.stop = function(api, appId, orgaId) {
   return api.owner(orgaId).applications._.instances.delete().withParams(params).send();
 };
 
-Application.redeploy = function(api, appId, orgaId) {
+Application.redeploy = function(api, appId, orgaId, commitId, withoutCache) {
   Logger.debug("Redeploying the app: " + appId);
   var params = orgaId ? [orgaId, appId] : [appId];
+  var query = {};
+  if(commitId) query.commit = commitId;
+  if(withoutCache) query.useCache = "no";
 
-  return api.owner(orgaId).applications._.instances.post().withParams(params).send();
+  return api.owner(orgaId).applications._.instances.post()
+    .withParams(params)
+    .withQuery(query)
+    .send();
 };
 
 Application.mergeScalabilityParameters = function(scalabilityParameters, instance) {
