@@ -60,7 +60,10 @@ function writeLoginConfig(oauthData) {
 var login = module.exports = function(api, params) {
   Logger.debug("Try to login to Clever Cloud…")
   var result = OpenBrowser.getCommand(conf.CONSOLE_TOKEN_URL)
-    .flatMapLatest(function(command) { Logger.println("Check your browser to get your tokens…"); return OpenBrowser.run(command) })
+    .flatMapLatest(function(command) {
+      Logger.println("Opening " + conf.CONSOLE_TOKEN_URL + " in your browser…");
+      return OpenBrowser.run(command);
+    })
     .flatMapLatest(getOAuthData)
     .flatMapLatest(writeLoginConfig)
     .map(conf.CONFIGURATION_FILE + " has been updated.");

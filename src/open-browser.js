@@ -39,29 +39,15 @@ OpenBrowser.run = function(command) {
     Logger.debug("Opening browser")
     var browser = spawn(command.command, command.args, {
       detached: true,
-      stdio: ['ignore']
+      stdio: ['ignore', 'ignore', 'ignore']
     });
 
     // If we have to launch the browser,
     // unref the child process from the parrent process
     browser.unref();
 
-    browser.stdout.on('data', function(data){
-      sink(data);
-      sink(new Bacon.End());
-    });
-
-    browser.on('error', function(error){
-      sink(new Bacon.Error(error));
-      sink(new Bacon.End());
-    });
-
-    // close is called if the browser is already opened
-    // and nothing is outputed on stdout
-    browser.on('close', function(){
-      sink(new Bacon.Next());
-      sink(new Bacon.End());
-    });
+    sink(new Bacon.Next());
+    sink(new Bacon.End());
 
     return function(){};
   });
