@@ -5,17 +5,22 @@ var nodegit = require("nodegit");
 
 var Logger = require("../logger.js");
 
+var AppConfig = require("../models/app_configuration.js");
 var Application = require("../models/application.js");
 var Git = require("../models/git.js")(path.resolve("."));
 
 var unlink = module.exports = function(api, params) {
   var alias = params.args[0];
 
-  var s_app = Application.unlinkRepo(api, alias);
+  var s_appData = AppConfig.getAppData(alias).toProperty();
 
-  s_app.onValue(function(app) {
+  var s_result = s_appData.flatMapLatest(function(appData) {
+    return Application.unlinkRepo(api, appData.alias);
+  })
+
+  s_result.onValue(function(app) {
     Logger.println("Your application has been successfully unlinked!");
   });
 
-  s_app.onError(Logger.error);
+  s_result.onError(Logger.error);
 };
