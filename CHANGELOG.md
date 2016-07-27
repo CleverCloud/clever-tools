@@ -1,3 +1,9 @@
+# 0.5.2
+
+ - Fix default domain name choice in `clever open`
+ - Allow to choose a specific commit in `clever restart`
+ - Allow to restart an application without using cache
+
 # 0.5.1
 
  - Update readme with `0.5.0` changes
