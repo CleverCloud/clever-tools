@@ -54,7 +54,7 @@ Notification.list = function(api, owner_id, entity_id) {
 Notification.add = function(api, owner_id, name, urls, scope, events) {
   Logger.debug("Registering notification for " + owner_id);
 
-  var body = { name: name, urls: urls, scope: [], events: [] };
+  var body = { name: name, urls: urls };
 
   if(scope) body.scope = scope;
   if(events) body.events = events;
