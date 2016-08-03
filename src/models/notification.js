@@ -67,6 +67,12 @@ Notification.remove = function(api, owner_id, notif_id) {
   Logger.debug("Removing notification " + notif_id + " for " + owner_id);
 
   var s_res = makeJsonRequest(api, 'DELETE', '/notifications/webhooks/' + owner_id + '/' + notif_id, {});
-  return s_res;
+  return s_res.flatMapError(function(error) {
+    if(error === 'Received invalid JSON: ') {
+      return null;
+    } else {
+      return new Bacon.Error(error);
+    }
+  });
 };
 
