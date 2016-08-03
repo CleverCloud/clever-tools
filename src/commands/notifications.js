@@ -21,32 +21,19 @@ var getOrgaIdOrUserId = function(api, orgIdOrName) {
   }
 }
 
-
-var list = notifs.list = function(api, params) {
+var getOwnerAndApp = function(api, params, useLinkedApp) {
   var alias = params.options.alias;
-  var listAll = params.options["list-all"];
 
-  var s_hooks;
-  if(listAll) {
-    var s_ownerId = getOrgaIdOrUserId(api, params.options.org)
-    s_hooks = s_ownerId.flatMapLatest(function(ownerId) {
-      return Notification.list(api, ownerId);
-    });
-  } else {
-    var s_appData = AppConfig.getAppData(alias);
-    s_hooks = s_appData.flatMapLatest(function(appData) {
-      return Notification.list(api, appData.org_id, appData.app_id);
-    });
-  }
 
-  if(listAll) {
-    s_appData = getOrgaIdOrUserId(api, params.options.org).map(function(ownerId) {
+  if(!useLinkedApp) {
+    return getOrgaIdOrUserId(api, params.options.org).map(function(ownerId) {
       return {ownerId: ownerId};
     });
   } else {
-    s_appData = AppConfig.getAppData(alias).flatMapLatest(function(appData) {
-      if(appData.org_id) return {ownerId: appData.org_id, appId: appData.app_id}
-      else {
+    return AppConfig.getAppData(alias).flatMapLatest(function(appData) {
+      if(appData.org_id) {
+        return {ownerId: appData.org_id, appId: appData.app_id}
+      } else {
         return User.getCurrentId(api).map(function(id) {
           return {ownerId: id, appId: appData.app_id};
         });
@@ -54,8 +41,14 @@ var list = notifs.list = function(api, params) {
     });
   }
 
-  var s_hooks = s_appData.flatMapLatest(function(appData) {
-    return Notification.list(api, appData.ownerId, appData.appId);
+}
+
+
+var list = notifs.list = function(api, params) {
+  var listAll = params.options["list-all"];
+  var s_ownerAndApp = getOwnerAndApp(api, params, !listAll);
+  var s_hooks = s_ownerAndApp.flatMapLatest(function(ownerAndApp) {
+    return Notification.list(api, ownerAndApp.ownerId, ownerAndApp.appId);
   });
 
   s_hooks.onValue(function(hooks) {
@@ -84,13 +77,16 @@ var add = notifs.add = function(api, params) {
   var name = params.args[0];
   var hookUrl = params.args[1];
 
-  var s_ownerId = getOrgaIdOrUserId(api, params.options.org);
-  var s_results = s_ownerId.flatMapLatest(function(ownerId) {
+  var s_ownerAndApp = getOwnerAndApp(api, params, !params.options.org && !entities);
+  var s_results = s_ownerAndApp.flatMapLatest(function(ownerAndApp) {
+    if(ownerAndApp.appId) {
+      entities = entities || [ownerAndApp.appId];
+    }
     var url = {
       format: format,
       url: hookUrl
     };
-    return Notification.add(api, ownerId, name, [url], entities, event_types);
+    return Notification.add(api, ownerAndApp.ownerId, name, [url], entities, event_types);
   });
 
   s_results.onValue(function() {
