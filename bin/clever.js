@@ -97,6 +97,7 @@ function run() {
   var addonIdOrNameArgument = cliparse.argument("addon-id", { description: "Addon ID (or name, if unambiguous)", parser: Parsers.addonIdOrName });
   var addonNameArgument = cliparse.argument("addon-name", { description: "Addon name" });
   var addonProviderArgument = cliparse.argument("addon-provider", { description: "Addon provider" });
+  var notificationNameArgument = cliparse.argument("name", { description: "Name of the notification" });
   var notificationHookUrlArgument = cliparse.argument("url", { description: "URL to trigger when a notification is sent" });
   var notificationIdArgument = cliparse.argument("notification-id", { description: "Notification ID" });
 
@@ -562,7 +563,7 @@ function run() {
   var addNotificationCommand = cliparse.command("add", {
     description: "Register webhook to be called when events happen",
     options: [ notificationFormatOption, notificationEventTypeOption, notificationScopeOption],
-    args: [ notificationHookUrlArgument ]
+    args: [ notificationNameArgument, notificationHookUrlArgument ]
   }, notifications("add"));
 
   var removeNotificationCommand = cliparse.command("remove", {

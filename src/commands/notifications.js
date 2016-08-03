@@ -81,7 +81,8 @@ var add = notifs.add = function(api, params) {
   var entity = params.options.entity;
   var entities = entity ? entity.split(',') : null;
 
-  var hookUrl = params.args[0];
+  var name = params.args[0];
+  var hookUrl = params.args[1];
 
   var s_ownerId = getOrgaIdOrUserId(api, params.options.org);
   var s_results = s_ownerId.flatMapLatest(function(ownerId) {
@@ -89,7 +90,7 @@ var add = notifs.add = function(api, params) {
       format: format,
       url: hookUrl
     };
-    return Notification.add(api, ownerId, [url], entities, event_types);
+    return Notification.add(api, ownerId, name, [url], entities, event_types);
   });
 
   s_results.onValue(function() {
