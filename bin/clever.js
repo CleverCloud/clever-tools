@@ -80,6 +80,7 @@ var applications = lazyRequiref("../src/commands/applications.js");
 var scale = lazyRequiref("../src/commands/scale.js");
 var open = lazyRequiref("../src/commands/open.js");
 var makeDefault = lazyRequiref("../src/commands/makeDefault.js");
+var notifications = lazyRequire("../src/commands/notifications.js");
 
 var Application = lr("../src/models/application.js");
 var Parsers = require("../src/parsers.js");
@@ -96,6 +97,8 @@ function run() {
   var addonIdOrNameArgument = cliparse.argument("addon-id", { description: "Addon ID (or name, if unambiguous)", parser: Parsers.addonIdOrName });
   var addonNameArgument = cliparse.argument("addon-name", { description: "Addon name" });
   var addonProviderArgument = cliparse.argument("addon-provider", { description: "Addon provider" });
+  var notificationHookUrlArgument = cliparse.argument("url", { description: "URL to trigger when a notification is sent" });
+  var notificationIdArgument = cliparse.argument("notification-id", { description: "Notification ID" });
 
   // OPTIONS
   var orgaIdOrNameOption = cliparse.option("org", { aliases: ["o"], description: "Organisation ID (or name, if unambiguous)", parser: Parsers.orgaIdOrName });
@@ -211,6 +214,22 @@ function run() {
     metavar: "after",
     parser: Parsers.date,
     description: "Fetch logs after this date (ISO8601)"
+  });
+  var listAllNotificationsOption = cliparse.flag("list-all", {
+    description: "List all notifications for your user or for an organisation with the `--org` option"
+  });
+  var notificationFormatOption = cliparse.option("format", {
+    metavar: "format",
+    default: "raw",
+    description: "Format of the notification body ('raw' or 'slack')"
+  });
+  notificationEventTypeOption = cliparse.option("event", {
+    metavar: "type",
+    description: "Restrict notification to specific event types"
+  });
+  notificationScopeOption = cliparse.option("entity", {
+    metavar: "entity_id",
+    description: "Restrict notification to specific applications and addons"
   });
 
   // CREATE COMMAND
@@ -539,6 +558,26 @@ function run() {
     options: [ aliasOption ]
   }, open);
 
+  //NOTIFICATIONS COMMAND
+  var addNotificationCommand = cliparse.command("add", {
+    description: "Register webhook to be called when events happen",
+    options: [ notificationFormatOption, notificationEventTypeOption, notificationScopeOption],
+    args: [ notificationHookUrlArgument ]
+  }, notifications("add"));
+
+  var removeNotificationCommand = cliparse.command("remove", {
+    description: "Remove an existing webhook",
+    args: [ notificationIdArgument ]
+  }, notifications("remove"));
+
+  var notificationsCommand = cliparse.command("notifications", {
+    description: "Manage notifications of events happening on your applications",
+    options: [ orgaIdOrNameOption, listAllNotificationsOption ],
+    commands: [
+      addNotificationCommand,
+      removeNotificationCommand
+    ]
+  }, notifications("list"));
 
   // CLI PARSER
   var cliParser = cliparse.cli({
@@ -566,7 +605,8 @@ function run() {
       serviceCommands,
       applicationsCommand,
       scaleCommand,
-      openCommand
+      openCommand,
+      notificationsCommand
     ]
   });
 
