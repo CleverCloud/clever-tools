@@ -202,12 +202,12 @@ function run() {
   var beforeOption = cliparse.option("before", {
     metavar: "before",
     parser: Parsers.date,
-    description: "Fetch logs before this date"
+    description: "Fetch logs before this date (ISO8601)"
   });
   var afterOption = cliparse.option("after", {
     metavar: "after",
     parser: Parsers.date,
-    description: "Fetch logs after this date"
+    description: "Fetch logs after this date (ISO8601)"
   });
 
   // CREATE COMMAND
