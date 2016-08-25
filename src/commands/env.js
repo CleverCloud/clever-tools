@@ -125,16 +125,15 @@ var importEnv = env.importEnv = function(api, params) {
 
   var s_pairs = readEnvVariablesFromStdin();
 
-  return s_pairs.flatMapLatest(function(pairs) {
-    var s_env = s_appData.flatMap(function(appData) {
-
+  const s_result = s_pairs.flatMapLatest(function(pairs) {
+    return s_appData.flatMap(function(appData) {
       return Env.bulkSet(api, pairs, appData.app_id, appData.org_id);
     });
-
-    s_env.onValue(function() {
-      Logger.println("Environment variables have been set");
-    });
-
-    s_env.onError(Logger.error);
   });
+
+  s_result.onValue(function() {
+    Logger.println("Environment variables have been set");
+  });
+
+  s_result.onError(Logger.error);
 };
