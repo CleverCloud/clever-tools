@@ -1,3 +1,10 @@
+# 0.5.3
+
+ - Add format description for date parameters in `clever logs` (Corentin
+   Cailleaud)
+ - Fix `clever env import`
+ - Fix `clever make-default`
+
 # 0.5.2
 
  - Fix default domain name choice in `clever open`
