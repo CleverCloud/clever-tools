@@ -2,7 +2,13 @@ var _ = require("lodash");
 
 var processApiError = function(error) {
   if(error.id && error.message) {
-    return error.message + " [" + error.id + "]";
+    var line = error.message + " [" + error.id + "]";
+    if(error.fields) {
+      line += "\n" + Object.keys(error.fields).map(function(field) {
+        return field + ": " + error.fields[field];
+      }).join("\n");
+    }
+    return line;
   } else {
     return error;
   }
@@ -24,3 +30,7 @@ Logger.println = console.log.bind(console.log);
 
 // No decoration for Logger.printErrorLine
 Logger.printErrorLine = console.error.bind(console.error);
+
+// Only exported for testing, shouldn't be used directly
+Logger.processApiError = processApiError;
+
