@@ -1,4 +1,5 @@
 var _ = require("lodash");
+var conf = require("./configuration.js");
 var path = require("path");
 var fs = require("fs");
 var Bacon = require("baconjs");
@@ -13,13 +14,17 @@ module.exports = function(repositoryPath) {
   var Git = {};
   Git.GIT_BRANCH_LOCAL = 1;
 
-  Git.fetchOptions = Git.pushOptions = {
-    callbacks: {
+  Git.fetchOptions = Git.pushOptions = function(token, secret) {
+    return { callbacks: {
       certificateCheck: function() { return 1; },
       credentials: function(url, username) {
-        return nodegit.Cred.sshKeyFromAgent(username);
+        if(url.substr(0, 8) === "https://") {
+          return nodegit.Cred.userpassPlaintextNew(token, secret);
+        } else {
+          return nodegit.Cred.sshKeyFromAgent(username);
+        }
       }
-    }
+    }};
   };
 
 
@@ -109,20 +114,24 @@ module.exports = function(repositoryPath) {
 
   Git.fetch = function(remote) {
     Logger.debug("Fetching " + remote.name() + "…");
-    return Bacon.fromPromise(
-      remote.fetch([remote.name()], Git.fetchOptions)
-    ).map(remote);
+    return conf.loadOAuthConf().flatMapLatest(function(tokens) {
+      return Bacon.fromPromise(
+        remote.fetch([remote.name()], Git.fetchOptions(tokens.token, tokens.secret))
+      ).map(remote);
+    });
   };
 
   Git.keepFetching = function(timeout, remote) {
     var s_timeout = timeout > 0 ? Bacon.later(timeout, {}) : Bacon.never();
     var fetch = function() {
       Logger.debug("Fetching " + remote.name());
-      return Bacon.fromPromise(
-        remote.fetch(["refs/heads/master"], Git.fetchOptions)
-      ).map(remote).flatMapError(function(error) {
-        return (error.message != "Early EOF") ? new Bacon.Error(error) : Bacon.later(10000, {}).flatMapLatest(function() {
-          return fetch();
+      return conf.loadOAuthConf().flatMapLatest(function(tokens) {
+        return Bacon.fromPromise(
+          remote.fetch(["refs/heads/master"], Git.fetchOptions(tokens.token, tokens.secret))
+        ).map(remote).flatMapError(function(error) {
+          return (error.message != "Early EOF") ? new Bacon.Error(error) : Bacon.later(10000, {}).flatMapLatest(function() {
+            return fetch();
+          });
         });
       });
     };
@@ -168,14 +177,15 @@ module.exports = function(repositoryPath) {
     var s_branch = branch == "" ? s_current_branch : Git.getBranch(branch);
 
     return s_branch.flatMapLatest(function(branch) {
-
       return s_commitId.flatMapLatest(function(commitIdToPush) {
         return Git.getRemoteCommitId(remote.name()).flatMapLatest(function(remoteCommitId) {
           if(remoteCommitId != commitIdToPush) {
             Logger.debug("Preparing the push");
-            return Bacon.fromPromise(
-              remote.push([forcePush + branch + ":refs/heads/master"], Git.pushOptions)
-            );
+            return conf.loadOAuthConf().flatMapLatest(function(tokens) {
+              return Bacon.fromPromise(
+                remote.push([forcePush + branch + ":refs/heads/master"], Git.pushOptions(tokens.token, tokens.secret))
+              );
+            });
           } else {
             return new Bacon.Error("Nothing to push");
           }
