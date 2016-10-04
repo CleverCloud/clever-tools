@@ -139,6 +139,7 @@ function run() {
       description: "Restart the application with a specific commit id"
   });
   var verboseOption = cliparse.flag("verbose", { aliases: ["v"], description: "Verbose output" });
+  var noUpdateNotifierOption = cliparse.flag("no-update-notifier", { description: "Don't notify available updates for clever-tools" });
   var showAllActivityOption = cliparse.flag("show-all", { description: "Show all activity" });
   var showAllOption = cliparse.flag("show-all", { description: "Show all available dependencies" });
   var onlyAppsOption = cliparse.flag("only-apps", { description: "Only show app dependencies" });
@@ -544,7 +545,7 @@ function run() {
     name: "clever",
     description: "CLI tool to manage Clever Cloud data and products",
     version: pkg.version,
-    options: [ verboseOption ],
+    options: [ verboseOption, noUpdateNotifierOption ],
     commands: [
       appCreateCommand,
       appLinkCommand,
