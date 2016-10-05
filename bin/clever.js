@@ -230,8 +230,8 @@ function run() {
     description: "Restrict notification to specific event types",
     complete: Notification("listMetaEvents")
   });
-  notificationScopeOption = cliparse.option("entity", {
-    metavar: "entity_id",
+  notificationScopeOption = cliparse.option("service", {
+    metavar: "service_id",
     description: "Restrict notification to specific applications and addons"
   });
 

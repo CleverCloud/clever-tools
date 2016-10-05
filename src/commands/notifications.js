@@ -55,7 +55,7 @@ var list = notifs.list = function(api, params) {
     hooks.forEach(function(hook) {
       Logger.println(hook.name && hook.name.bold || hook.id);
       Logger.println("  id: " + hook.id);
-      Logger.println("  scope: " + (hook.scope && hook.scope.join(", ") || hook.ownerId));
+      Logger.println("  services: " + (hook.scope && hook.scope.join(", ") || hook.ownerId));
       Logger.println("  events: " + (hook.events && hook.events.join(", ") || "ALL".bold));
       Logger.println("  hooks:")
       hook.urls.forEach(function(url) {
@@ -71,22 +71,22 @@ var add = notifs.add = function(api, params) {
   var format = params.options.format;
   var event = params.options.event;
   var event_types = event ? event.split(',') : null;
-  var entity = params.options.entity;
-  var entities = entity ? entity.split(',') : null;
+  var service = params.options.service;
+  var services = service ? service.split(',') : null;
 
   var name = params.args[0];
   var hookUrl = params.args[1];
 
-  var s_ownerAndApp = getOwnerAndApp(api, params, !params.options.org && !entities);
+  var s_ownerAndApp = getOwnerAndApp(api, params, !params.options.org && !services);
   var s_results = s_ownerAndApp.flatMapLatest(function(ownerAndApp) {
     if(ownerAndApp.appId) {
-      entities = entities || [ownerAndApp.appId];
+      services = services || [ownerAndApp.appId];
     }
     var url = {
       format: format,
       url: hookUrl
     };
-    return Notification.add(api, ownerAndApp.ownerId, name, [url], entities, event_types);
+    return Notification.add(api, ownerAndApp.ownerId, name, [url], services, event_types);
   });
 
   s_results.onValue(function() {
