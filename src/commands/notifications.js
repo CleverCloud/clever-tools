@@ -43,25 +43,49 @@ var getOwnerAndApp = function(api, params, useLinkedApp) {
 
 }
 
+var displayWebhook = function(hook) {
+  Logger.println(hook.name && hook.name.bold || hook.id);
+  Logger.println("  id: " + hook.id);
+  Logger.println("  services: " + (hook.scope && hook.scope.join(", ") || hook.ownerId));
+  Logger.println("  events: " + (hook.events && hook.events.join(", ") || "ALL".bold));
+  Logger.println("  hooks:")
+  hook.urls.forEach(function(url) {
+    Logger.println("    " + url.url + " (" + url.format + ")");
+  });
+  Logger.println();
+}
+
+var displayEmailhook = function(hook) {
+  Logger.println(hook.name && hook.name.bold || hook.id);
+  Logger.println("  id: " + hook.id);
+  Logger.println("  services: " + (hook.scope && hook.scope.join(", ") || hook.ownerId));
+  Logger.println("  events: " + (hook.events && hook.events.join(", ") || "ALL".bold));
+  Logger.println("  to:")
+  hook.urls.forEach(function(url) {
+    Logger.println("    " + url.target);
+  });
+  Logger.println();
+}
 
 var listWebhooks = notifs.listWebhooks = function(api, params) {
+  return listNotifications(api, params, "webhooks");
+}
+
+var listEmailhooks = notifs.listEmailhooks = function(api, params) {
+  return listNotifications(api, params, "emailhooks");
+}
+
+var listNotifications = function(api, params, type) {
   var listAll = params.options["list-all"];
   var s_ownerAndApp = getOwnerAndApp(api, params, !listAll);
   var s_hooks = s_ownerAndApp.flatMapLatest(function(ownerAndApp) {
-    return Notification.list(api, ownerAndApp.ownerId, ownerAndApp.appId);
+    return Notification.list(api, type, ownerAndApp.ownerId, ownerAndApp.appId);
   });
+  var display = type === 'emailhooks' ? displayEmailhook : displayWebhook;
 
   s_hooks.onValue(function(hooks) {
     hooks.forEach(function(hook) {
-      Logger.println(hook.name && hook.name.bold || hook.id);
-      Logger.println("  id: " + hook.id);
-      Logger.println("  services: " + (hook.scope && hook.scope.join(", ") || hook.ownerId));
-      Logger.println("  events: " + (hook.events && hook.events.join(", ") || "ALL".bold));
-      Logger.println("  hooks:")
-      hook.urls.forEach(function(url) {
-        Logger.println("    " + url.url + " (" + url.format + ")");
-      });
-      Logger.println();
+      display(hook);
     });
   });
   s_hooks.onError(Logger.error);
@@ -86,7 +110,7 @@ var addWebhook = notifs.addWebhook = function(api, params) {
       format: format,
       url: hookUrl
     };
-    return Notification.add(api, ownerAndApp.ownerId, name, [url], services, event_types);
+    return Notification.add(api, "webhooks", ownerAndApp.ownerId, name, [url], services, event_types);
   });
 
   s_results.onValue(function() {
@@ -96,15 +120,23 @@ var addWebhook = notifs.addWebhook = function(api, params) {
 };
 
 var removeWebhook = notifs.removeWebhook = function(api, params) {
+  return removeNotification(api, params, "webhooks");
+};
+
+var removeEmailhook = notifs.removeEmailhook = function(api, params) {
+  return removeNotification(api, params, "emailhooks");
+};
+
+var removeNotification = function(api, params, type) {
   var notificationId = params.args[0];
 
   var s_ownerId = getOrgaIdOrUserId(api, params.options.org);
   var s_results = s_ownerId.flatMapLatest(function(ownerId) {
-    return Notification.remove(api, ownerId, notificationId);
+    return Notification.remove(api, type, ownerId, notificationId);
   });
 
   s_results.onValue(function() {
-    Logger.println("The webhook has been sucessfully removed");
+    Logger.println("The notification has been sucessfully removed");
   });
   s_results.onError(Logger.error);
 };

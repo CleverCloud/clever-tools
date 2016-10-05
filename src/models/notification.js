@@ -25,6 +25,9 @@ var makeJsonRequest = function(api, verb, url, queryParams, body) {
   var s_res = Bacon.fromNodeCallback(request, options);
 
   return s_res.flatMapLatest(function(res) {
+    if(res.statusCode >= 400) {
+      return new Bacon.Error(res.body);
+    }
     if(typeof res.body === "object") return res.body;
 
     var jsonBody = _.attempt(JSON.parse, res.body);
@@ -40,9 +43,10 @@ var makeJsonRequest = function(api, verb, url, queryParams, body) {
   });
 }
 
-Notification.list = function(api, owner_id, entity_id) {
+Notification.list = function(api, type, owner_id, entity_id) {
+  type = type === 'emailhooks' ? type : 'webhooks'
   Logger.debug("Fetching notifications for " + owner_id);
-  var s_res = makeJsonRequest(api, 'GET', '/notifications/webhooks/' + owner_id, {});
+  var s_res = makeJsonRequest(api, 'GET', '/notifications/' + type + '/' + owner_id, {});
   return s_res.map(function(hooks) {
     return hooks.filter(function(hook) {
       var emptyScope = !hook.scope || hook.scope.length == 0;
@@ -51,22 +55,41 @@ Notification.list = function(api, owner_id, entity_id) {
   });
 };
 
-Notification.add = function(api, owner_id, name, urls, scope, events) {
+Notification.add = function(api, type, owner_id, name, targets, scope, events) {
+  type = type === 'emailhooks' ? type : 'webhooks';
   Logger.debug("Registering notification for " + owner_id);
 
-  var body = { name: name, urls: urls };
+  var body = {};
+  if(type === 'emailhooks') {
+    body = { name: name, notify: targets };
+  } else if(type === 'webhooks') {
+    body = { name: name, urls: targets };
+  }
 
   if(scope) body.scope = scope;
   if(events) body.events = events;
 
-  var s_res = makeJsonRequest(api, 'POST', '/notifications/webhooks/' + owner_id, {}, body);
+  var s_res = makeJsonRequest(api, 'POST', '/notifications/' + type + '/' + owner_id, {}, body);
   return s_res;
 };
 
-Notification.remove = function(api, owner_id, notif_id) {
+Notification.addEmailhook = function(api, owner_id, name, targets, scope, events) {
+  Logger.debug("Registering notification for " + owner_id);
+
+  var body = { name: name, notify: targets };
+
+  if(scope) body.scope = scope;
+  if(events) body.events = events;
+
+  var s_res = makeJsonRequest(api, 'POST', '/notifications/emailhooks/' + owner_id, {}, body);
+  return s_res;
+};
+
+Notification.remove = function(api, type, owner_id, notif_id) {
+  type = type === 'emailhooks' ? type : 'webhooks'
   Logger.debug("Removing notification " + notif_id + " for " + owner_id);
 
-  var s_res = makeJsonRequest(api, 'DELETE', '/notifications/webhooks/' + owner_id + '/' + notif_id, {});
+  var s_res = makeJsonRequest(api, 'DELETE', '/notifications/' + type + '/' + owner_id + '/' + notif_id, {});
   return s_res.flatMapError(function(error) {
     if(error === 'Received invalid JSON: ') {
       return null;
