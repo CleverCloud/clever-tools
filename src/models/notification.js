@@ -1,6 +1,7 @@
 var Bacon = require("baconjs");
 var _ = require("lodash");
 var request = require("request");
+var autocomplete = require("cliparse").autocomplete;
 
 var Logger = require("../logger.js");
 var conf = require("./configuration.js");
@@ -76,3 +77,11 @@ Notification.remove = function(api, owner_id, notif_id) {
   });
 };
 
+Notification.listMetaEvents = function() {
+  return autocomplete.words([
+   "META_SERVICE_LIFECYCLE",
+   "META_DEPLOYMENT_RESULT",
+   "META_SERVICE_MANAGEMENT",
+   "META_CREDITS"
+  ]);
+};

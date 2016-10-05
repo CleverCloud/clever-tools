@@ -83,6 +83,7 @@ var makeDefault = lazyRequiref("../src/commands/makeDefault.js");
 var notifications = lazyRequire("../src/commands/notifications.js");
 
 var Application = lr("../src/models/application.js");
+var Notification = lr("../src/models/notification.js");
 var Parsers = require("../src/parsers.js");
 
 function run() {
@@ -226,7 +227,8 @@ function run() {
   });
   notificationEventTypeOption = cliparse.option("event", {
     metavar: "type",
-    description: "Restrict notification to specific event types"
+    description: "Restrict notification to specific event types",
+    complete: Notification("listMetaEvents")
   });
   notificationScopeOption = cliparse.option("entity", {
     metavar: "entity_id",
