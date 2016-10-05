@@ -9,8 +9,7 @@ var conf = require("./configuration.js");
 var Notification = module.exports;
 
 var makeJsonRequest = function(api, verb, url, queryParams, body) {
-  //var completeUrl = conf.API_HOST + url
-  var completeUrl = 'https://ccapi-preprod.cleverapps.io/v2' + url
+  var completeUrl = conf.API_HOST + url
   Logger.debug(verb + ' ' + completeUrl);
   var options = {
     method: verb,
