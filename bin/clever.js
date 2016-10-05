@@ -98,9 +98,9 @@ function run() {
   var addonIdOrNameArgument = cliparse.argument("addon-id", { description: "Addon ID (or name, if unambiguous)", parser: Parsers.addonIdOrName });
   var addonNameArgument = cliparse.argument("addon-name", { description: "Addon name" });
   var addonProviderArgument = cliparse.argument("addon-provider", { description: "Addon provider" });
-  var notificationNameArgument = cliparse.argument("name", { description: "Name of the notification" });
-  var notificationHookUrlArgument = cliparse.argument("url", { description: "URL to trigger when a notification is sent" });
-  var notificationIdArgument = cliparse.argument("notification-id", { description: "Notification ID" });
+  var webhookNameArgument = cliparse.argument("name", { description: "Webhook name" });
+  var webhookUrlArgument = cliparse.argument("url", { description: "Webhook URL" });
+  var webhookIdArgument = cliparse.argument("webhook-id", { description: "Webhook ID" });
 
   // OPTIONS
   var orgaIdOrNameOption = cliparse.option("org", { aliases: ["o"], description: "Organisation ID (or name, if unambiguous)", parser: Parsers.orgaIdOrName });
@@ -217,13 +217,13 @@ function run() {
     parser: Parsers.date,
     description: "Fetch logs after this date (ISO8601)"
   });
-  var listAllNotificationsOption = cliparse.flag("list-all", {
-    description: "List all notifications for your user or for an organisation with the `--org` option"
+  var listAllWebhooksOption = cliparse.flag("list-all", {
+    description: "List all webhooks for your user or for an organisation with the `--org` option"
   });
-  var notificationFormatOption = cliparse.option("format", {
+  var webhookFormatOption = cliparse.option("format", {
     metavar: "format",
     default: "raw",
-    description: "Format of the notification body ('raw' or 'slack')"
+    description: "Format of the body sent to the webhook ('raw', 'slack', or 'flowdock')"
   });
   notificationEventTypeOption = cliparse.option("event", {
     metavar: "type",
@@ -561,26 +561,26 @@ function run() {
     options: [ aliasOption ]
   }, open);
 
-  //NOTIFICATIONS COMMAND
-  var addNotificationCommand = cliparse.command("add", {
+  //WEBHOOKS COMMAND
+  var addWebhookCommand = cliparse.command("add", {
     description: "Register webhook to be called when events happen",
-    options: [ notificationFormatOption, notificationEventTypeOption, notificationScopeOption],
-    args: [ notificationNameArgument, notificationHookUrlArgument ]
-  }, notifications("add"));
+    options: [ webhookFormatOption, notificationEventTypeOption, notificationScopeOption],
+    args: [ webhookNameArgument, webhookUrlArgument ]
+  }, notifications("addWebhook"));
 
-  var removeNotificationCommand = cliparse.command("remove", {
+  var removeWebhookCommand = cliparse.command("remove", {
     description: "Remove an existing webhook",
-    args: [ notificationIdArgument ]
-  }, notifications("remove"));
+    args: [ webhookIdArgument ]
+  }, notifications("removeWebhook"));
 
-  var notificationsCommand = cliparse.command("notifications", {
-    description: "Manage notifications of events happening on your applications",
-    options: [ orgaIdOrNameOption, listAllNotificationsOption ],
+  var webhooksCommand = cliparse.command("webhooks", {
+    description: "Manage webhooks",
+    options: [ orgaIdOrNameOption, listAllWebhooksOption ],
     commands: [
-      addNotificationCommand,
-      removeNotificationCommand
+      addWebhookCommand,
+      removeWebhookCommand
     ]
-  }, notifications("list"));
+  }, notifications("listWebhooks"));
 
   // CLI PARSER
   var cliParser = cliparse.cli({
@@ -609,7 +609,7 @@ function run() {
       applicationsCommand,
       scaleCommand,
       openCommand,
-      notificationsCommand
+      webhooksCommand
     ]
   });
 

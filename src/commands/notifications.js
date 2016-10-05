@@ -44,7 +44,7 @@ var getOwnerAndApp = function(api, params, useLinkedApp) {
 }
 
 
-var list = notifs.list = function(api, params) {
+var listWebhooks = notifs.listWebhooks = function(api, params) {
   var listAll = params.options["list-all"];
   var s_ownerAndApp = getOwnerAndApp(api, params, !listAll);
   var s_hooks = s_ownerAndApp.flatMapLatest(function(ownerAndApp) {
@@ -67,7 +67,7 @@ var list = notifs.list = function(api, params) {
   s_hooks.onError(Logger.error);
 };
 
-var add = notifs.add = function(api, params) {
+var addWebhook = notifs.addWebhook = function(api, params) {
   var format = params.options.format;
   var event = params.options.event;
   var event_types = event ? event.split(',') : null;
@@ -90,12 +90,12 @@ var add = notifs.add = function(api, params) {
   });
 
   s_results.onValue(function() {
-    Logger.println("The notification has been added")
+    Logger.println("The webhook has been added")
   });
   s_results.onError(Logger.error);
 };
 
-var remove = notifs.remove = function(api, params) {
+var removeWebhook = notifs.removeWebhook = function(api, params) {
   var notificationId = params.args[0];
 
   var s_ownerId = getOrgaIdOrUserId(api, params.options.org);
@@ -104,7 +104,7 @@ var remove = notifs.remove = function(api, params) {
   });
 
   s_results.onValue(function() {
-    Logger.println("The notification has been sucessfully removed");
+    Logger.println("The webhook has been sucessfully removed");
   });
   s_results.onError(Logger.error);
 };
