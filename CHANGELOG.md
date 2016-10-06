@@ -1,3 +1,10 @@
+# 0.6.0
+
+ - Better support for CCAPI error messages
+ - Warn users using an out-of-date version
+ - Favor using git over HTTPS
+ - Support for webhooks
+
 # 0.5.3
 
  - Add format description for date parameters in `clever logs` (Corentin
