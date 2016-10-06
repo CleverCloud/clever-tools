@@ -68,9 +68,9 @@ var create = addon.create = function(api, params) {
 
   s_result.onValue(function(r) {
     if(linkTo) {
-      Logger.println("Addon " + name + " sucessfully created and linked to the application");
+      Logger.println("Addon " + name + " successfully created and linked to the application");
     } else {
-      Logger.println("Addon " + name + " sucessfully created");
+      Logger.println("Addon " + name + " successfully created");
     }
   });
   s_result.onError(Logger.error);
@@ -88,7 +88,7 @@ var adelete = addon.delete = function(api, params) {
   });
 
   s_result.onValue(function() {
-    Logger.println("Addon " + (addonIdOrName.addon_id || addonIdOrName.addon_name) + " sucessfully deleted");
+    Logger.println("Addon " + (addonIdOrName.addon_id || addonIdOrName.addon_name) + " successfully deleted");
   });
   s_result.onError(Logger.error);
 };
@@ -103,7 +103,7 @@ var rename = addon.rename = function(api, params) {
   });
 
   s_result.onValue(function() {
-    Logger.println("Addon " + (addonIdOrName.addon_id || addonIdOrName.addon_name) + " sucessfully renamed to " + newName);
+    Logger.println("Addon " + (addonIdOrName.addon_id || addonIdOrName.addon_name) + " successfully renamed to " + newName);
   });
   s_result.onError(Logger.error);
 };

@@ -55,7 +55,7 @@ var linkApp = service.linkApp = function(api, params) {
   });
 
   s_result.onValue(function() {
-    Logger.println("App " + (appIdOrName.app_id || appIdOrName.app_name) + " sucessfully linked");
+    Logger.println("App " + (appIdOrName.app_id || appIdOrName.app_name) + " successfully linked");
   });
   s_result.onError(Logger.error);
 };
@@ -71,7 +71,7 @@ var unlinkApp = service.unlinkApp = function(api, params) {
   });
 
   s_result.onValue(function() {
-    Logger.println("App " + (appIdOrName.app_id || appIdOrName.app_name) + " sucessfully unlinked");
+    Logger.println("App " + (appIdOrName.app_id || appIdOrName.app_name) + " successfully unlinked");
   });
   s_result.onError(Logger.error);
 };
@@ -87,7 +87,7 @@ var linkAddon = service.linkAddon = function(api, params) {
   });
 
   s_result.onValue(function() {
-    Logger.println("Addon " + (addonIdOrName.addon_id || addonIdOrName.addon_name) + " sucessfully linked");
+    Logger.println("Addon " + (addonIdOrName.addon_id || addonIdOrName.addon_name) + " successfully linked");
   });
   s_result.onError(Logger.error);
 };
@@ -103,7 +103,7 @@ var unlinkAddon = service.unlinkAddon = function(api, params) {
   });
 
   s_result.onValue(function() {
-    Logger.println("Addon " + (addonIdOrName.addon_id || addonIdOrName.addon_name) + " sucessfully unlinked");
+    Logger.println("Addon " + (addonIdOrName.addon_id || addonIdOrName.addon_name) + " successfully unlinked");
   });
   s_result.onError(Logger.error);
 };
