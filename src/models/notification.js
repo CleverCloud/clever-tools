@@ -61,7 +61,7 @@ Notification.add = function(api, type, owner_id, name, targets, scope, events) {
 
   var body = {};
   if(type === 'emailhooks') {
-    body = { name: name, notify: targets };
+    body = { name: name, notified: targets };
   } else if(type === 'webhooks') {
     body = { name: name, urls: targets };
   }
