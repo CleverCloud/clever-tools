@@ -227,12 +227,12 @@ function run() {
   });
   notificationEventTypeOption = cliparse.option("event", {
     metavar: "type",
-    description: "Restrict notification to specific event types",
+    description: "Restrict notifications to specific event types",
     complete: Notification("listMetaEvents")
   });
   notificationScopeOption = cliparse.option("service", {
     metavar: "service_id",
-    description: "Restrict notification to specific applications and addons"
+    description: "Restrict notifications to specific applications and addons"
   });
 
   // CREATE COMMAND

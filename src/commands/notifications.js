@@ -136,7 +136,7 @@ var removeNotification = function(api, params, type) {
   });
 
   s_results.onValue(function() {
-    Logger.println("The notification has been sucessfully removed");
+    Logger.println("The notification has been successfully removed");
   });
   s_results.onError(Logger.error);
 };
