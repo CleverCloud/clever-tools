@@ -13,13 +13,14 @@ var makeJsonRequest = function(api, verb, url, queryParams, body) {
   Logger.debug(verb + ' ' + completeUrl);
   var options = {
     method: verb,
-    agent: new (require("https").Agent)({ keepAlive: true }),
     url: completeUrl,
     headers: {
       authorization: api.session.getAuthorization(verb, completeUrl, queryParams),
       "Accept": "application/json"
     }
   };
+  if(completeUrl.substring(0,8) === 'https://')
+    options.agent = new (require("https").Agent)({ keepAlive: true })
 
   if(body) options.json = body;
   var s_res = Bacon.fromNodeCallback(request, options);
