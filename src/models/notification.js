@@ -13,13 +13,14 @@ var makeJsonRequest = function(api, verb, url, queryParams, body) {
   Logger.debug(verb + ' ' + completeUrl);
   var options = {
     method: verb,
-    agent: new (require("https").Agent)({ keepAlive: true }),
     url: completeUrl,
     headers: {
       authorization: api.session.getAuthorization(verb, completeUrl, queryParams),
       "Accept": "application/json"
     }
   };
+  if(completeUrl.substring(0,8) === 'https://')
+    options.agent = new (require("https").Agent)({ keepAlive: true })
 
   if(body) options.json = body;
   var s_res = Bacon.fromNodeCallback(request, options);
@@ -61,7 +62,7 @@ Notification.add = function(api, type, owner_id, name, targets, scope, events) {
 
   var body = {};
   if(type === 'emailhooks') {
-    body = { name: name, notify: targets };
+    body = { name: name, notified: targets };
   } else if(type === 'webhooks') {
     body = { name: name, urls: targets };
   }
