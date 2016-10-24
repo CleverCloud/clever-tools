@@ -1,3 +1,8 @@
+# 0.6.1
+
+ - Support for email notifications
+ - Simplify installation (dropped dependency on node-expat)
+
 # 0.6.0
 
  - Better support for CCAPI error messages
