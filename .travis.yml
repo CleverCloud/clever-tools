@@ -5,6 +5,7 @@ node_js:
   - "0.12"
   - "4.6"
   - "6.9"
+  - "7.2"
 addons:
   apt:
     sources:
