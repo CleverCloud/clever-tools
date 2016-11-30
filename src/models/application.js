@@ -4,6 +4,7 @@ var autocomplete = require("cliparse").autocomplete;
 var Promise = require("bluebird");
 
 var Logger = require("../logger.js");
+var Interact = require("./interact.js");
 
 var AppConfiguration = require("./app_configuration.js");
 var Organisation = require("./organisation.js");
@@ -104,6 +105,28 @@ Application.create = function(api, name, instanceType, region, orgaIdOrName, git
 
     return api.owner(orgaId).applications.post().withParams(params).send(JSON.stringify(body));
   });
+};
+
+Application.adelete = function(api, app_data, skipConfirmation) {
+  Logger.debug("Deleting app: " + app_data.name + " (" + app_data.app_id + ")");
+
+  var s_confirmation = skipConfirmation
+    ? Bacon.once()
+    : Interact.confirm(
+      "Deleting the application " + app_data.name + " can't be undone, please type '" + app_data.name + "' to confirm: ",
+      "No confirmation, aborting application deletion",
+      [app_data.name]);
+
+
+  return s_confirmation.flatMapLatest(function() {
+    return Application.performDeletion(api, app_data.app_id, app_data.org_id);
+  });
+};
+
+Application.performDeletion = function(api, appId, orgaId) {
+    var params = orgaId ? [orgaId, appId] : [appId];
+    return api.owner(orgaId).applications._.delete().withParams(params).send();
+    return Bacon.once();
 };
 
 var getApplicationByName = function(s_apps, name) {
