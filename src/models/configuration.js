@@ -23,6 +23,7 @@ var conf = module.exports = env.getOrElseAll({
   EVENT_URL: "wss://api.clever-cloud.com/v2/events/event-socket",
   OAUTH_CONSUMER_KEY: "T5nFjKeHH4AIlEveuGhB5S3xg8T19e",
   OAUTH_CONSUMER_SECRET: "MgVMqTr6fWlf2M0tkC2MXOnhfqBWDT",
+  SSH_GATEWAY: "ssh@sshgateway-clevercloud-customers.services.clever-cloud.com",
 
   CONFIGURATION_FILE: getConfigPath(),
   CONSOLE_TOKEN_URL: "https://console.clever-cloud.com/cli-oauth",

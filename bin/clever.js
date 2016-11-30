@@ -82,6 +82,7 @@ var scale = lazyRequiref("../src/commands/scale.js");
 var open = lazyRequiref("../src/commands/open.js");
 var makeDefault = lazyRequiref("../src/commands/makeDefault.js");
 var notifications = lazyRequire("../src/commands/notifications.js");
+var ssh = lazyRequiref("../src/commands/ssh.js");
 
 var Application = lr("../src/models/application.js");
 var Notification = lr("../src/models/notification.js");
@@ -624,6 +625,13 @@ function run() {
     ]
   }, notifications("listEmailNotifications"));
 
+  //SSH COMMAND
+  var sshCommand = cliparse.command("ssh", {
+    description: "Connect to running instances through SSH",
+    options: [ aliasOption ],
+    args: []
+  }, ssh);
+
   // CLI PARSER
   var cliParser = cliparse.cli({
     name: "clever",
@@ -653,7 +661,8 @@ function run() {
       scaleCommand,
       openCommand,
       webhooksCommand,
-      emailNotificationsCommand
+      emailNotificationsCommand,
+      sshCommand
     ]
   });
 
