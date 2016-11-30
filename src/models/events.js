@@ -29,6 +29,11 @@ Event.getEventsFromWS = function(url, authorization) {
       }
     });
 
+    ws.on("error", function() {
+      Logger.debug("Websocket closed.");
+      sink(new Bacon.End());
+    });
+
     ws.on("close", function() {
       Logger.debug("Websocket closed.");
       sink(new Bacon.End());

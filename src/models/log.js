@@ -35,6 +35,11 @@ Log.getLogsFromWS = function(url, authorization) {
       sink(new Bacon.End());
     });
 
+    ws.on("error", function() {
+      Logger.debug("Websocket closed.");
+      sink(new Bacon.End());
+    });
+
     return function() {
       ws.close();
     };
@@ -77,9 +82,11 @@ Log.getContinuousLogs = function(api, appId, before, after){
     .mapEnd(new Date());
 
   var s_interruption = s_end.flatMapLatest(function(endTimestamp){
-    Logger.debug("Websocket has been closed, reconnecting…");
+    Logger.warn("Websocket has been closed, reconnecting…");
     var newAfter = after.getTime() > endTimestamp.getTime() ? after : endTimestamp;
-    return Log.getContinuousLogs(api, appId, before, newAfter);
+    return Bacon.later(1500, null).flatMapLatest(function() {
+      return Log.getContinuousLogs(api, appId, before, newAfter);
+    });
   });
 
   return Bacon.mergeAll(s_logs, s_interruption);
