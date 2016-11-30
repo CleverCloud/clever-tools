@@ -169,7 +169,12 @@ function run() {
       description: "Addon plan, depends on the provider",
       complete: addon("completePlan")
   });
-  var linkAddonOption = cliparse.option("link", { aliases: ["l"], description: "Link the created addon to the specified app", complete: Application("listAvailableAliases") });
+  var linkAddonOption = cliparse.option("link", {
+      aliases: ["l"],
+      metavar: "alias",
+      description: "Link the created addon to the app with the specified alias",
+      complete: Application("listAvailableAliases")
+  });
   var confirmAddonCreationOption = cliparse.flag("yes", { aliases: ["y"], description: "Skip confirmation even if the addon is not free" });
   var confirmAddonDeletionOption = cliparse.flag("yes", { aliases: ["y"], description: "Skip confirmation and delete the addon directly" });
   var sourceableEnvVarsList = cliparse.flag("add-export", { aliases: [], description: "Display sourceable env variables setting" });
