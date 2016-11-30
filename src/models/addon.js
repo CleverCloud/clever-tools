@@ -61,7 +61,7 @@ Addon.list = function(api, orgaId, appId, showAll) {
 };
 
 Addon.createAndLink = function(api, name, providerName, plan, region, skipConfirmation, appData) {
-  var s_creation = Addon.create(api, appData.orgId, name, providerName, plan, region, skipConfirmation);
+  var s_creation = Addon.create(api, appData.org_id, name, providerName, plan, region, skipConfirmation);
   var s_link = s_creation.flatMapLatest(function(addon) {
     return Addon.link(api, appData.app_id, appData.org_id, { "addon_id": addon.id });
   });
