@@ -62,6 +62,7 @@ var lr = function(path) {
 };
 
 var create = lazyRequiref("../src/commands/create.js");
+var adelete = lazyRequiref("../src/commands/delete.js");
 var link = lazyRequiref("../src/commands/link.js");
 var unlink = lazyRequiref("../src/commands/unlink.js");
 var env = lazyRequire("../src/commands/env.js");
@@ -130,6 +131,7 @@ function run() {
       metavar: "OWNER/REPO",
       description: "Github application to use for deployments"
   });
+  var confirmApplicationDeletionOption = cliparse.flag("yes", { aliases: ["y"], description: "Skip confirmation and delete the application directly" });
   var branchOption = cliparse.option("branch", {
       aliases: ["b"],
       default: "",
@@ -256,6 +258,16 @@ function run() {
       githubOption
     ]
   }, create);
+
+  // DELETE COMMAND
+  var appDeleteCommand = cliparse.command("delete", {
+    description: "Delete a Clever Cloud application",
+    args: [],
+    options: [
+      aliasOption,
+      confirmApplicationDeletionOption
+    ]
+  }, adelete);
 
   // LINK COMMAND
   var appLinkCommand = cliparse.command("link", {
@@ -620,6 +632,7 @@ function run() {
     options: [ verboseOption, noUpdateNotifierOption ],
     commands: [
       appCreateCommand,
+      appDeleteCommand,
       appLinkCommand,
       appUnlinkCommand,
       makeDefaultCommand,
