@@ -12,9 +12,11 @@ Interact.ask = function (question) {
   return Bacon.fromCallback(_.partial(readline.question.bind(readline), question)).doAction(readline.close.bind(readline));
 };
 
-Interact.confirm = function(question, rejectionMessage) {
+Interact.confirm = function(question, rejectionMessage, answers) {
+  var defaultAnswers = ["yes", "y"];
+  var expectedAnswers = typeof answers === "undefined" ? defaultAnswers :  answers;
   return Interact.ask(question).flatMapLatest(function(answer) {
-    if(_.includes(["yes", "y"], answer)) {
+    if(_.includes(expectedAnswers, answer)) {
       return true;
     } else {
       return new Bacon.Error(rejectionMessage);
