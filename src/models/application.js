@@ -16,6 +16,7 @@ Application.listAvailableTypes = function() {
     "docker",
     "go",
     "gradle",
+    "haskell",
     "jar",
     "maven",
     "node",
@@ -24,6 +25,7 @@ Application.listAvailableTypes = function() {
     "play2",
     "python",
     "ruby",
+    "rust",
     "sbt",
     "static",
     "war"
