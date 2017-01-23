@@ -15,18 +15,18 @@ Application.listAvailableTypes = function() {
   return autocomplete.words([
     "docker",
     "go",
-    "node",
-    "static",
-    "python",
-    "php",
-    "jar",
     "gradle",
-    "war",
+    "jar",
     "maven",
+    "node",
+    "php",
     "play1",
     "play2",
+    "python",
+    "ruby",
     "sbt",
-    "ruby"
+    "static",
+    "war"
   ]);
 };
 
