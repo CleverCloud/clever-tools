@@ -4,6 +4,7 @@ node_js:
   - "4.7"
   - "6.9"
   - "7.4"
+sudo: false
 env:
   - CC=gcc-6 CXX=g++-6
 addons:
