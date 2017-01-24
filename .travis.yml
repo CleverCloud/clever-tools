@@ -1,15 +1,16 @@
 language: node_js
-env:
-  - CXX=g++-4.8
 node_js:
   - "0.12"
-  - "4.6"
+  - "4.7"
   - "6.9"
-  - "7.2"
+  - "7.4"
+sudo: false
+env:
+  - CC=gcc-6 CXX=g++-6
 addons:
   apt:
     sources:
     - ubuntu-toolchain-r-test
     packages:
-    - gcc-4.8
-    - g++-4.8
+    - gcc-6
+    - g++-6
