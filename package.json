@@ -8,7 +8,7 @@
     "clever cloud"
   ],
   "engines": {
-    "node": ">=0.12.7 <8"
+    "node": ">=4 <8"
   },
   "author": "Rodolphe Belouin <rodolphe.belouin@gmail.com>",
   "license": "MIT",
