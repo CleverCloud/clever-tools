@@ -1,3 +1,13 @@
+# 0.7.0
+
+ - Fix addon creation in the right organisation
+ - Add command to delete an application
+ - Handle websocket errors (logs, events)
+ - Add command to SSH to an application / instance
+ - Sort autocomplete results in instanceTypes
+ - Add support for Node 7.x (nodegit dependency bump)
+ - Drop support for Node <4
+
 # 0.6.1
 
  - Support for email notifications
