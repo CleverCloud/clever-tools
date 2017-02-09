@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/CleverCloud/clever-tools.svg?branch=master)](https://travis-ci.org/CleverCloud/clever-tools)
+
 clever-tools
 ============
 
@@ -39,17 +41,19 @@ Where `type` is one of:
  - `docker`: for Docker-based applications
  - `go`: for Go applications
  - `gradle`: for applications launched with gradle
+ - `haskell`: for haskell applications
  - `jar`: for applications deployed as standalone jar files
- - `war`: for applications deployed as war files
- - `play1`: for Play1 applications
- - `play2`: for Play2 applications
- - `sbt`: for applications launched with SBT
  - `maven`: for applications launched with maven
  - `node`: for node.js applications
  - `php`: for PHP applications
+ - `play1`: for Play1 applications
+ - `play2`: for Play2 applications
  - `python`: for python27 applications
  - `ruby`: for ruby applications
+ - `rust`: for rust applications
+ - `sbt`: for applications launched with SBT
  - `static`: for static (HTML only) websites
+ - `war`: for applications deployed as war files
 
 Where region is one of:
 
@@ -59,8 +63,7 @@ Where region is one of:
 `--org` allows you to chose the organisation in which your app is
 created.
 
-`--alias` allows you to deploy your application several times on Clever Cloud
-(eg: production, testing, …)
+`--alias` allows you to deploy the same application in multiple environments on Clever Cloud (eg: production, testing, …)
 
 ### Link an existing application
 
@@ -86,7 +89,7 @@ clever deploy [--alias <alias>]
 clever status [--alias <alias>]
 ```
 
-### Change application scale
+### Change application scalability
 
 ```
 clever scale [--alias <alias>] [--min-flavor <minflavor>] [--max-flavor <maxflavor>] [--min-instances <mininstances>] [--max-instances <maxinstances>]
