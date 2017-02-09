@@ -45,7 +45,7 @@
   },
   "scripts": {
     "test": "grunt test",
-    "postinstall": "./scripts/postinstall.sh"
+    "postinstall": "./scripts/postinstall.js"
   },
   "repository": {
     "type": "git",
