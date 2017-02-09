@@ -8,7 +8,7 @@ var AppConfig = require("../models/app_configuration.js");
 var Config = require("../models/configuration.js");
 
 var ssh = module.exports = function(api, params) {
-  var alias = params.args[0];
+  var alias = params.options.alias;
 
   var s_appData = AppConfig.getAppData(alias).toProperty();
   var s_result = s_appData.flatMapLatest(function(app_data) {
