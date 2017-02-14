@@ -1,3 +1,8 @@
+# 0.7.1
+
+ - Fix `clever ssh --alias` behaviour
+ - Fix installation on windows systems
+
 # 0.7.0
 
  - Fix addon creation in the right organisation
