@@ -44,8 +44,7 @@
     "shelljs": "^0.7.0"
   },
   "scripts": {
-    "test": "grunt test",
-    "postinstall": "./scripts/postinstall.sh"
+    "test": "grunt test"
   },
   "repository": {
     "type": "git",
