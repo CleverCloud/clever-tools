@@ -1,6 +1,7 @@
 var _ = require("lodash");
 var Bacon = require("baconjs");
 var autocomplete = require("cliparse").autocomplete;
+var colors = require("colors");
 
 var Application = require("./application.js");
 var Interact = require("./interact.js");
@@ -87,13 +88,24 @@ Addon.create = function(api, orgaId, name, providerName, planName, region, skipC
     return plan || new Bacon.Error("invalid plan name. Available plans: " + availablePlans.join(", "));
   });
 
-  var s_confirmedPlan = s_plan.flatMapLatest(function(plan) {
-    if(!skipConfirmation && plan.price > 0) {
-      var s_confirm = Interact.confirm("This addon costs "+plan.price+"€/month, confirm? ", "No confirmation, aborting addon creation");
-      return s_confirm.map(_.constant(plan));
-    } else {
-      return plan;
-    }
+  const s_confirmedPlan = s_plan.flatMapLatest(plan => {
+    return Addon.performPreorder(api, orgaId, name, plan.id, providerName, region)
+      .flatMapLatest(result => {
+         if(result.totalTTC > 0 && !skipConfirmation) {
+           result.lines.forEach(line => {
+             Logger.println(`${line.description}\tVAT: ${line.VAT}%\tPrice: ${line.price}€`);
+           });
+           Logger.println("Total (without taxes): " + result.totalHT + "€");
+           Logger.println(("Total (with taxes): " + result.totalTTC + "€").bold);
+           const s_confirm = Interact.confirm(
+             "You're about to pay " + result.totalTTC + "€, confirm? (yes or no) ",
+             "No confirmation, aborting addon creation"
+           );
+           return s_confirm.map(_.constant(plan));
+         } else {
+           return Bacon.once(plan)
+         }
+      });
   });
 
   var s_creation = s_confirmedPlan.flatMapLatest(function(plan) {
@@ -101,6 +113,20 @@ Addon.create = function(api, orgaId, name, providerName, planName, region, skipC
   });
 
   return s_creation;
+};
+
+/**
+* Generate a preview creation, to get access to the price that will be charged,
+* as well as to verify that the payment methods are correctly configured
+*/
+Addon.performPreorder = function(api, orgaId, name, planId, providerId, region) {
+  var params = orgaId ? [orgaId] : [];
+  return api.owner(orgaId).addons.preorders.post().withParams(params).send(JSON.stringify({
+    name: name,
+    plan: planId,
+    providerId: providerId,
+    region: region
+  }));
 };
 
 Addon.performCreation = function(api, orgaId, name, planId, providerId, region) {
