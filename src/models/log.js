@@ -111,10 +111,11 @@ Log.getOldLogs = function(api, app_id, before, after, search) {
   if(search) {
     query.filter = search;
   }
+  const url = Log.getHttpLogUrl(app_id);
 
   var s_res = Bacon.fromNodeCallback(request, {
-      agent: new (require("https").Agent)({ keepAlive: true }),
-      url: Log.getHttpLogUrl(app_id),
+      agent: url.startsWith("https://") ? new (require("https").Agent)({ keepAlive: true }) : undefined,
+      url,
       qs: query,
       headers: {
         authorization: api.session.getAuthorization('GET', conf.API_HOST + '/logs/' + app_id, {}),
