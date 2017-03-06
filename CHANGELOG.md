@@ -1,3 +1,10 @@
+# 0.8.0
+
+ - More information when creating not free addons
+ - Better error message in `clever deploy` when the application is up to date
+ - Use temporary git remotes when necessary (instead of failing)
+ - Keyword search in `clever logs`
+
 # 0.7.1
 
  - Fix `clever ssh --alias` behaviour
