@@ -225,6 +225,10 @@ function run() {
     parser: Parsers.date,
     description: "Fetch logs after this date (ISO8601)"
   });
+  var searchOption = cliparse.option("search", {
+    metavar: "search",
+    description: "Fetch logs matching this pattern"
+  });
   var listAllNotificationsOption = cliparse.flag("list-all", {
     description: "List all notifications for your user or for an organisation with the `--org` option"
   });
@@ -367,7 +371,8 @@ function run() {
     options: [
       aliasOption,
       beforeOption,
-      afterOption
+      afterOption,
+      searchOption
     ]
   }, logs);
 
