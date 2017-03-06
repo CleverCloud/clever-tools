@@ -53,9 +53,14 @@ module.exports = function(repositoryPath) {
     }).toProperty();
   };
 
+  Git.getRemoteName = function(remote) {
+    if(remote.name()) return remote.name();
+    else return remote.url();
+  };
+
   Git.getRemote = function(name) {
     return Git.getRepository().flatMapLatest(function(repository) {
-      Logger.debug("Load the \"" + name + "\" remote…");
+      Logger.debug("Loading the \"" + name + "\" remote…");
       return Bacon.fromPromise(nodegit.Remote.lookup(repository, name));
     });
   };
@@ -109,14 +114,21 @@ module.exports = function(repositoryPath) {
       });
     });
 
-    return Bacon.mergeAll(s_existingValidRemote, s_newRemote);
+    var s_newAnonRemote = s_existingValidRemote.errors().flatMapError(() => {
+      Logger.warn(`The current ${name} does not point to the right URL, using a temporary one`);
+      return Git.getRepository().flatMapLatest(repo => {
+        return Bacon.fromPromise(nodegit.Remote.createAnonymous(repo, url));
+      });
+    });
+
+    return Bacon.mergeAll(s_existingValidRemote.skipErrors(), s_newRemote, s_newAnonRemote);
   };
 
   Git.fetch = function(remote) {
-    Logger.debug("Fetching " + remote.name() + "…");
+    Logger.debug("Fetching " + Git.getRemoteName(remote) + "…");
     return conf.loadOAuthConf().flatMapLatest(function(tokens) {
       return Bacon.fromPromise(
-        remote.fetch([remote.name()], Git.fetchOptions(tokens.token, tokens.secret))
+        remote.fetch([Git.getRemoteName(remote)], Git.fetchOptions(tokens.token, tokens.secret))
       ).map(remote);
     });
   };
@@ -124,7 +136,7 @@ module.exports = function(repositoryPath) {
   Git.keepFetching = function(timeout, remote) {
     var s_timeout = timeout > 0 ? Bacon.later(timeout, {}) : Bacon.never();
     var fetch = function() {
-      Logger.debug("Fetching " + remote.name());
+      Logger.debug("Fetching " + Git.getRemoteName(remote));
       return conf.loadOAuthConf().flatMapLatest(function(tokens) {
         return Bacon.fromPromise(
           remote.fetch(["refs/heads/master"], Git.fetchOptions(tokens.token, tokens.secret))
@@ -136,9 +148,9 @@ module.exports = function(repositoryPath) {
       });
     };
 
-    Logger.debug("Wait for " + remote.name() + " to be fetchable…");
+    Logger.debug("Wait for " + Git.getRemoteName(remote) + " to be fetchable…");
     var s_fetch = fetch().takeUntil(s_timeout).doAction(function() {
-      Logger.debug("Fetched " + remote.name());
+      Logger.debug("Fetched " + Git.getRemoteName(remote));
     });
 
     return s_fetch;
@@ -178,7 +190,7 @@ module.exports = function(repositoryPath) {
 
     return s_branch.flatMapLatest(function(branch) {
       return s_commitId.flatMapLatest(function(commitIdToPush) {
-        return Git.getRemoteCommitId(remote.name()).flatMapLatest(function(remoteCommitId) {
+        return Git.getRemoteCommitId(Git.getRemoteName(remote)).flatMapLatest(function(remoteCommitId) {
           if(remoteCommitId != commitIdToPush) {
             Logger.debug("Preparing the push");
             return conf.loadOAuthConf().flatMapLatest(function(tokens) {
