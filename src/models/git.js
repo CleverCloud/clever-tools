@@ -187,7 +187,7 @@ module.exports = function(repositoryPath) {
               );
             });
           } else {
-            return new Bacon.Error("Nothing to push");
+            return new Bacon.Error("The clever-cloud application is up-to-date. Try `clever restart` to restart the application");
           }
         });
       });
