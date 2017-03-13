@@ -1,3 +1,7 @@
+# 0.8.1
+
+ - Fix `clever login` on windows
+
 # 0.8.0
 
  - More information when creating not free addons
