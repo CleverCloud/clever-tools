@@ -28,7 +28,7 @@ OpenBrowser.getCommand = function(url) {
     case "linux":
       return Bacon.constant({command: "xdg-open", args: args});
     case "win32":
-      return Bacon.constant({command: "start", args: args});
+      return Bacon.constant({command: "explorer.exe", args: args});
     default:
       return new Bacon.Error("Unsupported platform: " + process.platform);
   }
