@@ -40,7 +40,7 @@ AppConfiguration.addLinkedApplication = function(appData, alias) {
   var currentConfig = AppConfiguration.loadApplicationConf();
   var appEntry = {
     app_id: appData.id,
-    deploy_url: appData.deployment.httpUrl || app.deployment.url,
+    deploy_url: appData.deployment.httpUrl || appData.deployment.url,
     name: appData.name,
     alias: alias || unidecode(appData.name).replace(/[^a-zA-z0-9]+/gi, "-").toLowerCase()
   };
