@@ -1,3 +1,7 @@
+# 0.8.2
+
+ - Fix `clever link` for PHP-FTP applications
+
 # 0.8.1
 
  - Fix `clever login` on windows
