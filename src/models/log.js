@@ -46,11 +46,12 @@ Log.getLogsFromWS = function(url, authorization) {
   });
 };
 
-Log.getWsLogUrl = function(appId, timestamp, search) {
+Log.getWsLogUrl = function(appId, timestamp, search, deploymentId) {
   const baseUrl = _.template(conf.LOG_WS_URL)({appId, timestamp})
   const searchQuery = _.template("&filter=<%- search %>")({search})
+  const deploymentIdQuery = _.template("&deployment_id=<%- deploymentId %>")({deploymentId})
 
-  return baseUrl + (search ? searchQuery : "");
+  return baseUrl + (search ? searchQuery : "") + (deploymentId ? deploymentIdQuery : "");
 };
 
 Log.getHttpLogUrl = _.partial(function(template, appId) {
@@ -66,9 +67,10 @@ Log.getHttpLogUrl = _.partial(function(template, appId) {
  * appId: The appId of the application
  * before (Date): only display log lines that happened before this date
  * after  (Date): only display log lines that happened after this date
+ * deploymentId: Only display log lines corresponding to this deployment
  */
-Log.getContinuousLogs = function(api, appId, before, after, search){
-  var url = Log.getWsLogUrl(appId, after.toISOString(), search);
+Log.getContinuousLogs = function(api, appId, before, after, search, deploymentId){
+  var url = Log.getWsLogUrl(appId, after.toISOString(), search, deploymentId);
   var s_WsLogs = Log.getLogsFromWS(url, api.session.getAuthorization('GET', conf.API_HOST + '/logs/' + appId, {}))
   var s_logs = s_WsLogs.filter(function(line) {
     var lineDate = Date.parse(line._source["@timestamp"]);
@@ -92,14 +94,14 @@ Log.getContinuousLogs = function(api, appId, before, after, search){
   return Bacon.mergeAll(s_logs, s_interruption);
 };
 
-Log.getNewLogs = function(api, appId, before, after, search) {
+Log.getNewLogs = function(api, appId, before, after, search, deploymentId) {
   Logger.println("Waiting for application logs…");
   Logger.debug("Opening a websocket in order to fetch logs…");
 
-  return Log.getContinuousLogs(api, appId, before, after, search);
+  return Log.getContinuousLogs(api, appId, before, after, search, deploymentId);
 };
 
-Log.getOldLogs = function(api, app_id, before, after, search) {
+Log.getOldLogs = function(api, app_id, before, after, search, deploymentId) {
   var query = {};
 
   if(!before && !after) {
@@ -110,6 +112,9 @@ Log.getOldLogs = function(api, app_id, before, after, search) {
   }
   if(search) {
     query.filter = search;
+  }
+  if(deploymentId) {
+    query.deployment_id = deploymentId;
   }
   const url = Log.getHttpLogUrl(app_id);
 
@@ -156,7 +161,7 @@ var isBuildSucessMessage = function(line){
   return _.startsWith(line._source["@message"].toLowerCase(), "build succeeded in");
 };
 
-Log.getAppLogs = function(api, appId, instances, before, after, search) {
+Log.getAppLogs = function(api, appId, instances, before, after, search, deploymentId) {
   var s_logs;
   var now = new Date();
 
@@ -164,10 +169,10 @@ Log.getAppLogs = function(api, appId, instances, before, after, search) {
   var fetchNewLogs = !before || before > now;
 
   if(fetchOldLogs) {
-    s_logs = Log.getOldLogs(api, appId, before, after, search)
-            .merge(Log.getNewLogs(api, appId, before, after || now, search));
+    s_logs = Log.getOldLogs(api, appId, before, after, search, deploymentId)
+            .merge(Log.getNewLogs(api, appId, before, after || now, search, deploymentId));
   } else {
-    s_logs = Log.getNewLogs(api, appId, before, after || now, search);
+    s_logs = Log.getNewLogs(api, appId, before, after || now, search, deploymentId);
   }
   return s_logs
         .filter(function(line) {
