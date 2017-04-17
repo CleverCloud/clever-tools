@@ -99,8 +99,10 @@ module.exports = function(repositoryPath) {
     var s_existingRemote = Git.getRemote(name);
 
     var s_existingValidRemote = s_existingRemote.skipErrors().flatMapLatest(function(remote) {
-      Logger.debug("Check that the current \"" + name + "\" remote point to the right URL…");
-      return remote.url() == url ? Bacon.once(remote) : new Bacon.Error("The \"" + name + "\" remote already exist and does not point to " + url);
+      Logger.debug("Checking that the current \"" + name + "\" remote point to the right URL…");
+      return remote.url() == url
+        ? Bacon.once(remote)
+        : new Bacon.Error("The \"" + name + "\" remote already exists and does not point to " + url);
     });
 
     // Create a remote only if it does not already exist

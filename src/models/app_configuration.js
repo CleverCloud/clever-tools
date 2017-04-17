@@ -60,7 +60,9 @@ AppConfiguration.addLinkedApplication = function(appData, alias) {
     return config;
   });
 
-  return s_newConfig.flatMapLatest(AppConfiguration.persistConfig);
+  return s_newConfig
+    .flatMapLatest(AppConfiguration.persistConfig)
+    .flatMapLatest(function() { return appEntry });
 };
 
 AppConfiguration.removeLinkedApplication = function(alias) {
