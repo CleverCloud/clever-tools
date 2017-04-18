@@ -128,7 +128,6 @@ Application.adelete = function(api, app_data, skipConfirmation) {
 Application.performDeletion = function(api, appId, orgaId) {
     var params = orgaId ? [orgaId, appId] : [appId];
     return api.owner(orgaId).applications._.delete().withParams(params).send();
-    return Bacon.once();
 };
 
 var getApplicationByName = function(s_apps, name) {
