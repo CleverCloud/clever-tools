@@ -14,11 +14,12 @@ var appLogs = module.exports = function(api, params) {
   var before = params.options.before;
   var after = params.options.after;
   const search = params.options.search;
+  const deploymentId = params.options["deployment-id"];
 
   var s_appData = AppConfig.getAppData(alias);
 
   var s_logs = s_appData.flatMapLatest(function(app_data) {
-    return Log.getAppLogs(api, app_data.app_id, null, before, after, search);
+    return Log.getAppLogs(api, app_data.app_id, null, before, after, search, deploymentId);
   });
 
   s_logs.onValue(Logger.println);

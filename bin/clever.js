@@ -229,6 +229,10 @@ function run() {
     metavar: "search",
     description: "Fetch logs matching this pattern"
   });
+  var deploymentIdOption = cliparse.option("deployment-id", {
+    metavar: "deployment_id",
+    description: "Fetch logs for a given deployment"
+  });
   var listAllNotificationsOption = cliparse.flag("list-all", {
     description: "List all notifications for your user or for an organisation with the `--org` option"
   });
@@ -372,7 +376,8 @@ function run() {
       aliasOption,
       beforeOption,
       afterOption,
-      searchOption
+      searchOption,
+      deploymentIdOption
     ]
   }, logs);
 
