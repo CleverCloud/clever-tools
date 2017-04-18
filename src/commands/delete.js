@@ -13,8 +13,9 @@ var app_delete = module.exports = function(api, params) {
 
   var s_appData = AppConfig.getAppData(alias).toProperty();
 
-  var s_delete = s_appData.flatMapLatest(function(app_data) {
-    return Application.adelete(api, app_data, skipConfirmation);
+  var s_delete = s_appData.flatMapLatest((app_data) => {
+    return Application.adelete(api, app_data, skipConfirmation)
+      .flatMapLatest(() => Application.unlinkRepo(api, app_data.alias))
   });
 
   s_delete.onValue(function() {
