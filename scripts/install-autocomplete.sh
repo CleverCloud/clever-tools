@@ -7,8 +7,12 @@ install_bash_root() {
   local us="${2}"
   local compdir="/usr/share/bash-completion/completions"
 
+  if [ $(uname) == "Darwin" ]; then
+    compdir="/usr/local/share/bash-completion/completions"
+  fi
+
   echo "Installing bash completion script"
-  mkdir -p "${compdir}"
+  "${wrapper}" mkdir -p "${compdir}"
   clever --bash-autocomplete-script "${us}" | "${wrapper}" tee "${compdir}"/clever >/dev/null
 }
 
@@ -17,8 +21,12 @@ install_zsh_root() {
   local us="${2}"
   local compdir="/usr/share/zsh/site-functions"
 
+  if [ $(uname) == "Darwin" ]; then
+    compdir="/usr/local/share/zsh/site-functions"
+  fi
+
   echo "Installing zsh completion script"
-  mkdir -p "${compdir}"
+  "${wrapper}" mkdir -p "${compdir}"
   clever --zsh-autocomplete-script "${us}" | "${wrapper}" tee "${compdir}"/_clever >/dev/null
 }
 
