@@ -5,11 +5,13 @@ set -euo pipefail
 uninstall_zsh_root() {
   echo "Removing bash completion script"
   rm -f "/usr/share/zsh/site-functions/_clever"
+  rm -f "/usr/local/share/zsh/site-functions/_clever"
 }
 
 uninstall_bash_root() {
   echo "Removing zsh completion script"
   rm -f "/usr/share/bash-completion/completions/clever"
+  rm -f "/usr/local/share/bash-completion/completions/clever"
 }
 
 uninstall() {
