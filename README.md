@@ -7,10 +7,9 @@ Command Line Interface for Clever Cloud.
 
 ## Installation
 
-
 ```
-# openssl-dev and xdg-utils are needed
-apt-get install openssl-dev xdg-utils# on apt systems
+# openssl-dev is needed
+apt-get install openssl-dev# on apt systems
 
 npm install -g clever-tools
 
@@ -30,6 +29,11 @@ clever login
 
 It will open a page in your browser. Copy the provided `token` and `secret`
 codes in the CLI.
+
+`clever login` tries to open a browser through `xdg-open` on GNU/Linux systems
+(and in bash for windows). Make sure you have `xdg-utils` available as well as
+a default browser set (or you can copy and paste the URL displayed in the
+console.
 
 ### Create an application
 
