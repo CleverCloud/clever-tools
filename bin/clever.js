@@ -744,7 +744,10 @@ function run() {
     ]
   });
 
-  cliparse.parse(cliParser);
+  // Make sure argv[0] is always "node"
+  const args = process.argv;
+  args[0] = "node";
+  cliparse.parse(cliParser, args);
 }
 var s_api = require("../src/models/api.js")();
 
