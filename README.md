@@ -7,7 +7,11 @@ Command Line Interface for Clever Cloud.
 
 ## Installation
 
+
 ```
+# openssl-dev and xdg-utils are needed
+apt-get install openssl-dev xdg-utils# on apt systems
+
 npm install -g clever-tools
 
 # Install completion scripts
