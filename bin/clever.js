@@ -250,6 +250,14 @@ function run() {
     metavar: "service_id",
     description: "Restrict notifications to specific applications and addons"
   });
+  var loginTokenOption = cliparse.option("token", {
+    metavar: "token",
+    description: "Directly give an existing token"
+  });
+  var loginSecretOption = cliparse.option("secret", {
+    metavar: "secret",
+    description: "Directly give an existing secret"
+  });
 
   // CREATE COMMAND
   var appCreateCommand = cliparse.command("create", {
@@ -378,7 +386,11 @@ function run() {
 
   // LOGIN COMMAND
   var loginCommand = cliparse.command("login", {
-    description: "Login to Clever Cloud"
+    description: "Login to Clever Cloud",
+    options: [
+      loginTokenOption,
+      loginSecretOption
+    ]
   }, login);
 
   // CANCEL DEPLOY COMMAND
