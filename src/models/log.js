@@ -87,7 +87,7 @@ Log.getContinuousLogs = function(api, appId, before, after, search, deploymentId
     Logger.warn("Websocket has been closed, reconnecting…");
     var newAfter = after.getTime() > endTimestamp.getTime() ? after : endTimestamp;
     return Bacon.later(1500, null).flatMapLatest(function() {
-      return Log.getContinuousLogs(api, appId, before, newAfter);
+      return Log.getContinuousLogs(api, appId, before, newAfter, search, deploymentId);
     });
   });
 
