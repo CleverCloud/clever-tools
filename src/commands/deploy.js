@@ -79,26 +79,26 @@ deploy.restart = function(api, params) {
 
 var handleDeployment = function(api, s_appData, s_deploy, s_commitId, quiet) {
   s_deploy.onValue(function(v) {
-    var s_deploymentEvents = s_appData.flatMapLatest(function(appData) {
-      return s_commitId.flatMapLatest(function(commitId) {
-        Logger.debug("Waiting for events related to commit #" + commitId);
-        return Event.getEvents(api, appData.app_id)
-              .filter(function(e) {
-                return e.data && e.data.commit == commitId;
-              });
-      });
+    const deploymentId = v && v.deploymentId;
+
+    var s_deploymentEvents = s_appData.flatMapLatest((appData) => {
+      const s_allEvents = Event.getEvents(api, appData.app_id);
+      if(deploymentId) {
+        return s_allEvents.filter(e => e.data && e.data.uuid === deploymentId);
+      } else {
+        return s_commitId.flatMapLatest((commitId) => {
+          return s_allEvents.filter(e => e.data && e.data.commit === commitId);
+        })
+      }
     });
 
-    var s_deploymentStart = s_deploymentEvents.filter(function(e) {
-      return e.event === 'DEPLOYMENT_ACTION_BEGIN';
-     }).first();
+    const s_deploymentStart = s_deploymentEvents.filter(e => e.event === 'DEPLOYMENT_ACTION_BEGIN').first().toProperty();
+
     s_deploymentStart.onValue(function(e) {
       Logger.println("Deployment started".bold.blue);
     });
 
-    var s_deploymentEnd = s_deploymentEvents.filter(function(e) {
-      return e.event === 'DEPLOYMENT_ACTION_END';
-     }).first();
+    const s_deploymentEnd = s_deploymentEvents.filter(e => e.event === 'DEPLOYMENT_ACTION_END').first();
 
     s_deploymentEnd.onValue(function(e) {
       if(e.data.state === 'OK') {
@@ -122,8 +122,14 @@ var handleDeployment = function(api, s_appData, s_deploy, s_commitId, quiet) {
         });
 
       var s_logs = s_app.flatMapLatest(function(app) {
+        let s_deploymentId;
+        if(deploymentId) {
+          s_deploymentId = Bacon.constant(deploymentId);
+        } else {
+          s_deploymentId = s_deploymentStart.map(e => e.data.uuid);
+        }
         Logger.debug("Fetch application logs…");
-        return Log.getAppLogs(api, app.id, null, null, new Date());
+        return s_deploymentId.flatMapLatest((did) => Log.getAppLogs(api, app.id, null, null, new Date(), null, did));
       });
 
       s_logs.onValue(Logger.println);
