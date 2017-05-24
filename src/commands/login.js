@@ -58,25 +58,36 @@ function writeLoginConfig(oauthData) {
 }
 
 var login = module.exports = function(api, params) {
-  Logger.debug("Try to login to Clever Cloud…")
-  var result = OpenBrowser.getCommand(conf.CONSOLE_TOKEN_URL)
-    .flatMapLatest(function(command) {
-      Logger.println("Opening " + conf.CONSOLE_TOKEN_URL + " in your browser…");
-      return OpenBrowser.run(command);
-    })
-    .flatMapLatest(getOAuthData)
-    .flatMapLatest(writeLoginConfig)
-    .map(conf.CONFIGURATION_FILE + " has been updated.");
+  let s_tokens;
 
+  if(params.options.token || params.options.secret) {
+    if(params.options.token && params.options.secret) {
+      s_tokens = Bacon.once({ token: params.options.token, secret: params.options.secret });
+    } else {
+      s_tokens = Bacon.once(new Bacon.Error("Both `--token` and `--secret` have to be defined"));
+    }
+  } else {
+    Logger.debug("Try to login to Clever Cloud…")
+    s_tokens = OpenBrowser.getCommand(conf.CONSOLE_TOKEN_URL)
+      .flatMapLatest(function(command) {
+        Logger.println("Opening " + conf.CONSOLE_TOKEN_URL + " in your browser…");
+        return OpenBrowser.run(command);
+      })
+      .flatMapLatest(getOAuthData)
+  }
+
+  const result = s_tokens
+      .flatMapLatest(writeLoginConfig)
+      .map(conf.CONFIGURATION_FILE + " has been updated.");
   // Force process exit, otherwhise, it will be kept alive
   // because of the spawn() call (in src/open-browser.js)
-  result.onValue(function(message){
-    Logger.println(message);
-    process.exit(0);
-  });
-
   result.onError(function(error){
     Logger.error(error);
     process.exit(1);
+  });
+
+  result.onValue(function(message){
+    Logger.println(message);
+    process.exit(0);
   });
 };
