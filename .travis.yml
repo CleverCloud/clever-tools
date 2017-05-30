@@ -1,8 +1,8 @@
 language: node_js
 node_js:
-  - "4.7"
-  - "6.9"
-  - "7.5"
+  - "4.8"
+  - "6.10"
+  - "7.10"
 sudo: false
 env:
   - CC=gcc-6 CXX=g++-6
