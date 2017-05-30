@@ -1,3 +1,12 @@
+# 0.8.3
+
+ - Unlink applications when deleting them (fixes #124)
+ - Make `install-clever-completion` work on Mac OS (Cédric Corbière)
+ - Allow non-interactive login (fixes #128)
+ - Filter logs by deployment in `clever logs`
+ - Only display logs for the current deployment in `clever deploy` and `clever restart`
+ - Fix hanging in `clever restart` (fixes #130)
+
 # 0.8.2
 
  - Fix `clever link` for PHP-FTP applications
