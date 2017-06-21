@@ -103,6 +103,7 @@ function run() {
   var addonProviderArgument = cliparse.argument("addon-provider", { description: "Addon provider" });
   var drainUrlArgument = cliparse.argument("drain-url", { description: "Drain URL" });
   var drainTypeArgument = cliparse.argument("drain-type", { description: "Drain type" });
+  var drainIdArgument = cliparse.argument("drain-id", { description: "Drain ID" });
   var notificationNameArgument = cliparse.argument("name", { description: "Notification name" });
   var webhookUrlArgument = cliparse.argument("url", { description: "Webhook URL" });
   var notificationIdArgument = cliparse.argument("notification-id", { description: "Notification ID" });
@@ -183,10 +184,16 @@ function run() {
   });
   var confirmAddonCreationOption = cliparse.flag("yes", { aliases: ["y"], description: "Skip confirmation even if the addon is not free" });
   var confirmAddonDeletionOption = cliparse.flag("yes", { aliases: ["y"], description: "Skip confirmation and delete the addon directly" });
-  var drainCredentialsOption = cliparse.option("credentials", {
-    alias: ["c"],
-    metavar: "credentials",
-    description: "HTTP Authorization header to connect drain to your endpoint",
+  var drainUsernameOption = cliparse.option("username", {
+    alias: ["u"],
+    metavar: "username",
+    description: "Username for an HTTP Authorization header to connect drain to your endpoint",
+    complete: Application("listDrains")
+  });
+  var drainPasswordOption = cliparse.option("password", {
+    alias: ["p"],
+    metavar: "password",
+    description: "Password for an HTTP Authorization header to connect drain to your endpoint",
     complete: Application("listDrains")
   });
   var sourceableEnvVarsList = cliparse.flag("add-export", { aliases: [], description: "Display sourceable env variables setting" });
@@ -593,14 +600,21 @@ function run() {
     description: "Create a drain",
     args: [ drainTypeArgument, drainUrlArgument ],
     options: [
-      drainCredentialsOption
+      drainUsernameOption,
+      drainPasswordOption
     ]
-  }, addon("create"));
+  }, drain("create"));
+  var drainRemoveCommand = cliparse.command("remove", {
+    description: "Create a drain",
+    args: [ drainIdArgument ],
+    options: []
+  }, drain("remove"));
   var drainCommands = cliparse.command("drain", {
     description: "Manage drains",
     option: [orgaIdOrNameOption],
     commands: [
-      drainCreateCommand
+      drainCreateCommand,
+      drainRemoveCommand
     ]
   }, drain("list"));
 
