@@ -76,6 +76,7 @@ var stop = lazyRequiref("../src/commands/stop.js");
 var status = lazyRequiref("../src/commands/status.js");
 var activity = lazyRequiref("../src/commands/activity.js");
 var addon = lazyRequire("../src/commands/addon.js");
+var drain = lazyRequire("../src/commands/drain.js");
 var service = lazyRequire("../src/commands/service.js");
 var applications = lazyRequiref("../src/commands/applications.js");
 var scale = lazyRequiref("../src/commands/scale.js");
@@ -100,6 +101,8 @@ function run() {
   var addonIdOrNameArgument = cliparse.argument("addon-id", { description: "Addon ID (or name, if unambiguous)", parser: Parsers.addonIdOrName });
   var addonNameArgument = cliparse.argument("addon-name", { description: "Addon name" });
   var addonProviderArgument = cliparse.argument("addon-provider", { description: "Addon provider" });
+  var drainUrlArgument = cliparse.argument("drain-url", { description: "Drain URL" });
+  var drainTypeArgument = cliparse.argument("drain-type", { description: "Drain type" });
   var notificationNameArgument = cliparse.argument("name", { description: "Notification name" });
   var webhookUrlArgument = cliparse.argument("url", { description: "Webhook URL" });
   var notificationIdArgument = cliparse.argument("notification-id", { description: "Notification ID" });
@@ -180,6 +183,12 @@ function run() {
   });
   var confirmAddonCreationOption = cliparse.flag("yes", { aliases: ["y"], description: "Skip confirmation even if the addon is not free" });
   var confirmAddonDeletionOption = cliparse.flag("yes", { aliases: ["y"], description: "Skip confirmation and delete the addon directly" });
+  var drainCredentialsOption = cliparse.option("credentials", {
+    alias: ["c"],
+    metavar: "credentials",
+    description: "HTTP Authorization header to connect drain to your endpoint",
+    complete: Application("listDrains")
+  });
   var sourceableEnvVarsList = cliparse.flag("add-export", { aliases: [], description: "Display sourceable env variables setting" });
   var onlyAliasesOption = cliparse.flag("only-aliases", { aliases: [], description: "List only application aliases" });
   var minFlavorOption = cliparse.option("min-flavor", {
@@ -579,6 +588,22 @@ function run() {
     ]
   }, addon("list"));
 
+  //DRAIN COMMANDS
+  var drainCreateCommand = cliparse.command("create", {
+    description: "Create a drain",
+    args: [ drainTypeArgument, drainUrlArgument ],
+    options: [
+      drainCredentialsOption
+    ]
+  }, addon("create"));
+  var drainCommands = cliparse.command("drain", {
+    description: "Manage drains",
+    option: [orgaIdOrNameOption],
+    commands: [
+      drainCreateCommand
+    ]
+  }, drain("list"));
+
   //APPLICATIONS COMMAND
   var applicationsCommand = cliparse.command("applications", {
     description: "List linked applications",
@@ -678,6 +703,7 @@ function run() {
       statusCommand,
       activityCommand,
       addonCommands,
+      drainCommands,
       serviceCommands,
       applicationsCommand,
       scaleCommand,
