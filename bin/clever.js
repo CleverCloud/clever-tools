@@ -163,14 +163,14 @@ function run() {
   var forceDeployOption = cliparse.flag("force", { aliases: ["f"], description: "Force deploy even if it's not fast-forwardable" });
   var withoutCacheOption = cliparse.flag("without-cache", { description: "Restart the application without using cache" });
   var addonRegionOption = cliparse.option("region", {
-      alias: ["r"],
+      aliases: ["r"],
       default: "eu",
       metavar: "region",
       description: "Region to provision the addon in, depends on the provider",
       complete: addon("completeRegion")
   });
   var addonPlanOption = cliparse.option("plan", {
-      alias: ["p"],
+      aliases: ["p"],
       default: "dev",
       metavar: "plan",
       description: "Addon plan, depends on the provider",
@@ -185,13 +185,13 @@ function run() {
   var confirmAddonCreationOption = cliparse.flag("yes", { aliases: ["y"], description: "Skip confirmation even if the addon is not free" });
   var confirmAddonDeletionOption = cliparse.flag("yes", { aliases: ["y"], description: "Skip confirmation and delete the addon directly" });
   var drainUsernameOption = cliparse.option("username", {
-    alias: ["u"],
+    aliases: ["u"],
     metavar: "username",
     description: "Username for an HTTP Authorization header to connect drain to your endpoint",
     complete: Application("listDrains")
   });
   var drainPasswordOption = cliparse.option("password", {
-    alias: ["p"],
+    aliases: ["p"],
     metavar: "password",
     description: "Password for an HTTP Authorization header to connect drain to your endpoint",
     complete: Application("listDrains")
@@ -600,6 +600,7 @@ function run() {
     description: "Create a drain",
     args: [ drainTypeArgument, drainUrlArgument ],
     options: [
+      aliasOption,
       drainUsernameOption,
       drainPasswordOption
     ]
@@ -607,11 +608,13 @@ function run() {
   var drainRemoveCommand = cliparse.command("remove", {
     description: "Create a drain",
     args: [ drainIdArgument ],
-    options: []
-  }, drain("remove"));
+    options: [
+      aliasOption
+    ]
+  }, drain("rm"));
   var drainCommands = cliparse.command("drain", {
     description: "Manage drains",
-    option: [orgaIdOrNameOption],
+    options: [ aliasOption ],
     commands: [
       drainCreateCommand,
       drainRemoveCommand

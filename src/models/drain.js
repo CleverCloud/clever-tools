@@ -11,12 +11,11 @@ var Drain = module.exports;
 var makeJsonRequest = function(api, verb, url, queryParams, body) {
   var completeUrl = conf.API_HOST + url
   Logger.debug(verb + ' ' + completeUrl);
-  
   var options = {
     method: verb,
     url: completeUrl,
     headers: {
-      authorization: api.session.getAuthorization(verb, completeUrl, queryParams),
+      "Authorization": api.session.getAuthorization(verb, completeUrl, queryParams),
       "Accept": "application/json"
     }
   };
@@ -24,9 +23,11 @@ var makeJsonRequest = function(api, verb, url, queryParams, body) {
     options.agent = new (require("https").Agent)({ keepAlive: true })
 
   if(body) options.json = body;
+
   var s_res = Bacon.fromNodeCallback(request, options);
 
   return s_res.flatMapLatest(function(res) {
+    console.log(res)
     if(res.statusCode >= 400) {
       return new Bacon.Error(res.body);
     }
@@ -38,8 +39,6 @@ var makeJsonRequest = function(api, verb, url, queryParams, body) {
     } else {
       if(!_.isError(jsonBody) && jsonBody["type"] === "error") {
         return new Bacon.Error(jsonBody);
-      } else {
-        return new Bacon.Error("Received invalid JSON: " + res.body);
       }
     }
   });
@@ -53,7 +52,7 @@ Drain.list = function(api, appId) {
   });
 };
 
-Drain.add = function(api, appId, drainTargetURL, drainTargetType, drainTargetCredentials) {
+Drain.create = function(api, appId, drainTargetURL, drainTargetType, drainTargetCredentials) {
   Logger.debug("Registering drain for " + appId);
   var body = {}
   if (drainTargetCredentials) {
@@ -68,9 +67,10 @@ Drain.add = function(api, appId, drainTargetURL, drainTargetType, drainTargetCre
   } else {
     body = {
       "url": drainTargetURL,
-      "drainType": drainTargetType,
+      "drainType": drainTargetType
     }
   }
+
   var s_res = makeJsonRequest(api, 'POST', '/logs-drains/' + appId, {}, body);
   return s_res;
 };

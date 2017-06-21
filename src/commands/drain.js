@@ -17,16 +17,21 @@ var list = drain.list = function(api, params) {
   });
 
   s_drain.onValue(function(drains) {
-    Logger.println(_.map(drains, 'drain').join('\n'));
+    _.map(drains, function(drain) {
+      Logger.println(drain.id + " for " + drain.target.url + " as " + drain.target.drainType)
+    });
   });
 
   s_drain.onError(Logger.error);
 };
 
-var add = drain.add = function(api, params) {
-  var drainTargetURL = params.args[0];
-  var drainTargetType = params.args[1];
-  var drainTargetCredentials = params.options.credentials;
+var create = drain.create = function(api, params) {
+  var drainTargetType = params.args[0];
+  var drainTargetURL = params.args[1];
+  var drainTargetCredentials = {
+    "username": params.options.username,
+    "password": params.options.password
+  }
   var alias = params.options.alias;
 
   var s_appData = AppConfig.getAppData(alias);
