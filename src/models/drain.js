@@ -27,7 +27,6 @@ var makeJsonRequest = function(api, verb, url, queryParams, body) {
   var s_res = Bacon.fromNodeCallback(request, options);
 
   return s_res.flatMapLatest(function(res) {
-    console.log(res)
     if(res.statusCode >= 400) {
       return new Bacon.Error(res.body);
     }
@@ -46,7 +45,7 @@ var makeJsonRequest = function(api, verb, url, queryParams, body) {
 
 Drain.list = function(api, appId) {
   Logger.debug("Fetching drains for " + appId);
-  var s_res = makeJsonRequest(api, 'GET', '/logs-drains/' + appId, {});
+  var s_res = makeJsonRequest(api, 'GET', '/logs/drains/' + appId, {});
   return s_res.map(function(drains) {
     return drains
   });
@@ -71,13 +70,13 @@ Drain.create = function(api, appId, drainTargetURL, drainTargetType, drainTarget
     }
   }
 
-  var s_res = makeJsonRequest(api, 'POST', '/logs-drains/' + appId, {}, body);
+  var s_res = makeJsonRequest(api, 'POST', '/logs/drains/' + appId, {}, body);
   return s_res;
 };
 
 Drain.remove = function(api, appId, drainId) {
   Logger.debug("Removing drain " + drainId + " for " + appId);
-  var s_res = makeJsonRequest(api, 'DELETE', '/logs-drains/' + appId + '/' + drainId, {});
+  var s_res = makeJsonRequest(api, 'DELETE', '/logs/drains/' + appId + '/' + drainId, {});
   return s_res;
 };
 

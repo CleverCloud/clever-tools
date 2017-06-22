@@ -187,13 +187,13 @@ function run() {
   var drainUsernameOption = cliparse.option("username", {
     aliases: ["u"],
     metavar: "username",
-    description: "Username for an HTTP Authorization header to connect drain to your endpoint",
+    description: "HTTP basic auth username",
     complete: Application("listDrains")
   });
   var drainPasswordOption = cliparse.option("password", {
     aliases: ["p"],
     metavar: "password",
-    description: "Password for an HTTP Authorization header to connect drain to your endpoint",
+    description: "HTTP basic auth password",
     complete: Application("listDrains")
   });
   var sourceableEnvVarsList = cliparse.flag("add-export", { aliases: [], description: "Display sourceable env variables setting" });
@@ -600,7 +600,6 @@ function run() {
     description: "Create a drain",
     args: [ drainTypeArgument, drainUrlArgument ],
     options: [
-      aliasOption,
       drainUsernameOption,
       drainPasswordOption
     ]
@@ -608,9 +607,7 @@ function run() {
   var drainRemoveCommand = cliparse.command("remove", {
     description: "Create a drain",
     args: [ drainIdArgument ],
-    options: [
-      aliasOption
-    ]
+    options: []
   }, drain("rm"));
   var drainCommands = cliparse.command("drain", {
     description: "Manage drains",
