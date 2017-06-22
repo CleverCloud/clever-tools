@@ -35,7 +35,7 @@ var list = service.list = function(api, params) {
       }
       if(dependencies.addons !== null) {
         Logger.println("Addons:");
-        Logger.println(dependencies.addons.map(function(x) { return (x.isLinked ? "* " : "  ") + x.name; }).join('\n'));
+        Logger.println(dependencies.addons.map(function(x) { return (x.isLinked ? "* " : "  ") + x.name + " (" + x.realId + ")"; }).join('\n'));
       }
     });
 
