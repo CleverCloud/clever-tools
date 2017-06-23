@@ -20,7 +20,7 @@ var makeJsonRequest = function(api, verb, url, queryParams, body) {
         }
     };
     if (completeUrl.substring(0, 8) === 'https://')
-        options.agent = new(require("https").Agent)({ keepAlive: true })
+        options.agent = new(require("https").Agent)({ keepAlive: true });
 
     if (body) options.json = body;
 
