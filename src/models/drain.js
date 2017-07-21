@@ -8,6 +8,13 @@ var conf = require("./configuration.js");
 
 var Drain = module.exports;
 
+Drain.types = [
+    { "id": "TCPSyslog" },
+    { "id": "UDPSyslog" },
+    { "id": "HTTP", "credentials": "optional" },
+    { "id": "ElasticSearch", "credentials": "mandatory" }
+];
+
 var makeJsonRequest = function(api, verb, url, queryParams, body) {
     var completeUrl = conf.API_HOST + url;
     Logger.debug(verb + ' ' + completeUrl);
@@ -53,17 +60,30 @@ Drain.list = function(api, appId) {
 
 Drain.create = function(api, appId, drainTargetURL, drainTargetType, drainTargetCredentials) {
     Logger.debug("Registering drain for " + appId);
-    var body = {
-        "url": drainTargetURL,
-        "drainType": drainTargetType,
-        "credentials": {
-            "username": drainTargetCredentials.username || "",
-            "password": drainTargetCredentials.password || ""
-        }
-    };
+    if (Drain.authorizeDrainCreation(drainTargetType, drainTargetCredentials)) {
+        var body = "";
+        if (Drain.credentialsExist(drainTargetCredentials)) {
+            body = {
+                "url": drainTargetURL,
+                "drainType": drainTargetType,
+                "credentials": {
+                    "username": drainTargetCredentials.username || "",
+                    "password": drainTargetCredentials.password || ""
+                }
+            };
+        } else {
+            body = {
+                "url": drainTargetURL,
+                "drainType": drainTargetType
+            };
+        }        
 
-    var s_res = makeJsonRequest(api, 'POST', '/logs/' + appId + '/drains', {}, body);
-    return s_res;
+        var s_res = makeJsonRequest(api, 'POST', '/logs/' + appId + '/drains', {}, body);
+        return s_res;
+    } else {
+        Logger.error("Credentials are: optional for HTTP, mandatory for ElasticSearch and TCPSyslog/UDPSyslog don't need them.")
+    }
+    return false;
 };
 
 Drain.remove = function(api, appId, drainId) {
@@ -72,11 +92,54 @@ Drain.remove = function(api, appId, drainId) {
     return s_res;
 };
 
-Drain.listMetaEvents = function() {
-    return autocomplete.words([
-        "META_SERVICE_LIFECYCLE",
-        "META_DEPLOYMENT_RESULT",
-        "META_SERVICE_MANAGEMENT",
-        "META_CREDITS"
-    ]);
+Drain.authorizeDrainCreation = function(drainTargetType, drainTargetCredentials) {
+    if (Drain.drainTypeExists(drainTargetType)) { // drain type exists   
+        var credentialsStatus = Drain.credentialsStatus(drainTargetType); // retrieve creds for drain type (mandatory, optional, null)
+        switch (credentialsStatus) {
+            case 'mandatory':
+                return Drain.credentialsExist(drainTargetCredentials);
+                break;
+            case 'optional':
+                return true;
+                break;
+            case 'null':
+                return Drain.credentialsEmpty(drainTargetCredentials);
+                break;
+            default:
+                return false;
+        }
+    }
+};
+
+Drain.credentialsStatus = function(drainTargetType) {
+    for (var i = 0; i < Drain.types.length; i++) {
+        var type = Drain.types[i];
+        if (type.id === drainTargetType) {
+            return type.credentials ? type.credentials : 'null'; // returns mandatory, optional, null
+        }
+    }
+}
+
+Drain.drainTypeExists = function(drainTargetType) {
+    for (var i = 0; i < Drain.types.length; i++) {
+        if (Drain.types[i].id === drainTargetType) {
+            return true;
+        }
+    }
+};
+
+Drain.credentialsExist = function(drainTargetCredentials) {
+    return drainTargetCredentials.username != null && drainTargetCredentials.password != null;
+};
+
+Drain.credentialsEmpty = function(drainTargetCredentials) {
+    return drainTargetCredentials.username == null && drainTargetCredentials.password == null;
+}
+
+Drain.listDrainTypes = function() {
+    var typesIds = [];
+    for (var i = 0; i < Drain.types.length; i++) {
+        typesIds.push(Drain.types[i].id)
+    }
+    return autocomplete.words(typesIds);
 };
