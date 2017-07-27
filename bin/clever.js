@@ -86,6 +86,7 @@ var notifications = lazyRequire("../src/commands/notifications.js");
 var ssh = lazyRequiref("../src/commands/ssh.js");
 
 var Application = lr("../src/models/application.js");
+var Drain = lr("../src/models/drain.js");
 var Notification = lr("../src/models/notification.js");
 var Parsers = require("../src/parsers.js");
 
@@ -102,7 +103,7 @@ function run() {
   var addonNameArgument = cliparse.argument("addon-name", { description: "Addon name" });
   var addonProviderArgument = cliparse.argument("addon-provider", { description: "Addon provider" });
   var drainUrlArgument = cliparse.argument("drain-url", { description: "Drain URL" });
-  var drainTypeArgument = cliparse.argument("drain-type", { description: "Drain type", complete: function() {return cliparse.autocomplete.words(Drain("listDrainTypes")())} });
+  var drainTypeArgument = cliparse.argument("drain-type", { description: "Drain type", complete: Drain("listDrainTypes") });
   var drainIdArgument = cliparse.argument("drain-id", { description: "Drain ID" });
   var notificationNameArgument = cliparse.argument("name", { description: "Notification name" });
   var webhookUrlArgument = cliparse.argument("url", { description: "Webhook URL" });
@@ -607,12 +608,24 @@ function run() {
     args: [ drainIdArgument ],
     options: []
   }, drain("rm"));
+  var drainEnableCommand = cliparse.command("enable", {
+    description: "Enable a drain",
+    args: [ drainIdArgument ],
+    options: []
+  }, drain("enable"));
+  var drainDisableCommand = cliparse.command("disable", {
+    description: "Disable a drain",
+    args: [ drainIdArgument ],
+    options: []
+  }, drain("disable"));
   var drainCommands = cliparse.command("drain", {
     description: "Manage drains",
     options: [ aliasOption ],
     commands: [
       drainCreateCommand,
-      drainRemoveCommand
+      drainRemoveCommand,
+      drainEnableCommand,
+      drainDisableCommand
     ]
   }, drain("list"));
 

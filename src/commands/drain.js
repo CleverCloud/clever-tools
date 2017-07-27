@@ -18,7 +18,7 @@ var list = drain.list = function(api, params) {
 
   s_drain.onValue(function(drains) {
     _.map(drains, function(drain) {
-      Logger.println(drain.id + " for " + drain.target.url + " as " + drain.target.drainType)
+      Logger.println(drain.id + " -> " + drain.state + " for " + drain.target.url + " as " + drain.target.drainType)
     });
   });
 
@@ -59,6 +59,40 @@ var rm = drain.rm = function(api, params) {
 
   s_drain.onValue(function() {
     Logger.println("Your drain has been successfully removed");
+  });
+
+  s_drain.onError(Logger.error);
+};
+
+var enable = drain.enable = function(api, params) {
+  var drainId = params.args[0];
+  var alias = params.options.alias;
+
+  var s_appData = AppConfig.getAppData(alias);
+
+  var s_drain = s_appData.flatMap(function(appData) {
+    return Drain.enable(api, appData.app_id, drainId);
+  });
+
+  s_drain.onValue(function() {
+    Logger.println("Your drain has been enabled");
+  });
+
+  s_drain.onError(Logger.error);
+};
+
+var rdisable = drain.disable = function(api, params) {
+  var drainId = params.args[0];
+  var alias = params.options.alias;
+
+  var s_appData = AppConfig.getAppData(alias);
+
+  var s_drain = s_appData.flatMap(function(appData) {
+    return Drain.disable(api, appData.app_id, drainId);
+  });
+
+  s_drain.onValue(function() {
+    Logger.println("Your drain has been disabled");
   });
 
   s_drain.onError(Logger.error);
