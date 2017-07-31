@@ -103,6 +103,30 @@ clever status [--alias <alias>]
 clever scale [--alias <alias>] [--min-flavor <minflavor>] [--max-flavor <maxflavor>] [--min-instances <mininstances>] [--max-instances <maxinstances>]
 ```
 
+### Logs Drains
+
+```bash
+# create drain
+clever drain create [--alias <alias>] <DRAIN-TYPE> <DRAIN-URL> [--username <username>] [--password <password>]
+```
+
+```bash
+# list drains
+clever drain [--alias <alias>]
+```
+
+```bash
+# remove drain
+clever drain remove [--alias <alias>] <DRAIN-ID>
+```
+
+Where `DRAIN-TYPE` is one of:
+
+ - `TCPSyslog`: for TCP syslog endpoint ;
+ - `UDPSyslog`: for UDP syslog endpoint ;
+ - `HTTP`: for TCP syslog endpoint (note that this endpoint has optional username/password parameters as HTTP Basic Authentication);
+ - `ElasticSearch`: for ElasticSearch endpoint (note that this endpoint requires username/password parameters as HTTP Basic Authentication).
+
 ### Display help
 
 You can display help about each command with `clever help`.
