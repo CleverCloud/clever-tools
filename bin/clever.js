@@ -277,6 +277,10 @@ function run() {
     metavar: "secret",
     description: "Directly give an existing secret"
   });
+  var addonIdOption = cliparse.option("addon", {
+    metavar: "addon_id",
+    description: "Addon ID"
+  });
 
   // CREATE COMMAND
   var appCreateCommand = cliparse.command("create", {
@@ -400,7 +404,8 @@ function run() {
       beforeOption,
       afterOption,
       searchOption,
-      deploymentIdOption
+      deploymentIdOption,
+      addonIdOption,
     ]
   }, logs);
 
