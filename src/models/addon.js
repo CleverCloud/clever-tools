@@ -149,7 +149,7 @@ Addon.getByName = function(api, orgaId, addonName) {
 
   return s_addons.flatMapLatest(function(addons) {
     var filtered_addons = _.filter(addons, function(addon) {
-      return addon.name === addonName;
+      return addon.name === addonName || addon.realId === addonName;
     });
     if(filtered_addons.length === 1) {
       return Bacon.once(filtered_addons[0]);
