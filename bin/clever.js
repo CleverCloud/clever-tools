@@ -608,12 +608,24 @@ function run() {
     args: [ drainIdArgument ],
     options: []
   }, drain("rm"));
+  var drainEnableCommand = cliparse.command("enable", {
+    description: "Enable a drain",
+    args: [ drainIdArgument ],
+    options: []
+  }, drain("enable"));
+  var drainDisableCommand = cliparse.command("disable", {
+    description: "Disable a drain",
+    args: [ drainIdArgument ],
+    options: []
+  }, drain("disable"));
   var drainCommands = cliparse.command("drain", {
     description: "Manage drains",
     options: [ aliasOption ],
     commands: [
       drainCreateCommand,
-      drainRemoveCommand
+      drainRemoveCommand,
+      drainEnableCommand,
+      drainDisableCommand
     ]
   }, drain("list"));
 
