@@ -15,12 +15,16 @@ var appLogs = module.exports = function(api, params) {
   var after = params.options.after;
   const search = params.options.search;
   const deploymentId = params.options["deployment-id"];
+  const addonId = params.options["addon"];
 
-  var s_appData = AppConfig.getAppData(alias);
-
-  var s_logs = s_appData.flatMapLatest(function(app_data) {
-    return Log.getAppLogs(api, app_data.app_id, null, before, after, search, deploymentId);
-  });
+  let s_logs;
+  if (addonId) {
+    s_logs = Log.getAppLogs(api, addonId, null, before, after, search, deploymentId);
+  } else {
+    s_logs = AppConfig.getAppData(alias).flatMapLatest(function(app_data) {
+      return Log.getAppLogs(api, app_data.app_id, null, before, after, search, deploymentId);
+    });
+  }
 
   s_logs.onValue(Logger.println);
   s_logs.onError(Logger.error);

@@ -97,7 +97,6 @@ Log.getContinuousLogs = function(api, appId, before, after, search, deploymentId
 Log.getNewLogs = function(api, appId, before, after, search, deploymentId) {
   Logger.println("Waiting for application logs…");
   Logger.debug("Opening a websocket in order to fetch logs…");
-
   return Log.getContinuousLogs(api, appId, before, after, search, deploymentId);
 };
 
