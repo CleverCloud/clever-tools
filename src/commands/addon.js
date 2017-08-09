@@ -68,9 +68,9 @@ var create = addon.create = function(api, params) {
 
   s_result.onValue(function(r) {
     if(linkTo) {
-      Logger.println("Addon " + name + " (id:" + r.id + "|realId:" + r.realId +") successfully created and linked to the application");
+      Logger.println("Addon " + name + " (id:" + r.id +") successfully created and linked to the application");
     } else {
-      Logger.println("Addon " + name + " (id:" + r.id + "|realId:" + r.realId +") successfully created");
+      Logger.println("Addon " + name + " (id:" + r.id +") successfully created");
     }
   });
   s_result.onError(Logger.error);
