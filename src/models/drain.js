@@ -87,13 +87,13 @@ Drain.remove = function(api, appId, drainId) {
 
 Drain.enable = function(api, appId, drainId) {
     Logger.debug("Enable drain " + drainId + " for " + appId);
-    var s_res = makeJsonRequest(api, 'PUT', '/logs/' + appId + '/drains/' + drainId + '/state', {}, "ENABLED");
+    var s_res = makeJsonRequest(api, 'PUT', '/logs/' + appId + '/drains/' + drainId + '/state', {}, { 'state': 'ENABLED' });
     return s_res;
 }
 
 Drain.disable = function(api, appId, drainId) {
     Logger.debug("Disable drain " + drainId + " for " + appId);
-    var s_res = makeJsonRequest(api, 'PUT', '/logs/' + appId + '/drains/' + drainId + '/state', {}, "DISABLED");
+    var s_res = makeJsonRequest(api, 'PUT', '/logs/' + appId + '/drains/' + drainId + '/state', {}, { 'state': 'DISABLED' });
     return s_res;
 }
 
