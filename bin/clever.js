@@ -7,7 +7,9 @@ process.stdout.on('error', function(error) {
   }
 });
 
-require('update-notifier')({ pkg: require('../package.json') }).notify();
+if(process.pkg === undefined) {
+  require('update-notifier')({ pkg: require('../package.json') }).notify();
+}
 
 if(process.argv.indexOf("-v") >= 0 || process.argv.indexOf("--verbose") >= 0) {
   process.env["CLEVER_VERBOSE"] = "1";
