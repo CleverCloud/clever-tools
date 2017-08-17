@@ -11,6 +11,7 @@ Event.getEventsFromWS = function(url, authorization) {
   Logger.debug("Opening a websocket in order to fetch events…")
   return Bacon.fromBinder(function(sink) {
     var ws = new WebSocket(url);
+    var pingInterval;
 
     ws.on("open", function open() {
       Logger.debug("Websocket opened successfully.")
@@ -18,6 +19,9 @@ Event.getEventsFromWS = function(url, authorization) {
         message_type: "oauth",
         authorization: authorization
       }));
+      pingInterval = setInterval(() => {
+        ws.send('["ping"]');
+      }, 40000);
     });
 
     ws.on("message", function(data, flags) {
@@ -31,11 +35,13 @@ Event.getEventsFromWS = function(url, authorization) {
 
     ws.on("error", function() {
       Logger.debug("Websocket closed.");
+      clearInterval(pingInterval);
       sink(new Bacon.End());
     });
 
     ws.on("close", function() {
       Logger.debug("Websocket closed.");
+      clearInterval(pingInterval);
       sink(new Bacon.End());
     });
 

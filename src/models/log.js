@@ -12,6 +12,7 @@ var Log = module.exports;
 Log.getLogsFromWS = function(url, authorization) {
   return Bacon.fromBinder(function(sink) {
     var ws = new WebSocket(url);
+    var pingInterval;
 
     ws.on("open", function open() {
       Logger.debug("Websocket opened successfully.");
@@ -19,6 +20,9 @@ Log.getLogsFromWS = function(url, authorization) {
         message_type: "oauth",
         authorization: authorization
       }));
+      pingInterval = setInterval(() => {
+        ws.send('["ping"]');
+      }, 40000);
     });
 
     ws.on("message", function(data, flags) {
@@ -32,11 +36,13 @@ Log.getLogsFromWS = function(url, authorization) {
 
     ws.on("close", function() {
       Logger.debug("Websocket closed.");
+      clearInterval(pingInterval);
       sink(new Bacon.End());
     });
 
     ws.on("error", function() {
       Logger.debug("Websocket closed.");
+      clearInterval(pingInterval);
       sink(new Bacon.End());
     });
 
