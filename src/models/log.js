@@ -6,45 +6,9 @@ var colors = require("colors");
 
 var Logger = require("../logger.js");
 var conf = require("./configuration.js");
+var WsStream = require("./ws_stream.js");
 
 var Log = module.exports;
-
-Log.getLogsFromWS = function(url, authorization) {
-  return Bacon.fromBinder(function(sink) {
-    var ws = new WebSocket(url);
-
-    ws.on("open", function open() {
-      Logger.debug("Websocket opened successfully.");
-      ws.send(JSON.stringify({
-        message_type: "oauth",
-        authorization: authorization
-      }));
-    });
-
-    ws.on("message", function(data, flags) {
-      try {
-        sink(JSON.parse(data));
-      }
-      catch(e) {
-        sink(new Bacon.Error(e));
-      }
-    });
-
-    ws.on("close", function() {
-      Logger.debug("Websocket closed.");
-      sink(new Bacon.End());
-    });
-
-    ws.on("error", function() {
-      Logger.debug("Websocket closed.");
-      sink(new Bacon.End());
-    });
-
-    return function() {
-      ws.close();
-    };
-  });
-};
 
 Log.getWsLogUrl = function(appId, timestamp, search, deploymentId) {
   const baseUrl = _.template(conf.LOG_WS_URL)({appId, timestamp})
@@ -70,28 +34,21 @@ Log.getHttpLogUrl = _.partial(function(template, appId) {
  * deploymentId: Only display log lines corresponding to this deployment
  */
 Log.getContinuousLogs = function(api, appId, before, after, search, deploymentId){
-  var url = Log.getWsLogUrl(appId, after.toISOString(), search, deploymentId);
-  var s_WsLogs = Log.getLogsFromWS(url, api.session.getAuthorization('GET', conf.API_HOST + '/logs/' + appId, {}))
-  var s_logs = s_WsLogs.filter(function(line) {
+  const url = Log.getWsLogUrl(appId, after.toISOString(), search, deploymentId);
+  const makeUrl = (retryTimestamp) => {
+    const newAfter = retryTimestamp === null || after.getTime() > retryTimestamp.getTime() ? after : retryTimestamp;
+    return Log.getWsLogUrl(appId, newAfter.toISOString(), search, deploymentId);
+  };
+
+  const s_WsLogs = WsStream.openStream(makeUrl, api.session.getAuthorization('GET', conf.API_HOST + '/logs/' + appId, {}))
+  const s_logs = s_WsLogs.filter(function(line) {
     var lineDate = Date.parse(line._source["@timestamp"]);
     var isBefore = !before || lineDate < before.getTime();
     var isAfter = !after || lineDate > after.getTime();
     return isBefore && isAfter;
   });
 
-  var s_end = s_logs
-    .filter(false)
-    .mapEnd(new Date());
-
-  var s_interruption = s_end.flatMapLatest(function(endTimestamp){
-    Logger.warn("Websocket has been closed, reconnecting…");
-    var newAfter = after.getTime() > endTimestamp.getTime() ? after : endTimestamp;
-    return Bacon.later(1500, null).flatMapLatest(function() {
-      return Log.getContinuousLogs(api, appId, before, newAfter, search, deploymentId);
-    });
-  });
-
-  return Bacon.mergeAll(s_logs, s_interruption);
+  return s_logs;
 };
 
 Log.getNewLogs = function(api, appId, before, after, search, deploymentId) {
