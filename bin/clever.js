@@ -7,7 +7,9 @@ process.stdout.on('error', function(error) {
   }
 });
 
-require('update-notifier')({ pkg: require('../package.json') }).notify();
+if(process.pkg === undefined) {
+  require('update-notifier')({ pkg: require('../package.json') }).notify();
+}
 
 if(process.argv.indexOf("-v") >= 0 || process.argv.indexOf("--verbose") >= 0) {
   process.env["CLEVER_VERBOSE"] = "1";
@@ -744,7 +746,10 @@ function run() {
     ]
   });
 
-  cliparse.parse(cliParser);
+  // Make sure argv[0] is always "node"
+  const args = process.argv;
+  args[0] = "node";
+  cliparse.parse(cliParser, args);
 }
 var s_api = require("../src/models/api.js")();
 

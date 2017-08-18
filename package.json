@@ -54,5 +54,8 @@
   "bugs": {
     "url": "https://github.com/CleverCloud/clever-tools/issues"
   },
-  "homepage": "https://github.com/CleverCloud/clever-tools"
+  "homepage": "https://github.com/CleverCloud/clever-tools",
+  "pkg": {
+    "scripts": ["src/**/*.js"]
+  }
 }
