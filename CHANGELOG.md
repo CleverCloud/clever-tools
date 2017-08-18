@@ -1,3 +1,14 @@
+# 0.9.0
+
+ - Provide standalone version
+ - Fix premature exit in `clever deploy`
+ - Fix connection issues with websocket connections
+ - Display addonId upon addon creation (Philippe Charrière)
+ - Add `--addon` option to `clever logs` (Alexandre Duval)
+ - Logs drain management
+ - Allow internal addon ids in `clever addon`
+ - Fix autocompletion issue with flag names
+
 # 0.8.3
 
  - Unlink applications when deleting them (fixes #124)
