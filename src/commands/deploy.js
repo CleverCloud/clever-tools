@@ -100,7 +100,14 @@ var handleDeployment = function(api, s_appData, s_deploy, s_commitId, quiet) {
       Logger.println("Deployment started".bold.blue);
     });
 
-    const s_deploymentEnd = s_deploymentEvents.filter(e => e.event === 'DEPLOYMENT_ACTION_END').first();
+    // We ignore cancellation events triggered by a git push, are they are always
+    // generated even though a deployment is not in progress. Since we match events
+    // with commit id in a case of a git push, it makes the program stop before the
+    // actual deployment.
+    const s_deploymentEnd = s_deploymentEvents
+      .filter(e => e.event === 'DEPLOYMENT_ACTION_END')
+      .filter(e => deploymentId || (e.data.state !== 'CANCELLED' || e.data.cause !== 'Git'))
+      .first();
 
     s_deploymentEnd.onValue(function(e) {
       if(e.data.state === 'OK') {
