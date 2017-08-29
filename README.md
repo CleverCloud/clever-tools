@@ -60,7 +60,7 @@ Where `type` is one of:
  - `ruby`: for ruby applications
  - `rust`: for rust applications
  - `sbt`: for applications launched with SBT
- - `static`: for static (HTML only) websites
+ - `static-apache`: for static (HTML only) websites
  - `war`: for applications deployed as war files
 
 Where region is one of:

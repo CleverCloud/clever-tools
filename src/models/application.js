@@ -27,7 +27,7 @@ Application.listAvailableTypes = function() {
     "ruby",
     "rust",
     "sbt",
-    "static",
+    "static-apache",
     "war"
   ]);
 };
