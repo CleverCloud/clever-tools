@@ -91,9 +91,9 @@ Application.create = function(api, name, instanceType, region, orgaIdOrName, git
       "instanceType": instanceType.type,
       "instanceVersion": instanceType.version,
       "instanceVariant": instanceType.variant.id,
-      "maxFlavor": "S",
+      "maxFlavor": instanceType.defaultFlavor.name,
       "maxInstances": 1,
-      "minFlavor": "S",
+      "minFlavor": instanceType.defaultFlavor.name,
       "minInstances": 1,
       "name": name,
       "zone": region
