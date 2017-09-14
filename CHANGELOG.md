@@ -1,3 +1,8 @@
+# 0.9.1
+
+ - Fix app creation for java variants (jar, war, …)
+ - Use app type default flavor instead of hardcoded "S"
+
 # 0.9.0
 
  - Provide standalone version
