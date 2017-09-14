@@ -73,12 +73,10 @@ Application.getInstanceType = function(api, type) {
   var s_types = api.products.instances.get().send();
 
   return s_types.flatMapLatest(function(types) {
-    var matchingTypes = _.filter(types, function(instanceType) {
-      return instanceType.type == type || (instanceType.variant && instanceType.variant.slug == type);
-    });
-
-    var instanceType = _.sortBy(matchingTypes, "version").reverse()[0];
-    return instanceType ? Bacon.once(instanceType) : new Bacon.Error(type + " type does not exist.");
+    var enabledTypes = _.filter(types, t => t.enabled);
+    var matchingVariants = _.filter(enabledTypes, t => t.variant && t.variant.slug === type);
+    var instanceVariant = _.sortBy(matchingVariants, "version").reverse()[0];
+    return instanceVariant ? Bacon.once(instanceVariant) : new Bacon.Error(type + " type does not exist.");
   });
 };
 
@@ -92,6 +90,7 @@ Application.create = function(api, name, instanceType, region, orgaIdOrName, git
       "description": name,
       "instanceType": instanceType.type,
       "instanceVersion": instanceType.version,
+      "instanceVariant": instanceType.variant.id,
       "maxFlavor": "S",
       "maxInstances": 1,
       "minFlavor": "S",
