@@ -5,8 +5,8 @@ var Bacon = require("baconjs");
 var expect = require('chai').expect;
 
 var instanceTypes = require("./application.instance-types.js");
-var instanceTypeSlugNames = _.map(instanceTypes, function(instanceType) {
-  return instanceType.type;
+var instanceTypeSlugNames = _.map(_.filter(instanceTypes, t => t.enabled), function(instanceType) {
+  return instanceType.variant.slug;
 });
 
 function fakeApi() {
