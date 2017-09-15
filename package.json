@@ -1,6 +1,6 @@
 {
   "name": "clever-tools",
-  "version": "0.9.2",
+  "version": "0.9.3",
   "description": "CLI tool to manage Clever Cloud applications",
   "main": "bin/clever.js",
   "keywords": [
