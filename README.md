@@ -17,6 +17,14 @@ npm install -g clever-tools
 install-clever-completion
 ```
 
+### Mac OSX
+
+On Mac OSX just install it with Homebrew
+
+```
+brew install CleverCloud/tap/clever-tools
+```
+
 ## How to use
 
 ### Login
