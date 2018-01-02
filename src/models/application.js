@@ -1,5 +1,6 @@
 var _ = require("lodash");
 var Bacon = require("baconjs");
+var unidecode = require("unidecode");
 var autocomplete = require("cliparse").autocomplete;
 var Promise = require("bluebird");
 
@@ -302,3 +303,7 @@ Application.unlink = function(api, appId, orgaId, appIdOrName) {
     return api.owner(orgaId).applications._.dependencies._.delete().withParams(params).send();
   });
 };
+
+Application.slugify = function(srt) {
+  return _.kebabCase(unidecode(srt))
+}

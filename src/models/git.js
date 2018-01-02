@@ -6,6 +6,7 @@ var Bacon = require("baconjs");
 var nodegit = require("nodegit");
 var autocomplete = require("cliparse").autocomplete;
 var Promise = require("bluebird");
+var slugify = require("./application").slugify
 
 var Logger = require("../logger.js");
 
@@ -96,26 +97,28 @@ module.exports = function(repositoryPath) {
     // Replace git+ssh:// by ssh://, otherwise we get a "Malformed URL" error by nodegit
     var url = remoteUrl.replace(/^git\+/, "");
 
-    var s_existingRemote = Git.getRemote(name);
+    var safeName = slugify(name)
+
+    var s_existingRemote = Git.getRemote(safeName);
 
     var s_existingValidRemote = s_existingRemote.skipErrors().flatMapLatest(function(remote) {
-      Logger.debug("Check that the current \"" + name + "\" remote point to the right URL…");
-      return remote.url() == url ? Bacon.once(remote) : new Bacon.Error("The \"" + name + "\" remote already exist and does not point to " + url);
+      Logger.debug("Check that the current \"" + safeName + "\" remote point to the right URL…");
+      return remote.url() == url ? Bacon.once(remote) : new Bacon.Error("The \"" + safeName + "\" remote already exist and does not point to " + url);
     });
 
     // Create a remote only if it does not already exist
     var s_newRemote = s_existingRemote.errors().flatMapError(function() {
-      Logger.debug("Create a \"" + name + "\" remote pointing to " + url);
+      Logger.debug("Create a \"" + safeName + "\" remote pointing to " + url);
       return Git.getRepository().flatMapLatest(function(repository) {
-        Logger.debug("Created remote " + name);
-        return Bacon.fromPromise(nodegit.Remote.create(repository, name, url));
+        Logger.debug("Created remote " + safeName);
+        return Bacon.fromPromise(nodegit.Remote.create(repository, safeName, url));
       }).flatMapLatest(function(){
-        return Git.getRemote(name);
+        return Git.getRemote(safeName);
       });
     });
 
     var s_newAnonRemote = s_existingValidRemote.errors().flatMapError(() => {
-      Logger.warn(`The current ${name} does not point to the right URL, using a temporary one`);
+      Logger.warn(`The current ${safeName} does not point to the right URL, using a temporary one`);
       return Git.getRepository().flatMapLatest(repo => {
         return Bacon.fromPromise(nodegit.Remote.createAnonymous(repo, url));
       });
