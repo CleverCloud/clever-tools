@@ -60,12 +60,19 @@ var list = env.list = function(api, params) {
     return Env.listFromAddons(api, appData.app_id, appData.org_id);
   });
 
+  var s_env_from_deps = s_appData.flatMap(function(appData) {
+    return Env.listFromDependencies(api, appData.app_id, appData.org_id);
+  });
+
   var s_fullEnv = s_env.flatMapLatest(function(env) {
     return s_env_from_addons.flatMapLatest(function(env_from_addons) {
-      return {
-        manual: env,
-        addons: env_from_addons
-      };
+      return s_env_from_deps.flatMapLatest(function(env_from_deps) {
+        return {
+          manual: env,
+          addons: env_from_addons,
+          deps: env_from_deps,
+        };
+      });
     });
   });
 
@@ -76,6 +83,11 @@ var list = env.list = function(api, params) {
     _.each(envs.addons, function(addon) {
       Logger.println("# Addon " + addon.addon_name);
       renderEnvVariables(addon.env, addExport);
+    });
+
+    _.each(envs.deps, function(dep) {
+      Logger.println("# Dependency " + dep.app_name);
+      renderEnvVariables(dep.env, addExport);
     });
   });
 
