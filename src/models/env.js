@@ -19,6 +19,12 @@ Env.listFromAddons = function(api, appId, orgaId) {
   return api.owner(orgaId).applications._.addons.env.get().withParams(params).send();
 };
 
+Env.listFromDependencies = function(api, appId, orgaId) {
+  var params = orgaId ? [orgaId, appId] : [appId];
+
+  return api.owner(orgaId).applications._.dependencies.env.get().withParams(params).send();
+};
+
 Env.set = function(api, name, value, appId, orgaId) {
   var params = orgaId ? [orgaId, appId, name] : [appId, name];
 
