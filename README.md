@@ -9,7 +9,7 @@ Command Line Interface for Clever Cloud.
 
 ```
 # openssl-dev is needed
-apt-get install openssl-dev# on apt systems
+apt-get install libssl-dev # on apt systems
 
 npm install -g clever-tools
 
