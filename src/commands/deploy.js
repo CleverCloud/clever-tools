@@ -55,26 +55,31 @@ deploy.deploy = function(api, params) {
 };
 
 deploy.restart = function(api, params) {
-  var alias = params.options.alias;
-  var quiet = params.options.quiet;
-  var commitId = params.options.commit;
-  var withoutCache = params.options["without-cache"];
+  const { alias, quiet, commit, 'without-cache': withoutCache } = params.options
 
-  var s_appData = AppConfig.getAppData(alias).toProperty();
-  var s_commitId = s_appData.flatMapLatest(function(app_data) {
-    return Application.get(api, app_data.app_id, app_data.app_orga);
-  }).flatMapLatest(function(app) {
-    return app.commitId;
-  });
+  const s_fullCommitId = (commitId == null) ?
+    Bacon.constant(null) :
+    Git.resolveFullCommitId(commit).flatMapError((e) => {
+      return new Bacon.Error(`Commit id ${commit} is ambiguous`);
+    });
 
-  var s_deploy = s_appData.flatMapLatest(function(app_data) {
-    var suffix = "";
-    if(commitId) suffix += " on commit #" + commitId;
-    if(withoutCache) suffix += " without using cache";
+  const s_appData = AppConfig.getAppData(alias).toProperty();
+  const s_commitId = s_appData
+    .flatMapLatest(({ app_id, app_orga }) => Application.get(api, app_id, app_orga))
+    .flatMapLatest(({ commitId }) => commitId);
 
-    Logger.println("Restarting " + app_data.name + suffix);
-    return Application.redeploy(api, app_data.app_id, app_data.org_id, commitId, withoutCache);
-  }).toProperty();
+  const s_deploy = Bacon
+    .combineAsArray(s_appData, s_fullCommitId)
+    .flatMapLatest(([appData, fullCommitId]) => {
+      let suffix = "";
+      if(fullCommitId) suffix += " on commit #" + fullCommitId;
+      if(withoutCache) suffix += " without using cache";
+
+      Logger.println("Restarting " + appData.name + suffix);
+
+      return Application.redeploy(api, appData.app_id, appData.org_id, fullCommitId, withoutCache);
+    })
+    .toProperty();
 
   handleDeployment(api, s_appData, s_deploy, s_commitId, quiet);
 };

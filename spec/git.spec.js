@@ -97,6 +97,15 @@ describe("git", function() {
     });
   });
 
+  it("should be able to lookup a full commit id", function(done) {
+    git.resolveFullCommitId('e9e2').subscribe(function(event) {
+      expect(event.hasValue()).to.equal(true);
+      expect(event.value()).to.equal('e9e2437e73d8f10985ef8c5fd869ba9988019d80');
+      done();
+      return Bacon.noMore;
+    });
+  });
+
   it.skip("should push to the origin remote", function(done) {
     var s_push = git.getRemote("origin").flatMapLatest(function(remote) {
       return git.push(remote, "master", Bacon.once("0000000000000000000000000000000000000000"), false);
