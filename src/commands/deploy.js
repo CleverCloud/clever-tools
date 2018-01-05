@@ -18,28 +18,25 @@ var timeout = 5 * 60 * 1000;
 var deploy = module.exports;
 
 deploy.deploy = function(api, params) {
-  var alias = params.options.alias;
-  var branch = params.options.branch;
-  var quiet = params.options.quiet;
-  var force = params.options.force;
+  const { alias, branch, commit, quiet, force } = params.options;
 
-  var s_appData = AppConfig.getAppData(alias).toProperty();
-  var s_commitId = Git.getCommitId(branch).toProperty();
+  const s_appData = AppConfig.getAppData(alias).toProperty();
+  const s_commitId = Git.getCommitId(branch).toProperty();
 
-  var s_remote = s_appData.flatMapLatest(function(app_data) {
-    return Git.createRemote(app_data.alias, app_data.deploy_url).toProperty();
+  const s_remote = s_appData.flatMapLatest(({ alias, deploy_url }) => {
+    return Git.createRemote(alias, deploy_url).toProperty();
   }).toProperty();
 
-  var s_fetch = s_remote.flatMapLatest(function(remote) {
+  const s_fetch = s_remote.flatMapLatest((remote) => {
     return Git.keepFetching(timeout, remote);
   }).toProperty();
 
-  var s_push = s_fetch.flatMapLatest(function(remote) {
+  const s_push = s_fetch.flatMapLatest((remote) => {
     Logger.println("Pushing source code to Clever Cloud.");
     return Git.push(remote, branch, s_commitId, force);
   }).toProperty();
 
-  var s_deploy = s_push.flatMapError(function(error) {
+  const s_deploy = s_push.flatMapError((error) => {
     if(error.message && error.message.trim() === "error authenticating:"){
       return new Bacon.Error(error.message.trim() + " Did you add your ssh key ?");
     } else {
