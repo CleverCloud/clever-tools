@@ -57,7 +57,7 @@ deploy.deploy = function(api, params) {
 deploy.restart = function(api, params) {
   const { alias, quiet, commit, 'without-cache': withoutCache } = params.options
 
-  const s_fullCommitId = (commitId == null) ?
+  const s_fullCommitId = (commit == null) ?
     Bacon.constant(null) :
     Git.resolveFullCommitId(commit).flatMapError((e) => {
       return new Bacon.Error(`Commit id ${commit} is ambiguous`);
@@ -69,10 +69,9 @@ deploy.restart = function(api, params) {
     .flatMapLatest(({ commitId }) => commitId);
 
   const s_deploy = Bacon
-    .combineAsArray(s_appData, s_fullCommitId)
-    .flatMapLatest(([appData, fullCommitId]) => {
-      let suffix = "";
-      if(fullCommitId) suffix += " on commit #" + fullCommitId;
+    .combineAsArray(s_appData, s_fullCommitId, s_commitId)
+    .flatMapLatest(([appData, fullCommitId, remoteCommitId]) => {
+      let suffix = " on commit #" + (fullCommitId || remoteCommitId);
       if(withoutCache) suffix += " without using cache";
 
       Logger.println("Restarting " + appData.name + suffix);
