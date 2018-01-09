@@ -7,10 +7,13 @@ var AppConfiguration = require("./app_configuration.js");
 
 var User = module.exports;
 
+User.getCurrent = function(api) {
+  return api.self.get().send();
+};
+
 User.getCurrentId = function(api) {
   return api.self.get().send().map(function(self) {
     return self.id;
   });
-
 };
 

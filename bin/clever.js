@@ -86,6 +86,7 @@ var open = lazyRequiref("../src/commands/open.js");
 var makeDefault = lazyRequiref("../src/commands/makeDefault.js");
 var notifications = lazyRequire("../src/commands/notifications.js");
 var ssh = lazyRequiref("../src/commands/ssh.js");
+var profile = lazyRequiref("../src/commands/profile.js");
 
 var Application = lr("../src/models/application.js");
 var Drain = lr("../src/models/drain.js");
@@ -711,6 +712,12 @@ function run() {
     args: []
   }, ssh);
 
+  // PROFILE COMMAND
+  var profileCommand = cliparse.command("profile", {
+    description: "Display the profile of the current user",
+    args: []
+  }, profile);
+
   // CLI PARSER
   var cliParser = cliparse.cli({
     name: "clever",
@@ -742,7 +749,8 @@ function run() {
       openCommand,
       webhooksCommand,
       emailNotificationsCommand,
-      sshCommand
+      sshCommand,
+      profileCommand
     ]
   });
 
