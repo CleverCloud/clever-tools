@@ -284,6 +284,11 @@ function run() {
     metavar: "addon_id",
     description: "Addon ID"
   });
+  var sshIdentityFileOption = cliparse.option("identity-file", {
+    aliases: ["i"],
+    metavar: "identity-file",
+    description: "SSH Identity file",
+  });
 
   // CREATE COMMAND
   var appCreateCommand = cliparse.command("create", {
@@ -708,7 +713,7 @@ function run() {
   //SSH COMMAND
   var sshCommand = cliparse.command("ssh", {
     description: "Connect to running instances through SSH",
-    options: [ aliasOption ],
+    options: [ aliasOption, sshIdentityFileOption ],
     args: []
   }, ssh);
 
