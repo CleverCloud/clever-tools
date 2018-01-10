@@ -29,7 +29,7 @@ var create = module.exports = function(api, params) {
       return Application.create(api, name, type, region, orgaIdOrName, github);
     })
     .flatMapLatest(function(app) {
-      return Application.linkRepo(api, { app_id: app.id }, null, alias);
+      return Application.linkRepo(api, { app_id: app.id }, null, alias, true);
     });
 
   s_app.onValue(function(app) {

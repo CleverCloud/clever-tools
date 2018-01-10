@@ -172,7 +172,7 @@ Application.getInstances = function(api, appId, orgaId) {
   return api.owner(orgaId).applications._.instances.get().withParams(params).send();
 };
 
-Application.linkRepo = function(api, appIdOrName, orgaIdOrName, alias) {
+Application.linkRepo = function(api, appIdOrName, orgaIdOrName, alias, ignoreParentConfig) {
   Logger.debug("Linking current repository to the app: " + (appIdOrName.app_id || appIdOrName.app_name));
 
   var s_app;
@@ -184,7 +184,7 @@ Application.linkRepo = function(api, appIdOrName, orgaIdOrName, alias) {
   }
 
   return s_app.flatMapLatest(function(appData) {
-    return AppConfiguration.addLinkedApplication(appData, alias);
+    return AppConfiguration.addLinkedApplication(appData, alias, ignoreParentConfig);
   });
 };
 
