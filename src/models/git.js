@@ -6,7 +6,7 @@ var Bacon = require("baconjs");
 var nodegit = require("nodegit");
 var autocomplete = require("cliparse").autocomplete;
 var Promise = require("bluebird");
-var slugify = require("./application").slugify
+var slugify = require("./app_configuration").slugify;
 
 var Logger = require("../logger.js");
 

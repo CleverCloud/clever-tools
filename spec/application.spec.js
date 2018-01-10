@@ -93,12 +93,4 @@ describe("application", function() {
       return Bacon.noMore;
     });
   });
-
-  it("should slugify strings (with transliteration)", function () {
-    expect(app.slugify("Foo   BAR_baz")).to.equal("foo-bar-baz");
-    expect(app.slugify("[Hello] (World)!")).to.equal("hello-world");
-    expect(app.slugify("éàèçœ")).to.equal("eaecoe");
-    expect(app.slugify("ありがとう")).to.equal("arigatou");
-    expect(app.slugify("привет")).to.equal("priviet");
-  })
 });
