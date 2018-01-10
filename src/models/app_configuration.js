@@ -10,8 +10,8 @@ var Logger = require("../logger.js");
 
 var AppConfiguration = module.exports = {};
 
-AppConfiguration.loadApplicationConf = function(pathToFolder) {
-  if(typeof pathToFolder == "undefined") {
+AppConfiguration.loadApplicationConf = function(ignoreParentConfig = false, pathToFolder) {
+  if(typeof pathToFolder === "undefined") {
     pathToFolder = path.dirname(Config.APP_CONFIGURATION_FILE);
   }
   var fileName = path.basename(Config.APP_CONFIGURATION_FILE);
@@ -28,16 +28,16 @@ AppConfiguration.loadApplicationConf = function(pathToFolder) {
 
   return s_appData.flatMapError(function(error) {
     Logger.info("Cannot load app configuration from " + Config.APP_CONFIGURATION_FILE + " (" + error + ")");
-    if(path.parse(pathToFolder).root == pathToFolder) {
+    if(ignoreParentConfig || path.parse(pathToFolder).root === pathToFolder) {
       return { apps: [] };
     } else {
-      return AppConfiguration.loadApplicationConf(path.normalize(path.join(pathToFolder, "..")));
+      return AppConfiguration.loadApplicationConf(ignoreParentConfig, path.normalize(path.join(pathToFolder, "..")));
     }
   });
 };
 
-AppConfiguration.addLinkedApplication = function(appData, alias) {
-  var currentConfig = AppConfiguration.loadApplicationConf();
+AppConfiguration.addLinkedApplication = function(appData, alias, ignoreParentConfig) {
+  var currentConfig = AppConfiguration.loadApplicationConf(ignoreParentConfig);
   var appEntry = {
     app_id: appData.id,
     deploy_url: appData.deployment.httpUrl || appData.deployment.url,
