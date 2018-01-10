@@ -196,26 +196,25 @@ module.exports = function(repositoryPath) {
   Git.push = function(remote, branch, s_commitId, force) {
     Logger.debug("Prepare the push…");
 
-    var forcePush = force ? '+' : '';
-    var s_current_branch = Git.getCurrentBranch();
-    var s_branch = branch == "" ? s_current_branch : Git.getBranch(branch);
+    const forcePush = force ? '+' : '';
+    const s_current_branch = Git.getCurrentBranch();
+    const s_branch = branch == "" ? s_current_branch : Git.getBranch(branch);
+    const s_remoteCommitId = Git.getRemoteCommitId(Git.getRemoteName(remote));
 
-    return s_branch.flatMapLatest(function(branch) {
-      return s_commitId.flatMapLatest(function(commitIdToPush) {
-        return Git.getRemoteCommitId(Git.getRemoteName(remote)).flatMapLatest(function(remoteCommitId) {
-          if(remoteCommitId != commitIdToPush) {
-            Logger.debug("Preparing the push");
-            return conf.loadOAuthConf().flatMapLatest(function(tokens) {
-              return Bacon.fromPromise(
-                remote.push([forcePush + branch + ":refs/heads/master"], Git.pushOptions(tokens.token, tokens.secret))
-              );
-            });
-          } else {
-            return new Bacon.Error("The clever-cloud application is up-to-date. Try `clever restart` to restart the application");
-          }
+    return Bacon
+      .combineAsArray(s_branch, s_commitId, s_remoteCommitId)
+      .flatMapLatest(([branch, commitIdToPush, remoteCommitId]) => {
+        if (commitIdToPush === remoteCommitId) {
+          return new Bacon.Error('The clever-cloud application is up-to-date. Try `clever restart` to restart the application')
+        }
+        Logger.debug('Preparing the push');
+        return conf.loadOAuthConf().flatMapLatest(({ token, secret }) => {
+          // /!\ We're always using a branch based refspec because libgit/nodegit does NOT support direct commit refspec for push
+          // https://github.com/libgit2/libgit2/issues/3178
+          const refspec = `${forcePush}${branch}:refs/heads/master`;
+          return Bacon.fromPromise(remote.push([refspec], Git.pushOptions(token, secret)))
         });
       });
-    });
   };
 
   return Git;
