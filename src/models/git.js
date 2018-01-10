@@ -184,6 +184,15 @@ module.exports = function(repositoryPath) {
     });
   };
 
+  Git.resolveFullCommitId = function(commitId) {
+    return Git.getRepository().flatMapLatest((repo) => {
+      const oid = nodegit.Oid.fromString(commitId);
+      return Bacon
+        .fromPromise(nodegit.Commit.lookupPrefix(repo, oid, commitId.length))
+        .map((commit) => commit.id().toString());
+    });
+  };
+
   Git.push = function(remote, branch, s_commitId, force) {
     Logger.debug("Prepare the push…");
 
