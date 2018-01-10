@@ -3,10 +3,10 @@ var path = require("path");
 
 var _ = require("lodash");
 var Bacon = require("baconjs");
+var unidecode = require("unidecode");
 
 var Config = require("./configuration.js");
 var Logger = require("../logger.js");
-var slugify = require("./application").slugify
 
 var AppConfiguration = module.exports = {};
 
@@ -42,7 +42,7 @@ AppConfiguration.addLinkedApplication = function(appData, alias) {
     app_id: appData.id,
     deploy_url: appData.deployment.httpUrl || appData.deployment.url,
     name: appData.name,
-    alias: alias || slugify(appData.name)
+    alias: alias || AppConfiguration.slugify(appData.name)
   };
 
   if(appData.ownerId.substr(0,5) === "orga_") appEntry.org_id = appData.ownerId;
@@ -124,3 +124,7 @@ AppConfiguration.setDefault = function(alias) {
 
   return s_newConfig.flatMapLatest(AppConfiguration.persistConfig);
 }
+
+AppConfiguration.slugify = function(srt) {
+  return _.kebabCase(unidecode(srt));
+};
