@@ -17,7 +17,7 @@ Download <https://clever-tools.cellar.services.clever-cloud.com/releases/latest/
 ```sh
 curl -O https://clever-tools.cellar.services.clever-cloud.com/releases/latest/clever-tools-latest_linux.tar.gz
 tar zxf clever-tools-latest_linux.tar.gz
-cp linux/{clever,nodegit.node} ~/.local/bin
+cp {clever,nodegit.node} ~/.local/bin/
 ```
 
 ### Mac OSX
