@@ -7,14 +7,18 @@ Command Line Interface for Clever Cloud.
 
 ## Installation
 
-```
-# openssl-dev is needed
-apt-get install libssl-dev # on apt systems
+*Installation through `npm` is not supported, please use the packaged versions*
 
-npm install -g clever-tools
+Please refer to <https://www.clever-cloud.com/doc/clever-tools/getting_started/> for the installation details.
 
-# Install completion scripts
-install-clever-completion
+### Linux
+
+Download <https://clever-tools.cellar.services.clever-cloud.com/releases/latest/clever-tools-latest_linux.tar.gz> and extract the archive somewhere in `$PATH` (`~/.local/bin` is a good choice).
+
+```sh
+curl -O https://clever-tools.cellar.services.clever-cloud.com/releases/latest/clever-tools-latest_linux.tar.gz
+tar zxf clever-tools-latest_linux.tar.gz
+cp linux/{clever,nodegit.node} ~/.local/bin
 ```
 
 ### Mac OSX
@@ -23,6 +27,16 @@ On Mac OSX just install it with Homebrew
 
 ```
 brew install CleverCloud/tap/clever-tools
+```
+
+### Windows
+
+Download <https://clever-tools.cellar.services.clever-cloud.com/releases/latest/clever-tools-latest_windows.zip> and extract the archive where you want.
+
+Alternatively, you can use [chocolatey](https://chocolatey.org) to install clever-tools:
+
+```sh
+choco install clever-tools
 ```
 
 ## How to use
