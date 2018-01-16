@@ -77,6 +77,9 @@ async function buildRelease (arch) {
   await fs.appendFile(`${buildDir}/sha.properties`, `SHA256_${arch}=${sum}\n`)
 
   if (cleverToolsVersion !== 'master') {
+    if (!process.env.S3_KEY_ID || !process.env.S3_SECRET_KEY) {
+      throw new Error('Could not read S3 access/secret keys!')
+    }
     await Promise.all([
       uploadFile(`${archivePath}`),
       uploadFile(`${archivePath}.sha256`),
@@ -94,4 +97,7 @@ Promise.resolve()
   .then(() => buildRelease('linux'))
   .then(() => buildRelease('macos'))
   .then(() => buildRelease('win'))
-  .catch(console.error)
+  .catch((e) => {
+    console.error(e)
+    process.exit(1)
+  })
