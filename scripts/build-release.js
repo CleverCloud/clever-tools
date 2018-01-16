@@ -39,11 +39,11 @@ async function checksum (file) {
   })
 }
 
-function uploadFile (filepath) {
+function uploadFile (filepath, remoteFilepath = filepath) {
   return fs.readFile(filepath).then((Body) => {
-    console.log(`Uploading file ${filepath}`)
+    console.log(`Uploading file ${filepath} to ${remoteFilepath}`)
     return new Promise((resolve, reject) => {
-      const params = { ACL: 'public-read', Body, Bucket: s3Bucket, Key: filepath }
+      const params = { ACL: 'public-read', Body, Bucket: s3Bucket, Key: remoteFilepath }
       return s3.putObject(params, (err) => err ? reject(err) : resolve())
     })
   })
@@ -57,6 +57,7 @@ async function buildRelease (arch) {
   const archiveExt = (arch === 'win') ? '.zip' : '.tar.gz'
   const buildDir = `${releasesDir}/${cleverToolsVersion}`
   const archivePath = `${buildDir}/clever-tools-${cleverToolsVersion}_${arch}${archiveExt}`
+  const latestArchivePath = `${releasesDir}/latest/clever-tools-latest_${arch}${archiveExt}`
 
   await Promise.all([
     pkg([`.`, `-t`, `node${nodeVersion}-${arch}`, `-o`, `${buildDir}/${arch}/${cleverTools}`]),
@@ -74,7 +75,7 @@ async function buildRelease (arch) {
 
   const sum = await checksum(`${archivePath}`)
   await fs.outputFile(`${archivePath}.sha256`, sum)
-  await fs.appendFile(`${buildDir}/sha.properties`, `SHA256_${arch}=${sum}\n`)
+  await fs.appendFile(`${releasesDir}/sha.properties`, `SHA256_${arch}=${sum}\n`)
 
   if (cleverToolsVersion !== 'master') {
     if (!process.env.S3_KEY_ID || !process.env.S3_SECRET_KEY) {
@@ -83,6 +84,8 @@ async function buildRelease (arch) {
     await Promise.all([
       uploadFile(`${archivePath}`),
       uploadFile(`${archivePath}.sha256`),
+      uploadFile(`${archivePath}`, `${latestArchivePath}`),
+      uploadFile(`${archivePath}.sha256`, `${latestArchivePath}.sha256`),
     ])
   }
 
