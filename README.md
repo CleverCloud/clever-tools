@@ -30,7 +30,7 @@ brew install CleverCloud/tap/clever-tools
 
 ### Windows
 
-Download <https://clever-tools.cellar.services.clever-cloud.com/releases/latest/clever-tools-latest_windows.zip> and extract the archive where you want.
+Download <https://clever-tools.cellar.services.clever-cloud.com/releases/latest/clever-tools-latest_win.zip> and extract the archive where you want.
 
 Alternatively, you can use [chocolatey](https://chocolatey.org) to install clever-tools:
 

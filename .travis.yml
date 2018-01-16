@@ -1,16 +1,10 @@
 language: node_js
 node_js:
-  - "6.12"
-  - "7.10"
-  - "8.9"
-  - "9.3"
+  - "8.3.0"
 sudo: false
-env:
-  - CC=gcc-6 CXX=g++-6
 addons:
   apt:
     sources:
-    - ubuntu-toolchain-r-test
+      - ubuntu-toolchain-r-test
     packages:
-    - gcc-6
-    - g++-6
+      - libstdc++-4.9-dev
