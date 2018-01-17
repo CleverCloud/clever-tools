@@ -1,3 +1,21 @@
+# 0.10.1
+
+ - Add `clever env` to display app dependencies environment variables (fixes #165)
+ - Add `clever profile` to display infos about current logged in user (name, email 2FA) (fixes #161)
+ - Add `-i` option to `clever ssh` to provide identify file (fixes #164)
+ - Show commit about to be redeployed (fixes #145)
+ - Ignore parent ".clever.json" with `clever create` (fixes #179)
+ - Normalize (slugify) alias and git remote names (fixes #166)
+ - Fix logger and console (fixes #134)
+ - Update to latest nodegit (and fix node version to 8.3.0)
+ - Fix libss/openssl install docs (Adrien Duclos)
+ - Add MacOS installation docs (Antonio Goncalves)
+
+# 0.9.2
+
+ - Ignore disabled variants and only match on variants
+ - Use the variant's default flavor when creating an app
+
 # 0.9.1
 
  - Fix app creation for java variants (jar, war, …)
