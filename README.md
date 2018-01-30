@@ -6,37 +6,68 @@ Command Line Interface for Clever Cloud.
 
 ## Installation
 
-*Installation through `npm` is not supported, please use the packaged versions*
+⚠️ *We no longer support the usage and installation of Clever Tools via a global npm install.*
+
+Please follow the installation instructions for your platform (see below) and make sure to uninstall the npm version with this:
+
+    npm uninstall -g clever-tools
 
 Please refer to <https://www.clever-cloud.com/doc/clever-tools/getting_started/> for the installation details.
 
-### Linux
+### MacOS
 
-Download <https://clever-tools.cellar.services.clever-cloud.com/releases/latest/clever-tools-latest_linux.tar.gz> and extract the archive somewhere in `$PATH` (`~/.local/bin` is a good choice).
+Clever Tools is packaged using [homebrew](https://brew.sh):
 
-```sh
-curl -O https://clever-tools.cellar.services.clever-cloud.com/releases/latest/clever-tools-latest_linux.tar.gz
-tar zxf clever-tools-latest_linux.tar.gz
-cp {clever,nodegit.node} ~/.local/bin/
-```
+    brew install CleverCloud/tap/clever-tools
 
-### Mac OSX
+If you don't want to use `brew`, a pre-compiled version is available: [clever-tools-latest_macos.tar.gz](https://clever-tools.cellar.services.clever-cloud.com/releases/latest/clever-tools-latest_macos.tar.gz).
+You need to put both files (`clever` and `nodegit.node`) in your `PATH` to use the application.
 
-On Mac OSX just install it with Homebrew
+#### Autocompletion
 
-```sh
-brew install CleverCloud/tap/clever-tools
-```
+Clever Tools comes with a comprehensive auto-completion system. The brew package installs it automatically (for `bash` and `zsh`). Make sure `bash-completions` or `zsh-completions` are properly set up.
+
+    # In ~/.bash_profile
+    . /usr/local/etc/bash_completion
+
+    # In ~/.zshrc
+    fpath=(/usr/local/share/zsh-completions $fpath)
 
 ### Windows
 
-Download <https://clever-tools.cellar.services.clever-cloud.com/releases/latest/clever-tools-latest_win.zip> and extract the archive where you want.
+Clever Tools is packaged using [chocolatey](https://chocolatey.org):
 
-Alternatively, you can use [chocolatey](https://chocolatey.org) to install clever-tools:
+    choco install clever-tools
 
-```sh
-choco install clever-tools
-```
+If you don't want to use `chocolatey`, a pre-compiled version is available: [clever-tools-latest_win.zip](https://clever-tools.cellar.services.clever-cloud.com/releases/latest/clever-tools-latest_win.zip).
+You need to add both files (`clever.exe` and `nodegit.node`) to your `PATH` to use the application.
+
+### GNU/Linux
+
+#### Archlinux
+
+The package is available on the AUR: [clever-tools-bin](https://aur.archlinux.org/packages/clever-tools-bin/)
+
+#### Other distributions
+
+A pre-compiled version is available: [clever-tools-latest_linux.tar.gz](https://clever-tools.cellar.services.clever-cloud.com/releases/latest/clever-tools-latest_linux.tar.gz).
+You need to add both files (`clever` and `nodegit.node`) to your `PATH`
+(you can put them in `~/.local/bin` for instance)
+to use the application.
+
+    curl -O https://clever-tools.cellar.services.clever-cloud.com/releases/latest/clever-tools-latest_linux.tar.gz
+    tar zxf clever-tools-latest_linux.tar.gz
+    cp {clever,nodegit.node} ~/.local/bin/
+
+#### Autocompletion
+
+Clever Tools comes with a comprehensive auto-completion system.
+
+    # for bash
+    clever --bash-autocomplete-script $(which clever) | sudo tee /usr/share/bash-completion/completions/clever
+
+    # for zsh
+    clever --zsh-autocomplete-script $(which clever) | sudo tee /usr/share/zsh/site-functions
 
 ## How to use
 
@@ -170,3 +201,74 @@ clever deploy
 ## How to send feedback?
 
 [Send us an email!](mailto:support@clever-cloud.com) or [submit an issue](https://github.com/CleverCloud/clever-tools/issues).
+
+## Automated testing
+
+This project uses Travis CI to launch unit tests and validate pull requests before they're merged: https://travis-ci.org/CleverCloud/clever-tools
+
+## Automated releases
+
+When it comes to support multiple platforms (MacOS, Windows & GNU/Linux) and multiple versions of node.js, one of our dependencies (nodegit) is a tricky beast.
+In order to simplify the development and maintenance of this project, we chose to package the clever tools CLI with [pkg](https://github.com/zeit/pkg). It allowed us to:
+
+* fix node.js to a version that is officially tested with nodegit (8.3.0 for now)
+* produce one binary per platform (MacOS, Windows & GNU/Linux) with one command
+  * the only caveat is that the binary is not 100% standalone because we need to provide `nodegit.node` along with it
+
+To distribute these binaries, we're packaging them as archives and releasing them on a Clever Cloud cellar bucket.
+We're also distributing them via platform specific systems (archlinux AUR, homebrew, chocolatey).
+
+All those packages are built with an internal Jenkins.
+Here are some details about those build jobs.
+
+### Job: [clever-tools](https://mfjqzlcme0-jenkins.services.clever-cloud.com/job/clever-tools/)
+
+* This job runs `scripts/release-job.sh` on each commit merged to the master branch.
+* It builds 3 archives, one for each platform (MacOS, Windows & GNU/Linux) and computes sha256 sums.
+  * The files are always named with `master`.
+* All those artifacts (tar.gz, zip and sha256) are archived on Jenkins.
+
+### Job: [clever-tools-tag](https://mfjqzlcme0-jenkins.services.clever-cloud.com/job/clever-tools-tag/)
+
+* This job runs `scripts/release-job.sh` on each tag.
+  * It forces a `BUILD_ONLY=1` when launching `npm install` but we're not sure about the details. See [#1246](https://github.com/nodegit/nodegit/issues/1246), [#1225](https://github.com/nodegit/nodegit/issues/1225) and [#1361](https://github.com/nodegit/nodegit/issues/1361).
+* It builds 3 archives, one for each platform (MacOS, Windows & GNU/Linux) and computes sha256 sums.
+  * The files are named with the tag name (semver `X.Y.Z`).
+  * The files are also copy/pasted with `latest`.
+* All those artifacts (tar.gz, zip and sha256) are published on a Clever Cloud cellar bucket.
+
+This job also triggers 3 sub-jobs :
+
+* `clever-tools-bin-arch`
+* `clever-tools-brew`
+* `clever-tools-choco`
+
+All those jobs receive 2 variables: the tag name and the sha256 sums.
+
+### Job: [clever-tools-bin-arch](https://mfjqzlcme0-jenkins.services.clever-cloud.com/job/clever-tools-bin-arch/)
+
+This job builds a new archlinux AUR package with the following tasks:
+
+* clone this project [clever-tools-bin](https://aur.archlinux.org/packages/clever-tools-bin/)
+* use sed command on files `PKGBUILD.template` and `.SRCINFO.template` to inject variables (version and sha256 sum) and create new files
+* create a new commit with ci@clever-cloud.com
+* push to remote master (which will make the new aur package available)
+
+### Job: [clever-tools-brew](https://mfjqzlcme0-jenkins.services.clever-cloud.com/job/clever-tools-brew/)
+
+This job builds a new homebrew package with the following tasks:
+
+* clone this project [homebrew-tap](https://github.com/CleverCloud/homebrew-tap)
+* use sed command on file `clever-tools.template.rb` to inject variables (version and sha256 sum) and create new file
+* create a new commit with ci@clever-cloud.com
+* push to remote master (which will make the homebrew package available)
+
+### Job: [clever-tools-choco](https://mfjqzlcme0-jenkins.services.clever-cloud.com/job/clever-tools-choco/)
+
+This job builds a new chocolatey package with the following tasks:
+
+* clone this project [chocolatey-packages](https://github.com/CleverCloud/chocolatey-packages)
+* run `scripts/build-nupkg.sh` to produce the new nupkg file
+  * This nupkg file artifact is archived on Jenkins.
+
+⚠️ *The publication of this artifact on the public chocolatey site is still a manual process. You can find more information about why on [this issue](https://github.com/CleverCloud/chocolatey-packages/issues/2).*
