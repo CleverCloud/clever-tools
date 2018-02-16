@@ -6,6 +6,7 @@ const del = require('del')
 const exec = require('child_process').exec
 const fs = require('fs-extra')
 const pkg = require('pkg').exec
+const platform = require('os').platform()
 
 const nodeVersion = process.versions.node
 const cleverToolsVersion = process.env.GIT_TAG_NAME || 'master'
@@ -59,10 +60,17 @@ async function buildRelease (arch) {
   const archivePath = `${buildDir}/clever-tools-${cleverToolsVersion}_${arch}${archiveExt}`
   const latestArchivePath = `${releasesDir}/latest/clever-tools-latest_${arch}${archiveExt}`
 
-  await Promise.all([
-    pkg([`.`, `-t`, `node${nodeVersion}-${arch}`, `-o`, `${buildDir}/${arch}/${cleverTools}`]),
-    fs.copy(`nodegit/${arch}-nodegit.node`, `${buildDir}/${arch}/nodegit.node`),
-  ])
+  await pkg([`.`, `-t`, `node${nodeVersion}-${arch}`, `-o`, `${buildDir}/${arch}/${cleverTools}`])
+
+  // special case when building linux release on a linux system
+  // we're using the "nodegit.node" we just built
+  // it should fix the bad libcurl problem https://github.com/nodegit/nodegit/issues/1225
+  if (arch === 'linux' && platform === 'linux') {
+    fs.copy(`node_modules/nodegit/build/Release/nodegit.node`, `${buildDir}/${arch}/nodegit.node`)
+  }
+  else {
+    fs.copy(`nodegit/${arch}-nodegit.node`, `${buildDir}/${arch}/nodegit.node`)
+  }
 
   if (arch === 'win') {
     await asyncExec(`zip -j ${archivePath} ${buildDir}/${arch}/${cleverTools} ${buildDir}/${arch}/nodegit.node`)
