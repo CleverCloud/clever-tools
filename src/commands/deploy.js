@@ -1,151 +1,150 @@
-"use strict";
+'use strict';
 
-var path = require("path");
+const path = require('path');
 
-var _ = require("lodash");
-var Bacon = require("baconjs");
+const _ = require('lodash');
+const Bacon = require('baconjs');
+const colors = require('colors/safe');
 
-var AppConfig = require("../models/app_configuration.js");
-var Application = require("../models/application.js");
-var Git = require("../models/git.js")(path.resolve("."));
-var Log = require("../models/log.js");
-var Event = require("../models/events.js");
+const AppConfig = require('../models/app_configuration.js');
+const Application = require('../models/application.js');
+const Event = require('../models/events.js');
+const Git = require('../models/git.js')(path.resolve('.'));
+const Log = require('../models/log.js');
+const Logger = require('../logger.js');
 
-var Logger = require("../logger.js");
+const timeout = 5 * 60 * 1000;
 
-var timeout = 5 * 60 * 1000;
-
-var deploy = module.exports;
-
-deploy.deploy = function(api, params) {
-  const { alias, branch, commit, quiet, force } = params.options;
+function deploy (api, params) {
+  const { alias, branch: branchName, quiet, force } = params.options;
 
   const s_appData = AppConfig.getAppData(alias).toProperty();
-  const s_commitId = Git.getCommitId(branch).toProperty();
-
-  const s_remote = s_appData.flatMapLatest(({ alias, deploy_url }) => {
-    return Git.createRemote(alias, deploy_url).toProperty();
-  }).toProperty();
-
-  const s_fetch = s_remote.flatMapLatest((remote) => {
-    return Git.keepFetching(timeout, remote);
-  }).toProperty();
-
-  const s_push = s_fetch.flatMapLatest((remote) => {
-    Logger.println("Pushing source code to Clever Cloud.");
-    return Git.push(remote, branch, s_commitId, force);
-  }).toProperty();
-
-  const s_deploy = s_push.flatMapError((error) => {
-    if(error.message && error.message.trim() === "error authenticating:"){
-      return new Bacon.Error(error.message.trim() + " Did you add your ssh key ?");
-    } else {
-      return new Bacon.Error(error);
-    }
-  }).toProperty();
-
-  s_deploy.onValue(function() {
-    Logger.println("Your source code has been pushed to Clever Cloud.");
-  });
-
-  handleDeployment(api, s_appData, s_deploy, s_commitId, quiet);
-};
-
-deploy.restart = function(api, params) {
-  const { alias, quiet, commit, 'without-cache': withoutCache } = params.options
-
-  const s_fullCommitId = (commit == null) ?
-    Bacon.constant(null) :
-    Git.resolveFullCommitId(commit).flatMapError((e) => {
-      return new Bacon.Error(`Commit id ${commit} is ambiguous`);
-    });
-
-  const s_appData = AppConfig.getAppData(alias).toProperty();
-  const s_commitId = s_appData
-    .flatMapLatest(({ app_id, app_orga }) => Application.get(api, app_id, app_orga))
-    .flatMapLatest(({ commitId }) => commitId);
-
-  const s_deploy = Bacon
-    .combineAsArray(s_appData, s_fullCommitId, s_commitId)
-    .flatMapLatest(([appData, fullCommitId, remoteCommitId]) => {
-      let suffix = " on commit #" + (fullCommitId || remoteCommitId);
-      if(withoutCache) suffix += " without using cache";
-
-      Logger.println("Restarting " + appData.name + suffix);
-
-      return Application.redeploy(api, appData.app_id, appData.org_id, fullCommitId, withoutCache);
-    })
+  const s_branchRefspec = Git.getBranch(branchName)
+    .map((branch) => branch.name())
     .toProperty();
 
-  handleDeployment(api, s_appData, s_deploy, s_commitId, quiet);
+  const s_remote = s_appData
+    .flatMapLatest(({ alias, deploy_url }) => Git.createRemote(alias, deploy_url))
+    .flatMapLatest((remote) => Git.keepFetching(timeout, remote))
+    .toProperty();
+
+  const s_commitIdToPush = Git.getCommitId(branchName).toProperty();
+  const s_remoteCommitId = s_remote
+    .map((remote) => Git.getRemoteName(remote))
+    .flatMapLatest((remoteName) => Git.getRemoteCommitId(remoteName))
+    .toProperty();
+
+  const s_allLogs = Bacon.combineAsArray(s_commitIdToPush, s_remoteCommitId, s_remote, s_branchRefspec)
+    .flatMapLatest(([commitIdToPush, remoteCommitId, remote, branchRefspec]) => {
+      if (commitIdToPush === remoteCommitId) {
+        return new Bacon.Error('The clever-cloud application is up-to-date. Try `clever restart` to restart the application');
+      }
+      Logger.println("Pushing source code to Clever Cloud.");
+      const s_push = Git.push(remote, branchRefspec, force);
+      return Bacon.combineAsArray(s_push, s_appData, commitIdToPush);
+    })
+    .flatMapLatest(([push, appData, commitId]) => {
+      Logger.println('Your source code has been pushed to Clever Cloud.');
+      return getAllLogs(api, push, appData, commitId, quiet);
+    });
+
+  s_allLogs.onValue(Logger.println);
+  s_allLogs.onError(handleError);
 };
 
-var handleDeployment = function(api, s_appData, s_deploy, s_commitId, quiet) {
-  s_deploy.onValue(function(v) {
-    const deploymentId = v && v.deploymentId;
+function restart (api, params) {
+  const { alias, quiet, commit, 'without-cache': withoutCache } = params.options;
 
-    var s_deploymentEvents = s_appData.flatMapLatest((appData) => {
-      const s_allEvents = Event.getEvents(api, appData.app_id);
-      if(deploymentId) {
-        return s_allEvents.filter(e => e.data && e.data.uuid === deploymentId);
-      } else {
-        return s_commitId.flatMapLatest((commitId) => {
-          return s_allEvents.filter(e => e.data && e.data.commit === commitId);
-        })
+  const s_appData = AppConfig.getAppData(alias).toProperty();
+  const s_CommitIdToRestart = Git.resolveFullCommitId(commit).toProperty();
+  const s_remoteCommitId = s_appData
+    .flatMapLatest(({ app_id, app_orga }) => Application.get(api, app_id, app_orga))
+    .flatMapLatest(({ commitId }) => commitId)
+    .toProperty();
+
+  const s_allLogs = Bacon
+    .combineAsArray(s_appData, s_CommitIdToRestart, s_remoteCommitId)
+    .flatMapLatest(([appData, fullCommitId, remoteCommitId]) => {
+      let suffix = ' on commit #' + (fullCommitId || remoteCommitId);
+      if (withoutCache) suffix += ' without using cache';
+      Logger.println('Restarting ' + appData.name + suffix);
+      const s_redeploy = Application.redeploy(api, appData.app_id, appData.org_id, fullCommitId, withoutCache);
+      return Bacon.combineAsArray(s_redeploy, appData, remoteCommitId);
+    })
+    .flatMapLatest(([redeploy, appData, remoteCommitId]) => {
+      return getAllLogs(api, redeploy, appData, remoteCommitId, quiet);
+    });
+
+  s_allLogs.onValue(Logger.println);
+  s_allLogs.onError(handleError);
+};
+
+function handleError (error) {
+  Logger.error(colors.bold.red(_.get(error, 'message', error)));
+  process.exit(1);
+}
+
+function getAllLogs (api, push, appData, commitId, quiet) {
+
+  const deploymentId = _.get(push, 'deploymentId');
+  const s_deploymentEvents = Event
+    .getEvents(api, appData.app_id)
+    .filter((e) => {
+      if (deploymentId != null) {
+        return _.get(e, 'data.uuid') === deploymentId;
       }
+      return _.get(e, 'data.commit') === commitId;
     });
 
-    const s_deploymentStart = s_deploymentEvents.filter(e => e.event === 'DEPLOYMENT_ACTION_BEGIN').first().toProperty();
+  const s_deploymentStart = s_deploymentEvents
+    .filter((e) => e.event === 'DEPLOYMENT_ACTION_BEGIN')
+    .first()
+    .toProperty();
 
-    s_deploymentStart.onValue(function(e) {
-      Logger.println("Deployment started".bold.blue);
-    });
+  // We ignore cancellation events triggered by a git push,
+  // as they are always generated even though a deployment is not in progress.
+  // Since we match events with commit id in a case of a git push,
+  // it makes the program stop before the actual deployment.
+  const s_deploymentEnd = s_deploymentEvents
+    .filter((e) => e.event === 'DEPLOYMENT_ACTION_END')
+    .filter((e) => (deploymentId != null) || (e.data.state !== 'CANCELLED') || (e.data.cause !== 'Git'))
+    .first()
+    .toProperty();
 
-    // We ignore cancellation events triggered by a git push, are they are always
-    // generated even though a deployment is not in progress. Since we match events
-    // with commit id in a case of a git push, it makes the program stop before the
-    // actual deployment.
-    const s_deploymentEnd = s_deploymentEvents
-      .filter(e => e.event === 'DEPLOYMENT_ACTION_END')
-      .filter(e => deploymentId || (e.data.state !== 'CANCELLED' || e.data.cause !== 'Git'))
-      .first();
-
-    s_deploymentEnd.onValue(function(e) {
-      if(e.data.state === 'OK') {
-        if(quiet) {
-          Logger.println('Deployment successful'.bold.green);
-        }
-        process.exit(0);
-      } else {
-        if(quiet) {
-          Logger.println('Deployment failed. Please check the logs'.bold.red);
-        }
-        process.exit(1);
+  const s_appLogs = Application.get(api, appData.app_id)
+    .flatMapLatest((app) => {
+      Logger.debug('Fetch application logs…');
+      if (deploymentId != null) {
+        return Log.getAppLogs(api, app.id, null, null, new Date(), null, deploymentId);
       }
-    });
-
-    if(!quiet) {
-      var s_app = s_appData
-        .flatMapLatest(function(appData) {
-          Logger.debug("Fetching application information…")
-          return Application.get(api, appData.app_id);
-        });
-
-      var s_logs = s_app.flatMapLatest(function(app) {
-        let s_deploymentId;
-        if(deploymentId) {
-          s_deploymentId = Bacon.constant(deploymentId);
-        } else {
-          s_deploymentId = s_deploymentStart.map(e => e.data.uuid);
-        }
-        Logger.debug("Fetch application logs…");
-        return s_deploymentId.flatMapLatest((did) => Log.getAppLogs(api, app.id, null, null, new Date(), null, did));
+      return s_deploymentStart.flatMapLatest((deploymentStartEvent) => {
+        const deploymentId = deploymentStartEvent.data.uuid;
+        return Log.getAppLogs(api, app.id, null, null, new Date(), null, deploymentId);
       });
+    });
 
-      s_logs.onValue(Logger.println);
-      s_logs.onError(Logger.error);
-    }
+  const s_allLogs = new Bacon.Bus();
+
+  s_deploymentStart.onValue((e) => {
+    s_allLogs.push(colors.bold.blue('Deployment started'));
   });
 
-  s_deploy.onError(Logger.error);
-};
+  s_deploymentEnd.onValue((e) => {
+    if (e.data.state === 'OK') {
+      s_allLogs.push(colors.bold.green('Deployment successful'));
+    }
+    else {
+      s_allLogs.error('Deployment failed. Please check the logs');
+    }
+    s_allLogs.end();
+  });
+
+  if (!quiet) {
+    s_allLogs.push('Fetching application information…');
+    s_allLogs.plug(s_appLogs);
+  }
+
+  return s_allLogs;
+}
+
+module.exports = { deploy, restart };
