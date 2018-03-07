@@ -72,10 +72,15 @@ module.exports = function(repositoryPath) {
     });
   };
 
-  Git.getBranch = function(name) {
-    return Git.getRepository().flatMapLatest(function(repository) {
-      return Bacon.fromPromise(nodegit.Branch.lookup(repository, name, Git.GIT_BRANCH_LOCAL));
-    }).toProperty();
+  Git.getBranch = function (branchName) {
+    if (branchName === '') {
+      return Git.getCurrentBranch();
+    }
+    return Git.getRepository()
+      .flatMapLatest((repository) => {
+        return Bacon.fromPromise(nodegit.Branch.lookup(repository, branchName, Git.GIT_BRANCH_LOCAL));
+      })
+      .toProperty();
   };
 
   Git.getBranches = function() {
@@ -159,62 +164,46 @@ module.exports = function(repositoryPath) {
     return s_fetch;
   };
 
-  Git.getRemoteCommitId = function(remoteName) {
-    return Git.getRepository().flatMapLatest(function(repo) {
-      return Bacon.fromPromise(repo.getReferenceCommit(remoteName + '/master'))
-            .map(function(commit) {
-              return commit.id().toString();
-            })
-            .mapError(function(e) {
-              return null;
-            });
-    });
+  Git.getRemoteCommitId = function (remoteName) {
+    return Git.getRepository()
+      .flatMapLatest((repo) => {
+        return Bacon.fromPromise(repo.getReferenceCommit(remoteName + '/master'));
+      })
+      .map((commit) => commit.id().toString())
+      .mapError(() => null);
   };
 
-  Git.getCommitId = function(branchName) {
-    var s_branch = branchName == "" ? Git.getCurrentBranch() : Git.getBranch(branchName);
-
-    return Git.getRepository().flatMapLatest(function(repo) {
-      return s_branch.flatMapLatest(function(branch) {
-        return Bacon.fromPromise(repo.getBranchCommit(branch.name()))
-              .map(function(commit) {
-                return commit.id().toString();
-              });
-      });
-    });
-  };
-
-  Git.resolveFullCommitId = function(commitId) {
-    return Git.getRepository().flatMapLatest((repo) => {
-      const oid = nodegit.Oid.fromString(commitId);
-      return Bacon
-        .fromPromise(nodegit.Commit.lookupPrefix(repo, oid, commitId.length))
-        .map((commit) => commit.id().toString());
-    });
-  };
-
-  Git.push = function(remote, branch, s_commitId, force) {
-    Logger.debug("Prepare the push…");
-
-    const forcePush = force ? '+' : '';
-    const s_current_branch = Git.getCurrentBranch();
-    const s_branch = branch == "" ? s_current_branch : Git.getBranch(branch);
-    const s_remoteCommitId = Git.getRemoteCommitId(Git.getRemoteName(remote));
-
+  Git.getCommitId = function (branchName) {
     return Bacon
-      .combineAsArray(s_branch, s_commitId, s_remoteCommitId)
-      .flatMapLatest(([branch, commitIdToPush, remoteCommitId]) => {
-        if (commitIdToPush === remoteCommitId) {
-          return new Bacon.Error('The clever-cloud application is up-to-date. Try `clever restart` to restart the application')
-        }
-        Logger.debug('Preparing the push');
-        return conf.loadOAuthConf().flatMapLatest(({ token, secret }) => {
-          // /!\ We're always using a branch based refspec because libgit/nodegit does NOT support direct commit refspec for push
-          // https://github.com/libgit2/libgit2/issues/3178
-          const refspec = `${forcePush}${branch}:refs/heads/master`;
-          return Bacon.fromPromise(remote.push([refspec], Git.pushOptions(token, secret)))
-        });
-      });
+      .combineAsArray(Git.getRepository(), Git.getBranch(branchName))
+      .flatMapLatest(([repo, branch]) => {
+        return Bacon.fromPromise(repo.getBranchCommit(branch.name()));
+      })
+      .map((commit) => commit.id().toString());
+  };
+
+  Git.resolveFullCommitId = function (commitId) {
+    if (commitId == null) {
+      return Bacon.constant(null);
+    }
+    return Git.getRepository()
+      .flatMapLatest((repo) => {
+        const oid = nodegit.Oid.fromString(commitId);
+        return Bacon.fromPromise(nodegit.Commit.lookupPrefix(repo, oid, commitId.length));
+      })
+      .flatMapError(() => new Bacon.Error(`Commit id ${commitId} is ambiguous`))
+      .map((commit) => commit.id().toString());
+  };
+
+  Git.push = function (remote, branchRefspec, force) {
+    Logger.debug('Preparing the push');
+    const forcePush = force ? '+' : '';
+    return conf.loadOAuthConf().flatMapLatest(({ token, secret }) => {
+      // /!\ We're always using a branch based refspec because libgit/nodegit does NOT support direct commit refspec for push
+      // https://github.com/libgit2/libgit2/issues/3178
+      const refspec = `${forcePush}${branchRefspec}:refs/heads/master`;
+      return Bacon.fromPromise(remote.push([refspec], Git.pushOptions(token, secret)));
+    });
   };
 
   return Git;

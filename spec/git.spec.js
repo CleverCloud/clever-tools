@@ -84,19 +84,6 @@ describe("git", function() {
     });
   });
 
-  it("should not push to the origin remote if the remote is up-to-date", function(done) {
-    var s_push = git.getRemote("origin").flatMapLatest(function(remote) {
-      return git.push(remote, "master", git.getCommitId("master"), false);
-    });
-
-    s_push.subscribe(function(event) {
-      expect(event.hasValue()).to.equal(false);
-      done();
-
-      return Bacon.noMore;
-    });
-  });
-
   it("should be able to lookup a full commit id", function(done) {
     git.resolveFullCommitId('e9e2').subscribe(function(event) {
       expect(event.hasValue()).to.equal(true);
