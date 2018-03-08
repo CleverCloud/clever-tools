@@ -5,10 +5,11 @@ const colors = require('colors/safe');
 
 function getPrefix (severity) {
   const prefix = `[${severity.toUpperCase()}] `;
+  const prefixLength = prefix.length;
   if (severity === 'error') {
-    return colors.bold.red(prefix);
+    return { prefix: colors.bold.red(prefix), prefixLength };
   }
-  return prefix;
+  return { prefix, prefixLength };
 }
 
 function processApiError (error) {
@@ -19,15 +20,23 @@ function processApiError (error) {
   return [`${error.message} [${error.id}]`, ...fields].join('\n');
 };
 
+function formatLines (prefixLength, lines) {
+  const blankPrefix = _.repeat(' ', prefixLength);
+  return _(lines)
+    .split('\n')
+    .map((line, i) => (i === 0) ? line : `${blankPrefix}${line}`)
+    .join('\n');
+}
+
 const Logger = _(['debug', 'info', 'warn', 'error'])
   .map((severity) => {
     if (process.env['CLEVER_QUIET'] || !process.env['CLEVER_VERBOSE'] && (severity === 'debug' || severity === 'info')) {
       return [severity, _.noop];
     }
     const consoleFn = (severity === 'error') ? console.error : console.log;
-    const prefix = getPrefix(severity);
+    const { prefix, prefixLength } = getPrefix(severity);
     return [severity, (message) => {
-      const formattedMsg = processApiError(message);
+      const formattedMsg = formatLines(prefixLength, processApiError(message));
       return consoleFn(`${prefix}${formattedMsg}`);
     }];
   })
