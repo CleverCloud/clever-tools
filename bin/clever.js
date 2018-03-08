@@ -7,8 +7,19 @@ process.stdout.on('error', function(error) {
   }
 });
 
-if(process.pkg === undefined) {
-  require('update-notifier')({ pkg: require('../package.json') }).notify();
+const updateNotifier = require('update-notifier');
+const pkg = require('../package.json');
+
+if (process.pkg == null) {
+  updateNotifier({
+    pkg,
+    tagsUrl: 'https://api.github.com/repos/CleverCloud/clever-tools/tags',
+  }).notify({
+    getDetails: function (update) {
+      const docsUrl = 'https://www.clever-cloud.com/doc/clever-tools/getting_started'
+      return `\nPlease follow this link to update your clever-tools:\n${docsUrl}`
+    }
+  });
 }
 
 if(process.argv.indexOf("-v") >= 0 || process.argv.indexOf("--verbose") >= 0) {
@@ -24,7 +35,6 @@ var _ = require("lodash");
 var cliparse = require("cliparse");
 
 var Logger = require("../src/logger.js");
-var pkg = require("../package.json");
 
 var lazyRequiref = function(path, name) {
   return function() {
