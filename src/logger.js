@@ -1,9 +1,14 @@
 'use strict';
 
 const _ = require('lodash');
+const colors = require('colors/safe');
 
 function getPrefix (severity) {
-  return `[${severity.toUpperCase()}] `;
+  const prefix = `[${severity.toUpperCase()}] `;
+  if (severity === 'error') {
+    return colors.bold.red(prefix);
+  }
+  return prefix;
 }
 
 function processApiError (error) {

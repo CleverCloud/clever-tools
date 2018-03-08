@@ -91,7 +91,7 @@ function restart (api, params) {
 };
 
 function handleError (error) {
-  Logger.error(colors.bold.red(_.get(error, 'message', error)));
+  Logger.error(_.get(error, 'message', error));
   process.exit(1);
 }
 
