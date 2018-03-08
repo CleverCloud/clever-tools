@@ -29,19 +29,30 @@ function deploy (api, params) {
     .toProperty();
 
   const s_commitIdToPush = Git.getCommitId(branchName).toProperty();
-  const s_remoteCommitId = s_remote
+  const s_remoteHeadCommitId = s_remote
     .map((remote) => Git.getRemoteName(remote))
     .flatMapLatest((remoteName) => Git.getRemoteCommitId(remoteName))
     .toProperty();
+  const s_deployedCommitId = s_appData
+    .flatMapLatest(({ app_id, app_orga }) => Application.get(api, app_id, app_orga))
+    .flatMapLatest(({ commitId }) => commitId)
+    .toProperty();
 
-  const s_allLogs = Bacon.combineAsArray(s_commitIdToPush, s_remoteCommitId, s_remote, s_branchRefspec)
-    .flatMapLatest(([commitIdToPush, remoteCommitId, remote, branchRefspec]) => {
+  const s_allLogs = Bacon.combineAsArray(s_commitIdToPush, s_remoteHeadCommitId, s_deployedCommitId)
+    .flatMapLatest(([commitIdToPush, remoteCommitId, deployedCommitId]) => {
       if (commitIdToPush === remoteCommitId) {
-        return new Bacon.Error('The clever-cloud application is up-to-date. Try `clever restart` to restart the application');
+        const upToDateMessage = `The clever-cloud application is up-to-date. Try this command to restart the application:`;
+        if (commitIdToPush !== deployedCommitId) {
+          return new Bacon.Error(`${upToDateMessage}\nclever restart --commit ${commitIdToPush}`);
+        }
+        return new Bacon.Error(`${upToDateMessage}\nclever restart`);
       }
-      Logger.println("Pushing source code to Clever Cloud.");
+      return Bacon.combineAsArray(s_remote, s_branchRefspec);
+    })
+    .flatMapLatest(([remote, branchRefspec]) => {
+      Logger.println('Pushing source code to Clever Cloud.');
       const s_push = Git.push(remote, branchRefspec, force);
-      return Bacon.combineAsArray(s_push, s_appData, commitIdToPush);
+      return Bacon.combineAsArray(s_push, s_appData, s_commitIdToPush);
     })
     .flatMapLatest(([push, appData, commitId]) => {
       Logger.println('Your source code has been pushed to Clever Cloud.');
@@ -123,6 +134,7 @@ function getAllLogs (api, push, appData, commitId, quiet) {
       });
     });
 
+  // TODO, could be done without a Bus (with merged streams)
   const s_allLogs = new Bacon.Bus();
 
   s_deploymentStart.onValue((e) => {
