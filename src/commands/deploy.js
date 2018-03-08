@@ -12,6 +12,7 @@ const Event = require('../models/events.js');
 const Git = require('../models/git.js')(path.resolve('.'));
 const Log = require('../models/log.js');
 const Logger = require('../logger.js');
+const handleCommandStream = require('../command-stream-handler');
 
 const timeout = 5 * 60 * 1000;
 
@@ -59,8 +60,7 @@ function deploy (api, params) {
       return getAllLogs(api, push, appData, commitId, quiet);
     });
 
-  s_allLogs.onValue(Logger.println);
-  s_allLogs.onError(handleError);
+  handleCommandStream(s_allLogs, Logger.println);
 };
 
 function restart (api, params) {
@@ -86,14 +86,8 @@ function restart (api, params) {
       return getAllLogs(api, redeploy, appData, remoteCommitId, quiet);
     });
 
-  s_allLogs.onValue(Logger.println);
-  s_allLogs.onError(handleError);
+  handleCommandStream(s_allLogs, Logger.println);
 };
-
-function handleError (error) {
-  Logger.error(_.get(error, 'message', error));
-  process.exit(1);
-}
 
 function getAllLogs (api, push, appData, commitId, quiet) {
 
