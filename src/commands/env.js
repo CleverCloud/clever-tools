@@ -1,151 +1,80 @@
-var _ = require("lodash");
-var path = require("path");
-var Bacon = require("baconjs");
-var nodegit = require("nodegit");
+'use strict';
 
-var Logger = require("../logger.js");
+const _ = require('lodash');
+const Bacon = require('baconjs');
 
-var AppConfig = require("../models/app_configuration.js");
-var Env = require("../models/env.js");
-var Git = require("../models/git.js")(path.resolve("."));
+const AppConfig = require('../models/app_configuration.js');
+const Env = require('../models/env.js');
+const handleCommandStream = require('../command-stream-handler');
+const Logger = require('../logger.js');
+const variables = require('../models/variables.js');
 
-var env = module.exports;
+function list (api, params) {
+  const { alias, 'add-export': addExport } = params.options;
 
-var renderEnvVariables = env.renderEnvVariables = function(list, addExport) {
-  Logger.println(_.map(list, function(x) {
-    if(addExport) {
-      return "export " + x.name + "='" + x.value.replace(/'/g, "'\\''") + "';";
-    } else {
-      return x.name + "=" + x.value;
-    }
-  }).join('\n'));
-};
+  const s_appData = AppConfig.getAppData(alias);
+  const s_manualEnv = s_appData
+    .flatMap(({ app_id, org_id }) => Env.list(api, app_id, org_id));
+  const s_envFromAddons = s_appData
+    .flatMap(({ app_id, org_id }) => Env.listFromAddons(api, app_id, org_id));
+  const s_envFromDeps = s_appData
+    .flatMap(({ app_id, org_id }) => Env.listFromDependencies(api, app_id, org_id));
 
-var readEnvVariablesFromStdin = env.readEnvVariablesFromStdin = function() {
-  return Bacon.fromBinder(function(sink) {
-    var readline = require('readline');
-    var rl = readline.createInterface({
-      input: process.stdin,
-      output: process.stdout,
-      terminal: false
-    });
+  const s_fullEnv = Bacon.combineAsArray(s_manualEnv, s_envFromAddons, s_envFromDeps)
+    .flatMapLatest(([manual, fromAddons, fromDeps]) => {
 
-    var pairs = [];
+      Logger.println('# Manually set env variables');
+      Logger.println(variables.render(manual, addExport));
 
-    rl.on('line', function(line){
-      var res = Env.parseEnvLine(line);
-      if(res) {
-        pairs.push(res);
-      }
-    });
+      _.each(fromAddons, (addon) => {
+        Logger.println('# Addon ' + addon.addon_name);
+        Logger.println(variables.render(addon.env, addExport));
+      });
 
-    rl.on('close', function(){
-      sink(new Bacon.Next(pairs));
-      sink(new Bacon.End());
-    });
-  });
-};
-
-var list = env.list = function(api, params) {
-  var alias = params.options.alias;
-  var addExport = params.options["add-export"];
-
-  var s_appData = AppConfig.getAppData(alias).toProperty();
-
-  var s_env = s_appData.flatMap(function(appData) {
-    return Env.list(api, appData.app_id, appData.org_id);
-  });
-
-  var s_env_from_addons = s_appData.flatMap(function(appData) {
-    return Env.listFromAddons(api, appData.app_id, appData.org_id);
-  });
-
-  var s_env_from_deps = s_appData.flatMap(function(appData) {
-    return Env.listFromDependencies(api, appData.app_id, appData.org_id);
-  });
-
-  var s_fullEnv = s_env.flatMapLatest(function(env) {
-    return s_env_from_addons.flatMapLatest(function(env_from_addons) {
-      return s_env_from_deps.flatMapLatest(function(env_from_deps) {
-        return {
-          manual: env,
-          addons: env_from_addons,
-          deps: env_from_deps,
-        };
+      _.each(fromDeps, (dep) => {
+        Logger.println('# Dependency ' + dep.app_name);
+        Logger.println(variables.render(dep.env, addExport));
       });
     });
-  });
 
-  s_fullEnv.onValue(function(envs) {
-    Logger.println("# Manually set env variables");
-    renderEnvVariables(envs.manual, addExport);
-
-    _.each(envs.addons, function(addon) {
-      Logger.println("# Addon " + addon.addon_name);
-      renderEnvVariables(addon.env, addExport);
-    });
-
-    _.each(envs.deps, function(dep) {
-      Logger.println("# Dependency " + dep.app_name);
-      renderEnvVariables(dep.env, addExport);
-    });
-  });
-
-  s_fullEnv.onError(Logger.error);
+  handleCommandStream(s_fullEnv);
 };
 
-var set = env.set = function(api, params) {
-  var name = params.args[0];
-  var value = params.args[1];
-  var alias = params.options.alias;
+function set (api, params) {
+  const [varName, varValue] = params.args;
+  const { alias } = params.options;
 
-  var s_appData = AppConfig.getAppData(alias);
+  const s_env = AppConfig.getAppData(alias)
+    .flatMapLatest(({ app_id, org_id }) => Env.set(api, varName, varValue, app_id, org_id))
+    .flatMapLatest(() => Logger.println('Your environment variable has been successfully saved'));
 
-  var s_env = s_appData.flatMap(function(appData) {
-    return Env.set(api, name, value, appData.app_id, appData.org_id);
-  });
-
-  s_env.onValue(function() {
-    Logger.println("Your environment variable has been successfully saved");
-  });
-
-  s_env.onError(Logger.error);
+  handleCommandStream(s_env);
 };
 
-var rm = env.rm = function(api, params) {
-  var name = params.args[0];
-  var alias = params.options.alias;
+function rm (api, params) {
+  const [varName] = params.args;
+  const { alias } = params.options;
 
-  var s_appData = AppConfig.getAppData(alias);
+  const s_env = AppConfig.getAppData(alias)
+    .flatMapLatest(({ app_id, org_id }) => Env.remove(api, varName, app_id, org_id))
+    .flatMapLatest(() => Logger.println('Your environment variable has been successfully removed'));
 
-  var s_env = s_appData.flatMap(function(appData) {
-    return Env.remove(api, name, appData.app_id, appData.org_id);
-  });
-
-  s_env.onValue(function() {
-    Logger.println("Your environment variable has been successfully removed");
-  });
-
-  s_env.onError(Logger.error);
+  handleCommandStream(s_env);
 };
 
-var importEnv = env.importEnv = function(api, params) {
-  var name = params.args[0];
-  var alias = params.options.alias;
+function importEnv (api, params) {
+  const { alias } = params.options;
 
-  var s_appData = AppConfig.getAppData(alias);
+  const s_appData = AppConfig.getAppData(alias);
+  const s_vars = variables.readFromStdin();
 
-  var s_pairs = readEnvVariablesFromStdin();
+  const s_result = Bacon.combineAsArray(s_appData, s_vars)
+    .flatMapLatest(([appData, vars]) => {
+      return Env.bulkSet(api, vars, appData.app_id, appData.org_id);
+    })
+    .flatMapLatest(() => Logger.println('Environment variables have been set'));
 
-  const s_result = s_pairs.flatMapLatest(function(pairs) {
-    return s_appData.flatMap(function(appData) {
-      return Env.bulkSet(api, pairs, appData.app_id, appData.org_id);
-    });
-  });
-
-  s_result.onValue(function() {
-    Logger.println("Environment variables have been set");
-  });
-
-  s_result.onError(Logger.error);
+  handleCommandStream(s_result);
 };
+
+module.exports = { list, set, rm, importEnv };

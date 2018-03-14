@@ -1,88 +1,63 @@
-var _ = require("lodash");
-var path = require("path");
-var Bacon = require("baconjs");
-var nodegit = require("nodegit");
+'use strict';
 
-var Logger = require("../logger.js");
+const _ = require('lodash');
+const Bacon = require('baconjs');
 
-var AppConfig = require("../models/app_configuration.js");
-var Env = require("../models/env.js");
-var PublishedConfig = require("../models/published-config.js");
-var Git = require("../models/git.js")(path.resolve("."));
+const AppConfig = require('../models/app_configuration.js');
+const handleCommandStream = require('../command-stream-handler');
+const Logger = require('../logger.js');
+const PublishedConfig = require('../models/published-config.js');
+const variables = require('../models/variables.js');
 
-var EnvCommand = require("./env.js");
+function list (api, params) {
+  const { alias } = params.options;
 
-var publishedConfig = module.exports;
-
-var list = publishedConfig.list = function(api, params) {
-  var alias = params.options.alias;
-  var s_appData = AppConfig.getAppData(alias).toProperty();
-
-  var s_env = s_appData.flatMap(function(appData) {
-    return PublishedConfig.list(api, appData.app_id, appData.org_id);
-  });
-
-  s_env.onValue(function(envs) {
-    EnvCommand.renderEnvVariables(_.map(envs, function(v,k) {
-      return { name: k, value: v };
-    }), false);
-  });
-
-  s_env.onError(Logger.error);
-};
-
-var set = publishedConfig.set = function(api, params) {
-  var name = params.args[0];
-  var value = params.args[1];
-  var alias = params.options.alias;
-
-  var s_appData = AppConfig.getAppData(alias);
-
-  var s_env = s_appData.flatMap(function(appData) {
-    return PublishedConfig.set(api, name, value, appData.app_id, appData.org_id);
-  });
-
-  s_env.onValue(function() {
-    Logger.println("Your published config item has been successfully saved");
-  });
-
-  s_env.onError(Logger.error);
-};
-
-var rm = publishedConfig.rm = function(api, params) {
-  var name = params.args[0];
-  var alias = params.options.alias;
-
-  var s_appData = AppConfig.getAppData(alias);
-
-  var s_env = s_appData.flatMap(function(appData) {
-    return PublishedConfig.remove(api, name, appData.app_id, appData.org_id);
-  });
-
-  s_env.onValue(function() {
-    Logger.println("Your published config item has been successfully removed");
-  });
-
-  s_env.onError(Logger.error);
-};
-
-var importEnv = publishedConfig.importEnv = function(api, params) {
-  var name = params.args[0];
-  var alias = params.options.alias;
-
-  var s_appData = AppConfig.getAppData(alias);
-
-  var s_pairs = EnvCommand.readEnvVariablesFromStdin();
-
-  var s_result = s_pairs.flatMapLatest(function(pairs) {
-    return s_env = s_appData.flatMap(function(appData) {
-      return PublishedConfig.bulkSet(api, pairs, appData.app_id, appData.org_id);
+  const s_env = AppConfig.getAppData(alias)
+    .flatMap(({ app_id, org_id }) => PublishedConfig.list(api, app_id, org_id))
+    .flatMapLatest((envs) => {
+      const pairs = _.map(envs, (value, name) => ({ name, value }));
+      Logger.println('# Published configs');
+      Logger.println(variables.render(pairs, false));
     });
-  });
 
-  s_result.onValue(function() {
-    Logger.println("Published config items have been set");
-  });
-
-  s_result.onError(Logger.error);
+  handleCommandStream(s_env);
 };
+
+function set (api, params) {
+  const [varName, varValue] = params.args;
+  const { alias } = params.options;
+
+  const s_env = AppConfig.getAppData(alias)
+    .flatMapLatest(({ app_id, org_id }) => PublishedConfig.set(api, varName, varValue, app_id, org_id))
+    .flatMapLatest(() => Logger.println('Your published config item has been successfully saved'));
+
+  handleCommandStream(s_env);
+};
+
+function rm (api, params) {
+  const [varName] = params.args;
+  const { alias } = params.options;
+
+  const s_env = AppConfig.getAppData(alias)
+    .flatMapLatest(({ app_id, org_id }) => PublishedConfig.remove(api, varName, app_id, org_id))
+    .flatMapLatest(() => Logger.println('Your published config item has been successfully removed'));
+
+  handleCommandStream(s_env);
+};
+
+function importEnv (api, params) {
+  const { alias } = params.options;
+
+  const s_appData = AppConfig.getAppData(alias);
+  const s_vars = variables.readFromStdin();
+
+  const s_result = Bacon.combineAsArray(s_appData, s_vars)
+    .flatMapLatest(([appData, vars]) => {
+      return PublishedConfig.bulkSet(api, vars, appData.app_id, appData.org_id);
+    })
+    .flatMapLatest(() => Logger.println('Environment variables have been set'));
+
+  handleCommandStream(s_result);
+};
+
+module.exports = { list, set, rm, importEnv };
