@@ -70,24 +70,35 @@ function removeLinkedApplication (alias) {
 
 function findApp (config, alias) {
 
-  const matchingApps = _.filter(config.apps, function (app) {
-    const nothingMatches = !alias && !config.default;
-    const aliasMatches = alias && app.alias === alias;
-    const isDefault = !alias && app.app_id === config.default;
-    return nothingMatches || aliasMatches || isDefault;
-  });
+  if (_.isEmpty(config.apps)) {
+    throw new Error('There are no applications linked. You can add one with `clever link`');
+  }
 
-  if (matchingApps.length === 1) {
-    return matchingApps[0];
-  } else if (matchingApps.length === 0) {
-    if (alias) {
-      throw new Error('There are no applications matching this alias');
-    } else {
+  if (alias != null) {
+    const [appByAlias, secondAppByAlias] = _.filter(config.apps, { alias });
+    if (appByAlias == null) {
+      throw new Error(`There are no applications matching alias ${alias}`);
+    }
+    if (secondAppByAlias != null) {
+      throw new Error(`Several applications are linked. You can specify one with the \`--alias\` option. Run \`clever applications\` to list linked applications.`);
+    }
+    return appByAlias;
+  }
+
+  if (config.default != null) {
+    const defaultApp = _.find(config.apps, { app_id: config.default });
+    if (defaultApp == null) {
       throw new Error('There are no applications linked. You can add one with `clever link`');
     }
-  } else if (matchingApps.length > 1) {
-    throw new Error('Several applications are linked. You can specify one with the `--alias` option. Run `clever applications` to list linked applications. Available aliases: ' + _.map(matchingApps, 'alias').join(', '));
+    return defaultApp;
   }
+
+  if (config.apps.length === 1) {
+    return config.apps[0];
+  }
+
+  const aliases = _.map(config.apps, 'alias').join(', ');
+  throw new Error(`Several applications are linked. You can specify one with the \`--alias\` option. Run \`clever applications\` to list linked applications. Available aliases: ${aliases}`);
 }
 
 function getAppData (alias) {
