@@ -1,39 +1,30 @@
-var _ = require("lodash");
-var Bacon = require("baconjs");
+'use strict';
 
-var Logger = require("../logger.js");
+const _ = require('lodash');
 
-
-
-var PublishedConfig = module.exports;
-
-PublishedConfig.list = function(api, appId, orgaId) {
-  var params = orgaId ? [orgaId, appId] : [appId];
-
+function list (api, appId, orgaId) {
+  const params = orgaId ? [orgaId, appId] : [appId];
   return api.owner(orgaId).applications._.exposed_env.get().withParams(params).send();
 };
 
-PublishedConfig.set = function(api, name, value, appId, orgaId) {
-  return PublishedConfig.list(api, appId, orgaId).flatMapLatest(function(values) {
-    var config = _.assign({}, values)
-    config[name] = value;
-    var pairs = _.toPairs(config);
-    return PublishedConfig.bulkSet(api, pairs, appId, orgaId);
+function set (api, name, value, appId, orgaId) {
+  return list(api, appId, orgaId).flatMapLatest((values) => {
+    const pairs = _.assign({}, values, { [name]: value });
+    return bulkSet(api, pairs, appId, orgaId);
   });
 };
 
-PublishedConfig.remove = function(api, name, appId, orgaId) {
-  return PublishedConfig.list(api, appId, orgaId).flatMapLatest(function(values) {
-    var config = _.assign({}, values);
-    delete config[name];
-    var pairs = _.toPairs(config);
-    return PublishedConfig.bulkSet(api, pairs, appId, orgaId);
+function remove (api, name, appId, orgaId) {
+  return list(api, appId, orgaId).flatMapLatest((values) => {
+    const pairs = _.omit(values, name);
+    return bulkSet(api, pairs, appId, orgaId);
   });
 };
 
-PublishedConfig.bulkSet = function(api, pairs, appId, orgaId) {
-  var params = orgaId ? [orgaId, appId] : [appId];
-  var payload = _.fromPairs(pairs);
-
-  return api.owner(orgaId).applications._.exposed_env.put().withParams(params).send(JSON.stringify(payload));
+function bulkSet (api, vars, appId, orgaId) {
+  const params = orgaId ? [orgaId, appId] : [appId];
+  const payload = JSON.stringify(vars);
+  return api.owner(orgaId).applications._.exposed_env.put().withParams(params).send(payload);
 };
+
+module.exports = { list, set, remove, bulkSet };
