@@ -64,16 +64,14 @@ describe('app_configuration.findApp()', () => {
       .to.throw('There are no applications matching');
   });
 
-  // TODO better error message
   it('should error when alias cannot be found (because not apps)', () => {
     const config = {
       apps: [],
     };
     expect(() => findApp(config, 'unknown'))
-      .to.throw('There are no applications matching');
+      .to.throw('There are no applications linked');
   });
 
-  // TODO better error message
   it('should error when two apps have the same alias', () => {
     const config = {
       apps: [
@@ -82,7 +80,7 @@ describe('app_configuration.findApp()', () => {
       ],
     };
     expect(() => findApp(config, 'foobar'))
-      .to.throw('Several applications are linked');
+      .to.throw('There are several applications matching alias ');
   });
 
   it('should find app with default', () => {
@@ -96,7 +94,6 @@ describe('app_configuration.findApp()', () => {
     expect(findApp(config, 'two')).to.have.property('app_id', 'app_uuid-two');
   });
 
-  // TODO better error message
   it('should error when default cannot be found', () => {
     const config = {
       default: 'unknown',
@@ -106,7 +103,7 @@ describe('app_configuration.findApp()', () => {
       ],
     };
     expect(() => findApp(config))
-      .to.throw('There are no applications linked');
+      .to.throw('The default application is not listed anymore');
   });
 });
 
