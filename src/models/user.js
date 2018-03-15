@@ -1,19 +1,11 @@
-var _ = require("lodash");
-var Bacon = require("baconjs");
+'use strict';
 
-var Logger = require("../logger.js");
-
-var AppConfiguration = require("./app_configuration.js");
-
-var User = module.exports;
-
-User.getCurrent = function(api) {
+function getCurrent (api) {
   return api.self.get().send();
 };
 
-User.getCurrentId = function(api) {
-  return api.self.get().send().map(function(self) {
-    return self.id;
-  });
+function getCurrentId (api) {
+  return api.self.get().send().map((self) => self.id);
 };
 
+module.exports = { getCurrent, getCurrentId };
