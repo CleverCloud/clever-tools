@@ -7,20 +7,20 @@ const _ = require('lodash');
 const Bacon = require('baconjs');
 const unidecode = require('unidecode');
 
-const Config = require('./configuration.js');
+const { conf }= require('./configuration.js');
 const Logger = require('../logger.js');
 
 function loadApplicationConf (ignoreParentConfig = false, pathToFolder) {
   if (pathToFolder == null) {
-    pathToFolder = path.dirname(Config.APP_CONFIGURATION_FILE);
+    pathToFolder = path.dirname(conf.APP_CONFIGURATION_FILE);
   }
-  const fileName = path.basename(Config.APP_CONFIGURATION_FILE);
+  const fileName = path.basename(conf.APP_CONFIGURATION_FILE);
   const fullPath = path.join(pathToFolder, fileName);
   Logger.debug('Loading app configuration from ' + fullPath);
   return Bacon.fromNodeCallback(fs.readFile, fullPath)
     .flatMapLatest(Bacon.try(JSON.parse))
     .flatMapError((error) => {
-      Logger.info('Cannot load app configuration from ' + Config.APP_CONFIGURATION_FILE + ' (' + error + ')');
+      Logger.info('Cannot load app configuration from ' + conf.APP_CONFIGURATION_FILE + ' (' + error + ')');
       if (ignoreParentConfig || path.parse(pathToFolder).root === pathToFolder) {
         return { apps: [] };
       }
@@ -68,34 +68,36 @@ function removeLinkedApplication (alias) {
   return s_newConfig.flatMapLatest(persistConfig);
 };
 
-function getAppData (alias) {
-  const currentConfig = loadApplicationConf();
+function findApp (config, alias) {
 
-  return currentConfig.flatMap(function (config) {
-    const matchingApps = _.filter(config.apps, function (app) {
-      const nothingMatches = !alias && !config.default;
-      const aliasMatches = alias && app.alias === alias;
-      const isDefault = !alias && app.app_id == config.default;
-      return nothingMatches || aliasMatches || isDefault;
-    });
-
-    if (matchingApps.length === 1) {
-      return Bacon.once(matchingApps[0]);
-    } else if (matchingApps.length === 0) {
-      if (alias) {
-        return new Bacon.Error('There are no applications matching this alias');
-      } else {
-        return new Bacon.Error('There are no applications linked. You can add one with `clever link`');
-      }
-    } else if (matchingApps.length > 1) {
-      return new Bacon.Error('Several applications are linked. You can specify one with the `--alias` option. Run `clever applications` to list linked applications. Available aliases: ' + _.map(matchingApps, 'alias').join(', '));
-    }
+  const matchingApps = _.filter(config.apps, function (app) {
+    const nothingMatches = !alias && !config.default;
+    const aliasMatches = alias && app.alias === alias;
+    const isDefault = !alias && app.app_id === config.default;
+    return nothingMatches || aliasMatches || isDefault;
   });
+
+  if (matchingApps.length === 1) {
+    return matchingApps[0];
+  } else if (matchingApps.length === 0) {
+    if (alias) {
+      throw new Error('There are no applications matching this alias');
+    } else {
+      throw new Error('There are no applications linked. You can add one with `clever link`');
+    }
+  } else if (matchingApps.length > 1) {
+    throw new Error('Several applications are linked. You can specify one with the `--alias` option. Run `clever applications` to list linked applications. Available aliases: ' + _.map(matchingApps, 'alias').join(', '));
+  }
+}
+
+function getAppData (alias) {
+  return loadApplicationConf()
+    .flatMap(Bacon.try((config) => findApp(config, alias)));
 };
 
 function persistConfig (modifiedConfig) {
   const jsonContents = JSON.stringify(modifiedConfig);
-  return Bacon.fromNodeCallback(fs.writeFile, Config.APP_CONFIGURATION_FILE, jsonContents);
+  return Bacon.fromNodeCallback(fs.writeFile, conf.APP_CONFIGURATION_FILE, jsonContents);
 };
 
 function setDefault (alias) {
@@ -118,6 +120,7 @@ module.exports = {
   loadApplicationConf,
   addLinkedApplication,
   removeLinkedApplication,
+  findApp,
   getAppData,
   setDefault,
   slugify,

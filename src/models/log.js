@@ -5,7 +5,7 @@ var request = require("request");
 var colors = require("colors");
 
 var Logger = require("../logger.js");
-var conf = require("./configuration.js");
+var { conf } = require('./configuration.js');
 var WsStream = require("./ws_stream.js");
 
 var Log = module.exports;

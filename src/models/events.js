@@ -3,7 +3,7 @@ var Bacon = require("baconjs");
 var _ = require("lodash");
 
 var Logger = require("../logger.js");
-var conf = require("./configuration.js");
+var { conf } = require('./configuration.js');
 var WsStream = require("./ws_stream.js");
 
 var Event = module.exports;
