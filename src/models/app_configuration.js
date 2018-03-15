@@ -113,13 +113,10 @@ function persistConfig (modifiedConfig) {
 
 function setDefault (alias) {
   return loadApplicationConf()
-    .flatMap((config) => {
-      const app = _.find(config.apps, { alias });
-      if (app == null) {
-        return new Bacon.Error('There is no application with this alias');
-      }
+    .flatMap(Bacon.try((config) => {
+      const app = findApp(config, alias);
       return _.assign({}, config, { default: app.app_id });
-    })
+    }))
     .flatMapLatest(persistConfig);
 }
 
