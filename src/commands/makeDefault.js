@@ -1,18 +1,18 @@
-var _ = require("lodash");
-var Bacon = require("baconjs");
+'use strict';
 
-var Logger = require("../logger.js");
+const AppConfig = require('../models/app_configuration.js');
+const handleCommandStream = require('../command-stream-handler');
+const Logger = require('../logger.js');
 
-var AppConfig = require("../models/app_configuration.js");
+function makeDefault (api, params) {
+  const [alias] = params.args;
 
-var makeDefault = module.exports = function(api, params) {
-  var alias = params.args[0];
+  const s_result = AppConfig.setDefault(alias)
+    .map(() => {
+      Logger.println('The application ' + alias + ' has been set as default');
+    });
 
-  var s_result = AppConfig.setDefault(alias);
-
-  s_result.onValue(function() {
-    Logger.println("The application " + alias + " has been set as default");
-  });
-
-  s_result.onError(Logger.error);
+  handleCommandStream(s_result);
 };
+
+module.exports = makeDefault;

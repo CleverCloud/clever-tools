@@ -1,9 +1,9 @@
 var _ = require("lodash");
-var conf = require("./configuration.js");
+var { conf, loadOAuthConf } = require('./configuration.js');
 var Logger = require("../logger.js");
 
 module.exports = function() {
-  var s_oauthData = conf.loadOAuthConf();
+  var s_oauthData = loadOAuthConf();
 
   var s_api = s_oauthData.map(function(tokens) {
     var api = require("clever-client")(_.defaults(conf, {

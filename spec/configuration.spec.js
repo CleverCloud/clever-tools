@@ -1,35 +1,36 @@
-var path = require("path");
-var Bacon = require("baconjs");
-var expect = require('chai').expect;
+'use strict';
 
-describe("configuration", function() {
-  var conf;
+const path = require('path');
+const Bacon = require('baconjs');
+const { expect } = require('chai');
 
-  beforeEach(function() {
-    conf = require("../src/models/configuration.js");
-  });
+describe('configuration', () => {
 
-  it("should retrieve configuration in a JSON file", function(done) {
-    conf.CONFIGURATION_FILE = path.resolve(__dirname, "./configuration.json");
+  it('should retrieve configuration in a JSON file', (done) => {
 
-    var s_oauth_data = conf.loadOAuthConf();
+    const { conf, loadOAuthConf } = require('../src/models/configuration.js');
+    conf.CONFIGURATION_FILE = path.resolve(__dirname, './configuration.json');
 
-    s_oauth_data.subscribe(function(event) {
+    const s_oauthData = loadOAuthConf();
+
+    s_oauthData.subscribe((event) => {
       expect(event.hasValue()).to.equal(true);
-      expect(event.value().token).to.equal("aaaa");
-      expect(event.value().secret).to.equal("bbbb");
+      expect(event.value().token).to.equal('aaaa');
+      expect(event.value().secret).to.equal('bbbb');
       done();
 
       return Bacon.noMore;
     });
   });
 
-  it("should return an empty configuration if the configuration file does not exist", function(done) {
-    conf.CONFIGURATION_FILE = path.resolve(__dirname, "./configuration-that-does-not-exist.json");
+  it('should return an empty configuration if the configuration file does not exist', (done) => {
 
-    var s_oauth_data = conf.loadOAuthConf();
+    const { conf, loadOAuthConf } = require('../src/models/configuration.js');
+    conf.CONFIGURATION_FILE = path.resolve(__dirname, './configuration-that-does-not-exist.json');
 
-    s_oauth_data.subscribe(function(event) {
+    const s_oauth_data = loadOAuthConf();
+
+    s_oauth_data.subscribe(function (event) {
       expect(event.hasValue()).to.equal(true);
       expect(event.value().token).to.be.an('undefined');
       expect(event.value().secret).to.be.an('undefined');

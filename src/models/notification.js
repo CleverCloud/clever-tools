@@ -4,7 +4,7 @@ var request = require("request");
 var autocomplete = require("cliparse").autocomplete;
 
 var Logger = require("../logger.js");
-var conf = require("./configuration.js");
+var { conf } = require('./configuration.js');
 
 var Notification = module.exports;
 

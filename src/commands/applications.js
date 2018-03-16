@@ -1,21 +1,31 @@
-var colors = require("colors");
-var _ = require("lodash");
+'use strict';
 
-var AppConfiguration = require("../models/app_configuration.js");
+const colors = require('colors');
+const _ = require('lodash');
 
-var Logger = require("../logger.js");
+const AppConfig = require('../models/app_configuration.js');
+const handleCommandStream = require('../command-stream-handler');
+const Logger = require('../logger.js');
 
-var applications = module.exports = function(api, params) {
-  AppConfiguration.loadApplicationConf().onValue(function(conf) {
-      if(!params.options["only-aliases"]) {
-        Logger.println(conf.apps.map(function(app) {
-          return "Application " + app.name + "\n" +
-                 "  alias: " + app.alias.bold + "\n" +
-                 "  id: " + app.app_id + "\n" +
-                 "  deployment url: " + app.deploy_url
-        }).join('\n\n'));
-      } else {
-        Logger.println(_.map(conf.apps, "alias").join('\n'));
+function applications (api, params) {
+  const { 'only-aliases': onlyAliases } = params.options;
+
+  const s_result = AppConfig.loadApplicationConf()
+    .map(({ apps }) => {
+      if (onlyAliases) {
+        return _.map(apps, 'alias').join('\n');
       }
-  });
+      return _.map(apps, (app) => {
+        return [
+          `Application ${app.name}`,
+          `  alias: ${colors.bold(app.alias)}`,
+          `  id: ${app.app_id}`,
+          `  deployment url: ${app.deploy_url}`].join('\n');
+      }).join('\n\n');
+    })
+    .map(Logger.println);
+
+  handleCommandStream(s_result);
 };
+
+module.exports = applications;

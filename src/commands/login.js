@@ -8,7 +8,7 @@ var Bacon = require("baconjs");
 
 var Logger = require("../logger.js");
 var OpenBrowser = require("../open-browser.js");
-var conf = require("../models/configuration.js");
+var { conf } = require("../models/configuration.js");
 var Interact = require("../models/interact.js");
 
 

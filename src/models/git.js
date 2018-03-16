@@ -1,5 +1,5 @@
 var _ = require("lodash");
-var conf = require("./configuration.js");
+var { loadOAuthConf } = require('./configuration.js');
 var path = require("path");
 var fs = require("fs");
 var Bacon = require("baconjs");
@@ -134,7 +134,7 @@ module.exports = function(repositoryPath) {
 
   Git.fetch = function(remote) {
     Logger.debug("Fetching " + Git.getRemoteName(remote) + "…");
-    return conf.loadOAuthConf().flatMapLatest(function(tokens) {
+    return loadOAuthConf().flatMapLatest(function(tokens) {
       return Bacon.fromPromise(
         remote.fetch([Git.getRemoteName(remote)], Git.fetchOptions(tokens.token, tokens.secret))
       ).map(remote);
@@ -145,7 +145,7 @@ module.exports = function(repositoryPath) {
     var s_timeout = timeout > 0 ? Bacon.later(timeout, {}) : Bacon.never();
     var fetch = function() {
       Logger.debug("Fetching " + Git.getRemoteName(remote));
-      return conf.loadOAuthConf().flatMapLatest(function(tokens) {
+      return loadOAuthConf().flatMapLatest(function(tokens) {
         return Bacon.fromPromise(
           remote.fetch(["refs/heads/master"], Git.fetchOptions(tokens.token, tokens.secret))
         ).map(remote).flatMapError(function(error) {
@@ -198,7 +198,7 @@ module.exports = function(repositoryPath) {
   Git.push = function (remote, branchRefspec, force) {
     Logger.debug('Preparing the push');
     const forcePush = force ? '+' : '';
-    return conf.loadOAuthConf().flatMapLatest(({ token, secret }) => {
+    return loadOAuthConf().flatMapLatest(({ token, secret }) => {
       // /!\ We're always using a branch based refspec because libgit/nodegit does NOT support direct commit refspec for push
       // https://github.com/libgit2/libgit2/issues/3178
       const refspec = `${forcePush}${branchRefspec}:refs/heads/master`;
