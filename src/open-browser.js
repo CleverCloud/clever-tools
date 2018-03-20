@@ -1,45 +1,44 @@
-var spawn = require("child_process").spawn;
-var nodeUrl = require("url");
+'use strict';
 
-var _ = require("lodash");
-var Bacon = require("baconjs");
+const { spawn } = require('child_process');
+const nodeUrl = require('url');
 
-var Logger = require("./logger.js");
+const Bacon = require('baconjs');
 
-var OpenBrowser = module.exports;
+const Logger = require('./logger.js');
 
-OpenBrowser.getCommand = function(url) {
-  Logger.debug("Get the right command to open a tab in a browser…")
+function getCommand (url) {
+  Logger.debug('Get the right command to open a tab in a browser…');
 
   try {
-    var parsed = nodeUrl.parse(url);
-    if(parsed.protocol === null || parsed.hostname === null) {
-      return new Bacon.Error("Invalid url provided");
+    const { protocol, hostname } = nodeUrl.parse(url);
+    if (protocol === null || hostname === null) {
+      return new Bacon.Error('Invalid url provided');
     }
-  } catch(e) {
-    return new Bacon.Error("Invalid url provided");
+  } catch (e) {
+    return new Bacon.Error('Invalid url provided');
   }
 
-  var args = [url];
+  const args = [url];
 
-  switch(process.platform) {
-    case "darwin":
-      return Bacon.constant({command: "open", args: args});
-    case "linux":
-      return Bacon.constant({command: "xdg-open", args: args});
-    case "win32":
-      return Bacon.constant({command: "explorer.exe", args: args});
+  switch (process.platform) {
+    case 'darwin':
+      return Bacon.constant({ command: 'open', args });
+    case 'linux':
+      return Bacon.constant({ command: 'xdg-open', args });
+    case 'win32':
+      return Bacon.constant({ command: 'explorer.exe', args });
     default:
-      return new Bacon.Error("Unsupported platform: " + process.platform);
+      return new Bacon.Error('Unsupported platform: ' + process.platform);
   }
 }
 
-OpenBrowser.run = function(command) {
-  return Bacon.fromBinder(function(sink) {
-    Logger.debug("Opening browser")
-    var browser = spawn(command.command, command.args, {
+function run (command) {
+  return Bacon.fromBinder((sink) => {
+    Logger.debug('Opening browser');
+    const browser = spawn(command.command, command.args, {
       detached: true,
-      stdio: ['ignore', 'ignore', 'ignore']
+      stdio: ['ignore', 'ignore', 'ignore'],
     });
 
     // If we have to launch the browser,
@@ -49,14 +48,14 @@ OpenBrowser.run = function(command) {
     sink(new Bacon.Next());
     sink(new Bacon.End());
 
-    return function(){};
+    return () => {
+    };
   });
 }
 
-OpenBrowser.openPage = function(url) {
-  var s_command = OpenBrowser.getCommand(url);
-
-  return s_command.flatMapLatest(function(command) {
-    return OpenBrowser.run(command);
-  });
+function openPage (url) {
+  return getCommand(url)
+    .flatMapLatest((command) => run(command));
 }
+
+module.exports = { getCommand, run, openPage };

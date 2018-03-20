@@ -1,23 +1,24 @@
-var _ = require("lodash");
+'use strict';
 
-var AppConfiguration = require("../models/app_configuration.js");
-var Domain = require("../models/domain.js");
-var OpenBrowser = require("../open-browser.js");
+const AppConfig = require('../models/app_configuration.js');
+const Domain = require('../models/domain.js');
+const handleCommandStream = require('../command-stream-handler');
+const Logger = require('../logger.js');
+const OpenBrowser = require('../open-browser.js');
 
-var Logger = require("../logger.js");
+function open (api, params) {
+  const { alias } = params.options;
 
-var open = module.exports = function(api, params) {
-  var alias = params.options.alias;
-  var s_appData = AppConfiguration.getAppData(alias);
-  var s_vhost = s_appData.flatMapLatest(function(appData) {
-    return Domain.getBest(api, appData.app_id, appData.org_id);
-  });
+  const s_open = AppConfig.getAppData(alias)
+    .flatMapLatest(({ app_id, org_id }) => {
+      return Domain.getBest(api, app_id, org_id);
+    })
+    .flatMapLatest((vhost) => {
+      Logger.println('Opening the application in your browser');
+      return OpenBrowser.openPage('http://' + vhost.fqdn);
+    });
 
-  var s_open = s_vhost.flatMapLatest(function(vhost) {
-    Logger.println("Opening the application in your browser");
-    return OpenBrowser.openPage("http://" + vhost.fqdn);
-  });
+  handleCommandStream(s_open);
+}
 
-  s_open.onValue();
-  s_open.onError(Logger.error);
-};
+module.exports = open;
