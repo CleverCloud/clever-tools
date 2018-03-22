@@ -1,26 +1,24 @@
-var path = require("path");
+'use strict';
 
-var _ = require("lodash");
-var Bacon = require("baconjs");
+const _ = require('lodash');
 
-var AppConfig = require("../models/app_configuration.js");
-var Deployment = require("../models/deployment.js");
+const AppConfig = require('../models/app_configuration.js');
+const Deployment = require('../models/deployment.js');
+const handleCommandStream = require('../command-stream-handler');
+const Logger = require('../logger.js');
 
-var Logger = require("../logger.js");
+function cancelDeployment (api, params) {
+  const { alias } = params.options;
 
-var cancelDeployment = module.exports = function(api, params) {
-  var alias = params.options.alias;
+  const s_cancel = AppConfig.getAppData(alias)
+    .flatMapLatest(({ app_id, org_id }) => {
+      return Deployment.last(api, app_id, org_id).flatMapLatest((deployments) => {
+        return Deployment.cancel(api, _.head(deployments) || {}, app_id, org_id);
+      });
+    })
+    .map(() => Logger.println('Deployment cancelled!'));
 
-  var s_appData = AppConfig.getAppData(alias);
-
-  var s_cancel = s_appData.flatMapLatest(function(appData) {
-    return Deployment.last(api, appData.app_id, appData.org_id).flatMapLatest(function(deployments) {
-      return Deployment.cancel(api, _.head(deployments) || {}, appData.app_id, appData.org_id);
-    });
-  });
-
-  s_cancel.onValue(function(___) {
-    Logger.println("Deployment cancelled!");
-  });
-  s_cancel.onError(Logger.error);
+  handleCommandStream(s_cancel);
 };
+
+module.exports = cancelDeployment;
