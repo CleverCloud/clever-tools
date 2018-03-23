@@ -1,26 +1,18 @@
-var _ = require("lodash");
-var path = require("path");
-var Bacon = require("baconjs");
-var nodegit = require("nodegit");
+'use strict';
 
-var Logger = require("../logger.js");
+const AppConfig = require('../models/app_configuration.js');
+const Application = require('../models/application.js');
+const handleCommandStream = require('../command-stream-handler');
+const Logger = require('../logger.js');
 
-var AppConfig = require("../models/app_configuration.js");
-var Application = require("../models/application.js");
-var Git = require("../models/git.js")(path.resolve("."));
+function unlink (api, params) {
+  const [alias] = params.args;
 
-var unlink = module.exports = function(api, params) {
-  var alias = params.args[0];
+  const s_result = AppConfig.getAppData(alias)
+    .flatMapLatest((appData) => Application.unlinkRepo(api, appData.alias))
+    .map(() => Logger.println('Your application has been successfully unlinked!'));
 
-  var s_appData = AppConfig.getAppData(alias).toProperty();
-
-  var s_result = s_appData.flatMapLatest(function(appData) {
-    return Application.unlinkRepo(api, appData.alias);
-  })
-
-  s_result.onValue(function(app) {
-    Logger.println("Your application has been successfully unlinked!");
-  });
-
-  s_result.onError(Logger.error);
+  handleCommandStream(s_result);
 };
+
+module.exports = unlink;
