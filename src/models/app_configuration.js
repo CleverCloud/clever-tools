@@ -7,7 +7,7 @@ const _ = require('lodash');
 const Bacon = require('baconjs');
 const unidecode = require('unidecode');
 
-const { conf }= require('./configuration.js');
+const { conf } = require('./configuration.js');
 const Logger = require('../logger.js');
 
 function loadApplicationConf (ignoreParentConfig = false, pathToFolder) {

@@ -1,27 +1,21 @@
-var _ = require("lodash");
-var path = require("path");
-var Bacon = require("baconjs");
+'use strict';
 
-var Logger = require("../logger.js");
+const AppConfig = require('../models/app_configuration.js');
+const Application = require('../models/application.js');
+const handleCommandStream = require('../command-stream-handler');
+const Logger = require('../logger.js');
 
-var AppConfig = require("../models/app_configuration.js");
-var Application = require("../models/application.js");
+function deleteApp (api, params) {
+  const { alias, yes: skipConfirmation } = params.options;
 
-var app_delete = module.exports = function(api, params) {
-  var alias = params.options.alias;
-  var skipConfirmation = params.options.yes;
+  const s_delete = AppConfig.getAppData(alias)
+    .flatMapLatest((app_data) => {
+      return Application.deleteApp(api, app_data, skipConfirmation)
+        .flatMapLatest(() => Application.unlinkRepo(api, app_data.alias));
+    })
+    .map(() => Logger.println('The application has been deleted'));
 
-  var s_appData = AppConfig.getAppData(alias).toProperty();
-
-  var s_delete = s_appData.flatMapLatest((app_data) => {
-    return Application.adelete(api, app_data, skipConfirmation)
-      .flatMapLatest(() => Application.unlinkRepo(api, app_data.alias))
-  });
-
-  s_delete.onValue(function() {
-    Logger.println("The application has been deleted")
-  });
-  s_delete.onError(Logger.error);
+  handleCommandStream(s_delete);
 };
 
-
+module.exports = deleteApp;
