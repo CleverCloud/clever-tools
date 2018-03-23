@@ -1,32 +1,23 @@
-var _ = require("lodash");
-var Bacon = require("baconjs");
+'use strict';
 
-var Logger = require("../logger.js");
+const Bacon = require('baconjs');
 
-
-
-var Deployment = module.exports;
-
-Deployment.list = function(api, appId, orgaId) {
-  var params = orgaId ? [orgaId, appId] : [appId];
-
+function list (api, appId, orgaId) {
+  const params = orgaId ? [orgaId, appId] : [appId];
   return api.owner(orgaId).applications._.deployments.get().withParams(params).send();
 };
 
-Deployment.last = function(api, appId, orgaId) {
-  var params = orgaId ? [orgaId, appId] : [appId];
-
+function last (api, appId, orgaId) {
+  const params = orgaId ? [orgaId, appId] : [appId];
   return api.owner(orgaId).applications._.deployments.get().withParams(params).withQuery({ limit: 1 }).send();
 };
 
-Deployment.cancel = function(api, deployment, appId, orgaId) {
-  var params;
-
-  if(deployment.action === 'DEPLOY' && deployment.state === 'WIP') {
-    params = orgaId ? [orgaId, appId, deployment.id] : [appId, deployment.id];
-
+function cancel (api, deployment, appId, orgaId) {
+  if (deployment.action === 'DEPLOY' && deployment.state === 'WIP') {
+    const params = orgaId ? [orgaId, appId, deployment.id] : [appId, deployment.id];
     return api.owner(orgaId).applications._.deployments._.instances.delete().withParams(params).send();
-  } else {
-    return new Bacon.Error('There is no ongoing deployment for this application');
   }
+  return new Bacon.Error('There is no ongoing deployment for this application');
 };
+
+module.exports = { list, last, cancel };
