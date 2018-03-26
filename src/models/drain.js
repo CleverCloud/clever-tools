@@ -99,7 +99,7 @@ Drain.disable = function(api, appId, drainId) {
 
 Drain.authorizeDrainCreation = function(drainTargetType, drainTargetCredentials) {
     if (Drain.drainTypeExists(drainTargetType)) { // drain type exists   
-        var credentialsStatus = Drain.credentialsStatus(drainTargetType); // retrieve creds for drain type ('mandatory', 'optional', undefined)
+        var credentialsStatus = Drain.credentialsStatus(drainTargetType).credentials; // retrieve creds for drain type ('mandatory', 'optional', undefined)
         switch (credentialsStatus) {
             case CREDENTIALS.MANDATORY:
                 return Drain.credentialsExist(drainTargetCredentials);
