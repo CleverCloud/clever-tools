@@ -127,6 +127,8 @@ Where `DRAIN-TYPE` is one of:
  - `HTTP`: for TCP syslog endpoint (note that this endpoint has optional username/password parameters as HTTP Basic Authentication);
  - `ElasticSearch`: for ElasticSearch endpoint (note that this endpoint requires username/password parameters as HTTP Basic Authentication).
 
+ElasticSearch drains use the Elastic bulk API. To match this endpoint, specify `/_bulk` at the end of your ElasticSearch endpoint.
+
 ### Display help
 
 You can display help about each command with `clever help`.
