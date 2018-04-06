@@ -83,7 +83,6 @@ function uploadFile (filepath, remoteFilepath = filepath) {
   })
 }
 
-
 async function buildRelease (arch) {
 
   console.log(`Building release for ${arch}...\n`)
@@ -130,16 +129,16 @@ async function buildRelease (arch) {
     }
     const filename = `clever-tools-${cleverToolsVersion}`
     await Promise.all([
-      uploadFile(`${archivePath}`),
-      uploadFile(`${archivePath}.sha256`),
-      uploadFile(`${archivePath}`, `${latestArchivePath}`),
-      uploadFile(`${archivePath}.sha256`, `${latestArchivePath}.sha256`),
-      uploadFile(`${buildDir}/${filename}.rpm`),
+      // uploadFile(`${archivePath}`),
+      // uploadFile(`${archivePath}.sha256`),
+      // uploadFile(`${archivePath}`, `${latestArchivePath}`),
+      // uploadFile(`${archivePath}.sha256`, `${latestArchivePath}.sha256`),
+      // uploadFile(`${buildDir}/${filename}.rpm`),
       uploadBintray(`${buildDir}/${filename}.rpm`, `${bintrayRpmPackage}/${cleverToolsVersion}/${filename}.rpm`),
-      uploadFile(`${buildDir}/${filename}.rpm.sha256`),
-      uploadFile(`${buildDir}/${filename}.deb`),
+      // uploadFile(`${buildDir}/${filename}.rpm.sha256`),
+      // uploadFile(`${buildDir}/${filename}.deb`),
       uploadBintray(`${buildDir}/${filename}.deb`, `${bintrayDebPackage}/${cleverToolsVersion}/${filename}.deb`),
-      uploadFile(`${buildDir}/${filename}.deb.sha256`)
+      // uploadFile(`${buildDir}/${filename}.deb.sha256`)
     ])
   }
 
