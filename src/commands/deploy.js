@@ -5,6 +5,7 @@ const path = require('path');
 const _ = require('lodash');
 const Bacon = require('baconjs');
 const colors = require('colors/safe');
+const Notifier = require('node-notifier');
 
 const AppConfig = require('../models/app_configuration.js');
 const Application = require('../models/application.js');
@@ -138,9 +139,17 @@ function getAllLogs (api, push, appData, commitId, quiet) {
   s_deploymentEnd.onValue((e) => {
     if (e.data.state === 'OK') {
       s_allLogs.push(colors.bold.green('Deployment successful'));
+      Notifier.notify({
+        'title': 'Clever Tools',
+        'message': 'Deployment successful'
+      });
     }
     else {
       s_allLogs.error('Deployment failed. Please check the logs');
+      Notifier.notify({
+        'title': 'Clever Tools',
+        'message': 'Deployment failed. Please check the logs.'
+      });
     }
     s_allLogs.end();
   });

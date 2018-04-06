@@ -28,6 +28,7 @@
     "lodash": "^4.13.1",
     "mkdirp": "^0.5.1",
     "moment": "^2.21.0",
+    "node-notifier": "^5.2.1",
     "nodegit": "0.20.3",
     "request": "^2.67.0",
     "unidecode": "^0.1.8",
