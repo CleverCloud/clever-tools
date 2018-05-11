@@ -6,13 +6,9 @@ const del = require('del')
 const exec = require('child_process').exec
 const fs = require('fs-extra')
 const pkg = require('pkg').exec
+const rpm = require('rpm-builder')
+const deb = require('nobin-debian-installer')()
 const platform = require('os').platform()
-
-const applicationName = 'clever-tools'
-const applicationVendor = 'Clever Cloud'
-const applicationDescription = 'Command Line Interface for Clever Cloud.'
-const license = 'MIT'
-const applicationUrl = 'https://www.clever-cloud.com/'
 
 const nodeVersion = process.versions.node
 const cleverToolsVersion = process.env.GIT_TAG_NAME || 'master'
@@ -23,6 +19,8 @@ const accessKeyId = process.env.S3_KEY_ID
 const secretAccessKey = process.env.S3_SECRET_KEY
 const cellarHost = 'cellar.services.clever-cloud.com'
 const s3Bucket = 'clever-tools'
+
+const metadata = Object.assign(require('../package.json'), {"version": cleverToolsVersion, "vendor": "Clever Cloud"})
 
 AWS.config.update({ accessKeyId, secretAccessKey })
 const s3 = new AWS.S3({
@@ -116,58 +114,102 @@ async function buildRelease (arch) {
   console.log(`\nRelease BUILT! ${archivePath}\n`)
 }
 
-async function buildRpm(buildDir) {
+async function buildRpm (buildDir) {
   console.log("Building RPM package...\n")
+
+  const archMapping = {'x64': 'x86_64', 'x32': 'i386'}
 
   const packagePath = `${buildDir}/clever-tools-${cleverToolsVersion}.rpm`
 
-  await asyncExec(`fpm \
-    -s dir \
-    -t rpm \
-    -p "${packagePath}" \
-    -n "${applicationName}" \
-    --vendor "${applicationVendor}" \
-    --description "${applicationDescription}" \
-    --license "${license}" \
-    -v ${cleverToolsVersion} \
-    -d "libssh2" \
-    -d "libcurl" \
-    ${buildDir}/linux/clever=/usr/lib/clever-tools-bin/clever \
-    ${buildDir}/linux/nodegit.node=/usr/lib/clever-tools-bin/nodegit.node \
-    ${scriptsDir}/clever-wrapper.sh=/usr/bin/clever`)
+  let promise = await new Promise((resolve, reject) => {
+    rpm({
+      name: metadata.name,
+      version: metadata.version,
+      buildArch: archMapping[process.arch] ? archMapping[process.arch] : process.arch,
+      rpmDest: buildDir,
+      description: metadata.description,
+      license: metadata.license,
+      vendor: metadata.vendor,
+      url: metadata.homepage,
+      files: [
+        {cwd: `${buildDir}/linux/`, src: `clever`, dest: '/usr/lib/clever-tools-bin'},
+        {cwd: `${buildDir}/linux/`, src: `nodegit.node`, dest: '/usr/lib/clever-tools-bin'},
+        {cwd: scriptsDir, src: `clever-wrapper.sh`, dest: '/usr/bin'}
+      ],
+      postInstallScript: [
+        'mv /usr/bin/clever-wrapper.sh /usr/bin/clever',
+        'chmod 755 /usr/bin/clever',
+        'chmod 755 /usr/lib/clever-tools-bin/clever'
+      ],
+      postUninstallScript: [
+        'rm -f /usr/bin/clever',
+        'rm -fr /usr/lib/clever-tools-bin'
+      ],
+      autoReq: false
+    }, (err, rpm) => {
+      if (err) {
+        throw err
+      }
 
-  const sum = await checksum(`${packagePath}`)
-  await fs.outputFile(`${packagePath}.sha256`, sum)
-  await fs.appendFile(`${releasesDir}/sha.properties`, `SHA256_rpm=${sum}\n`)
+      fs.rename(rpm, packagePath)
+      console.log(`\nRPM BUILT ! ${packagePath}\n`)
 
-  console.log(`\nRPM BUILT ! ${buildDir}/clever-tools-${cleverToolsVersion}.rpm\n`)
+      const sum = checksum(`${packagePath}`)
+      fs.outputFile(`${packagePath}.sha256`, sum)
+      fs.appendFile(`${releasesDir}/sha.properties`, `SHA256_rpm=${sum}\n`)
+      
+      resolve();
+    });
+  }).catch(err => {throw err});
+
+  return promise
 }
 
 async function buildDeb(buildDir) {
-  console.log("Building RPM package...\n")
+  console.log("Building DEB package...\n")
+
+  const archMapping = {'x64': 'amd64', 'x32': 'i386'}
+  const arch = archMapping[process.arch] ? archMapping[process.arch] : process.arch
 
   const packagePath = `${buildDir}/clever-tools-${cleverToolsVersion}.deb`
 
-  await asyncExec(`fpm \
-    -s dir \
-    -t deb \
-    -p "${buildDir}/clever-tools-${cleverToolsVersion}.deb" \
-    -n "${applicationName}" \
-    --vendor "${applicationVendor}" \
-    --description "${applicationDescription}" \
-    --license "${license}" \
-    -v ${cleverToolsVersion} \
-    -d "libssh2-1" \
-    -d "libcurl3-gnutls" \
-    ${buildDir}/linux/clever=/usr/lib/clever-tools-bin/clever \
-    ${buildDir}/linux/nodegit.node=/usr/lib/clever-tools-bin/nodegit.node \
-    ${scriptsDir}/clever-wrapper.sh=/usr/bin/clever`)
+  let promise = await new Promise((resolve, reject) => {
+    deb.pack({
+      package: metadata,
+      info: {
+        arch: archMapping[process.arch] ? archMapping[process.arch] : process.arch,
+        name: metadata.name, 
+        targetDir: buildDir,
+        scripts: {
+          preinst: `${scriptsDir}/deb/preinstall.sh`,
+          postinst: `${scriptsDir}/deb/postinstall.sh`,
+          postrm: `${scriptsDir}/deb/postuninstall.sh`
+        }
+      }
+    }, [{
+      src: ['clever', 'nodegit.node'],
+      dest: '/usr/lib/clever-tools-bin',
+      cwd: `${buildDir}/linux/`,
+      expand: true
+    }, {
+      src: ['clever-wrapper.sh'],
+      dest: '/usr/bin',
+      cwd: scriptsDir,
+      expand: true
+    }], () => {
+      fs.rename(`${buildDir}/clever-tools_${cleverToolsVersion}-1_${arch}.deb`, packagePath)
+      
+      console.log(`\nDEB BUILT ! ${packagePath}\n`)
 
-  const sum = await checksum(`${packagePath}`)
-  await fs.outputFile(`${packagePath}.sha256`, sum)
-  await fs.appendFile(`${releasesDir}/sha.properties`, `SHA256_rpm=${sum}\n`)
+      const sum = checksum(`${packagePath}`)
+      fs.outputFile(`${packagePath}.sha256`, sum)
+      fs.appendFile(`${releasesDir}/sha.properties`, `SHA256_deb=${sum}\n`)
+      
+      resolve()
+    });
+  }).catch(err => {throw err});
 
-  console.log(`\nDEB BUILT ! ${buildDir}/clever-tools-${cleverToolsVersion}.deb\n`)
+  return promise
 }
 
 console.log(`Building releases for cc-tools@${cleverToolsVersion} with node v${nodeVersion}\n`)

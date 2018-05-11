@@ -10,13 +10,12 @@ RUN apt-get update -qqy && \
         g++ \
         curl \
         git \
-        ruby \
-        ruby-dev gcc \
         libffi-dev \
-        make \
         libc-dev \
-        rpm && \
-    gem install --no-ri --no-rdoc fpm
+        libssl-dev \
+        zip \
+        make \
+        rpm
 
 ADD https://nodejs.org/download/release/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-x64.tar.gz /tmp/node.tar.gz
 RUN cd /usr/local && \

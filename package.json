@@ -46,7 +46,9 @@
     "grunt-mocha-test": "^0.13.2",
     "mocha": "^3.1.0",
     "pkg": "^4.2.0",
-    "shelljs": "^0.7.0"
+    "shelljs": "^0.7.0",
+    "rpm-builder": "^0.7.0",
+    "nobin-debian-installer": "^0.0.10"
   },
   "scripts": {
     "test": "grunt test"
