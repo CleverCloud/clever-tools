@@ -1,13 +1,11 @@
 var _ = require("lodash");
 var path = require("path");
 var Bacon = require("baconjs");
-var nodegit = require("nodegit");
 
 var Logger = require("../logger.js");
 
 var AppConfig = require("../models/app_configuration.js");
 var Domain = require("../models/domain.js");
-var Git = require("../models/git.js")(path.resolve("."));
 
 var domain = module.exports;
 

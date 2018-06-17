@@ -5,7 +5,6 @@ var Bacon = require("baconjs");
 
 var AppConfig = require("../models/app_configuration.js");
 var Application = require("../models/application.js");
-var Git = require("../models/git.js")(path.resolve("."));
 var Log = require("../models/log.js");
 
 var Logger = require("../logger.js");

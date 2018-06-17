@@ -1,12 +1,10 @@
 var _ = require("lodash");
 var path = require("path");
 var Bacon = require("baconjs");
-var nodegit = require("nodegit");
 
 var Logger = require("../logger.js");
 
 var Application = require("../models/application.js");
-var Git = require("../models/git.js")(path.resolve("."));
 
 var create = module.exports = function(api, params) {
   var name = params.args[0];

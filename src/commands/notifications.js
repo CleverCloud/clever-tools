@@ -1,7 +1,6 @@
 var _ = require("lodash");
 var path = require("path");
 var Bacon = require("baconjs");
-var nodegit = require("nodegit");
 var colors = require("colors");
 
 var Logger = require("../logger.js");
