@@ -3,6 +3,7 @@ var path = require("path");
 var _ = require("lodash");
 var Bacon = require("baconjs");
 
+var handleCommandStream = require('../command-stream-handler');
 var AppConfig = require("../models/app_configuration.js");
 var Application = require("../models/application.js");
 var Log = require("../models/log.js");
@@ -25,7 +26,5 @@ var appLogs = module.exports = function(api, params) {
       return Log.getAppLogs(api, app_data.app_id, null, before, after, search, deploymentId);
     });
   }
-
-  s_logs.onValue(Logger.println);
-  s_logs.onError(Logger.error);
+  handleCommandStream(s_logs, Logger.println)
 };

@@ -4,6 +4,7 @@ var _ = require("lodash");
 var Bacon = require("baconjs");
 var colors = require("colors");
 
+var handleCommandStream = require('../command-stream-handler');
 var AppConfig = require("../models/app_configuration.js");
 var Application = require("../models/application.js");
 var Git = require("../models/git.js")(path.resolve("."));
@@ -13,8 +14,8 @@ var Logger = require("../logger.js");
 
 var displayGroupInfo = function(instances, commit) {
   return '(' + displayFlavors(instances) + ', ' +
-         ' Commit: ' + (commit || 'N/A') +
-         ')';
+    ' Commit: ' + (commit || 'N/A') +
+    ')';
 };
 
 var displayFlavors = function(instances) {
@@ -23,11 +24,11 @@ var displayFlavors = function(instances) {
   });
 
   return _(sizes)
-          .groupBy()
-          .toPairs()
-          .map(function(x) {
-            return x[1].length + '*' + x[0];
-          }).join(', ');
+    .groupBy()
+    .toPairs()
+    .map(function(x) {
+      return x[1].length + '*' + x[0];
+    }).join(', ');
 };
 
 var computeStatus = function(instances, app) {
@@ -62,9 +63,9 @@ var displayScalability = function(scalability) {
   }
 
   return 'Scalability:\n' +
-         '  Auto scalability: ' + (enabled ? 'enabled'.green : 'disabled'.red) + '\n' +
-         '  Scalers: ' + horizontal.bold + '\n' +
-         '  Sizes: ' + vertical.bold;
+    '  Auto scalability: ' + (enabled ? 'enabled'.green : 'disabled'.red) + '\n' +
+    '  Scalers: ' + horizontal.bold + '\n' +
+    '  Sizes: ' + vertical.bold;
 };
 
 var status = module.exports = function(api, params) {
@@ -79,11 +80,10 @@ var status = module.exports = function(api, params) {
   });
 
 
-  s_appInstances
-    .zip(s_app, function(instances, app) { return [instances, app]; })
-    .onValue(function(data) {
+  handleCommandStream(
+    s_appInstances.zip(s_app, function(instances, app) { return [instances, app]; }),
+    function(data) {
       Logger.println(computeStatus(data[0], data[1]));
       Logger.println(displayScalability(data[1].instance));
     });
-  s_appInstances.onError(Logger.error);
 };

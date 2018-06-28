@@ -4,6 +4,7 @@ var Bacon = require("baconjs");
 
 var Logger = require("../logger.js");
 
+var handleCommandStream = require('../command-stream-handler');
 var AppConfig = require("../models/app_configuration.js");
 var Addon = require("../models/addon.js");
 var Organisation = require("../models/organisation.js");
@@ -20,7 +21,7 @@ var list = addon.list = function(api, params) {
     return Addon.list(api, orgaId);
   });
 
-  s_addons.onValue(function(addons) {
+  handleCommandStream(s_addons, function(addons) {
     var nameWidth = Math.max.apply(null,   _(addons).map("name").filter().map("length").value());
     var planWidth = Math.max.apply(null,   _(addons).map("plan").map("name").map("length").value());
     var regionWidth = Math.max.apply(null, _(addons).map("region").map("length").value());
@@ -28,18 +29,17 @@ var list = addon.list = function(api, params) {
 
     var renderLine = function(addon) {
       return '[' + _.padEnd(addon.plan.name, planWidth) + ' ' +
-                   _.padEnd(addon.provider.name, typeWidth) + '] ' +
-                   _.padEnd(addon.region, regionWidth) + ' ' +
-                   _.padEnd(addon.name, nameWidth).bold.green + ' ' +
-                   addon.id;
+        _.padEnd(addon.provider.name, typeWidth) + '] ' +
+        _.padEnd(addon.region, regionWidth) + ' ' +
+        _.padEnd(addon.name, nameWidth).bold.green + ' ' +
+        addon.id;
     };
 
     Logger.println(
       addons.map(renderLine)
-            .join('\n'));
+        .join('\n'));
   });
 
-  s_addons.onError(Logger.error);
 };
 
 var create = addon.create = function(api, params) {
@@ -66,14 +66,13 @@ var create = addon.create = function(api, params) {
     }
   });
 
-  s_result.onValue(function(r) {
+  handleCommandStream(s_result, function(r) {
     if(linkTo) {
       Logger.println("Addon " + name + " (id: " + r.id +") successfully created and linked to the application");
     } else {
       Logger.println("Addon " + name + " (id: " + r.id +") successfully created");
     }
   });
-  s_result.onError(Logger.error);
 };
 
 var adelete = addon.delete = function(api, params) {
@@ -87,10 +86,9 @@ var adelete = addon.delete = function(api, params) {
     return Addon.delete(api, orgaId, addonIdOrName, skipConfirmation);
   });
 
-  s_result.onValue(function() {
+  handleCommandStream(s_result, () => {
     Logger.println("Addon " + (addonIdOrName.addon_id || addonIdOrName.addon_name) + " successfully deleted");
   });
-  s_result.onError(Logger.error);
 };
 
 var rename = addon.rename = function(api, params) {
@@ -102,27 +100,25 @@ var rename = addon.rename = function(api, params) {
     return Addon.rename(api, orgaId, addonIdOrName, newName);
   });
 
-  s_result.onValue(function() {
+  handleCommandStream(s_result, () => {
     Logger.println("Addon " + (addonIdOrName.addon_id || addonIdOrName.addon_name) + " successfully renamed to " + newName);
   });
-  s_result.onError(Logger.error);
 };
 
 var listProviders = addon.listProviders = function(api, params) {
   var s_providers = Addon.listProviders(api);
 
-  s_providers.onValue(function(providers) {
+  handleCommandStream(s_providers, function(providers) {
     var idWidth = Math.max.apply(null, _(providers).map("id").map("length").value());
     var nameWidth = Math.max.apply(null, _(providers).map("name").map("length").value());
     _.each(providers, function(provider) {
-       Logger.println(
-         _.padEnd(provider.id, idWidth).bold + ' ' +
-         _.padEnd(provider.name, nameWidth) + ' ' +
-         provider.shortDesc
-       );
+      Logger.println(
+        _.padEnd(provider.id, idWidth).bold + ' ' +
+        _.padEnd(provider.name, nameWidth) + ' ' +
+        provider.shortDesc
+      );
     });
   });
-  s_providers.onError(Logger.error);
 };
 
 var showProvider = addon.showProvider = function(api, params) {
@@ -130,8 +126,8 @@ var showProvider = addon.showProvider = function(api, params) {
 
   var s_provider = Addon.getProvider(api, providerName);
 
-  s_provider.onValue(function(provider) {
-
+  handleCommandStream(s_providers, function(provider) {
+    
     Logger.println(provider.id.bold);
     Logger.println(provider.name + ': ' + provider.shortDesc);
     Logger.println();
@@ -146,5 +142,4 @@ var showProvider = addon.showProvider = function(api, params) {
       });
     });
   });
-  s_provider.onError(Logger.error);
 };

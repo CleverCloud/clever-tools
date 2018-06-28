@@ -5,6 +5,7 @@ var Bacon = require("baconjs");
 var colors = require("colors");
 var moment = require("moment");
 
+var handleCommandStream = require('../command-stream-handler');
 var Activity = require("../models/activity.js");
 var Event = require("../models/events.js");
 var AppConfig = require("../models/app_configuration.js");
@@ -18,23 +19,23 @@ var displayState = function(state, isFirst) {
     case "CANCELLED": return "CANCELLED  ".bold.red;
     case "WIP":
       if(isFirst) {
-                      return "IN PROGRESS".bold.blue;
+        return "IN PROGRESS".bold.blue;
       } else {
-                      return "FAIL       ".bold.red;
+        return "FAIL       ".bold.red;
       }
     default:
       Logger.warn("Unknown deployment state: " + state);
-                      return "UNKNOWN    ";
+      return "UNKNOWN    ";
   }
 };
 var unspecifiedCommitId = _.padEnd("not specified", 40); // a git commit id is 40 chars long
 
 var renderActivityLine = function(deployment, isFirst) {
   return moment(deployment.date).format() + " - " +
-         displayState(deployment.state, isFirst) + " " +
-         _.padEnd(deployment.action, 9) + " " + // longest action name is downscale
-         (deployment.commit || unspecifiedCommitId) + " " +
-         deployment.cause;
+    displayState(deployment.state, isFirst) + " " +
+    _.padEnd(deployment.action, 9) + " " + // longest action name is downscale
+    (deployment.commit || unspecifiedCommitId) + " " +
+    deployment.cause;
 };
 
 var activity = module.exports = function(api, params) {
@@ -60,27 +61,27 @@ var activity = module.exports = function(api, params) {
     });
 
     var s_activityEvents = s_events
-    .filter(function(event) {
-      return event.event === 'DEPLOYMENT_ACTION_BEGIN' ||
-             event.event === 'DEPLOYMENT_ACTION_END';
-    })
-    .map(function(event) {
-      return {
-        type: event.event,
-        date: event.date,
-        state: event.data.state,
-        action: event.data.action,
-        commit: event.data.commit,
-        cause: event.data.cause
-      };
-    });
+      .filter(function(event) {
+        return event.event === 'DEPLOYMENT_ACTION_BEGIN' ||
+          event.event === 'DEPLOYMENT_ACTION_END';
+      })
+      .map(function(event) {
+        return {
+          type: event.event,
+          date: event.date,
+          state: event.data.state,
+          action: event.data.action,
+          commit: event.data.commit,
+          cause: event.data.cause
+        };
+      });
 
     var s_newLines = s_activity
-                    .flatMapLatest(Bacon.fromArray)
-                    .merge(s_activityEvents)
-                    .slidingWindow(2,1);
+      .flatMapLatest(Bacon.fromArray)
+      .merge(s_activityEvents)
+      .slidingWindow(2,1);
 
-    s_newLines.onValue(function(events) {
+    handleCommandStream(s_newLines, function(events) {
       var event;
       if(events.length === 1) {
         event = events[0];
