@@ -63,7 +63,7 @@ var activity = module.exports = function(api, params) {
     var s_activityEvents = s_events
     .filter(function(event) {
       return event.event === 'DEPLOYMENT_ACTION_BEGIN' ||
-        event.event === 'DEPLOYMENT_ACTION_END';
+             event.event === 'DEPLOYMENT_ACTION_END';
     })
     .map(function(event) {
       return {
