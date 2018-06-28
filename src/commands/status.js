@@ -14,8 +14,8 @@ var Logger = require("../logger.js");
 
 var displayGroupInfo = function(instances, commit) {
   return '(' + displayFlavors(instances) + ', ' +
-    ' Commit: ' + (commit || 'N/A') +
-    ')';
+         ' Commit: ' + (commit || 'N/A') +
+         ')';
 };
 
 var displayFlavors = function(instances) {
@@ -24,11 +24,11 @@ var displayFlavors = function(instances) {
   });
 
   return _(sizes)
-    .groupBy()
-    .toPairs()
-    .map(function(x) {
-      return x[1].length + '*' + x[0];
-    }).join(', ');
+        .groupBy()
+        .toPairs()
+        .map(function(x) {
+          return x[1].length + '*' + x[0];
+        }).join(', ');
 };
 
 var computeStatus = function(instances, app) {
@@ -63,9 +63,9 @@ var displayScalability = function(scalability) {
   }
 
   return 'Scalability:\n' +
-    '  Auto scalability: ' + (enabled ? 'enabled'.green : 'disabled'.red) + '\n' +
-    '  Scalers: ' + horizontal.bold + '\n' +
-    '  Sizes: ' + vertical.bold;
+         '  Auto scalability: ' + (enabled ? 'enabled'.green : 'disabled'.red) + '\n' +
+         '  Scalers: ' + horizontal.bold + '\n' +
+         '  Sizes: ' + vertical.bold;
 };
 
 var status = module.exports = function(api, params) {

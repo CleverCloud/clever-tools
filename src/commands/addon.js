@@ -29,15 +29,15 @@ var list = addon.list = function(api, params) {
 
     var renderLine = function(addon) {
       return '[' + _.padEnd(addon.plan.name, planWidth) + ' ' +
-        _.padEnd(addon.provider.name, typeWidth) + '] ' +
-        _.padEnd(addon.region, regionWidth) + ' ' +
-        _.padEnd(addon.name, nameWidth).bold.green + ' ' +
-        addon.id;
+                   _.padEnd(addon.provider.name, typeWidth) + '] ' +
+                   _.padEnd(addon.region, regionWidth) + ' ' +
+                   _.padEnd(addon.name, nameWidth).bold.green + ' ' +
+                   addon.id;
     };
 
     Logger.println(
       addons.map(renderLine)
-        .join('\n'));
+            .join('\n'));
   });
 
 };
@@ -112,11 +112,11 @@ var listProviders = addon.listProviders = function(api, params) {
     var idWidth = Math.max.apply(null, _(providers).map("id").map("length").value());
     var nameWidth = Math.max.apply(null, _(providers).map("name").map("length").value());
     _.each(providers, function(provider) {
-      Logger.println(
-        _.padEnd(provider.id, idWidth).bold + ' ' +
-        _.padEnd(provider.name, nameWidth) + ' ' +
-        provider.shortDesc
-      );
+       Logger.println(
+         _.padEnd(provider.id, idWidth).bold + ' ' +
+         _.padEnd(provider.name, nameWidth) + ' ' +
+         provider.shortDesc
+       );
     });
   });
 };
@@ -127,7 +127,6 @@ var showProvider = addon.showProvider = function(api, params) {
   var s_provider = Addon.getProvider(api, providerName);
 
   handleCommandStream(s_providers, function(provider) {
-    
     Logger.println(provider.id.bold);
     Logger.println(provider.name + ': ' + provider.shortDesc);
     Logger.println();

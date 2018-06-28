@@ -12,7 +12,7 @@ function applications (api, params) {
 
   const s_result = AppConfig.loadApplicationConf()
     .map(({ apps }) => {
-      if(onlyAliases) {
+      if (onlyAliases) {
         return _.map(apps, 'alias').join('\n');
       }
       return _.map(apps, (app) => {
