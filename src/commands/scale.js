@@ -3,6 +3,7 @@ var path = require("path");
 var _ = require("lodash");
 var Bacon = require("baconjs");
 
+var handleCommandStream = require('../command-stream-handler');
 var AppConfig = require("../models/app_configuration.js");
 var Application = require("../models/application.js");
 
@@ -54,8 +55,5 @@ var scale = module.exports = function(api, params) {
     return Application.setScalability(api, appData.app_id, appData.org_id,scalabilityParameters);
   });
 
-  s_scaledApp.onValue(function(___) {
-    Logger.println("App rescaled successfully");
-  });
-  s_scaledApp.onError(Logger.error);
+  handleCommandStream(s_scaledApp, () => Logger.println("App rescaled successfully"));
 };

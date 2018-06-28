@@ -6,6 +6,7 @@ var colors = require("colors");
 
 var Logger = require("../logger.js");
 
+var handleCommandStream = require('../command-stream-handler');
 var AppConfig = require("../models/app_configuration.js");
 var Notification = require("../models/notification.js");
 var Organisation = require("../models/organisation.js");
@@ -87,12 +88,11 @@ var listNotifications = function(api, params, type) {
   });
   var display = type === 'emailhooks' ? displayEmailhook : displayWebhook;
 
-  s_hooks.onValue(function(hooks) {
+  handleCommandStream(s_hooks, function(hooks) {
     hooks.forEach(function(hook) {
       display(hook);
     });
   });
-  s_hooks.onError(Logger.error);
 };
 
 var addWebhook = notifs.addWebhook = function(api, params) {
@@ -117,10 +117,7 @@ var addWebhook = notifs.addWebhook = function(api, params) {
     return Notification.add(api, "webhooks", ownerAndApp.ownerId, name, [url], services, event_types);
   });
 
-  s_results.onValue(function() {
-    Logger.println("The webhook has been added")
-  });
-  s_results.onError(Logger.error);
+  handleCommandStream(s_results, () => Logger.println("The webhook has been added"));
 };
 
 var getEmailNotificationTargets = notifs.getEmailNotificationTargets = function(params) {
@@ -154,10 +151,7 @@ var addEmailNotification = notifs.addEmailNotification = function(api, params) {
     return Notification.add(api, "emailhooks", ownerAndApp.ownerId, name, notified, services, event_types);
   });
 
-  s_results.onValue(function() {
-    Logger.println("The webhook has been added")
-  });
-  s_results.onError(Logger.error);
+  handleCommandStream(s_results, () => Logger.println("The webhook has been added"));
 };
 
 var removeWebhook = notifs.removeWebhook = function(api, params) {
@@ -176,9 +170,6 @@ var removeNotification = function(api, params, type) {
     return Notification.remove(api, type, ownerId, notificationId);
   });
 
-  s_results.onValue(function() {
-    Logger.println("The notification has been successfully removed");
-  });
-  s_results.onError(Logger.error);
+  handleCommandStream(s_results, () => Logger.println("The notification has been successfully removed"));
 };
 

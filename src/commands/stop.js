@@ -3,6 +3,7 @@ var path = require("path");
 var _ = require("lodash");
 var Bacon = require("baconjs");
 
+var handleCommandStream = require('../command-stream-handler');
 var AppConfig = require("../models/app_configuration.js");
 var Application = require("../models/application.js");
 var Git = require("../models/git.js")(path.resolve("."));
@@ -21,8 +22,5 @@ var stop = module.exports = function(api, params) {
     return Application.stop(api, appData.app_id, appData.org_id);
   });
 
-  s_stoppedApp.onValue(function(___) {
-    Logger.println("App successfully stopped!");
-  });
-  s_stoppedApp.onError(Logger.error);
+  handleCommandStream(s_stoppedApp, () => Logger.println("App successfully stopped!"));
 };

@@ -3,6 +3,7 @@ var Bacon = require("baconjs");
 
 var Logger = require("../logger.js");
 
+var handleCommandStream = require('../command-stream-handler');
 var AppConfig = require("../models/app_configuration.js");
 var Application = require("../models/application.js");
 var Addon = require("../models/addon.js");
@@ -28,7 +29,7 @@ var list = service.list = function(api, params) {
       });
     });
 
-    s_dependencies.onValue(function(dependencies) {
+    handleCommandStream(s_dependencies, function(dependencies) {
       if(dependencies.apps !== null) {
         Logger.println("Applications:");
         Logger.println(dependencies.apps.map(function(x) { return (x.isLinked ? "* " : "  ") + x.name; }).join('\n'));
@@ -38,8 +39,6 @@ var list = service.list = function(api, params) {
         Logger.println(dependencies.addons.map(function(x) { return (x.isLinked ? "* " : "  ") + x.name + " (" + x.realId + ")"; }).join('\n'));
       }
     });
-
-    s_dependencies.onError(Logger.error);
   }
 
 };
@@ -54,10 +53,9 @@ var linkApp = service.linkApp = function(api, params) {
     return Application.link(api, appData.app_id, appData.org_id, appIdOrName);
   });
 
-  s_result.onValue(function() {
+  handleCommandStream(s_result, () => {
     Logger.println("App " + (appIdOrName.app_id || appIdOrName.app_name) + " successfully linked");
   });
-  s_result.onError(Logger.error);
 };
 
 var unlinkApp = service.unlinkApp = function(api, params) {
@@ -70,10 +68,9 @@ var unlinkApp = service.unlinkApp = function(api, params) {
     return Application.unlink(api, appData.app_id, appData.org_id, appIdOrName);
   });
 
-  s_result.onValue(function() {
+  handleCommandStream(s_result, () => {
     Logger.println("App " + (appIdOrName.app_id || appIdOrName.app_name) + " successfully unlinked");
   });
-  s_result.onError(Logger.error);
 };
 
 var linkAddon = service.linkAddon = function(api, params) {
@@ -86,10 +83,9 @@ var linkAddon = service.linkAddon = function(api, params) {
     return Addon.link(api, appData.app_id, appData.org_id, addonIdOrName);
   });
 
-  s_result.onValue(function() {
+  handleCommandStream(s_result, () => {
     Logger.println("Addon " + (addonIdOrName.addon_id || addonIdOrName.addon_name) + " successfully linked");
   });
-  s_result.onError(Logger.error);
 };
 
 var unlinkAddon = service.unlinkAddon = function(api, params) {
@@ -102,8 +98,7 @@ var unlinkAddon = service.unlinkAddon = function(api, params) {
     return Addon.unlink(api, appData.app_id, appData.org_id, addonIdOrName);
   });
 
-  s_result.onValue(function() {
+  handleCommandStream(s_result, () => {
     Logger.println("Addon " + (addonIdOrName.addon_id || addonIdOrName.addon_name) + " successfully unlinked");
   });
-  s_result.onError(Logger.error);
 };

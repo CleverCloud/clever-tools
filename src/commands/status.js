@@ -4,6 +4,7 @@ var _ = require("lodash");
 var Bacon = require("baconjs");
 var colors = require("colors");
 
+var handleCommandStream = require('../command-stream-handler');
 var AppConfig = require("../models/app_configuration.js");
 var Application = require("../models/application.js");
 var Git = require("../models/git.js")(path.resolve("."));
@@ -23,11 +24,11 @@ var displayFlavors = function(instances) {
   });
 
   return _(sizes)
-          .groupBy()
-          .toPairs()
-          .map(function(x) {
-            return x[1].length + '*' + x[0];
-          }).join(', ');
+        .groupBy()
+        .toPairs()
+        .map(function(x) {
+          return x[1].length + '*' + x[0];
+        }).join(', ');
 };
 
 var computeStatus = function(instances, app) {
@@ -79,11 +80,10 @@ var status = module.exports = function(api, params) {
   });
 
 
-  s_appInstances
-    .zip(s_app, function(instances, app) { return [instances, app]; })
-    .onValue(function(data) {
+  handleCommandStream(
+    s_appInstances.zip(s_app, function(instances, app) { return [instances, app]; }),
+    function(data) {
       Logger.println(computeStatus(data[0], data[1]));
       Logger.println(displayScalability(data[1].instance));
     });
-  s_appInstances.onError(Logger.error);
 };

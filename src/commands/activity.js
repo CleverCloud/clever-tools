@@ -5,6 +5,7 @@ var Bacon = require("baconjs");
 var colors = require("colors");
 var moment = require("moment");
 
+var handleCommandStream = require('../command-stream-handler');
 var Activity = require("../models/activity.js");
 var Event = require("../models/events.js");
 var AppConfig = require("../models/app_configuration.js");
@@ -80,7 +81,7 @@ var activity = module.exports = function(api, params) {
                     .merge(s_activityEvents)
                     .slidingWindow(2,1);
 
-    s_newLines.onValue(function(events) {
+    handleCommandStream(s_newLines, function(events) {
       var event;
       if(events.length === 1) {
         event = events[0];

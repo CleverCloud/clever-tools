@@ -5,6 +5,7 @@ var nodegit = require("nodegit");
 
 var Logger = require("../logger.js");
 
+var handleCommandStream = require('../command-stream-handler');
 var Application = require("../models/application.js");
 var Git = require("../models/git.js")(path.resolve("."));
 
@@ -32,9 +33,5 @@ var create = module.exports = function(api, params) {
       return Application.linkRepo(api, { app_id: app.id }, null, alias, true);
     });
 
-  s_app.onValue(function(app) {
-    Logger.println("Your application has been successfully created!");
-  });
-
-  s_app.onError(Logger.error);
+  handleCommandStream(s_app, () => Logger.println("Your application has been successfully created!"));
 };
