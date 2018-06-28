@@ -7,6 +7,7 @@ const exec = require('child_process').exec
 const fs = require('fs-extra')
 const pkg = require('pkg').exec
 const platform = require('os').platform()
+const request = require('request')
 
 const applicationName = 'clever-tools'
 const applicationVendor = 'Clever Cloud'
@@ -23,6 +24,12 @@ const accessKeyId = process.env.S3_KEY_ID
 const secretAccessKey = process.env.S3_SECRET_KEY
 const cellarHost = 'cellar.services.clever-cloud.com'
 const s3Bucket = 'clever-tools'
+
+const bintrayUser = process.env.BINTRAY_USER
+const bintrayApiKey = process.env.BINTRAY_API_KEY
+const bintrayAuth = Buffer.from(`${bintrayUser}:${bintrayApiKey}`).toString('base64')
+const bintrayRpmPackage = process.env.BINTRAY_RPM_PACKAGE
+const bintrayDebPackage = process.env.BINTRAY_DEB_PACKAGE
 
 AWS.config.update({ accessKeyId, secretAccessKey })
 const s3 = new AWS.S3({
@@ -44,6 +51,25 @@ async function checksum (file) {
     stream.on('data', (d) => shasum.update(d))
     stream.on('end', () => resolve(shasum.digest('hex')))
     stream.on('error', reject)
+  })
+}
+
+function uploadBintray(filepath, dest) {
+  return new Promise((resolve, reject) => {
+    console.log(`Uploading file ${filepath} to ${dest}`)
+    request.put({
+      url: `https://api.bintray.com/content/${dest}?publish=1`,
+      formData: {
+        file: fs.createReadStream(filepath),
+      },
+      headers: {
+        'Authorization': `Basic ${bintrayAuth}`,
+        // Mandatory specifications for debian
+        'X-Bintray-Debian-Distribution': 'wheezy',
+        'X-Bintray-Debian-Component': 'main',
+        'X-Bintray-Debian-Architecture': 'i386,amd64'
+      }
+    }, (err, res) => err ? reject(err) : resolve(res))
   })
 }
 
@@ -101,15 +127,18 @@ async function buildRelease (arch) {
     if (!process.env.S3_KEY_ID || !process.env.S3_SECRET_KEY) {
       throw new Error('Could not read S3 access/secret keys!')
     }
+    const filename = `clever-tools-${cleverToolsVersion}`
     await Promise.all([
-      uploadFile(`${archivePath}`),
-      uploadFile(`${archivePath}.sha256`),
-      uploadFile(`${archivePath}`, `${latestArchivePath}`),
-      uploadFile(`${archivePath}.sha256`, `${latestArchivePath}.sha256`),
-      uploadFile(`${buildDir}/clever-tools-${cleverToolsVersion}.rpm`),
-      uploadFile(`${buildDir}/clever-tools-${cleverToolsVersion}.rpm.sha256`),
-      uploadFile(`${buildDir}/clever-tools-${cleverToolsVersion}.deb`),
-      uploadFile(`${buildDir}/clever-tools-${cleverToolsVersion}.deb.sha256`)
+      // uploadFile(`${archivePath}`),
+      // uploadFile(`${archivePath}.sha256`),
+      // uploadFile(`${archivePath}`, `${latestArchivePath}`),
+      // uploadFile(`${archivePath}.sha256`, `${latestArchivePath}.sha256`),
+      // uploadFile(`${buildDir}/${filename}.rpm`),
+      uploadBintray(`${buildDir}/${filename}.rpm`, `${bintrayRpmPackage}/${cleverToolsVersion}/${filename}.rpm`),
+      // uploadFile(`${buildDir}/${filename}.rpm.sha256`),
+      // uploadFile(`${buildDir}/${filename}.deb`),
+      uploadBintray(`${buildDir}/${filename}.deb`, `${bintrayDebPackage}/${cleverToolsVersion}/${filename}.deb`),
+      // uploadFile(`${buildDir}/${filename}.deb.sha256`)
     ])
   }
 
@@ -144,7 +173,7 @@ async function buildRpm(buildDir) {
 }
 
 async function buildDeb(buildDir) {
-  console.log("Building RPM package...\n")
+  console.log("Building DEB package...\n")
 
   const packagePath = `${buildDir}/clever-tools-${cleverToolsVersion}.deb`
 
