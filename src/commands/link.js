@@ -1,27 +1,21 @@
-var _ = require("lodash");
-var path = require("path");
-var Bacon = require("baconjs");
-var nodegit = require("nodegit");
+'use strict';
 
-var Logger = require("../logger.js");
+const Application = require('../models/application.js');
+const handleCommandStream = require('../command-stream-handler');
+const Logger = require('../logger.js');
 
-var Application = require("../models/application.js");
-var Git = require("../models/git.js")(path.resolve("."));
+function link (api, params) {
+  const [appIdOrName] = params.args;
+  const { org: orgaIdOrName, alias } = params.options;
 
-var link = module.exports = function(api, params) {
-  var appIdOrName = params.args[0];
-  var orgaIdOrName = params.options.org;
-  var alias = params.options.alias;
-
-  if(appIdOrName.app_id && orgaIdOrName) {
-    Logger.warn("You've specified a unique application ID, organisation option will be ignored");
+  if (appIdOrName.app_id && orgaIdOrName) {
+    Logger.warn(`You've specified a unique application ID, organisation option will be ignored`);
   }
 
-  var s_app = Application.linkRepo(api, appIdOrName, orgaIdOrName, alias);
+  const s_linkRepo = Application.linkRepo(api, appIdOrName, orgaIdOrName, alias)
+    .map(() => Logger.println('Your application has been successfully linked!'));
 
-  s_app.onValue(function(app) {
-    Logger.println("Your application has been successfully linked!");
-  });
+  handleCommandStream(s_linkRepo);
+}
 
-  s_app.onError(Logger.error);
-};
+module.exports = link;

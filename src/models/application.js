@@ -138,17 +138,13 @@ function getInstances (api, appId, orgaId) {
 };
 
 function linkRepo (api, appIdOrName, orgaIdOrName, alias, ignoreParentConfig) {
-  Logger.debug('Linking current repository to the app: ' + (appIdOrName.app_id || appIdOrName.app_name));
+  Logger.debug(`Linking current repository to the app: ${appIdOrName.app_id || appIdOrName.app_name}`);
 
-  let s_app;
+  const s_app = (appIdOrName.app_id != null)
+    ? get(api, appIdOrName.app_id)
+    : getByName(api, appIdOrName.app_name, orgaIdOrName);
 
-  if (appIdOrName.app_id) {
-    s_app = get(api, appIdOrName.app_id);
-  } else {
-    s_app = getByName(api, appIdOrName.app_name, orgaIdOrName);
-  }
-
-  return s_app.flatMapLatest(function (appData) {
+  return s_app.flatMapLatest((appData) => {
     return AppConfiguration.addLinkedApplication(appData, alias, ignoreParentConfig);
   });
 };
