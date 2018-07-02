@@ -1,89 +1,81 @@
-var path = require("path");
+'use strict';
 
-var _ = require("lodash");
-var Bacon = require("baconjs");
-var colors = require("colors");
+const _ = require('lodash');
+const Bacon = require('baconjs');
+const colors = require('colors');
 
-var AppConfig = require("../models/app_configuration.js");
-var Application = require("../models/application.js");
-var Git = require("../models/git.js")(path.resolve("."));
-var Log = require("../models/log.js");
+const AppConfig = require('../models/app_configuration.js');
+const Application = require('../models/application.js');
+const handleCommandStream = require('../command-stream-handler');
+const Logger = require('../logger.js');
 
-var Logger = require("../logger.js");
+function displayGroupInfo (instances, commit) {
+  return `(${displayFlavors(instances)},  Commit: ${commit || 'N/A'})`;
+}
 
-var displayGroupInfo = function(instances, commit) {
-  return '(' + displayFlavors(instances) + ', ' +
-         ' Commit: ' + (commit || 'N/A') +
-         ')';
-};
+function displayFlavors (instances) {
+  return _(instances)
+    .groupBy((i) => i.flavor.name)
+    .map((instances, flavorName) => `${instances.length}*${flavorName}`)
+    .value()
+    .join(', ');
+}
 
-var displayFlavors = function(instances) {
-  var sizes = _.map(instances, function(instance) {
-    return instance.flavor.name;
-  });
+function computeStatus (instances, app) {
+  const upInstances = _.filter(instances, ({ state }) => state === 'UP');
+  const isUp = !_.isEmpty(upInstances);
+  const upCommit = _(upInstances).map('commit').head();
 
-  return _(sizes)
-          .groupBy()
-          .toPairs()
-          .map(function(x) {
-            return x[1].length + '*' + x[0];
-          }).join(', ');
-};
+  const deployingInstances = _.filter(instances, ({ state }) => state === 'DEPLOYING');
+  const isDeploying = !_.isEmpty(deployingInstances);
+  const deployingCommit = _(deployingInstances).map('commit').head();
 
-var computeStatus = function(instances, app) {
-  var upInstances = _.filter(instances, function(instance) { return instance.state === 'UP'; });
-  var isUp = !_.isEmpty(upInstances);
-  var upCommit = _.head(_.map(upInstances, 'commit'));
+  const statusMessage = isUp
+    ? `${colors.bold.green('running')} ${displayGroupInfo(upInstances, upCommit)}`
+    : colors.bold.red('stopped');
 
-  var isDeploying = !_.isEmpty(deployingInstances);
-  var deployingInstances = _.filter(instances, function(instance) { return instance.state === 'DEPLOYING'; });
-  var deployingCommit = _.head(_.map(upInstances, 'commit'));
-
-  var statusLine = app.name + ': ' + (isUp ? 'running '.bold.green +  displayGroupInfo(upInstances, upCommit) : 'stopped'.bold.red);
-  var deploymentLine = isDeploying ? 'Deployment in progress ' + displayGroupInfo(deployingInstances, deployingCommit) : '';
+  const statusLine = `${app.name}: ${statusMessage}`;
+  const deploymentLine = isDeploying
+    ? `Deployment in progress ${displayGroupInfo(deployingInstances, deployingCommit)}`
+    : '';
 
   return [statusLine, deploymentLine].join('\n');
-};
+}
 
-var displayScalability = function(scalability) {
-  var vertical, horizontal, enabled = false;
-  if(scalability.minFlavor.name === scalability.maxFlavor.name) {
-    vertical = scalability.minFlavor.name;
-  } else {
-    vertical = scalability.minFlavor.name + ' to ' + scalability.maxFlavor.name;
-    enabled = true;
-  }
+function displayScalability ({ minFlavor, maxFlavor, minInstances, maxInstances }) {
 
-  if(scalability.minInstances === scalability.maxInstances) {
-    horizontal = scalability.minInstances + '';
-  } else {
-    horizontal = scalability.minInstances + ' to ' + scalability.maxInstances;
-    enabled = true;
-  }
+  const vertical = (minFlavor.name === maxFlavor.name)
+    ? minFlavor.name
+    : `${minFlavor.name} to ${maxFlavor.name}`;
 
-  return 'Scalability:\n' +
-         '  Auto scalability: ' + (enabled ? 'enabled'.green : 'disabled'.red) + '\n' +
-         '  Scalers: ' + horizontal.bold + '\n' +
-         '  Sizes: ' + vertical.bold;
-};
+  const horizontal = (minInstances === maxInstances)
+    ? minInstances
+    : `${minInstances} to ${maxInstances}`;
 
-var status = module.exports = function(api, params) {
-  var alias = params.options.alias;
+  const enabled = (minFlavor.name === maxFlavor.name)
+    || (minInstances === maxInstances);
 
-  var s_appData = AppConfig.getAppData(alias);
-  var s_appInstances = s_appData.flatMapLatest(function(appData) {
-    return Application.getInstances(api, appData.app_id, appData.org_id);
-  });
-  var s_app = s_appData.flatMapLatest(function(appData) {
-    return Application.get(api, appData.app_id, appData.org_id);
-  });
+  return `Scalability:
+  Auto scalability: ${enabled ? colors.green('enabled') : colors.red('disabled')}
+  Scalers: ${colors.bold(horizontal)}
+  Sizes: ${colors.bold(vertical)}`;
+}
 
+function status (api, params) {
+  const { alias } = params.options;
 
-  s_appInstances
-    .zip(s_app, function(instances, app) { return [instances, app]; })
-    .onValue(function(data) {
-      Logger.println(computeStatus(data[0], data[1]));
-      Logger.println(displayScalability(data[1].instance));
+  const s_status = AppConfig.getAppData(alias)
+    .flatMapLatest((appData) => {
+      const s_instances = Application.getInstances(api, appData.app_id, appData.org_id);
+      const s_app = Application.get(api, appData.app_id, appData.org_id);
+      return Bacon.combineAsArray([s_instances, s_app]);
+    })
+    .map(([instances, app]) => {
+      Logger.println(computeStatus(instances, app));
+      Logger.println(displayScalability(app.instance));
     });
-  s_appInstances.onError(Logger.error);
-};
+
+  handleCommandStream(s_status);
+}
+
+module.exports = status;
