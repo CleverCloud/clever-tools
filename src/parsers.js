@@ -1,65 +1,68 @@
-var cliparse = require("cliparse");
+'use strict';
 
-var Application = require("./models/application.js");
+const cliparse = require('cliparse');
 
-var Parsers = module.exports;
+const Application = require('./models/application.js');
 
-//PARSERS
-Parsers.flavor = function(flavor) {
-  var flavors = Application.listAvailableFlavors();
-
-  if(flavors.indexOf(flavor) == -1) {
-    return cliparse.parsers.error("Invalid value: " + flavor);
-  } else {
+function flavor (flavor) {
+  const flavors = Application.listAvailableFlavors();
+  if (flavors.includes(flavor)) {
     return cliparse.parsers.success(flavor);
   }
-};
+  return cliparse.parsers.error('Invalid value: ' + flavor);
+}
 
-Parsers.instances = function(instances) {
-  var parsedInstances = parseInt(instances, 10);
+function instances (instances) {
+  const parsedInstances = parseInt(instances, 10);
   if (isNaN(parsedInstances)) {
-    return cliparse.parsers.error("Invalid number: " + instances);
-  } else {
-    if (parsedInstances < 1 || parsedInstances > 20) {
-      return cliparse.parsers.error("The number of instances must be between 1 and 20");
-    } else {
-      return cliparse.parsers.success(parsedInstances);
-    }
+    return cliparse.parsers.error('Invalid number: ' + instances);
   }
+  if (parsedInstances < 1 || parsedInstances > 20) {
+    return cliparse.parsers.error('The number of instances must be between 1 and 20');
+  }
+  return cliparse.parsers.success(parsedInstances);
+}
+
+function date (dateString) {
+  const date = new Date(dateString);
+  if (isNaN(date.getTime())) {
+    return cliparse.parsers.error('Invalid date: ' + dateString + ' (timestamps or IS0 8601 dates are accepted)');
+  }
+  return cliparse.parsers.success(date);
+}
+
+const appIdRegex = /^app_[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+function appIdOrName (string) {
+  if (string.match(appIdRegex)) {
+    return cliparse.parsers.success({ app_id: string });
+  }
+  return cliparse.parsers.success({ app_name: string });
+}
+
+const orgaIdRegex = /^orga_[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+function orgaIdOrName (string) {
+  if (string.match(orgaIdRegex)) {
+    return cliparse.parsers.success({ orga_id: string });
+  }
+  return cliparse.parsers.success({ orga_name: string });
+}
+
+const addonIdRegex = /^addon_[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+function addonIdOrName (string) {
+  if (string.match(addonIdRegex)) {
+    return cliparse.parsers.success({ addon_id: string });
+  }
+  return cliparse.parsers.success({ addon_name: string });
+}
+
+module.exports = {
+  flavor,
+  instances,
+  date,
+  appIdOrName,
+  orgaIdOrName,
+  addonIdOrName,
 };
-
-Parsers.date = function(dateString) {
-  var date = new Date(dateString);
-  if(isNaN(date.getTime())) {
-    return cliparse.parsers.error("Invalid date: " + dateString + " (timestamps or IS0 8601 dates are accepted)")
-  } else {
-    return cliparse.parsers.success(date);
-  }
-}
-
-var appIdRegex = /^app_[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-Parsers.appIdOrName = function(string) {
-  if(string.match(appIdRegex)) {
-    return cliparse.parsers.success({ app_id: string});
-  } else {
-    return cliparse.parsers.success({ app_name: string});
-  }
-}
-
-var orgaIdRegex = /^orga_[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-Parsers.orgaIdOrName = function(string) {
-  if(string.match(orgaIdRegex)) {
-    return cliparse.parsers.success({ orga_id: string});
-  } else {
-    return cliparse.parsers.success({ orga_name: string});
-  }
-}
-
-var addonIdRegex = /^addon_[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-Parsers.addonIdOrName = function(string) {
-  if(string.match(addonIdRegex)) {
-    return cliparse.parsers.success({ addon_id: string});
-  } else {
-    return cliparse.parsers.success({ addon_name: string});
-  }
-}
