@@ -1,31 +1,27 @@
-var path = require("path");
+'use strict';
 
-var _ = require("lodash");
-var Bacon = require("baconjs");
+const Bacon = require('baconjs');
 
-var AppConfig = require("../models/app_configuration.js");
-var Application = require("../models/application.js");
-var Log = require("../models/log.js");
+const AppConfig = require('../models/app_configuration.js');
+const handleCommandStream = require('../command-stream-handler');
+const Log = require('../models/log.js');
+const Logger = require('../logger.js');
 
-var Logger = require("../logger.js");
+function appLogs (api, params) {
+  const { alias, before, after, search, 'deployment-id': deploymentId } = params.options;
+  const { addon: addonId } = params.options;
 
-var appLogs = module.exports = function(api, params) {
-  var alias = params.options.alias;
-  var before = params.options.before;
-  var after = params.options.after;
-  const search = params.options.search;
-  const deploymentId = params.options["deployment-id"];
-  const addonId = params.options["addon"];
+  const s_appAddonId = (addonId != null)
+    ? Bacon.once(addonId)
+    : AppConfig.getAppData(alias).flatMapLatest((app_data) => app_data.app_id);
 
-  let s_logs;
-  if (addonId) {
-    s_logs = Log.getAppLogs(api, addonId, null, before, after, search, deploymentId);
-  } else {
-    s_logs = AppConfig.getAppData(alias).flatMapLatest(function(app_data) {
-      return Log.getAppLogs(api, app_data.app_id, null, before, after, search, deploymentId);
-    });
-  }
+  const s_logs = s_appAddonId
+    .flatMapLatest((appAddonId) => {
+      return Log.getAppLogs(api, appAddonId, null, before, after, search, deploymentId);
+    })
+    .map(Logger.println);
 
-  s_logs.onValue(Logger.println);
-  s_logs.onError(Logger.error);
-};
+  handleCommandStream(s_logs);
+}
+
+module.exports = appLogs;
