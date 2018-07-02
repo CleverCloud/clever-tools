@@ -43,7 +43,7 @@ function getBest (api, appId, orgaId) {
       Logger.debug('No favourite vhost defined for ' + appId + ', selecting the best one');
       const s_vHosts = api.owner(orgaId).applications._.vhosts.get().withParams(params).send();
       return s_vHosts.map((vhosts) => {
-        const result = Domain.selectBest(vhosts);
+        const result = selectBest(vhosts);
         if (result) {
           return new Bacon.Next(result);
         }
