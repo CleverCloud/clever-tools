@@ -1,28 +1,18 @@
-var path = require("path");
+'use strict';
 
-var _ = require("lodash");
-var Bacon = require("baconjs");
+const AppConfig = require('../models/app_configuration.js');
+const Application = require('../models/application.js');
+const handleCommandStream = require('../command-stream-handler');
+const Logger = require('../logger.js');
 
-var AppConfig = require("../models/app_configuration.js");
-var Application = require("../models/application.js");
-var Git = require("../models/git.js")(path.resolve("."));
-var Log = require("../models/log.js");
+function stop (api, params) {
+  const { alias } = params.options;
 
-var Logger = require("../logger.js");
+  const s_stoppedApp = AppConfig.getAppData(alias)
+    .flatMapLatest((appData) => Application.stop(api, appData.app_id, appData.org_id))
+    .map(() => Logger.println('App successfully stopped!'));
 
-var timeout = 5 * 60 * 1000;
+  handleCommandStream(s_stoppedApp);
+}
 
-var stop = module.exports = function(api, params) {
-  var alias = params.options.alias;
-
-  var s_appData = AppConfig.getAppData(alias);
-
-  var s_stoppedApp = s_appData.flatMapLatest(function(appData) {
-    return Application.stop(api, appData.app_id, appData.org_id);
-  });
-
-  s_stoppedApp.onValue(function(___) {
-    Logger.println("App successfully stopped!");
-  });
-  s_stoppedApp.onError(Logger.error);
-};
+module.exports = stop;
