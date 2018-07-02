@@ -58,4 +58,4 @@ function openPage (url) {
     .flatMapLatest((command) => run(command));
 }
 
-module.exports = { getCommand, run, openPage };
+module.exports = { openPage };
