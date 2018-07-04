@@ -30,6 +30,8 @@
     "moment": "^2.21.0",
     "nodegit": "0.20.3",
     "request": "^2.67.0",
+    "string-length": "^2.0.0",
+    "text-table": "^0.2.0",
     "unidecode": "^0.1.8",
     "update-notifier": "github:CleverCloud/update-notifier",
     "ws": "^1.0.1",

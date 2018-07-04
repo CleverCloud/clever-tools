@@ -1,28 +1,24 @@
-var WebSocket = require("ws");
-var Bacon = require("baconjs");
-var _ = require("lodash");
+'use strict';
 
-var Logger = require("../logger.js");
-var { conf } = require('./configuration.js');
-var WsStream = require("./ws-stream.js");
+const _ = require('lodash');
+const Bacon = require('baconjs');
 
-var Event = module.exports;
+const { conf } = require('./configuration.js');
+const WsStream = require('./ws-stream.js');
 
-Event.getEvents = function(api, appId) {
-  var url = conf.EVENT_URL;
-  return WsStream.openStream(_.constant(url), api.session.getAuthorization('GET', conf.API_HOST + '/events/', {}))
-    .map(function(event) {
-      try {
-        var data = JSON.parse(event.data);
-        event.data = data;
-        return event;
-      } catch(e) {
-        return event;
-      }
-    })
-    .filter(function(event) {
-      return event.data &&
-        (event.data.id    === appId ||
-          event.data.appId === appId);
+function getEvents (api, appId) {
+  const url = conf.EVENT_URL;
+
+  return WsStream.openStream(() => url, api.session.getAuthorization('GET', `${conf.API_HOST }/events/`, {}))
+    .flatMapLatest(Bacon.try((event) => {
+      const data = JSON.parse(event.data);
+      return { ...event, data };
+    }))
+    .skipErrors()
+    .filter((event) => {
+      return _.get(event, 'data.id   ') === appId
+        || _.get(event, 'data.appId') === appId;
     });
 };
+
+module.exports = { getEvents };
