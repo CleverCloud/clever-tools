@@ -1,100 +1,78 @@
-var _ = require("lodash");
+'use strict';
 
-var Logger = require("../logger.js");
+const _ = require('lodash');
 
-var AppConfig = require("../models/app_configuration.js");
-var Drain = require("../models/drain.js");
+const AppConfig = require('../models/app_configuration.js');
+const Drain = require('../models/drain.js');
+const handleCommandStream = require('../command-stream-handler');
+const Logger = require('../logger.js');
 
-var drain = module.exports;
+function list (api, params) {
+  const { alias } = params.options;
 
-var list = drain.list = function(api, params) {
-  var alias = params.options.alias;
-  
-  var s_appData = AppConfig.getAppData(alias);
-
-  var s_drain = s_appData.flatMap(function(appData) {
-    return Drain.list(api, appData.app_id);
-  });
-
-  s_drain.onValue(function(drains) {
-    _.map(drains, function(drain) {
-      Logger.println(drain.id + " -> " + drain.state + " for " + drain.target.url + " as " + drain.target.drainType)
+  const s_drain = AppConfig.getAppData(alias)
+    .flatMapLatest((appData) => Drain.list(api, appData.app_id))
+    .map((drains) => {
+      _.forEach(drains, (drain) => {
+        const { id, state, target: { url, drainType } } = drain;
+        Logger.println(`${id} -> ${state} for ${url} as ${drainType}`);
+      });
     });
-  });
 
-  s_drain.onError(Logger.error);
-};
+  handleCommandStream(s_drain);
+}
 
-var create = drain.create = function(api, params) {
-  var drainTargetType = params.args[0];
-  var drainTargetURL = params.args[1];
-  var drainTargetCredentials = {
-    "username": params.options.username,
-    "password": params.options.password
-  }
-  var alias = params.options.alias;
+function create (api, params) {
+  const [drainTargetType, drainTargetURL] = params.args;
+  const { alias, username, password } = params.options;
+  const drainTargetCredentials = { username, password };
 
-  var s_appData = AppConfig.getAppData(alias);
+  const s_drain = AppConfig.getAppData(alias)
+    .flatMapLatest((appData) => {
+      return Drain.create(api, appData.app_id, drainTargetURL, drainTargetType, drainTargetCredentials);
+    })
+    .map(() => Logger.println('Your drain has been successfully saved'));
 
-  var s_drain = s_appData.flatMap(function(appData) {
-    return Drain.create(api, appData.app_id, drainTargetURL, drainTargetType, drainTargetCredentials);
-  });
+  handleCommandStream(s_drain);
+}
 
-  s_drain.onValue(function(hasBeenCreated) {
-    if (hasBeenCreated)
-      Logger.println("Your drain has been successfully saved");
-  });
+function rm (api, params) {
+  const [drainId] = params.args;
+  const { alias } = params.options;
 
-  s_drain.onError(Logger.error);
-};
+  const s_drain = AppConfig.getAppData(alias)
+    .flatMapLatest((appData) => Drain.remove(api, appData.app_id, drainId))
+    .map(() => Logger.println('Your drain has been successfully removed'));
 
-var rm = drain.rm = function(api, params) {
-  var drainId = params.args[0];
-  var alias = params.options.alias;
+  handleCommandStream(s_drain);
+}
 
-  var s_appData = AppConfig.getAppData(alias);
+function enable (api, params) {
+  const [drainId] = params.args;
+  const { alias } = params.options;
 
-  var s_drain = s_appData.flatMap(function(appData) {
-    return Drain.remove(api, appData.app_id, drainId);
-  });
+  const s_drain = AppConfig.getAppData(alias)
+    .flatMapLatest((appData) => Drain.enable(api, appData.app_id, drainId))
+    .map(() => Logger.println('Your drain has been enabled'));
 
-  s_drain.onValue(function() {
-    Logger.println("Your drain has been successfully removed");
-  });
+  handleCommandStream(s_drain);
+}
 
-  s_drain.onError(Logger.error);
-};
+function disable (api, params) {
+  const [drainId] = params.args;
+  const { alias } = params.options;
 
-var enable = drain.enable = function(api, params) {
-  var drainId = params.args[0];
-  var alias = params.options.alias;
+  const s_drain = AppConfig.getAppData(alias)
+    .flatMapLatest((appData) => Drain.disable(api, appData.app_id, drainId))
+    .map(() => Logger.println('Your drain has been disabled'));
 
-  var s_appData = AppConfig.getAppData(alias);
+  handleCommandStream(s_drain);
+}
 
-  var s_drain = s_appData.flatMap(function(appData) {
-    return Drain.enable(api, appData.app_id, drainId);
-  });
-
-  s_drain.onValue(function() {
-    Logger.println("Your drain has been enabled");
-  });
-
-  s_drain.onError(Logger.error);
-};
-
-var rdisable = drain.disable = function(api, params) {
-  var drainId = params.args[0];
-  var alias = params.options.alias;
-
-  var s_appData = AppConfig.getAppData(alias);
-
-  var s_drain = s_appData.flatMap(function(appData) {
-    return Drain.disable(api, appData.app_id, drainId);
-  });
-
-  s_drain.onValue(function() {
-    Logger.println("Your drain has been disabled");
-  });
-
-  s_drain.onError(Logger.error);
+module.exports = {
+  list,
+  create,
+  rm,
+  enable,
+  disable,
 };
