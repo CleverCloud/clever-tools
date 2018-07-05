@@ -1,10 +1,10 @@
 'use strict';
 
-const _ = require('lodash')
+const _ = require('lodash');
 const table = require('text-table');
 const stringLength = require('string-length');
 
-function formatTable (columnWidth) {
+function formatTable (columnWidth = []) {
 
   const fixedWidthPlaceholder = columnWidth.map((item) => {
     if (typeof item === 'number') {
