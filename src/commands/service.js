@@ -1,109 +1,105 @@
-var _ = require("lodash");
-var Bacon = require("baconjs");
+'use strict';
 
-var Logger = require("../logger.js");
+const Bacon = require('baconjs');
 
-var AppConfig = require("../models/app_configuration.js");
-var Application = require("../models/application.js");
-var Addon = require("../models/addon.js");
+const Addon = require('../models/addon.js');
+const AppConfig = require('../models/app_configuration.js');
+const Application = require('../models/application.js');
+const handleCommandStream = require('../command-stream-handler');
+const Logger = require('../logger.js');
 
-var service = module.exports;
-
-var list = service.list = function(api, params) {
-  var alias = params.options.alias;
-  var showAll = params.options["show-all"];
-  var onlyApps = params.options["only-apps"];
-  var onlyAddons = params.options["only-addons"];
-
-  if(onlyApps && onlyAddons) {
-    Logger.error("--only-apps and --only-addons are mutually exclusive");
-    process.exit(1);
-  } else {
-    var s_appData = AppConfig.getAppData(alias);
-
-    var s_dependencies = s_appData.flatMap(function(appData) {
-      return Bacon.combineTemplate({
-        apps: !onlyAddons ? Application.listDependencies(api, appData.app_id, appData.org_id, showAll) : null,
-        addons: !onlyApps ? Addon.list(api, appData.org_id, appData.app_id, showAll) : null
-      });
-    });
-
-    s_dependencies.onValue(function(dependencies) {
-      if(dependencies.apps !== null) {
-        Logger.println("Applications:");
-        Logger.println(dependencies.apps.map(function(x) { return (x.isLinked ? "* " : "  ") + x.name; }).join('\n'));
-      }
-      if(dependencies.addons !== null) {
-        Logger.println("Addons:");
-        Logger.println(dependencies.addons.map(function(x) { return (x.isLinked ? "* " : "  ") + x.name + " (" + x.realId + ")"; }).join('\n'));
-      }
-    });
-
-    s_dependencies.onError(Logger.error);
+function validateOptions ({ onlyApps, onlyAddons }) {
+  if (onlyApps && onlyAddons) {
+    throw new Error('--only-apps and --only-addons are mutually exclusive');
   }
+}
 
-};
+// https://github.com/baconjs/bacon.js/wiki/FAQ#why-isnt-my-subscriber-called
+function asStream (fn) {
+  return Bacon.later(0).flatMapLatest(Bacon.try(fn));
+}
 
-var linkApp = service.linkApp = function(api, params) {
-  var alias = params.options.alias;
-  var appIdOrName = params.args[0];
+function list (api, params) {
+  const { alias, 'show-all': showAll, 'only-apps': onlyApps, 'only-addons': onlyAddons } = params.options;
 
-  var s_appData = AppConfig.getAppData(alias);
+  const s_result = asStream(() => validateOptions({ onlyApps, onlyAddons }))
+    .flatMapLatest(() => AppConfig.getAppData(alias))
+    .flatMapLatest((appData) => {
 
-  var s_result = s_appData.flatMapLatest(function(appData) {
-    return Application.link(api, appData.app_id, appData.org_id, appIdOrName);
-  });
+      const s_apps = onlyAddons ? null : Application.listDependencies(api, appData.app_id, appData.org_id, showAll)
+        .flatMapLatest((apps) => {
+          Logger.println('Applications:');
+          apps.forEach(({ isLinked, name }) => Logger.println(`${isLinked ? '*' : ' '} ${name}`));
+        });
 
-  s_result.onValue(function() {
-    Logger.println("App " + (appIdOrName.app_id || appIdOrName.app_name) + " successfully linked");
-  });
-  s_result.onError(Logger.error);
-};
+      const s_addons = onlyApps ? null : Addon.list(api, appData.org_id, appData.app_id, showAll)
+        .flatMapLatest((addons) => {
+          Logger.println('Addons:');
+          addons.forEach(({ isLinked, name, realId }) => Logger.println(`${isLinked ? '*' : ' '} ${name} (${realId})`));
+        });
 
-var unlinkApp = service.unlinkApp = function(api, params) {
-  var alias = params.options.alias;
-  var appIdOrName = params.args[0];
+      return Bacon.combineAsArray(s_apps, s_addons);
+    });
 
-  var s_appData = AppConfig.getAppData(alias);
+  handleCommandStream(s_result);
+}
 
-  var s_result = s_appData.flatMapLatest(function(appData) {
-    return Application.unlink(api, appData.app_id, appData.org_id, appIdOrName);
-  });
+function linkApp (api, params) {
+  const { alias } = params.options.alias;
+  const [appIdOrName] = params.args;
 
-  s_result.onValue(function() {
-    Logger.println("App " + (appIdOrName.app_id || appIdOrName.app_name) + " successfully unlinked");
-  });
-  s_result.onError(Logger.error);
-};
+  const s_result = AppConfig.getAppData(alias)
+    .flatMapLatest((appData) => {
+      return Application.link(api, appData.app_id, appData.org_id, appIdOrName);
+    })
+    .map(() => Logger.println(`App ${appIdOrName.app_id || appIdOrName.app_name} successfully linked`));
 
-var linkAddon = service.linkAddon = function(api, params) {
-  var alias = params.options.alias;
-  var addonIdOrName = params.args[0];
+  handleCommandStream(s_result);
+}
 
-  var s_appData = AppConfig.getAppData(alias);
+function unlinkApp (api, params) {
+  const { alias } = params.options;
+  const [appIdOrName] = params.args;
 
-  var s_result = s_appData.flatMapLatest(function(appData) {
-    return Addon.link(api, appData.app_id, appData.org_id, addonIdOrName);
-  });
+  const s_result = AppConfig.getAppData(alias)
+    .flatMapLatest((appData) => {
+      return Application.unlink(api, appData.app_id, appData.org_id, appIdOrName);
+    })
+    .map(() => Logger.println(`App ${appIdOrName.app_id || appIdOrName.app_name} successfully unlinked`));
 
-  s_result.onValue(function() {
-    Logger.println("Addon " + (addonIdOrName.addon_id || addonIdOrName.addon_name) + " successfully linked");
-  });
-  s_result.onError(Logger.error);
-};
+  handleCommandStream(s_result);
+}
 
-var unlinkAddon = service.unlinkAddon = function(api, params) {
-  var alias = params.options.alias;
-  var addonIdOrName = params.args[0];
+function linkAddon (api, params) {
+  const { alias } = params.options;
+  const [addonIdOrName] = params.args;
 
-  var s_appData = AppConfig.getAppData(alias);
+  const s_result = AppConfig.getAppData(alias)
+    .flatMapLatest((appData) => {
+      return Addon.link(api, appData.app_id, appData.org_id, addonIdOrName);
+    })
+    .map(() => Logger.println(`Addon ${addonIdOrName.addon_id || addonIdOrName.addon_name} successfully linked`));
 
-  var s_result = s_appData.flatMapLatest(function(appData) {
-    return Addon.unlink(api, appData.app_id, appData.org_id, addonIdOrName);
-  });
+  handleCommandStream(s_result);
+}
 
-  s_result.onValue(function() {
-    Logger.println("Addon " + (addonIdOrName.addon_id || addonIdOrName.addon_name) + " successfully unlinked");
-  });
-  s_result.onError(Logger.error);
+function unlinkAddon (api, params) {
+  const { alias } = params.options;
+  const [addonIdOrName] = params.args;
+
+  const s_result = AppConfig.getAppData(alias)
+    .flatMapLatest((appData) => {
+      return Addon.unlink(api, appData.app_id, appData.org_id, addonIdOrName);
+    })
+    .map(() => Logger.println(`Addon ${addonIdOrName.addon_id || addonIdOrName.addon_name} successfully unlinked`));
+
+  handleCommandStream(s_result);
+}
+
+module.exports = {
+  list,
+  linkApp,
+  unlinkApp,
+  linkAddon,
+  unlinkAddon,
 };
