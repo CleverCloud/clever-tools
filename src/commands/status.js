@@ -2,7 +2,7 @@
 
 const _ = require('lodash');
 const Bacon = require('baconjs');
-const colors = require('colors');
+const colors = require('colors/safe');
 
 const AppConfig = require('../models/app_configuration.js');
 const Application = require('../models/application.js');

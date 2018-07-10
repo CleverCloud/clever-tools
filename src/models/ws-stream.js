@@ -61,14 +61,14 @@ function openWebSocket (url, authorization) {
  */
 function openStream (makeUrl, authorization, endTimestamp) {
   const endTs = endTimestamp ? endTimestamp : null;
-  const s_websocket = WsStream.openWebSocket(makeUrl(endTs), authorization);
+  const s_websocket = openWebSocket(makeUrl(endTs), authorization);
 
   // Stream which contains only one element: the date at which the websocket closed
   const s_endTimestamp = s_websocket.filter(false).mapEnd(new Date());
   const s_interruption = s_endTimestamp.flatMapLatest((endTimestamp) => {
     Logger.warn('Websocket closed, reconnecting');
     return Bacon.later(1500, null).flatMapLatest(() => {
-      return WsStream.openStream(makeUrl, authorization, endTimestamp);
+      return openStream(makeUrl, authorization, endTimestamp);
     });
   });
 
@@ -76,6 +76,5 @@ function openStream (makeUrl, authorization, endTimestamp) {
 }
 
 module.exports = {
-  openWebSocket,
   openStream,
 };

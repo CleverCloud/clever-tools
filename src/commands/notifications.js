@@ -1,6 +1,6 @@
 'use strict';
 
-const colors = require('colors');
+const colors = require('colors/safe');
 
 const AppConfig = require('../models/app_configuration.js');
 const handleCommandStream = require('../command-stream-handler');
@@ -36,7 +36,7 @@ function getOwnerAndApp (api, params, useLinkedApp) {
 }
 
 function displayWebhook (hook) {
-  Logger.println(hook.name && hook.name.bold || hook.id);
+  Logger.println(hook.name && colors.bold(hook.name) || hook.id);
   Logger.println(`  id: ${hook.id}`);
   Logger.println(`  services: ${hook.scope && hook.scope.join(', ') || hook.ownerId}`);
   Logger.println(`  events: ${hook.events && hook.events.join(', ') || colors.bold('ALL')}`);
@@ -46,7 +46,7 @@ function displayWebhook (hook) {
 }
 
 function displayEmailhook (hook) {
-  Logger.println(hook.name && hook.name.bold || hook.id);
+  Logger.println(hook.name && colors(hook.name) || hook.id);
   Logger.println(`  id: ${hook.id}`);
   Logger.println(`  services: ${hook.scope && hook.scope.join(', ') || hook.ownerId}`);
   Logger.println(`  events: ${hook.events && hook.events.join(', ') || colors.bold('ALL')}`);

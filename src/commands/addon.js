@@ -1,7 +1,7 @@
 'use strict';
 
 const _ = require('lodash');
-const colors = require('colors');
+const colors = require('colors/safe');
 
 const Addon = require('../models/addon.js');
 const AppConfig = require('../models/app_configuration.js');

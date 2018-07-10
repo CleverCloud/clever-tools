@@ -3,7 +3,7 @@
 const _ = require('lodash');
 const Bacon = require('baconjs');
 const autocomplete = require('cliparse').autocomplete;
-const colors = require('colors');
+const colors = require('colors/safe');
 
 const Interact = require('./interact.js');
 const Logger = require('../logger.js');
