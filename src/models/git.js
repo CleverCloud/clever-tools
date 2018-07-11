@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 var _ = require("lodash");
 var { loadOAuthConf } = require('./configuration.js');
 var path = require("path");

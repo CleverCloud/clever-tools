@@ -15,7 +15,8 @@ function getCommand (url) {
     if (protocol === null || hostname === null) {
       return new Bacon.Error('Invalid url provided');
     }
-  } catch (e) {
+  }
+  catch (e) {
     return new Bacon.Error('Invalid url provided');
   }
 

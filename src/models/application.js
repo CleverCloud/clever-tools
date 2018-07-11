@@ -40,8 +40,8 @@ function getInstanceType (api, type) {
   const s_types = api.products.instances.get().send();
 
   return s_types.flatMapLatest(function (types) {
-    const enabledTypes = _.filter(types, t => t.enabled);
-    const matchingVariants = _.filter(enabledTypes, t => t.variant && t.variant.slug === type);
+    const enabledTypes = _.filter(types, (t) => t.enabled);
+    const matchingVariants = _.filter(enabledTypes, (t) => t.variant && t.variant.slug === type);
     const instanceVariant = _.sortBy(matchingVariants, 'version').reverse()[0];
     return instanceVariant ? Bacon.once(instanceVariant) : new Bacon.Error(type + ' type does not exist.');
   });
@@ -190,8 +190,8 @@ function mergeScalabilityParameters (scalabilityParameters, instance) {
   }
   if (scalabilityParameters.maxFlavor) {
     instance.maxFlavor = scalabilityParameters.maxFlavor;
-    if (flavors.indexOf(instance.minFlavor) > flavors.indexOf(instance.maxFlavor) &&
-      scalabilityParameters.minFlavor == null) {
+    if (flavors.indexOf(instance.minFlavor) > flavors.indexOf(instance.maxFlavor)
+      && scalabilityParameters.minFlavor == null) {
       instance.minFlavor = instance.maxFlavor;
     }
   }

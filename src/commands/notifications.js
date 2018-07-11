@@ -36,20 +36,20 @@ function getOwnerAndApp (api, params, useLinkedApp) {
 }
 
 function displayWebhook (hook) {
-  Logger.println(hook.name && colors.bold(hook.name) || hook.id);
+  Logger.println((hook.name && colors.bold(hook.name)) || hook.id);
   Logger.println(`  id: ${hook.id}`);
-  Logger.println(`  services: ${hook.scope && hook.scope.join(', ') || hook.ownerId}`);
-  Logger.println(`  events: ${hook.events && hook.events.join(', ') || colors.bold('ALL')}`);
+  Logger.println(`  services: ${(hook.scope && hook.scope.join(', ')) || hook.ownerId}`);
+  Logger.println(`  events: ${(hook.events && hook.events.join(', ')) || colors.bold('ALL')}`);
   Logger.println('  hooks:');
   hook.urls.forEach((url) => Logger.println(`    ${url.url} (${url.format})`));
   Logger.println();
 }
 
 function displayEmailhook (hook) {
-  Logger.println(hook.name && colors(hook.name) || hook.id);
+  Logger.println((hook.name && colors(hook.name)) || hook.id);
   Logger.println(`  id: ${hook.id}`);
-  Logger.println(`  services: ${hook.scope && hook.scope.join(', ') || hook.ownerId}`);
-  Logger.println(`  events: ${hook.events && hook.events.join(', ') || colors.bold('ALL')}`);
+  Logger.println(`  services: ${(hook.scope && hook.scope.join(', ')) || hook.ownerId}`);
+  Logger.println(`  events: ${(hook.events && hook.events.join(', ')) || colors.bold('ALL')}`);
   if (hook.notified) {
     Logger.println('  to:');
     hook.notified.forEach((target) => Logger.println(`    ${target.target || 'whole team'}`));

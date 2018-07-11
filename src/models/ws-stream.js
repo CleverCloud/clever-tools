@@ -60,7 +60,7 @@ function openWebSocket (url, authorization) {
  * authorization: The content of the authorization message sent to server
  */
 function openStream (makeUrl, authorization, endTimestamp) {
-  const endTs = endTimestamp ? endTimestamp : null;
+  const endTs = endTimestamp || null;
   const s_websocket = openWebSocket(makeUrl(endTs), authorization);
 
   // Stream which contains only one element: the date at which the websocket closed

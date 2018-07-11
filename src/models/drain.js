@@ -126,7 +126,7 @@ function credentialsEmpty ({ username, password }) {
 };
 
 function listDrainTypes () {
-  return autocomplete.words(DRAIN_TYPES.map(type => type.id));
+  return autocomplete.words(DRAIN_TYPES.map((type) => type.id));
 };
 
 module.exports = {
