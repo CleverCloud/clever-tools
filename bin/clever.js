@@ -7,7 +7,7 @@ const cliparse = require('cliparse');
 const updateNotifier = require('update-notifier');
 
 const Api = require('../src/models/api.js');
-const initGit = require('../src/models/git.js');
+const git = require('../src/models/git.js');
 const Logger = require('../src/logger.js');
 const Parsers = require('../src/parsers.js');
 
@@ -143,8 +143,7 @@ function run () {
       metavar: 'branch',
       description: 'Branch to push (current branch by default)',
       complete () {
-        const Git = initGit(path.resolve('.'));
-        return Git.completeBranches();
+        return git.completeBranches();
       },
     }),
     commit: cliparse.option('commit', {
@@ -381,11 +380,11 @@ function run () {
   }, delete_);
 
   // DEPLOY COMMAND
-  const deploy = lazyRequireModuleWithApi('../src/commands/deploy.js');
+  const deploy = lazyRequireFunctionWithApi('../src/commands/deploy.js');
   const deployCommand = cliparse.command('deploy', {
     description: 'Deploy an application to Clever Cloud',
     options: [opts.alias, opts.branch, opts.quiet, opts.forceDeploy],
-  }, deploy('deploy'));
+  }, deploy);
 
   // DOMAIN COMMANDS
   const domain = lazyRequireModuleWithApi('../src/commands/domain.js');
@@ -533,10 +532,11 @@ function run () {
   }, publishedConfig('list'));
 
   // RESTART COMMAND
+  const restart = lazyRequireFunctionWithApi('../src/commands/restart.js');
   const restartCommand = cliparse.command('restart', {
     description: 'Start or restart a Clever Cloud application',
     options: [opts.alias, opts.commit, opts.withoutCache, opts.quiet],
-  }, deploy('restart'));
+  }, restart);
 
   // SCALE COMMAND
   const scale = lazyRequireFunctionWithApi('../src/commands/scale.js');

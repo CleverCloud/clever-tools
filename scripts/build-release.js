@@ -6,7 +6,6 @@ const del = require('del');
 const exec = require('child_process').exec;
 const fs = require('fs-extra');
 const pkg = require('pkg').exec;
-const platform = require('os').platform();
 
 const applicationName = 'clever-tools';
 const applicationVendor = 'Clever Cloud';
@@ -68,21 +67,11 @@ async function buildRelease (arch) {
 
   await pkg([`.`, `-t`, `node${nodeVersion}-${arch}`, `-o`, `${buildDir}/${arch}/${cleverTools}`]);
 
-  // special case when building linux release on a linux system
-  // we're using the "nodegit.node" we just built
-  // it should fix the bad libcurl problem https://github.com/nodegit/nodegit/issues/1225
-  if (arch === 'linux' && platform === 'linux') {
-    fs.copy(`node_modules/nodegit/build/Release/nodegit.node`, `${buildDir}/${arch}/nodegit.node`);
-  }
-  else {
-    fs.copy(`nodegit/${arch}-nodegit.node`, `${buildDir}/${arch}/nodegit.node`);
-  }
-
   if (arch === 'win') {
-    await asyncExec(`zip -j ${archivePath} ${buildDir}/${arch}/${cleverTools} ${buildDir}/${arch}/nodegit.node`);
+    await asyncExec(`zip -j ${archivePath} ${buildDir}/${arch}/${cleverTools}`);
   }
   else {
-    await asyncExec(`tar czf "${archivePath}" -C ${buildDir}/${arch} ${cleverTools} nodegit.node`);
+    await asyncExec(`tar czf "${archivePath}" -C ${buildDir}/${arch} ${cleverTools}`);
   }
 
   if (arch === 'linux') {
@@ -129,10 +118,7 @@ async function buildRpm (buildDir) {
     --description "${applicationDescription}" \
     --license "${license}" \
     -v ${cleverToolsVersion} \
-    -d "libssh2" \
-    -d "libcurl" \
     ${buildDir}/linux/clever=/usr/lib/clever-tools-bin/clever \
-    ${buildDir}/linux/nodegit.node=/usr/lib/clever-tools-bin/nodegit.node \
     ${scriptsDir}/clever-wrapper.sh=/usr/bin/clever`);
 
   const sum = await checksum(`${packagePath}`);
@@ -156,10 +142,7 @@ async function buildDeb (buildDir) {
     --description "${applicationDescription}" \
     --license "${license}" \
     -v ${cleverToolsVersion} \
-    -d "libssh2-1" \
-    -d "libcurl3-gnutls" \
     ${buildDir}/linux/clever=/usr/lib/clever-tools-bin/clever \
-    ${buildDir}/linux/nodegit.node=/usr/lib/clever-tools-bin/nodegit.node \
     ${scriptsDir}/clever-wrapper.sh=/usr/bin/clever`);
 
   const sum = await checksum(`${packagePath}`);

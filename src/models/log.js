@@ -7,6 +7,8 @@ const https = require('https');
 const request = require('request');
 const url = require('url');
 
+const Application = require('../models/application.js');
+const Event = require('../models/events.js');
 const Logger = require('../logger.js');
 const WsStream = require('./ws-stream.js');
 const { conf } = require('./configuration.js');
@@ -151,4 +153,68 @@ function getAppLogs (api, appId, instances, before, after, search, deploymentId)
     });
 };
 
-module.exports = { getAppLogs };
+function getAllLogs (api, push, appData, commitId, quiet) {
+
+  const deploymentId = _.get(push, 'deploymentId');
+  const s_deploymentEvents = Event
+    .getEvents(api, appData.app_id)
+    .filter((e) => {
+      if (deploymentId != null) {
+        return _.get(e, 'data.uuid') === deploymentId;
+      }
+      return _.get(e, 'data.commit') === commitId;
+    });
+
+  const s_deploymentStart = s_deploymentEvents
+    .filter((e) => e.event === 'DEPLOYMENT_ACTION_BEGIN')
+    .first()
+    .toProperty();
+
+  // We ignore cancellation events triggered by a git push,
+  // as they are always generated even though a deployment is not in progress.
+  // Since we match events with commit id in a case of a git push,
+  // it makes the program stop before the actual deployment.
+  const s_deploymentEnd = s_deploymentEvents
+    .filter((e) => e.event === 'DEPLOYMENT_ACTION_END')
+    .filter((e) => (deploymentId != null) || (e.data.state !== 'CANCELLED') || (e.data.cause !== 'Git'))
+    .first()
+    .toProperty();
+
+  const s_appLogs = Application.get(api, appData.app_id)
+    .flatMapLatest((app) => {
+      Logger.debug('Fetch application logs…');
+      if (deploymentId != null) {
+        return getAppLogs(api, app.id, null, null, new Date(), null, deploymentId);
+      }
+      return s_deploymentStart.flatMapLatest((deploymentStartEvent) => {
+        const deploymentId = deploymentStartEvent.data.uuid;
+        return getAppLogs(api, app.id, null, null, new Date(), null, deploymentId);
+      });
+    });
+
+  // TODO, could be done without a Bus (with merged streams)
+  const s_allLogs = new Bacon.Bus();
+
+  s_deploymentStart.onValue(() => {
+    s_allLogs.push(colors.bold.blue('Deployment started'));
+  });
+
+  s_deploymentEnd.onValue((e) => {
+    if (e.data.state === 'OK') {
+      s_allLogs.push(colors.bold.green('Deployment successful'));
+    }
+    else {
+      s_allLogs.error('Deployment failed. Please check the logs');
+    }
+    s_allLogs.end();
+  });
+
+  if (!quiet) {
+    s_allLogs.push('Fetching application information…');
+    s_allLogs.plug(s_appLogs);
+  }
+
+  return s_allLogs;
+}
+
+module.exports = { getAppLogs, getAllLogs };
