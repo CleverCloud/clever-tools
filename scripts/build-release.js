@@ -164,7 +164,7 @@ async function buildDeb (buildDir) {
 
   const sum = await checksum(`${packagePath}`);
   await fs.outputFile(`${packagePath}.sha256`, sum);
-  await fs.appendFile(`${releasesDir}/sha.properties`, `SHA256_rpm=${sum}\n`);
+  await fs.appendFile(`${releasesDir}/sha.properties`, `SHA256_deb=${sum}\n`);
 
   console.log(`\nDEB BUILT ! ${buildDir}/clever-tools-${cleverToolsVersion}.deb\n`);
 }
