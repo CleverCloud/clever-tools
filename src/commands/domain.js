@@ -1,62 +1,44 @@
-var _ = require("lodash");
-var path = require("path");
-var Bacon = require("baconjs");
-var nodegit = require("nodegit");
+'use strict';
 
-var Logger = require("../logger.js");
+const _ = require('lodash');
 
-var AppConfig = require("../models/app_configuration.js");
-var Domain = require("../models/domain.js");
-var Git = require("../models/git.js")(path.resolve("."));
+const AppConfig = require('../models/app_configuration.js');
+const Domain = require('../models/domain.js');
+const handleCommandStream = require('../command-stream-handler');
+const Logger = require('../logger.js');
 
-var domain = module.exports;
+function list (api, params) {
+  const { alias } = params.options;
 
-var list = domain.list = function(api, params) {
-  var alias = params.options.alias;
+  const s_domains = AppConfig.getAppData(alias)
+    .flatMapLatest((appData) => Domain.list(api, appData.app_id, appData.org_id))
+    .map((domains) => {
+      return _.forEach(domains, ({ fqdn }) => Logger.println(fqdn));
+    });
 
-  var s_appData = AppConfig.getAppData(alias);
+  handleCommandStream(s_domains);
+}
 
-  var s_domain = s_appData.flatMap(function(appData) {
-    return Domain.list(api, appData.app_id, appData.org_id);
-  });
+function add (api, params) {
+  const [fqdn] = params.args;
+  const { alias } = params.options;
 
-  s_domain.onValue(function(domains) {
-    Logger.println(_.map(domains, 'fqdn').join('\n'));
-  });
+  const s_domain = AppConfig.getAppData(alias)
+    .flatMapLatest((appData) => Domain.create(api, fqdn, appData.app_id, appData.org_id))
+    .map(() => Logger.println('Your domain has been successfully saved'));
 
-  s_domain.onError(Logger.error);
-};
+  handleCommandStream(s_domain);
+}
 
-var add = domain.add = function(api, params) {
-  var fqdn = params.args[0];
-  var alias = params.options.alias;
+function rm (api, params) {
+  const [fqdn] = params.args;
+  const { alias } = params.options;
 
-  var s_appData = AppConfig.getAppData(alias);
+  const s_domain = AppConfig.getAppData(alias)
+    .flatMapLatest((appData) => Domain.remove(api, fqdn, appData.app_id, appData.org_id))
+    .map(() => Logger.println('Your domain has been successfully removed'));
 
-  var s_domain = s_appData.flatMap(function(appData) {
-    return Domain.create(api, fqdn, appData.app_id, appData.org_id);
-  });
+  handleCommandStream(s_domain);
+}
 
-  s_domain.onValue(function() {
-    Logger.println("Your domain has been successfully saved");
-  });
-
-  s_domain.onError(Logger.error);
-};
-
-var rm = domain.rm = function(api, params) {
-  var fqdn = params.args[0];
-  var alias = params.options.alias;
-
-  var s_appData = AppConfig.getAppData(alias);
-
-  var s_domain = s_appData.flatMap(function(appData) {
-    return Domain.remove(api, fqdn, appData.app_id, appData.org_id);
-  });
-
-  s_domain.onValue(function() {
-    Logger.println("Your domain has been successfully removed");
-  });
-
-  s_domain.onError(Logger.error);
-};
+module.exports = { list, add, rm };

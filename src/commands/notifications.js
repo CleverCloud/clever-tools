@@ -1,184 +1,182 @@
-var _ = require("lodash");
-var path = require("path");
-var Bacon = require("baconjs");
-var nodegit = require("nodegit");
-var colors = require("colors");
+'use strict';
 
-var Logger = require("../logger.js");
+const colors = require('colors/safe');
 
-var AppConfig = require("../models/app_configuration.js");
-var Notification = require("../models/notification.js");
-var Organisation = require("../models/organisation.js");
-var User = require("../models/user.js");
+const AppConfig = require('../models/app_configuration.js');
+const handleCommandStream = require('../command-stream-handler');
+const Logger = require('../logger.js');
+const Notification = require('../models/notification.js');
+const Organisation = require('../models/organisation.js');
+const User = require('../models/user.js');
 
-var notifs = module.exports;
-
-var getOrgaIdOrUserId = function(api, orgIdOrName) {
-  if(!orgIdOrName) {
+function getOrgaIdOrUserId (api, orgIdOrName) {
+  if (orgIdOrName == null) {
     return User.getCurrentId(api);
-  } else {
-    return Organisation.getId(api, orgIdOrName);
   }
+  return Organisation.getId(api, orgIdOrName);
 }
 
-var getOwnerAndApp = function(api, params, useLinkedApp) {
-  var alias = params.options.alias;
+function getOwnerAndApp (api, params, useLinkedApp) {
+  const { alias } = params.options;
 
+  if (!useLinkedApp) {
+    return getOrgaIdOrUserId(api, params.options.org)
+      .flatMapLatest((ownerId) => ({ ownerId }));
+  }
 
-  if(!useLinkedApp) {
-    return getOrgaIdOrUserId(api, params.options.org).map(function(ownerId) {
-      return {ownerId: ownerId};
-    });
-  } else {
-    return AppConfig.getAppData(alias).flatMapLatest(function(appData) {
-      if(appData.org_id) {
-        return {ownerId: appData.org_id, appId: appData.app_id}
-      } else {
-        return User.getCurrentId(api).map(function(id) {
-          return {ownerId: id, appId: appData.app_id};
-        });
+  return AppConfig.getAppData(alias)
+    .flatMapLatest((appData) => {
+      if (appData.org_id) {
+        return { ownerId: appData.org_id, appId: appData.app_id };
       }
+      return User.getCurrentId(api).flatMapLatest((id) => {
+        return { ownerId: id, appId: appData.app_id };
+      });
     });
-  }
-
 }
 
-var displayWebhook = function(hook) {
-  Logger.println(hook.name && hook.name.bold || hook.id);
-  Logger.println("  id: " + hook.id);
-  Logger.println("  services: " + (hook.scope && hook.scope.join(", ") || hook.ownerId));
-  Logger.println("  events: " + (hook.events && hook.events.join(", ") || "ALL".bold));
-  Logger.println("  hooks:")
-  hook.urls.forEach(function(url) {
-    Logger.println("    " + url.url + " (" + url.format + ")");
-  });
+function displayWebhook (hook) {
+  Logger.println((hook.name && colors.bold(hook.name)) || hook.id);
+  Logger.println(`  id: ${hook.id}`);
+  Logger.println(`  services: ${(hook.scope && hook.scope.join(', ')) || hook.ownerId}`);
+  Logger.println(`  events: ${(hook.events && hook.events.join(', ')) || colors.bold('ALL')}`);
+  Logger.println('  hooks:');
+  hook.urls.forEach((url) => Logger.println(`    ${url.url} (${url.format})`));
   Logger.println();
 }
 
-var displayEmailhook = function(hook) {
-  Logger.println(hook.name && hook.name.bold || hook.id);
-  Logger.println("  id: " + hook.id);
-  Logger.println("  services: " + (hook.scope && hook.scope.join(", ") || hook.ownerId));
-  Logger.println("  events: " + (hook.events && hook.events.join(", ") || "ALL".bold));
-  if(hook.notified) {
-    Logger.println("  to:")
-    hook.notified.forEach(function(target) {
-      Logger.println("    " + (target.target || "whole team"));
-    });
-  } else {
-    Logger.println("  to: whole team");
+function displayEmailhook (hook) {
+  Logger.println((hook.name && colors(hook.name)) || hook.id);
+  Logger.println(`  id: ${hook.id}`);
+  Logger.println(`  services: ${(hook.scope && hook.scope.join(', ')) || hook.ownerId}`);
+  Logger.println(`  events: ${(hook.events && hook.events.join(', ')) || colors.bold('ALL')}`);
+  if (hook.notified) {
+    Logger.println('  to:');
+    hook.notified.forEach((target) => Logger.println(`    ${target.target || 'whole team'}`));
+  }
+  else {
+    Logger.println('  to: whole team');
   }
   Logger.println();
 }
 
-var listWebhooks = notifs.listWebhooks = function(api, params) {
-  return listNotifications(api, params, "webhooks");
+function listWebhooks (api, params) {
+  return listNotifications(api, params, 'webhooks');
 }
 
-var listEmailNotifications = notifs.listEmailNotifications = function(api, params) {
-  return listNotifications(api, params, "emailhooks");
+function listEmailNotifications (api, params) {
+  return listNotifications(api, params, 'emailhooks');
 }
 
-var listNotifications = function(api, params, type) {
-  var listAll = params.options["list-all"];
-  var s_ownerAndApp = getOwnerAndApp(api, params, !listAll);
-  var s_hooks = s_ownerAndApp.flatMapLatest(function(ownerAndApp) {
-    return Notification.list(api, type, ownerAndApp.ownerId, ownerAndApp.appId);
-  });
-  var display = type === 'emailhooks' ? displayEmailhook : displayWebhook;
+function listNotifications (api, params, type) {
+  const { 'list-all': listAll } = params.options;
 
-  s_hooks.onValue(function(hooks) {
-    hooks.forEach(function(hook) {
-      display(hook);
+  const s_hooks = getOwnerAndApp(api, params, !listAll)
+    .flatMapLatest((ownerAndApp) => {
+      return Notification.list(api, type, ownerAndApp.ownerId, ownerAndApp.appId);
+    })
+    .map((hooks) => {
+      hooks.forEach((hook) => {
+        if (type === 'emailhooks') {
+          displayEmailhook(hook);
+        }
+        else {
+          displayWebhook(hook);
+        }
+      });
     });
-  });
-  s_hooks.onError(Logger.error);
-};
 
-var addWebhook = notifs.addWebhook = function(api, params) {
-  var format = params.options.format;
-  var event = params.options.event;
-  var event_types = event ? event.split(',') : null;
-  var service = params.options.service;
-  var services = service ? service.split(',') : null;
-
-  var name = params.args[0];
-  var hookUrl = params.args[1];
-
-  var s_ownerAndApp = getOwnerAndApp(api, params, !params.options.org && !services);
-  var s_results = s_ownerAndApp.flatMapLatest(function(ownerAndApp) {
-    if(ownerAndApp.appId) {
-      services = services || [ownerAndApp.appId];
-    }
-    var url = {
-      format: format,
-      url: hookUrl
-    };
-    return Notification.add(api, "webhooks", ownerAndApp.ownerId, name, [url], services, event_types);
-  });
-
-  s_results.onValue(function() {
-    Logger.println("The webhook has been added")
-  });
-  s_results.onError(Logger.error);
-};
-
-var getEmailNotificationTargets = notifs.getEmailNotificationTargets = function(params) {
-  var elems = params.options.notify ? params.options.notify.split(',') : null;
-  if(elems === null) return [];
-
-  return elems.map(function(e) {
-    if(e.indexOf("@") >= 0) return { "type": "email", "target": e };
-    if(e.substr(0,5) === "user_") return { "type": "userid", "target": e };
-    if(e === "organisation") return { "type": "organisation" };
-  }).filter(function(e) { return !!e });
+  handleCommandStream(s_hooks);
 }
 
-var addEmailNotification = notifs.addEmailNotification = function(api, params) {
-  var format = params.options.format;
-  var event = params.options.event;
-  var event_types = event ? event.split(',') : null;
-  var service = params.options.service;
-  var services = service ? service.split(',') : null;
+function addWebhook (api, params) {
+  const { format, event, service } = params.options;
+  const eventTypes = event ? event.split(',') : null;
+  let services = service ? service.split(',') : null;
+  const [name, hookUrl] = params.args;
 
-  var name = params.args[0];
+  const s_results = getOwnerAndApp(api, params, !params.options.org && !services)
+    .flatMapLatest((ownerAndApp) => {
+      if (ownerAndApp.appId) {
+        services = services || [ownerAndApp.appId];
+      }
+      const url = { format, url: hookUrl };
+      return Notification.add(api, 'webhooks', ownerAndApp.ownerId, name, [url], services, eventTypes);
+    })
+    .map(() => Logger.println('The webhook has been added'));
 
-  var notified = getEmailNotificationTargets(params);
+  handleCommandStream(s_results);
+}
 
-  var s_ownerAndApp = getOwnerAndApp(api, params, !params.options.org && !services);
-  var s_results = s_ownerAndApp.flatMapLatest(function(ownerAndApp) {
-    if(ownerAndApp.appId) {
-      services = services || [ownerAndApp.appId];
-    }
+function getEmailNotificationTargets (params) {
+  const { notify } = params.options;
+  const elems = notify ? notify.split(',') : null;
 
-    return Notification.add(api, "emailhooks", ownerAndApp.ownerId, name, notified, services, event_types);
-  });
+  if (elems == null) {
+    return [];
+  }
 
-  s_results.onValue(function() {
-    Logger.println("The webhook has been added")
-  });
-  s_results.onError(Logger.error);
+  return elems
+    .map((el) => {
+      if (el.includes('@')) {
+        return { 'type': 'email', 'target': el };
+      }
+      if (el.startsWith('user_')) {
+        return { 'type': 'userid', 'target': el };
+      }
+      if (el === 'organisation') {
+        return { 'type': 'organisation' };
+      }
+    })
+    .filter((e) => e != null);
+}
+
+function addEmailNotification (api, params) {
+  const { event, service, org } = params.options;
+  const eventTypes = event ? event.split(',') : null;
+  let services = service ? service.split(',') : null;
+  const [name] = params.args;
+
+  const notified = getEmailNotificationTargets(params);
+
+  const s_results = getOwnerAndApp(api, params, !org && !services)
+    .flatMapLatest((ownerAndApp) => {
+      if (ownerAndApp.appId) {
+        services = services || [ownerAndApp.appId];
+      }
+      return Notification.add(api, 'emailhooks', ownerAndApp.ownerId, name, notified, services, eventTypes);
+    })
+    .map(() => Logger.println('The webhook has been added'));
+
+  handleCommandStream(s_results);
+}
+
+function removeWebhook (api, params) {
+  return removeNotification(api, params, 'webhooks');
+}
+
+function removeEmailNotification (api, params) {
+  return removeNotification(api, params, 'emailhooks');
+}
+
+function removeNotification (api, params, type) {
+  const [notificationId] = params.args;
+
+  const s_results = getOrgaIdOrUserId(api, params.options.org)
+    .flatMapLatest((ownerId) => {
+      return Notification.remove(api, type, ownerId, notificationId);
+    })
+    .map(() => Logger.println('The notification has been successfully removed'));
+
+  handleCommandStream(s_results);
+}
+
+module.exports = {
+  listWebhooks,
+  listEmailNotifications,
+  addWebhook,
+  getEmailNotificationTargets,
+  addEmailNotification,
+  removeWebhook,
+  removeEmailNotification,
 };
-
-var removeWebhook = notifs.removeWebhook = function(api, params) {
-  return removeNotification(api, params, "webhooks");
-};
-
-var removeEmailNotification = notifs.removeEmailNotification = function(api, params) {
-  return removeNotification(api, params, "emailhooks");
-};
-
-var removeNotification = function(api, params, type) {
-  var notificationId = params.args[0];
-
-  var s_ownerId = getOrgaIdOrUserId(api, params.options.org);
-  var s_results = s_ownerId.flatMapLatest(function(ownerId) {
-    return Notification.remove(api, type, ownerId, notificationId);
-  });
-
-  s_results.onValue(function() {
-    Logger.println("The notification has been successfully removed");
-  });
-  s_results.onError(Logger.error);
-};
-

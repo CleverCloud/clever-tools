@@ -40,8 +40,8 @@ function getInstanceType (api, type) {
   const s_types = api.products.instances.get().send();
 
   return s_types.flatMapLatest(function (types) {
-    const enabledTypes = _.filter(types, t => t.enabled);
-    const matchingVariants = _.filter(enabledTypes, t => t.variant && t.variant.slug === type);
+    const enabledTypes = _.filter(types, (t) => t.enabled);
+    const matchingVariants = _.filter(enabledTypes, (t) => t.variant && t.variant.slug === type);
     const instanceVariant = _.sortBy(matchingVariants, 'version').reverse()[0];
     return instanceVariant ? Bacon.once(instanceVariant) : new Bacon.Error(type + ' type does not exist.');
   });
@@ -49,7 +49,7 @@ function getInstanceType (api, type) {
 
 function create (api, name, instanceType, region, orgaIdOrName, github) {
   Logger.debug('Create the application…');
-  return Organisation.getId(api, orgaIdOrName).flatMapLatest(function (orgaId) {
+  return Organisation.getId(api, orgaIdOrName).flatMapLatest((orgaId) => {
     const params = orgaId ? [orgaId] : [];
 
     const body = {
@@ -102,9 +102,11 @@ function getApplicationByName (s_apps, name) {
     });
     if (filtered_apps.length === 1) {
       return Bacon.once(filtered_apps[0]);
-    } else if (filtered_apps.length === 0) {
+    }
+    else if (filtered_apps.length === 0) {
       return Bacon.once(new Bacon.Error('Application not found'));
-    } else {
+    }
+    else {
       return Bacon.once(new Bacon.Error('Ambiguous application name'));
     }
   });
@@ -116,7 +118,8 @@ function getByName (api, name, orgaIdOrName) {
   if (!orgaIdOrName) {
     const s_apps = api.owner().applications.get().send();
     return getApplicationByName(s_apps, name);
-  } else {
+  }
+  else {
     const s_apps = Organisation.getId(api, orgaIdOrName).flatMapLatest(function (orgaId) {
       return api.owner(orgaId).applications.get().withParams([orgaId]).send();
     });
@@ -138,17 +141,13 @@ function getInstances (api, appId, orgaId) {
 };
 
 function linkRepo (api, appIdOrName, orgaIdOrName, alias, ignoreParentConfig) {
-  Logger.debug('Linking current repository to the app: ' + (appIdOrName.app_id || appIdOrName.app_name));
+  Logger.debug(`Linking current repository to the app: ${appIdOrName.app_id || appIdOrName.app_name}`);
 
-  let s_app;
+  const s_app = (appIdOrName.app_id != null)
+    ? get(api, appIdOrName.app_id)
+    : getByName(api, appIdOrName.app_name, orgaIdOrName);
 
-  if (appIdOrName.app_id) {
-    s_app = get(api, appIdOrName.app_id);
-  } else {
-    s_app = getByName(api, appIdOrName.app_name, orgaIdOrName);
-  }
-
-  return s_app.flatMapLatest(function (appData) {
+  return s_app.flatMapLatest((appData) => {
     return AppConfiguration.addLinkedApplication(appData, alias, ignoreParentConfig);
   });
 };
@@ -185,25 +184,29 @@ function mergeScalabilityParameters (scalabilityParameters, instance) {
 
   if (scalabilityParameters.minFlavor) {
     instance.minFlavor = scalabilityParameters.minFlavor;
-    if (flavors.indexOf(instance.minFlavor) > flavors.indexOf(instance.maxFlavor))
+    if (flavors.indexOf(instance.minFlavor) > flavors.indexOf(instance.maxFlavor)) {
       instance.maxFlavor = instance.minFlavor;
+    }
   }
   if (scalabilityParameters.maxFlavor) {
     instance.maxFlavor = scalabilityParameters.maxFlavor;
-    if (flavors.indexOf(instance.minFlavor) > flavors.indexOf(instance.maxFlavor) &&
-      scalabilityParameters.minFlavor == null)
+    if (flavors.indexOf(instance.minFlavor) > flavors.indexOf(instance.maxFlavor)
+      && scalabilityParameters.minFlavor == null) {
       instance.minFlavor = instance.maxFlavor;
+    }
   }
 
   if (scalabilityParameters.minInstances) {
     instance.minInstances = scalabilityParameters.minInstances;
-    if (instance.minInstances > instance.maxInstances)
+    if (instance.minInstances > instance.maxInstances) {
       instance.maxInstances = instance.minInstances;
+    }
   }
   if (scalabilityParameters.maxInstances) {
     instance.maxInstances = scalabilityParameters.maxInstances;
-    if (instance.minInstances > instance.maxInstances && scalabilityParameters.minInstances == null)
+    if (instance.minInstances > instance.maxInstances && scalabilityParameters.minInstances == null) {
       instance.minInstances = instance.maxInstances;
+    }
   }
   return instance;
 };
@@ -235,14 +238,16 @@ function listDependencies (api, appId, orgaId, showAll) {
 
   if (!showAll) {
     return s_mine;
-  } else {
+  }
+  else {
     return s_all.flatMapLatest(function (all) {
       return s_mine.flatMapLatest(function (mine) {
         const mineIds = _.map(mine, 'id');
         return _.map(all, function (app) {
           if (_.includes(mineIds, app.id)) {
             return _.assign({}, app, { isLinked: true });
-          } else {
+          }
+          else {
             return app;
           }
         });

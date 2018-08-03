@@ -1,25 +1,28 @@
-var _ = require("lodash");
-var Bacon = require("baconjs");
+'use strict';
 
-var Interact = module.exports;
+const readline = require('readline');
 
-Interact.ask = function (question) {
-  var readline = require("readline").createInterface({
+const _ = require('lodash');
+const Bacon = require('baconjs');
+
+function ask (question) {
+  const rl = readline.createInterface({
     input: process.stdin,
-    output: process.stdout
+    output: process.stdout,
   });
 
-  return Bacon.fromCallback(_.partial(readline.question.bind(readline), question)).doAction(readline.close.bind(readline));
-};
+  return Bacon
+    .fromCallback(rl.question.bind(rl, question))
+    .doAction(rl.close.bind(rl));
+}
 
-Interact.confirm = function(question, rejectionMessage, answers) {
-  var defaultAnswers = ["yes", "y"];
-  var expectedAnswers = typeof answers === "undefined" ? defaultAnswers :  answers;
-  return Interact.ask(question).flatMapLatest(function(answer) {
-    if(_.includes(expectedAnswers, answer)) {
+function confirm (question, rejectionMessage, expectedAnswers = ['yes', 'y']) {
+  return ask(question).flatMapLatest((answer) => {
+    if (_.includes(expectedAnswers, answer)) {
       return true;
-    } else {
-      return new Bacon.Error(rejectionMessage);
     }
+    return new Bacon.Error(rejectionMessage);
   });
-};
+}
+
+module.exports = { ask, confirm };

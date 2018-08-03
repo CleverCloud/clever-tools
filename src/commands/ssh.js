@@ -6,7 +6,7 @@ const AppConfig = require('../models/app_configuration.js');
 const { conf } = require('../models/configuration.js');
 const handleCommandStream = require('../command-stream-handler');
 
-const ssh = module.exports = (api, params) => {
+function ssh (api, params) {
   const { alias, 'identity-file': identityFile } = params.options;
 
   const s_result = AppConfig.getAppData(alias)
@@ -19,4 +19,6 @@ const ssh = module.exports = (api, params) => {
     });
 
   handleCommandStream(s_result);
-};
+}
+
+module.exports = ssh;

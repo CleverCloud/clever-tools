@@ -15,7 +15,8 @@ function getCommand (url) {
     if (protocol === null || hostname === null) {
       return new Bacon.Error('Invalid url provided');
     }
-  } catch (e) {
+  }
+  catch (e) {
     return new Bacon.Error('Invalid url provided');
   }
 
@@ -58,4 +59,4 @@ function openPage (url) {
     .flatMapLatest((command) => run(command));
 }
 
-module.exports = { getCommand, run, openPage };
+module.exports = { openPage };

@@ -1,28 +1,33 @@
-var WebSocket = require("ws");
-var Bacon = require("baconjs");
-var _ = require("lodash");
-var request = require("request");
-var colors = require("colors");
+'use strict';
 
-var Logger = require("../logger.js");
-var { conf } = require('./configuration.js');
-var WsStream = require("./ws_stream.js");
+const _ = require('lodash');
+const Bacon = require('baconjs');
+const colors = require('colors/safe');
+const https = require('https');
+const request = require('request');
+const url = require('url');
 
-var Log = module.exports;
+const Logger = require('../logger.js');
+const WsStream = require('./ws-stream.js');
+const { conf } = require('./configuration.js');
 
-Log.getWsLogUrl = function(appId, timestamp, search, deploymentId) {
-  const baseUrl = _.template(conf.LOG_WS_URL)({appId, timestamp})
-  const searchQuery = _.template("&filter=<%- search %>")({search})
-  const deploymentIdQuery = _.template("&deployment_id=<%- deploymentId %>")({deploymentId})
+function getWsLogUrl (appId, timestamp, search, deploymentId) {
+  const baseUrl = _.template(conf.LOG_WS_URL)({ appId, timestamp });
 
-  return baseUrl + (search ? searchQuery : "") + (deploymentId ? deploymentIdQuery : "");
+  const logsUrl = new url.URL(baseUrl);
+  if (search != null) {
+    logsUrl.searchParams.set('filter', search);
+  }
+  if (deploymentId != null) {
+    logsUrl.searchParams.set('deployment_id', deploymentId);
+  }
+
+  return logsUrl.toString();
 };
 
-Log.getHttpLogUrl = _.partial(function(template, appId) {
-  return template({
-    appId: appId
-  });
-}, _.template(conf.LOG_HTTP_URL));
+function getAppLogsUrl (appId) {
+  return _.template(conf.LOG_HTTP_URL)({ appId });
+}
 
 /** Get logs as they arrive from a web socket.
  * Automatically reconnect if the connexion is closed.
@@ -33,116 +38,117 @@ Log.getHttpLogUrl = _.partial(function(template, appId) {
  * after  (Date): only display log lines that happened after this date
  * deploymentId: Only display log lines corresponding to this deployment
  */
-Log.getContinuousLogs = function(api, appId, before, after, search, deploymentId){
-  const url = Log.getWsLogUrl(appId, after.toISOString(), search, deploymentId);
-  const makeUrl = (retryTimestamp) => {
+function getContinuousLogs (api, appId, before, after, search, deploymentId) {
+  function makeUrl (retryTimestamp) {
     const newAfter = retryTimestamp === null || after.getTime() > retryTimestamp.getTime() ? after : retryTimestamp;
-    return Log.getWsLogUrl(appId, newAfter.toISOString(), search, deploymentId);
+    return getWsLogUrl(appId, newAfter.toISOString(), search, deploymentId);
   };
 
-  const s_WsLogs = WsStream.openStream(makeUrl, api.session.getAuthorization('GET', conf.API_HOST + '/logs/' + appId, {}))
-  const s_logs = s_WsLogs.filter(function(line) {
-    var lineDate = Date.parse(line._source["@timestamp"]);
-    var isBefore = !before || lineDate < before.getTime();
-    var isAfter = !after || lineDate > after.getTime();
-    return isBefore && isAfter;
-  });
-
-  return s_logs;
+  return WsStream
+    .openStream(makeUrl, api.session.getAuthorization('GET', getAppLogsUrl(appId), {}))
+    .filter((line) => {
+      const lineDate = Date.parse(line._source['@timestamp']);
+      const isBefore = !before || lineDate < before.getTime();
+      const isAfter = !after || lineDate > after.getTime();
+      return isBefore && isAfter;
+    });
 };
 
-Log.getNewLogs = function(api, appId, before, after, search, deploymentId) {
-  Logger.println("Waiting for application logs…");
-  Logger.debug("Opening a websocket in order to fetch logs…");
-  return Log.getContinuousLogs(api, appId, before, after, search, deploymentId);
+function getNewLogs (api, appId, before, after, search, deploymentId) {
+  Logger.println('Waiting for application logs…');
+  Logger.debug('Opening a websocket in order to fetch logs…');
+  return getContinuousLogs(api, appId, before, after, search, deploymentId);
 };
 
-Log.getOldLogs = function(api, app_id, before, after, search, deploymentId) {
-  var query = {};
+function getOldLogs (api, app_id, before, after, search, deploymentId) {
+  const query = {};
 
-  if(!before && !after) {
+  if (before == null && after == null) {
     query.limit = 300;
-  } else {
-    if(before) query.before = before.toISOString();
-    if(after) query.after = after.toISOString();
   }
-  if(search) {
+  if (before != null) {
+    query.before = before.toISOString();
+  }
+  if (after != null) {
+    query.after = after.toISOString();
+  }
+  if (search != null) {
     query.filter = search;
   }
-  if(deploymentId) {
+  if (deploymentId != null) {
     query.deployment_id = deploymentId;
   }
-  const url = Log.getHttpLogUrl(app_id);
 
-  var s_res = Bacon.fromNodeCallback(request, {
-      agent: url.startsWith("https://") ? new (require("https").Agent)({ keepAlive: true }) : undefined,
-      url,
+  const appLogsUrl = getAppLogsUrl(app_id);
+  console.log(appLogsUrl);
+
+  return Bacon
+    .fromNodeCallback(request, {
+      agent: appLogsUrl.startsWith('https://') ? new https.Agent({ keepAlive: true }) : undefined,
+      url: appLogsUrl,
       qs: query,
       headers: {
-        authorization: api.session.getAuthorization('GET', conf.API_HOST + '/logs/' + app_id, {}),
-        "Accept": "application/json"
+        authorization: api.session.getAuthorization('GET', appLogsUrl, {}),
+        'Accept': 'application/json',
+      },
+    })
+    .flatMapLatest((res) => {
+      Logger.debug('Received old logs');
+      const jsonBody = _.attempt(JSON.parse, res.body);
+      if (_.isError(jsonBody)) {
+        return new Bacon.Error('Received invalid JSON');
       }
-  });
-
-  return s_res.flatMapLatest(function(res) {
-    Logger.debug("Received old logs");
-    var jsonBody = _.attempt(JSON.parse, res.body);
-    if(!_.isError(jsonBody) && _.isArray(jsonBody)) {
-      return Bacon.fromArray(jsonBody.reverse());
-    } else {
-      if(!_.isError(jsonBody) && jsonBody["type"] === "error") {
+      if (_.isArray(jsonBody)) {
+        return Bacon.fromArray(jsonBody.reverse());
+      }
+      if (jsonBody['type'] === 'error') {
         return new Bacon.Error(jsonBody);
-      } else {
-        return new Bacon.Error("Received invalid JSON");
       }
-    }
-  });
+    });
 };
 
-var isCleverMessage = function(line) {
-  return line._source.syslog_program === "/home/bas/rubydeployer/deployer.rb";
+function isCleverMessage (line) {
+  return line._source.syslog_program === '/home/bas/rubydeployer/deployer.rb';
 };
 
-var isDeploymentSuccessMessage = function(line) {
-  return isCleverMessage(line) &&
-  _.startsWith(line._source["@message"].toLowerCase(), "successfully deployed in");
+function isDeploymentSuccessMessage (line) {
+  return isCleverMessage(line)
+    && _.startsWith(line._source['@message'].toLowerCase(), 'successfully deployed in');
 };
 
-var isDeploymentFailedMessage = function(line) {
-  return isCleverMessage(line) &&
-  _.startsWith(line._source["@message"].toLowerCase(), "deploy failed in");
+function isDeploymentFailedMessage (line) {
+  return isCleverMessage(line)
+    && _.startsWith(line._source['@message'].toLowerCase(), 'deploy failed in');
 };
 
-var isBuildSucessMessage = function(line){
-  return _.startsWith(line._source["@message"].toLowerCase(), "build succeeded in");
+function isBuildSucessMessage (line) {
+  return _.startsWith(line._source['@message'].toLowerCase(), 'build succeeded in');
 };
 
-Log.getAppLogs = function(api, appId, instances, before, after, search, deploymentId) {
-  var s_logs;
-  var now = new Date();
+function getAppLogs (api, appId, instances, before, after, search, deploymentId) {
+  const now = new Date();
+  const fetchOldLogs = !after || after < now;
 
-  var fetchOldLogs = !after || after < now;
-  var fetchNewLogs = !before || before > now;
+  const s_newLogs = getNewLogs(api, appId, before, after || now, search, deploymentId);
+  const s_logs = fetchOldLogs
+    ? getOldLogs(api, appId, before, after, search, deploymentId).merge(s_newLogs)
+    : s_newLogs;
 
-  if(fetchOldLogs) {
-    s_logs = Log.getOldLogs(api, appId, before, after, search, deploymentId)
-            .merge(Log.getNewLogs(api, appId, before, after || now, search, deploymentId));
-  } else {
-    s_logs = Log.getNewLogs(api, appId, before, after || now, search, deploymentId);
-  }
   return s_logs
-        .filter(function(line) {
-          return !instances || instances.indexOf(line._source["@source_host"]) >= 0;
-        })
-        .map(function(line) {
-          if(isDeploymentSuccessMessage(line)) {
-            return line._source["@timestamp"] + ": " + line._source["@message"].bold.green;
-          } else if(isDeploymentFailedMessage(line)) {
-            return line._source["@timestamp"] + ": " + line._source["@message"].bold.red;
-          } else if(isBuildSucessMessage(line)){
-            return line._source["@timestamp"] + ": " + line._source["@message"].bold.blue;
-          } else {
-            return line._source["@timestamp"] + ": " + line._source["@message"];
-          }
-        });
+    .filter((line) => _.isEmpty(instances) || _.includes(instances, line._source['@source_host']))
+    .map((line) => {
+      const { '@timestamp': timestamp, '@message': message } = line._source;
+      if (isDeploymentSuccessMessage(line)) {
+        return `${timestamp}: ${colors.bold.green(message)}`;
+      }
+      else if (isDeploymentFailedMessage(line)) {
+        return `${timestamp}: ${colors.bold.red(message)}`;
+      }
+      else if (isBuildSucessMessage(line)) {
+        return `${timestamp}: ${colors.bold.blue(message)}`;
+      }
+      return `${timestamp}: ${message}`;
+    });
 };
+
+module.exports = { getAppLogs };

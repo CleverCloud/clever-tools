@@ -13,7 +13,8 @@ const env = commonEnv(Logger);
 function getConfigPath () {
   if (process.platform === 'win32') {
     return path.resolve(process.env.APPDATA, 'clever-cloud');
-  } else {
+  }
+  else {
     return xdg.basedir.configPath('clever-cloud');
   }
 };

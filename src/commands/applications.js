@@ -1,7 +1,7 @@
 'use strict';
 
-const colors = require('colors');
 const _ = require('lodash');
+const colors = require('colors/safe');
 
 const AppConfig = require('../models/app_configuration.js');
 const handleCommandStream = require('../command-stream-handler');

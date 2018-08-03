@@ -1,61 +1,70 @@
-var path = require("path");
+'use strict';
 
-var _ = require("lodash");
-var Bacon = require("baconjs");
+const Bacon = require('baconjs');
 
-var AppConfig = require("../models/app_configuration.js");
-var Application = require("../models/application.js");
+const AppConfig = require('../models/app_configuration.js');
+const Application = require('../models/application.js');
+const handleCommandStream = require('../command-stream-handler');
+const Logger = require('../logger.js');
 
-var Logger = require("../logger.js");
+function validateOptions (options) {
 
-var scale = module.exports = function(api, params) {
-  if (params.options["min-flavor"] == null && params.options["max-flavor"] == null &&
-      params.options["min-instances"] == null && params.options["max-instances"] == null &&
-      params.options["flavor"] == null && params.options["instances"] == null) {
-    return Logger.error("You should provide at least 1 option")
+  let { flavor, 'min-flavor': minFlavor, 'max-flavor': maxFlavor } = options;
+  let { instances, 'min-instances': minInstances, 'max-instances': maxInstances } = options;
+
+  if ([flavor, minFlavor, maxFlavor, instances, minInstances, maxInstances].every((v) => v == null)) {
+    throw new Error('You should provide at least 1 option');
   }
 
-  if (params.options["flavor"]) {
-    if (params.options["min-flavor"] || params.options["max-flavor"])
-      return Logger.error("You can't use --flavor and --min-flavor or --max-flavor at the same time");
-    params.options["min-flavor"] = params.options["flavor"];
-    params.options["max-flavor"] = params.options["flavor"];
+  if (flavor != null) {
+    if (minFlavor != null || maxFlavor != null) {
+      throw new Error(`You can't use --flavor and --min-flavor or --max-flavor at the same time`);
+    }
+    minFlavor = flavor;
+    maxFlavor = flavor;
   }
 
-  if (params.options["instances"]) {
-    if (params.options["min-instances"] || params.options["max-instances"])
-      return Logger.error("You can't use --instances and --min-instances or --max-instances at the same time");
-    params.options["min-instances"] = params.options["instances"];
-    params.options["max-instances"] = params.options["instances"];
+  if (instances != null) {
+    if (minInstances != null || maxInstances != null) {
+      throw new Error(`You can't use --instances and --min-instances or --max-instances at the same time`);
+    }
+    minInstances = instances;
+    maxInstances = instances;
   }
 
-  if (params.options["min-instances"] && params.options["max-instances"] &&
-      params.options["min-instances"] > params.options["max-instances"]) {
-    return Logger.error("min-instances can't be greater than max-instances");
+  if (minInstances != null && maxInstances != null && minInstances > maxInstances) {
+    throw new Error(`min-instances can't be greater than max-instances`);
   }
 
-  if (params.options["min-flavor"] && params.options["max-flavor"] &&
-      Application.listAvailableFlavors().indexOf(params.options["min-flavor"]) >
-      Application.listAvailableFlavors().indexOf(params.options["max-flavor"])) {
-    return Logger.error("min-flavor can't be a greater flavor than max-flavor");
+  if (minFlavor != null && maxFlavor != null) {
+    const minFlavorIndex = Application.listAvailableFlavors().indexOf(minFlavor);
+    const maxFlavorIndex = Application.listAvailableFlavors().indexOf(maxFlavor);
+    if (minFlavorIndex > maxFlavorIndex) {
+      throw new Error(`min-flavor can't be a greater flavor than max-flavor`);
+    }
   }
 
-  var alias = params.options.alias;
+  return { minFlavor, maxFlavor, minInstances, maxInstances };
+}
 
-  var s_appData = AppConfig.getAppData(alias);
+// https://github.com/baconjs/bacon.js/wiki/FAQ#why-isnt-my-subscriber-called
+function asStream (fn) {
+  return Bacon.later(0).flatMapLatest(Bacon.try(fn));
+}
 
-  var s_scaledApp = s_appData.flatMapLatest(function(appData) {
-    var scalabilityParameters = {};
-    scalabilityParameters.minFlavor = params.options["min-flavor"];
-    scalabilityParameters.maxFlavor = params.options["max-flavor"];
-    scalabilityParameters.minInstances = params.options["min-instances"];
-    scalabilityParameters.maxInstances = params.options["max-instances"];
+function scale (api, params) {
+  const { alias } = params.options;
 
-    return Application.setScalability(api, appData.app_id, appData.org_id,scalabilityParameters);
-  });
+  const s_scaledApp = asStream(() => validateOptions(params.options))
+    .flatMapLatest(({ minFlavor, maxFlavor, minInstances, maxInstances }) => {
+      return AppConfig.getAppData(alias).flatMapLatest((appData) => {
+        const scalabilityParameters = { minFlavor, maxFlavor, minInstances, maxInstances };
+        return Application.setScalability(api, appData.app_id, appData.org_id, scalabilityParameters);
+      });
+    })
+    .map(() => Logger.println('App rescaled successfully'));
 
-  s_scaledApp.onValue(function(___) {
-    Logger.println("App rescaled successfully");
-  });
-  s_scaledApp.onError(Logger.error);
+  handleCommandStream(s_scaledApp);
 };
+
+module.exports = scale;

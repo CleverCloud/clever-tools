@@ -1,93 +1,66 @@
-var fs = require("fs");
-var exec = require("child_process").exec;
-var path = require("path");
-var mkdirp = require("mkdirp");
+'use strict';
 
-var _ = require("lodash");
-var Bacon = require("baconjs");
+const fs = require('fs');
+const mkdirp = require('mkdirp');
+const path = require('path');
 
-var Logger = require("../logger.js");
-var OpenBrowser = require("../open-browser.js");
-var { conf } = require("../models/configuration.js");
-var Interact = require("../models/interact.js");
+const Bacon = require('baconjs');
 
+const handleCommandStream = require('../command-stream-handler');
+const interact = require('../models/interact.js');
+const Logger = require('../logger.js');
+const openBrowser = require('../open-browser.js');
+const { conf } = require('../models/configuration.js');
 
-function runCommand(command) {
-  return Bacon.fromBinder(function(sink) {
-    exec(command, function(error, stdout, stderr) {
-      // Don't consider output in stderr as a blocking error because of
-      // firefox
-      if(error) {
-        sink(new Bacon.Error(error));
-      } else {
-        sink(stdout);
-      }
-      sink(new Bacon.End());
-    });
-
-    return function(){};
-  });
-}
-
-
-
-function getOAuthData() {
-  Logger.debug("Ask for tokens…");
-  var s_token = Interact.ask("Enter CLI token: ");
-  var s_secret = s_token.flatMapLatest(_.partial(Interact.ask, "Enter CLI secret: "));
+function getOAuthData () {
+  Logger.debug('Ask for tokens…');
+  const s_token = interact.ask('Enter CLI token: ');
+  const s_secret = s_token.flatMapLatest(() => interact.ask('Enter CLI secret: '));
 
   return Bacon.combineTemplate({
     token: s_token,
-    secret: s_secret
+    secret: s_secret,
   });
 }
 
-function ensureConfigDir() {
-  return Bacon.fromNodeCallback(
-    mkdirp,
-    path.dirname(conf.CONFIGURATION_FILE,
-    { mode: parseInt('0700', 8) }));
+function ensureConfigDir () {
+  const configDir = path.dirname(conf.CONFIGURATION_FILE);
+  return Bacon.fromNodeCallback(mkdirp, configDir, { mode: 0o700 });
 }
 
-function writeLoginConfig(oauthData) {
-  Logger.debug("Write the tokens in the configuration file…")
-  return ensureConfigDir()
-    .flatMapLatest(
-      Bacon.fromNodeCallback(
-        _.partial(fs.writeFile, conf.CONFIGURATION_FILE, JSON.stringify(oauthData))));
+function writeLoginConfig (oauthData) {
+  Logger.debug('Write the tokens in the configuration file…');
+  return ensureConfigDir().flatMapLatest(() => {
+    return Bacon.fromNodeCallback(fs.writeFile, conf.CONFIGURATION_FILE, JSON.stringify(oauthData));
+  });
 }
 
-var login = module.exports = function(api, params) {
-  let s_tokens;
+function login (api, params) {
+  const { token, secret } = params.options;
 
-  if(params.options.token || params.options.secret) {
-    if(params.options.token && params.options.secret) {
-      s_tokens = Bacon.once({ token: params.options.token, secret: params.options.secret });
-    } else {
-      s_tokens = Bacon.once(new Bacon.Error("Both `--token` and `--secret` have to be defined"));
-    }
-  } else {
-    Logger.debug("Try to login to Clever Cloud…")
-    s_tokens = OpenBrowser.getCommand(conf.CONSOLE_TOKEN_URL)
-      .flatMapLatest(function(command) {
-        Logger.println("Opening " + conf.CONSOLE_TOKEN_URL + " in your browser…");
-        return OpenBrowser.run(command);
-      })
-      .flatMapLatest(getOAuthData)
-  }
+  const s_result = Bacon.once()
+    .flatMapLatest(() => {
 
-  const result = s_tokens
-      .flatMapLatest(writeLoginConfig)
-      .map(conf.CONFIGURATION_FILE + " has been updated.");
+      if (token == null && secret == null) {
+        Logger.debug('Try to login to Clever Cloud…');
+        Logger.println(`Opening ${conf.CONSOLE_TOKEN_URL} in your browser…`);
+        return openBrowser
+          .openPage(conf.CONSOLE_TOKEN_URL)
+          .flatMapLatest(getOAuthData);
+      }
+
+      if (token == null || secret == null) {
+        return new Bacon.Error('Both `--token` and `--secret` have to be defined');
+      }
+
+      return { token, secret };
+    })
+    .flatMapLatest(writeLoginConfig)
+    .map(() => Logger.println(`${conf.CONFIGURATION_FILE} has been updated.`));
+
   // Force process exit, otherwhise, it will be kept alive
   // because of the spawn() call (in src/open-browser.js)
-  result.onError(function(error){
-    Logger.error(error);
-    process.exit(1);
-  });
+  handleCommandStream(s_result, () => process.exit(0));
+}
 
-  result.onValue(function(message){
-    Logger.println(message);
-    process.exit(0);
-  });
-};
+module.exports = login;

@@ -1,40 +1,29 @@
-var _ = require("lodash");
-var path = require("path");
-var Bacon = require("baconjs");
-var nodegit = require("nodegit");
+'use strict';
 
-var Logger = require("../logger.js");
+const Application = require('../models/application.js');
+const handleCommandStream = require('../command-stream-handler');
+const Logger = require('../logger.js');
 
-var Application = require("../models/application.js");
-var Git = require("../models/git.js")(path.resolve("."));
+function create (api, params) {
+  const [name] = params.args;
+  const { org: orgaIdOrName, alias, region, github: githubOwnerRepo } = params.options;
 
-var create = module.exports = function(api, params) {
-  var name = params.args[0];
-  var orgaIdOrName = params.options.org;
-  var alias = params.options.alias;
-  var region = params.options.region;
-  var github;
-
-  if(params.options.github) {
-    github = {
-      "owner": params.options.github.split("/")[0],
-      "name": params.options.github.split("/")[1]
-    }
+  let github;
+  if (githubOwnerRepo != null) {
+    const [owner, name] = params.options.github.split('/');
+    github = { owner, name };
   }
 
-  var s_type = Application.getInstanceType(api, params.options.type);
-
-  var s_app = s_type
-    .flatMapLatest(function(type) {
+  const s_app = Application.getInstanceType(api, params.options.type)
+    .flatMapLatest((type) => {
       return Application.create(api, name, type, region, orgaIdOrName, github);
     })
-    .flatMapLatest(function(app) {
+    .flatMapLatest((app) => {
       return Application.linkRepo(api, { app_id: app.id }, null, alias, true);
-    });
+    })
+    .map(() => Logger.println('Your application has been successfully created!'));
 
-  s_app.onValue(function(app) {
-    Logger.println("Your application has been successfully created!");
-  });
-
-  s_app.onError(Logger.error);
+  handleCommandStream(s_app);
 };
+
+module.exports = create;
