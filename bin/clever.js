@@ -91,7 +91,6 @@ function run () {
       parser: Parsers.addonIdOrName,
     }),
     addonName: cliparse.argument('addon-name', { description: 'Addon name' }),
-    addonName: cliparse.argument('addon-name', { description: 'Addon name' }),
     addonProvider: cliparse.argument('addon-provider', { description: 'Addon provider' }),
     alias: cliparse.argument('app-alias', { description: 'Application alias' }),
     appIdOrName: cliparse.argument('app-id', {
@@ -501,6 +500,13 @@ function run () {
     options: [opts.alias],
   }, open);
 
+    // CONSOLE COMMAND
+    const consoleModule = lazyRequireFunctionWithApi('../src/commands/console.js');
+    const consoleCommand = cliparse.command('console', {
+      description: 'Open an application in the console',
+      options: [opts.alias],
+    }, consoleModule);
+
   // PROFILE COMMAND
   const profile = lazyRequireFunctionWithApi('../src/commands/profile.js');
   const profileCommand = cliparse.command('profile', {
@@ -631,6 +637,7 @@ function run () {
       logsCommand,
       makeDefaultCommand,
       openCommand,
+      consoleCommand,
       profileCommand,
       publishedConfigCommands,
       restartCommand,
