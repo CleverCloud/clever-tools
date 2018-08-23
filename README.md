@@ -44,6 +44,24 @@ You need to add both files (`clever.exe` and `nodegit.node`) to your `PATH` to u
 
 ### GNU/Linux
 
+#### Debian/Ubuntu
+
+You need to add our deb repository which is provided by bintray.
+Make sure that you have what it needs to add an HTTPS repo and its GPG key.
+
+    apt-get install -y apt-transport-https gnupg
+    apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys "379CE192D401AB61"
+    echo "deb https://dl.bintray.com/clevercloud/deb wheezy main" | tee -a /etc/apt/sources.list
+    apt-get update
+    apt-get install -y clever-tools
+    
+#### CentOS/Fedora/RHEL
+
+You need to add our rpm repository which is provided by bintray.
+
+    curl https://bintray.com/clevercloud/rpm/rpm > /etc/yum.repos.d/bintray-clevercloud-rpm.repo
+    yum install clever-tools
+
 #### Archlinux
 
 The package is available on the AUR: [clever-tools-bin](https://aur.archlinux.org/packages/clever-tools-bin/)
