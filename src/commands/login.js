@@ -1,16 +1,12 @@
 'use strict';
 
-const fs = require('fs');
-const mkdirp = require('mkdirp');
-const path = require('path');
-
 const Bacon = require('baconjs');
 
 const handleCommandStream = require('../command-stream-handler');
 const interact = require('../models/interact.js');
 const Logger = require('../logger.js');
 const openBrowser = require('../open-browser.js');
-const { conf } = require('../models/configuration.js');
+const { conf, writeOAuthConf } = require('../models/configuration.js');
 
 function getOAuthData () {
   Logger.debug('Ask for tokens…');
@@ -20,18 +16,6 @@ function getOAuthData () {
   return Bacon.combineTemplate({
     token: s_token,
     secret: s_secret,
-  });
-}
-
-function ensureConfigDir () {
-  const configDir = path.dirname(conf.CONFIGURATION_FILE);
-  return Bacon.fromNodeCallback(mkdirp, configDir, { mode: 0o700 });
-}
-
-function writeLoginConfig (oauthData) {
-  Logger.debug('Write the tokens in the configuration file…');
-  return ensureConfigDir().flatMapLatest(() => {
-    return Bacon.fromNodeCallback(fs.writeFile, conf.CONFIGURATION_FILE, JSON.stringify(oauthData));
   });
 }
 
@@ -55,7 +39,7 @@ function login (api, params) {
 
       return { token, secret };
     })
-    .flatMapLatest(writeLoginConfig)
+    .flatMapLatest(writeOAuthConf)
     .map(() => Logger.println(`${conf.CONFIGURATION_FILE} has been updated.`));
 
   // Force process exit, otherwhise, it will be kept alive
