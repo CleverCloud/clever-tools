@@ -6,9 +6,11 @@ const del = require('del');
 const exec = require('child_process').exec;
 const fs = require('fs-extra');
 const pkg = require('pkg').exec;
+const request = require('request');
 
 const applicationName = 'clever-tools';
 const applicationVendor = 'Clever Cloud';
+const applicationUrl = 'https://github.com/CleverCloud/clever-tools';
 const applicationDescription = 'Command Line Interface for Clever Cloud.';
 const license = 'MIT';
 
@@ -21,6 +23,12 @@ const accessKeyId = process.env.S3_KEY_ID;
 const secretAccessKey = process.env.S3_SECRET_KEY;
 const cellarHost = 'cellar.services.clever-cloud.com';
 const s3Bucket = 'clever-tools';
+
+const bintrayUser = 'ci-clevercloud';
+const bintrayApiKey = process.env.BINTRAY_API_KEY;
+const bintrayAuth = Buffer.from(`${bintrayUser}:${bintrayApiKey}`).toString('base64');
+const bintraySubject = 'clevercloud';
+const bintrayPackage = 'clever-tools';
 
 AWS.config.update({ accessKeyId, secretAccessKey });
 const s3 = new AWS.S3({
@@ -45,12 +53,49 @@ async function checksum (file) {
   });
 }
 
-function uploadFile (filepath, remoteFilepath = filepath) {
+function uploadToCellar (filepath, remoteFilepath = filepath) {
   return fs.readFile(filepath).then((Body) => {
-    console.log(`Uploading file ${filepath} to ${remoteFilepath}`);
+    console.log(`Uploading archive on Cellar...`);
+    console.log(`\tfile ${filepath}`);
+    console.log(`\tto ${remoteFilepath}`);
     return new Promise((resolve, reject) => {
       const params = { ACL: 'public-read', Body, Bucket: s3Bucket, Key: remoteFilepath };
       return s3.putObject(params, (err) => err ? reject(err) : resolve());
+    });
+  });
+}
+
+async function uploadToBintray (filepath, filename, repo) {
+  return new Promise((resolve, reject) => {
+    const url = `https://api.bintray.com/content/${bintraySubject}/${repo}/${bintrayPackage}/${cleverToolsVersion}/${filename}.${repo}`;
+    console.log(`Uploading ${repo} on Bintray...`);
+    console.log(`\tfile ${filepath}`);
+    console.log(`\tto ${url}`);
+    request.put({
+      url,
+      qs: {
+        publish: '1',
+        override: '1',
+      },
+      body: fs.createReadStream(filepath),
+      headers: {
+        'Authorization': `Basic ${bintrayAuth}`,
+        // Mandatory specifications for debian
+        'X-Bintray-Debian-Distribution': 'wheezy',
+        'X-Bintray-Debian-Component': 'main',
+        'X-Bintray-Debian-Architecture': 'amd64',
+      },
+    }, (err, res) => {
+      if (err) {
+        reject(err);
+      }
+      else if (res.statusCode >= 400) {
+        const error = new Error('Failed to publish to Bintray\n' + res.statusCode + '\n' + res.body);
+        reject(error);
+      }
+      else {
+        resolve(res);
+      }
     });
   });
 }
@@ -86,19 +131,31 @@ async function buildRelease (arch) {
   await fs.appendFile(`${releasesDir}/sha.properties`, `SHA256_${arch}=${sum}\n`);
 
   if (cleverToolsVersion !== 'master') {
-    if (!process.env.S3_KEY_ID || !process.env.S3_SECRET_KEY) {
+    const filename = `clever-tools-${cleverToolsVersion}`;
+
+    if (!accessKeyId || !secretAccessKey) {
       throw new Error('Could not read S3 access/secret keys!');
     }
-    await Promise.all([
-      uploadFile(`${archivePath}`),
-      uploadFile(`${archivePath}.sha256`),
-      uploadFile(`${archivePath}`, `${latestArchivePath}`),
-      uploadFile(`${archivePath}.sha256`, `${latestArchivePath}.sha256`),
-      uploadFile(`${buildDir}/clever-tools-${cleverToolsVersion}.rpm`),
-      uploadFile(`${buildDir}/clever-tools-${cleverToolsVersion}.rpm.sha256`),
-      uploadFile(`${buildDir}/clever-tools-${cleverToolsVersion}.deb`),
-      uploadFile(`${buildDir}/clever-tools-${cleverToolsVersion}.deb.sha256`),
+    const cellarUploads = Promise.all([
+      uploadToCellar(`${archivePath}`),
+      uploadToCellar(`${archivePath}.sha256`),
+      uploadToCellar(`${archivePath}`, `${latestArchivePath}`),
+      uploadToCellar(`${archivePath}.sha256`, `${latestArchivePath}.sha256`),
+      uploadToCellar(`${buildDir}/${filename}.rpm`),
+      uploadToCellar(`${buildDir}/${filename}.rpm.sha256`),
+      uploadToCellar(`${buildDir}/${filename}.deb`),
+      uploadToCellar(`${buildDir}/${filename}.deb.sha256`),
     ]);
+
+    if (!bintrayApiKey) {
+      throw new Error('Could not read bintray API key!');
+    }
+    const bintrayUploads = Promise.all([
+      uploadToBintray(`${buildDir}/${filename}.rpm`, filename, 'rpm'),
+      uploadToBintray(`${buildDir}/${filename}.deb`, filename, 'deb'),
+    ]);
+
+    return Promise.all([cellarUploads, bintrayUploads]);
   }
 
   console.log(`\nRelease BUILT! ${archivePath}\n`);
@@ -116,6 +173,7 @@ async function buildRpm (buildDir) {
     -n "${applicationName}" \
     --vendor "${applicationVendor}" \
     --description "${applicationDescription}" \
+    --url "${applicationUrl}" \
     --license "${license}" \
     -v ${cleverToolsVersion} \
     ${buildDir}/linux/clever=/usr/lib/clever-tools-bin/clever \
@@ -125,11 +183,11 @@ async function buildRpm (buildDir) {
   await fs.outputFile(`${packagePath}.sha256`, sum);
   await fs.appendFile(`${releasesDir}/sha.properties`, `SHA256_rpm=${sum}\n`);
 
-  console.log(`\nRPM BUILT ! ${buildDir}/clever-tools-${cleverToolsVersion}.rpm\n`);
+  console.log(`\nRPM BUILT! ${buildDir}/clever-tools-${cleverToolsVersion}.rpm\n`);
 }
 
 async function buildDeb (buildDir) {
-  console.log('Building RPM package...\n');
+  console.log('Building DEB package...\n');
 
   const packagePath = `${buildDir}/clever-tools-${cleverToolsVersion}.deb`;
 
@@ -149,7 +207,7 @@ async function buildDeb (buildDir) {
   await fs.outputFile(`${packagePath}.sha256`, sum);
   await fs.appendFile(`${releasesDir}/sha.properties`, `SHA256_deb=${sum}\n`);
 
-  console.log(`\nDEB BUILT ! ${buildDir}/clever-tools-${cleverToolsVersion}.deb\n`);
+  console.log(`\nDEB BUILT! ${buildDir}/clever-tools-${cleverToolsVersion}.deb\n`);
 }
 
 console.log(`Building releases for cc-tools@${cleverToolsVersion} with node v${nodeVersion}\n`);
