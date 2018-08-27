@@ -23,19 +23,16 @@ function addRemote (remoteName, url) {
     });
 }
 
-// This is a bit tedious but we're waiting for this issue:
-// https://github.com/isomorphic-git/isomorphic-git/issues/347
 function resolveFullCommitId (commitId) {
   if (commitId == null) {
     return Bacon.constant(null);
   }
-  return Bacon.fromPromise(git.log({ ...repo, ref: 'HEAD' }))
-    .flatMapLatest((allCommits) => {
-      const fullCommit = _.find(allCommits, (c) => c.oid.startsWith(commitId));
-      if (fullCommit == null) {
+  return Bacon.fromPromise(git.expandOid({ ...repo, oid: commitId }))
+    .flatMapError((e) => {
+      if (e.code === 'ShortOidNotFound') {
         return new Bacon.Error(`Commit id ${commitId} is ambiguous`);
       }
-      return fullCommit.oid;
+      return e;
     });
 }
 
