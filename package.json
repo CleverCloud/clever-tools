@@ -1,7 +1,7 @@
 {
   "name": "clever-tools",
   "version": "0.10.1",
-  "description": "CLI tool to manage Clever Cloud applications",
+  "description": "Command Line Interface for Clever Cloud.",
   "main": "bin/clever.js",
   "keywords": [
     "cli",
@@ -10,13 +10,18 @@
   "engines": {
     "node": "8.11.3"
   },
-  "author": "Rodolphe Belouin <rodolphe.belouin@gmail.com>",
+  "author": "Clever Cloud <ci@clever-cloud.com>",
   "license": "MIT",
   "bin": {
     "clever": "./bin/clever.js",
     "install-clever-completion": "./scripts/install-autocomplete.sh",
     "uninstall-clever-completion": "./scripts/uninstall-autocomplete.sh"
   },
+  "files": [
+    "bin",
+    "src",
+    "scripts/*.sh"
+  ],
   "dependencies": {
     "baconjs": "^0.7.83",
     "bluebird": "^3.5.1",
@@ -24,11 +29,13 @@
     "cliparse": "^0.3.0",
     "colors": "^1.3.1",
     "common-env": "^6.1.0",
+    "glob": "^7.1.3",
     "isomorphic-git": "^0.33.0",
     "lodash": "^4.17.10",
     "mkdirp": "^0.5.1",
     "moment": "^2.22.2",
     "request": "^2.87.0",
+    "semver": "^5.5.1",
     "string-length": "^2.0.0",
     "text-table": "^0.2.0",
     "unidecode": "^0.1.8",
