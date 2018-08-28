@@ -1,0 +1,25 @@
+# Maintainer: <%= maintainer %>
+
+pkgname=<%= pkgbase %>
+pkgver=<%= pkgver %>
+pkgrel=1
+pkgdesc="<%= description %>"
+arch=('x86_64')
+url="<%= url %>"
+license=('<%= license %>')
+
+options=('!strip')
+source=("clever-tools-<%= version %>_linux.tar.gz::https://clever-tools.cellar.services.clever-cloud.com/releases/<%= version %>/clever-tools-<%= version %>_linux.tar.gz")
+sha256sums=('<%= sha256 %>')
+
+package() {
+  install -d "${pkgdir}/usr/bin"
+  install -d "${pkgdir}/usr/lib/${pkgname}"
+  install -d "${pkgdir}/usr/share/bash-completion/completions"
+  install -d "${pkgdir}/usr/share/zsh/site-functions"
+
+  install "${srcdir}/clever" "${pkgdir}/usr/lib/${pkgname}/clever"
+
+  "${srcdir}/clever" --bash-autocomplete-script /usr/bin/clever > "${pkgdir}/usr/share/bash-completion/completions/clever"
+  "${srcdir}/clever" --zsh-autocomplete-script /usr/bin/clever > "${pkgdir}/usr/share/zsh/site-functions/_clever"
+}
