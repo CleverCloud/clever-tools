@@ -292,3 +292,4 @@ This job builds a new chocolatey package with the following tasks:
   * This nupkg file artifact is archived on Jenkins.
 
 ⚠️ *The publication of this artifact on the public chocolatey site is still a manual process. You can find more information about why on [this issue](https://github.com/CleverCloud/chocolatey-packages/issues/2).*
+mercredi 29 août 2018, 14:49:21 (UTC+0200)
