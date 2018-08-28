@@ -29,6 +29,7 @@
     "mkdirp": "^0.5.1",
     "moment": "^2.22.2",
     "request": "^2.87.0",
+    "semver": "^5.5.1",
     "string-length": "^2.0.0",
     "text-table": "^0.2.0",
     "unidecode": "^0.1.8",

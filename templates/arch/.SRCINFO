@@ -1,0 +1,12 @@
+pkgbase = <%= pkgbase %>
+	pkgdesc = <%= description %>
+	pkgver = <%= pkgver %>
+	pkgrel = 1
+	url = <%= url %>
+	arch = x86_64
+	license = <%= license %>
+	options = !strip
+	source = clever-tools-<%= version %>_linux.tar.gz::https://clever-tools.cellar.services.clever-cloud.com/releases/<%= version %>/clever-tools-<%= version %>_linux.tar.gz
+	sha256sums = <%= sha256 %>
+
+pkgname = <%= pkgbase %>
