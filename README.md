@@ -51,7 +51,7 @@ Make sure that you have what it needs to add an HTTPS repo and its GPG key.
 
     apt-get install -y apt-transport-https gnupg
     apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys "379CE192D401AB61"
-    echo "deb https://dl.bintray.com/clevercloud/deb wheezy main" | tee -a /etc/apt/sources.list
+    echo "deb https://dl.bintray.com/clevercloud/deb stable main" | tee -a /etc/apt/sources.list
     apt-get update
     apt-get install -y clever-tools
     
@@ -60,6 +60,7 @@ Make sure that you have what it needs to add an HTTPS repo and its GPG key.
 You need to add our rpm repository which is provided by bintray.
 
     curl https://bintray.com/clevercloud/rpm/rpm > /etc/yum.repos.d/bintray-clevercloud-rpm.repo
+    echo "exclude=*beta*" >> /etc/yum.repos.d/bintray-clevercloud-rpm.repo
     yum install clever-tools
 
 #### Archlinux
@@ -292,3 +293,4 @@ This job builds a new chocolatey package with the following tasks:
   * This nupkg file artifact is archived on Jenkins.
 
 ⚠️ *The publication of this artifact on the public chocolatey site is still a manual process. You can find more information about why on [this issue](https://github.com/CleverCloud/chocolatey-packages/issues/2).*
+mercredi 29 août 2018, 14:49:21 (UTC+0200)
