@@ -9,7 +9,7 @@ async function run () {
   const npmTag = isStableVersion ? 'latest' : 'beta';
 
   exec(`npm config set registry 'https://registry.npmjs.com/'`);
-  exec(`npm config set '//registry.npmjs.com/:_authToken' '${npmToken}'`);
+  exec(`npm config set '//registry.npmjs.com/:_authToken' '${npmToken}'`, null, `npm config set '//registry.npmjs.com/:_authToken' 'secret-token'`);
   exec(`npm publish --tag ${npmTag}`);
 }
 
