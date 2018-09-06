@@ -46,11 +46,6 @@ pipeline {
             }
           }
         }
-        stage('chocolatey') {
-          steps {
-            sh 'echo "choco"'
-          }
-        }
         stage('brew') {
           steps {
             script {
@@ -58,6 +53,11 @@ pipeline {
                 sh 'node ./scripts/job-publish-brew.js'
               }
             }
+          }
+        }
+        stage('chocolatey') {
+          steps {
+            sh 'echo "choco"'
           }
         }
         stage('npm') {
