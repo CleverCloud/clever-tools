@@ -40,7 +40,11 @@ apt-get install clever-tools
 NOTES:
 
 * The `.deb` packages are hosted on Bintray (their GPG key is required to trust their signed packages).
-* If you want access to the beta channel, you can change `stable` into `beta`.
+* If you want access to the beta channel, you can use this in your `sources.list`:
+
+```sh
+echo "deb https://dl.bintray.com/clevercloud/deb unstable beta" | tee -a /etc/apt/sources.list
+```
 
 #### CentOS/Fedora (.rpm)
 

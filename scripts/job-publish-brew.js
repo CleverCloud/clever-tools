@@ -13,7 +13,7 @@ async function run () {
   const gitProject = isStableVersion ? 'homebrew-tap' : 'homebrew-tap-beta';
   const gitUrl = `git@github.com:CleverCloud/${gitProject}.git`;
   const version = cfg.getVersion();
-  const archivePath = cfg.getArchiveFilepath('macos');
+  const archivePath = cfg.getArchiveFilepath('macos', version);
   const sha256 = await fs.readFile(`${archivePath}.sha256`, 'utf-8');
 
   await cloneGitProject({ gitUrl, gitPath, git });
