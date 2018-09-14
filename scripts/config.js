@@ -56,8 +56,7 @@ function getBinaryFilename (arch) {
   return (arch === 'win') ? `clever.exe` : 'clever';
 }
 
-function getBinaryFilepath (arch) {
-  const version = getVersion();
+function getBinaryFilepath (arch, version) {
   const filename = getBinaryFilename(arch);
   return `${releasesDir}/${version}/${arch}/${filename}`;
 }

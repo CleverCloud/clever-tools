@@ -16,8 +16,8 @@ async function run () {
 
   for (let arch of archList) {
     // tar.gz and .zip
-    const binaryFilepath = cfg.getBinaryFilepath(arch);
-    const archiveFilepath = cfg.getArchiveFilepath(arch);
+    const binaryFilepath = cfg.getBinaryFilepath(arch, version);
+    const archiveFilepath = cfg.getArchiveFilepath(arch, version);
     await packageArchiveForArch({ binaryFilepath, archiveFilepath });
     const sha256 = await generateChecksumFile(archiveFilepath);
     if (arch === 'linux') {

@@ -14,7 +14,7 @@ async function run () {
   const gitUrl = `ssh://aur@aur.archlinux.org/${pkgbase}.git`;
   const version = cfg.getVersion();
   const underscoreVersion = version.replace(/-/g, '_');
-  const archivePath = cfg.getArchiveFilepath('linux');
+  const archivePath = cfg.getArchiveFilepath('linux', version);
   const sha256 = await fs.readFile(`${archivePath}.sha256`, 'utf-8');
 
   await cloneGitProject({ gitUrl, gitPath, git });
