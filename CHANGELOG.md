@@ -1,3 +1,15 @@
+# 1.0.0-beta
+
+- Exit process with code 1 for errors on all commands
+- Forward all error logs to stderr
+- Only display `[ERROR]` keyword in red
+- Display "clever restart --commit ..." hint when a simple restart won't do what the user wants
+- Fix drain creation authorization (Sébastian Le Merdy)
+- Publish `.rpm` and `.deb` packages (Thibaud Lepretre)
+- Publish chocolatey packages automatically
+- Introduce beta releases (rpm, deb, archlinux, chocolatey, homebrew...)
+- Replace [nodegit](https://github.com/nodegit/nodegit) by [isomorphic-git](https://github.com/isomorphic-git/isomorphic-git)
+
 # 0.10.1
 
  - Add `clever env` to display app dependencies environment variables (fixes #165)
