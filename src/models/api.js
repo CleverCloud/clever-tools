@@ -11,6 +11,9 @@ function initApi () {
   return loadOAuthConf()
     .map((tokens) => {
 
+      tokens.token = process.env.CLEVER_TOKEN;
+      tokens.secret = process.env.CLEVER_SECRET;
+
       const api = cleverClient(_.defaults(conf, {
         API_HOST: conf.API_HOST,
         API_CONSUMER_KEY: conf.OAUTH_CONSUMER_KEY,

@@ -1,6 +1,7 @@
 # 1.0.0-beta
 
-- Exit process with code 1 for errors on all commands
+- Add `clever console` to open Clever Cloud's web console on the right project (Corentin Grall)
+- Exit process with status 1 for errors on all commands
 - Forward all error logs to stderr
 - Only display `[ERROR]` keyword in red
 - Display "clever restart --commit ..." hint when a simple restart won't do what the user wants
