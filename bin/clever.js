@@ -461,6 +461,12 @@ function run () {
     options: [opts.loginToken, opts.loginSecret],
   }, login);
 
+    // LOGOUT COMMAND
+  const logout = lazyRequireFunctionWithApi('../src/commands/logout.js');
+  const logoutCommand = cliparse.command('logout', {
+    description: 'Logout from Clever Cloud',
+  }, logout);
+
   // LOGS COMMAND
   const logs = lazyRequireFunctionWithApi('../src/commands/logs.js');
   const logsCommand = cliparse.command('logs', {
@@ -500,11 +506,11 @@ function run () {
   }, open);
 
     // CONSOLE COMMAND
-    const consoleModule = lazyRequireFunctionWithApi('../src/commands/console.js');
-    const consoleCommand = cliparse.command('console', {
-      description: 'Open an application in the console',
-      options: [opts.alias],
-    }, consoleModule);
+  const consoleModule = lazyRequireFunctionWithApi('../src/commands/console.js');
+  const consoleCommand = cliparse.command('console', {
+    description: 'Open an application in the console',
+    options: [opts.alias],
+  }, consoleModule);
 
   // PROFILE COMMAND
   const profile = lazyRequireFunctionWithApi('../src/commands/profile.js');
@@ -634,6 +640,7 @@ function run () {
       emailNotificationsCommand,
       envCommands,
       loginCommand,
+      logoutCommand,
       logsCommand,
       makeDefaultCommand,
       openCommand,

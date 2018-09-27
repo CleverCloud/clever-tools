@@ -5,6 +5,7 @@ const path = require('path');
 
 const Bacon = require('baconjs');
 const commonEnv = require('common-env');
+const mkdirp = require('mkdirp');
 const xdg = require('xdg');
 
 const Logger = require('../logger.js');
@@ -17,7 +18,7 @@ function getConfigPath () {
   else {
     return xdg.basedir.configPath('clever-cloud');
   }
-};
+}
 
 function loadOAuthConf () {
   Logger.debug('Load configuration from ' + conf.CONFIGURATION_FILE);
@@ -28,7 +29,17 @@ function loadOAuthConf () {
       Logger.info(new Bacon.Error(`Cannot load configuration from ${conf.CONFIGURATION_FILE}\n${error.message}`));
       return {};
     });
-};
+}
+
+function writeOAuthConf (oauthData) {
+  Logger.debug('Write the tokens in the configuration file…');
+  const configDir = path.dirname(conf.CONFIGURATION_FILE);
+  return Bacon
+    .fromNodeCallback(mkdirp, configDir, { mode: 0o700 })
+    .flatMapLatest(() => {
+      return Bacon.fromNodeCallback(fs.writeFile, conf.CONFIGURATION_FILE, JSON.stringify(oauthData));
+    });
+}
 
 const conf = env.getOrElseAll({
   API_HOST: 'https://api.clever-cloud.com/v2',
@@ -46,4 +57,4 @@ const conf = env.getOrElseAll({
   APP_CONFIGURATION_FILE: path.resolve('.', '.clever.json'),
 });
 
-module.exports = { conf, loadOAuthConf };
+module.exports = { conf, loadOAuthConf, writeOAuthConf };
