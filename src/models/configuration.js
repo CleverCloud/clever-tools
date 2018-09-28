@@ -21,6 +21,15 @@ function getConfigPath () {
 }
 
 function loadOAuthConf () {
+  Logger.debug('Load configuration from environment variables');
+  if (process.env.CLEVER_TOKEN != null && process.env.CLEVER_SECRET != null) {
+    return Bacon
+      .once({
+        token: process.env.CLEVER_TOKEN,
+        secret: process.env.CLEVER_SECRET,
+      })
+      .toProperty();
+  }
   Logger.debug('Load configuration from ' + conf.CONFIGURATION_FILE);
   return Bacon.fromNodeCallback(fs.readFile, conf.CONFIGURATION_FILE)
     .flatMapLatest(Bacon.try(JSON.parse))
