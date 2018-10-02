@@ -9,7 +9,7 @@ class CleverTools < Formula
   depends_on "zsh-completions" => :recommended
 
   def install
-    bin.install "clever"
+    bin.install "clever-tools-<%= version %>_macos/clever"
     system "mkdir -p #{prefix}/completions/bash"
     system "mkdir -p #{prefix}/completions/zsh"
     system "#{prefix}/bin/clever --bash-autocomplete-script clever > #{prefix}/completions/bash/clever"

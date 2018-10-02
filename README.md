@@ -81,9 +81,9 @@ NOTES:
 If you are using another GNU/Linux distribution, you can download a `.tar.gz` archive and extract the binary in your `PATH`:
 
 ```sh
-curl https://clever-tools.cellar.services.clever-cloud.com/releases/latest/clever-tools-latest_linux.tar.gz > clever-tools.tar.gz
-tar xvzf clever-tools.tar.gz
-cp clever ~/.local/bin/
+curl https://clever-tools.cellar.services.clever-cloud.com/releases/latest/clever-tools-latest_linux.tar.gz
+tar xvzf clever-tools-latest_linux.tar.gz
+cp clever-tools-latest_linux/clever ~/.local/bin/
 ```
 
 WARNING: ⚠ Before version 1.0.0, you will also need to copy `nodegit.node` file from the archive into your `PATH`.
@@ -112,9 +112,9 @@ NOTES:
 If you are using MacOS but you don't have [homebrew](https://brew.sh) installed, you can download a `.tar.gz` archive and extract the binary in your `PATH`:
 
 ```sh
-curl https://clever-tools.cellar.services.clever-cloud.com/releases/latest/clever-tools-latest_macos.tar.gz > clever-tools.tar.gz
-tar xvzf clever-tools.tar.gz
-cp clever ~/.local/bin/
+curl https://clever-tools.cellar.services.clever-cloud.com/releases/latest/clever-tools-latest_macos.tar.gz
+tar xvzf clever-tools-latest_linux.tar.gz
+cp clever-tools-latest_linux/clever ~/.local/bin/
 ```
 
 WARNING: ⚠ Before version 1.0.0, you will also need to copy `nodegit.node` file from the archive into your `PATH`.
