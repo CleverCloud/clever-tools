@@ -12,7 +12,15 @@ async function run () {
   const { archList, releasesDir, appInfos } = cfg;
   const version = cfg.getVersion();
 
-  del.sync(`${releasesDir}/${version}/*.*`);
+  del.sync([
+    `${releasesDir}/${version}/*.deb`,
+    `${releasesDir}/${version}/*.nupkg`,
+    `${releasesDir}/${version}/*.rpm`,
+    `${releasesDir}/${version}/*.sha256`,
+    `${releasesDir}/${version}/*.tar.gz`,
+    `${releasesDir}/${version}/*.zip`,
+    `${releasesDir}/${version}/chocolatey`,
+  ]);
 
   for (let arch of archList) {
     // tar.gz and .zip
@@ -40,14 +48,16 @@ async function run () {
 }
 
 async function packageArchiveForArch ({ binaryFilepath, archiveFilepath }) {
+  const { dir: dirToArchive } = path.parse(binaryFilepath);
+  const { dir: parentDir } = path.parse(dirToArchive);
   const { ext: archiveExt } = path.parse(archiveFilepath);
-  const { dir: binaryDir, base: filename } = path.parse(binaryFilepath);
-  console.log(`Packaging ${archiveFilepath} ...`);
+  const relativeDirToArchive = path.relative(parentDir, dirToArchive);
+  const relativeDirArchiveFilepath = path.relative(parentDir, archiveFilepath);
   if (archiveExt === '.zip') {
-    await exec(`zip -j ${archiveFilepath} ${binaryFilepath}`);
+    await exec(`zip -r ${relativeDirArchiveFilepath} ${relativeDirToArchive}`, parentDir);
   }
   else {
-    await exec(`tar czf "${archiveFilepath}" -C ${binaryDir} ${filename}`);
+    await exec(`tar czf ${relativeDirArchiveFilepath} ${relativeDirToArchive}`, parentDir);
   }
   console.log(`Packaging ${archiveFilepath} DONE!\n`);
 }

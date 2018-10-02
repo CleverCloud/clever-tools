@@ -58,7 +58,7 @@ function getBinaryFilename (arch) {
 
 function getBinaryFilepath (arch, version) {
   const filename = getBinaryFilename(arch);
-  return `${releasesDir}/${version}/${arch}/${filename}`;
+  return `${releasesDir}/${version}/${appInfos.name}-${version}_${arch}/${filename}`;
 }
 
 function getArchiveFilepath (arch, version) {
