@@ -2,7 +2,7 @@ FROM jenkins/jnlp-slave
 
 USER root
 
-RUN curl -sL https://deb.nodesource.com/setup_8.x | bash -
+RUN curl -sL https://deb.nodesource.com/setup_10.x | bash -
 RUN apt-get install -y nodejs
 
 RUN apt-get install -y rpm
