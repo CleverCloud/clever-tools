@@ -55,6 +55,15 @@ pipeline {
             }
           }
         }
+        stage('exherbo') {
+          steps {
+            script {
+              sshagent (credentials: ['CI_CLEVER_CLOUD_SSH_KEY']) {
+                sh 'node ./scripts/job-publish-exherbo.js'
+              }
+            }
+          }
+        }
         stage('npm') {
           steps {
             sh 'node ./scripts/job-publish-npm.js'
