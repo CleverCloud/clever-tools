@@ -76,6 +76,15 @@ NOTES:
 
 * If you want access to the beta channel, you can use this repo [clever-tools-bin-beta](https://aur.archlinux.org/packages/clever-tools-bin-beta/).
 
+#### Exherbo
+
+If you are using Exherbo, you can run:
+
+```sh
+cave resolve repository/CleverCloud -zx1
+cave resolve clever-tools-bin -zx
+```
+
 #### Other distributions (.tar.gz)
 
 If you are using another GNU/Linux distribution, you can download a `.tar.gz` archive and extract the binary in your `PATH`:

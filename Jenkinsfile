@@ -10,7 +10,7 @@ pipeline {
   stages {
     stage('build') {
       steps {
-        sh 'npm install'
+        sh 'npm ci'
         sh 'node scripts/job-build.js'
       }
     }
@@ -51,6 +51,15 @@ pipeline {
             script {
               sshagent (credentials: ['CI_CLEVER_CLOUD_SSH_KEY']) {
                 sh 'node ./scripts/job-publish-brew.js'
+              }
+            }
+          }
+        }
+        stage('exherbo') {
+          steps {
+            script {
+              sshagent (credentials: ['CI_CLEVER_CLOUD_SSH_KEY']) {
+                sh 'node ./scripts/job-publish-exherbo.js'
               }
             }
           }
