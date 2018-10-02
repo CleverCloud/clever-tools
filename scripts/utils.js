@@ -23,7 +23,7 @@ function exec (command, cwd) {
   });
 }
 
-async function cloneGitProject ({ gitUrl, gitPath, git }) {
+async function cloneGitProject ({ gitUrl, gitPath, git, cleanRepo = true }) {
   const { protocol, hostname } = parseUrl(gitUrl);
   if (protocol === 'ssh:') {
     await exec(`mkdir -p ~/.ssh`);
@@ -32,17 +32,25 @@ async function cloneGitProject ({ gitUrl, gitPath, git }) {
   await exec(`git clone ${gitUrl} ${gitPath}`);
   await exec(`git config user.email "${git.email}"`, gitPath);
   await exec(`git config user.name "${git.name}"`, gitPath);
-  await exec(`git ls-files -z | xargs -0 rm -f`, gitPath);
+  if (cleanRepo) {
+    await exec(`git ls-files -z | xargs -0 rm -f`, gitPath);
+  }
 }
 
 async function applyTemplates (destPath, templatesPath, templateData) {
   const filenames = glob.sync(`**/*`, { dot: true, nodir: true, cwd: templatesPath });
   for (let file of filenames) {
-    const template = await fs.readFile(`${templatesPath}/${file}`, 'utf-8');
-    const contents = _.template(template)(templateData);
-    await fs.ensureFile(`${destPath}/${file}`);
-    await fs.writeFile(`${destPath}/${file}`, contents);
+    const templateFilepath = `${templatesPath}/${file}`;
+    const destFilepath = `${destPath}/${file}`;
+    await applyOneTemplate(destFilepath, templateFilepath, templateData);
   }
+}
+
+async function applyOneTemplate (destFilepath, templateFilepath, templateData) {
+  const template = await fs.readFile(templateFilepath, 'utf-8');
+  const contents = _.template(template)(templateData);
+  await fs.ensureFile(destFilepath);
+  await fs.writeFile(destFilepath, contents);
 }
 
 async function commitAndPush ({ gitPath, version }) {
@@ -51,4 +59,4 @@ async function commitAndPush ({ gitPath, version }) {
   await exec(`git push origin master`, gitPath);
 }
 
-module.exports = { exec, cloneGitProject, applyTemplates, commitAndPush };
+module.exports = { exec, cloneGitProject, applyTemplates, applyOneTemplate, commitAndPush };
