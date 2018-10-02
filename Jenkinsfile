@@ -10,7 +10,7 @@ pipeline {
   stages {
     stage('build') {
       steps {
-        sh 'npm install'
+        sh 'npm ci'
         sh 'node scripts/job-build.js'
       }
     }
