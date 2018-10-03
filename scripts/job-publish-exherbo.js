@@ -27,7 +27,6 @@ async function run () {
   }
   applyOneTemplate(`${gitCleverToolsDir}/clever-tools-bin-${underscoreVersion}.exheres-0`, templateFilepath, {
     copyrightYear: new Date().getFullYear(),
-    version,
     maintainerEmail: git.email,
     ...appInfos,
   });
