@@ -603,6 +603,13 @@ function run () {
     args: [args.alias],
   }, unlink);
 
+  // VERSION COMMAND
+  const version = lazyRequireFunctionWithApi('../src/commands/version.js');
+  const versionCommand = cliparse.command('version', {
+    description: 'Display the version',
+    args: [],
+  }, version);
+
   // WEBHOOKS COMMAND
   const addWebhookCommand = cliparse.command('add', {
     description: 'Register webhook to be called when events happen',
@@ -653,6 +660,7 @@ function run () {
       sshCommand,
       statusCommand,
       stopCommand,
+      versionCommand,
       webhooksCommand,
     ],
   });
