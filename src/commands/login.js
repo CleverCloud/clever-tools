@@ -1,6 +1,7 @@
 'use strict';
 
 const crypto = require('crypto');
+const { URL } = require('url');
 
 const Bacon = require('baconjs');
 const colors = require('colors');
