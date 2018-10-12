@@ -1,5 +1,39 @@
 # clever-tools changelog
 
+## 1.0.0 (2018-10-15)
+
+### User features
+
+- Add `clever logout` command to destroy local token/secret (Corentin Grall)
+- Add `clever console` command to open the Web console on the project page (Corentin Grall)
+- Add `clever version` command
+- Simplify login process: users no longer need to copy/paste token and secret
+- Display "clever restart --commit ..." hint when a simple restart won't do what the user wants
+- Fix drain creation authorization (Sébastian Le Merdy)
+- Display `[ERROR]` keyword in red when an error occurs
+
+### CI/CD features
+
+- Implicit login when env vars `CLEVER_TOKEN` and `CLEVER_SECRET` are present
+- Exit process with status 1 when an error occurs
+- Forward all error logs to stderr
+
+### Technical improvements
+
+- Replace [nodegit](https://github.com/nodegit/nodegit) with [isomorphic-git](https://github.com/isomorphic-git/isomorphic-git)
+- Add ESLint config with a big refactoring to go along
+- Always use the npm `colors` package in safe mode: no global `String` pollution 
+- Build, package and publish with a multibranch pipeline project on Jenkins
+
+### Packaging & distribution
+
+- Add a directory in tar.gz and zip archives, the clever binary is in this directory
+- Publish `.rpm` and `.deb` packages (Thibaud Lepretre)
+- Publish exherbo packages
+- Publish chocolatey packages automatically
+- Publish npm package, it's back!
+- Introduce beta releases: npm, rpm, deb, archlinux, exherbo, chocolatey, homebrew...
+
 ## 0.10.1 (2018-01-16)
 
  - Add `clever env` to display app dependencies environment variables (fixes #165)
