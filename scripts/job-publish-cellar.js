@@ -35,8 +35,8 @@ async function run () {
   await uploadToCellar(`${rpmPath}.sha256`);
   if (isStableVersion) {
     const latestRpmPath = cfg.getBundleFilepath('rpm', 'latest');
-    await uploadToCellar(`${latestRpmPath}`);
-    await uploadToCellar(`${latestRpmPath}.sha256`);
+    await uploadToCellar(`${rpmPath}`, `${latestRpmPath}`);
+    await uploadToCellar(`${rpmPath}.sha256`, `${latestRpmPath}.sha256`);
   }
 
   // .deb
@@ -45,8 +45,8 @@ async function run () {
   await uploadToCellar(`${debPath}.sha256`);
   if (isStableVersion) {
     const latestDebPath = cfg.getBundleFilepath('deb', 'latest');
-    await uploadToCellar(`${latestDebPath}`);
-    await uploadToCellar(`${latestDebPath}.sha256`);
+    await uploadToCellar(`${debPath}`, `${latestDebPath}`);
+    await uploadToCellar(`${debPath}.sha256`, `${latestDebPath}.sha256`);
   }
 
   // .nupkg
