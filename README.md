@@ -16,8 +16,6 @@ If you already have node/npm on your system, you can run:
 npm install -g clever-tools
 ```
 
-WARNING: ⚠ This only works for 1.0.0 and after but it is not released yet.
-
 If you want to install our latest beta release, you can run:
 
 ```sh
@@ -95,8 +93,6 @@ tar xvzf clever-tools-latest_linux.tar.gz
 cp clever-tools-latest_linux/clever ~/.local/bin/
 ```
 
-WARNING: ⚠ Before version 1.0.0, you will also need to copy `nodegit.node` file from the archive into your `PATH`.
-
 NOTES:
 
 * The packages are available on Clever Cloud's Cellar bucket: [clever-tools-latest_linux.tar.gz](https://clever-tools.cellar.services.clever-cloud.com/releases/latest/clever-tools-latest_linux.tar.gz).
@@ -126,8 +122,6 @@ tar xvzf clever-tools-latest_linux.tar.gz
 cp clever-tools-latest_linux/clever ~/.local/bin/
 ```
 
-WARNING: ⚠ Before version 1.0.0, you will also need to copy `nodegit.node` file from the archive into your `PATH`.
-
 NOTES:
 
 * The packages are available on Clever Cloud's Cellar bucket: [clever-tools-latest_macos.tar.gz](https://clever-tools.cellar.services.clever-cloud.com/releases/latest/clever-tools-latest_macos.tar.gz).
@@ -151,8 +145,6 @@ NOTES:
 #### Using the `.zip` archive
 
 If you are using Windows but you don't have [chocolatey](https://chocolatey.org) installed, you can download a `.zip` archive and extract the binary in your `PATH`.
-
-WARNING: ⚠ Before version 1.0.0, you will also need to copy `nodegit.node` file from the archive into your `PATH`.
 
 NOTES:
 
