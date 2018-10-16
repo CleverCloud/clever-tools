@@ -24,8 +24,8 @@ async function run () {
     await uploadToCellar(`${archivePath}.sha256`);
     if (isStableVersion) {
       const latestArchivePath = cfg.getArchiveFilepath(arch, 'latest');
-      await uploadToCellar(`${archivePath}`, `${latestArchivePath}`);
-      await uploadToCellar(`${archivePath}.sha256`, `${latestArchivePath}.sha256`);
+      await uploadToCellar(`${latestArchivePath}`);
+      await uploadToCellar(`${latestArchivePath}.sha256`);
     }
   }
 
@@ -55,8 +55,8 @@ async function run () {
   await uploadToCellar(`${nupkgPath}.sha256`);
   if (isStableVersion) {
     const latestNupkgPath = cfg.getBundleFilepath('nupkg', 'latest');
-    await uploadToCellar(`${latestNupkgPath}`);
-    await uploadToCellar(`${latestNupkgPath}.sha256`);
+    await uploadToCellar(`${nupkgPath}`, `${latestNupkgPath}`);
+    await uploadToCellar(`${nupkgPath}.sha256`, `${latestNupkgPath}.sha256`);
   }
 }
 
