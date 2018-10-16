@@ -11,6 +11,7 @@ async function run () {
 
   const { archList, releasesDir, appInfos } = cfg;
   const version = cfg.getVersion();
+  const isStableVersion = cfg.isStableVersion();
 
   del.sync([
     `${releasesDir}/${version}/*.deb`,
@@ -22,12 +23,26 @@ async function run () {
     `${releasesDir}/${version}/chocolatey`,
   ]);
 
+  if (isStableVersion) {
+    del.sync([
+      `${releasesDir}/latest/*.sha256`,
+      `${releasesDir}/latest/*.tar.gz`,
+      `${releasesDir}/latest/*.zip`,
+    ]);
+  }
+
   for (let arch of archList) {
     // tar.gz and .zip
     const binaryFilepath = cfg.getBinaryFilepath(arch, version);
     const archiveFilepath = cfg.getArchiveFilepath(arch, version);
     await packageArchiveForArch({ binaryFilepath, archiveFilepath });
     const sha256 = await generateChecksumFile(archiveFilepath);
+    if (isStableVersion) {
+      const binaryFilepath = cfg.getBinaryFilepath(arch, 'latest');
+      const archiveFilepath = cfg.getArchiveFilepath(arch, 'latest');
+      await packageArchiveForArch({ binaryFilepath, archiveFilepath });
+      await generateChecksumFile(archiveFilepath);
+    }
     if (arch === 'linux') {
       // .rpm
       const rpmPath = cfg.getBundleFilepath('rpm', version);
