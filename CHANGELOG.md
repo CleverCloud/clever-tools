@@ -1,5 +1,10 @@
 # clever-tools changelog
 
+## 1.0.1 (2018-10-18)
+
+- Fix unspecified name display as null in `clever login` and `clever profile`
+- Fix open webpages on windows: use `opn` npm package instead of custom code
+
 ## 1.0.0 (2018-10-15)
 
 ### User features
