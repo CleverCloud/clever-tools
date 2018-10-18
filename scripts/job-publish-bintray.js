@@ -28,7 +28,7 @@ function bintray ({ user, apiKey, subject, packageName }) {
     const { ext, name: filename } = path.parse(filepath);
     const repo = ext.slice(1);
     const url = `https://api.bintray.com/content/${subject}/${repo}/${packageName}/${version}/${filename}.${repo}`;
-    const isStableVersion = cfg.isStableVersion(version);
+    const isStableVersion = cfg.isStableVersion();
     const debianDistribution = isStableVersion ? 'stable' : 'unstable';
     const debianComponent = isStableVersion ? 'main' : 'beta';
     console.log(`Uploading ${repo} on Bintray...`);
