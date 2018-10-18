@@ -77,7 +77,10 @@ function login (api, params) {
       if (isInteractiveLogin) {
         return initApi()
           .flatMapLatest((api) => User.getCurrent(api))
-          .flatMapLatest(({ name, email }) => Logger.println(`Login successful as ${name} <${email}>`));
+          .flatMapLatest(({ name, email }) => {
+            const formattedName = name || colors.red.bold('[unspecified name]');
+            return Logger.println(`Login successful as ${formattedName} <${email}>`);
+          });
       }
     });
 
