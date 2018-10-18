@@ -4,7 +4,7 @@ const crypto = require('crypto');
 const { URL } = require('url');
 
 const Bacon = require('baconjs');
-const colors = require('colors');
+const colors = require('colors/safe');
 const request = require('request');
 
 const handleCommandStream = require('../command-stream-handler');
