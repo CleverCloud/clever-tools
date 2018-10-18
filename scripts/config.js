@@ -48,8 +48,13 @@ function getNupkgVersion (version) {
 }
 
 function isStableVersion () {
-  const version = getVersion(true);
-  return semver.prerelease(version) == null;
+  try {
+    const version = getVersion(true);
+    return semver.prerelease(version) == null;
+  }
+  catch (e) {
+    return false;
+  }
 }
 
 function getBinaryFilename (arch) {
