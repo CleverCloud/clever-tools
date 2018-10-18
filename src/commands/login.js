@@ -4,7 +4,7 @@ const crypto = require('crypto');
 const { URL } = require('url');
 
 const Bacon = require('baconjs');
-const colors = require('colors');
+const colors = require('colors/safe');
 const request = require('request');
 
 const handleCommandStream = require('../command-stream-handler');
@@ -77,7 +77,10 @@ function login (api, params) {
       if (isInteractiveLogin) {
         return initApi()
           .flatMapLatest((api) => User.getCurrent(api))
-          .flatMapLatest(({ name, email }) => Logger.println(`Login successful as ${name} <${email}>`));
+          .flatMapLatest(({ name, email }) => {
+            const formattedName = name || colors.red.bold('[unspecified name]');
+            return Logger.println(`Login successful as ${formattedName} <${email}>`);
+          });
       }
     });
 

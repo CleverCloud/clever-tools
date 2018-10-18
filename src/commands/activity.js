@@ -2,7 +2,7 @@
 
 const _ = require('lodash');
 const Bacon = require('baconjs');
-const colors = require('colors');
+const colors = require('colors/safe');
 const moment = require('moment');
 
 const Activity = require('../models/activity.js');
