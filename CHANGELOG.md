@@ -1,5 +1,9 @@
 # clever-tools changelog
 
+## 1.0.2 (2018-10-19)
+
+- Fix wrong name displayed after a login if you were already logged in as someone else
+
 ## 1.0.1 (2018-10-18)
 
 - Fix unspecified name display as null in `clever login` and `clever profile`
