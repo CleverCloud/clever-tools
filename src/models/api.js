@@ -8,7 +8,7 @@ const { conf, loadOAuthConf } = require('./configuration.js');
 
 function initApi () {
 
-  return loadOAuthConf().flatMapLatest((tokens) => {
+  return loadOAuthConf().map((tokens) => {
 
     const apiSettings = _.assign({}, conf, {
       API_HOST: conf.API_HOST,

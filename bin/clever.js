@@ -77,6 +77,13 @@ function lazyRequire (modulePath) {
   };
 }
 
+function lazyRequireFunction (modulePath) {
+  return function (...args) {
+    const theFunction = require(modulePath);
+    return theFunction.apply(this, args);
+  };
+}
+
 const Application = lazyRequire('../src/models/application.js');
 const Addon = lazyRequire('../src/models/addon.js');
 const Drain = lazyRequire('../src/models/drain.js');
@@ -461,7 +468,7 @@ function run () {
     options: [opts.loginToken, opts.loginSecret],
   }, login);
 
-    // LOGOUT COMMAND
+  // LOGOUT COMMAND
   const logout = lazyRequireFunctionWithApi('../src/commands/logout.js');
   const logoutCommand = cliparse.command('logout', {
     description: 'Logout from Clever Cloud',
@@ -505,7 +512,7 @@ function run () {
     options: [opts.alias],
   }, open);
 
-    // CONSOLE COMMAND
+  // CONSOLE COMMAND
   const consoleModule = lazyRequireFunctionWithApi('../src/commands/console.js');
   const consoleCommand = cliparse.command('console', {
     description: 'Open an application in the console',
@@ -604,7 +611,7 @@ function run () {
   }, unlink);
 
   // VERSION COMMAND
-  const version = lazyRequireFunctionWithApi('../src/commands/version.js');
+  const version = lazyRequireFunction('../src/commands/version.js');
   const versionCommand = cliparse.command('version', {
     description: 'Display the version',
     args: [],
