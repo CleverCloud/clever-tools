@@ -60,4 +60,9 @@ async function commitAndPush ({ gitPath, version, commitMessage = `Update to ${v
   await exec(`git push origin master`, gitPath);
 }
 
-module.exports = { exec, cloneGitProject, applyTemplates, applyOneTemplate, commitAndPush };
+async function tagAndPush ({ gitPath, tagName }) {
+  await exec(`git tag ${tagName}`, gitPath);
+  await exec(`git push origin refs/tags/${tagName}`, gitPath);
+}
+
+module.exports = { exec, cloneGitProject, applyTemplates, applyOneTemplate, tagAndPush, commitAndPush };
