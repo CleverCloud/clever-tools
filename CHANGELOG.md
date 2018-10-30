@@ -1,5 +1,10 @@
 # clever-tools changelog
 
+## 1.1.0 (2018-10-30)
+
+- Fix bad usage of bacon.js in 1.0.2
+- Add docker image and publish it at docker hub
+
 ## 1.0.2 (2018-10-19)
 
 - Fix wrong name displayed after a login if you were already logged in as someone else
