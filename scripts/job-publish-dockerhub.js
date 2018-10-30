@@ -12,7 +12,7 @@ async function run () {
   const version = cfg.getVersion();
 
   await cloneGitProject({ gitUrl, gitPath, git });
-  await applyOneTemplate(gitPath, templateFilepath, {
+  await applyOneTemplate(`${gitPath}/Dockerfile`, templateFilepath, {
     version,
     ...appInfos,
   });
