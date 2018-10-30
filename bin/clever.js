@@ -77,6 +77,13 @@ function lazyRequire (modulePath) {
   };
 }
 
+function lazyRequireFunction (modulePath) {
+  return function (...args) {
+    const theFunction = require(modulePath);
+    return theFunction.apply(this, args);
+  };
+}
+
 const Application = lazyRequire('../src/models/application.js');
 const Addon = lazyRequire('../src/models/addon.js');
 const Drain = lazyRequire('../src/models/drain.js');
@@ -604,7 +611,7 @@ function run () {
   }, unlink);
 
   // VERSION COMMAND
-  const version = lazyRequireFunctionWithApi('../src/commands/version.js');
+  const version = lazyRequireFunction('../src/commands/version.js');
   const versionCommand = cliparse.command('version', {
     description: 'Display the version',
     args: [],
