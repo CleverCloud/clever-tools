@@ -461,7 +461,7 @@ function run () {
     options: [opts.loginToken, opts.loginSecret],
   }, login);
 
-    // LOGOUT COMMAND
+  // LOGOUT COMMAND
   const logout = lazyRequireFunctionWithApi('../src/commands/logout.js');
   const logoutCommand = cliparse.command('logout', {
     description: 'Logout from Clever Cloud',
@@ -505,7 +505,7 @@ function run () {
     options: [opts.alias],
   }, open);
 
-    // CONSOLE COMMAND
+  // CONSOLE COMMAND
   const consoleModule = lazyRequireFunctionWithApi('../src/commands/console.js');
   const consoleCommand = cliparse.command('console', {
     description: 'Open an application in the console',
