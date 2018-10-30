@@ -69,6 +69,15 @@ pipeline {
             sh 'node ./scripts/job-publish-npm.js'
           }
         }
+        stage('dockerhub') {
+          steps {
+            script {
+              sshagent (credentials: ['CI_CLEVER_CLOUD_SSH_KEY']) {
+                sh 'node ./scripts/job-publish-dockerhub.js'
+              }
+            }
+          }
+        }
       }
     }
   }
