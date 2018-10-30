@@ -151,6 +151,15 @@ NOTES:
 * The packages are available on Clever Cloud's Cellar bucket: [clever-tools-latest_win.tar.gz](https://clever-tools.cellar.services.clever-cloud.com/releases/latest/clever-tools-latest_win.zip).
 * You can also retrieve any release (including beta) on this Cellar bucket by replacing `latest` (path and filename) with the version number you need.
 
+### Via Docker
+
+If you are using docker, you can use the image provided [here](https://hub.docker.com/r/clevercloud/clever-tools/).
+
+```sh
+docker pull clevercloud/clever-tools
+docker run --rm clever-tools <command>
+```
+
 ## Enabling autocompletion
 
 The clever-tools CLI comes with a comprehensive auto-completion system.

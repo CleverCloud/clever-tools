@@ -81,6 +81,14 @@ That's why we need `NPM_TOKEN` from the credentials.
 * This `NPM_TOKEN` is generated from the `clevercloud-ci` account.
 * If it's a beta version, we use the npm `beta` tag so users don't get a beta without explicitly asking for one.
 
+#### Docker Hub
+
+We publish new versions on [Docker Hub](https://hub.docker.com/r/clevercloud/clever-tools/) using automated builds.
+They are triggered for new commits created and pushed to a [GitHub repo](https://github.com/CleverCloud/clever-tools-dockerhub).
+That's why we need the `CI_CLEVER_CLOUD_SSH_KEY` SSH key from the credentials.
+
+* The new commit updates all files of the given repo using the templates in `templates/dockerhub`.
+
 ## How do I release a new version?
 
 Here's the guide to create a new release:
