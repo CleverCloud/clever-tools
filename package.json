@@ -29,7 +29,7 @@
     "cliparse": "^0.3.0",
     "colors": "^1.3.2",
     "common-env": "^6.3.0",
-    "isomorphic-git": "^0.39.2",
+    "isomorphic-git": "0.37.0",
     "lodash": "^4.17.11",
     "mkdirp": "^0.5.1",
     "moment": "^2.22.2",
