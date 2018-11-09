@@ -1,5 +1,10 @@
 # clever-tools changelog
 
+## 1.1.1 (2018-11-09)
+
+- Rollback isomorphic-git to 0.37.0 (for now)
+- Fix `slugify` function used to create alias from names
+
 ## 1.1.0 (2018-10-30)
 
 - Fix bad usage of bacon.js in 1.0.2
