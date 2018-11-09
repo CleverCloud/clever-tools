@@ -8,7 +8,7 @@ const git = require('isomorphic-git');
 const { autocomplete } = require('cliparse');
 
 const { loadOAuthConf } = require('./configuration.js');
-const { slugify } = require('./app_configuration');
+const slugify = require('slugify');
 
 const repo = { fs, dir: '.' };
 

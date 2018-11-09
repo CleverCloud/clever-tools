@@ -5,7 +5,7 @@ const path = require('path');
 
 const _ = require('lodash');
 const Bacon = require('baconjs');
-const unidecode = require('unidecode');
+const slugify = require('slugify');
 
 const { conf } = require('./configuration.js');
 const Logger = require('../logger.js');
@@ -120,10 +120,6 @@ function setDefault (alias) {
     .flatMapLatest(persistConfig);
 }
 
-function slugify (srt) {
-  return _.kebabCase(unidecode(srt));
-};
-
 module.exports = {
   loadApplicationConf,
   addLinkedApplication,
@@ -131,5 +127,4 @@ module.exports = {
   findApp,
   getAppData,
   setDefault,
-  slugify,
 };
