@@ -4,7 +4,7 @@ const _ = require('lodash');
 const childProcess = require('child_process');
 const fs = require('fs-extra');
 const glob = require('glob');
-const { parse: parseUrl } = require('url');
+const { URL } = require('url');
 
 // This disables ES6+ template delimiters
 _.templateSettings.interpolate = /<%=([\s\S]+?)%>/g;
@@ -24,7 +24,7 @@ function exec (command, cwd) {
 }
 
 async function cloneGitProject ({ gitUrl, gitPath, git, cleanRepo = true }) {
-  const { protocol, hostname } = parseUrl(gitUrl);
+  const { protocol, hostname } = new URL(gitUrl);
   if (protocol === 'ssh:') {
     await exec(`mkdir -p ~/.ssh`);
     await exec(`ssh-keyscan -t rsa ${hostname} >> ~/.ssh/known_hosts`);
