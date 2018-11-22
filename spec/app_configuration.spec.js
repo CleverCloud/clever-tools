@@ -1,7 +1,7 @@
 'use strict';
 
 const expect = require('chai').expect;
-const { findApp, slugify } = require('../src/models/app_configuration');
+const { findApp } = require('../src/models/app_configuration');
 
 describe('app_configuration.findApp()', () => {
 
@@ -107,13 +107,3 @@ describe('app_configuration.findApp()', () => {
   });
 });
 
-describe('app_configuration.slugify()', () => {
-
-  it('should slugify strings (with transliteration)', () => {
-    expect(slugify('Foo   BAR_baz')).to.equal('foo-bar-baz');
-    expect(slugify('[Hello] (World)!')).to.equal('hello-world');
-    expect(slugify('éàèçœ')).to.equal('eaecoe');
-    expect(slugify('ありがとう')).to.equal('arigatou');
-    expect(slugify('привет')).to.equal('priviet');
-  });
-});
