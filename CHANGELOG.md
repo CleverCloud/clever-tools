@@ -1,5 +1,9 @@
 # clever-tools changelog
 
+## 1.2.0 (2018-11-23)
+
+- Add datadog drain
+
 ## 1.1.1 (2018-11-09)
 
 - Rollback isomorphic-git to 0.37.0 (for now)
