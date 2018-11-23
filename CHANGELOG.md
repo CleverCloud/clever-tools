@@ -1,5 +1,9 @@
 # clever-tools changelog
 
+## 1.2.1 (2018-11-23)
+
+- Fix packaging problems with exherbo, docker and homebrew
+
 ## 1.2.0 (2018-11-23)
 
 - Add datadog drain
