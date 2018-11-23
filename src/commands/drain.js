@@ -24,12 +24,13 @@ function list (api, params) {
 
 function create (api, params) {
   const [drainTargetType, drainTargetURL] = params.args;
-  const { alias, username, password } = params.options;
+  const { alias, username, password, 'api-key': apiKey } = params.options;
   const drainTargetCredentials = { username, password };
+  const drainTargetConfig = { apiKey };
 
   const s_drain = AppConfig.getAppData(alias)
     .flatMapLatest((appData) => {
-      return Drain.create(api, appData.app_id, drainTargetURL, drainTargetType, drainTargetCredentials);
+      return Drain.create(api, appData.app_id, drainTargetURL, drainTargetType, drainTargetCredentials, drainTargetConfig);
     })
     .map(() => Logger.println('Your drain has been successfully saved'));
 

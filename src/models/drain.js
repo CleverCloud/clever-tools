@@ -15,6 +15,7 @@ const DRAIN_TYPES = [
   { id: 'UDPSyslog' },
   { id: 'HTTP', credentials: 'OPTIONAL' },
   { id: 'ElasticSearch', credentials: 'MANDATORY' },
+  { id: 'Datadog', datadogAPIKey: 'MANDATORY' },
 ];
 
 const makeJsonRequest = function (api, verb, url, queryParams, body) {
@@ -58,9 +59,9 @@ const makeJsonRequest = function (api, verb, url, queryParams, body) {
 function list (api, appId) {
   Logger.debug(`Fetching drains for ${appId}`);
   return makeJsonRequest(api, 'GET', `/logs/${appId}/drains`, {});
-};
+}
 
-function create (api, appId, drainTargetURL, drainTargetType, drainTargetCredentials) {
+function create (api, appId, drainTargetURL, drainTargetType, drainTargetCredentials, drainTargetConfig) {
   Logger.debug(`Registering drain for ${appId}`);
 
   if (authorizeDrainCreation(drainTargetType, drainTargetCredentials)) {
@@ -74,26 +75,32 @@ function create (api, appId, drainTargetURL, drainTargetType, drainTargetCredent
         password: drainTargetCredentials.password || '',
       };
     }
+    if (drainTargetType === 'Datadog') {
+      if (drainTargetConfig.apiKey == null) {
+        return Bacon.once(new Bacon.Error(`APIKey is mandatory on for this drain type.`));
+      }
+      body.APIKey = drainTargetConfig.apiKey;
+    }
     return makeJsonRequest(api, 'POST', `/logs/${appId}/drains`, {}, body);
   }
 
   return Bacon.once(new Bacon.Error(`Credentials are: optional for HTTP, mandatory for ElasticSearch and TCPSyslog/UDPSyslog don't need them.`));
-};
+}
 
 function remove (api, appId, drainId) {
   Logger.debug(`Removing drain ${drainId} for ${appId}`);
   return makeJsonRequest(api, 'DELETE', `/logs/${appId}/drains/${drainId}`, {});
-};
+}
 
 function enable (api, appId, drainId) {
   Logger.debug(`Enable drain ${drainId} for ${appId}`);
   return makeJsonRequest(api, 'PUT', `/logs/${appId}/drains/${drainId}/state`, {}, { state: 'ENABLED' });
-};
+}
 
 function disable (api, appId, drainId) {
   Logger.debug(`Disable drain ${drainId} for ${appId}`);
   return makeJsonRequest(api, 'PUT', `/logs/${appId}/drains/${drainId}/state`, {}, { state: 'DISABLED' });
-};
+}
 
 function authorizeDrainCreation (drainTargetType, drainTargetCredentials) {
   if (drainTypeExists(drainTargetType)) {
@@ -107,27 +114,27 @@ function authorizeDrainCreation (drainTargetType, drainTargetCredentials) {
     }
     return credentialsEmpty(drainTargetCredentials);
   }
-};
+}
 
 function credentialsStatus (drainTargetType) {
   return DRAIN_TYPES.find(({ id }) => id === drainTargetType);
-};
+}
 
 function drainTypeExists (drainTargetType) {
   return DRAIN_TYPES.some(({ id }) => id === drainTargetType);
-};
+}
 
 function credentialsExist ({ username, password }) {
   return username != null && password != null;
-};
+}
 
 function credentialsEmpty ({ username, password }) {
   return username == null && password == null;
-};
+}
 
 function listDrainTypes () {
   return autocomplete.words(DRAIN_TYPES.map((type) => type.id));
-};
+}
 
 module.exports = {
   list,

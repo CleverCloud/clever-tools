@@ -304,6 +304,11 @@ function run () {
       metavar: 'username',
       description: 'HTTP basic auth username',
     }),
+    drainAPIKey: cliparse.option('api-key', {
+      aliases: ['k'],
+      metavar: 'api_key',
+      description: 'Drain custom key',
+    }),
     verbose: cliparse.flag('verbose', { aliases: ['v'], description: 'Verbose output' }),
     withoutCache: cliparse.flag('without-cache', { description: 'Restart the application without using cache' }),
     confirmAddonCreation: cliparse.flag('yes', {
@@ -414,7 +419,7 @@ function run () {
   const drainCreateCommand = cliparse.command('create', {
     description: 'Create a drain',
     args: [args.drainType, args.drainUrl],
-    options: [opts.drainUsername, opts.drainPassword],
+    options: [opts.drainUsername, opts.drainPassword, opts.drainAPIKey],
   }, drain('create'));
   const drainRemoveCommand = cliparse.command('remove', {
     description: 'Remove a drain',
