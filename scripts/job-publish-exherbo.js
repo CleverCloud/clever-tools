@@ -25,7 +25,7 @@ async function run () {
   else {
     del.sync(`${gitCleverToolsDir}/*beta*`);
   }
-  applyOneTemplate(`${gitCleverToolsDir}/clever-tools-bin-${underscoreVersion}.exheres-0`, templateFilepath, {
+  await applyOneTemplate(`${gitCleverToolsDir}/clever-tools-bin-${underscoreVersion}.exheres-0`, templateFilepath, {
     copyrightYear: new Date().getFullYear(),
     maintainerEmail: git.email,
     ...appInfos,
