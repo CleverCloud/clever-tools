@@ -11,7 +11,7 @@ async function run () {
   const { git, appInfos } = cfg;
   const isStableVersion = cfg.isStableVersion();
   const gitProject = isStableVersion ? 'homebrew-tap' : 'homebrew-tap-beta';
-  const gitUrl = `git@github.com:CleverCloud/${gitProject}.git`;
+  const gitUrl = `ssh://git@github.com/CleverCloud/${gitProject}.git`;
   const version = cfg.getVersion();
   const archivePath = cfg.getArchiveFilepath('macos', version);
   const sha256 = await fs.readFile(`${archivePath}.sha256`, 'utf-8');

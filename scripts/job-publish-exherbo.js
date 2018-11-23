@@ -11,7 +11,7 @@ async function run () {
   const gitCleverToolsDir = `${gitPath}/packages/dev-util/clever-tools-bin`;
   const { git, appInfos } = cfg;
   const isStableVersion = cfg.isStableVersion();
-  const gitUrl = `git@github.com:CleverCloud/CleverCloud-exheres.git`;
+  const gitUrl = `ssh://git@github.com/CleverCloud/CleverCloud-exheres.git`;
   const version = cfg.getVersion();
   const underscoreVersion = version
     .replace(/-/g, '_')

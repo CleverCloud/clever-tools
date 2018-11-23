@@ -8,7 +8,7 @@ async function run () {
   const templateFilepath = './templates/dockerhub/Dockerfile';
   const gitPath = './git-dockerhub';
   const { git, appInfos } = cfg;
-  const gitUrl = `git@github.com:CleverCloud/clever-tools-dockerhub.git`;
+  const gitUrl = `ssh://git@github.com/CleverCloud/clever-tools-dockerhub.git`;
   const version = cfg.getVersion();
 
   await cloneGitProject({ gitUrl, gitPath, git });
