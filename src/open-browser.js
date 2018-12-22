@@ -7,7 +7,7 @@ const Logger = require('./logger.js');
 
 function openPage (url) {
   Logger.debug('Opening browser');
-  return Bacon.fromPromise(opn(url));
+  return Bacon.fromPromise(opn(url, { wait: false }));
 }
 
 module.exports = { openPage };
