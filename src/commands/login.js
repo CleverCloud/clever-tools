@@ -84,9 +84,7 @@ function login (api, params) {
       }
     });
 
-  // Force process exit, otherwhise, it will be kept alive
-  // because of the spawn() call (in src/open-browser.js)
-  handleCommandStream(s_result, () => process.exit(0));
+  handleCommandStream(s_result);
 }
 
 module.exports = login;
