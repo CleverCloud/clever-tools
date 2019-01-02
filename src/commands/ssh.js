@@ -2,6 +2,8 @@
 
 const { spawn } = require('child_process');
 
+const Bacon = require('baconjs');
+
 const AppConfig = require('../models/app_configuration.js');
 const { conf } = require('../models/configuration.js');
 const handleCommandStream = require('../command-stream-handler');
@@ -15,7 +17,13 @@ function ssh (api, params) {
       if (identityFile != null) {
         sshParams.push('-i', identityFile);
       }
-      return spawn('ssh', sshParams, { stdio: 'inherit' });
+
+      const s_sshProcess = new Bacon.Bus();
+      const sshProcess = spawn('ssh', sshParams, { stdio: 'inherit' });
+      sshProcess.on('exit', () => s_sshProcess.end());
+      sshProcess.on('error', (e) => s_sshProcess.error(e));
+
+      return s_sshProcess;
     });
 
   handleCommandStream(s_result);
