@@ -2,7 +2,7 @@
 
 ## 1.3.0 (2019-01-11)
 
-- Fix endless wait with `clever login` on MacOS
+- Fix endless wait with `clever login` on MacOS (Renan Decamps)
 - Fix wrong activity display for WIP
 - Always do a process.exit(0) when a command finishes properly
 - Limit the number or retries for when a WebSocket connexion fails
