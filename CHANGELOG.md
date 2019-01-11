@@ -1,5 +1,12 @@
 # clever-tools changelog
 
+## 1.3.0 (2019-01-11)
+
+- Fix endless wait with `clever login` on MacOS
+- Fix wrong activity display for WIP
+- Always do a process.exit(0) when a command finishes properly
+- Limit the number or retries for when a WebSocket connexion fails
+
 ## 1.2.1 (2018-11-23)
 
 - Fix packaging problems with exherbo, docker and homebrew
