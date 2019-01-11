@@ -12,17 +12,17 @@ const formatTable = require('../format-table');
 const handleCommandStream = require('../command-stream-handler');
 const Logger = require('../logger.js');
 
-function getColoredState (state, isNew) {
+function getColoredState (state, isLast) {
   if (state === 'OK') {
     return colors.bold.green(state);
   }
   if (state === 'FAIL' || state === 'CANCELLED') {
     return colors.bold.red(state);
   }
-  if (state === 'WIP' && !isNew) {
+  if (state === 'WIP' && !isLast) {
     return colors.bold.red('FAIL');
   }
-  if (state === 'WIP' && isNew) {
+  if (state === 'WIP' && isLast) {
     return colors.bold.blue('IN PROGRESS');
   }
   Logger.warn(`Unknown deployment state: ${state}`);
@@ -43,7 +43,7 @@ function formatActivityLine (event) {
   return formatActivityTable([
     [
       moment(event.date).format(),
-      getColoredState(event.state, event.isNew),
+      getColoredState(event.state, event.isLast),
       event.action,
       event.commit || 'not specified',
       event.cause,
@@ -52,7 +52,10 @@ function formatActivityLine (event) {
 };
 
 function isTemporaryEvent (ev) {
-  return (ev.state === 'WIP' && ev.isNew) || ev.state === 'CANCELLED';
+  if (ev == null) {
+    return false;
+  }
+  return (ev.state === 'WIP' && ev.isLast) || ev.state === 'CANCELLED';
 }
 
 function clearPreviousLine () {
@@ -68,7 +71,15 @@ function activity (api, params) {
     .flatMapLatest((appData) => {
 
       const s_oldActivity = Activity.list(api, appData.app_id, appData.org_id, showAll)
-        .flatMapLatest((events) => Bacon.fromArray(_.reverse(events)));
+        .flatMapLatest((events) => {
+          const reversedArrayWithIndex = events
+            .reverse()
+            .map((event, index, all) => {
+              const isLast = index === all.length - 1;
+              return ({ ...event, isLast });
+            });
+          return Bacon.fromArray(reversedArrayWithIndex);
+        });
 
       if (!follow) {
         return s_oldActivity;
@@ -80,7 +91,7 @@ function activity (api, params) {
             || event === 'DEPLOYMENT_ACTION_END';
         })
         .map(({ date, data: { state, action, commit, cause } }) => {
-          return { date, state, action, commit, cause, isNew: true };
+          return { date, state, action, commit, cause, isLast: true };
         })
         .skipDuplicates(_.isEqual);
 
