@@ -14,7 +14,8 @@ const DRAIN_TYPES = [
   { id: 'TCPSyslog' },
   { id: 'UDPSyslog' },
   { id: 'HTTP', credentials: 'OPTIONAL' },
-  { id: 'ElasticSearch', credentials: 'MANDATORY' }
+  { id: 'ElasticSearch', credentials: 'MANDATORY' },
+  { id: 'DatadogHTTP' },
 ];
 
 const makeJsonRequest = function (api, verb, url, queryParams, body) {
