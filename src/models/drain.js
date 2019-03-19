@@ -15,7 +15,7 @@ const DRAIN_TYPES = [
   { id: 'UDPSyslog' },
   { id: 'HTTP', credentials: 'OPTIONAL' },
   { id: 'ElasticSearch', credentials: 'MANDATORY' },
-  { id: 'Datadog', datadogAPIKey: 'MANDATORY' },
+  { id: 'DatadogHTTP' },
 ];
 
 const makeJsonRequest = function (api, verb, url, queryParams, body) {
@@ -74,12 +74,6 @@ function create (api, appId, drainTargetURL, drainTargetType, drainTargetCredent
         username: drainTargetCredentials.username || '',
         password: drainTargetCredentials.password || '',
       };
-    }
-    if (drainTargetType === 'Datadog') {
-      if (drainTargetConfig.apiKey == null) {
-        return Bacon.once(new Bacon.Error(`APIKey is mandatory on for this drain type.`));
-      }
-      body.APIKey = drainTargetConfig.apiKey;
     }
     return makeJsonRequest(api, 'POST', `/logs/${appId}/drains`, {}, body);
   }
