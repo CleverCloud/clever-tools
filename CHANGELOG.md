@@ -1,5 +1,10 @@
 # clever-tools changelog
 
+## 1.4.0 (2019-03-19)
+
+- Depreciate datadog tcp drain, and remove creation of them
+- Add datadog http drain
+
 ## 1.3.0 (2019-01-11)
 
 - Fix endless wait with `clever login` on MacOS (Renan Decamps)
