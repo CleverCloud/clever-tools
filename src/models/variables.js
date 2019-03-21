@@ -48,7 +48,6 @@ function readFromStdin () {
     });
 
     rl.on('close', () => {
-      console.log(vars);
       sink(new Bacon.Next(vars));
       sink(new Bacon.End());
     });
