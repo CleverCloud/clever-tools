@@ -59,9 +59,11 @@ function isTemporaryEvent (ev) {
 }
 
 function clearPreviousLine () {
-  process.stdout.moveCursor(0, -1);
-  process.stdout.cursorTo(0);
-  process.stdout.clearLine();
+  if (process.stdout.isTTY) {
+    process.stdout.moveCursor(0, -1);
+    process.stdout.cursorTo(0);
+    process.stdout.clearLine();
+  }
 }
 
 function activity (api, params) {
