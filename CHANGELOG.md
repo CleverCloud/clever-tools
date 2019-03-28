@@ -1,5 +1,11 @@
 # clever-tools changelog
 
+## 1.4.1 (2019-03-28)
+
+- Improve README.md sections about drains
+- Fix errors when using `clever activity` with non TTY stdout (haitlahcen)
+- Remove leftover console.log in `clever env import` (Clément Delafargue)
+
 ## 1.4.0 (2019-03-19)
 
 - Depreciate datadog tcp drain, and remove creation of them
