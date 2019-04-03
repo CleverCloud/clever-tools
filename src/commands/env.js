@@ -67,4 +67,25 @@ async function importEnv (params) {
   Logger.println('Environment variables have been set');
 };
 
-module.exports = { list, set, rm, importEnv };
+async function importEnvVars (params) {
+  const [envNames] = params.args;
+  const { alias } = params.options;
+
+  for (const envName of envNames) {
+    const nameIsValid = validateName(envName);
+    if (!nameIsValid) {
+      throw new Error(`Environment variable name ${envName} is invalid`);
+    }
+  }
+
+  const { org_id, app_id: appId } = await AppConfig.getAppData(alias).toPromise();
+
+  for (const envName of envNames) {
+    const value = process.env[envName] || '';
+    await application.updateEnvVar({ id: org_id, appId, envName }, { value }).then(sendToApi);
+  }
+
+  Logger.println('Your environment variables have been successfully saved');
+};
+
+module.exports = { list, set, rm, importEnv, importEnvVars };
