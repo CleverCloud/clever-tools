@@ -45,7 +45,7 @@ function list (api, params) {
 }
 
 function linkApp (api, params) {
-  const { alias } = params.options.alias;
+  const { alias } = params.options;
   const [appIdOrName] = params.args;
 
   const s_result = AppConfig.getAppData(alias)
