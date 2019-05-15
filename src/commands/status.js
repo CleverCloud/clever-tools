@@ -52,8 +52,8 @@ function displayScalability ({ minFlavor, maxFlavor, minInstances, maxInstances 
     ? minInstances
     : `${minInstances} to ${maxInstances}`;
 
-  const enabled = (minFlavor.name === maxFlavor.name)
-    || (minInstances === maxInstances);
+  const enabled = (minFlavor.name !== maxFlavor.name)
+    || (minInstances !== maxInstances);
 
   return `Scalability:
   Auto scalability: ${enabled ? colors.green('enabled') : colors.red('disabled')}
