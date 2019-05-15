@@ -1,5 +1,11 @@
 # clever-tools changelog
 
+## 1.4.2 (2019-05-15)
+
+- Fix wrong auto-scalability setting in `clever status` (mpapillon)
+- Fix `clever service link-app` (mpapillon)
+- Update dependencies
+
 ## 1.4.1 (2019-03-28)
 
 - Improve README.md sections about drains
