@@ -27,9 +27,22 @@ function readStdin () {
   });
 }
 
-async function readVariablesFromStdin () {
+function parseFromJSON (rawStdin) {
+  try {
+    const json = JSON.parse(rawStdin);
+    // The JSON structure is not checked before sending it to the API.
+    // In the case of an error, the API call will fail and an error will
+    // be logged. It could be possible to add a check here to improve the
+    // UX a bit (but we'd have to make sure it's consistent with what the
+    // API checks).
+    return json;
+  }
+  catch (e) {
+    throw new Error('Error when parsing json', e);
+  }
+}
 
-  const rawStdin = await readStdin();
+function parseEnvLines (rawStdin) {
   const { variables, errors } = parseRaw(rawStdin);
 
   if (errors.length !== 0) {
@@ -55,6 +68,20 @@ async function readVariablesFromStdin () {
   }
 
   return toNameValueObject(variables);
+}
+
+async function readVariablesFromStdin (format = 'env') {
+
+  const rawStdin = await readStdin();
+
+  switch (format) {
+    case 'env':
+      return parseEnvLines(rawStdin);
+    case 'json':
+      return parseFromJSON(rawStdin);
+    default:
+      throw new Error("Unrecognized environment input format. Available formats are 'env' and 'json'");
+  }
 }
 
 module.exports = {

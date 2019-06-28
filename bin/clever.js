@@ -131,6 +131,7 @@ function run () {
       aliases: ['f'],
       description: 'Display access logs continuously (ignores before/until, after/since)',
     }),
+    importJSON: cliparse.flag('json', { description: 'Import env variables from a JSON value' }),
     addonId: cliparse.option('addon', { metavar: 'addon_id', description: 'Addon ID' }),
     after: cliparse.option('after', {
       metavar: 'after',
@@ -495,6 +496,7 @@ function run () {
   }, env('rm'));
   const envImportCommand = cliparse.command('import', {
     description: 'Load environment variables from STDIN\n(WARNING: this deletes all current variables and replace them with the new list loaded from STDIN)',
+    options: [opts.importJSON]
   }, env('importEnv'));
   const envImportVarsCommand = cliparse.command('import-vars', {
     description: 'Add or update environment variables named <variable-names> (comma separated), taking their values from the current environment',

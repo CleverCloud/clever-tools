@@ -58,10 +58,11 @@ async function rm (params) {
 };
 
 async function importEnv (params) {
-  const { alias } = params.options;
+  const { alias, json } = params.options;
+  const format = json ? 'json' : 'env';
   const { ownerId, appId } = await AppConfig.getAppDetails({ alias });
 
-  const vars = await variables.readVariablesFromStdin();
+  const vars = await variables.readVariablesFromStdin(format);
   await application.updateAllEnvVars({ id: ownerId, appId }, vars).then(sendToApi);
 
   Logger.println('Environment variables have been set');
