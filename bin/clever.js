@@ -131,6 +131,7 @@ function run () {
       aliases: ['f'],
       description: 'Display access logs continuously (ignores before/until, after/since)',
     }),
+    importAsJson: cliparse.flag('json', { description: 'Import variables as JSON (an array of { "name": "THE_NAME", "value": "the value" } objects)' }),
     addonId: cliparse.option('addon', { metavar: 'addon_id', description: 'Addon ID' }),
     after: cliparse.option('after', {
       metavar: 'after',
@@ -495,6 +496,7 @@ function run () {
   }, env('rm'));
   const envImportCommand = cliparse.command('import', {
     description: 'Load environment variables from STDIN\n(WARNING: this deletes all current variables and replace them with the new list loaded from STDIN)',
+    options: [opts.importAsJson],
   }, env('importEnv'));
   const envImportVarsFromLocalEnvCommand = cliparse.command('import-vars', {
     description: 'Add or update environment variables named <variable-names> (comma separated), taking their values from the current environment',
@@ -590,6 +592,7 @@ function run () {
   }, publishedConfig('rm'));
   const publishedConfigImportCommand = cliparse.command('import', {
     description: 'Load published configuration from STDIN\n(WARNING: this deletes all current variables and replace them with the new list loaded from STDIN)',
+    options: [opts.importAsJson],
   }, publishedConfig('importEnv'));
   const publishedConfigCommands = cliparse.command('published-config', {
     description: 'Manage the configuration made available to other applications by this application',

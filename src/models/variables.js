@@ -1,7 +1,8 @@
 'use strict';
 
+const _countBy = require('lodash/countBy.js');
 const readline = require('readline');
-const { ERROR_TYPES, parseRaw, toNameValueObject } = require('@clevercloud/client/cjs/utils/env-vars.js');
+const { ERROR_TYPES, parseRaw, toNameValueObject, validateName } = require('@clevercloud/client/cjs/utils/env-vars.js');
 
 function readStdin () {
 
@@ -27,9 +28,56 @@ function readStdin () {
   });
 }
 
-async function readVariablesFromStdin () {
+// The JSON input format for variables is:
+// an array of objects, each having:
+// a "name" property with a string and value
+// a "value" property with a string and value
+// TODO: This should be moved and unit tested in the clever-client repo
+function parseFromJson (rawStdin) {
 
-  const rawStdin = await readStdin();
+  let variables;
+  try {
+    variables = JSON.parse(rawStdin);
+  }
+  catch (e) {
+    throw new Error('Error when parsing JSON input', e);
+  }
+
+  if (!Array.isArray(variables) || variables.some((entry) => typeof entry !== 'object')) {
+    throw new Error('The input was valid JSON but it does not follow the correct format. It must be an array of objects.');
+  }
+
+  const someEntriesDontHaveNameAndValueAsString = variables.some(({ name, value }) => {
+    return (typeof name !== 'string') || (typeof value !== 'string');
+  });
+  if (someEntriesDontHaveNameAndValueAsString) {
+    throw new Error('The input was a valid JSON array of objects but all entries must have properties "name" and "value" of type string. Ex: { "name": "THE_NAME", "value": "the value" }');
+  }
+
+  const namesOccurences = _countBy(variables, 'name');
+  const duplicatedNames = Object
+    .entries(namesOccurences)
+    .filter(([name, count]) => count > 1)
+    .map(([name]) => `"${name}"`)
+    .join(', ');
+
+  if (duplicatedNames.length !== 0) {
+    throw new Error(`Some variable names defined multiple times: ${duplicatedNames}`);
+  }
+
+  const invalidNames = variables
+    .filter(({ name }) => !validateName(name))
+    .map(({ name }) => `"${name}"`)
+    .join(', ');
+
+  if (invalidNames.length !== 0) {
+    throw new Error(`Some variable names are invalid: ${invalidNames}`);
+  }
+
+  return toNameValueObject(variables);
+}
+
+function parseFromNameEqualsValue (rawStdin) {
   const { variables, errors } = parseRaw(rawStdin);
 
   if (errors.length !== 0) {
@@ -55,6 +103,20 @@ async function readVariablesFromStdin () {
   }
 
   return toNameValueObject(variables);
+}
+
+async function readVariablesFromStdin (format) {
+
+  const rawStdin = await readStdin();
+
+  switch (format) {
+    case 'name-equals-value':
+      return parseFromNameEqualsValue(rawStdin);
+    case 'json':
+      return parseFromJson(rawStdin);
+    default:
+      throw new Error('Unrecognized environment input format. Available formats are \'name-equals-value\' and \'json\'');
+  }
 }
 
 module.exports = {
