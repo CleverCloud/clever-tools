@@ -40,7 +40,8 @@
     "text-table": "^0.2.0",
     "update-notifier": "^3.0.0",
     "ws": "^7.0.0",
-    "xdg": "^0.1.1"
+    "xdg": "^0.1.1",
+    "snyk": "^1.190.0"
   },
   "devDependencies": {
     "aws-sdk": "^2.455.0",
@@ -66,7 +67,9 @@
     "pretest": "npm run lint",
     "test": "grunt test",
     "lint": "eslint src scripts",
-    "lint:fix": "eslint --fix src scripts"
+    "lint:fix": "eslint --fix src scripts",
+    "snyk-protect": "snyk protect",
+    "prepare": "npm run snyk-protect"
   },
   "repository": {
     "type": "git",
@@ -80,5 +83,6 @@
     "scripts": [
       "src/**/*.js"
     ]
-  }
+  },
+  "snyk": true
 }
