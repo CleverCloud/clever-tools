@@ -1,6 +1,5 @@
 'use strict';
 
-const _ = require('lodash');
 const Bacon = require('baconjs');
 
 const AppConfig = require('../models/app_configuration.js');
@@ -15,8 +14,9 @@ function list (api, params) {
 
   const s_env = AppConfig.getAppData(alias)
     .flatMap(({ app_id, org_id }) => PublishedConfig.list(api, app_id, org_id))
-    .flatMapLatest((envs) => {
-      const pairs = _.map(envs, (value, name) => ({ name, value }));
+    .flatMapLatest((publishedConfigs) => {
+      const pairs = Object.entries(publishedConfigs)
+        .map(([name, value]) => ({ name, value }));
       Logger.println('# Published configs');
       Logger.println(toNameEqualsValueString(pairs));
     });

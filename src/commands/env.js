@@ -1,6 +1,5 @@
 'use strict';
 
-const _ = require('lodash');
 const Bacon = require('baconjs');
 
 const AppConfig = require('../models/app_configuration.js');
@@ -27,12 +26,12 @@ function list (api, params) {
       Logger.println('# Manually set env variables');
       Logger.println(toNameEqualsValueString(manual, addExport));
 
-      _.each(fromAddons, (addon) => {
+      fromAddons.forEach((addon) => {
         Logger.println('# Addon ' + addon.addon_name);
         Logger.println(toNameEqualsValueString(addon.env, addExport));
       });
 
-      _.each(fromDeps, (dep) => {
+      fromDeps.forEach((dep) => {
         Logger.println('# Dependency ' + dep.app_name);
         Logger.println(toNameEqualsValueString(dep.env, addExport));
       });
