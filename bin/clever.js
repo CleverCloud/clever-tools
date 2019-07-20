@@ -542,7 +542,7 @@ function run () {
   }, profile);
 
   // PUBLISHED CONFIG COMMANDS
-  const publishedConfig = lazyRequireModuleWithApi('../src/commands/published-config.js');
+  const publishedConfig = lazyRequirePromiseModule('../src/commands/published-config.js');
   const publishedConfigSetCommand = cliparse.command('set', {
     description: 'Add or update a published configuration item named <variable-name> with the value <variable-value>',
     args: [args.envVariableName, args.envVariableValue],

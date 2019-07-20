@@ -1,71 +1,62 @@
 'use strict';
 
-const Bacon = require('baconjs');
-
 const AppConfig = require('../models/app_configuration.js');
-const handleCommandStream = require('../command-stream-handler');
 const Logger = require('../logger.js');
-const PublishedConfig = require('../models/published-config.js');
 const variables = require('../models/variables.js');
+const { sendToApi } = require('../models/send-to-api.js');
 const { toNameEqualsValueString, validateName } = require('@clevercloud/client/cjs/utils/env-vars.js');
+const application = require('@clevercloud/client/cjs/api/application.js');
 
-function list (api, params) {
+async function list (params) {
   const { alias } = params.options;
+  const { org_id, app_id: appId } = await AppConfig.getAppData(alias).toPromise();
 
-  const s_env = AppConfig.getAppData(alias)
-    .flatMap(({ app_id, org_id }) => PublishedConfig.list(api, app_id, org_id))
-    .flatMapLatest((publishedConfigs) => {
-      const pairs = Object.entries(publishedConfigs)
-        .map(([name, value]) => ({ name, value }));
-      Logger.println('# Published configs');
-      Logger.println(toNameEqualsValueString(pairs));
-    });
+  const publishedConfigs = await application.getAllExposedEnvVars({ id: org_id, appId }).then(sendToApi);
+  const pairs = Object.entries(publishedConfigs)
+    .map(([name, value]) => ({ name, value }));
 
-  handleCommandStream(s_env);
+  Logger.println('# Published configs');
+  Logger.println(toNameEqualsValueString(pairs));
 };
 
-function set (api, params) {
+async function set (params) {
   const [varName, varValue] = params.args;
   const { alias } = params.options;
 
-  const s_env = AppConfig.getAppData(alias)
-    .flatMapLatest((params) => {
-      const nameIsValid = validateName(varName);
-      if (!nameIsValid) {
-        return new Bacon.Error(`Published config name ${varName} is invalid`);
-      }
-      return params;
-    })
-    .flatMapLatest(({ app_id, org_id }) => PublishedConfig.set(api, varName, varValue, app_id, org_id))
-    .flatMapLatest(() => Logger.println('Your published config item has been successfully saved'));
+  const nameIsValid = validateName(varName);
+  if (!nameIsValid) {
+    throw new Error(`Published config name ${varName} is invalid`);
+  }
 
-  handleCommandStream(s_env);
+  const { org_id, app_id: appId } = await AppConfig.getAppData(alias).toPromise();
+
+  const publishedConfigs = await application.getAllExposedEnvVars({ id: org_id, appId }).then(sendToApi);
+  publishedConfigs[varName] = varValue;
+  await application.updateAllExposedEnvVars({ id: org_id, appId }, publishedConfigs).then(sendToApi);
+
+  Logger.println('Your published config item has been successfully saved');
 };
 
-function rm (api, params) {
+async function rm (params) {
   const [varName] = params.args;
   const { alias } = params.options;
+  const { org_id, app_id: appId } = await AppConfig.getAppData(alias).toPromise();
 
-  const s_env = AppConfig.getAppData(alias)
-    .flatMapLatest(({ app_id, org_id }) => PublishedConfig.remove(api, varName, app_id, org_id))
-    .flatMapLatest(() => Logger.println('Your published config item has been successfully removed'));
+  const publishedConfigs = await application.getAllExposedEnvVars({ id: org_id, appId }).then(sendToApi);
+  delete publishedConfigs[varName];
+  await application.updateAllExposedEnvVars({ id: org_id, appId }, publishedConfigs).then(sendToApi);
 
-  handleCommandStream(s_env);
+  Logger.println('Your published config item has been successfully removed');
 };
 
-function importEnv (api, params) {
+async function importEnv (params) {
   const { alias } = params.options;
+  const { org_id, app_id: appId } = await AppConfig.getAppData(alias).toPromise();
 
-  const s_appData = AppConfig.getAppData(alias);
-  const s_vars = Bacon.fromPromise(variables.readVariablesFromStdin());
+  const publishedConfigs = await variables.readVariablesFromStdin();
+  await application.updateAllExposedEnvVars({ id: org_id, appId }, publishedConfigs).then(sendToApi);
 
-  const s_result = Bacon.combineAsArray(s_appData, s_vars)
-    .flatMapLatest(([appData, vars]) => {
-      return PublishedConfig.bulkSet(api, vars, appData.app_id, appData.org_id);
-    })
-    .flatMapLatest(() => Logger.println('Environment variables have been set'));
-
-  handleCommandStream(s_result);
+  Logger.println('Your published configs have been set');
 };
 
 module.exports = { list, set, rm, importEnv };
