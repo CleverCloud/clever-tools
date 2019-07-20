@@ -8,6 +8,7 @@ const handleCommandStream = require('../command-stream-handler');
 const Logger = require('../logger.js');
 const PublishedConfig = require('../models/published-config.js');
 const variables = require('../models/variables.js');
+const { toNameEqualsValueString, validateName } = require('@clevercloud/client/cjs/utils/env-vars.js');
 
 function list (api, params) {
   const { alias } = params.options;
@@ -17,7 +18,7 @@ function list (api, params) {
     .flatMapLatest((envs) => {
       const pairs = _.map(envs, (value, name) => ({ name, value }));
       Logger.println('# Published configs');
-      Logger.println(variables.render(pairs, false));
+      Logger.println(toNameEqualsValueString(pairs));
     });
 
   handleCommandStream(s_env);
@@ -28,6 +29,13 @@ function set (api, params) {
   const { alias } = params.options;
 
   const s_env = AppConfig.getAppData(alias)
+    .flatMapLatest((params) => {
+      const nameIsValid = validateName(varName);
+      if (!nameIsValid) {
+        return new Bacon.Error(`Published config name ${varName} is invalid`);
+      }
+      return params;
+    })
     .flatMapLatest(({ app_id, org_id }) => PublishedConfig.set(api, varName, varValue, app_id, org_id))
     .flatMapLatest(() => Logger.println('Your published config item has been successfully saved'));
 
@@ -49,7 +57,7 @@ function importEnv (api, params) {
   const { alias } = params.options;
 
   const s_appData = AppConfig.getAppData(alias);
-  const s_vars = variables.readFromStdin();
+  const s_vars = Bacon.fromPromise(variables.readVariablesFromStdin());
 
   const s_result = Bacon.combineAsArray(s_appData, s_vars)
     .flatMapLatest(([appData, vars]) => {

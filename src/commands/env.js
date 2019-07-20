@@ -8,6 +8,7 @@ const Env = require('../models/env.js');
 const handleCommandStream = require('../command-stream-handler');
 const Logger = require('../logger.js');
 const variables = require('../models/variables.js');
+const { toNameEqualsValueString, validateName } = require('@clevercloud/client/cjs/utils/env-vars.js');
 
 function list (api, params) {
   const { alias, 'add-export': addExport } = params.options;
@@ -24,16 +25,16 @@ function list (api, params) {
     .flatMapLatest(([manual, fromAddons, fromDeps]) => {
 
       Logger.println('# Manually set env variables');
-      Logger.println(variables.render(manual, addExport));
+      Logger.println(toNameEqualsValueString(manual, addExport));
 
       _.each(fromAddons, (addon) => {
         Logger.println('# Addon ' + addon.addon_name);
-        Logger.println(variables.render(addon.env, addExport));
+        Logger.println(toNameEqualsValueString(addon.env, addExport));
       });
 
       _.each(fromDeps, (dep) => {
         Logger.println('# Dependency ' + dep.app_name);
-        Logger.println(variables.render(dep.env, addExport));
+        Logger.println(toNameEqualsValueString(dep.env, addExport));
       });
     });
 
@@ -45,6 +46,13 @@ function set (api, params) {
   const { alias } = params.options;
 
   const s_env = AppConfig.getAppData(alias)
+    .flatMapLatest((params) => {
+      const nameIsValid = validateName(varName);
+      if (!nameIsValid) {
+        return new Bacon.Error(`Environment variable name ${varName} is invalid`);
+      }
+      return params;
+    })
     .flatMapLatest(({ app_id, org_id }) => Env.set(api, varName, varValue, app_id, org_id))
     .flatMapLatest(() => Logger.println('Your environment variable has been successfully saved'));
 
@@ -66,7 +74,7 @@ function importEnv (api, params) {
   const { alias } = params.options;
 
   const s_appData = AppConfig.getAppData(alias);
-  const s_vars = variables.readFromStdin();
+  const s_vars = Bacon.fromPromise(variables.readVariablesFromStdin());
 
   const s_result = Bacon.combineAsArray(s_appData, s_vars)
     .flatMapLatest(([appData, vars]) => {
