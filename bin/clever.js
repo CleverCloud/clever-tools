@@ -10,6 +10,7 @@ const Api = require('../src/models/api.js');
 const git = require('../src/models/git.js');
 const Logger = require('../src/logger.js');
 const Parsers = require('../src/parsers.js');
+const handleCommandPromise = require('../src/command-promise-handler.js');
 
 // Exit cleanly if the program we pipe to exits abruptly
 process.stdout.on('error', (error) => {
@@ -53,6 +54,16 @@ function lazyRequireFunctionWithApi (modulePath, name) {
         module.apply(this, args);
       }
     });
+  };
+}
+
+function lazyRequirePromiseModule (modulePath) {
+  return function (name) {
+    return function (...args) {
+      const module = require(modulePath);
+      const promise = module[name](...args);
+      handleCommandPromise(promise);
+    };
   };
 }
 
@@ -440,7 +451,7 @@ function run () {
   }, drain('list'));
 
   // ENV COMMANDS
-  const env = lazyRequireModuleWithApi('../src/commands/env.js');
+  const env = lazyRequirePromiseModule('../src/commands/env.js');
   const envSetCommand = cliparse.command('set', {
     description: 'Add or update an environment variable named <variable-name> with the value <variable-value>',
     args: [args.envVariableName, args.envVariableValue],
