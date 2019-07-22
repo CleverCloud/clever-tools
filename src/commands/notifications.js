@@ -46,7 +46,7 @@ function displayWebhook (hook) {
 }
 
 function displayEmailhook (hook) {
-  Logger.println((hook.name && colors(hook.name)) || hook.id);
+  Logger.println((hook.name && colors.bold(hook.name)) || hook.id);
   Logger.println(`  id: ${hook.id}`);
   Logger.println(`  services: ${(hook.scope && hook.scope.join(', ')) || hook.ownerId}`);
   Logger.println(`  events: ${(hook.events && hook.events.join(', ')) || colors.bold('ALL')}`);
