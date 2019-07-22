@@ -13,7 +13,7 @@ async function run () {
 
   del.sync(releasesDir);
 
-  for (let arch of archList) {
+  for (const arch of archList) {
     console.log(`Building pkg for ${arch} ...\n`);
     const filepath = cfg.getBinaryFilepath(arch, version);
     await pkg([`.`, `-t`, `node${nodeVersion}-${arch}`, `-o`, filepath]);

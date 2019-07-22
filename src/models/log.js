@@ -91,7 +91,7 @@ function getOldLogs (api, app_id, before, after, search, deploymentId) {
       qs: query,
       headers: {
         authorization: api.session.getAuthorization('GET', appLogsUrl, {}),
-        'Accept': 'application/json',
+        Accept: 'application/json',
       },
     })
     .flatMapLatest((res) => {

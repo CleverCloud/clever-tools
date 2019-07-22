@@ -53,17 +53,17 @@ function create (api, name, instanceType, region, orgaIdOrName, github) {
     const params = orgaId ? [orgaId] : [];
 
     const body = {
-      'deploy': 'git',
-      'description': name,
-      'instanceType': instanceType.type,
-      'instanceVersion': instanceType.version,
-      'instanceVariant': instanceType.variant.id,
-      'maxFlavor': instanceType.defaultFlavor.name,
-      'maxInstances': 1,
-      'minFlavor': instanceType.defaultFlavor.name,
-      'minInstances': 1,
-      'name': name,
-      'zone': region,
+      deploy: 'git',
+      description: name,
+      instanceType: instanceType.type,
+      instanceVersion: instanceType.version,
+      instanceVariant: instanceType.variant.id,
+      maxFlavor: instanceType.defaultFlavor.name,
+      maxInstances: 1,
+      minFlavor: instanceType.defaultFlavor.name,
+      minInstances: 1,
+      name: name,
+      zone: region,
     };
 
     if (github) {

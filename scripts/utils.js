@@ -39,7 +39,7 @@ async function cloneGitProject ({ gitUrl, gitPath, git, cleanRepo = true }) {
 
 async function applyTemplates (destPath, templatesPath, templateData) {
   const filenames = glob.sync(`**/*`, { dot: true, nodir: true, cwd: templatesPath });
-  for (let file of filenames) {
+  for (const file of filenames) {
     const templateFilepath = `${templatesPath}/${file}`;
     const destFilepath = `${destPath}/${file}`;
     await applyOneTemplate(destFilepath, templateFilepath, templateData);

@@ -31,7 +31,7 @@ async function run () {
     ]);
   }
 
-  for (let arch of archList) {
+  for (const arch of archList) {
     // tar.gz and .zip
     const binaryFilepath = cfg.getBinaryFilepath(arch, version);
     const archiveFilepath = cfg.getArchiveFilepath(arch, version);

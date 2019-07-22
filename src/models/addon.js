@@ -205,7 +205,7 @@ module.exports = {
   getId,
   link,
   unlink,
-  'delete': deleteAddon,
+  delete: deleteAddon,
   rename,
   completeRegion,
   completePlan,

@@ -119,13 +119,13 @@ function getEmailNotificationTargets (params) {
   return elems
     .map((el) => {
       if (el.includes('@')) {
-        return { 'type': 'email', 'target': el };
+        return { type: 'email', target: el };
       }
       if (el.startsWith('user_')) {
-        return { 'type': 'userid', 'target': el };
+        return { type: 'userid', target: el };
       }
       if (el === 'organisation') {
-        return { 'type': 'organisation' };
+        return { type: 'organisation' };
       }
     })
     .filter((e) => e != null);

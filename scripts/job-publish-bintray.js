@@ -40,7 +40,7 @@ function bintray ({ user, apiKey, subject, packageName }) {
       body: fs.createReadStream(filepath),
       headers: {
         'Content-Type': 'application/zip',
-        'Authorization': `Basic ${basicAuth}`,
+        Authorization: `Basic ${basicAuth}`,
         // Mandatory specifications for debian
         'X-Bintray-Debian-Distribution': debianDistribution,
         'X-Bintray-Debian-Component': debianComponent,
