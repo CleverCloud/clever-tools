@@ -1,8 +1,6 @@
 #! /usr/bin/env node
 'use strict';
 
-const path = require('path');
-
 const cliparse = require('cliparse');
 const updateNotifier = require('update-notifier');
 
