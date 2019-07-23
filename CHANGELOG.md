@@ -1,5 +1,17 @@
 # clever-tools changelog
 
+## 1.5.0-beta.0 (2019-07-23)
+
+- Use new `@clevercloud/client` to make HTTP requests (via legacy wrapper) everywhere
+- Use new `@clevercloud/client` to make HTTP requests (directly) in `env` and `published-config` commands
+- Use new parsing/validation from `@clevercloud/client` in `env` and `published-config` commands
+  - `clever env import` and `clever published-config import` now report detailed errors
+  - `clever env set` and `clever published-config set` now report invalid name errors
+  - `clever env import` and `clever published-config import` of multiline variables works!!
+- Update deps
+  - New `isomorphic-git` should improve `clever deploy` perfs
+- Update docs about `clever env import`
+
 ## 1.4.2 (2019-05-15)
 
 - Fix wrong auto-scalability setting in `clever status` (mpapillon)
