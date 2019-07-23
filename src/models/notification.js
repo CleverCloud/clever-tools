@@ -17,7 +17,7 @@ const makeJsonRequest = function (api, verb, url, queryParams, body) {
     url: completeUrl,
     headers: {
       authorization: api.session.getAuthorization(verb, completeUrl, queryParams),
-      'Accept': 'application/json',
+      Accept: 'application/json',
     },
   };
   if (completeUrl.startsWith('https://')) {

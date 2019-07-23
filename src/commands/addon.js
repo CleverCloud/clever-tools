@@ -124,7 +124,7 @@ function showProvider (api, params) {
 module.exports = {
   list,
   create,
-  'delete': deleteAddon,
+  delete: deleteAddon,
   rename,
   listProviders,
   showProvider,

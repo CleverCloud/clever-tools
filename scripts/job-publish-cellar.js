@@ -18,7 +18,7 @@ async function run () {
   const uploadToCellar = cellar({ accessKeyId, secretAccessKey, ...cfg.cellar });
 
   // tar.gz and .zip
-  for (let arch of archList) {
+  for (const arch of archList) {
     const archivePath = cfg.getArchiveFilepath(arch, version);
     await uploadToCellar(`${archivePath}`);
     await uploadToCellar(`${archivePath}.sha256`);
