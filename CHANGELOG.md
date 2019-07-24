@@ -1,5 +1,9 @@
 # clever-tools changelog
 
+## 1.5.0-beta.3 (2019-07-24)
+
+- Update to @clevercloud/client@1.0.1 (fix for JSON requests)
+
 ## 1.5.0-beta.2 (2019-07-24)
 
 - Rollback isomorphic-git to 0.37.0 (for now)
