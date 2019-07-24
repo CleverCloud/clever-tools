@@ -9,7 +9,7 @@
     "clever cloud"
   ],
   "engines": {
-    "node": "10"
+    "node": "12"
   },
   "author": "Clever Cloud <ci@clever-cloud.com>",
   "license": "MIT",
