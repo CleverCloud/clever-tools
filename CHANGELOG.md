@@ -1,5 +1,10 @@
 # clever-tools changelog
 
+## 1.5.0-beta.1 (2019-07-24)
+
+- Update @clevercloud/client (env-var util sorts variables now)
+- Upgrade node version to 12
+
 ## 1.5.0-beta.0 (2019-07-23)
 
 - Use new `@clevercloud/client` to make HTTP requests (via legacy wrapper) everywhere
