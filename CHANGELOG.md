@@ -1,5 +1,9 @@
 # clever-tools changelog
 
+## 1.5.0-beta.2 (2019-07-24)
+
+- Rollback isomorphic-git to 0.37.0 (for now)
+
 ## 1.5.0-beta.1 (2019-07-24)
 
 - Update @clevercloud/client (env-var util sorts variables now)
