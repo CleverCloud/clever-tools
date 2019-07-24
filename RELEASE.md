@@ -133,4 +133,10 @@ Pushing new master and new tag:
 git push origin master --tags
 ```
 
+## How do I update the docker image?
 
+```sh
+docker build -t clevercloud/clever-tools-builder docker-runner
+docker login
+docker push clevercloud/clever-tools-builder
+```
