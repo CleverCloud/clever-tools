@@ -1,5 +1,9 @@
 # clever-tools changelog
 
+## 1.5.0-beta.4 (2019-07-25) 
+
+- Fix --add-export option for `clever env`
+
 ## 1.5.0-beta.3 (2019-07-24)
 
 - Update to @clevercloud/client@1.0.1 (fix for JSON requests)
