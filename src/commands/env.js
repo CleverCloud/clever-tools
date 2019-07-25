@@ -8,7 +8,7 @@ const { toNameEqualsValueString, validateName } = require('@clevercloud/client/c
 const application = require('@clevercloud/client/cjs/api/application.js');
 
 async function list (params) {
-  const { alias, 'add-export': addExport } = params.options;
+  const { alias, 'add-export': addExports } = params.options;
   const { org_id, app_id: appId } = await AppConfig.getAppData(alias).toPromise();
 
   const [envFromApp, envFromAddons, envFromDeps] = await Promise.all([
@@ -18,16 +18,16 @@ async function list (params) {
   ]);
 
   Logger.println('# Manually set env variables');
-  Logger.println(toNameEqualsValueString(envFromApp, addExport));
+  Logger.println(toNameEqualsValueString(envFromApp, { addExports }));
 
   envFromAddons.forEach((addon) => {
     Logger.println('# Addon ' + addon.addon_name);
-    Logger.println(toNameEqualsValueString(addon.env, addExport));
+    Logger.println(toNameEqualsValueString(addon.env, { addExports }));
   });
 
   envFromDeps.forEach((dep) => {
     Logger.println('# Dependency ' + dep.app_name);
-    Logger.println(toNameEqualsValueString(dep.env, addExport));
+    Logger.println(toNameEqualsValueString(dep.env, { addExports }));
   });
 };
 
