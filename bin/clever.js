@@ -225,6 +225,11 @@ function run () {
         return cliparse.autocomplete.words(Application('listAvailableFlavors')());
       },
     }),
+    buildFlavor: cliparse.option('build-flavor', {
+      metavar: 'buildflavor',
+      parser: Parsers.buildFlavor,
+      description: 'The size of the build instance, or `disabled` if you want to disable dedicated build instances'
+    }),
     maxInstances: cliparse.option('max-instances', {
       metavar: 'maxinstances',
       parser: Parsers.instances,
@@ -569,7 +574,7 @@ function run () {
   const scale = lazyRequireFunctionWithApi('../src/commands/scale.js');
   const scaleCommand = cliparse.command('scale', {
     description: 'Change scalability of an application',
-    options: [opts.alias, opts.flavor, opts.minFlavor, opts.maxFlavor, opts.instances, opts.minInstances, opts.maxInstances],
+    options: [opts.alias, opts.flavor, opts.minFlavor, opts.maxFlavor, opts.instances, opts.minInstances, opts.maxInstances, opts.buildFlavor],
   }, scale);
 
   // SERVICE COMMANDS

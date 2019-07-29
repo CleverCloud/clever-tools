@@ -10,9 +10,9 @@ const Logger = require('../logger.js');
 function validateOptions (options) {
 
   let { flavor, 'min-flavor': minFlavor, 'max-flavor': maxFlavor } = options;
-  let { instances, 'min-instances': minInstances, 'max-instances': maxInstances } = options;
+  let { instances, 'min-instances': minInstances, 'max-instances': maxInstances, 'build-flavor': buildFlavor } = options;
 
-  if ([flavor, minFlavor, maxFlavor, instances, minInstances, maxInstances].every((v) => v == null)) {
+  if ([flavor, minFlavor, maxFlavor, instances, minInstances, maxInstances, buildFlavor].every((v) => v == null)) {
     throw new Error('You should provide at least 1 option');
   }
 
@@ -44,7 +44,7 @@ function validateOptions (options) {
     }
   }
 
-  return { minFlavor, maxFlavor, minInstances, maxInstances };
+  return { minFlavor, maxFlavor, minInstances, maxInstances, buildFlavor };
 }
 
 // https://github.com/baconjs/bacon.js/wiki/FAQ#why-isnt-my-subscriber-called
@@ -56,10 +56,16 @@ function scale (api, params) {
   const { alias } = params.options;
 
   const s_scaledApp = asStream(() => validateOptions(params.options))
-    .flatMapLatest(({ minFlavor, maxFlavor, minInstances, maxInstances }) => {
+    .flatMapLatest(({ minFlavor, maxFlavor, minInstances, maxInstances, buildFlavor }) => {
       return AppConfig.getAppData(alias).flatMapLatest((appData) => {
         const scalabilityParameters = { minFlavor, maxFlavor, minInstances, maxInstances };
-        return Application.setScalability(api, appData.app_id, appData.org_id, scalabilityParameters);
+        return Application.setScalability(api, appData.app_id, appData.org_id, scalabilityParameters).flatMapLatest((p) => {
+          if (buildFlavor !== null) {
+            const newFlavor = buildFlavor === 'disabled' ? null : buildFlavor;
+            return Application.setBuildFlavor(api, appData.app_id, appData.org_id, newFlavor);
+          }
+          return p;
+        });
       });
     })
     .map(() => Logger.println('App rescaled successfully'));
