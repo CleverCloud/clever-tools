@@ -232,6 +232,34 @@ function setScalability (api, appId, orgaId, scalabilityParameters) {
   });
 };
 
+function setDedicatedBuildInstance (api, appId, orgaId, enableSeparateBuild) {
+  const s_currentConfig = get(api, appId, orgaId).toProperty();
+  const s_newConfig = s_currentConfig.map(function (app) {
+    return { ...app, separateBuild: enableSeparateBuild };
+  });
+
+  return s_newConfig.flatMapLatest(function (newConfig) {
+    const params = orgaId ? [orgaId, appId] : [appId];
+    return api.owner(orgaId).applications._.put().withParams(params).send(JSON.stringify(newConfig));
+  });
+};
+
+function setBuildFlavor (api, appId, orgaId, buildInstanceSize) {
+  Logger.info('Setting build size for app: ' + appId);
+  if (buildInstanceSize !== null) {
+    const body = { flavorName: buildInstanceSize };
+    const params = orgaId ? [orgaId, appId] : [appId];
+    return setDedicatedBuildInstance(api, appId, orgaId, true).flatMapLatest(function () {
+
+      return api.owner(orgaId).applications._.buildflavor.put().withParams(params).send(JSON.stringify(body));
+    });
+  }
+  else {
+    Logger.info('No build size given, disabling dedicated build instance');
+    return setDedicatedBuildInstance(api, appId, orgaId, false);
+  }
+};
+
 function listDependencies (api, appId, orgaId, showAll) {
   const s_all = api.owner(orgaId).applications.get().withParams(orgaId ? [orgaId] : []).send();
   const s_mine = api.owner(orgaId).applications._.dependencies.get().withParams(orgaId ? [orgaId, appId] : [appId]).send();
@@ -292,6 +320,7 @@ module.exports = {
   redeploy,
   mergeScalabilityParameters,
   setScalability,
+  setBuildFlavor,
   listDependencies,
   link,
   unlink,
