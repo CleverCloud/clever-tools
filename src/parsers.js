@@ -12,6 +12,13 @@ function flavor (flavor) {
   return cliparse.parsers.error('Invalid value: ' + flavor);
 }
 
+function buildFlavor (flavorOrDisabled) {
+  if (flavorOrDisabled === 'disabled') {
+    return cliparse.parsers.success(flavorOrDisabled);
+  }
+  return flavor(flavorOrDisabled);
+}
+
 function instances (instances) {
   const parsedInstances = parseInt(instances, 10);
   if (isNaN(parsedInstances)) {
@@ -63,6 +70,7 @@ function commaSeparated (string) {
 }
 
 module.exports = {
+  buildFlavor,
   flavor,
   instances,
   date,
