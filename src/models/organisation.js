@@ -3,38 +3,47 @@
 const _ = require('lodash');
 const Bacon = require('baconjs');
 
+const { getSummary } = require('@clevercloud/client/cjs/api/user.js');
+const { sendToApi } = require('../models/send-to-api.js');
+
 function getId (api, orgaIdOrName) {
+  return Bacon.fromPromise(getIdProm(orgaIdOrName));
+}
+
+async function getIdProm (orgaIdOrName) {
   if (orgaIdOrName == null) {
-    return Bacon.once(null);
+    return null;
   }
 
   if (orgaIdOrName.orga_id) {
-    return Bacon.once(orgaIdOrName.orga_id);
+    return orgaIdOrName.orga_id;
   }
 
-  return getByName(api, orgaIdOrName.orga_name)
-    .map((orga) => orga.id);
+  return getByNameProm(orgaIdOrName.orga_name)
+    .then((orga) => orga.id);
 }
 
 function getByName (api, name) {
+  return Bacon.fromPromise(getByNameProm(name));
+}
 
-  return api.summary.get().send()
-    .map('.organisations')
-    .flatMapLatest((orgs) => {
-      const filtered_orgs = _.filter(orgs, { name });
-      if (filtered_orgs.length === 1) {
-        return Bacon.once(filtered_orgs[0]);
-      }
-      else if (filtered_orgs.length === 0) {
-        return Bacon.once(new Bacon.Error('Organisation not found'));
-      }
-      else {
-        return Bacon.once(new Bacon.Error('Ambiguous organisation name'));
-      }
-    });
+async function getByNameProm (name) {
+
+  const fullSummary = await getSummary({}).then(sendToApi);
+  const filteredOrgs = _.filter(fullSummary.organisations, { name });
+
+  if (filteredOrgs.length === 0) {
+    throw new Error('Organisation not found');
+  }
+  if (filteredOrgs.length > 1) {
+    throw new Error('Ambiguous organisation name');
+  }
+
+  return filteredOrgs[0];
 }
 
 module.exports = {
   getId,
+  getIdProm,
   getByName,
 };

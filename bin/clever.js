@@ -67,6 +67,19 @@ function lazyRequirePromiseModule (modulePath) {
   };
 }
 
+function lazyRequirePromiseModuleAndApi (modulePath) {
+  return function (name) {
+    return function (...args) {
+      s_api.onValue((api) => {
+        args.unshift(api);
+        const module = require(modulePath);
+        const promise = module[name](...args);
+        handleCommandPromise(promise);
+      });
+    };
+  };
+}
+
 function lazyRequireModuleWithApi (modulePath) {
   return function (name) {
     return function (...args) {
@@ -176,6 +189,7 @@ function run () {
       metavar: 'type',
       description: 'Restrict notifications to specific event types',
       complete: Notification('listMetaEvents'),
+      parser: Parsers.commaSeparated,
     }),
     flavor: cliparse.option('flavor', {
       metavar: 'flavor',
@@ -248,7 +262,8 @@ function run () {
     noUpdateNotifier: cliparse.flag('no-update-notifier', { description: `Don't notify available updates for clever-tools` }),
     emailNotificationTarget: cliparse.option('notify', {
       metavar: '<email_address>|<user_id>|organisation',
-      description: 'Notify a user, a specific email address or the whole organisation (multiple values allowed)',
+      description: 'Notify a user, a specific email address or the whole organisation (multiple values allowed, comma separated)',
+      parser: Parsers.commaSeparated,
     }),
     onlyAddons: cliparse.flag('only-addons', { description: 'Only show addon dependencies' }),
     onlyAliases: cliparse.flag('only-aliases', { description: 'List only application aliases' }),
@@ -296,6 +311,7 @@ function run () {
     notificationScope: cliparse.option('service', {
       metavar: 'service_id',
       description: 'Restrict notifications to specific applications and addons',
+      parser: Parsers.commaSeparated,
     }),
     showAllActivity: cliparse.flag('show-all', { description: 'Show all activity' }),
     showAll: cliparse.flag('show-all', { description: 'Show all available dependencies' }),
@@ -505,7 +521,7 @@ function run () {
   }, makeDefault);
 
   // NOTIFY-EMAIL COMMAND
-  const notifyEmail = lazyRequireModuleWithApi('../src/commands/notify-email.js');
+  const notifyEmail = lazyRequirePromiseModule('../src/commands/notify-email.js');
   const addEmailNotificationCommand = cliparse.command('add', {
     description: 'Add a new email notification',
     options: [opts.notificationEventType, opts.notificationScope, opts.emailNotificationTarget],
@@ -634,7 +650,7 @@ function run () {
   }, version);
 
   // WEBHOOKS COMMAND
-  const webhooks = lazyRequireModuleWithApi('../src/commands/webhooks.js');
+  const webhooks = lazyRequirePromiseModule('../src/commands/webhooks.js');
   const addWebhookCommand = cliparse.command('add', {
     description: 'Register webhook to be called when events happen',
     options: [opts.webhookFormat, opts.notificationEventType, opts.notificationScope],

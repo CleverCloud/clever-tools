@@ -2,9 +2,11 @@
 
 const colors = require('colors/safe');
 
-const handleCommandStream = require('../command-stream-handler');
 const Logger = require('../logger.js');
-const Notification = require('../models/notification.js');
+const { getOwnerAndApp, getOrgaIdOrUserId } = require('../models/notification.js');
+
+const { getEmailhooks, createEmailhook, deleteEmailhook } = require('@clevercloud/client/cjs/api/notification.js');
+const { sendToApi } = require('../models/send-to-api.js');
 
 function displayEmailhook (hook) {
   Logger.println((hook.name && colors.bold(hook.name)) || hook.id);
@@ -21,28 +23,28 @@ function displayEmailhook (hook) {
   Logger.println();
 }
 
-function list (api, params) {
-  const { 'list-all': listAll } = params.options;
+async function list (params) {
+  const { org, 'list-all': listAll } = params.options;
 
-  const s_hooks = Notification.getOwnerAndApp(api, params, !listAll)
-    .flatMapLatest((ownerAndApp) => {
-      return Notification.list(api, 'emailhooks', ownerAndApp.ownerId, ownerAndApp.appId);
+  // TODO: fix alias option
+  const { ownerId, appId } = await getOwnerAndApp(null, org, !listAll);
+  const hooks = await getEmailhooks({ ownerId }).then(sendToApi);
+
+  hooks
+    .filter((hook) => {
+      const emptyScope = !hook.scope || hook.scope.length === 0;
+      return !appId || emptyScope || hook.scope.includes(appId);
     })
-    .map((hooks) => {
-      hooks.forEach((hook) => displayEmailhook(hook));
-    });
-  return handleCommandStream(s_hooks);
+    .forEach((hook) => displayEmailhook(hook));
 }
 
-function getEmailNotificationTargets (params) {
-  const { notify } = params.options;
-  const elems = notify ? notify.split(',') : null;
+function getEmailNotificationTargets (notifTargets) {
 
-  if (elems == null) {
+  if (notifTargets == null) {
     return [];
   }
 
-  return elems
+  return notifTargets
     .map((el) => {
       if (el.includes('@')) {
         return { type: 'email', target: el };
@@ -57,35 +59,33 @@ function getEmailNotificationTargets (params) {
     .filter((e) => e != null);
 }
 
-function add (api, params) {
-  const { event, service, org } = params.options;
-  const eventTypes = event ? event.split(',') : null;
-  let services = service ? service.split(',') : null;
+async function add (params) {
+  const { org, event: events, service, notify: notifTargets } = params.options;
   const [name] = params.args;
 
-  const notified = getEmailNotificationTargets(params);
+  // TODO: fix alias option
+  const { ownerId, appId } = await getOwnerAndApp(null, org, !org && !service);
 
-  const s_results = Notification.getOwnerAndApp(api, params, !org && !services)
-    .flatMapLatest((ownerAndApp) => {
-      if (ownerAndApp.appId) {
-        services = services || [ownerAndApp.appId];
-      }
-      return Notification.add(api, 'emailhooks', ownerAndApp.ownerId, name, notified, services, eventTypes);
-    })
-    .map(() => Logger.println('The webhook has been added'));
+  const body = {
+    name,
+    notified: getEmailNotificationTargets(notifTargets),
+    scope: (appId != null && service == null) ? [appId] : service,
+    events,
+  };
 
-  handleCommandStream(s_results);
+  await createEmailhook({ ownerId }, body).then(sendToApi);
+
+  Logger.println('The webhook has been added');
 }
 
-function remove (api, params) {
+async function remove (params) {
+  const { org } = params.options;
   const [notificationId] = params.args;
 
-  const s_results = Notification.getOrgaIdOrUserId(api, params.options.org)
-    .flatMapLatest((ownerId) => {
-      return Notification.remove(api, 'emailhooks', ownerId, notificationId);
-    })
-    .map(() => Logger.println('The notification has been successfully removed'));
-  return handleCommandStream(s_results);
+  const ownerId = await getOrgaIdOrUserId(org);
+  await deleteEmailhook({ ownerId, id: notificationId }).then(sendToApi);
+
+  Logger.println('The notification has been successfully removed');
 }
 
 module.exports = {

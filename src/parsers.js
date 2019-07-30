@@ -58,6 +58,10 @@ function addonIdOrName (string) {
   return cliparse.parsers.success({ addon_name: string });
 }
 
+function commaSeparated (string) {
+  return cliparse.parsers.success(string.split(','));
+}
+
 module.exports = {
   flavor,
   instances,
@@ -65,4 +69,5 @@ module.exports = {
   appIdOrName,
   orgaIdOrName,
   addonIdOrName,
+  commaSeparated,
 };

@@ -2,9 +2,11 @@
 
 const colors = require('colors/safe');
 
-const handleCommandStream = require('../command-stream-handler');
 const Logger = require('../logger.js');
-const Notification = require('../models/notification.js');
+const { getOwnerAndApp, getOrgaIdOrUserId } = require('../models/notification.js');
+
+const { getWebhooks, createWebhook, deleteWebhook } = require('@clevercloud/client/cjs/api/notification.js');
+const { sendToApi } = require('../models/send-to-api.js');
 
 function displayWebhook (hook) {
   Logger.println((hook.name && colors.bold(hook.name)) || hook.id);
@@ -16,47 +18,48 @@ function displayWebhook (hook) {
   Logger.println();
 }
 
-function list (api, params) {
-  const { 'list-all': listAll } = params.options;
+async function list (params) {
+  const { org, 'list-all': listAll } = params.options;
 
-  const s_hooks = Notification.getOwnerAndApp(api, params, !listAll)
-    .flatMapLatest((ownerAndApp) => {
-      return Notification.list(api, 'webhooks', ownerAndApp.ownerId, ownerAndApp.appId);
+  // TODO: fix alias option
+  const { ownerId, appId } = await getOwnerAndApp(null, org, !listAll);
+  const hooks = await getWebhooks({ ownerId }).then(sendToApi);
+
+  hooks
+    .filter((hook) => {
+      const emptyScope = !hook.scope || hook.scope.length === 0;
+      return !appId || emptyScope || hook.scope.includes(appId);
     })
-    .map((hooks) => {
-      hooks.forEach((hook) => displayWebhook(hook));
-    });
-  return handleCommandStream(s_hooks);
+    .forEach((hook) => displayWebhook(hook));
 }
 
-function add (api, params) {
-  const { format, event, service } = params.options;
-  const eventTypes = event ? event.split(',') : null;
-  let services = service ? service.split(',') : null;
+async function add (params) {
+  const { org, format, event: events, service } = params.options;
   const [name, hookUrl] = params.args;
 
-  const s_results = Notification.getOwnerAndApp(api, params, !params.options.org && !services)
-    .flatMapLatest((ownerAndApp) => {
-      if (ownerAndApp.appId) {
-        services = services || [ownerAndApp.appId];
-      }
-      const url = { format, url: hookUrl };
-      return Notification.add(api, 'webhooks', ownerAndApp.ownerId, name, [url], services, eventTypes);
-    })
-    .map(() => Logger.println('The webhook has been added'));
+  // TODO: fix alias option
+  const { ownerId, appId } = await getOwnerAndApp(null, org, !org && !service);
 
-  handleCommandStream(s_results);
+  const body = {
+    name,
+    urls: [{ format, url: hookUrl }],
+    scope: (appId != null && service == null) ? [appId] : service,
+    events,
+  };
+
+  await createWebhook({ ownerId }, body).then(sendToApi);
+
+  Logger.println('The webhook has been added');
 }
 
-function remove (api, params) {
+async function remove (params) {
+  const { org } = params.options;
   const [notificationId] = params.args;
 
-  const s_results = Notification.getOrgaIdOrUserId(api, params.options.org)
-    .flatMapLatest((ownerId) => {
-      return Notification.remove(api, 'webhooks', ownerId, notificationId);
-    })
-    .map(() => Logger.println('The notification has been successfully removed'));
-  return handleCommandStream(s_results);
+  const ownerId = await getOrgaIdOrUserId(org);
+  await deleteWebhook({ ownerId, id: notificationId }).then(sendToApi);
+
+  Logger.println('The notification has been successfully removed');
 }
 
 module.exports = {
