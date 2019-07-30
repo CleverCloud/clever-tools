@@ -16,7 +16,7 @@ function displayWebhook (hook) {
   Logger.println();
 }
 
-function listWebhooks (api, params) {
+function list (api, params) {
   const { 'list-all': listAll } = params.options;
 
   const s_hooks = Notification.getOwnerAndApp(api, params, !listAll)
@@ -24,14 +24,12 @@ function listWebhooks (api, params) {
       return Notification.list(api, 'webhooks', ownerAndApp.ownerId, ownerAndApp.appId);
     })
     .map((hooks) => {
-      hooks.forEach((hook) => {
-        displayWebhook(hook);
-      });
+      hooks.forEach((hook) => displayWebhook(hook));
     });
   return handleCommandStream(s_hooks);
 }
 
-function addWebhook (api, params) {
+function add (api, params) {
   const { format, event, service } = params.options;
   const eventTypes = event ? event.split(',') : null;
   let services = service ? service.split(',') : null;
@@ -50,7 +48,7 @@ function addWebhook (api, params) {
   handleCommandStream(s_results);
 }
 
-function removeWebhook (api, params) {
+function remove (api, params) {
   const [notificationId] = params.args;
 
   const s_results = Notification.getOrgaIdOrUserId(api, params.options.org)
@@ -62,7 +60,7 @@ function removeWebhook (api, params) {
 }
 
 module.exports = {
-  listWebhooks,
-  addWebhook,
-  removeWebhook,
+  list,
+  add,
+  remove,
 };

@@ -21,7 +21,7 @@ function displayEmailhook (hook) {
   Logger.println();
 }
 
-function listEmailNotifications (api, params) {
+function list (api, params) {
   const { 'list-all': listAll } = params.options;
 
   const s_hooks = Notification.getOwnerAndApp(api, params, !listAll)
@@ -29,9 +29,7 @@ function listEmailNotifications (api, params) {
       return Notification.list(api, 'emailhooks', ownerAndApp.ownerId, ownerAndApp.appId);
     })
     .map((hooks) => {
-      hooks.forEach((hook) => {
-        displayEmailhook(hook);
-      });
+      hooks.forEach((hook) => displayEmailhook(hook));
     });
   return handleCommandStream(s_hooks);
 }
@@ -59,7 +57,7 @@ function getEmailNotificationTargets (params) {
     .filter((e) => e != null);
 }
 
-function addEmailNotification (api, params) {
+function add (api, params) {
   const { event, service, org } = params.options;
   const eventTypes = event ? event.split(',') : null;
   let services = service ? service.split(',') : null;
@@ -79,7 +77,7 @@ function addEmailNotification (api, params) {
   handleCommandStream(s_results);
 }
 
-function removeEmailNotification (api, params) {
+function remove (api, params) {
   const [notificationId] = params.args;
 
   const s_results = Notification.getOrgaIdOrUserId(api, params.options.org)
@@ -91,9 +89,9 @@ function removeEmailNotification (api, params) {
 }
 
 module.exports = {
-  listEmailNotifications,
+  list,
+  add,
+  remove,
   // For tests,
   getEmailNotificationTargets,
-  addEmailNotification,
-  removeEmailNotification,
 };

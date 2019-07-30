@@ -510,16 +510,16 @@ function run () {
     description: 'Add a new email notification',
     options: [opts.notificationEventType, opts.notificationScope, opts.emailNotificationTarget],
     args: [args.notificationName],
-  }, notifyEmail('addEmailNotification'));
+  }, notifyEmail('add'));
   const removeEmailNotificationCommand = cliparse.command('remove', {
     description: 'Remove an existing email notification',
     args: [args.notificationId],
-  }, notifyEmail('removeEmailNotification'));
+  }, notifyEmail('remove'));
   const emailNotificationsCommand = cliparse.command('notify-email', {
     description: 'Manage email notifications',
     options: [opts.orgaIdOrName, opts.listAllNotifications],
     commands: [addEmailNotificationCommand, removeEmailNotificationCommand],
-  }, notifyEmail('listEmailNotifications'));
+  }, notifyEmail('list'));
 
   // OPEN COMMAND
   const open = lazyRequireFunctionWithApi('../src/commands/open.js');
@@ -639,16 +639,16 @@ function run () {
     description: 'Register webhook to be called when events happen',
     options: [opts.webhookFormat, opts.notificationEventType, opts.notificationScope],
     args: [args.notificationName, args.webhookUrl],
-  }, webhooks('addWebhook'));
+  }, webhooks('add'));
   const removeWebhookCommand = cliparse.command('remove', {
     description: 'Remove an existing webhook',
     args: [args.notificationId],
-  }, webhooks('removeWebhook'));
+  }, webhooks('remove'));
   const webhooksCommand = cliparse.command('webhooks', {
     description: 'Manage webhooks',
     options: [opts.orgaIdOrName, opts.listAllNotifications],
     commands: [addWebhookCommand, removeWebhookCommand],
-  }, webhooks('listWebhooks'));
+  }, webhooks('list'));
 
   // CLI PARSER
   const cliParser = cliparse.cli({
