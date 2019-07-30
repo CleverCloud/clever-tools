@@ -6,7 +6,10 @@ const Bacon = require('baconjs');
 const https = require('https');
 const request = require('request');
 
+const AppConfig = require('../models/app_configuration.js');
 const Logger = require('../logger.js');
+const Organisation = require('../models/organisation.js');
+const User = require('../models/user.js');
 const { conf } = require('./configuration.js');
 
 const makeJsonRequest = function (api, verb, url, queryParams, body) {
@@ -104,9 +107,37 @@ function listMetaEvents () {
   ]);
 }
 
+function getOrgaIdOrUserId (api, orgIdOrName) {
+  if (orgIdOrName == null) {
+    return User.getCurrentId(api);
+  }
+  return Organisation.getId(api, orgIdOrName);
+}
+
+function getOwnerAndApp (api, params, useLinkedApp) {
+  const { alias } = params.options;
+
+  if (!useLinkedApp) {
+    return getOrgaIdOrUserId(api, params.options.org)
+      .flatMapLatest((ownerId) => ({ ownerId }));
+  }
+
+  return AppConfig.getAppData(alias)
+    .flatMapLatest((appData) => {
+      if (appData.org_id) {
+        return { ownerId: appData.org_id, appId: appData.app_id };
+      }
+      return User.getCurrentId(api).flatMapLatest((id) => {
+        return { ownerId: id, appId: appData.app_id };
+      });
+    });
+}
+
 module.exports = {
   list,
   add,
   remove,
   listMetaEvents,
+  getOrgaIdOrUserId,
+  getOwnerAndApp,
 };
