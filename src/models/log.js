@@ -3,8 +3,6 @@
 const _ = require('lodash');
 const Bacon = require('baconjs');
 const colors = require('colors/safe');
-const https = require('https');
-const request = require('request');
 const url = require('url');
 
 const Application = require('../models/application.js');
@@ -12,6 +10,9 @@ const Event = require('../models/events.js');
 const Logger = require('../logger.js');
 const WsStream = require('./ws-stream.js');
 const { conf } = require('./configuration.js');
+
+const { sendToApi } = require('../models/send-to-api.js');
+const { getOldLogs: fetchOldLogs } = require('@clevercloud/client/cjs/api/log.js');
 
 function getWsLogUrl (appId, timestamp, search, deploymentId) {
   const baseUrl = _.template(conf.LOG_WS_URL)({ appId, timestamp });
@@ -56,57 +57,16 @@ function getContinuousLogs (api, appId, before, after, search, deploymentId) {
     });
 };
 
-function getNewLogs (api, appId, before, after, search, deploymentId) {
-  Logger.println('Waiting for application logs…');
-  Logger.debug('Opening a websocket in order to fetch logs…');
-  return getContinuousLogs(api, appId, before, after, search, deploymentId);
-};
+function getOldLogs (appId, beforeDate, afterDate, filter, deployment_id) {
 
-function getOldLogs (api, app_id, before, after, search, deploymentId) {
-  const query = {};
+  const limit = (beforeDate == null && afterDate == null) ? 300 : null;
+  const before = (beforeDate != null) ? beforeDate.toISOString() : null;
+  const after = (afterDate != null) ? afterDate.toISOString() : null;
 
-  if (before == null && after == null) {
-    query.limit = 300;
-  }
-  if (before != null) {
-    query.before = before.toISOString();
-  }
-  if (after != null) {
-    query.after = after.toISOString();
-  }
-  if (search != null) {
-    query.filter = search;
-  }
-  if (deploymentId != null) {
-    query.deployment_id = deploymentId;
-  }
+  const logsProm = fetchOldLogs({ appId, limit, before, after, filter, deployment_id }).then(sendToApi);
 
-  const appLogsUrl = getAppLogsUrl(app_id);
-  console.log(appLogsUrl);
-
-  return Bacon
-    .fromNodeCallback(request, {
-      agent: appLogsUrl.startsWith('https://') ? new https.Agent({ keepAlive: true }) : undefined,
-      url: appLogsUrl,
-      qs: query,
-      headers: {
-        authorization: api.session.getAuthorization('GET', appLogsUrl, {}),
-        Accept: 'application/json',
-      },
-    })
-    .flatMapLatest((res) => {
-      Logger.debug('Received old logs');
-      const jsonBody = _.attempt(JSON.parse, res.body);
-      if (_.isError(jsonBody)) {
-        return new Bacon.Error('Received invalid JSON');
-      }
-      if (_.isArray(jsonBody)) {
-        return Bacon.fromArray(jsonBody.reverse());
-      }
-      if (jsonBody['type'] === 'error') {
-        return new Bacon.Error(jsonBody);
-      }
-    });
+  return Bacon.fromPromise(logsProm)
+    .flatMapLatest((logs) => Bacon.fromArray(logs.reverse()));
 };
 
 function isCleverMessage (line) {
@@ -133,7 +93,7 @@ function getAppLogs (api, appId, instances, before, after, search, deploymentId)
 
   const s_newLogs = getNewLogs(api, appId, before, after || now, search, deploymentId);
   const s_logs = fetchOldLogs
-    ? getOldLogs(api, appId, before, after, search, deploymentId).merge(s_newLogs)
+    ? getOldLogs(appId, before, after, search, deploymentId).merge(s_newLogs)
     : s_newLogs;
 
   return s_logs
