@@ -1,73 +1,65 @@
 'use strict';
 
-const _ = require('lodash');
-
 const AppConfig = require('../models/app_configuration.js');
-const Drain = require('../models/drain.js');
-const handleCommandStream = require('../command-stream-handler');
+const { createDrainBody } = require('../models/drain.js');
 const Logger = require('../logger.js');
 
-function list (api, params) {
+const { getDrains, createDrain, deleteDrain, updateDrainState } = require('@clevercloud/client/cjs/api/log.js');
+const { sendToApi } = require('../models/send-to-api.js');
+
+async function list (params) {
   const { alias } = params.options;
 
-  const s_drain = AppConfig.getAppData(alias)
-    .flatMapLatest((appData) => Drain.list(api, appData.app_id))
-    .map((drains) => {
-      _.forEach(drains, (drain) => {
-        const { id, state, target: { url, drainType } } = drain;
-        Logger.println(`${id} -> ${state} for ${url} as ${drainType}`);
-      });
-    });
+  const { app_id: appId } = await AppConfig.getAppData(alias).toPromise();
+  const drains = await getDrains({ appId }).then(sendToApi);
 
-  handleCommandStream(s_drain);
+  drains.forEach((drain) => {
+    const { id, state, target: { url, drainType } } = drain;
+    Logger.println(`${id} -> ${state} for ${url} as ${drainType}`);
+  });
 }
 
-function create (api, params) {
+async function create (params) {
   const [drainTargetType, drainTargetURL] = params.args;
   const { alias, username, password, 'api-key': apiKey } = params.options;
   const drainTargetCredentials = { username, password };
   const drainTargetConfig = { apiKey };
 
-  const s_drain = AppConfig.getAppData(alias)
-    .flatMapLatest((appData) => {
-      return Drain.create(api, appData.app_id, drainTargetURL, drainTargetType, drainTargetCredentials, drainTargetConfig);
-    })
-    .map(() => Logger.println('Your drain has been successfully saved'));
+  const { app_id: appId } = await AppConfig.getAppData(alias).toPromise();
+  const body = createDrainBody(appId, drainTargetURL, drainTargetType, drainTargetCredentials, drainTargetConfig);
+  await createDrain({ appId }, body).then(sendToApi);
 
-  handleCommandStream(s_drain);
+  Logger.println('Your drain has been successfully saved');
 }
 
-function rm (api, params) {
+async function rm (params) {
   const [drainId] = params.args;
   const { alias } = params.options;
 
-  const s_drain = AppConfig.getAppData(alias)
-    .flatMapLatest((appData) => Drain.remove(api, appData.app_id, drainId))
-    .map(() => Logger.println('Your drain has been successfully removed'));
+  const { app_id: appId } = await AppConfig.getAppData(alias).toPromise();
+  await deleteDrain({ appId, drainId }).then(sendToApi);
 
-  handleCommandStream(s_drain);
+  Logger.println('Your drain has been successfully removed');
 }
 
-function enable (api, params) {
+async function enable (params) {
   const [drainId] = params.args;
   const { alias } = params.options;
 
-  const s_drain = AppConfig.getAppData(alias)
-    .flatMapLatest((appData) => Drain.enable(api, appData.app_id, drainId))
-    .map(() => Logger.println('Your drain has been enabled'));
+  const { app_id: appId } = await AppConfig.getAppData(alias).toPromise();
+  await updateDrainState({ appId, drainId }, { state: 'ENABLED' }).then(sendToApi);
 
-  handleCommandStream(s_drain);
+  Logger.println('Your drain has been enabled');
 }
 
-function disable (api, params) {
+async function disable (params) {
   const [drainId] = params.args;
   const { alias } = params.options;
 
-  const s_drain = AppConfig.getAppData(alias)
-    .flatMapLatest((appData) => Drain.disable(api, appData.app_id, drainId))
-    .map(() => Logger.println('Your drain has been disabled'));
+  const { app_id: appId } = await AppConfig.getAppData(alias).toPromise();
+  await updateDrainState({ appId, drainId }, { state: 'DISABLED' }).then(sendToApi);
 
-  handleCommandStream(s_drain);
+  Logger.println('Your drain has been disabled');
 }
 
 module.exports = {

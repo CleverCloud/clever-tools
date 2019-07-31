@@ -443,7 +443,7 @@ function run () {
   }, domain('list'));
 
   // DRAIN COMMANDS
-  const drain = lazyRequireModuleWithApi('../src/commands/drain.js');
+  const drain = lazyRequirePromiseModule('../src/commands/drain.js');
   const drainCreateCommand = cliparse.command('create', {
     description: 'Create a drain',
     args: [args.drainType, args.drainUrl],
