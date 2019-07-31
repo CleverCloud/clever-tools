@@ -3,52 +3,33 @@
 const _ = require('lodash');
 const Bacon = require('baconjs');
 const colors = require('colors/safe');
-const url = require('url');
+const EventSource = require('eventsource');
 
 const Application = require('../models/application.js');
 const Event = require('../models/events.js');
 const Logger = require('../logger.js');
-const WsStream = require('./ws-stream.js');
-const { conf } = require('./configuration.js');
 
-const { sendToApi } = require('../models/send-to-api.js');
+const { sendToApi, getHostAndTokens } = require('./send-to-api.js');
 const { getOldLogs: fetchOldLogs } = require('@clevercloud/client/cjs/api/log.js');
+const { prepareLogsSse } = require('@clevercloud/client/cjs/stream.node.js');
 
-function getWsLogUrl (appId, timestamp, search, deploymentId) {
-  const baseUrl = _.template(conf.LOG_WS_URL)({ appId, timestamp });
-
-  const logsUrl = new url.URL(baseUrl);
-  if (search != null) {
-    logsUrl.searchParams.set('filter', search);
-  }
-  if (deploymentId != null) {
-    logsUrl.searchParams.set('deployment_id', deploymentId);
-  }
-
-  return logsUrl.toString();
-};
-
-function getAppLogsUrl (appId) {
-  return _.template(conf.LOG_HTTP_URL)({ appId });
-}
-
-/** Get logs as they arrive from a web socket.
- * Automatically reconnect if the connexion is closed.
- *
- * api: The API object
- * appId: The appId of the application
- * before (Date): only display log lines that happened before this date
- * after  (Date): only display log lines that happened after this date
- * deploymentId: Only display log lines corresponding to this deployment
- */
-function getContinuousLogs (api, appId, before, after, search, deploymentId) {
-  function makeUrl (retryTimestamp) {
-    const newAfter = retryTimestamp === null || after.getTime() > retryTimestamp.getTime() ? after : retryTimestamp;
-    return getWsLogUrl(appId, newAfter.toISOString(), search, deploymentId);
-  };
-
-  return WsStream
-    .openStream(makeUrl, api.session.getAuthorization('GET', getAppLogsUrl(appId), {}))
+function getNewLogs (appId, before, after, filter, deploymentId) {
+  Logger.println('Waiting for application logs…');
+  Logger.debug('Opening a websocket in order to fetch logs…');
+  return Bacon
+    .fromBinder((sink) => {
+      getHostAndTokens()
+        .then((params) => prepareLogsSse({ ...params, appId, filter, deploymentId }))
+        .then(({ url }) => {
+          const sse = new EventSource(url);
+          sse.onmessage = ({ data }) => sink(data);
+          sse.onerror = () => {
+            Logger.debug('Logs stream connexion failure');
+            return sink(new Bacon.Error('Logs stream connexion failure'));
+          };
+        });
+    })
+    .flatMap(Bacon.try(JSON.parse))
     .filter((line) => {
       const lineDate = Date.parse(line._source['@timestamp']);
       const isBefore = !before || lineDate < before.getTime();
@@ -87,13 +68,13 @@ function isBuildSucessMessage (line) {
   return _.startsWith(line._source['@message'].toLowerCase(), 'build succeeded in');
 };
 
-function getAppLogs (api, appId, instances, before, after, search, deploymentId) {
+function getAppLogs (appId, instances, before, after, filter, deploymentId) {
   const now = new Date();
   const fetchOldLogs = !after || after < now;
 
-  const s_newLogs = getNewLogs(api, appId, before, after || now, search, deploymentId);
+  const s_newLogs = getNewLogs(appId, before, after || now, filter, deploymentId);
   const s_logs = fetchOldLogs
-    ? getOldLogs(appId, before, after, search, deploymentId).merge(s_newLogs)
+    ? getOldLogs(appId, before, after, filter, deploymentId).merge(s_newLogs)
     : s_newLogs;
 
   return s_logs
@@ -144,11 +125,11 @@ function getAllLogs (api, push, appData, commitId, quiet) {
     .flatMapLatest((app) => {
       Logger.debug('Fetch application logs…');
       if (deploymentId != null) {
-        return getAppLogs(api, app.id, null, null, new Date(), null, deploymentId);
+        return getAppLogs(app.id, null, null, new Date(), null, deploymentId);
       }
       return s_deploymentStart.flatMapLatest((deploymentStartEvent) => {
         const deploymentId = deploymentStartEvent.data.uuid;
-        return getAppLogs(api, app.id, null, null, new Date(), null, deploymentId);
+        return getAppLogs(app.id, null, null, new Date(), null, deploymentId);
       });
     });
 

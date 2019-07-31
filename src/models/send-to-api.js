@@ -18,4 +18,17 @@ async function sendToApi (requestParams) {
     .then(request);
 }
 
-module.exports = { sendToApi };
+async function getHostAndTokens () {
+  const userTokens = await loadOAuthConf().toPromise();
+  return {
+    apiHost: conf.API_HOST,
+    tokens: {
+      OAUTH_CONSUMER_KEY: conf.OAUTH_CONSUMER_KEY,
+      OAUTH_CONSUMER_SECRET: conf.OAUTH_CONSUMER_SECRET,
+      API_OAUTH_TOKEN: userTokens.token,
+      API_OAUTH_TOKEN_SECRET: userTokens.secret,
+    },
+  };
+}
+
+module.exports = { sendToApi, getHostAndTokens };

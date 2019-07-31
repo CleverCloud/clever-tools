@@ -11,13 +11,16 @@ function appLogs (api, params) {
   const { alias, before, after, search, 'deployment-id': deploymentId } = params.options;
   const { addon: addonId } = params.options;
 
+  // ignore --search ""
+  const filter = (search !== '') ? search : null;
+
   const s_appAddonId = (addonId != null)
     ? Bacon.once(addonId)
     : AppConfig.getAppData(alias).flatMapLatest((app_data) => app_data.app_id);
 
   const s_logs = s_appAddonId
     .flatMapLatest((appAddonId) => {
-      return Log.getAppLogs(api, appAddonId, null, before, after, search, deploymentId);
+      return Log.getAppLogs(appAddonId, null, before, after, filter, deploymentId);
     })
     .map(Logger.println);
 
