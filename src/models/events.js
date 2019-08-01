@@ -3,18 +3,23 @@
 const _ = require('lodash');
 const Bacon = require('baconjs');
 
-const { conf } = require('./configuration.js');
-const WsStream = require('./ws-stream.js');
+const { openWsStream } = require('./ws-stream.js');
+
+const { getHostAndTokens } = require('./send-to-api.js');
+const { prepareEventsWs } = require('@clevercloud/client/cjs/stream.node.js');
 
 function getEvents (api, appId) {
-  const url = conf.EVENT_URL;
 
-  return WsStream.openStream(() => url, api.session.getAuthorization('GET', `${conf.API_HOST}/events/`, {}))
-    .flatMapLatest(Bacon.try((event) => {
-      const data = JSON.parse(event.data);
+  return Bacon
+    .fromPromise(getHostAndTokens().then((params) => prepareEventsWs({ ...params, appId })))
+    .flatMapLatest(openWsStream)
+    .flatMapLatest(Bacon.try((rawEvent) => {
+      const event = JSON.parse(rawEvent);
+      const data = (event.data != null)
+        ? JSON.parse(event.data)
+        : null;
       return { ...event, data };
     }))
-    .skipErrors()
     .filter((event) => {
       return _.get(event, 'data.id   ') === appId
         || _.get(event, 'data.appId') === appId;
