@@ -1,16 +1,15 @@
 'use strict';
 
 const crypto = require('crypto');
-const { URL } = require('url');
+const util = require('util');
 
-const Bacon = require('baconjs');
+const delay = util.promisify(setTimeout);
+
 const colors = require('colors/safe');
-const request = require('request');
+const opn = require('opn');
+const superagent = require('superagent');
 
-const handleCommandStream = require('../command-stream-handler');
-const initApi = require('../models/api.js');
 const Logger = require('../logger.js');
-const openBrowser = require('../open-browser.js');
 const User = require('../models/user.js');
 const { conf, writeOAuthConf } = require('../models/configuration.js');
 const { version } = require('../../package');
@@ -23,68 +22,65 @@ function randomToken () {
 const POLLING_INTERVAL = 2000;
 const POLLING_MAX_TRY_COUNT = 60;
 
-function getOAuthData (url, tryCount = 0) {
+function pollOauthData (url, tryCount = 0) {
+
   if (tryCount >= POLLING_MAX_TRY_COUNT) {
-    return new Bacon.Error('Something went wrong while trying to log you in.');
+    throw new Error('Something went wrong while trying to log you in.');
   }
   if (tryCount > 1 && tryCount % 10 === 0) {
     Logger.println(`We're still waiting for the login process (in your browser) to be completed…`);
   }
-  return Bacon.fromNodeCallback(request, url).flatMapLatest((response) => {
-    if (response.statusCode === 200) {
-      const tokens = JSON.parse(response.body);
-      return tokens;
-    }
-    if (response.statusCode === 404) {
-      return Bacon.later(POLLING_INTERVAL).flatMapLatest(() => getOAuthData(url, tryCount + 1));
-    }
-    return new Bacon.Error('Something went wrong while trying to log you in.');
-  });
+
+  return superagent
+    .get(url)
+    .send()
+    .then(({ body }) => body)
+    .catch(async (e) => {
+      if (e.status === 404) {
+        await delay(POLLING_INTERVAL);
+        return pollOauthData(url, tryCount + 1);
+      }
+      throw new Error('Something went wrong while trying to log you in.');
+    });
 }
 
-function login (api, params) {
+async function loginViaConsole () {
+
+  const cliToken = randomToken();
+
+  const consoleUrl = new URL(conf.CONSOLE_TOKEN_URL);
+  consoleUrl.searchParams.set('cli_version', version);
+  consoleUrl.searchParams.set('cli_token', cliToken);
+
+  const cliPollUrl = new URL(conf.API_HOST);
+  cliPollUrl.pathname = '/v2/self/cli_tokens';
+  cliPollUrl.searchParams.set('cli_token', cliToken);
+
+  Logger.debug('Try to login to Clever Cloud…');
+  Logger.println(`Opening ${colors.green(consoleUrl.toString())} in your browser to log you in…`);
+  await opn(consoleUrl.toString(), { wait: false });
+
+  return pollOauthData(cliPollUrl.toString());
+}
+
+async function login (params) {
   const { token, secret } = params.options;
   const isLoginWithArgs = (token != null && secret != null);
   const isInteractiveLogin = (token == null && secret == null);
 
-  const s_result = Bacon.once()
-    .flatMapLatest(() => {
+  if (isLoginWithArgs) {
+    return writeOAuthConf({ token, secret }).toPromise();
+  }
 
-      if (isLoginWithArgs) {
-        return { token, secret };
-      }
+  if (isInteractiveLogin) {
+    const oauthData = await loginViaConsole();
+    await writeOAuthConf(oauthData).toPromise();
+    const { name, email } = await User.getCurrent();
+    const formattedName = name || colors.red.bold('[unspecified name]');
+    return Logger.println(`Login successful as ${formattedName} <${email}>`);
+  }
 
-      if (isInteractiveLogin) {
-        const cliToken = randomToken();
-        const consoleUrl = new URL(conf.CONSOLE_TOKEN_URL);
-        consoleUrl.searchParams.set('cli_version', version);
-        consoleUrl.searchParams.set('cli_token', cliToken);
-        const cliPollUrl = new URL(conf.API_HOST);
-        cliPollUrl.pathname = '/v2/self/cli_tokens';
-        cliPollUrl.searchParams.set('cli_token', cliToken);
-
-        Logger.debug('Try to login to Clever Cloud…');
-        Logger.println(`Opening ${colors.green(consoleUrl.toString())} in your browser to log you in…`);
-        return openBrowser
-          .openPage(consoleUrl.toString())
-          .flatMapLatest(() => getOAuthData(cliPollUrl.toString()));
-      }
-
-      return new Bacon.Error('Both `--token` and `--secret` have to be defined');
-    })
-    .flatMapLatest(writeOAuthConf)
-    .flatMapLatest(() => {
-      if (isInteractiveLogin) {
-        return initApi()
-          .flatMapLatest((api) => User.getCurrent(api))
-          .flatMapLatest(({ name, email }) => {
-            const formattedName = name || colors.red.bold('[unspecified name]');
-            return Logger.println(`Login successful as ${formattedName} <${email}>`);
-          });
-      }
-    });
-
-  handleCommandStream(s_result);
+  throw new Error('Both `--token` and `--secret` have to be defined');
 }
 
-module.exports = login;
+module.exports = { login };

@@ -3,8 +3,8 @@
 const { get } = require('@clevercloud/client/cjs/api/organisation.js');
 const { sendToApi } = require('../models/send-to-api.js');
 
-function getCurrent (api) {
-  return api.self.get().send();
+function getCurrent () {
+  return get({}).then(sendToApi);
 };
 
 function getCurrentId () {

@@ -495,11 +495,11 @@ function run () {
   }, link);
 
   // LOGIN COMMAND
-  const login = lazyRequireFunctionWithApi('../src/commands/login.js');
+  const login = lazyRequirePromiseModule('../src/commands/login.js');
   const loginCommand = cliparse.command('login', {
     description: 'Login to Clever Cloud',
     options: [opts.loginToken, opts.loginSecret],
-  }, login);
+  }, login('login'));
 
   // LOGOUT COMMAND
   const logout = lazyRequireFunctionWithApi('../src/commands/logout.js');
@@ -553,10 +553,10 @@ function run () {
   }, consoleModule);
 
   // PROFILE COMMAND
-  const profile = lazyRequireFunctionWithApi('../src/commands/profile.js');
+  const profile = lazyRequirePromiseModule('../src/commands/profile.js');
   const profileCommand = cliparse.command('profile', {
     description: 'Display the profile of the current user',
-  }, profile);
+  }, profile('profile'));
 
   // PUBLISHED CONFIG COMMANDS
   const publishedConfig = lazyRequirePromiseModule('../src/commands/published-config.js');
@@ -712,6 +712,7 @@ function run () {
   cliparse.parse(cliParser, cliArgs);
 }
 
+// Will have to be remove
 const s_api = Api();
 s_api.onError(Logger.error.bind(console));
 

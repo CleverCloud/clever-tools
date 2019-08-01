@@ -3,7 +3,7 @@
 const cfg = require('./config');
 const fs = require('fs-extra');
 const path = require('path');
-const request = require('request');
+const superagent = require('superagent');
 
 async function run () {
 
@@ -52,16 +52,18 @@ function bintray ({ user, apiKey, subject, packageName }) {
 
 function httpPut ({ url, qs, body, headers }) {
   return new Promise((resolve, reject) => {
-    request.put({ url, qs, body, headers }, (err, res) => {
-      if (err) {
-        return reject(err);
-      }
-      if (res.statusCode >= 400) {
-        const error = new Error('Failed to do HTTP PUT\n' + res.statusCode + '\n' + res.body);
-        return reject(error);
-      }
-      return resolve(res);
-    });
+    const req = superagent
+      .put(url)
+      .set(headers)
+      .query(qs)
+      .end((err, res) => {
+        if (err != null) {
+          const error = new Error('Failed to do HTTP PUT\n' + res.statusCode + '\n' + res.body);
+          return reject(error);
+        }
+        return resolve(res);
+      });
+    body.pipe(req);
   });
 }
 
