@@ -2,7 +2,7 @@
 
 const { addOauthHeader } = require('@clevercloud/client/cjs/oauth.node.js');
 const { prefixUrl } = require('@clevercloud/client/cjs/prefix-url.js');
-const { request } = require('@clevercloud/client/cjs/request.request.js');
+const { request } = require('@clevercloud/client/cjs/request.superagent.js');
 const { conf, loadOAuthConf } = require('../models/configuration.js');
 
 async function sendToApi (requestParams) {
