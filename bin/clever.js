@@ -502,10 +502,10 @@ function run () {
   }, login('login'));
 
   // LOGOUT COMMAND
-  const logout = lazyRequireFunctionWithApi('../src/commands/logout.js');
+  const logout = lazyRequirePromiseModule('../src/commands/logout.js');
   const logoutCommand = cliparse.command('logout', {
     description: 'Logout from Clever Cloud',
-  }, logout);
+  }, logout('logout'));
 
   // LOGS COMMAND
   const logs = lazyRequireFunctionWithApi('../src/commands/logs.js');
