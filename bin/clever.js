@@ -263,6 +263,7 @@ function run () {
     emailNotificationTarget: cliparse.option('notify', {
       metavar: '<email_address>|<user_id>|organisation',
       description: 'Notify a user, a specific email address or the whole organisation (multiple values allowed, comma separated)',
+      required: true,
       parser: Parsers.commaSeparated,
     }),
     onlyAddons: cliparse.flag('only-addons', { description: 'Only show addon dependencies' }),
