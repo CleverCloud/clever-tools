@@ -1,5 +1,32 @@
 # clever-tools changelog
 
+## 1.5.0-beta.5 (2019-08-01)
+
+### For users
+
+- Fix `--verbose` global param
+- Docs: Add 'gitter' in webhooks format
+- Fix bug with `colors` module in `clever notify-email`
+- Improve some error messages in `clever webhooks` and `clever notify-email`
+- `--notify` is now required for `clever notify-email`
+
+### Internals
+
+- Remove legacy getAuthorization
+- Refactor send-to-api token loading
+- Use @clevercloud/client superagent helper instead of request
+- Refactor logout into promise mode
+- Replace request with superagent
+- Use @clevercloud/client prepareEventsWs
+- Use new SSE endpoint for logs (#207)
+- Use @clevercloud/client directly for GET /logs/{appId}
+- Use @clevercloud/client directly in drain
+- Use @clevercloud/client directly in notify-email and webhooks
+- Rename functions in notify-email and webhooks
+- Split notifications into notify-email and webhooks
+- Ease testing for preprod with comments in config
+- Update @clevercloud/client to 2.0.0-beta.0
+
 ## 1.5.0-beta.4 (2019-07-25) 
 
 - Fix --add-export option for `clever env`
