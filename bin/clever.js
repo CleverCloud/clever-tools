@@ -210,7 +210,7 @@ function run () {
     webhookFormat: cliparse.option('format', {
       metavar: 'format',
       default: 'raw',
-      description: `Format of the body sent to the webhook ('raw', 'slack', or 'flowdock')`,
+      description: `Format of the body sent to the webhook ('raw', 'slack', 'gitter', or 'flowdock')`,
     }),
     github: cliparse.option('github', {
       metavar: 'OWNER/REPO',
