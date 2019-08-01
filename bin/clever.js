@@ -1,6 +1,17 @@
 #! /usr/bin/env node
 'use strict';
 
+// These need to be set before Logger and other stuffs
+if (process.argv.includes('-v') || process.argv.includes('--verbose')) {
+  process.env['CLEVER_VERBOSE'] = '1';
+}
+
+// These need to be set before Logger and other stuffs
+// Don't log anything in autocomplete mode
+if (process.argv.includes('--autocomplete-index')) {
+  process.env['CLEVER_QUIET'] = '1';
+}
+
 const cliparse = require('cliparse');
 const updateNotifier = require('update-notifier');
 
@@ -29,15 +40,6 @@ if (process.pkg == null) {
       return `\nPlease follow this link to update your clever-tools:\n${docsUrl}`;
     },
   });
-}
-
-if (process.argv.includes('-v') || process.argv.includes('--verbose')) {
-  process.env['CLEVER_VERBOSE'] = '1';
-}
-
-if (process.argv.includes('--autocomplete-index')) {
-  // Don't log anything in autocomplete mode
-  process.env['CLEVER_QUIET'] = '1';
 }
 
 function lazyRequireFunctionWithApi (modulePath, name) {
