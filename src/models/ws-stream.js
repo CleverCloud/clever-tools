@@ -48,10 +48,10 @@ function openWsStream ({ url, authMessage, startPing, stopPing }, remainingRetry
     .mapEnd()
     .flatMapLatest(() => {
       if (remainingRetryCount === 0) {
-        return new Bacon.Error(`WebSocket connexion failed ${MAX_RETRY_COUNT} times!`);
+        return new Bacon.Error(`WebSocket connection failed ${MAX_RETRY_COUNT} times!`);
       }
       const retryCount = (MAX_RETRY_COUNT - remainingRetryCount + 1);
-      Logger.warn(`WebSocket connexion closed, reconnecting... (${retryCount}/${MAX_RETRY_COUNT})`);
+      Logger.warn(`WebSocket connection closed, reconnecting... (${retryCount}/${MAX_RETRY_COUNT})`);
       return Bacon.later(RETRY_DELAY, null).flatMapLatest(() => {
         return openWsStream({ url, authMessage, startPing, stopPing }, remainingRetryCount - 1);
       });

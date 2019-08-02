@@ -78,7 +78,7 @@
 - Fix endless wait with `clever login` on MacOS (Renan Decamps)
 - Fix wrong activity display for WIP
 - Always do a process.exit(0) when a command finishes properly
-- Limit the number or retries for when a WebSocket connexion fails
+- Limit the number or retries for when a WebSocket connection fails
 
 ## 1.2.1 (2018-11-23)
 

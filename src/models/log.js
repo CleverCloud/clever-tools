@@ -24,8 +24,8 @@ function getNewLogs (appId, before, after, filter, deploymentId) {
           const sse = new EventSource(url);
           sse.onmessage = ({ data }) => sink(data);
           sse.onerror = () => {
-            Logger.debug('Logs stream connexion failure');
-            return sink(new Bacon.Error('Logs stream connexion failure'));
+            Logger.debug('Logs stream connection failure');
+            return sink(new Bacon.Error('Logs stream connection failure'));
           };
         });
     })
