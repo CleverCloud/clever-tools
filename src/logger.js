@@ -37,6 +37,9 @@ const Logger = _(['debug', 'info', 'warn', 'error'])
     const { prefix, prefixLength } = getPrefix(severity);
     return [severity, (message) => {
       const formattedMsg = formatLines(prefixLength, processApiError(message));
+      if (process.env['CLEVER_VERBOSE'] && severity === 'error') {
+        console.trace(message);
+      }
       return consoleFn(`${prefix}${formattedMsg}`);
     }];
   })
