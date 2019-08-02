@@ -22,7 +22,7 @@ function processApiError (error) {
 
 function formatLines (prefixLength, lines) {
   const blankPrefix = _.repeat(' ', prefixLength);
-  return _(lines)
+  return (lines || '')
     .split('\n')
     .map((line, i) => (i === 0) ? line : `${blankPrefix}${line}`)
     .join('\n');
