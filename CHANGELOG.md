@@ -1,5 +1,12 @@
 # clever-tools changelog
 
+## 1.5.0-beta.6 (2019-08-02)
+
+- Log error trace in --verbose mode
+- Update deps (rename opn => open)
+- Fix logs with `clever deploy` (update @clevercloud/client to 2.0.0-beta.1) 
+- Fix typo "connexion" => "connection" in logs and README
+
 ## 1.5.0-beta.5 (2019-08-01)
 
 ### For users
