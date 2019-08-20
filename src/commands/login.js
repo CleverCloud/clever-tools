@@ -6,7 +6,7 @@ const util = require('util');
 const delay = util.promisify(setTimeout);
 
 const colors = require('colors/safe');
-const opn = require('opn');
+const open = require('open');
 const superagent = require('superagent');
 
 const Logger = require('../logger.js');
@@ -58,7 +58,7 @@ async function loginViaConsole () {
 
   Logger.debug('Try to login to Clever Cloud…');
   Logger.println(`Opening ${colors.green(consoleUrl.toString())} in your browser to log you in…`);
-  await opn(consoleUrl.toString(), { wait: false });
+  await open(consoleUrl.toString(), { wait: false });
 
   return pollOauthData(cliPollUrl.toString());
 }
