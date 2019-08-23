@@ -1,5 +1,11 @@
 # clever-tools changelog
 
+## 1.5.0-beta.7 (2019-08-23)
+
+- Use new @clevercloud/client auto-retry streams (logs & events)
+- Fix "opn" module renamed to "open"
+- Fix split error on logger
+
 ## 1.5.0-beta.6 (2019-08-02)
 
 - Log error trace in --verbose mode
