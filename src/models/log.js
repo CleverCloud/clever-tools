@@ -3,33 +3,32 @@
 const _ = require('lodash');
 const Bacon = require('baconjs');
 const colors = require('colors/safe');
-const EventSource = require('eventsource');
 
 const Application = require('../models/application.js');
 const Event = require('../models/events.js');
 const Logger = require('../logger.js');
-
 const { sendToApi, getHostAndTokens } = require('./send-to-api.js');
+
 const { getOldLogs: fetchOldLogs } = require('@clevercloud/client/cjs/api/log.js');
-const { prepareLogsSse } = require('@clevercloud/client/cjs/stream.node.js');
+const { LogsStream } = require('@clevercloud/client/cjs/streams/logs.node.js');
 
 function getNewLogs (appId, before, after, filter, deploymentId) {
   Logger.println('Waiting for application logs…');
   Logger.debug('Opening a websocket in order to fetch logs…');
   return Bacon
-    .fromBinder((sink) => {
-      getHostAndTokens()
-        .then((params) => prepareLogsSse({ ...params, appId, filter, deploymentId }))
-        .then(({ url }) => {
-          const sse = new EventSource(url);
-          sse.onmessage = ({ data }) => sink(data);
-          sse.onerror = () => {
-            Logger.debug('Logs stream connection failure');
-            return sink(new Bacon.Error('Logs stream connection failure'));
-          };
+    .fromPromise(getHostAndTokens())
+    .flatMapLatest(({ apiHost, tokens }) => {
+      return Bacon.fromBinder((sink) => {
+        const logsStream = new LogsStream({ apiHost, tokens, appId, filter, deploymentId });
+        return logsStream.openResilientStream({
+          onMessage: sink,
+          onError: (error) => sink(new Bacon.Error(error)),
+          infinite: false,
+          retryDelay: 2000,
+          retryTimeout: 30000,
         });
+      });
     })
-    .flatMap(Bacon.try(JSON.parse))
     .filter((line) => {
       const lineDate = Date.parse(line._source['@timestamp']);
       const isBefore = !before || lineDate < before.getTime();
