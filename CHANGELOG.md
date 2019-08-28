@@ -1,5 +1,10 @@
 # clever-tools changelog
 
+## 1.5.0-beta.8 (2019-08-28)
+
+- Rollback open module to opn (waiting for bugfix)
+- Update @clevercloud/client (fix SSE)
+
 ## 1.5.0-beta.7 (2019-08-23)
 
 - Use new @clevercloud/client auto-retry streams (logs & events)
