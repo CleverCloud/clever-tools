@@ -1,7 +1,7 @@
 'use strict';
 
 const Bacon = require('baconjs');
-const open = require('open');
+const open = require('opn');
 
 const Logger = require('./logger.js');
 
