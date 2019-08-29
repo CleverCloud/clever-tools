@@ -62,8 +62,9 @@ function httpPut ({ host, requestPath, body, headers }) {
     };
 
     function onResp (resp) {
-      console.log({resp})
-      resp.on('end', resolve);
+      resp.on('data', () => {
+      });
+      resp.on('end', () => resolve());
     }
 
     const req = https
