@@ -2,6 +2,7 @@
 
 const cfg = require('./config');
 const fs = require('fs-extra');
+const https = require('https');
 const path = require('path');
 const superagent = require('superagent');
 
@@ -64,6 +65,8 @@ function httpPut ({ url, qs, body, headers }) {
         console.log({ res });
         return resolve(res);
       });
+    console.log({body})
+    console.log({req})
     body.pipe(req);
   });
 }
