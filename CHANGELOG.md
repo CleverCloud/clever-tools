@@ -1,5 +1,14 @@
 # clever-tools changelog
 
+## 1.5.0-beta.14 (2019-08-29)
+
+* Replace superagent bintray upload with vanilla node
+* Add 2XL and 3XL flavors
+
+## 1.5.0-beta.9 => 1.5.0-beta.13
+
+These release were only created for some tests on our CI pipeline.
+
 ## 1.5.0-beta.8 (2019-08-28)
 
 - Rollback open module to opn (waiting for bugfix)
