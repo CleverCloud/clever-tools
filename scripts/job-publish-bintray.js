@@ -56,11 +56,12 @@ function httpPut ({ url, qs, body, headers }) {
       .put(url)
       .set(headers)
       .query(qs)
-      .end((err, res) => {
-        if (err != null) {
-          const error = new Error('Failed to do HTTP PUT\n' + res.statusCode + '\n' + res.body);
-          return reject(error);
-        }
+      .on('error', (err) => {
+        console.log({ err });
+        reject(err);
+      })
+      .on('response', (res) => {
+        console.log({ res });
         return resolve(res);
       });
     body.pipe(req);
