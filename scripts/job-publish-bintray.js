@@ -4,7 +4,6 @@ const cfg = require('./config');
 const fs = require('fs-extra');
 const https = require('https');
 const path = require('path');
-const superagent = require('superagent');
 
 async function run () {
 
@@ -28,16 +27,17 @@ function bintray ({ user, apiKey, subject, packageName }) {
   return function ({ filepath, version }) {
     const { ext, name: filename } = path.parse(filepath);
     const repo = ext.slice(1);
-    const url = `https://api.bintray.com/content/${subject}/${repo}/${packageName}/${version}/${filename}.${repo}`;
+    const host = `api.bintray.com`;
+    const requestPath = `/content/${subject}/${repo}/${packageName}/${version}/${filename}.${repo}?publish=1&override=1`;
     const isStableVersion = cfg.isStableVersion();
     const debianDistribution = isStableVersion ? 'stable' : 'unstable';
     const debianComponent = isStableVersion ? 'main' : 'beta';
     console.log(`Uploading ${repo} on Bintray...`);
     console.log(`\tfile ${filepath}`);
-    console.log(`\tto ${url}`);
+    console.log(`\tto ${host} ${requestPath}`);
     return httpPut({
-      url,
-      qs: { publish: '1', override: '1' },
+      host,
+      requestPath,
       body: fs.createReadStream(filepath),
       headers: {
         'Content-Type': 'application/zip',
@@ -51,22 +51,24 @@ function bintray ({ user, apiKey, subject, packageName }) {
   };
 }
 
-function httpPut ({ url, qs, body, headers }) {
+function httpPut ({ host, requestPath, body, headers }) {
   return new Promise((resolve, reject) => {
-    const req = superagent
-      .put(url)
-      .set(headers)
-      .query(qs)
-      .on('error', (err) => {
-        console.log({ err });
-        reject(err);
-      })
-      .on('response', (res) => {
-        console.log({ res });
-        return resolve(res);
-      });
-    console.log({body})
-    console.log({req})
+
+    const opts = {
+      host,
+      path: requestPath,
+      method: 'put',
+      headers,
+    };
+
+    function onResp (resp) {
+      resp.on('end', resolve);
+    }
+
+    const req = https
+      .request(opts, onResp)
+      .on('error', reject);
+
     body.pipe(req);
   });
 }
