@@ -25,7 +25,7 @@ function listAvailableAliases () {
 };
 
 function listAvailableFlavors () {
-  return ['pico', 'nano', 'XS', 'S', 'M', 'L', 'XL'];
+  return ['pico', 'nano', 'XS', 'S', 'M', 'L', 'XL', '2XL', '3XL'];
 };
 
 function getId (api, orgaId, appIdOrName) {
@@ -221,7 +221,11 @@ function setScalability (api, appId, orgaId, scalabilityParameters) {
     instance.minFlavor = instance.minFlavor.name;
     instance.maxFlavor = instance.maxFlavor.name;
 
+    console.log({instance})
+
     instance = mergeScalabilityParameters(scalabilityParameters, instance);
+
+    console.log(instance.flavors)
 
     return instance;
   });
