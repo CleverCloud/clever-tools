@@ -2,7 +2,7 @@
 
 ## 1.5.0-beta.15 (2019-08-30)
 
-- Add `--build-flavor` to `clever scale`
+- Add `--build-flavor` to `clever scale` (Clément Delafargue)
 - Add dedicated build details to `clever status`
 
 ## 1.5.0-beta.14 (2019-08-29)
