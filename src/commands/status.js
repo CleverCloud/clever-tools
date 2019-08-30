@@ -1,13 +1,13 @@
 'use strict';
 
 const _ = require('lodash');
-const Bacon = require('baconjs');
 const colors = require('colors/safe');
 
 const AppConfig = require('../models/app_configuration.js');
-const Application = require('../models/application.js');
-const handleCommandStream = require('../command-stream-handler');
 const Logger = require('../logger.js');
+
+const { get: getApplication, getAllInstances } = require('@clevercloud/client/cjs/api/application.js');
+const { sendToApi } = require('../models/send-to-api.js');
 
 function displayGroupInfo (instances, commit) {
   return `(${displayFlavors(instances)},  Commit: ${commit || 'N/A'})`;
@@ -42,7 +42,9 @@ function computeStatus (instances, app) {
   return [statusLine, deploymentLine].join('\n');
 }
 
-function displayScalability ({ minFlavor, maxFlavor, minInstances, maxInstances }) {
+function displayScalability (app) {
+
+  const { minFlavor, maxFlavor, minInstances, maxInstances } = app.instance;
 
   const vertical = (minFlavor.name === maxFlavor.name)
     ? minFlavor.name
@@ -58,24 +60,19 @@ function displayScalability ({ minFlavor, maxFlavor, minInstances, maxInstances 
   return `Scalability:
   Auto scalability: ${enabled ? colors.green('enabled') : colors.red('disabled')}
   Scalers: ${colors.bold(horizontal)}
-  Sizes: ${colors.bold(vertical)}`;
+  Sizes: ${colors.bold(vertical)}
+  Decicated build: ${app.separateBuild ? colors.bold(app.buildFlavor.name) : colors.red('disabled')}`;
 }
 
-function status (api, params) {
+async function status (params) {
   const { alias } = params.options;
+  const { org_id, app_id: appId } = await AppConfig.getAppData(alias).toPromise();
 
-  const s_status = AppConfig.getAppData(alias)
-    .flatMapLatest((appData) => {
-      const s_instances = Application.getInstances(api, appData.app_id, appData.org_id);
-      const s_app = Application.get(api, appData.app_id, appData.org_id);
-      return Bacon.combineAsArray([s_instances, s_app]);
-    })
-    .map(([instances, app]) => {
-      Logger.println(computeStatus(instances, app));
-      Logger.println(displayScalability(app.instance));
-    });
+  const instances = await getAllInstances({ id: org_id, appId }).then(sendToApi);
+  const app = await getApplication({ id: org_id, appId }).then(sendToApi);
 
-  handleCommandStream(s_status);
+  Logger.println(computeStatus(instances, app));
+  Logger.println(displayScalability(app));
 }
 
-module.exports = status;
+module.exports = { status };

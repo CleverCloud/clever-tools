@@ -133,13 +133,6 @@ function get (api, appId, orgaId) {
   return api.owner(orgaId).applications._.get().withParams(params).send();
 };
 
-function getInstances (api, appId, orgaId) {
-  Logger.debug('Get instances for the app: ' + appId);
-  const params = orgaId ? [orgaId, appId] : [appId];
-
-  return api.owner(orgaId).applications._.instances.get().withParams(params).send();
-};
-
 function linkRepo (api, appIdOrName, orgaIdOrName, alias, ignoreParentConfig) {
   Logger.debug(`Linking current repository to the app: ${appIdOrName.app_id || appIdOrName.app_name}`);
 
@@ -285,7 +278,6 @@ module.exports = {
   deleteApp,
   getByName,
   get,
-  getInstances,
   linkRepo,
   unlinkRepo,
   stop,

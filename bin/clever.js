@@ -623,11 +623,11 @@ function run () {
   }, ssh);
 
   // STATUS COMMAND
-  const status = lazyRequireFunctionWithApi('../src/commands/status.js');
+  const status = lazyRequirePromiseModule('../src/commands/status.js');
   const statusCommand = cliparse.command('status', {
     description: 'See the status of an application on Clever Cloud',
     options: [opts.alias],
-  }, status);
+  }, status('status'));
 
   // STOP COMMAND
   const stop = lazyRequireFunctionWithApi('../src/commands/stop.js');
