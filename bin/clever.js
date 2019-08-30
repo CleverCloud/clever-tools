@@ -590,11 +590,11 @@ function run () {
   }, restart);
 
   // SCALE COMMAND
-  const scale = lazyRequireFunctionWithApi('../src/commands/scale.js');
+  const scale = lazyRequirePromiseModule('../src/commands/scale.js');
   const scaleCommand = cliparse.command('scale', {
     description: 'Change scalability of an application',
     options: [opts.alias, opts.flavor, opts.minFlavor, opts.maxFlavor, opts.instances, opts.minInstances, opts.maxInstances, opts.buildFlavor],
-  }, scale);
+  }, scale('scale'));
 
   // SERVICE COMMANDS
   const service = lazyRequireModuleWithApi('../src/commands/service.js');

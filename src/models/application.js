@@ -9,6 +9,9 @@ const Interact = require('./interact.js');
 const Logger = require('../logger.js');
 const Organisation = require('./organisation.js');
 
+const { sendToApi } = require('../models/send-to-api.js');
+const application = require('@clevercloud/client/cjs/api/application.js');
+
 function listAvailableTypes () {
   return autocomplete.words(['docker', 'go', 'gradle', 'haskell', 'jar', 'maven', 'node', 'php', 'play1', 'play2', 'python', 'ruby', 'rust', 'sbt', 'static-apache', 'war']);
 };
@@ -204,52 +207,36 @@ function mergeScalabilityParameters (scalabilityParameters, instance) {
   return instance;
 };
 
-function setScalability (api, appId, orgaId, scalabilityParameters) {
+async function setScalability (appId, orgaId, scalabilityParameters) {
   Logger.info('Scaling the app: ' + appId);
 
-  const s_app = get(api, appId, orgaId).toProperty();
-  const s_body = s_app.map(function (app) {
-    let instance = _.cloneDeep(app.instance);
+  const app = await application.get({ id: orgaId, appId }).then(sendToApi);
+  const instance = _.cloneDeep(app.instance);
 
-    instance.minFlavor = instance.minFlavor.name;
-    instance.maxFlavor = instance.maxFlavor.name;
+  instance.minFlavor = instance.minFlavor.name;
+  instance.maxFlavor = instance.maxFlavor.name;
 
-    instance = mergeScalabilityParameters(scalabilityParameters, instance);
+  const newConfig = mergeScalabilityParameters(scalabilityParameters, instance);
 
-    return instance;
-  });
-
-  return s_body.flatMapLatest(function (instance) {
-    const params = orgaId ? [orgaId, appId] : [appId];
-    return api.owner(orgaId).applications._.put().withParams(params).send(JSON.stringify(instance));
-  });
+  return application.update({ id: orgaId, appId }, newConfig).then(sendToApi);
 };
 
-function setDedicatedBuildInstance (api, appId, orgaId, enableSeparateBuild) {
-  const s_currentConfig = get(api, appId, orgaId).toProperty();
-  const s_newConfig = s_currentConfig.map(function (app) {
-    return { ...app, separateBuild: enableSeparateBuild };
-  });
-
-  return s_newConfig.flatMapLatest(function (newConfig) {
-    const params = orgaId ? [orgaId, appId] : [appId];
-    return api.owner(orgaId).applications._.put().withParams(params).send(JSON.stringify(newConfig));
-  });
+async function setDedicatedBuildInstance (appId, orgaId, enableSeparateBuild) {
+  const app = await application.get({ id: orgaId, appId }).then(sendToApi);
+  const newConfig = { ...app, separateBuild: enableSeparateBuild };
+  return application.update({ id: orgaId, appId }, newConfig).then(sendToApi);
 };
 
-function setBuildFlavor (api, appId, orgaId, buildInstanceSize) {
+async function setBuildFlavor (appId, orgaId, buildInstanceSize) {
   Logger.info('Setting build size for app: ' + appId);
   if (buildInstanceSize !== null) {
     const body = { flavorName: buildInstanceSize };
-    const params = orgaId ? [orgaId, appId] : [appId];
-    return setDedicatedBuildInstance(api, appId, orgaId, true).flatMapLatest(function () {
-
-      return api.owner(orgaId).applications._.buildflavor.put().withParams(params).send(JSON.stringify(body));
-    });
+    await setDedicatedBuildInstance(appId, orgaId, true);
+    return application.setBuildInstanceFlavor({ id: orgaId, appId }, body).then(sendToApi);
   }
   else {
     Logger.info('No build size given, disabling dedicated build instance');
-    return setDedicatedBuildInstance(api, appId, orgaId, false);
+    return setDedicatedBuildInstance(appId, orgaId, false);
   }
 };
 

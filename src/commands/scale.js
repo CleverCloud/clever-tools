@@ -1,10 +1,7 @@
 'use strict';
 
-const Bacon = require('baconjs');
-
 const AppConfig = require('../models/app_configuration.js');
 const Application = require('../models/application.js');
-const handleCommandStream = require('../command-stream-handler');
 const Logger = require('../logger.js');
 
 function validateOptions (options) {
@@ -47,30 +44,18 @@ function validateOptions (options) {
   return { minFlavor, maxFlavor, minInstances, maxInstances, buildFlavor };
 }
 
-// https://github.com/baconjs/bacon.js/wiki/FAQ#why-isnt-my-subscriber-called
-function asStream (fn) {
-  return Bacon.later(0).flatMapLatest(Bacon.try(fn));
-}
-
-function scale (api, params) {
+async function scale (params) {
   const { alias } = params.options;
+  const { minFlavor, maxFlavor, minInstances, maxInstances, buildFlavor } = validateOptions(params.options);
+  const { org_id, app_id: appId } = await AppConfig.getAppData(alias).toPromise();
 
-  const s_scaledApp = asStream(() => validateOptions(params.options))
-    .flatMapLatest(({ minFlavor, maxFlavor, minInstances, maxInstances, buildFlavor }) => {
-      return AppConfig.getAppData(alias).flatMapLatest((appData) => {
-        const scalabilityParameters = { minFlavor, maxFlavor, minInstances, maxInstances };
-        return Application.setScalability(api, appData.app_id, appData.org_id, scalabilityParameters).flatMapLatest((p) => {
-          if (buildFlavor !== null) {
-            const newFlavor = buildFlavor === 'disabled' ? null : buildFlavor;
-            return Application.setBuildFlavor(api, appData.app_id, appData.org_id, newFlavor);
-          }
-          return p;
-        });
-      });
-    })
-    .map(() => Logger.println('App rescaled successfully'));
+  await Application.setScalability(appId, org_id, { minFlavor, maxFlavor, minInstances, maxInstances });
+  if (buildFlavor != null) {
+    const newFlavor = (buildFlavor === 'disabled') ? null : buildFlavor;
+    await Application.setBuildFlavor(appId, org_id, newFlavor);
+  }
 
-  handleCommandStream(s_scaledApp);
+  Logger.println('App rescaled successfully');
 };
 
-module.exports = scale;
+module.exports = { scale };
