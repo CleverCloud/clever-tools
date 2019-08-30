@@ -221,11 +221,7 @@ function setScalability (api, appId, orgaId, scalabilityParameters) {
     instance.minFlavor = instance.minFlavor.name;
     instance.maxFlavor = instance.maxFlavor.name;
 
-    console.log({instance})
-
     instance = mergeScalabilityParameters(scalabilityParameters, instance);
-
-    console.log(instance.flavors)
 
     return instance;
   });
