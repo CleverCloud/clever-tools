@@ -1,5 +1,9 @@
 # clever-tools changelog
 
+## 1.5.1 => 1.5.2
+
+- Moving our releases to another cellar
+
 ## 1.5.0 (2019-09-02)
 
 See previous beta releases
