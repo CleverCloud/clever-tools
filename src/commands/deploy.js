@@ -1,6 +1,7 @@
 'use strict';
 
 const Bacon = require('baconjs');
+const colors = require('colors/safe');
 
 const AppConfig = require('../models/app_configuration.js');
 const Application = require('../models/application.js');
@@ -23,14 +24,17 @@ async function deployPromise (api, params) {
   await git.addRemote(appData.alias, appData.deploy_url);
 
   if (commitIdToPush === remoteHeadCommitId) {
-    const upToDateMessage = `The clever-cloud application is up-to-date. Try this command to restart the application:`;
+    const upToDateMessage = `The clever-cloud application is up-to-date (${remoteHeadCommitId}). Try this command to restart the application:`;
     if (commitIdToPush !== deployedCommitId) {
       throw new Error(`${upToDateMessage}\nclever restart --commit ${commitIdToPush}`);
     }
     throw new Error(`${upToDateMessage}\nclever restart`);
   }
 
-  Logger.println('Pushing source code to Clever Cloud.');
+  Logger.println(`Pushing new source code to Clever Cloud...`);
+  Logger.println(`Remote git head commit   is ${colors.green(remoteHeadCommitId)}`);
+  Logger.println(`Current deployed commit  is ${colors.green(deployedCommitId)}`);
+  Logger.println(`New local commit to push is ${colors.green(commitIdToPush)} (from ${colors.green(branchRefspec)})`);
   const push = await git.push(appData.deploy_url, branchRefspec, force);
 
   Logger.println('Your source code has been pushed to Clever Cloud.');
