@@ -7,8 +7,8 @@ const archList = ['linux', 'macos', 'win'];
 const nodeVersion = pkgJson.engines.node;
 const releasesDir = 'releases';
 const cellar = {
-  host: 'cellar.services.clever-cloud.com',
-  bucket: 'clever-tools',
+  host: 'cellar-c2.services.clever-cloud.com',
+  bucket: 'clever-tools.clever-cloud.com',
 };
 const bintray = {
   subject: 'clevercloud',

@@ -1,6 +1,6 @@
 {
   "name": "clever-tools",
-  "version": "1.5.0",
+  "version": "1.5.2",
   "description": "Command Line Interface for Clever Cloud.",
   "main": "bin/clever.js",
   "keywords": [
@@ -44,7 +44,7 @@
     "xdg": "^0.1.1"
   },
   "devDependencies": {
-    "aws-sdk": "^2.497.0",
+    "aws-sdk": "^2.521.0",
     "chai": "^4.2.0",
     "del": "^5.0.0",
     "eslint": "^6.1.0",

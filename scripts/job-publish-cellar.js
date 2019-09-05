@@ -65,7 +65,7 @@ function cellar ({ accessKeyId, secretAccessKey, host, bucket }) {
   AWS.config.update({ accessKeyId, secretAccessKey });
   const s3 = new AWS.S3({
     endpoint: new AWS.Endpoint(host),
-    signatureVersion: 'v2',
+    signatureVersion: 'v4',
   });
 
   return async function (filepath, remoteFilepath = filepath) {

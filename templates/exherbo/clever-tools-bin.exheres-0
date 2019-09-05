@@ -9,7 +9,7 @@ MY_PN="clever-tools"
 MY_PV="${PV/_beta/-beta.}"
 MY_PNV="${MY_PN}-${MY_PV}"
 HOMEPAGE="https://github.com/CleverCloud/${MY_PN}"
-DOWNLOADS="https://${MY_PN}.cellar.services.clever-cloud.com/releases/${MY_PV}/${MY_PNV}_linux.tar.gz"
+DOWNLOADS="https://${MY_PN}.clever-cloud.com/releases/${MY_PV}/${MY_PNV}_linux.tar.gz"
 
 LICENCES="<%= license %>"
 SLOT="0"
