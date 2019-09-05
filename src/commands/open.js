@@ -1,24 +1,20 @@
 'use strict';
 
+const openPage = require('opn');
+
 const AppConfig = require('../models/app_configuration.js');
 const Domain = require('../models/domain.js');
-const handleCommandStream = require('../command-stream-handler');
 const Logger = require('../logger.js');
-const OpenBrowser = require('../open-browser.js');
 
-function open (api, params) {
+async function open (params) {
   const { alias } = params.options;
+  const { org_id, app_id: appId } = await AppConfig.getAppData(alias).toPromise();
 
-  const s_open = AppConfig.getAppData(alias)
-    .flatMapLatest(({ app_id, org_id }) => {
-      return Domain.getBest(api, app_id, org_id);
-    })
-    .flatMapLatest((vhost) => {
-      Logger.println('Opening the application in your browser');
-      return OpenBrowser.openPage('http://' + vhost.fqdn);
-    });
+  const vhost = await Domain.getBest(appId, org_id);
+  const url = 'http://' + vhost.fqdn;
 
-  handleCommandStream(s_open);
+  Logger.println('Opening the application in your browser');
+  await openPage(url, { wait: false });
 }
 
-module.exports = open;
+module.exports = { open };

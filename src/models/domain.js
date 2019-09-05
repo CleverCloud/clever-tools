@@ -1,7 +1,9 @@
 'use strict';
 
 const _ = require('lodash');
-const Bacon = require('baconjs');
+
+const { getAllDomains, getFavouriteDomain } = require('@clevercloud/client/cjs/api/application.js');
+const { sendToApi } = require('../models/send-to-api.js');
 
 const Application = require('./application.js');
 const Logger = require('../logger.js');
@@ -23,32 +25,24 @@ function remove (api, fqdn, appId, orgaId) {
   return api.owner(orgaId).applications._.vhosts._.delete().withParams(params).send();
 }
 
-function getBest (api, appId, orgaId) {
+async function getBest (appId, orgaId) {
   Logger.debug('Trying to get the favourite vhost for ' + appId);
-  const params = orgaId ? [orgaId, appId] : [appId];
+  return getFavouriteDomain({ id: orgaId, appId }).then(sendToApi)
+    .catch(async (e) => {
 
-  const s_favouriteVhost = api.owner(orgaId).applications._.vhosts.favourite.get().withParams(params).send();
-  return s_favouriteVhost
-    .flatMapError((error) => {
-      // if no favourite is defined, it's not an error
-      if (error.id === 4021) {
-        return new Bacon.Next(undefined);
+      if (e.status !== 404) {
+        throw e;
       }
-      return new Bacon.Error(error);
-    })
-    .flatMapLatest((favourite) => {
-      if (favourite != null) {
-        return new Bacon.Next(favourite);
-      }
+
       Logger.debug('No favourite vhost defined for ' + appId + ', selecting the best one');
-      const s_vHosts = api.owner(orgaId).applications._.vhosts.get().withParams(params).send();
-      return s_vHosts.map((vhosts) => {
-        const result = selectBest(vhosts);
-        if (result) {
-          return new Bacon.Next(result);
-        }
-        return new Bacon.Error(`Couldn't find a domain name`);
-      });
+      const allDomains = await getAllDomains({ id: orgaId, appId }).then(sendToApi);
+      const result = selectBest(allDomains);
+
+      if (result == null) {
+        throw new Error(`Couldn't find a domain name`);
+      }
+
+      return result;
     });
 }
 
