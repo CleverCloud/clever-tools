@@ -1,7 +1,7 @@
 class CleverTools < Formula
   desc "<%= description %>"
   homepage "<%= url %>"
-  url "https://clever-tools.cellar.services.clever-cloud.com/releases/<%= version %>/clever-tools-<%= version %>_macos.tar.gz"
+  url "https://clever-tools.clever-cloud.com/releases/<%= version %>/clever-tools-<%= version %>_macos.tar.gz"
   version "<%= version %>"
   sha256 "<%= sha256 %>"
 

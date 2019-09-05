@@ -5,7 +5,7 @@ $toolsDir   = "$(Split-Path -parent $MyInvocation.MyCommand.Definition)"
 $packageArgs = @{
   packageName   = $packageName
   unzipLocation = $toolsDir
-  url           = 'https://clever-tools.cellar.services.clever-cloud.com/releases/<%= version %>/clever-tools-<%= version %>_win.zip'
+  url           = 'https://clever-tools.clever-cloud.com/releases/<%= version %>/clever-tools-<%= version %>_win.zip'
   checksum      = '<%= sha256 %>'
   checksumType  = 'sha256'
 }
