@@ -434,6 +434,13 @@ function run () {
     options: [opts.alias, opts.branch, opts.quiet, opts.forceDeploy],
   }, deploy);
 
+  // DIAG COMMAND
+  const diag = lazyRequirePromiseModule('../src/commands/diag.js');
+  const diagCommand = cliparse.command('diag', {
+    description: 'Diagnose the current installation (prints various informations for support)',
+    args: [],
+  }, diag('diag'));
+
   // DOMAIN COMMANDS
   const domain = lazyRequireModuleWithApi('../src/commands/domain.js');
   const domainCreateCommand = cliparse.command('add', {
@@ -691,6 +698,7 @@ function run () {
       cancelDeployCommand,
       deleteCommand,
       deployCommand,
+      diagCommand,
       domainCommands,
       drainCommands,
       emailNotificationsCommand,
