@@ -42,10 +42,13 @@ if (process.pkg == null) {
   });
 }
 
+// Use this alias so we get less warnings in pkg build :p
+const dynamicRequire = module.require.bind(module);
+
 function lazyRequireFunctionWithApi (modulePath, name) {
   return function (...args) {
     s_api.onValue((api) => {
-      const module = require(modulePath);
+      const module = dynamicRequire(modulePath);
       args.unshift(api);
       if (name) {
         module[name].apply(this, args);
@@ -60,7 +63,7 @@ function lazyRequireFunctionWithApi (modulePath, name) {
 function lazyRequirePromiseModule (modulePath) {
   return function (name) {
     return function (...args) {
-      const module = require(modulePath);
+      const module = dynamicRequire(modulePath);
       const promise = module[name](...args);
       handleCommandPromise(promise);
     };
@@ -72,7 +75,7 @@ function lazyRequirePromiseModuleAndApi (modulePath) {
     return function (...args) {
       s_api.onValue((api) => {
         args.unshift(api);
-        const module = require(modulePath);
+        const module = dynamicRequire(modulePath);
         const promise = module[name](...args);
         handleCommandPromise(promise);
       });
@@ -85,7 +88,7 @@ function lazyRequireModuleWithApi (modulePath) {
     return function (...args) {
       s_api.onValue((api) => {
         args.unshift(api);
-        const module = require(modulePath);
+        const module = dynamicRequire(modulePath);
         module[name].apply(this, args);
       });
     };
@@ -95,7 +98,7 @@ function lazyRequireModuleWithApi (modulePath) {
 function lazyRequire (modulePath) {
   return function (name) {
     return function (...args) {
-      const module = require(modulePath);
+      const module = dynamicRequire(modulePath);
       return module[name].apply(this, args);
     };
   };
@@ -103,7 +106,7 @@ function lazyRequire (modulePath) {
 
 function lazyRequireFunction (modulePath) {
   return function (...args) {
-    const theFunction = require(modulePath);
+    const theFunction = dynamicRequire(modulePath);
     return theFunction.apply(this, args);
   };
 }
@@ -244,7 +247,7 @@ function run () {
     buildFlavor: cliparse.option('build-flavor', {
       metavar: 'buildflavor',
       parser: Parsers.buildFlavor,
-      description: 'The size of the build instance, or `disabled` if you want to disable dedicated build instances'
+      description: 'The size of the build instance, or `disabled` if you want to disable dedicated build instances',
     }),
     maxInstances: cliparse.option('max-instances', {
       metavar: 'maxinstances',
@@ -430,6 +433,13 @@ function run () {
     description: 'Deploy an application to Clever Cloud',
     options: [opts.alias, opts.branch, opts.quiet, opts.forceDeploy],
   }, deploy);
+
+  // DIAG COMMAND
+  const diag = lazyRequirePromiseModule('../src/commands/diag.js');
+  const diagCommand = cliparse.command('diag', {
+    description: 'Diagnose the current installation (prints various informations for support)',
+    args: [],
+  }, diag('diag'));
 
   // DOMAIN COMMANDS
   const domain = lazyRequireModuleWithApi('../src/commands/domain.js');
@@ -649,11 +659,11 @@ function run () {
   }, unlink);
 
   // VERSION COMMAND
-  const version = lazyRequireFunction('../src/commands/version.js');
+  const version = lazyRequirePromiseModule('../src/commands/version.js');
   const versionCommand = cliparse.command('version', {
     description: 'Display the version',
     args: [],
-  }, version);
+  }, version('version'));
 
   // WEBHOOKS COMMAND
   const webhooks = lazyRequirePromiseModule('../src/commands/webhooks.js');
@@ -688,6 +698,7 @@ function run () {
       cancelDeployCommand,
       deleteCommand,
       deployCommand,
+      diagCommand,
       domainCommands,
       drainCommands,
       emailNotificationsCommand,
