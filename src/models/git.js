@@ -12,15 +12,13 @@ const slugify = require('slugify');
 
 const repo = { fs, dir: '.' };
 
-function addRemote (remoteName, url) {
+async function addRemote (remoteName, url) {
   const safeRemoteName = slugify(remoteName);
-  return Bacon.fromPromise(git.listRemotes({ ...repo }))
-    .flatMapLatest((allRemotes) => {
-      const existingRemote = _.find(allRemotes, { remote: safeRemoteName });
-      if (existingRemote == null) {
-        return Bacon.fromPromise(git.addRemote({ ...repo, remote: safeRemoteName, url }));
-      }
-    });
+  const allRemotes = await git.listRemotes({ ...repo });
+  const existingRemote = _.find(allRemotes, { remote: safeRemoteName });
+  if (existingRemote == null) {
+    return git.addRemote({ ...repo, remote: safeRemoteName, url });
+  }
 }
 
 function resolveFullCommitId (commitId) {
@@ -36,57 +34,51 @@ function resolveFullCommitId (commitId) {
     });
 }
 
-function getRemoteCommit (remoteUrl) {
-  return loadOAuthConf()
-    .flatMapLatest((tokens) => {
-      return Bacon.fromPromise(git.getRemoteInfo({
-        ...repo,
-        username: tokens.token,
-        password: tokens.secret,
-        url: remoteUrl,
-      }));
-    })
-    .flatMapLatest((remoteInfos) => {
-      return _.get(remoteInfos, 'refs.heads.master');
-    });
+async function getRemoteCommit (remoteUrl) {
+  const tokens = await loadOAuthConf().toPromise();
+  const remoteInfos = await git.getRemoteInfo({
+    ...repo,
+    username: tokens.token,
+    password: tokens.secret,
+    url: remoteUrl,
+  });
+  return _.get(remoteInfos, 'refs.heads.master');
 }
 
 function getFullBranch (branchName) {
   if (branchName === '') {
-    return Bacon.fromPromise(git.currentBranch({ ...repo, fullname: true }));
+    return git.currentBranch({ ...repo, fullname: true });
   }
-  return Bacon.fromPromise(git.expandRef({ ...repo, ref: branchName }));
+  return git.expandRef({ ...repo, ref: branchName });
 };
 
 function getBranchCommit (refspec) {
-  return Bacon.fromPromise(git.resolveRef({ ...repo, ref: refspec }));
+  return git.resolveRef({ ...repo, ref: refspec });
 }
 
-function push (remoteUrl, branchRefspec, force) {
-  return loadOAuthConf()
-    .flatMapLatest((tokens) => {
-      return Bacon.fromPromise(git.push({
-        ...repo,
-        username: tokens.token,
-        password: tokens.secret,
-        url: remoteUrl,
-        ref: branchRefspec,
-        remoteRef: 'master',
-        force,
-      }));
-    })
-    .flatMapLatest((push) => {
-      if (push.errors != null) {
-        return new Bacon.Error(push.errors.join(', '));
-      }
-      return push;
-    })
-    .flatMapError((e) => {
-      if (e.code === 'PushRejectedNonFastForward') {
-        return new Bacon.Error('Push rejected because it was not a simple fast-forward. Use "--force" to override.');
-      }
-      return new Bacon.Error(e);
+async function push (remoteUrl, branchRefspec, force) {
+  const tokens = await loadOAuthConf().toPromise();
+  try {
+    const push = await git.push({
+      ...repo,
+      username: tokens.token,
+      password: tokens.secret,
+      url: remoteUrl,
+      ref: branchRefspec,
+      remoteRef: 'master',
+      force,
     });
+    if (push.errors != null) {
+      throw new Error(push.errors.join(', '));
+    }
+    return push;
+  }
+  catch (e) {
+    if (e.code === 'PushRejectedNonFastForward') {
+      throw new Error('Push rejected because it was not a simple fast-forward. Use "--force" to override.');
+    }
+    throw e;
+  }
 }
 
 function completeBranches () {
