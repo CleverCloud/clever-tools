@@ -554,11 +554,11 @@ function run () {
   }, notifyEmail('list'));
 
   // OPEN COMMAND
-  const open = lazyRequireFunctionWithApi('../src/commands/open.js');
+  const open = lazyRequirePromiseModule('../src/commands/open.js');
   const openCommand = cliparse.command('open', {
     description: 'Open an application in the browser',
     options: [opts.alias],
-  }, open);
+  }, open('open'));
 
   // CONSOLE COMMAND
   const consoleModule = lazyRequireFunctionWithApi('../src/commands/console.js');
