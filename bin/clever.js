@@ -652,11 +652,11 @@ function run () {
   }, unlink);
 
   // VERSION COMMAND
-  const version = lazyRequireFunction('../src/commands/version.js');
+  const version = lazyRequirePromiseModule('../src/commands/version.js');
   const versionCommand = cliparse.command('version', {
     description: 'Display the version',
     args: [],
-  }, version);
+  }, version('version'));
 
   // WEBHOOKS COMMAND
   const webhooks = lazyRequirePromiseModule('../src/commands/webhooks.js');
