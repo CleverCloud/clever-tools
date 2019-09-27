@@ -5,7 +5,7 @@ const Logger = require('./logger.js');
 
 function handleCommandPromise (promise) {
   promise.catch((error) => {
-    Logger.error(_.get(error, 'message', error));
+    Logger.error(error);
     process.exit(1);
   });
 }

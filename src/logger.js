@@ -35,10 +35,13 @@ const Logger = _(['debug', 'info', 'warn', 'error'])
     }
     const consoleFn = (severity === 'error') ? console.error : console.log;
     const { prefix, prefixLength } = getPrefix(severity);
-    return [severity, (message) => {
+    return [severity, (err) => {
+      const message = _.get(err, 'message', err)
       const formattedMsg = formatLines(prefixLength, processApiError(message));
       if (process.env['CLEVER_VERBOSE'] && severity === 'error') {
-        console.trace(message);
+        console.error('[STACKTRACE]');
+        console.error(err);
+        console.error('[/STACKTRACE]');
       }
       return consoleFn(`${prefix}${formattedMsg}`);
     }];

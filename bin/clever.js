@@ -730,6 +730,6 @@ function run () {
 
 // Will have to be remove
 const s_api = Api();
-s_api.onError(Logger.error.bind(console));
+s_api.onError((e) => Logger.error(e));
 
 run();

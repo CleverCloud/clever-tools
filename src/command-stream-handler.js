@@ -6,7 +6,7 @@ const Logger = require('./logger.js');
 function handleCommandStream (stream) {
   stream.onValue(_.noop);
   stream.onError((error) => {
-    Logger.error(_.get(error, 'message', error));
+    Logger.error(error);
     process.exit(1);
   });
   // explicit exit FTW
