@@ -1,5 +1,14 @@
 # clever-tools changelog
 
+## 1.6.0 (2019-09-27)
+
+- Improve error stack in verbose mode
+- Use same color display for commits in `clever restart` and `clever deploy`
+- Add details about commits on `clever deploy`
+- Make `clever open` default to https://fqdn
+- Add `clever diag` command to get various infos to help support
+- Add user id in `clever profile`
+
 ## 1.5.1 => 1.5.2
 
 - Moving our releases to another cellar
