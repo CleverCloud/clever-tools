@@ -1,5 +1,9 @@
 # clever-tools changelog
 
+## 1.6.1 (2019-09-30)
+
+- Fix: Look for `.git` recursively so you can `clever deploy` from subdir
+
 ## 1.6.0 (2019-09-27)
 
 - Improve error stack in verbose mode
