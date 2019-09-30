@@ -7,12 +7,17 @@ const Bacon = require('baconjs');
 const git = require('isomorphic-git');
 const { autocomplete } = require('cliparse');
 
-const { loadOAuthConf } = require('./configuration.js');
 const slugify = require('slugify');
+const { findPath } = require('./fs-utils.js');
+const { loadOAuthConf } = require('./configuration.js');
 
-const repo = { fs, dir: '.' };
+async function getRepo () {
+  const dir = await findPath('.', '.git');
+  return { fs, dir };
+}
 
 async function addRemote (remoteName, url) {
+  const repo = await getRepo();
   const safeRemoteName = slugify(remoteName);
   const allRemotes = await git.listRemotes({ ...repo });
   const existingRemote = _.find(allRemotes, { remote: safeRemoteName });
@@ -25,7 +30,9 @@ function resolveFullCommitId (commitId) {
   if (commitId == null) {
     return Bacon.constant(null);
   }
-  return Bacon.fromPromise(git.expandOid({ ...repo, oid: commitId }))
+  const fullCommitIdPromise = getRepo()
+    .then((repo) => git.expandOid({ ...repo, oid: commitId }));
+  return Bacon.fromPromise(fullCommitIdPromise)
     .flatMapError((e) => {
       if (e.code === 'ShortOidNotFound') {
         return new Bacon.Error(`Commit id ${commitId} is ambiguous`);
@@ -35,6 +42,7 @@ function resolveFullCommitId (commitId) {
 }
 
 async function getRemoteCommit (remoteUrl) {
+  const repo = await getRepo();
   const tokens = await loadOAuthConf().toPromise();
   const remoteInfos = await git.getRemoteInfo({
     ...repo,
@@ -45,18 +53,21 @@ async function getRemoteCommit (remoteUrl) {
   return _.get(remoteInfos, 'refs.heads.master');
 }
 
-function getFullBranch (branchName) {
+async function getFullBranch (branchName) {
+  const repo = await getRepo();
   if (branchName === '') {
     return git.currentBranch({ ...repo, fullname: true });
   }
   return git.expandRef({ ...repo, ref: branchName });
 };
 
-function getBranchCommit (refspec) {
+async function getBranchCommit (refspec) {
+  const repo = await getRepo();
   return git.resolveRef({ ...repo, ref: refspec });
 }
 
 async function push (remoteUrl, branchRefspec, force) {
+  const repo = await getRepo();
   const tokens = await loadOAuthConf().toPromise();
   try {
     const push = await git.push({
@@ -82,7 +93,8 @@ async function push (remoteUrl, branchRefspec, force) {
 }
 
 function completeBranches () {
-  return git.listBranches(repo)
+  return getRepo()
+    .then((repo) => git.listBranches(repo))
     .then(autocomplete.words);
 }
 
