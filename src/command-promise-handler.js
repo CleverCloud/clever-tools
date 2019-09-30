@@ -1,6 +1,5 @@
 'use strict';
 
-const _ = require('lodash');
 const Logger = require('./logger.js');
 
 function handleCommandPromise (promise) {

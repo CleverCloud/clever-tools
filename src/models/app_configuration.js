@@ -10,6 +10,7 @@ const slugify = require('slugify');
 const { conf } = require('./configuration.js');
 const Logger = require('../logger.js');
 
+// TODO: Maybe use fs-utils findPath()
 function loadApplicationConf (ignoreParentConfig = false, pathToFolder) {
   if (pathToFolder == null) {
     pathToFolder = path.dirname(conf.APP_CONFIGURATION_FILE);
