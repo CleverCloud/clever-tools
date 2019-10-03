@@ -1,5 +1,9 @@
 # clever-tools changelog
 
+## 1.6.2 (2019-10-03)
+
+- Fix git commit diplay just before a deploy (for new empty repos)
+
 ## 1.6.1 (2019-09-30)
 
 - Fix: Look for `.git` recursively so you can `clever deploy` from subdir
