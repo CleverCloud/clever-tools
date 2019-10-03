@@ -31,9 +31,13 @@ async function deployPromise (api, params) {
     throw new Error(`${upToDateMessage}\nclever restart`);
   }
 
-  Logger.println(`Pushing new source code to Clever Cloud...`);
-  Logger.println(`Remote git head commit   is ${colors.green(remoteHeadCommitId)}`);
-  Logger.println(`Current deployed commit  is ${colors.green(deployedCommitId)}`);
+  if (remoteHeadCommitId == null || deployedCommitId == null) {
+    Logger.println(`App is brand new, no commits on remote yet`);
+  }
+  else {
+    Logger.println(`Remote git head commit   is ${colors.green(remoteHeadCommitId)}`);
+    Logger.println(`Current deployed commit  is ${colors.green(deployedCommitId)}`);
+  }
   Logger.println(`New local commit to push is ${colors.green(commitIdToPush)} (from ${colors.green(branchRefspec)})`);
   const push = await git.push(appData.deploy_url, branchRefspec, force);
 
