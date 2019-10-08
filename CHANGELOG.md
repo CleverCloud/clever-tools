@@ -1,8 +1,12 @@
 # clever-tools changelog
 
+## 1.6.3 (2019-10-08)
+
+- Fix git commit display before a `clever restart` (for new empty repos)
+
 ## 1.6.2 (2019-10-03)
 
-- Fix git commit diplay just before a deploy (for new empty repos)
+- Fix git commit diplay just before a `clever deploy` (for new empty repos)
 
 ## 1.6.1 (2019-09-30)
 
