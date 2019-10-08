@@ -23,8 +23,10 @@ function restart (api, params) {
     .combineAsArray(s_appData, s_fullCommitId, s_remoteCommitId)
     .flatMapLatest(([appData, fullCommitId, remoteCommitId]) => {
       const commitId = fullCommitId || remoteCommitId;
-      const cacheSuffix = withoutCache ? ' without using cache' : '';
-      Logger.println(`Restarting ${appData.name} on commit ${colors.green(commitId)}${cacheSuffix}`);
+      if (commitId != null) {
+        const cacheSuffix = withoutCache ? ' without using cache' : '';
+        Logger.println(`Restarting ${appData.name} on commit ${colors.green(commitId)}${cacheSuffix}`);
+      }
       const s_redeploy = Application.redeploy(api, appData.app_id, appData.org_id, fullCommitId, withoutCache);
       return Bacon.combineAsArray(s_redeploy, appData, remoteCommitId);
     })
