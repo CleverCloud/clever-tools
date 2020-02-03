@@ -17,7 +17,7 @@ async function getRepo () {
     return { fs, dir };
   }
   catch (e) {
-    throw new Error('Could not found the .git folder.');
+    throw new Error('Could not find the .git folder.');
   }
 }
 
