@@ -12,8 +12,13 @@ const { findPath } = require('./fs-utils.js');
 const { loadOAuthConf } = require('./configuration.js');
 
 async function getRepo () {
-  const dir = await findPath('.', '.git');
-  return { fs, dir };
+  try {
+    const dir = await findPath('.', '.git');
+    return { fs, dir };
+  }
+  catch (e) {
+    throw new Error('Could not found the .git folder.');
+  }
 }
 
 async function addRemote (remoteName, url) {
