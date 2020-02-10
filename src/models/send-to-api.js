@@ -3,6 +3,7 @@
 const { addOauthHeader } = require('@clevercloud/client/cjs/oauth.node.js');
 const { prefixUrl } = require('@clevercloud/client/cjs/prefix-url.js');
 const { request } = require('@clevercloud/client/cjs/request.superagent.js');
+const { execWarpscript } = require('@clevercloud/client/cjs/request-warp10.superagent.js');
 const { conf, loadOAuthConf } = require('../models/configuration.js');
 
 async function loadTokens () {
@@ -23,6 +24,12 @@ async function sendToApi (requestParams) {
     .then((requestParams) => request(requestParams, { retry: 1 }));
 }
 
+function sendToWarp10 (requestParams) {
+  return Promise.resolve(requestParams)
+    .then(prefixUrl(conf.WARP_10_EXEC_URL))
+    .then((requestParams) => execWarpscript(requestParams, { retry: 1 }));
+}
+
 async function getHostAndTokens () {
   const tokens = await loadTokens();
   return {
@@ -31,4 +38,4 @@ async function getHostAndTokens () {
   };
 }
 
-module.exports = { sendToApi, getHostAndTokens };
+module.exports = { sendToApi, sendToWarp10, getHostAndTokens };

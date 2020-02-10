@@ -1,12 +1,15 @@
 'use strict';
 
 const _ = require('lodash');
-const Bacon = require('baconjs');
 const autocomplete = require('cliparse').autocomplete;
+const Bacon = require('baconjs');
 const colors = require('colors/safe');
+const { get: getAddon } = require('@clevercloud/client/cjs/api/addon.js');
+const { getSummary } = require('@clevercloud/client/cjs/api/user.js');
 
 const Interact = require('./interact.js');
 const Logger = require('../logger.js');
+const { sendToApi } = require('../models/send-to-api.js');
 
 function listProviders (api) {
   return api.products.addonproviders.get().send();
@@ -195,6 +198,22 @@ function completePlan () {
   return autocomplete.words(['dev', 's', 'm', 'l', 'xl', 'xxl']);
 }
 
+async function findById (addonId) {
+  const { user, organisations } = await getSummary({}).then(sendToApi);
+  for (const orga of [user, ...organisations]) {
+    for (const simpleAddon of orga.addons) {
+      if (simpleAddon.id === addonId) {
+        const addon = await getAddon({ id: orga.id, addonId }).then(sendToApi);
+        return {
+          ...addon,
+          orgaId: orga.id,
+        };
+      }
+    }
+  }
+  throw new Error(`Could not find add-on with ID: ${addonId}`);
+}
+
 module.exports = {
   listProviders,
   getProvider,
@@ -209,4 +228,5 @@ module.exports = {
   rename,
   completeRegion,
   completePlan,
+  findById,
 };

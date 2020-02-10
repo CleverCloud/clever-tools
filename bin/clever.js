@@ -111,8 +111,9 @@ function lazyRequireFunction (modulePath) {
   };
 }
 
-const Application = lazyRequire('../src/models/application.js');
+const AccessLogs = lazyRequire('../src/models/accesslogs.js');
 const Addon = lazyRequire('../src/models/addon.js');
+const Application = lazyRequire('../src/models/application.js');
 const Drain = lazyRequire('../src/models/drain.js');
 const Notification = lazyRequire('../src/models/notification.js');
 
@@ -153,6 +154,20 @@ function run () {
   // OPTIONS
   const opts = {
     sourceableEnvVarsList: cliparse.flag('add-export', { description: 'Display sourceable env variables setting' }),
+    accesslogsFormat: cliparse.option('format', {
+      aliases: ['F'],
+      metavar: 'format',
+      parser: Parsers.accessLogsFormat,
+      default: 'simple',
+      description: 'Output format (one of simple, extended, clf or json)',
+      complete () {
+        return cliparse.autocomplete.words(AccessLogs('listAvailableFormats')());
+      },
+    }),
+    accesslogsFollow: cliparse.flag('follow', {
+      aliases: ['f'],
+      description: 'Display access logs continuously (ignores before, after)',
+    }),
     addonId: cliparse.option('addon', { metavar: 'addon_id', description: 'Addon ID' }),
     after: cliparse.option('after', {
       metavar: 'after',
@@ -364,6 +379,13 @@ function run () {
       description: 'Skip confirmation and delete the application directly',
     }),
   };
+
+  // ACCESSLOGS COMMAND
+  const accesslogsModule = lazyRequirePromiseModule('../src/commands/accesslogs.js');
+  const accesslogsCommand = cliparse.command('accesslogs', {
+    description: 'Fetch access logs',
+    options: [opts.alias, opts.accesslogsFormat, opts.before, opts.after, opts.accesslogsFollow, opts.addonId],
+  }, accesslogsModule('accessLogs'));
 
   // ACTIVITY COMMAND
   const activity = lazyRequireFunctionWithApi('../src/commands/activity.js');
@@ -697,6 +719,7 @@ function run () {
     version: pkg.version,
     options: [opts.verbose, opts.noUpdateNotifier],
     commands: [
+      accesslogsCommand,
       activityCommand,
       addonCommands,
       appCreateCommand,
