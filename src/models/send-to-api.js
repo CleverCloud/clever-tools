@@ -20,7 +20,7 @@ async function sendToApi (requestParams) {
   return Promise.resolve(requestParams)
     .then(prefixUrl(conf.API_HOST))
     .then(addOauthHeader(tokens))
-    .then(request);
+    .then((requestParams) => request(requestParams, { retry: 1 }));
 }
 
 async function getHostAndTokens () {
