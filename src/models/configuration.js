@@ -35,7 +35,7 @@ function loadOAuthConf () {
     .flatMapLatest(Bacon.try(JSON.parse))
     .flatMapError((error) => {
       // TODO propagate this
-      Logger.info(new Bacon.Error(`Cannot load configuration from ${conf.CONFIGURATION_FILE}\n${error.message}`));
+      Logger.info(`Cannot load configuration from ${conf.CONFIGURATION_FILE}\n${error.message}`);
       return {};
     });
 }
@@ -47,6 +47,9 @@ function writeOAuthConf (oauthData) {
     .fromNodeCallback(mkdirp, configDir, { mode: 0o700 })
     .flatMapLatest(() => {
       return Bacon.fromNodeCallback(fs.writeFile, conf.CONFIGURATION_FILE, JSON.stringify(oauthData));
+    })
+    .flatMapError((error) => {
+      return new Bacon.Error(`Cannot write configuration to ${conf.CONFIGURATION_FILE}\n${error.message}`);
     });
 }
 
