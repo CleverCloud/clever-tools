@@ -1,8 +1,11 @@
 # clever-tools changelog
 
-## 1.6.3 (2019-10-08)
+## 1.6.3 (2020-03-03)
 
 - Fix git commit display before a `clever restart` (for new empty repos)
+- Fix issue when config dir does not exist
+- Fix error handling (like ECONNRESET) via `@clevercloud/client@2.3.1`
+- Fix some connection errors via `@clevercloud/client@2.3.1`
 
 ## 1.6.2 (2019-10-03)
 
