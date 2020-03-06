@@ -1,5 +1,20 @@
 # clever-tools changelog
 
+## 2.0.0 (2020-03-06)
+
+* Enable node engines >=12 (fix #358)
+* Add elixir in autocomplete (fix #359)
+* add new `clever env import-vars FOO,BAR,BAZ` command
+* handle error when the .git folder is not found (fix #357) (Sacramentix)
+
+### ⚠️ BREAKING CHANGES
+
+* Update @clevercloud/client to 3.0.0 (fix env-var parsing/serialization)
+
+Be careful if you use `clever env import` with `2.0.0` with a file that was generated with an older version.
+
+Please read [PR 18](https://github.com/CleverCloud/clever-client.js/pull/18) for more details.
+
 ## 1.6.3 (2020-03-03)
 
 - Fix git commit display before a `clever restart` (for new empty repos)
