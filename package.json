@@ -24,7 +24,7 @@
     "scripts/*.sh"
   ],
   "dependencies": {
-    "@clevercloud/client": "^2.3.1",
+    "@clevercloud/client": "^3.0.0",
     "baconjs": "^0.7.83",
     "cliparse": "^0.3.1",
     "colors": "^1.3.3",
