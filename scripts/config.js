@@ -4,7 +4,7 @@ const pkgJson = require('../package.json');
 const semver = require('semver');
 
 const archList = ['linux', 'macos', 'win'];
-const nodeVersion = pkgJson.engines.node;
+const nodeVersion = pkgJson['pkg-node-version'];
 const releasesDir = 'releases';
 const cellar = {
   host: 'cellar-c2.services.clever-cloud.com',

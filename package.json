@@ -9,8 +9,9 @@
     "clever cloud"
   ],
   "engines": {
-    "node": "12"
+    "node": ">=12"
   },
+  "pkg-node-version": "12",
   "author": "Clever Cloud <ci@clever-cloud.com>",
   "license": "MIT",
   "bin": {
