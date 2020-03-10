@@ -288,7 +288,7 @@ function run () {
     }),
     noUpdateNotifier: cliparse.flag('no-update-notifier', { description: `Don't notify available updates for clever-tools` }),
     emailNotificationTarget: cliparse.option('notify', {
-      metavar: '<email_address>|<user_id>|organisation',
+      metavar: '<email_address>|<user_id>|"organisation"',
       description: 'Notify a user, a specific email address or the whole organisation (multiple values allowed, comma separated)',
       required: true,
       parser: Parsers.commaSeparated,
