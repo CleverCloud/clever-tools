@@ -13,7 +13,7 @@
   },
   "pkg-node-version": "12",
   "author": "Clever Cloud <ci@clever-cloud.com>",
-  "license": "MIT",
+  "license": "Apache-2.0",
   "bin": {
     "clever": "./bin/clever.js",
     "install-clever-completion": "./scripts/install-autocomplete.sh",
