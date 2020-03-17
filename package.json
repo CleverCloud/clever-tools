@@ -61,7 +61,7 @@
     "grunt-cli": "^1.3.2",
     "grunt-http": "^2.3.2",
     "grunt-mocha-test": "^0.13.3",
-    "mocha": "^6.2.0",
+    "mocha": "^6.2.1",
     "pkg": "^4.4.0",
     "semver": "^6.2.0"
   },
