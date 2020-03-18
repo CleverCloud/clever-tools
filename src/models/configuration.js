@@ -59,6 +59,7 @@ const conf = env.getOrElseAll({
   LOG_WS_URL: 'wss://api.clever-cloud.com/v2/logs/logs-socket/<%- appId %>?since=<%- timestamp %>',
   LOG_HTTP_URL: 'https://api.clever-cloud.com/v2/logs/<%- appId %>',
   EVENT_URL: 'wss://api.clever-cloud.com/v2/events/event-socket',
+  WARP_10_EXEC_URL: 'https://c1-warp10-clevercloud-customers.services.clever-cloud.com/api/v0/exec',
   OAUTH_CONSUMER_KEY: 'T5nFjKeHH4AIlEveuGhB5S3xg8T19e',
   OAUTH_CONSUMER_SECRET: 'MgVMqTr6fWlf2M0tkC2MXOnhfqBWDT',
   SSH_GATEWAY: 'ssh@sshgateway-clevercloud-customers.services.clever-cloud.com',
