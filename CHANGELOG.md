@@ -1,5 +1,11 @@
 # clever-tools changelog
 
+## 2.1.0 (2020-03-18)
+
+* Add `clever accesslogs` command to get history and contiuous access logs for apps and add-ons (fix #360)
+* Improve `clever notify-email` options handling and help
+* Warn about node version if there is an error
+
 ## 2.0.0 (2020-03-06)
 
 * Enable node engines >=12 (fix #358)
