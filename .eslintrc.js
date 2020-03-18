@@ -7,6 +7,7 @@ module.exports = {
     'line-comment-position': ['error', { 'position': 'above' }],
     'padded-blocks': 'off',
     'semi': ['error', 'always'],
+    'quotes': ['error', 'single', { 'avoidEscape': true }],
     // disabled for now
     'camelcase': 'off',
     'operator-linebreak': ['error', 'before'],

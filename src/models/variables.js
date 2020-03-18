@@ -48,7 +48,7 @@ async function readVariablesFromStdin () {
         if (type === ERROR_TYPES.INVALID_VALUE) {
           return `line ${pos.line}: the value is not valid, if you use quotes, you need to escape them like this: \\" or quote the whole value.`;
         }
-        return `Unknown error in your input`;
+        return 'Unknown error in your input';
       }).join('\n');
 
     throw new Error(formattedErrors);

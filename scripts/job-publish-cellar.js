@@ -70,13 +70,13 @@ function cellar ({ accessKeyId, secretAccessKey, host, bucket }) {
 
   return async function (filepath, remoteFilepath = filepath) {
     const Body = await fs.readFile(filepath);
-    console.log(`Uploading file on Cellar ...`);
+    console.log('Uploading file on Cellar ...');
     console.log(`\tfile ${filepath}`);
     console.log(`\tto ${remoteFilepath}`);
     return new Promise((resolve, reject) => {
       const params = { ACL: 'public-read', Body, Bucket: bucket, Key: remoteFilepath };
       return s3.putObject(params, (err) => err ? reject(err) : resolve());
-    }).then(() => console.log(`\tDONE!`));
+    }).then(() => console.log('\tDONE!'));
   };
 }
 

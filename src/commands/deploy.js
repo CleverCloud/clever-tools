@@ -32,7 +32,7 @@ async function deployPromise (api, params) {
   }
 
   if (remoteHeadCommitId == null || deployedCommitId == null) {
-    Logger.println(`App is brand new, no commits on remote yet`);
+    Logger.println('App is brand new, no commits on remote yet');
   }
   else {
     Logger.println(`Remote git head commit   is ${colors.green(remoteHeadCommitId)}`);

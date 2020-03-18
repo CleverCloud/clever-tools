@@ -28,7 +28,7 @@ function pollOauthData (url, tryCount = 0) {
     throw new Error('Something went wrong while trying to log you in.');
   }
   if (tryCount > 1 && tryCount % 10 === 0) {
-    Logger.println(`We're still waiting for the login process (in your browser) to be completed…`);
+    Logger.println("We're still waiting for the login process (in your browser) to be completed…");
   }
 
   return superagent

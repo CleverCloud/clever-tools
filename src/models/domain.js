@@ -39,7 +39,7 @@ async function getBest (appId, orgaId) {
       const result = selectBest(allDomains);
 
       if (result == null) {
-        throw new Error(`Couldn't find a domain name`);
+        throw new Error("Couldn't find a domain name");
       }
 
       return result;

@@ -11,7 +11,7 @@ const DRAIN_TYPES = [
 function createDrainBody (appId, drainTargetURL, drainTargetType, drainTargetCredentials, drainTargetConfig) {
 
   if (!authorizeDrainCreation(drainTargetType, drainTargetCredentials)) {
-    throw new Error(`Credentials are: optional for HTTP, mandatory for ElasticSearch and TCPSyslog/UDPSyslog don't need them.`);
+    throw new Error("Credentials are: optional for HTTP, mandatory for ElasticSearch and TCPSyslog/UDPSyslog don't need them.");
   }
 
   const body = {

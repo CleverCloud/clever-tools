@@ -172,7 +172,7 @@ function deleteAddon (api, orgaId, addonIdOrName, skipConfirmation) {
       const params = orgaId ? [orgaId, addonId] : [addonId];
       const confirmation = skipConfirmation
         ? Bacon.once()
-        : Interact.confirm(`Deleting the addon can't be undone, are you sure? `, 'No confirmation, aborting addon deletion');
+        : Interact.confirm("Deleting the addon can't be undone, are you sure? ", 'No confirmation, aborting addon deletion');
 
       return confirmation.flatMapLatest(() => {
         return api.owner(orgaId).addons._.delete().withParams(params).send();

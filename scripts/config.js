@@ -58,7 +58,7 @@ function isStableVersion () {
 }
 
 function getBinaryFilename (arch) {
-  return (arch === 'win') ? `clever.exe` : 'clever';
+  return (arch === 'win') ? 'clever.exe' : 'clever';
 }
 
 function getBinaryFilepath (arch, version) {

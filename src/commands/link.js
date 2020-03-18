@@ -9,7 +9,7 @@ function link (api, params) {
   const { org: orgaIdOrName, alias } = params.options;
 
   if (appIdOrName.app_id && orgaIdOrName) {
-    Logger.warn(`You've specified a unique application ID, organisation option will be ignored`);
+    Logger.warn('You\'ve specified a unique application ID, organisation option will be ignored');
   }
 
   const s_linkRepo = Application.linkRepo(api, appIdOrName, orgaIdOrName, alias)

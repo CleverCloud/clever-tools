@@ -27,7 +27,7 @@ function bintray ({ user, apiKey, subject, packageName }) {
   return function ({ filepath, version }) {
     const { ext, name: filename } = path.parse(filepath);
     const repo = ext.slice(1);
-    const host = `api.bintray.com`;
+    const host = 'api.bintray.com';
     const requestPath = `/content/${subject}/${repo}/${packageName}/${version}/${filename}.${repo}?publish=1&override=1`;
     const isStableVersion = cfg.isStableVersion();
     const debianDistribution = isStableVersion ? 'stable' : 'unstable';

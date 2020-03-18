@@ -8,7 +8,7 @@ async function run () {
   const npmToken = cfg.getNpmToken();
   const npmTag = isStableVersion ? 'latest' : 'beta';
 
-  await exec(`npm config set registry 'https://registry.npmjs.com/'`);
+  await exec('npm config set registry \'https://registry.npmjs.com/\'');
   await exec(`npm config set '//registry.npmjs.com/:_authToken' '${npmToken}'`);
   await exec(`npm publish --tag ${npmTag}`);
 }

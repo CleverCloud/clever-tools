@@ -16,7 +16,7 @@ async function run () {
   for (const arch of archList) {
     console.log(`Building pkg for ${arch} ...\n`);
     const filepath = cfg.getBinaryFilepath(arch, version);
-    await pkg([`.`, `-t`, `node${nodeVersion}-${arch}`, `-o`, filepath]);
+    await pkg(['.', '-t', `node${nodeVersion}-${arch}`, '-o', filepath]);
     if (isStableVersion) {
       const latestFilepath = cfg.getBinaryFilepath(arch, 'latest');
       await fs.copy(filepath, latestFilepath);

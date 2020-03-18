@@ -30,7 +30,7 @@ function formatLines (prefixLength, lines) {
 
 const Logger = _(['debug', 'info', 'warn', 'error'])
   .map((severity) => {
-    if (process.env['CLEVER_QUIET'] || (!process.env['CLEVER_VERBOSE'] && (severity === 'debug' || severity === 'info'))) {
+    if (process.env.CLEVER_QUIET || (!process.env.CLEVER_VERBOSE && (severity === 'debug' || severity === 'info'))) {
       return [severity, _.noop];
     }
     const consoleFn = (severity === 'error') ? console.error : console.log;
@@ -38,7 +38,7 @@ const Logger = _(['debug', 'info', 'warn', 'error'])
     return [severity, (err) => {
       const message = _.get(err, 'message', err);
       const formattedMsg = formatLines(prefixLength, processApiError(message));
-      if (process.env['CLEVER_VERBOSE'] && severity === 'error') {
+      if (process.env.CLEVER_VERBOSE && severity === 'error') {
         console.error('[STACKTRACE]');
         console.error(err);
         console.error('[/STACKTRACE]');

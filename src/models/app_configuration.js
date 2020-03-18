@@ -89,7 +89,7 @@ function findApp (config, alias) {
   if (config.default != null) {
     const defaultApp = _.find(config.apps, { app_id: config.default });
     if (defaultApp == null) {
-      throw new Error(`The default application is not listed anymore. This should not happen, your \`.clever.json\` should be fixed.`);
+      throw new Error('The default application is not listed anymore. This should not happen, your `.clever.json` should be fixed.');
     }
     return defaultApp;
   }
