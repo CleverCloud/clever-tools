@@ -1,18 +1,18 @@
 'use strict';
 
 const cfg = require('./config');
-const { cloneGitProject, applyOneTemplate, tagAndPush, commitAndPush } = require('./utils');
+const { cloneGitProject, applyTemplates, tagAndPush, commitAndPush } = require('./utils');
 
 async function run () {
 
-  const templateFilepath = './templates/dockerhub/Dockerfile';
+  const templateFilepath = './templates/dockerhub';
   const gitPath = './git-dockerhub';
   const { git, appInfos } = cfg;
   const gitUrl = 'ssh://git@github.com/CleverCloud/clever-tools-dockerhub.git';
   const version = cfg.getVersion();
 
   await cloneGitProject({ gitUrl, gitPath, git });
-  await applyOneTemplate(`${gitPath}/Dockerfile`, templateFilepath, {
+  await applyTemplates(gitPath, templateFilepath, {
     version,
     ...appInfos,
   });
