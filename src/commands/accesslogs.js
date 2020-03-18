@@ -7,6 +7,7 @@ const { ONE_HOUR, toTimestamp } = require('@clevercloud/client/cjs/utils/date.js
 const Addon = require('../models/addon.js');
 const AppConfig = require('../models/app_configuration.js');
 const Logger = require('../logger.js');
+const User = require('../models/user.js');
 const { getFormatter } = require('../models/accesslogs.js');
 const { sendToApi, sendToWarp10 } = require('../models/send-to-api.js');
 
@@ -46,8 +47,14 @@ async function getIds (addonId, alias) {
     };
   }
   const appConfig = await AppConfig.getAppData(alias).toPromise();
+  if (appConfig.org_id != null) {
+    return {
+      orgaId: appConfig.org_id,
+      appId: appConfig.app_id,
+    };
+  }
   return {
-    orgaId: appConfig.org_id,
+    orgaId: await User.getCurrentId(),
     appId: appConfig.app_id,
   };
 }
