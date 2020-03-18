@@ -52,7 +52,7 @@ function getEmailNotificationTargets (notifTargets) {
       if (el.startsWith('user_')) {
         return { type: 'userid', target: el };
       }
-      if (el === 'organisation') {
+      if (el.toLowerCase() === 'organisation') {
         return { type: 'organisation' };
       }
     })
