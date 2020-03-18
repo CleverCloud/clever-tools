@@ -5,13 +5,14 @@
 * Add `clever accesslogs` command to get history and contiuous access logs for apps and add-ons (fix #360)
 * Improve `clever notify-email` options handling and help
 * Warn about node version if there is an error
+* Enable small image for release via docker image
 
 ## 2.0.0 (2020-03-06)
 
 * Enable node engines >=12 (fix #358)
 * Add elixir in autocomplete (fix #359)
-* add new `clever env import-vars FOO,BAR,BAZ` command
-* handle error when the .git folder is not found (fix #357) (Sacramentix)
+* Add new `clever env import-vars FOO,BAR,BAZ` command
+* Handle error when the .git folder is not found (fix #357) (Sacramentix)
 
 ### ⚠️ BREAKING CHANGES
 
