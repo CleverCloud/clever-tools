@@ -25,7 +25,7 @@
     "scripts/*.sh"
   ],
   "dependencies": {
-    "@clevercloud/client": "^3.1.1",
+    "@clevercloud/client": "^3.1.2",
     "@weseek/clf-date": "^0.2.1",
     "baconjs": "^0.7.83",
     "cliparse": "^0.3.1",
