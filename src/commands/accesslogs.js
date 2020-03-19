@@ -2,7 +2,7 @@
 
 const { getAccessLogsFromWarp10InBatches, getContinuousAccessLogsFromWarp10 } = require('@clevercloud/client/cjs/access-logs.js');
 const { getWarp10AccessLogsToken } = require('@clevercloud/client/cjs/api/warp-10.js');
-const { ONE_HOUR, toTimestamp } = require('@clevercloud/client/cjs/utils/date.js');
+const { ONE_HOUR_MICROS, toMicroTimestamp } = require('@clevercloud/client/cjs/utils/date.js');
 
 const Addon = require('../models/addon.js');
 const AppConfig = require('../models/app_configuration.js');
@@ -15,8 +15,8 @@ async function accessLogs (params) {
   const { alias, format, before, after, addon: addonId, follow } = params.options;
 
   const { orgaId, appId, realAddonId } = await getIds(addonId, alias);
-  const to = (before != null) ? toTimestamp(before) : Date.now();
-  const from = (after != null) ? toTimestamp(after) : to - ONE_HOUR;
+  const to = (before != null) ? toMicroTimestamp(before) : toMicroTimestamp();
+  const from = (after != null) ? toMicroTimestamp(after) : to - ONE_HOUR_MICROS;
   const warpToken = await getWarp10AccessLogsToken({ orgaId }).then(sendToApi);
 
   if (follow && (before != null || after != null)) {
