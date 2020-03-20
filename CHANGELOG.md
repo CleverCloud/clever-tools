@@ -1,6 +1,6 @@
 # clever-tools changelog
 
-## 2.1.0 (2020-03-19)
+## 2.1.0 (2020-03-20)
 
 * Add `clever accesslogs` command to get history and contiuous access logs for apps and add-ons (fix #360)
 * Improve `clever notify-email` options handling and help
