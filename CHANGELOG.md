@@ -1,5 +1,9 @@
 # clever-tools changelog
 
+## 2.1.1 (2020-03-24)
+
+* Fix `clever scale --build-flavor`
+
 ## 2.1.0 (2020-03-20)
 
 * Add `clever accesslogs` command to get history and contiuous access logs for apps and add-ons (fix #360)
