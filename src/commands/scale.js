@@ -49,11 +49,12 @@ async function scale (params) {
   const { minFlavor, maxFlavor, minInstances, maxInstances, buildFlavor } = validateOptions(params.options);
   const { org_id, app_id: appId } = await AppConfig.getAppData(alias).toPromise();
 
-  await Application.setScalability(appId, org_id, { minFlavor, maxFlavor, minInstances, maxInstances });
-  if (buildFlavor != null) {
-    const newFlavor = (buildFlavor === 'disabled') ? null : buildFlavor;
-    await Application.setBuildFlavor(appId, org_id, newFlavor);
-  }
+  await Application.setScalability(appId, org_id, {
+    minFlavor,
+    maxFlavor,
+    minInstances,
+    maxInstances,
+  }, buildFlavor);
 
   Logger.println('App rescaled successfully');
 };
