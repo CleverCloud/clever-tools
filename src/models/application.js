@@ -207,7 +207,7 @@ function mergeScalabilityParameters (scalabilityParameters, instance) {
   return instance;
 };
 
-async function setScalability (appId, orgaId, scalabilityParameters) {
+async function setScalability (appId, orgaId, scalabilityParameters, buildFlavor) {
   Logger.info('Scaling the app: ' + appId);
 
   const app = await application.get({ id: orgaId, appId }).then(sendToApi);
@@ -218,26 +218,17 @@ async function setScalability (appId, orgaId, scalabilityParameters) {
 
   const newConfig = mergeScalabilityParameters(scalabilityParameters, instance);
 
-  return application.update({ id: orgaId, appId }, newConfig).then(sendToApi);
-};
-
-async function setDedicatedBuildInstance (appId, orgaId, enableSeparateBuild) {
-  const app = await application.get({ id: orgaId, appId }).then(sendToApi);
-  const newConfig = { ...app, separateBuild: enableSeparateBuild };
-  return application.update({ id: orgaId, appId }, newConfig).then(sendToApi);
-};
-
-async function setBuildFlavor (appId, orgaId, buildInstanceSize) {
-  Logger.info('Setting build size for app: ' + appId);
-  if (buildInstanceSize !== null) {
-    const body = { flavorName: buildInstanceSize };
-    await setDedicatedBuildInstance(appId, orgaId, true);
-    return application.setBuildInstanceFlavor({ id: orgaId, appId }, body).then(sendToApi);
+  if (buildFlavor != null) {
+    newConfig.separateBuild = (buildFlavor !== 'disabled');
+    if (buildFlavor !== 'disabled') {
+      newConfig.buildFlavor = buildFlavor;
+    }
+    else {
+      Logger.info('No build size given, disabling dedicated build instance');
+    }
   }
-  else {
-    Logger.info('No build size given, disabling dedicated build instance');
-    return setDedicatedBuildInstance(appId, orgaId, false);
-  }
+
+  return application.update({ id: orgaId, appId }, newConfig).then(sendToApi);
 };
 
 function listDependencies (api, appId, orgaId, showAll) {
@@ -299,7 +290,6 @@ module.exports = {
   redeploy,
   mergeScalabilityParameters,
   setScalability,
-  setBuildFlavor,
   listDependencies,
   link,
   unlink,
