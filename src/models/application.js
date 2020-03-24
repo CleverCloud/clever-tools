@@ -223,7 +223,16 @@ async function setScalability (appId, orgaId, scalabilityParameters) {
 
 async function setDedicatedBuildInstance (appId, orgaId, enableSeparateBuild) {
   const app = await application.get({ id: orgaId, appId }).then(sendToApi);
-  const newConfig = { ...app, separateBuild: enableSeparateBuild };
+  const newConfig = {
+    id: app.id,
+    name: app.name,
+    description: app.description,
+    zone: app.zone,
+    homogeneous: app.homogeneous,
+    stickySessions: app.stickySessions,
+    cancelOnPush: app.cancelOnPush,
+    separateBuild: enableSeparateBuild,
+  };
   return application.update({ id: orgaId, appId }, newConfig).then(sendToApi);
 };
 
