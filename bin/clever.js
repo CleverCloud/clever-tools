@@ -166,11 +166,12 @@ function run () {
     }),
     accesslogsFollow: cliparse.flag('follow', {
       aliases: ['f'],
-      description: 'Display access logs continuously (ignores before, after)',
+      description: 'Display access logs continuously (ignores before/until, after/since)',
     }),
     addonId: cliparse.option('addon', { metavar: 'addon_id', description: 'Addon ID' }),
     after: cliparse.option('after', {
       metavar: 'after',
+      aliases: ['since'],
       parser: Parsers.date,
       description: 'Fetch logs after this date (ISO8601)',
     }),
@@ -187,6 +188,7 @@ function run () {
     }),
     before: cliparse.option('before', {
       metavar: 'before',
+      aliases: ['until'],
       parser: Parsers.date,
       description: 'Fetch logs before this date (ISO8601)',
     }),
