@@ -668,7 +668,7 @@ function run () {
     description: 'Control the TCP redirections from reverse proxies to your application',
     options: [opts.alias],
     commands: [tcpRedirsListNamespacesCommand, tcpRedirsAddCommand, tcpRedirsRemoveCommand],
-  }/*, FIXME: tcpRedirs('list') */);
+  }, tcpRedirs('list'));
 
   // UNLINK COMMAND
   const unlink = lazyRequirePromiseModule('../src/commands/unlink.js');
