@@ -17,8 +17,8 @@ async function accessLogs (params) {
   const { alias, format, before, after, addon: addonId, follow } = params.options;
 
   const { orgaId, appId, realAddonId } = await getIds(addonId, alias);
-  const to = (before != null) ? toMicroTimestamp(before) : toMicroTimestamp();
-  const from = (after != null) ? toMicroTimestamp(after) : to - ONE_HOUR_MICROS;
+  const to = (before != null) ? toMicroTimestamp(before.toISOString()) : toMicroTimestamp();
+  const from = (after != null) ? toMicroTimestamp(after.toISOString()) : to - ONE_HOUR_MICROS;
   const warpToken = await getWarp10AccessLogsToken({ orgaId }).then(sendToApi);
 
   if (follow && (before != null || after != null)) {
