@@ -107,6 +107,10 @@ function run () {
       parser: Parsers.commaSeparated,
     }),
     envVariableValue: cliparse.argument('variable-value', { description: 'Value of the environment variable' }),
+    port: cliparse.argument('port', {
+      description: 'port identifying the TCP redirection',
+      parser: Parsers.integer,
+    }),
   };
 
   // OPTIONS
@@ -166,6 +170,11 @@ function run () {
     deploymentId: cliparse.option('deployment-id', {
       metavar: 'deployment_id',
       description: 'Fetch logs for a given deployment',
+    }),
+    namespace: cliparse.option('namespace', {
+      metavar: 'namespace',
+      description: 'namespace in which the TCP redirection should be',
+      required: true,
     }),
     notificationEventType: cliparse.option('event', {
       metavar: 'type',
@@ -646,10 +655,19 @@ function run () {
   const tcpRedirsListNamespacesCommand = cliparse.command('list-namespaces', {
     description: 'List the namespaces in which you can create new TCP redirections',
   }, tcpRedirs('listNamespaces'));
+  const tcpRedirsAddCommand = cliparse.command('add', {
+    description: 'Add a new TCP redirection to the application',
+    options: [opts.namespace],
+  }, tcpRedirs('add'));
+  const tcpRedirsRemoveCommand = cliparse.command('remove', {
+    description: 'Remove a TCP redirection from the application',
+    options: [opts.namespace],
+    args: [args.port],
+  }, tcpRedirs('remove'));
   const tcpRedirsCommands = cliparse.command('tcp-redirs', {
     description: 'Control the TCP redirections from reverse proxies to your application',
     options: [opts.alias],
-    commands: [tcpRedirsListNamespacesCommand],
+    commands: [tcpRedirsListNamespacesCommand, tcpRedirsAddCommand, tcpRedirsRemoveCommand],
   }/*, FIXME: tcpRedirs('list') */);
 
   // UNLINK COMMAND
