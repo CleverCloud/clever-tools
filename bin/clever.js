@@ -641,6 +641,17 @@ function run () {
     options: [opts.alias],
   }, stop('stop'));
 
+  // TCP-REDIRS COMMAND
+  const tcpRedirs = lazyRequirePromiseModule('../src/commands/tcp-redirs.js');
+  const tcpRedirsListNamespacesCommand = cliparse.command('list-namespaces', {
+    description: 'List the namespaces in which you can create new TCP redirections',
+  }, tcpRedirs('listNamespaces'));
+  const tcpRedirsCommands = cliparse.command('tcp-redirs', {
+    description: 'Control the TCP redirections from reverse proxies to your application',
+    options: [opts.alias],
+    commands: [tcpRedirsListNamespacesCommand],
+  }/*, FIXME: tcpRedirs('list') */);
+
   // UNLINK COMMAND
   const unlink = lazyRequirePromiseModule('../src/commands/unlink.js');
   const appUnlinkCommand = cliparse.command('unlink', {
@@ -708,6 +719,7 @@ function run () {
       sshCommand,
       statusCommand,
       stopCommand,
+      tcpRedirsCommands,
       versionCommand,
       webhooksCommand,
     ],
