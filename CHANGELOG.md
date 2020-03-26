@@ -1,5 +1,10 @@
 # clever-tools changelog
 
+## 2.2.0 (2020-03-26)
+
+* Alias `after/before` to `since/until` in commands `logs` and `accesslogs`
+* Fix `clever accesslogs` with `--before` and/or `--after` params
+
 ## 2.1.1 (2020-03-24)
 
 * Fix `clever scale --build-flavor`
