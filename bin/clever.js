@@ -427,11 +427,11 @@ function run () {
   }, addon('list'));
 
   // APPLICATIONS COMMAND
-  const applications = lazyRequireFunctionWithApi('../src/commands/applications.js');
+  const applications = lazyRequirePromiseModule('../src/commands/applications.js');
   const applicationsCommand = cliparse.command('applications', {
     description: 'List linked applications',
     options: [opts.onlyAliases],
-  }, applications);
+  }, applications('list'));
 
   // CANCEL DEPLOY COMMAND
   const cancelDeploy = lazyRequirePromiseModule('../src/commands/cancel-deploy.js');
