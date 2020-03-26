@@ -1,7 +1,11 @@
 'use strict';
 
 const _ = require('lodash');
+const autocomplete = require('cliparse').autocomplete;
 
+const AppConfig = require('./app_configuration.js');
+
+const organisation = require('@clevercloud/client/cjs/api/organisation.js');
 const { getSummary } = require('@clevercloud/client/cjs/api/user.js');
 const { sendToApi } = require('../models/send-to-api.js');
 
@@ -33,6 +37,22 @@ async function getByName (name) {
   return filteredOrgs[0];
 }
 
+async function getNamespaces (params) {
+  const { alias } = params.options;
+  const { ownerId } = await AppConfig.getAppDetails({ alias });
+
+  return organisation.getNamespaces({ id: ownerId }).then(sendToApi);
+}
+
+function completeNamespaces () {
+  // Sadly we do not have access to current params in complete as of now
+  const params = { options: {} };
+
+  return getNamespaces(params).then(autocomplete.words);
+};
+
 module.exports = {
   getId,
+  getNamespaces,
+  completeNamespaces,
 };

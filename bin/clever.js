@@ -74,6 +74,7 @@ const Addon = lazyRequire('../src/models/addon.js');
 const Application = lazyRequire('../src/models/application.js');
 const Drain = lazyRequire('../src/models/drain.js');
 const Notification = lazyRequire('../src/models/notification.js');
+const Organisation = lazyRequire('../src/models/organisation.js');
 
 function run () {
 
@@ -175,6 +176,7 @@ function run () {
       metavar: 'namespace',
       description: 'namespace in which the TCP redirection should be',
       required: true,
+      complete: Organisation('completeNamespaces'),
     }),
     notificationEventType: cliparse.option('event', {
       metavar: 'type',
