@@ -397,7 +397,7 @@ function run () {
   }, activity);
 
   // ADDON COMMANDS
-  const addon = lazyRequireModuleWithApi('../src/commands/addon.js');
+  const addon = lazyRequirePromiseModule('../src/commands/addon.js');
   const addonCreateCommand = cliparse.command('create', {
     description: 'Create an addon',
     args: [args.addonProvider, args.addonName],
