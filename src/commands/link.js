@@ -1,21 +1,19 @@
 'use strict';
 
 const Application = require('../models/application.js');
-const handleCommandStream = require('../command-stream-handler');
 const Logger = require('../logger.js');
 
-function link (api, params) {
-  const [appIdOrName] = params.args;
+async function link (params) {
+  const [app] = params.args;
   const { org: orgaIdOrName, alias } = params.options;
 
-  if (appIdOrName.app_id && orgaIdOrName) {
+  if (app.app_id != null && orgaIdOrName != null) {
     Logger.warn('You\'ve specified a unique application ID, organisation option will be ignored');
   }
 
-  const s_linkRepo = Application.linkRepo(api, appIdOrName, orgaIdOrName, alias)
-    .map(() => Logger.println('Your application has been successfully linked!'));
+  await Application.linkRepo(app, orgaIdOrName, alias);
 
-  handleCommandStream(s_linkRepo);
+  Logger.println('Your application has been successfully linked!');
 }
 
-module.exports = link;
+module.exports = { link };

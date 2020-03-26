@@ -30,8 +30,9 @@ function loadApplicationConf (ignoreParentConfig = false, pathToFolder) {
     });
 };
 
-function addLinkedApplication (appData, alias, ignoreParentConfig) {
-  const currentConfig = loadApplicationConf(ignoreParentConfig);
+async function addLinkedApplication (appData, alias, ignoreParentConfig) {
+  const currentConfig = await loadApplicationConf(ignoreParentConfig).toPromise();
+
   const appEntry = {
     app_id: appData.id,
     org_id: appData.ownerId,
@@ -40,20 +41,15 @@ function addLinkedApplication (appData, alias, ignoreParentConfig) {
     alias: alias || slugify(appData.name),
   };
 
-  const s_newConfig = currentConfig.flatMapLatest(function (config) {
-    const isPresent = !_.find(config.apps, function (app) {
-      return app.app_id === appEntry.app_id;
-    });
+  const isPresent = currentConfig.apps.find((app) => app.app_id === appEntry.app_id) != null;
 
-    // ToDo see what to do when there is a conflict between an existing entry
-    // and the entry we want to add (same app_id, different other values)
-    if (isPresent) {
-      config.apps.push(appEntry);
-    }
-    return config;
-  });
+  // ToDo see what to do when there is a conflict between an existing entry
+  // and the entry we want to add (same app_id, different other values)
+  if (!isPresent) {
+    currentConfig.apps.push(appEntry);
+  }
 
-  return s_newConfig.flatMapLatest(persistConfig);
+  return persistConfig(currentConfig).toPromise();
 };
 
 async function removeLinkedApplication (alias) {

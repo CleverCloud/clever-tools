@@ -11,7 +11,7 @@ async function create (params) {
   const github = getGithubDetails(githubOwnerRepo);
 
   const app = await Application.create(name, typeName, region, orgaIdOrName, github);
-  await AppConfig.addLinkedApplication(app, alias).toPromise();
+  await AppConfig.addLinkedApplication(app, alias);
 
   Logger.println('Your application has been successfully created!');
 };

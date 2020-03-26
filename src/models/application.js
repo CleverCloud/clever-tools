@@ -148,16 +148,23 @@ function get (api, appId, orgaId) {
   return api.owner(orgaId).applications._.get().withParams(params).send();
 };
 
-function linkRepo (api, appIdOrName, orgaIdOrName, alias, ignoreParentConfig) {
-  Logger.debug(`Linking current repository to the app: ${appIdOrName.app_id || appIdOrName.app_name}`);
+function getProm (orgaId, appId) {
+  Logger.debug(`Get information for the app: ${appId}`);
+  return application.get({ id: orgaId, appId }).then(sendToApi);
+};
 
-  const s_app = (appIdOrName.app_id != null)
-    ? get(api, appIdOrName.app_id)
-    : getByName(api, appIdOrName.app_name, orgaIdOrName);
+async function linkRepo (app, orgaIdOrName, alias, ignoreParentConfig) {
+  Logger.debug(`Linking current repository to the app: ${app.app_id || app.app_name}`);
 
-  return s_app.flatMapLatest((appData) => {
-    return AppConfiguration.addLinkedApplication(appData, alias, ignoreParentConfig);
-  });
+  const ownerId = (orgaIdOrName != null)
+    ? await Organisation.getIdProm(orgaIdOrName)
+    : await User.getCurrentId();
+
+  const appData = (app.app_id != null)
+    ? await getProm(ownerId, app.app_id)
+    : await getByNameProm(ownerId, app.app_name);
+
+  return AppConfiguration.addLinkedApplication(appData, alias, ignoreParentConfig);
 };
 
 function unlinkRepo (alias) {

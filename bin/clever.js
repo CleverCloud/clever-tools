@@ -534,12 +534,12 @@ function run () {
   }, env('list'));
 
   // LINK COMMAND
-  const link = lazyRequireFunctionWithApi('../src/commands/link.js');
+  const link = lazyRequirePromiseModule('../src/commands/link.js');
   const appLinkCommand = cliparse.command('link', {
     description: 'Link this repo to an existing Clever Cloud application',
     args: [args.appIdOrName],
     options: [opts.aliasCreation, opts.orgaIdOrName],
-  }, link);
+  }, link('link'));
 
   // LOGIN COMMAND
   const login = lazyRequirePromiseModule('../src/commands/login.js');

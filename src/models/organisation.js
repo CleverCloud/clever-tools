@@ -15,7 +15,7 @@ async function getIdProm (orgaIdOrName) {
     return null;
   }
 
-  if (orgaIdOrName.orga_id) {
+  if (orgaIdOrName.orga_id != null) {
     return orgaIdOrName.orga_id;
   }
 
