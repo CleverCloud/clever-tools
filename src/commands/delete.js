@@ -11,7 +11,7 @@ function deleteApp (api, params) {
   const s_delete = AppConfig.getAppData(alias)
     .flatMapLatest((app_data) => {
       return Application.deleteApp(api, app_data, skipConfirmation)
-        .flatMapLatest(() => Application.unlinkRepo(api, app_data.alias));
+        .flatMapLatest(() => Application.unlinkRepo(app_data.alias));
     })
     .map(() => Logger.println('The application has been deleted'));
 

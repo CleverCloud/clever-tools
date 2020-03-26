@@ -148,7 +148,7 @@ function linkRepo (api, appIdOrName, orgaIdOrName, alias, ignoreParentConfig) {
   });
 };
 
-function unlinkRepo (api, alias) {
+function unlinkRepo (alias) {
   Logger.debug(`Unlinking current repository from the app: ${alias}`);
   return AppConfiguration.removeLinkedApplication(alias);
 };

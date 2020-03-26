@@ -684,11 +684,11 @@ function run () {
   }, stop);
 
   // UNLINK COMMAND
-  const unlink = lazyRequireFunctionWithApi('../src/commands/unlink.js');
+  const unlink = lazyRequirePromiseModule('../src/commands/unlink.js');
   const appUnlinkCommand = cliparse.command('unlink', {
     description: 'Unlink this repo from an existing Clever Cloud application',
     args: [args.alias],
-  }, unlink);
+  }, unlink('unlink'));
 
   // VERSION COMMAND
   const version = lazyRequirePromiseModule('../src/commands/version.js');
