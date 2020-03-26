@@ -663,11 +663,11 @@ function run () {
   }, service('list'));
 
   // SSH COMMAND
-  const ssh = lazyRequireFunctionWithApi('../src/commands/ssh.js');
+  const ssh = lazyRequirePromiseModule('../src/commands/ssh.js');
   const sshCommand = cliparse.command('ssh', {
     description: 'Connect to running instances through SSH',
     options: [opts.alias, opts.sshIdentityFile],
-  }, ssh);
+  }, ssh('ssh'));
 
   // STATUS COMMAND
   const status = lazyRequirePromiseModule('../src/commands/status.js');
