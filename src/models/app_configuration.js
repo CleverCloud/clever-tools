@@ -33,12 +33,11 @@ function addLinkedApplication (appData, alias, ignoreParentConfig) {
   const currentConfig = loadApplicationConf(ignoreParentConfig);
   const appEntry = {
     app_id: appData.id,
+    org_id: appData.ownerId,
     deploy_url: appData.deployment.httpUrl || appData.deployment.url,
     name: appData.name,
     alias: alias || slugify(appData.name),
   };
-
-  if (appData.ownerId.substr(0, 5) === 'orga_') appEntry.org_id = appData.ownerId;
 
   const s_newConfig = currentConfig.flatMapLatest(function (config) {
     const isPresent = !_.find(config.apps, function (app) {
