@@ -97,7 +97,7 @@ function getAllLogs (api, push, appData, commitId, quiet) {
 
   const deploymentId = _.get(push, 'deploymentId');
   const s_deploymentEvents = Event
-    .getEvents(api, appData.app_id)
+    .getEvents(appData.app_id)
     .filter((e) => {
       if (deploymentId != null) {
         return _.get(e, 'data.uuid') === deploymentId;

@@ -390,7 +390,7 @@ function run () {
   }, accesslogsModule('accessLogs'));
 
   // ACTIVITY COMMAND
-  const activity = lazyRequireFunctionWithApi('../src/commands/activity.js');
+  const activity = lazyRequireFunction('../src/commands/activity.js');
   const activityCommand = cliparse.command('activity', {
     description: 'Show last deployments of a Clever Cloud application',
     options: [opts.alias, opts.follow, opts.showAllActivity],

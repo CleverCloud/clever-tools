@@ -1,16 +1,12 @@
 'use strict';
 
-function list (api, appId, orgaId, showAll) {
-  const params = [appId];
-  if (orgaId) {
-    params.unshift(orgaId);
-  }
-  const query = showAll ? {} : { limit: 10 };
+const application = require('@clevercloud/client/cjs/api/application.js');
 
-  return api.owner(orgaId).applications._.deployments.get()
-    .withParams(params)
-    .withQuery(query)
-    .send();
+const { sendToApi } = require('./send-to-api.js');
+
+function list (ownerId, appId, showAll) {
+  const limit = showAll ? null : 10;
+  return application.getAllDeployments({ id: ownerId, appId, limit }).then(sendToApi);
 };
 
 module.exports = { list };
