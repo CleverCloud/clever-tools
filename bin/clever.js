@@ -593,11 +593,11 @@ function run () {
   }, open('open'));
 
   // CONSOLE COMMAND
-  const consoleModule = lazyRequireFunctionWithApi('../src/commands/console.js');
+  const consoleModule = lazyRequirePromiseModule('../src/commands/console.js');
   const consoleCommand = cliparse.command('console', {
     description: 'Open an application in the console',
     options: [opts.alias],
-  }, consoleModule);
+  }, consoleModule('openConsole'));
 
   // PROFILE COMMAND
   const profile = lazyRequirePromiseModule('../src/commands/profile.js');
