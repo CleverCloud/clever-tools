@@ -119,13 +119,11 @@ function persistConfig (modifiedConfig) {
   return Bacon.fromNodeCallback(fs.writeFile, conf.APP_CONFIGURATION_FILE, jsonContents);
 };
 
-function setDefault (alias) {
-  return loadApplicationConf()
-    .flatMap(Bacon.try((config) => {
-      const app = findApp(config, alias);
-      return _.assign({}, config, { default: app.app_id });
-    }))
-    .flatMapLatest(persistConfig);
+async function setDefault (alias) {
+  const config = await loadApplicationConf().toPromise();
+  const app = findApp(config, alias);
+  const newConfig = { ...config, default: app.app_id };
+  return persistConfig(newConfig).toPromise();
 }
 
 module.exports = {

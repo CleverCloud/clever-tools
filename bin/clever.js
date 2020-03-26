@@ -562,11 +562,11 @@ function run () {
   }, logs);
 
   // MAKE DEFAULT COMMAND
-  const makeDefault = lazyRequireFunctionWithApi('../src/commands/makeDefault.js');
+  const makeDefault = lazyRequirePromiseModule('../src/commands/makeDefault.js');
   const makeDefaultCommand = cliparse.command('make-default', {
     description: 'Make a linked application the default one',
     args: [args.alias],
-  }, makeDefault);
+  }, makeDefault('makeDefault'));
 
   // NOTIFY-EMAIL COMMAND
   const notifyEmail = lazyRequirePromiseModule('../src/commands/notify-email.js');
