@@ -434,11 +434,11 @@ function run () {
   }, applications);
 
   // CANCEL DEPLOY COMMAND
-  const cancelDeploy = lazyRequireFunctionWithApi('../src/commands/cancel-deploy.js');
+  const cancelDeploy = lazyRequirePromiseModule('../src/commands/cancel-deploy.js');
   const cancelDeployCommand = cliparse.command('cancel-deploy', {
     description: 'Cancel an ongoing deployment on Clever Cloud',
     options: [opts.alias],
-  }, cancelDeploy);
+  }, cancelDeploy('cancelDeploy'));
 
   // CREATE COMMAND
   const create = lazyRequireFunctionWithApi('../src/commands/create.js');

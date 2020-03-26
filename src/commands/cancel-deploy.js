@@ -1,24 +1,24 @@
 'use strict';
 
-const _ = require('lodash');
-
 const AppConfig = require('../models/app_configuration.js');
-const Deployment = require('../models/deployment.js');
-const handleCommandStream = require('../command-stream-handler');
 const Logger = require('../logger.js');
+const { getAllDeployments, cancelDeployment } = require('@clevercloud/client/cjs/api/application.js');
+const { sendToApi } = require('../models/send-to-api.js');
 
-function cancelDeployment (api, params) {
+async function cancelDeploy (params) {
   const { alias } = params.options;
+  const { ownerId, appId } = await AppConfig.getAppDetails({ alias });
 
-  const s_cancel = AppConfig.getAppData(alias)
-    .flatMapLatest(({ app_id, org_id }) => {
-      return Deployment.last(api, app_id, org_id).flatMapLatest((deployments) => {
-        return Deployment.cancel(api, _.head(deployments) || {}, app_id, org_id);
-      });
-    })
-    .map(() => Logger.println('Deployment cancelled!'));
+  const deployments = await getAllDeployments({ id: ownerId, appId, limit: 1 }).then(sendToApi);
 
-  handleCommandStream(s_cancel);
+  if (deployments.length === 0 || (deployments[0].action !== 'DEPLOY' || deployments[0].state !== 'WIP')) {
+    throw new Error('There is no ongoing deployment for this application');
+  }
+
+  const deploymentId = deployments[0].id;
+  await cancelDeployment({ id: ownerId, appId, deploymentId }).then(sendToApi);
+
+  Logger.println('Deployment cancelled!');
 };
 
-module.exports = cancelDeployment;
+module.exports = { cancelDeploy };
