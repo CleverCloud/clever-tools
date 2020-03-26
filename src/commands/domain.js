@@ -1,44 +1,36 @@
 'use strict';
 
-const _ = require('lodash');
-
 const AppConfig = require('../models/app_configuration.js');
-const Domain = require('../models/domain.js');
-const handleCommandStream = require('../command-stream-handler');
 const Logger = require('../logger.js');
+const { get: getApp, addDomain, removeDomain } = require('@clevercloud/client/cjs/api/application.js');
+const { sendToApi } = require('../models/send-to-api.js');
 
-function list (api, params) {
+async function list (params) {
   const { alias } = params.options;
+  const { ownerId, appId } = await AppConfig.getAppDetails({ alias });
 
-  const s_domains = AppConfig.getAppData(alias)
-    .flatMapLatest((appData) => Domain.list(api, appData.app_id, appData.org_id))
-    .map((domains) => {
-      return _.forEach(domains, ({ fqdn }) => Logger.println(fqdn));
-    });
-
-  handleCommandStream(s_domains);
+  const app = await getApp({ id: ownerId, appId }).then(sendToApi);
+  return app.vhosts.forEach(({ fqdn }) => Logger.println(fqdn));
 }
 
-function add (api, params) {
+async function add (params) {
   const [fqdn] = params.args;
   const { alias } = params.options;
+  const { ownerId, appId } = await AppConfig.getAppDetails({ alias });
+  const encodedFqdn = encodeURIComponent(fqdn);
 
-  const s_domain = AppConfig.getAppData(alias)
-    .flatMapLatest((appData) => Domain.create(api, fqdn, appData.app_id, appData.org_id))
-    .map(() => Logger.println('Your domain has been successfully saved'));
-
-  handleCommandStream(s_domain);
+  await addDomain({ id: ownerId, appId, domain: encodedFqdn }).then(sendToApi);
+  Logger.println('Your domain has been successfully saved');
 }
 
-function rm (api, params) {
+async function rm (params) {
   const [fqdn] = params.args;
   const { alias } = params.options;
+  const { ownerId, appId } = await AppConfig.getAppDetails({ alias });
+  const encodedFqdn = encodeURIComponent(fqdn);
 
-  const s_domain = AppConfig.getAppData(alias)
-    .flatMapLatest((appData) => Domain.remove(api, fqdn, appData.app_id, appData.org_id))
-    .map(() => Logger.println('Your domain has been successfully removed'));
-
-  handleCommandStream(s_domain);
+  await removeDomain({ id: ownerId, appId, domain: encodedFqdn }).then(sendToApi);
+  Logger.println('Your domain has been successfully removed');
 }
 
 module.exports = { list, add, rm };

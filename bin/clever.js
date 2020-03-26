@@ -470,7 +470,7 @@ function run () {
   }, diag('diag'));
 
   // DOMAIN COMMANDS
-  const domain = lazyRequireModuleWithApi('../src/commands/domain.js');
+  const domain = lazyRequirePromiseModule('../src/commands/domain.js');
   const domainCreateCommand = cliparse.command('add', {
     description: 'Add a domain name to a Clever Cloud application',
     args: [args.fqdn],
