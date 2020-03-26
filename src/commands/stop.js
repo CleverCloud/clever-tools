@@ -1,18 +1,16 @@
 'use strict';
 
 const AppConfig = require('../models/app_configuration.js');
-const Application = require('../models/application.js');
-const handleCommandStream = require('../command-stream-handler');
+const application = require('@clevercloud/client/cjs/api/application.js');
 const Logger = require('../logger.js');
+const { sendToApi } = require('../models/send-to-api.js');
 
-function stop (api, params) {
+async function stop (params) {
   const { alias } = params.options;
+  const { ownerId, appId } = await AppConfig.getAppDetails({ alias });
 
-  const s_stoppedApp = AppConfig.getAppData(alias)
-    .flatMapLatest((appData) => Application.stop(api, appData.app_id, appData.org_id))
-    .map(() => Logger.println('App successfully stopped!'));
-
-  handleCommandStream(s_stoppedApp);
+  await application.undeploy({ id: ownerId, appId }).then(sendToApi);
+  Logger.println('App successfully stopped!');
 }
 
-module.exports = stop;
+module.exports = { stop };

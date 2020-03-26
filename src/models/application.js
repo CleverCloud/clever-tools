@@ -146,12 +146,6 @@ function unlinkRepo (alias) {
   return AppConfiguration.removeLinkedApplication(alias);
 };
 
-function stop (api, appId, orgaId) {
-  Logger.debug(`Stopping the app: ${appId}`);
-  const params = orgaId ? [orgaId, appId] : [appId];
-  return api.owner(orgaId).applications._.instances.delete().withParams(params).send();
-};
-
 function redeploy (api, appId, orgaId, commitId, withoutCache) {
   Logger.debug(`Redeploying the app: ${appId}`);
   const params = orgaId ? [orgaId, appId] : [appId];
@@ -279,7 +273,6 @@ module.exports = {
   get,
   linkRepo,
   unlinkRepo,
-  stop,
   redeploy,
   mergeScalabilityParameters,
   setScalability,

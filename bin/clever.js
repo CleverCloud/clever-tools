@@ -677,11 +677,11 @@ function run () {
   }, status('status'));
 
   // STOP COMMAND
-  const stop = lazyRequireFunctionWithApi('../src/commands/stop.js');
+  const stop = lazyRequirePromiseModule('../src/commands/stop.js');
   const stopCommand = cliparse.command('stop', {
     description: 'Stop a running application on Clever Cloud',
     options: [opts.alias],
-  }, stop);
+  }, stop('stop'));
 
   // UNLINK COMMAND
   const unlink = lazyRequirePromiseModule('../src/commands/unlink.js');
