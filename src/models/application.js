@@ -207,10 +207,10 @@ function mergeScalabilityParameters (scalabilityParameters, instance) {
   return instance;
 };
 
-async function setScalability (appId, orgaId, scalabilityParameters, buildFlavor) {
+async function setScalability (appId, ownerId, scalabilityParameters, buildFlavor) {
   Logger.info('Scaling the app: ' + appId);
 
-  const app = await application.get({ id: orgaId, appId }).then(sendToApi);
+  const app = await application.get({ id: ownerId, appId }).then(sendToApi);
   const instance = _.cloneDeep(app.instance);
 
   instance.minFlavor = instance.minFlavor.name;
@@ -228,7 +228,7 @@ async function setScalability (appId, orgaId, scalabilityParameters, buildFlavor
     }
   }
 
-  return application.update({ id: orgaId, appId }, newConfig).then(sendToApi);
+  return application.update({ id: ownerId, appId }, newConfig).then(sendToApi);
 };
 
 function listDependencies (api, appId, orgaId, showAll) {
