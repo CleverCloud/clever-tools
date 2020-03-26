@@ -9,9 +9,9 @@ const application = require('@clevercloud/client/cjs/api/application.js');
 
 async function list (params) {
   const { alias } = params.options;
-  const { org_id, app_id: appId } = await AppConfig.getAppData(alias).toPromise();
+  const { ownerId, appId } = await AppConfig.getAppDetails({ alias });
 
-  const publishedConfigs = await application.getAllExposedEnvVars({ id: org_id, appId }).then(sendToApi);
+  const publishedConfigs = await application.getAllExposedEnvVars({ id: ownerId, appId }).then(sendToApi);
   const pairs = Object.entries(publishedConfigs)
     .map(([name, value]) => ({ name, value }));
 
@@ -28,11 +28,11 @@ async function set (params) {
     throw new Error(`Published config name ${varName} is invalid`);
   }
 
-  const { org_id, app_id: appId } = await AppConfig.getAppData(alias).toPromise();
+  const { ownerId, appId } = await AppConfig.getAppDetails({ alias });
 
-  const publishedConfigs = await application.getAllExposedEnvVars({ id: org_id, appId }).then(sendToApi);
+  const publishedConfigs = await application.getAllExposedEnvVars({ id: ownerId, appId }).then(sendToApi);
   publishedConfigs[varName] = varValue;
-  await application.updateAllExposedEnvVars({ id: org_id, appId }, publishedConfigs).then(sendToApi);
+  await application.updateAllExposedEnvVars({ id: ownerId, appId }, publishedConfigs).then(sendToApi);
 
   Logger.println('Your published config item has been successfully saved');
 };
@@ -40,21 +40,21 @@ async function set (params) {
 async function rm (params) {
   const [varName] = params.args;
   const { alias } = params.options;
-  const { org_id, app_id: appId } = await AppConfig.getAppData(alias).toPromise();
+  const { ownerId, appId } = await AppConfig.getAppDetails({ alias });
 
-  const publishedConfigs = await application.getAllExposedEnvVars({ id: org_id, appId }).then(sendToApi);
+  const publishedConfigs = await application.getAllExposedEnvVars({ id: ownerId, appId }).then(sendToApi);
   delete publishedConfigs[varName];
-  await application.updateAllExposedEnvVars({ id: org_id, appId }, publishedConfigs).then(sendToApi);
+  await application.updateAllExposedEnvVars({ id: ownerId, appId }, publishedConfigs).then(sendToApi);
 
   Logger.println('Your published config item has been successfully removed');
 };
 
 async function importEnv (params) {
   const { alias } = params.options;
-  const { org_id, app_id: appId } = await AppConfig.getAppData(alias).toPromise();
+  const { ownerId, appId } = await AppConfig.getAppDetails({ alias });
 
   const publishedConfigs = await variables.readVariablesFromStdin();
-  await application.updateAllExposedEnvVars({ id: org_id, appId }, publishedConfigs).then(sendToApi);
+  await application.updateAllExposedEnvVars({ id: ownerId, appId }, publishedConfigs).then(sendToApi);
 
   Logger.println('Your published configs have been set');
 };
