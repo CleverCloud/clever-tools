@@ -8,7 +8,7 @@ async function unlink (params) {
   const [alias] = params.args;
   const app = await AppConfig.getAppDetails({ alias });
 
-  await Application.unlinkRepo(app.alias).toPromise();
+  await Application.unlinkRepo(app.alias);
   Logger.println('Your application has been successfully unlinked!');
 };
 

@@ -56,17 +56,13 @@ function addLinkedApplication (appData, alias, ignoreParentConfig) {
   return s_newConfig.flatMapLatest(persistConfig);
 };
 
-function removeLinkedApplication (alias) {
-  const currentConfig = loadApplicationConf();
-
-  const s_newConfig = currentConfig.flatMapLatest(function (config) {
-    config.apps = _.reject(config.apps, function (appEntry) {
-      return appEntry.alias === alias;
-    });
-    return config;
-  });
-
-  return s_newConfig.flatMapLatest(persistConfig);
+async function removeLinkedApplication (alias) {
+  const currentConfig = await loadApplicationConf().toPromise();
+  const newConfig = {
+    ...currentConfig,
+    apps: currentConfig.apps.filter((appEntry) => appEntry.alias !== alias),
+  };
+  return persistConfig(newConfig).toPromise();
 };
 
 function findApp (config, alias) {

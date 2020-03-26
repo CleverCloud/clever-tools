@@ -449,11 +449,11 @@ function run () {
   }, create);
 
   // DELETE COMMAND
-  const delete_ = lazyRequireFunctionWithApi('../src/commands/delete.js');
+  const deleteCommandModule = lazyRequirePromiseModule('../src/commands/delete.js');
   const deleteCommand = cliparse.command('delete', {
     description: 'Delete a Clever Cloud application',
     options: [opts.alias, opts.confirmApplicationDeletion],
-  }, delete_);
+  }, deleteCommandModule('deleteApp'));
 
   // DEPLOY COMMAND
   const deploy = lazyRequireFunctionWithApi('../src/commands/deploy.js');

@@ -78,24 +78,17 @@ function create (api, name, instanceType, region, orgaIdOrName, github) {
   });
 };
 
-function deleteApp (api, app_data, skipConfirmation) {
-  Logger.debug('Deleting app: ' + app_data.name + ' (' + app_data.app_id + ')');
+async function deleteApp (addDetails, skipConfirmation) {
+  Logger.debug('Deleting app: ' + addDetails.name + ' (' + addDetails.appId + ')');
 
-  const s_confirmation = skipConfirmation
-    ? Bacon.once()
-    : Interact.confirm(
-      'Deleting the application ' + app_data.name + ' can\'t be undone, please type \'' + app_data.name + '\' to confirm: ',
+  if (!skipConfirmation) {
+    await Interact.confirm(
+      `Deleting the application ${addDetails.name} can't be undone, please type '${addDetails.name}' to confirm: `,
       'No confirmation, aborting application deletion',
-      [app_data.name]);
+      [addDetails.name]).toPromise();
+  }
 
-  return s_confirmation.flatMapLatest(function () {
-    return performDeletion(api, app_data.app_id, app_data.org_id);
-  });
-};
-
-function performDeletion (api, appId, orgaId) {
-  const params = orgaId ? [orgaId, appId] : [appId];
-  return api.owner(orgaId).applications._.delete().withParams(params).send();
+  return application.remove({ id: addDetails.ownerId, appId: addDetails.appId }).then(sendToApi);
 };
 
 function getApplicationByName (s_apps, name) {
