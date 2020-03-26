@@ -2,6 +2,7 @@
 
 const _ = require('lodash');
 const application = require('@clevercloud/client/cjs/api/application.js');
+const product = require('@clevercloud/client/cjs/api/product.js');
 const autocomplete = require('cliparse').autocomplete;
 const Bacon = require('baconjs');
 
@@ -9,6 +10,7 @@ const AppConfiguration = require('./app_configuration.js');
 const Interact = require('./interact.js');
 const Logger = require('../logger.js');
 const Organisation = require('./organisation.js');
+const User = require('./user.js');
 
 const { sendToApi } = require('../models/send-to-api.js');
 
@@ -47,43 +49,49 @@ async function getIdProm (ownerId, dependency) {
   return app.id;
 };
 
-function getInstanceType (api, type) {
-  const s_types = api.products.instances.get().send();
+async function getInstanceType (type) {
 
-  return s_types.flatMapLatest(function (types) {
-    const enabledTypes = _.filter(types, (t) => t.enabled);
-    const matchingVariants = _.filter(enabledTypes, (t) => t.variant && t.variant.slug === type);
-    const instanceVariant = _.sortBy(matchingVariants, 'version').reverse()[0];
-    return instanceVariant ? Bacon.once(instanceVariant) : new Bacon.Error(type + ' type does not exist.');
-  });
+  // TODO: We should be able to use it without {}
+  const types = await product.getAvailableInstances({}).then(sendToApi);
+
+  const enabledTypes = types.filter((t) => t.enabled);
+  const matchingVariants = enabledTypes.filter((t) => t.variant != null && t.variant.slug === type);
+  const instanceVariant = _.sortBy(matchingVariants, 'version').reverse()[0];
+  if (instanceVariant == null) {
+    throw new Error(type + ' type does not exist.');
+  }
+  return instanceVariant;
 };
 
-function create (api, name, instanceType, region, orgaIdOrName, github) {
+async function create (name, typeName, region, orgaIdOrName, github) {
   Logger.debug('Create the application…');
-  return Organisation.getId(api, orgaIdOrName).flatMapLatest((orgaId) => {
-    const params = orgaId ? [orgaId] : [];
 
-    const body = {
-      deploy: 'git',
-      description: name,
-      instanceType: instanceType.type,
-      instanceVersion: instanceType.version,
-      instanceVariant: instanceType.variant.id,
-      maxFlavor: instanceType.defaultFlavor.name,
-      maxInstances: 1,
-      minFlavor: instanceType.defaultFlavor.name,
-      minInstances: 1,
-      name: name,
-      zone: region,
-    };
+  const ownerId = (orgaIdOrName != null)
+    ? await Organisation.getIdProm(orgaIdOrName)
+    : await User.getCurrentId();
 
-    if (github) {
-      body.oauthService = 'github';
-      body.oauthApp = github;
-    }
+  const instanceType = await getInstanceType(typeName);
 
-    return api.owner(orgaId).applications.post().withParams(params).send(JSON.stringify(body));
-  });
+  const newApp = {
+    deploy: 'git',
+    description: name,
+    instanceType: instanceType.type,
+    instanceVersion: instanceType.version,
+    instanceVariant: instanceType.variant.id,
+    maxFlavor: instanceType.defaultFlavor.name,
+    maxInstances: 1,
+    minFlavor: instanceType.defaultFlavor.name,
+    minInstances: 1,
+    name: name,
+    zone: region,
+  };
+
+  if (github != null) {
+    newApp.oauthService = 'github';
+    newApp.oauthApp = github;
+  }
+
+  return application.create({ id: ownerId }, newApp).then(sendToApi);
 };
 
 async function deleteApp (addDetails, skipConfirmation) {
@@ -261,7 +269,6 @@ module.exports = {
   listAvailableAliases,
   listAvailableFlavors,
   getId,
-  getInstanceType,
   create,
   deleteApp,
   getByName,

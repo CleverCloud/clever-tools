@@ -441,12 +441,12 @@ function run () {
   }, cancelDeploy('cancelDeploy'));
 
   // CREATE COMMAND
-  const create = lazyRequireFunctionWithApi('../src/commands/create.js');
+  const create = lazyRequirePromiseModule('../src/commands/create.js');
   const appCreateCommand = cliparse.command('create', {
     description: 'Create a Clever Cloud application',
     args: [args.appNameCreation],
     options: [opts.instanceType, opts.orgaIdOrName, opts.aliasCreation, opts.region, opts.github],
-  }, create);
+  }, create('create'));
 
   // DELETE COMMAND
   const deleteCommandModule = lazyRequirePromiseModule('../src/commands/delete.js');
