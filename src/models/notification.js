@@ -28,12 +28,7 @@ async function getOwnerAndApp (alias, org, useLinkedApp) {
     return { ownerId };
   }
 
-  const appData = await AppConfig.getAppData(alias).toPromise();
-  if (appData.org_id) {
-    return { ownerId: appData.org_id, appId: appData.app_id };
-  }
-  const id = await User.getCurrentId();
-  return { ownerId: id, appId: appData.app_id };
+  return AppConfig.getAppDetails({ alias });
 }
 
 module.exports = {
