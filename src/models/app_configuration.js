@@ -7,8 +7,9 @@ const _ = require('lodash');
 const Bacon = require('baconjs');
 const slugify = require('slugify');
 
-const { conf } = require('./configuration.js');
 const Logger = require('../logger.js');
+const User = require('./user.js');
+const { conf } = require('./configuration.js');
 
 // TODO: Maybe use fs-utils findPath()
 function loadApplicationConf (ignoreParentConfig = false, pathToFolder) {
@@ -106,6 +107,21 @@ function getAppData (alias) {
     .flatMap(Bacon.try((config) => findApp(config, alias)));
 };
 
+async function getAppDetails ({ alias }) {
+  const config = await loadApplicationConf().toPromise();
+  const app = findApp(config, alias);
+  const ownerId = (app.org_id != null)
+    ? app.org_id
+    : await User.getCurrentId();
+  return {
+    appId: app.app_id,
+    ownerId: ownerId,
+    deployUrl: app.deploy_url,
+    name: app.name,
+    alias: app.alias,
+  };
+};
+
 function persistConfig (modifiedConfig) {
   const jsonContents = JSON.stringify(modifiedConfig);
   return Bacon.fromNodeCallback(fs.writeFile, conf.APP_CONFIGURATION_FILE, jsonContents);
@@ -125,6 +141,7 @@ module.exports = {
   addLinkedApplication,
   removeLinkedApplication,
   findApp,
+  getAppDetails,
   getAppData,
   setDefault,
 };
