@@ -1,8 +1,9 @@
 'use strict';
 
 const _ = require('lodash');
-const Bacon = require('baconjs');
+const application = require('@clevercloud/client/cjs/api/application.js');
 const autocomplete = require('cliparse').autocomplete;
+const Bacon = require('baconjs');
 
 const AppConfiguration = require('./app_configuration.js');
 const Interact = require('./interact.js');
@@ -10,7 +11,6 @@ const Logger = require('../logger.js');
 const Organisation = require('./organisation.js');
 
 const { sendToApi } = require('../models/send-to-api.js');
-const application = require('@clevercloud/client/cjs/api/application.js');
 
 function listAvailableTypes () {
   return autocomplete.words(['docker', 'elixir', 'go', 'gradle', 'haskell', 'jar', 'maven', 'node', 'php', 'play1', 'play2', 'python', 'ruby', 'rust', 'sbt', 'static-apache', 'war']);
@@ -37,6 +37,14 @@ function getId (api, orgaId, appIdOrName) {
   }
   return getByName(api, appIdOrName.app_name, orgaId && { orga_id: orgaId })
     .map((app) => app.id);
+};
+
+async function getIdProm (ownerId, dependency) {
+  if (dependency.app_id) {
+    return dependency.app_id;
+  }
+  const app = await getByNameProm(ownerId, dependency.app_name);
+  return app.id;
 };
 
 function getInstanceType (api, type) {
@@ -92,22 +100,20 @@ async function deleteApp (addDetails, skipConfirmation) {
 };
 
 function getApplicationByName (s_apps, name) {
-  const s_app = s_apps.flatMapLatest(function (apps) {
-    const filtered_apps = _.filter(apps, function (app) {
-      return app.name === name;
-    });
-    if (filtered_apps.length === 1) {
-      return Bacon.once(filtered_apps[0]);
-    }
-    else if (filtered_apps.length === 0) {
-      return Bacon.once(new Bacon.Error('Application not found'));
-    }
-    else {
-      return Bacon.once(new Bacon.Error('Ambiguous application name'));
-    }
+  return s_apps.flatMapLatest((apps) => {
+    return getApplicationByNameProm(apps, name);
   });
+};
 
-  return s_app;
+function getApplicationByNameProm (apps, name) {
+  const filteredApps = apps.filter((app) => app.name === name);
+  if (filteredApps.length === 1) {
+    return filteredApps[0];
+  }
+  else if (filteredApps.length === 0) {
+    throw new Error('Application not found');
+  }
+  throw new Error('Ambiguous application name');
 };
 
 function getByName (api, name, orgaIdOrName) {
@@ -121,6 +127,11 @@ function getByName (api, name, orgaIdOrName) {
     });
     return getApplicationByName(s_apps, name);
   }
+}
+
+async function getByNameProm (ownerId, name) {
+  const apps = await application.getAll({ id: ownerId }).then(sendToApi);
+  return getApplicationByNameProm(apps, name);
 };
 
 function get (api, appId, orgaId) {
@@ -218,46 +229,30 @@ async function setScalability (appId, ownerId, scalabilityParameters, buildFlavo
   return application.update({ id: ownerId, appId }, newConfig).then(sendToApi);
 };
 
-function listDependencies (api, appId, orgaId, showAll) {
-  const s_all = api.owner(orgaId).applications.get().withParams(orgaId ? [orgaId] : []).send();
-  const s_mine = api.owner(orgaId).applications._.dependencies.get().withParams(orgaId ? [orgaId, appId] : [appId]).send();
+async function listDependencies (ownerId, appId, showAll) {
+  const applicationDeps = await application.getAllDependencies({ id: ownerId, appId }).then(sendToApi);
 
   if (!showAll) {
-    return s_mine;
+    return applicationDeps;
   }
-  else {
-    return s_all.flatMapLatest(function (all) {
-      return s_mine.flatMapLatest(function (mine) {
-        const mineIds = _.map(mine, 'id');
-        return _.map(all, function (app) {
-          if (_.includes(mineIds, app.id)) {
-            return _.assign({}, app, { isLinked: true });
-          }
-          else {
-            return app;
-          }
-        });
-      });
-    });
-  }
+
+  const allApps = await application.getAll({ id: ownerId }).then(sendToApi);
+
+  const applicationDepsIds = applicationDeps.map((app) => app.id);
+  return allApps.map((app) => {
+    const isLinked = applicationDepsIds.includes(app.id);
+    return { ...app, isLinked };
+  });
+}
+
+async function link (ownerId, appId, dependency) {
+  const dependencyId = await getIdProm(ownerId, dependency);
+  return application.addDependency({ id: ownerId, appId, dependencyId }).then(sendToApi);
 };
 
-function link (api, appId, orgaId, appIdOrName) {
-  const s_appIdToLink = getId(api, orgaId, appIdOrName);
-
-  return s_appIdToLink.flatMapLatest(function (appIdToLink) {
-    const params = orgaId ? [orgaId, appId, appIdToLink] : [appId, appIdToLink];
-    return api.owner(orgaId).applications._.dependencies._.put().withParams(params).send();
-  });
-};
-
-function unlink (api, appId, orgaId, appIdOrName) {
-  const s_linkedAppId = getId(api, orgaId, appIdOrName);
-
-  return s_linkedAppId.flatMapLatest(function (linkedAppId) {
-    const params = orgaId ? [orgaId, appId, linkedAppId] : [appId, linkedAppId];
-    return api.owner(orgaId).applications._.dependencies._.delete().withParams(params).send();
-  });
+async function unlink (ownerId, appId, dependency) {
+  const dependencyId = await getIdProm(ownerId, dependency);
+  return application.removeDependency({ id: ownerId, appId, dependencyId }).then(sendToApi);
 };
 
 module.exports = {

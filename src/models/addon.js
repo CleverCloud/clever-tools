@@ -1,10 +1,11 @@
 'use strict';
 
 const _ = require('lodash');
+const application = require('@clevercloud/client/cjs/api/application.js');
 const autocomplete = require('cliparse').autocomplete;
 const Bacon = require('baconjs');
 const colors = require('colors/safe');
-const { get: getAddon } = require('@clevercloud/client/cjs/api/addon.js');
+const { get: getAddon, getAll: getAllAddons } = require('@clevercloud/client/cjs/api/addon.js');
 const { getSummary } = require('@clevercloud/client/cjs/api/user.js');
 
 const Interact = require('./interact.js');
@@ -23,36 +24,25 @@ function getProvider (api, providerName) {
     });
 }
 
-function getAllForOrga (api, orgaId) {
-  return api.owner(orgaId).addons.get().withParams(orgaId ? [orgaId] : []).send();
-}
+async function list (ownerId, appId, showAll) {
+  const allAddons = await getAllAddons({ id: ownerId }).then(sendToApi);
 
-function getAllForApp (api, orgaId, appId) {
-  return api.owner(orgaId).applications._.addons.get().withParams(orgaId ? [orgaId, appId] : [appId]).send();
-}
-
-function list (api, orgaId, appId, showAll) {
-  const s_allAddons = getAllForOrga(api, orgaId);
-
-  if (appId != null) {
-    const s_myAddons = getAllForApp(api, orgaId, appId);
-
-    if (showAll != null) {
-      return Bacon.combineAsArray(s_allAddons, s_myAddons)
-        .flatMapLatest(([allAddons, myAddons]) => {
-          const myAddonIds = _.map(myAddons, 'id');
-          return _.map(allAddons, (addon) => {
-            const isLinked = _.includes(myAddonIds, addon.id);
-            return { ...addon, isLinked };
-          });
-        });
-    }
-
-    return s_myAddons;
+  if (appId == null) {
+    // Not linked to a specific app, show everything
+    return allAddons;
   }
 
-  // Not linked to a specific app, show everything
-  return s_allAddons;
+  const myAddons = await application.getAllLinkedAddons({ id: ownerId, appId }).then(sendToApi);
+
+  if (showAll == null) {
+    return myAddons;
+  }
+
+  const myAddonIds = myAddons.map((addon) => addon.id);
+  return allAddons.map((addon) => {
+    const isLinked = myAddonIds.includes(addon.id);
+    return { ...addon, isLinked };
+  });
 }
 
 function createAndLink (api, name, providerName, plan, region, skipConfirmation, appData) {
@@ -142,6 +132,20 @@ function getByName (api, orgaId, addonName) {
   });
 }
 
+async function getByNameProm (ownerId, addonNameOrRealId) {
+  const addons = await getAllAddons({ id: ownerId }).then(sendToApi);
+  const filteredAddons = addons.filter(({ name, realId }) => {
+    return name === addonNameOrRealId || realId === addonNameOrRealId;
+  });
+  if (filteredAddons.length === 1) {
+    return filteredAddons[0];
+  }
+  if (filteredAddons.length === 0) {
+    throw new Error('Addon not found');
+  }
+  throw new Error('Ambiguous addon name');
+}
+
 function getId (api, orgaId, addonIdOrName) {
   if (addonIdOrName.addon_id) {
     return Bacon.once(addonIdOrName.addon_id);
@@ -150,20 +154,22 @@ function getId (api, orgaId, addonIdOrName) {
     .map((addon) => addon.id);
 }
 
-function link (api, appId, orgaId, addonIdOrName) {
-  return getId(api, orgaId, addonIdOrName)
-    .flatMapLatest((addonId) => {
-      const params = orgaId ? [orgaId, appId] : [appId];
-      return api.owner(orgaId).applications._.addons.post().withParams(params).send(JSON.stringify(addonId));
-    });
+async function getIdProm (ownerId, addon) {
+  if (addon.addon_id) {
+    return addon.addon_id;
+  }
+  const addonDetails = await getByNameProm(ownerId, addon.addon_name);
+  return addonDetails.id;
 }
 
-function unlink (api, appId, orgaId, addonIdOrName) {
-  return getId(api, orgaId, addonIdOrName)
-    .flatMapLatest((addonId) => {
-      const params = orgaId ? [orgaId, appId, addonId] : [appId, addonId];
-      return api.owner(orgaId).applications._.addons._.delete().withParams(params).send();
-    });
+async function link (ownerId, appId, addon) {
+  const addonId = await getIdProm(ownerId, addon);
+  return application.linkAddon({ id: ownerId, appId }, JSON.stringify(addonId)).then(sendToApi);
+}
+
+async function unlink (ownerId, appId, addon) {
+  const addonId = await getIdProm(ownerId, addon);
+  return application.unlinkAddon({ id: ownerId, appId, addonId }).then(sendToApi);
 }
 
 function deleteAddon (api, orgaId, addonIdOrName, skipConfirmation) {
@@ -172,7 +178,7 @@ function deleteAddon (api, orgaId, addonIdOrName, skipConfirmation) {
       const params = orgaId ? [orgaId, addonId] : [addonId];
       const confirmation = skipConfirmation
         ? Bacon.once()
-        : Interact.confirm("Deleting the addon can't be undone, are you sure? ", 'No confirmation, aborting addon deletion');
+        : Interact.confirm('Deleting the addon can\'t be undone, are you sure? ', 'No confirmation, aborting addon deletion');
 
       return confirmation.flatMapLatest(() => {
         return api.owner(orgaId).addons._.delete().withParams(params).send();

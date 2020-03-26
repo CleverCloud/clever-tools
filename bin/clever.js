@@ -639,7 +639,7 @@ function run () {
   }, scale('scale'));
 
   // SERVICE COMMANDS
-  const service = lazyRequireModuleWithApi('../src/commands/service.js');
+  const service = lazyRequirePromiseModule('../src/commands/service.js');
   const serviceLinkAppCommand = cliparse.command('link-app', {
     description: 'Add an existing app as a dependency',
     args: [args.appIdOrName],

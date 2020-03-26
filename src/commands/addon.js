@@ -1,6 +1,7 @@
 'use strict';
 
 const _ = require('lodash');
+const Bacon = require('baconjs');
 const colors = require('colors/safe');
 
 const Addon = require('../models/addon.js');
@@ -14,7 +15,7 @@ function list (api, params) {
   const { org: orgaIdOrName } = params.options;
 
   const s_addons = Organisation.getId(api, orgaIdOrName)
-    .flatMapLatest((orgaId) => Addon.list(api, orgaId))
+    .flatMapLatest((ownerId) => Bacon.fromPromise(Addon.list(ownerId)))
     .map((addons) => {
       const formattedAddons = addons.map((addon) => {
         return [
