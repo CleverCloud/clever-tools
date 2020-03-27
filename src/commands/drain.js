@@ -10,7 +10,7 @@ const { sendToApi } = require('../models/send-to-api.js');
 async function list (params) {
   const { alias } = params.options;
 
-  const { app_id: appId } = await AppConfig.getAppData(alias).toPromise();
+  const { appId } = await AppConfig.getAppDetails({ alias });
   const drains = await getDrains({ appId }).then(sendToApi);
 
   drains.forEach((drain) => {
@@ -25,7 +25,7 @@ async function create (params) {
   const drainTargetCredentials = { username, password };
   const drainTargetConfig = { apiKey };
 
-  const { app_id: appId } = await AppConfig.getAppData(alias).toPromise();
+  const { appId } = await AppConfig.getAppDetails({ alias });
   const body = createDrainBody(appId, drainTargetURL, drainTargetType, drainTargetCredentials, drainTargetConfig);
   await createDrain({ appId }, body).then(sendToApi);
 
@@ -36,7 +36,7 @@ async function rm (params) {
   const [drainId] = params.args;
   const { alias } = params.options;
 
-  const { app_id: appId } = await AppConfig.getAppData(alias).toPromise();
+  const { appId } = await AppConfig.getAppDetails({ alias });
   await deleteDrain({ appId, drainId }).then(sendToApi);
 
   Logger.println('Your drain has been successfully removed');
@@ -46,7 +46,7 @@ async function enable (params) {
   const [drainId] = params.args;
   const { alias } = params.options;
 
-  const { app_id: appId } = await AppConfig.getAppData(alias).toPromise();
+  const { appId } = await AppConfig.getAppDetails({ alias });
   await updateDrainState({ appId, drainId }, { state: 'ENABLED' }).then(sendToApi);
 
   Logger.println('Your drain has been enabled');
@@ -56,7 +56,7 @@ async function disable (params) {
   const [drainId] = params.args;
   const { alias } = params.options;
 
-  const { app_id: appId } = await AppConfig.getAppData(alias).toPromise();
+  const { appId } = await AppConfig.getAppDetails({ alias });
   await updateDrainState({ appId, drainId }, { state: 'DISABLED' }).then(sendToApi);
 
   Logger.println('Your drain has been disabled');

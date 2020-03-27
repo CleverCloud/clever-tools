@@ -1,21 +1,19 @@
 'use strict';
 
 const AppConfig = require('../models/app_configuration.js');
-const handleCommandStream = require('../command-stream-handler.js');
 const Logger = require('../logger.js');
-const OpenBrowser = require('../open-browser.js');
+const openPage = require('opn');
 
-function consoleModule (api, params) {
+async function openConsole (params) {
   const { alias } = params.options;
-  const s_open = AppConfig.getAppData(alias)
-    .flatMapLatest(({ app_id, org_id }) => {
-      Logger.println('Opening the console in your browser');
 
-      const path = (org_id != null) ? `organisations/${org_id}` : 'users/me';
-      return OpenBrowser.openPage(`https://console.clever-cloud.com/${path}/applications/${app_id}`);
-    });
+  const { ownerId, appId } = await AppConfig.getAppDetails({ alias });
 
-  handleCommandStream(s_open);
+  Logger.println('Opening the console in your browser');
+
+  const prefixPath = (ownerId.startsWith('user_')) ? 'users/me' : `organisations/${ownerId}`;
+  const url = `https://console.clever-cloud.com/${prefixPath}/applications/${appId}`;
+  await openPage(url, { wait: false });
 }
 
-module.exports = consoleModule;
+module.exports = { openConsole };

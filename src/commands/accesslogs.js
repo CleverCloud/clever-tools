@@ -7,7 +7,6 @@ const { ONE_HOUR_MICROS, ONE_SECOND_MICROS, toMicroTimestamp } = require('@cleve
 const Addon = require('../models/addon.js');
 const AppConfig = require('../models/app_configuration.js');
 const Logger = require('../logger.js');
-const User = require('../models/user.js');
 const { getFormatter } = require('../models/accesslogs.js');
 const { sendToApi, sendToWarp10 } = require('../models/send-to-api.js');
 
@@ -16,10 +15,10 @@ const CONTINUOUS_DELAY = ONE_SECOND_MICROS * 5;
 async function accessLogs (params) {
   const { alias, format, before, after, addon: addonId, follow } = params.options;
 
-  const { orgaId, appId, realAddonId } = await getIds(addonId, alias);
+  const { ownerId, appId, realAddonId } = await getIds(addonId, alias);
   const to = (before != null) ? toMicroTimestamp(before.toISOString()) : toMicroTimestamp();
   const from = (after != null) ? toMicroTimestamp(after.toISOString()) : to - ONE_HOUR_MICROS;
-  const warpToken = await getWarp10AccessLogsToken({ orgaId }).then(sendToApi);
+  const warpToken = await getWarp10AccessLogsToken({ orgaId: ownerId }).then(sendToApi);
 
   if (follow && (before != null || after != null)) {
     Logger.warn('Access logs are displayed continuously with -f/--follow therefore --before and --after are ignored.');
@@ -44,21 +43,11 @@ async function getIds (addonId, alias) {
   if (addonId != null) {
     const addon = await Addon.findById(addonId);
     return {
-      orgaId: addon.orgaId,
+      ownerId: addon.orgaId,
       realAddonId: addon.realId,
     };
   }
-  const appConfig = await AppConfig.getAppData(alias).toPromise();
-  if (appConfig.org_id != null) {
-    return {
-      orgaId: appConfig.org_id,
-      appId: appConfig.app_id,
-    };
-  }
-  return {
-    orgaId: await User.getCurrentId(),
-    appId: appConfig.app_id,
-  };
+  return AppConfig.getAppDetails({ alias });
 }
 
 module.exports = { accessLogs };

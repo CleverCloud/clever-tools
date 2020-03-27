@@ -8,9 +8,9 @@ const Logger = require('../logger.js');
 
 async function open (params) {
   const { alias } = params.options;
-  const { org_id, app_id: appId } = await AppConfig.getAppData(alias).toPromise();
+  const { ownerId, appId } = await AppConfig.getAppDetails({ alias });
 
-  const vhost = await Domain.getBest(appId, org_id);
+  const vhost = await Domain.getBest(appId, ownerId);
   const url = 'https://' + vhost.fqdn;
 
   Logger.println('Opening the application in your browser');

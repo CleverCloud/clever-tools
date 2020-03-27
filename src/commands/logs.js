@@ -7,7 +7,7 @@ const handleCommandStream = require('../command-stream-handler');
 const Log = require('../models/log.js');
 const Logger = require('../logger.js');
 
-function appLogs (api, params) {
+function appLogs (params) {
   const { alias, before, after, search, 'deployment-id': deploymentId } = params.options;
   const { addon: addonId } = params.options;
 
@@ -16,7 +16,7 @@ function appLogs (api, params) {
 
   const s_appAddonId = (addonId != null)
     ? Bacon.once(addonId)
-    : AppConfig.getAppData(alias).flatMapLatest((app_data) => app_data.app_id);
+    : Bacon.fromPromise(AppConfig.getAppDetails({ alias })).flatMapLatest((appData) => appData.appId);
 
   const s_logs = s_appAddonId
     .flatMapLatest((appAddonId) => {

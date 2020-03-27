@@ -15,7 +15,7 @@ function validateOptions (options) {
 
   if (flavor != null) {
     if (minFlavor != null || maxFlavor != null) {
-      throw new Error("You can't use --flavor and --min-flavor or --max-flavor at the same time");
+      throw new Error('You can\'t use --flavor and --min-flavor or --max-flavor at the same time');
     }
     minFlavor = flavor;
     maxFlavor = flavor;
@@ -47,9 +47,9 @@ function validateOptions (options) {
 async function scale (params) {
   const { alias } = params.options;
   const { minFlavor, maxFlavor, minInstances, maxInstances, buildFlavor } = validateOptions(params.options);
-  const { org_id, app_id: appId } = await AppConfig.getAppData(alias).toPromise();
+  const { ownerId, appId } = await AppConfig.getAppDetails({ alias });
 
-  await Application.setScalability(appId, org_id, {
+  await Application.setScalability(appId, ownerId, {
     minFlavor,
     maxFlavor,
     minInstances,

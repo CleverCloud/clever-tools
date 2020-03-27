@@ -10,18 +10,18 @@ const handleCommandStream = require('../command-stream-handler');
 const Log = require('../models/log.js');
 const Logger = require('../logger.js');
 
-async function deployPromise (api, params) {
+async function deployPromise (params) {
   const { alias, branch: branchName, quiet, force } = params.options;
 
-  const appData = await AppConfig.getAppData(alias).toPromise();
+  const appData = await AppConfig.getAppDetails({ alias });
   const branchRefspec = await git.getFullBranch(branchName);
 
   const commitIdToPush = await git.getBranchCommit(branchRefspec);
-  const remoteHeadCommitId = await git.getRemoteCommit(appData.deploy_url);
-  const deployedCommitId = await Application.get(api, appData.app_id, appData.app_orga).toPromise()
+  const remoteHeadCommitId = await git.getRemoteCommit(appData.deployUrl);
+  const deployedCommitId = await Application.get(appData.ownerId, appData.appId)
     .then(({ commitId }) => commitId);
 
-  await git.addRemote(appData.alias, appData.deploy_url);
+  await git.addRemote(appData.alias, appData.deployUrl);
 
   if (commitIdToPush === remoteHeadCommitId) {
     const upToDateMessage = `The clever-cloud application is up-to-date (${remoteHeadCommitId}). Try this command to restart the application:`;
@@ -39,19 +39,19 @@ async function deployPromise (api, params) {
     Logger.println(`Current deployed commit  is ${colors.green(deployedCommitId)}`);
   }
   Logger.println(`New local commit to push is ${colors.green(commitIdToPush)} (from ${colors.green(branchRefspec)})`);
-  const push = await git.push(appData.deploy_url, branchRefspec, force);
+  const push = await git.push(appData.deployUrl, branchRefspec, force);
 
   Logger.println('Your source code has been pushed to Clever Cloud.');
 
   return { push, appData, commitIdToPush, quiet };
 };
 
-function deploy (api, params) {
+function deploy (params) {
 
   const stream = Bacon
-    .fromPromise(deployPromise(api, params))
+    .fromPromise(deployPromise(params))
     .flatMapLatest(({ push, appData, commitIdToPush, quiet }) => {
-      return Log.getAllLogs(api, push, appData, commitIdToPush, quiet);
+      return Log.getAllLogs(push, appData, commitIdToPush, quiet);
     })
     .map(Logger.println);
 

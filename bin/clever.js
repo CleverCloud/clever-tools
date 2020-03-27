@@ -15,9 +15,7 @@ if (process.argv.includes('--autocomplete-index')) {
 const cliparse = require('cliparse');
 const updateNotifier = require('update-notifier');
 
-const Api = require('../src/models/api.js');
 const git = require('../src/models/git.js');
-const Logger = require('../src/logger.js');
 const Parsers = require('../src/parsers.js');
 const handleCommandPromise = require('../src/command-promise-handler.js');
 
@@ -45,52 +43,12 @@ if (process.pkg == null) {
 // Use this alias so we get less warnings in pkg build :p
 const dynamicRequire = module.require.bind(module);
 
-function lazyRequireFunctionWithApi (modulePath, name) {
-  return function (...args) {
-    s_api.onValue((api) => {
-      const module = dynamicRequire(modulePath);
-      args.unshift(api);
-      if (name) {
-        module[name].apply(this, args);
-      }
-      else {
-        module.apply(this, args);
-      }
-    });
-  };
-}
-
 function lazyRequirePromiseModule (modulePath) {
   return function (name) {
     return function (...args) {
       const module = dynamicRequire(modulePath);
       const promise = module[name](...args);
       handleCommandPromise(promise);
-    };
-  };
-}
-
-function lazyRequirePromiseModuleAndApi (modulePath) {
-  return function (name) {
-    return function (...args) {
-      s_api.onValue((api) => {
-        args.unshift(api);
-        const module = dynamicRequire(modulePath);
-        const promise = module[name](...args);
-        handleCommandPromise(promise);
-      });
-    };
-  };
-}
-
-function lazyRequireModuleWithApi (modulePath) {
-  return function (name) {
-    return function (...args) {
-      s_api.onValue((api) => {
-        args.unshift(api);
-        const module = dynamicRequire(modulePath);
-        module[name].apply(this, args);
-      });
     };
   };
 }
@@ -390,14 +348,14 @@ function run () {
   }, accesslogsModule('accessLogs'));
 
   // ACTIVITY COMMAND
-  const activity = lazyRequireFunctionWithApi('../src/commands/activity.js');
+  const activity = lazyRequireFunction('../src/commands/activity.js');
   const activityCommand = cliparse.command('activity', {
     description: 'Show last deployments of a Clever Cloud application',
     options: [opts.alias, opts.follow, opts.showAllActivity],
   }, activity);
 
   // ADDON COMMANDS
-  const addon = lazyRequireModuleWithApi('../src/commands/addon.js');
+  const addon = lazyRequirePromiseModule('../src/commands/addon.js');
   const addonCreateCommand = cliparse.command('create', {
     description: 'Create an addon',
     args: [args.addonProvider, args.addonName],
@@ -427,36 +385,36 @@ function run () {
   }, addon('list'));
 
   // APPLICATIONS COMMAND
-  const applications = lazyRequireFunctionWithApi('../src/commands/applications.js');
+  const applications = lazyRequirePromiseModule('../src/commands/applications.js');
   const applicationsCommand = cliparse.command('applications', {
     description: 'List linked applications',
     options: [opts.onlyAliases],
-  }, applications);
+  }, applications('list'));
 
   // CANCEL DEPLOY COMMAND
-  const cancelDeploy = lazyRequireFunctionWithApi('../src/commands/cancel-deploy.js');
+  const cancelDeploy = lazyRequirePromiseModule('../src/commands/cancel-deploy.js');
   const cancelDeployCommand = cliparse.command('cancel-deploy', {
     description: 'Cancel an ongoing deployment on Clever Cloud',
     options: [opts.alias],
-  }, cancelDeploy);
+  }, cancelDeploy('cancelDeploy'));
 
   // CREATE COMMAND
-  const create = lazyRequireFunctionWithApi('../src/commands/create.js');
+  const create = lazyRequirePromiseModule('../src/commands/create.js');
   const appCreateCommand = cliparse.command('create', {
     description: 'Create a Clever Cloud application',
     args: [args.appNameCreation],
     options: [opts.instanceType, opts.orgaIdOrName, opts.aliasCreation, opts.region, opts.github],
-  }, create);
+  }, create('create'));
 
   // DELETE COMMAND
-  const delete_ = lazyRequireFunctionWithApi('../src/commands/delete.js');
+  const deleteCommandModule = lazyRequirePromiseModule('../src/commands/delete.js');
   const deleteCommand = cliparse.command('delete', {
     description: 'Delete a Clever Cloud application',
     options: [opts.alias, opts.confirmApplicationDeletion],
-  }, delete_);
+  }, deleteCommandModule('deleteApp'));
 
   // DEPLOY COMMAND
-  const deploy = lazyRequireFunctionWithApi('../src/commands/deploy.js');
+  const deploy = lazyRequireFunction('../src/commands/deploy.js');
   const deployCommand = cliparse.command('deploy', {
     description: 'Deploy an application to Clever Cloud',
     options: [opts.alias, opts.branch, opts.quiet, opts.forceDeploy],
@@ -470,7 +428,7 @@ function run () {
   }, diag('diag'));
 
   // DOMAIN COMMANDS
-  const domain = lazyRequireModuleWithApi('../src/commands/domain.js');
+  const domain = lazyRequirePromiseModule('../src/commands/domain.js');
   const domainCreateCommand = cliparse.command('add', {
     description: 'Add a domain name to a Clever Cloud application',
     args: [args.fqdn],
@@ -534,12 +492,12 @@ function run () {
   }, env('list'));
 
   // LINK COMMAND
-  const link = lazyRequireFunctionWithApi('../src/commands/link.js');
+  const link = lazyRequirePromiseModule('../src/commands/link.js');
   const appLinkCommand = cliparse.command('link', {
     description: 'Link this repo to an existing Clever Cloud application',
     args: [args.appIdOrName],
     options: [opts.aliasCreation, opts.orgaIdOrName],
-  }, link);
+  }, link('link'));
 
   // LOGIN COMMAND
   const login = lazyRequirePromiseModule('../src/commands/login.js');
@@ -555,18 +513,18 @@ function run () {
   }, logout('logout'));
 
   // LOGS COMMAND
-  const logs = lazyRequireFunctionWithApi('../src/commands/logs.js');
+  const logs = lazyRequireFunction('../src/commands/logs.js');
   const logsCommand = cliparse.command('logs', {
     description: 'Fetch application logs, continuously',
     options: [opts.alias, opts.before, opts.after, opts.search, opts.deploymentId, opts.addonId],
   }, logs);
 
   // MAKE DEFAULT COMMAND
-  const makeDefault = lazyRequireFunctionWithApi('../src/commands/makeDefault.js');
+  const makeDefault = lazyRequirePromiseModule('../src/commands/makeDefault.js');
   const makeDefaultCommand = cliparse.command('make-default', {
     description: 'Make a linked application the default one',
     args: [args.alias],
-  }, makeDefault);
+  }, makeDefault('makeDefault'));
 
   // NOTIFY-EMAIL COMMAND
   const notifyEmail = lazyRequirePromiseModule('../src/commands/notify-email.js');
@@ -593,11 +551,11 @@ function run () {
   }, open('open'));
 
   // CONSOLE COMMAND
-  const consoleModule = lazyRequireFunctionWithApi('../src/commands/console.js');
+  const consoleModule = lazyRequirePromiseModule('../src/commands/console.js');
   const consoleCommand = cliparse.command('console', {
     description: 'Open an application in the console',
     options: [opts.alias],
-  }, consoleModule);
+  }, consoleModule('openConsole'));
 
   // PROFILE COMMAND
   const profile = lazyRequirePromiseModule('../src/commands/profile.js');
@@ -625,7 +583,7 @@ function run () {
   }, publishedConfig('list'));
 
   // RESTART COMMAND
-  const restart = lazyRequireFunctionWithApi('../src/commands/restart.js');
+  const restart = lazyRequireFunction('../src/commands/restart.js');
   const restartCommand = cliparse.command('restart', {
     description: 'Start or restart a Clever Cloud application',
     options: [opts.alias, opts.commit, opts.withoutCache, opts.quiet],
@@ -639,7 +597,7 @@ function run () {
   }, scale('scale'));
 
   // SERVICE COMMANDS
-  const service = lazyRequireModuleWithApi('../src/commands/service.js');
+  const service = lazyRequirePromiseModule('../src/commands/service.js');
   const serviceLinkAppCommand = cliparse.command('link-app', {
     description: 'Add an existing app as a dependency',
     args: [args.appIdOrName],
@@ -663,11 +621,11 @@ function run () {
   }, service('list'));
 
   // SSH COMMAND
-  const ssh = lazyRequireFunctionWithApi('../src/commands/ssh.js');
+  const ssh = lazyRequirePromiseModule('../src/commands/ssh.js');
   const sshCommand = cliparse.command('ssh', {
     description: 'Connect to running instances through SSH',
     options: [opts.alias, opts.sshIdentityFile],
-  }, ssh);
+  }, ssh('ssh'));
 
   // STATUS COMMAND
   const status = lazyRequirePromiseModule('../src/commands/status.js');
@@ -677,18 +635,18 @@ function run () {
   }, status('status'));
 
   // STOP COMMAND
-  const stop = lazyRequireFunctionWithApi('../src/commands/stop.js');
+  const stop = lazyRequirePromiseModule('../src/commands/stop.js');
   const stopCommand = cliparse.command('stop', {
     description: 'Stop a running application on Clever Cloud',
     options: [opts.alias],
-  }, stop);
+  }, stop('stop'));
 
   // UNLINK COMMAND
-  const unlink = lazyRequireFunctionWithApi('../src/commands/unlink.js');
+  const unlink = lazyRequirePromiseModule('../src/commands/unlink.js');
   const appUnlinkCommand = cliparse.command('unlink', {
     description: 'Unlink this repo from an existing Clever Cloud application',
     args: [args.alias],
-  }, unlink);
+  }, unlink('unlink'));
 
   // VERSION COMMAND
   const version = lazyRequirePromiseModule('../src/commands/version.js');
@@ -760,9 +718,5 @@ function run () {
   cliArgs[0] = 'node';
   cliparse.parse(cliParser, cliArgs);
 }
-
-// Will have to be remove
-const s_api = Api();
-s_api.onError((e) => Logger.error(e));
 
 run();

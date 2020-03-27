@@ -66,13 +66,13 @@ function clearPreviousLine () {
   }
 }
 
-function activity (api, params) {
+function activity (params) {
   const { alias, 'show-all': showAll, follow } = params.options;
 
-  const s_activity = AppConfig.getAppData(alias)
-    .flatMapLatest((appData) => {
+  const s_activity = Bacon.fromPromise(AppConfig.getAppDetails({ alias }))
+    .flatMapLatest(({ ownerId, appId }) => {
 
-      const s_oldActivity = Activity.list(api, appData.app_id, appData.org_id, showAll)
+      const s_oldActivity = Bacon.fromPromise(Activity.list(ownerId, appId, showAll))
         .flatMapLatest((events) => {
           const reversedArrayWithIndex = events
             .reverse()
@@ -87,7 +87,7 @@ function activity (api, params) {
         return s_oldActivity;
       }
 
-      const s_newActivity = Event.getEvents(api, appData.app_id)
+      const s_newActivity = Event.getEvents(appId)
         .filter(({ event }) => {
           return event === 'DEPLOYMENT_ACTION_BEGIN'
             || event === 'DEPLOYMENT_ACTION_END';

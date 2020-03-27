@@ -2,20 +2,16 @@
 
 const AppConfig = require('../models/app_configuration.js');
 const Application = require('../models/application.js');
-const handleCommandStream = require('../command-stream-handler');
 const Logger = require('../logger.js');
 
-function deleteApp (api, params) {
+async function deleteApp (params) {
   const { alias, yes: skipConfirmation } = params.options;
+  const appDetails = await AppConfig.getAppDetails({ alias });
 
-  const s_delete = AppConfig.getAppData(alias)
-    .flatMapLatest((app_data) => {
-      return Application.deleteApp(api, app_data, skipConfirmation)
-        .flatMapLatest(() => Application.unlinkRepo(api, app_data.alias));
-    })
-    .map(() => Logger.println('The application has been deleted'));
+  await Application.deleteApp(appDetails, skipConfirmation);
+  await Application.unlinkRepo(appDetails.alias);
 
-  handleCommandStream(s_delete);
+  Logger.println('The application has been deleted');
 };
 
-module.exports = deleteApp;
+module.exports = { deleteApp };

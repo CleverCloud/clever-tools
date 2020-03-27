@@ -7,8 +7,9 @@ const _ = require('lodash');
 const Bacon = require('baconjs');
 const slugify = require('slugify');
 
-const { conf } = require('./configuration.js');
 const Logger = require('../logger.js');
+const User = require('./user.js');
+const { conf } = require('./configuration.js');
 
 // TODO: Maybe use fs-utils findPath()
 function loadApplicationConf (ignoreParentConfig = false, pathToFolder) {
@@ -29,44 +30,35 @@ function loadApplicationConf (ignoreParentConfig = false, pathToFolder) {
     });
 };
 
-function addLinkedApplication (appData, alias, ignoreParentConfig) {
-  const currentConfig = loadApplicationConf(ignoreParentConfig);
+async function addLinkedApplication (appData, alias, ignoreParentConfig) {
+  const currentConfig = await loadApplicationConf(ignoreParentConfig).toPromise();
+
   const appEntry = {
     app_id: appData.id,
+    org_id: appData.ownerId,
     deploy_url: appData.deployment.httpUrl || appData.deployment.url,
     name: appData.name,
     alias: alias || slugify(appData.name),
   };
 
-  if (appData.ownerId.substr(0, 5) === 'orga_') appEntry.org_id = appData.ownerId;
+  const isPresent = currentConfig.apps.find((app) => app.app_id === appEntry.app_id) != null;
 
-  const s_newConfig = currentConfig.flatMapLatest(function (config) {
-    const isPresent = !_.find(config.apps, function (app) {
-      return app.app_id === appEntry.app_id;
-    });
+  // ToDo see what to do when there is a conflict between an existing entry
+  // and the entry we want to add (same app_id, different other values)
+  if (!isPresent) {
+    currentConfig.apps.push(appEntry);
+  }
 
-    // ToDo see what to do when there is a conflict between an existing entry
-    // and the entry we want to add (same app_id, different other values)
-    if (isPresent) {
-      config.apps.push(appEntry);
-    }
-    return config;
-  });
-
-  return s_newConfig.flatMapLatest(persistConfig);
+  return persistConfig(currentConfig).toPromise();
 };
 
-function removeLinkedApplication (alias) {
-  const currentConfig = loadApplicationConf();
-
-  const s_newConfig = currentConfig.flatMapLatest(function (config) {
-    config.apps = _.reject(config.apps, function (appEntry) {
-      return appEntry.alias === alias;
-    });
-    return config;
-  });
-
-  return s_newConfig.flatMapLatest(persistConfig);
+async function removeLinkedApplication (alias) {
+  const currentConfig = await loadApplicationConf().toPromise();
+  const newConfig = {
+    ...currentConfig,
+    apps: currentConfig.apps.filter((appEntry) => appEntry.alias !== alias),
+  };
+  return persistConfig(newConfig).toPromise();
 };
 
 function findApp (config, alias) {
@@ -102,9 +94,19 @@ function findApp (config, alias) {
   throw new Error(`Several applications are linked. You can specify one with the "--alias" option. Run "clever applications" to list linked applications. Available aliases: ${aliases}`);
 }
 
-function getAppData (alias) {
-  return loadApplicationConf()
-    .flatMap(Bacon.try((config) => findApp(config, alias)));
+async function getAppDetails ({ alias }) {
+  const config = await loadApplicationConf().toPromise();
+  const app = findApp(config, alias);
+  const ownerId = (app.org_id != null)
+    ? app.org_id
+    : await User.getCurrentId();
+  return {
+    appId: app.app_id,
+    ownerId: ownerId,
+    deployUrl: app.deploy_url,
+    name: app.name,
+    alias: app.alias,
+  };
 };
 
 function persistConfig (modifiedConfig) {
@@ -112,13 +114,11 @@ function persistConfig (modifiedConfig) {
   return Bacon.fromNodeCallback(fs.writeFile, conf.APP_CONFIGURATION_FILE, jsonContents);
 };
 
-function setDefault (alias) {
-  return loadApplicationConf()
-    .flatMap(Bacon.try((config) => {
-      const app = findApp(config, alias);
-      return _.assign({}, config, { default: app.app_id });
-    }))
-    .flatMapLatest(persistConfig);
+async function setDefault (alias) {
+  const config = await loadApplicationConf().toPromise();
+  const app = findApp(config, alias);
+  const newConfig = { ...config, default: app.app_id };
+  return persistConfig(newConfig).toPromise();
 }
 
 module.exports = {
@@ -126,6 +126,6 @@ module.exports = {
   addLinkedApplication,
   removeLinkedApplication,
   findApp,
-  getAppData,
+  getAppDetails,
   setDefault,
 };

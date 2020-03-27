@@ -5,7 +5,7 @@ const Bacon = require('baconjs');
 const { getHostAndTokens } = require('./send-to-api.js');
 const { EventsStream } = require('@clevercloud/client/cjs/streams/events.node.js');
 
-function getEvents (api, appId) {
+function getEvents (appId) {
   return Bacon
     .fromPromise(getHostAndTokens())
     .flatMapLatest(({ apiHost, tokens }) => {

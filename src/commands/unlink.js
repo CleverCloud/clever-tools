@@ -2,17 +2,14 @@
 
 const AppConfig = require('../models/app_configuration.js');
 const Application = require('../models/application.js');
-const handleCommandStream = require('../command-stream-handler');
 const Logger = require('../logger.js');
 
-function unlink (api, params) {
+async function unlink (params) {
   const [alias] = params.args;
+  const app = await AppConfig.getAppDetails({ alias });
 
-  const s_result = AppConfig.getAppData(alias)
-    .flatMapLatest((appData) => Application.unlinkRepo(api, appData.alias))
-    .map(() => Logger.println('Your application has been successfully unlinked!'));
-
-  handleCommandStream(s_result);
+  await Application.unlinkRepo(app.alias);
+  Logger.println('Your application has been successfully unlinked!');
 };
 
-module.exports = unlink;
+module.exports = { unlink };

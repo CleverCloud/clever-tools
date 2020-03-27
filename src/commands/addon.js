@@ -6,119 +6,109 @@ const colors = require('colors/safe');
 const Addon = require('../models/addon.js');
 const AppConfig = require('../models/app_configuration.js');
 const formatTable = require('../format-table')();
-const handleCommandStream = require('../command-stream-handler');
 const Logger = require('../logger.js');
 const Organisation = require('../models/organisation.js');
+const User = require('../models/user.js');
 
-function list (api, params) {
+async function list (params) {
   const { org: orgaIdOrName } = params.options;
 
-  const s_addons = Organisation.getId(api, orgaIdOrName)
-    .flatMapLatest((orgaId) => Addon.list(api, orgaId))
-    .map((addons) => {
-      const formattedAddons = addons.map((addon) => {
-        return [
-          addon.plan.name + ' ' + addon.provider.name,
-          addon.region,
-          colors.bold.green(addon.name),
-          addon.id,
-        ];
-      });
-      Logger.println(formatTable(formattedAddons));
-    });
+  const ownerId = await Organisation.getId(orgaIdOrName);
+  const addons = await Addon.list(ownerId);
 
-  handleCommandStream(s_addons);
+  const formattedAddons = addons.map((addon) => {
+    return [
+      addon.plan.name + ' ' + addon.provider.name,
+      addon.region,
+      colors.bold.green(addon.name),
+      addon.id,
+    ];
+  });
+  Logger.println(formatTable(formattedAddons));
 }
 
-function create (api, params) {
+async function create (params) {
   const [providerName, name] = params.args;
-  const { link, plan, region, yes: skipConfirmation, org: orgaIdOrName } = params.options;
+  const { link: linkedAppAlias, plan: planName, region, yes: skipConfirmation, org: orgaIdOrName } = params.options;
 
-  const s_result = Organisation.getId(api, orgaIdOrName)
-    .flatMapLatest((orgaId) => {
-      if (link) {
-        return AppConfig.getAppData(link).flatMapLatest((appData) => {
-          if (orgaIdOrName != null && appData.orgaId !== orgaId) {
-            Logger.warn('The specified application does not belong to the specified organisation. Ignoring the `--org` option');
-          }
-          return Addon.createAndLink(api, name, providerName, plan, region, skipConfirmation, appData);
-        });
-      }
-      return Addon.create(api, orgaId, name, providerName, plan, region, skipConfirmation);
-    })
-    .map((r) => {
-      if (link) {
-        Logger.println(`Addon ${name} (id: ${r.id}) successfully created and linked to the application`);
-      }
-      else {
-        Logger.println(`Addon ${name} (id: ${r.id}) successfully created`);
-      }
+  const ownerId = (orgaIdOrName != null)
+    ? await Organisation.getId(orgaIdOrName)
+    : await User.getCurrentId();
+
+  if (linkedAppAlias != null) {
+    const linkedAppData = await AppConfig.getAppDetails({ alias: linkedAppAlias });
+    if (orgaIdOrName != null && linkedAppData.ownerId !== ownerId) {
+      Logger.warn('The specified application does not belong to the specified organisation. Ignoring the `--org` option');
+    }
+    const newAddon = await Addon.create({
+      ownerId: linkedAppData.ownerId,
+      name,
+      providerName,
+      planName,
+      region,
+      skipConfirmation,
     });
-
-  handleCommandStream(s_result);
+    await Addon.link(linkedAppData.ownerId, linkedAppData.appId, { addon_id: newAddon.id });
+    Logger.println(`Addon ${name} (id: ${newAddon.id}) successfully created and linked to the application`);
+  }
+  else {
+    const newAddon = await Addon.create({ ownerId, name, providerName, planName, region, skipConfirmation });
+    Logger.println(`Addon ${name} (id: ${newAddon.id}) successfully created`);
+  }
 }
 
-function deleteAddon (api, params) {
+async function deleteAddon (params) {
   const { yes: skipConfirmation, org: orgaIdOrName } = params.options;
-  const [addonIdOrName] = params.args;
+  const [addon] = params.args;
 
-  const s_result = Organisation.getId(api, orgaIdOrName)
-    .flatMapLatest((orgaId) => Addon.delete(api, orgaId, addonIdOrName, skipConfirmation))
-    .map(() => Logger.println(`Addon ${addonIdOrName.addon_id || addonIdOrName.addon_name} successfully deleted`));
+  const ownerId = await Organisation.getId(orgaIdOrName);
+  await Addon.delete(ownerId, addon, skipConfirmation);
 
-  handleCommandStream(s_result);
+  Logger.println(`Addon ${addon.addon_id || addon.addon_name} successfully deleted`);
 }
 
-function rename (api, params) {
-  const [addonIdOrName, newName] = params.args;
+async function rename (params) {
+  const [addon, newName] = params.args;
   const { org: orgaIdOrName } = params.options;
 
-  const s_result = Organisation.getId(api, orgaIdOrName)
-    .flatMapLatest((orgaId) => Addon.rename(api, orgaId, addonIdOrName, newName))
-    .map(() => Logger.println(`Addon ${addonIdOrName.addon_id || addonIdOrName.addon_name} successfully renamed to ${newName}`));
+  const ownerId = await Organisation.getId(orgaIdOrName);
+  await Addon.rename(ownerId, addon, newName);
 
-  handleCommandStream(s_result);
+  Logger.println(`Addon ${addon.addon_id || addon.addon_name} successfully renamed to ${newName}`);
 }
 
-function listProviders (api) {
+async function listProviders () {
 
-  const s_providers = Addon.listProviders(api)
-    .flatMapLatest((providers) => {
-      const formattedProviders = providers.map((provider) => {
-        return [
-          colors.bold(provider.id),
-          provider.name,
-          provider.shortDesc,
-        ];
-      });
-      Logger.println(formatTable(formattedProviders));
-    });
+  const providers = await Addon.listProviders();
 
-  handleCommandStream(s_providers);
+  const formattedProviders = providers.map((provider) => {
+    return [
+      colors.bold(provider.id),
+      provider.name,
+      provider.shortDesc,
+    ];
+  });
+  Logger.println(formatTable(formattedProviders));
 }
 
-function showProvider (api, params) {
+async function showProvider (params) {
   const [providerName] = params.args;
 
-  const s_provider = Addon.getProvider(api, providerName)
-    .map((provider) => {
+  const provider = await Addon.getProvider(providerName);
 
-      Logger.println(colors.bold(provider.id));
-      Logger.println(`${provider.name}: ${provider.shortDesc}`);
-      Logger.println();
-      Logger.println(`Available regions: ${provider.regions.join(', ')}`);
-      Logger.println();
-      Logger.println('Available plans');
+  Logger.println(colors.bold(provider.id));
+  Logger.println(`${provider.name}: ${provider.shortDesc}`);
+  Logger.println();
+  Logger.println(`Available regions: ${provider.regions.join(', ')}`);
+  Logger.println();
+  Logger.println('Available plans');
 
-      _.forEach(provider.plans, (plan) => {
-        Logger.println(`Plan ${colors.bold(plan.slug)}`);
-        _(plan.features)
-          .sortBy('name')
-          .forEach(({ name, value }) => Logger.println(`  ${name}: ${value}`));
-      });
-    });
-
-  handleCommandStream(s_provider);
+  provider.plans.forEach((plan) => {
+    Logger.println(`Plan ${colors.bold(plan.slug)}`);
+    _(plan.features)
+      .sortBy('name')
+      .forEach(({ name, value }) => Logger.println(`  ${name}: ${value}`));
+  });
 }
 
 module.exports = {

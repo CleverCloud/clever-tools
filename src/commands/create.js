@@ -1,29 +1,26 @@
 'use strict';
 
 const Application = require('../models/application.js');
-const handleCommandStream = require('../command-stream-handler');
+const AppConfig = require('../models/app_configuration.js');
 const Logger = require('../logger.js');
 
-function create (api, params) {
+async function create (params) {
+  const { type: typeName } = params.options;
   const [name] = params.args;
   const { org: orgaIdOrName, alias, region, github: githubOwnerRepo } = params.options;
+  const github = getGithubDetails(githubOwnerRepo);
 
-  let github;
-  if (githubOwnerRepo != null) {
-    const [owner, name] = params.options.github.split('/');
-    github = { owner, name };
-  }
+  const app = await Application.create(name, typeName, region, orgaIdOrName, github);
+  await AppConfig.addLinkedApplication(app, alias);
 
-  const s_app = Application.getInstanceType(api, params.options.type)
-    .flatMapLatest((type) => {
-      return Application.create(api, name, type, region, orgaIdOrName, github);
-    })
-    .flatMapLatest((app) => {
-      return Application.linkRepo(api, { app_id: app.id }, null, alias, true);
-    })
-    .map(() => Logger.println('Your application has been successfully created!'));
-
-  handleCommandStream(s_app);
+  Logger.println('Your application has been successfully created!');
 };
 
-module.exports = create;
+function getGithubDetails (githubOwnerRepo) {
+  if (githubOwnerRepo != null) {
+    const [owner, name] = githubOwnerRepo.split('/');
+    return { owner, name };
+  }
+}
+
+module.exports = { create };

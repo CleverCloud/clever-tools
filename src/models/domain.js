@@ -2,28 +2,9 @@
 
 const _ = require('lodash');
 
+const Logger = require('../logger.js');
 const { getAllDomains, getFavouriteDomain } = require('@clevercloud/client/cjs/api/application.js');
 const { sendToApi } = require('../models/send-to-api.js');
-
-const Application = require('./application.js');
-const Logger = require('../logger.js');
-
-function list (api, appId, orgaId) {
-  return Application.get(api, appId, orgaId)
-    .flatMap((app) => app.vhosts);
-}
-
-function create (api, fqdn, appId, orgaId) {
-  const encodedFqdn = encodeURIComponent(fqdn);
-  const params = orgaId ? [orgaId, appId, encodedFqdn] : [appId, encodedFqdn];
-  return api.owner(orgaId).applications._.vhosts._.put().withParams(params).send();
-}
-
-function remove (api, fqdn, appId, orgaId) {
-  const encodedFqdn = encodeURIComponent(fqdn);
-  const params = orgaId ? [orgaId, appId, encodedFqdn] : [appId, encodedFqdn];
-  return api.owner(orgaId).applications._.vhosts._.delete().withParams(params).send();
-}
 
 async function getBest (appId, orgaId) {
   Logger.debug('Trying to get the favourite vhost for ' + appId);
@@ -39,7 +20,7 @@ async function getBest (appId, orgaId) {
       const result = selectBest(allDomains);
 
       if (result == null) {
-        throw new Error("Couldn't find a domain name");
+        throw new Error('Couldn\'t find a domain name');
       }
 
       return result;
@@ -56,4 +37,4 @@ function selectBest (vhosts) {
   return customVhost || withoutDefaultDomain || vhosts[0];
 }
 
-module.exports = { list, create, remove, getBest, selectBest };
+module.exports = { getBest, selectBest };
