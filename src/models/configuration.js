@@ -44,7 +44,7 @@ function writeOAuthConf (oauthData) {
   Logger.debug('Write the tokens in the configuration file…');
   const configDir = path.dirname(conf.CONFIGURATION_FILE);
   return Bacon
-    .fromNodeCallback(mkdirp, configDir, { mode: 0o700 })
+    .fromPromise(mkdirp(configDir, { mode: 0o700 }))
     .flatMapLatest(() => {
       return Bacon.fromNodeCallback(fs.writeFile, conf.CONFIGURATION_FILE, JSON.stringify(oauthData));
     })
