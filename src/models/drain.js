@@ -1,5 +1,7 @@
 'use strict';
 
+const autocomplete = require('cliparse').autocomplete;
+
 const DRAIN_TYPES = [
   { id: 'TCPSyslog' },
   { id: 'UDPSyslog' },
@@ -57,7 +59,12 @@ function credentialsEmpty ({ username, password }) {
   return username == null && password == null;
 }
 
+function listDrainTypes () {
+  return autocomplete.words(DRAIN_TYPES.map((type) => type.id));
+}
+
 module.exports = {
   createDrainBody,
   authorizeDrainCreation,
+  listDrainTypes,
 };
