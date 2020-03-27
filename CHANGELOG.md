@@ -1,5 +1,9 @@
 # clever-tools changelog
 
+## 2.2.2 (2020-03-28)
+
+- Fix `login` and `logout` commands, update mkdirp usage (new version returns a promise)
+
 ## 2.2.1 (2020-03-27)
 
 ### For users
