@@ -555,7 +555,7 @@ function run () {
   }, logout('logout'));
 
   // LOGS COMMAND
-  const logs = lazyRequireFunctionWithApi('../src/commands/logs.js');
+  const logs = lazyRequireFunction('../src/commands/logs.js');
   const logsCommand = cliparse.command('logs', {
     description: 'Fetch application logs, continuously',
     options: [opts.alias, opts.before, opts.after, opts.search, opts.deploymentId, opts.addonId],
