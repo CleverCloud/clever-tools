@@ -13,7 +13,7 @@ const User = require('../models/user.js');
 async function list (params) {
   const { org: orgaIdOrName } = params.options;
 
-  const ownerId = await Organisation.getIdProm(orgaIdOrName);
+  const ownerId = await Organisation.getId(orgaIdOrName);
   const addons = await Addon.list(ownerId);
 
   const formattedAddons = addons.map((addon) => {
@@ -32,7 +32,7 @@ async function create (params) {
   const { link: linkedAppAlias, plan: planName, region, yes: skipConfirmation, org: orgaIdOrName } = params.options;
 
   const ownerId = (orgaIdOrName != null)
-    ? await Organisation.getIdProm(orgaIdOrName)
+    ? await Organisation.getId(orgaIdOrName)
     : await User.getCurrentId();
 
   if (linkedAppAlias != null) {
@@ -61,7 +61,7 @@ async function deleteAddon (params) {
   const { yes: skipConfirmation, org: orgaIdOrName } = params.options;
   const [addon] = params.args;
 
-  const ownerId = await Organisation.getIdProm(orgaIdOrName);
+  const ownerId = await Organisation.getId(orgaIdOrName);
   await Addon.delete(ownerId, addon, skipConfirmation);
 
   Logger.println(`Addon ${addon.addon_id || addon.addon_name} successfully deleted`);
@@ -71,7 +71,7 @@ async function rename (params) {
   const [addon, newName] = params.args;
   const { org: orgaIdOrName } = params.options;
 
-  const ownerId = await Organisation.getIdProm(orgaIdOrName);
+  const ownerId = await Organisation.getId(orgaIdOrName);
   await Addon.rename(ownerId, addon, newName);
 
   Logger.println(`Addon ${addon.addon_id || addon.addon_name} successfully renamed to ${newName}`);

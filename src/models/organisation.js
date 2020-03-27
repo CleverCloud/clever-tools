@@ -1,16 +1,11 @@
 'use strict';
 
 const _ = require('lodash');
-const Bacon = require('baconjs');
 
 const { getSummary } = require('@clevercloud/client/cjs/api/user.js');
 const { sendToApi } = require('../models/send-to-api.js');
 
-function getId (api, orgaIdOrName) {
-  return Bacon.fromPromise(getIdProm(orgaIdOrName));
-}
-
-async function getIdProm (orgaIdOrName) {
+async function getId (orgaIdOrName) {
   if (orgaIdOrName == null) {
     return null;
   }
@@ -19,15 +14,11 @@ async function getIdProm (orgaIdOrName) {
     return orgaIdOrName.orga_id;
   }
 
-  return getByNameProm(orgaIdOrName.orga_name)
+  return getByName(orgaIdOrName.orga_name)
     .then((orga) => orga.id);
 }
 
-function getByName (api, name) {
-  return Bacon.fromPromise(getByNameProm(name));
-}
-
-async function getByNameProm (name) {
+async function getByName (name) {
 
   const fullSummary = await getSummary({}).then(sendToApi);
   const filteredOrgs = _.filter(fullSummary.organisations, { name });
@@ -44,6 +35,4 @@ async function getByNameProm (name) {
 
 module.exports = {
   getId,
-  getIdProm,
-  getByName,
 };

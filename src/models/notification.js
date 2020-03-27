@@ -18,7 +18,7 @@ function listMetaEvents () {
 function getOrgaIdOrUserId (orgIdOrName) {
   return (orgIdOrName == null)
     ? User.getCurrentId()
-    : Organisation.getIdProm(orgIdOrName);
+    : Organisation.getId(orgIdOrName);
 }
 
 async function getOwnerAndApp (alias, org, useLinkedApp) {

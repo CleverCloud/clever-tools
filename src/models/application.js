@@ -58,7 +58,7 @@ async function create (name, typeName, region, orgaIdOrName, github) {
   Logger.debug('Create the application…');
 
   const ownerId = (orgaIdOrName != null)
-    ? await Organisation.getIdProm(orgaIdOrName)
+    ? await Organisation.getId(orgaIdOrName)
     : await User.getCurrentId();
 
   const instanceType = await getInstanceType(typeName);
@@ -123,7 +123,7 @@ async function linkRepo (app, orgaIdOrName, alias, ignoreParentConfig) {
   Logger.debug(`Linking current repository to the app: ${app.app_id || app.app_name}`);
 
   const ownerId = (orgaIdOrName != null)
-    ? await Organisation.getIdProm(orgaIdOrName)
+    ? await Organisation.getId(orgaIdOrName)
     : await User.getCurrentId();
 
   const appData = (app.app_id != null)
