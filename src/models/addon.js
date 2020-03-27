@@ -81,7 +81,7 @@ async function create ({ ownerId, name, providerName, planName, region, skipConf
   return createAddon({ id: ownerId }, addonToCreate).then(sendToApi);
 }
 
-async function getByNameProm (ownerId, addonNameOrRealId) {
+async function getByName (ownerId, addonNameOrRealId) {
   const addons = await getAllAddons({ id: ownerId }).then(sendToApi);
   const filteredAddons = addons.filter(({ name, realId }) => {
     return name === addonNameOrRealId || realId === addonNameOrRealId;
@@ -95,26 +95,26 @@ async function getByNameProm (ownerId, addonNameOrRealId) {
   throw new Error('Ambiguous addon name');
 }
 
-async function getIdProm (ownerId, addon) {
+async function getId (ownerId, addon) {
   if (addon.addon_id) {
     return addon.addon_id;
   }
-  const addonDetails = await getByNameProm(ownerId, addon.addon_name);
+  const addonDetails = await getByName(ownerId, addon.addon_name);
   return addonDetails.id;
 }
 
 async function link (ownerId, appId, addon) {
-  const addonId = await getIdProm(ownerId, addon);
+  const addonId = await getId(ownerId, addon);
   return application.linkAddon({ id: ownerId, appId }, JSON.stringify(addonId)).then(sendToApi);
 }
 
 async function unlink (ownerId, appId, addon) {
-  const addonId = await getIdProm(ownerId, addon);
+  const addonId = await getId(ownerId, addon);
   return application.unlinkAddon({ id: ownerId, appId, addonId }).then(sendToApi);
 }
 
 async function deleteAddon (ownerId, addonIdOrName, skipConfirmation) {
-  const addonId = await getIdProm(ownerId, addonIdOrName);
+  const addonId = await getId(ownerId, addonIdOrName);
 
   if (!skipConfirmation) {
     await Interact.confirm('Deleting the addon can\'t be undone, are you sure? ', 'No confirmation, aborting addon deletion').toPromise();
@@ -124,7 +124,7 @@ async function deleteAddon (ownerId, addonIdOrName, skipConfirmation) {
 }
 
 async function rename (ownerId, addon, name) {
-  const addonId = await getIdProm(ownerId, addon);
+  const addonId = await getId(ownerId, addon);
   return updateAddon({ id: ownerId, addonId }, { name }).then(sendToApi);
 }
 
@@ -154,15 +154,15 @@ async function findById (addonId) {
 }
 
 module.exports = {
-  listProviders,
-  getProvider,
-  list,
-  create,
-  link,
-  unlink,
-  delete: deleteAddon,
-  rename,
-  completeRegion,
   completePlan,
+  completeRegion,
+  create,
+  delete: deleteAddon,
   findById,
+  getProvider,
+  link,
+  list,
+  listProviders,
+  rename,
+  unlink,
 };
