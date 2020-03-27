@@ -15,9 +15,7 @@ if (process.argv.includes('--autocomplete-index')) {
 const cliparse = require('cliparse');
 const updateNotifier = require('update-notifier');
 
-const Api = require('../src/models/api.js');
 const git = require('../src/models/git.js');
-const Logger = require('../src/logger.js');
 const Parsers = require('../src/parsers.js');
 const handleCommandPromise = require('../src/command-promise-handler.js');
 
@@ -45,52 +43,12 @@ if (process.pkg == null) {
 // Use this alias so we get less warnings in pkg build :p
 const dynamicRequire = module.require.bind(module);
 
-function lazyRequireFunctionWithApi (modulePath, name) {
-  return function (...args) {
-    s_api.onValue((api) => {
-      const module = dynamicRequire(modulePath);
-      args.unshift(api);
-      if (name) {
-        module[name].apply(this, args);
-      }
-      else {
-        module.apply(this, args);
-      }
-    });
-  };
-}
-
 function lazyRequirePromiseModule (modulePath) {
   return function (name) {
     return function (...args) {
       const module = dynamicRequire(modulePath);
       const promise = module[name](...args);
       handleCommandPromise(promise);
-    };
-  };
-}
-
-function lazyRequirePromiseModuleAndApi (modulePath) {
-  return function (name) {
-    return function (...args) {
-      s_api.onValue((api) => {
-        args.unshift(api);
-        const module = dynamicRequire(modulePath);
-        const promise = module[name](...args);
-        handleCommandPromise(promise);
-      });
-    };
-  };
-}
-
-function lazyRequireModuleWithApi (modulePath) {
-  return function (name) {
-    return function (...args) {
-      s_api.onValue((api) => {
-        args.unshift(api);
-        const module = dynamicRequire(modulePath);
-        module[name].apply(this, args);
-      });
     };
   };
 }
@@ -760,9 +718,5 @@ function run () {
   cliArgs[0] = 'node';
   cliparse.parse(cliParser, cliArgs);
 }
-
-// Will have to be remove
-const s_api = Api();
-s_api.onError((e) => Logger.error(e));
 
 run();
