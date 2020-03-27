@@ -2,9 +2,8 @@
 
 const _ = require('lodash');
 const application = require('@clevercloud/client/cjs/api/application.js');
-const product = require('@clevercloud/client/cjs/api/product.js');
 const autocomplete = require('cliparse').autocomplete;
-const Bacon = require('baconjs');
+const product = require('@clevercloud/client/cjs/api/product.js');
 
 const AppConfiguration = require('./app_configuration.js');
 const Interact = require('./interact.js');
@@ -33,19 +32,11 @@ function listAvailableFlavors () {
   return ['pico', 'nano', 'XS', 'S', 'M', 'L', 'XL', '2XL', '3XL'];
 };
 
-function getId (api, orgaId, appIdOrName) {
-  if (appIdOrName.app_id) {
-    return Bacon.once(appIdOrName.app_id);
-  }
-  return getByName(api, appIdOrName.app_name, orgaId && { orga_id: orgaId })
-    .map((app) => app.id);
-};
-
-async function getIdProm (ownerId, dependency) {
+async function getId (ownerId, dependency) {
   if (dependency.app_id) {
     return dependency.app_id;
   }
-  const app = await getByNameProm(ownerId, dependency.app_name);
+  const app = await getByName(ownerId, dependency.app_name);
   return app.id;
 };
 
@@ -107,13 +98,7 @@ async function deleteApp (addDetails, skipConfirmation) {
   return application.remove({ id: addDetails.ownerId, appId: addDetails.appId }).then(sendToApi);
 };
 
-function getApplicationByName (s_apps, name) {
-  return s_apps.flatMapLatest((apps) => {
-    return getApplicationByNameProm(apps, name);
-  });
-};
-
-function getApplicationByNameProm (apps, name) {
+function getApplicationByName (apps, name) {
   const filteredApps = apps.filter((app) => app.name === name);
   if (filteredApps.length === 1) {
     return filteredApps[0];
@@ -124,22 +109,9 @@ function getApplicationByNameProm (apps, name) {
   throw new Error('Ambiguous application name');
 };
 
-function getByName (api, name, orgaIdOrName) {
-  if (!orgaIdOrName) {
-    const s_apps = api.owner().applications.get().send();
-    return getApplicationByName(s_apps, name);
-  }
-  else {
-    const s_apps = Organisation.getId(api, orgaIdOrName).flatMapLatest(function (orgaId) {
-      return api.owner(orgaId).applications.get().withParams([orgaId]).send();
-    });
-    return getApplicationByName(s_apps, name);
-  }
-}
-
-async function getByNameProm (ownerId, name) {
+async function getByName (ownerId, name) {
   const apps = await application.getAll({ id: ownerId }).then(sendToApi);
-  return getApplicationByNameProm(apps, name);
+  return getApplicationByName(apps, name);
 };
 
 function get (ownerId, appId) {
@@ -156,7 +128,7 @@ async function linkRepo (app, orgaIdOrName, alias, ignoreParentConfig) {
 
   const appData = (app.app_id != null)
     ? await get(ownerId, app.app_id)
-    : await getByNameProm(ownerId, app.app_name);
+    : await getByName(ownerId, app.app_name);
 
   return AppConfiguration.addLinkedApplication(appData, alias, ignoreParentConfig);
 };
@@ -245,31 +217,29 @@ async function listDependencies (ownerId, appId, showAll) {
 }
 
 async function link (ownerId, appId, dependency) {
-  const dependencyId = await getIdProm(ownerId, dependency);
+  const dependencyId = await getId(ownerId, dependency);
   return application.addDependency({ id: ownerId, appId, dependencyId }).then(sendToApi);
 };
 
 async function unlink (ownerId, appId, dependency) {
-  const dependencyId = await getIdProm(ownerId, dependency);
+  const dependencyId = await getId(ownerId, dependency);
   return application.removeDependency({ id: ownerId, appId, dependencyId }).then(sendToApi);
 };
 
 module.exports = {
-  listAvailableTypes,
-  listAvailableZones,
-  listAvailableAliases,
-  listAvailableFlavors,
-  getId,
   create,
   deleteApp,
-  getByName,
   get,
-  linkRepo,
-  unlinkRepo,
-  redeploy,
-  mergeScalabilityParameters,
-  setScalability,
-  listDependencies,
   link,
+  linkRepo,
+  listAvailableAliases,
+  listAvailableFlavors,
+  listAvailableTypes,
+  listAvailableZones,
+  listDependencies,
+  __mergeScalabilityParameters: mergeScalabilityParameters,
+  redeploy,
+  setScalability,
   unlink,
+  unlinkRepo,
 };
