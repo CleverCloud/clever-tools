@@ -349,6 +349,10 @@ function run () {
       aliases: ['y'],
       description: 'Skip confirmation and delete the application directly',
     }),
+    confirmTcpRedirCreation: cliparse.flag('yes', {
+      aliases: ['y'],
+      description: 'Skip confirmation even if the TCP redirection is not free',
+    }),
   };
 
   // ACCESSLOGS COMMAND
@@ -659,7 +663,7 @@ function run () {
   }, tcpRedirs('listNamespaces'));
   const tcpRedirsAddCommand = cliparse.command('add', {
     description: 'Add a new TCP redirection to the application',
-    options: [opts.namespace],
+    options: [opts.namespace, opts.confirmTcpRedirCreation],
   }, tcpRedirs('add'));
   const tcpRedirsRemoveCommand = cliparse.command('remove', {
     description: 'Remove a TCP redirection from the application',
