@@ -1,5 +1,50 @@
 # clever-tools changelog
 
+## 2.2.1 (2020-03-27)
+
+### For users
+
+- Fix drain type autocomplete
+- Always save `org_id` in `.clever.json` with `clever link`
+- Add on API calls when `CLEVER_VERBOSE` is enabled
+
+### Internals
+
+We did a bit refactor in the codebase, less bacon, more promises and no more legacy clever-client!!
+
+- Remove Bacon from `Interact.confirm()`
+- Update @clevercloud/client to 5.0.1 (with fixed/improved function names)
+- Add `getAppDetails()` in app_configuration
+- Cleanup in models/addon
+- Cleanup in models/application
+- Cleanup in models/organisation
+- Refactor `clever addon` (less Bacon, more promise)
+- Refactor `clever applications` (less Bacon, more promise)
+- Refactor `clever cancel-deploy` (less Bacon, more promise)
+- Refactor `clever console` (less Bacon, more promise)
+- Refactor `clever create` (less Bacon, more promise)
+- Refactor `clever delete` (less Bacon, more promise)
+- Refactor `clever deploy` and `clever restart` (less Bacon, more promise)
+- Refactor `clever domain` (less Bacon, more promise)
+- Refactor `clever link` (less Bacon, more promise)
+- Refactor `clever logs` (less Bacon, more promise)
+- Refactor `clever service` (less Bacon, more promise)
+- Refactor `clever ssh` (less Bacon, more promise)
+- Refactor `clever stop` (less Bacon, more promise)
+- Refactor `clever unlink` (less Bacon, more promise)
+- Refactor `make-default` command (less Bacon, more promise)
+- Remove legacy clever-client usage with API client injection
+- Remove unused `getAppData()` from app_configuration
+- Use `getAppDetails()` in `clever accesslogs`
+- Use `getAppDetails()` in `clever activity`
+- Use `getAppDetails()` in `clever drain`
+- Use `getAppDetails()` in `clever env`
+- Use `getAppDetails()` in `clever open`
+- Use `getAppDetails()` in `clever published-config`
+- Use `getAppDetails()` in `clever scale`
+- Use `getAppDetails()` in `clever status`
+- Use `getAppDetails()` in notification model
+
 ## 2.2.0 (2020-03-26)
 
 * Alias `after/before` to `since/until` in commands `logs` and `accesslogs`
