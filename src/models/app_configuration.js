@@ -94,11 +94,6 @@ function findApp (config, alias) {
   throw new Error(`Several applications are linked. You can specify one with the "--alias" option. Run "clever applications" to list linked applications. Available aliases: ${aliases}`);
 }
 
-function getAppData (alias) {
-  return loadApplicationConf()
-    .flatMap(Bacon.try((config) => findApp(config, alias)));
-};
-
 async function getAppDetails ({ alias }) {
   const config = await loadApplicationConf().toPromise();
   const app = findApp(config, alias);
@@ -132,6 +127,5 @@ module.exports = {
   removeLinkedApplication,
   findApp,
   getAppDetails,
-  getAppData,
   setDefault,
 };
