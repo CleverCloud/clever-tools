@@ -48,7 +48,7 @@ function resolveFullCommitId (commitId) {
 
 async function getRemoteCommit (remoteUrl) {
   const repo = await getRepo();
-  const tokens = await loadOAuthConf().toPromise();
+  const tokens = await loadOAuthConf();
   const remoteInfos = await git.getRemoteInfo({
     ...repo,
     username: tokens.token,
@@ -73,7 +73,7 @@ async function getBranchCommit (refspec) {
 
 async function push (remoteUrl, branchRefspec, force) {
   const repo = await getRepo();
-  const tokens = await loadOAuthConf().toPromise();
+  const tokens = await loadOAuthConf();
   try {
     const push = await git.push({
       ...repo,

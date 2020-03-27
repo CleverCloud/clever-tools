@@ -8,7 +8,7 @@ const { prefixUrl } = require('@clevercloud/client/cjs/prefix-url.js');
 const { request } = require('@clevercloud/client/cjs/request.superagent.js');
 
 async function loadTokens () {
-  const tokens = await loadOAuthConf().toPromise();
+  const tokens = await loadOAuthConf();
   return {
     OAUTH_CONSUMER_KEY: conf.OAUTH_CONSUMER_KEY,
     OAUTH_CONSUMER_SECRET: conf.OAUTH_CONSUMER_SECRET,
