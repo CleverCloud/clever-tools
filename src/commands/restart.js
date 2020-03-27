@@ -10,32 +10,33 @@ const handleCommandStream = require('../command-stream-handler');
 const Log = require('../models/log');
 const Logger = require('../logger.js');
 
-function restart (api, params) {
+async function restartPromise (params) {
   const { alias, quiet, commit, 'without-cache': withoutCache } = params.options;
 
-  const s_appData = AppConfig.getAppData(alias);
-  const s_fullCommitId = git.resolveFullCommitId(commit);
-  const s_remoteCommitId = s_appData
-    .flatMapLatest(({ app_id, app_orga }) => Application.get(api, app_id, app_orga))
-    .flatMapLatest(({ commitId }) => commitId);
+  const appData = await AppConfig.getAppDetails({ alias });
+  const fullCommitId = await git.resolveFullCommitId(commit).toPromise();
+  const app = await Application.get(appData.ownerId, appData.appId);
+  const remoteCommitId = app.commitId;
 
-  const s_allLogs = Bacon
-    .combineAsArray(s_appData, s_fullCommitId, s_remoteCommitId)
-    .flatMapLatest(([appData, fullCommitId, remoteCommitId]) => {
-      const commitId = fullCommitId || remoteCommitId;
-      if (commitId != null) {
-        const cacheSuffix = withoutCache ? ' without using cache' : '';
-        Logger.println(`Restarting ${appData.name} on commit ${colors.green(commitId)}${cacheSuffix}`);
-      }
-      const s_redeploy = Application.redeploy(api, appData.app_id, appData.org_id, fullCommitId, withoutCache);
-      return Bacon.combineAsArray(s_redeploy, appData, remoteCommitId);
-    })
-    .flatMapLatest(([redeploy, appData, remoteCommitId]) => {
-      return Log.getAllLogs(api, redeploy, appData, remoteCommitId, quiet);
+  const commitId = fullCommitId || remoteCommitId;
+  if (commitId != null) {
+    const cacheSuffix = withoutCache ? ' without using cache' : '';
+    Logger.println(`Restarting ${appData.name} on commit ${colors.green(commitId)}${cacheSuffix}`);
+  }
+  const redeploy = await Application.redeploy(appData.ownerId, appData.appId, fullCommitId, withoutCache);
+  return { redeploy, appData, remoteCommitId, quiet };
+}
+
+function restart (params) {
+
+  const stream = Bacon
+    .fromPromise(restartPromise(params))
+    .flatMapLatest(({ redeploy, appData, remoteCommitId, quiet }) => {
+      return Log.getAllLogs(redeploy, appData, remoteCommitId, quiet);
     })
     .map(Logger.println);
 
-  handleCommandStream(s_allLogs);
+  handleCommandStream(stream);
 };
 
 module.exports = restart;

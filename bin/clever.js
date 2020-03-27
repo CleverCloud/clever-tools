@@ -456,7 +456,7 @@ function run () {
   }, deleteCommandModule('deleteApp'));
 
   // DEPLOY COMMAND
-  const deploy = lazyRequireFunctionWithApi('../src/commands/deploy.js');
+  const deploy = lazyRequireFunction('../src/commands/deploy.js');
   const deployCommand = cliparse.command('deploy', {
     description: 'Deploy an application to Clever Cloud',
     options: [opts.alias, opts.branch, opts.quiet, opts.forceDeploy],
@@ -625,7 +625,7 @@ function run () {
   }, publishedConfig('list'));
 
   // RESTART COMMAND
-  const restart = lazyRequireFunctionWithApi('../src/commands/restart.js');
+  const restart = lazyRequireFunction('../src/commands/restart.js');
   const restartCommand = cliparse.command('restart', {
     description: 'Start or restart a Clever Cloud application',
     options: [opts.alias, opts.commit, opts.withoutCache, opts.quiet],

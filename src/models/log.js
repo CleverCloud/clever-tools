@@ -93,11 +93,11 @@ function getAppLogs (appId, instances, before, after, filter, deploymentId) {
     });
 };
 
-function getAllLogs (api, push, appData, commitId, quiet) {
+function getAllLogs (push, appData, commitId, quiet) {
 
   const deploymentId = _.get(push, 'deploymentId');
   const s_deploymentEvents = Event
-    .getEvents(appData.app_id)
+    .getEvents(appData.appId)
     .filter((e) => {
       if (deploymentId != null) {
         return _.get(e, 'data.uuid') === deploymentId;
@@ -120,7 +120,7 @@ function getAllLogs (api, push, appData, commitId, quiet) {
     .first()
     .toProperty();
 
-  const s_appLogs = Application.get(api, appData.app_id)
+  const s_appLogs = Bacon.fromPromise(Application.get(appData.ownerId, appData.appId))
     .flatMapLatest((app) => {
       Logger.debug('Fetch application logs…');
       if (deploymentId != null) {

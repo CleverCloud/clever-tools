@@ -142,15 +142,9 @@ async function getByNameProm (ownerId, name) {
   return getApplicationByNameProm(apps, name);
 };
 
-function get (api, appId, orgaId) {
+function get (ownerId, appId) {
   Logger.debug(`Get information for the app: ${appId}`);
-  const params = orgaId ? [orgaId, appId] : [appId];
-  return api.owner(orgaId).applications._.get().withParams(params).send();
-};
-
-function getProm (orgaId, appId) {
-  Logger.debug(`Get information for the app: ${appId}`);
-  return application.get({ id: orgaId, appId }).then(sendToApi);
+  return application.get({ id: ownerId, appId }).then(sendToApi);
 };
 
 async function linkRepo (app, orgaIdOrName, alias, ignoreParentConfig) {
@@ -161,7 +155,7 @@ async function linkRepo (app, orgaIdOrName, alias, ignoreParentConfig) {
     : await User.getCurrentId();
 
   const appData = (app.app_id != null)
-    ? await getProm(ownerId, app.app_id)
+    ? await get(ownerId, app.app_id)
     : await getByNameProm(ownerId, app.app_name);
 
   return AppConfiguration.addLinkedApplication(appData, alias, ignoreParentConfig);
@@ -172,20 +166,10 @@ function unlinkRepo (alias) {
   return AppConfiguration.removeLinkedApplication(alias);
 };
 
-function redeploy (api, appId, orgaId, commitId, withoutCache) {
+function redeploy (ownerId, appId, commit, withoutCache) {
   Logger.debug(`Redeploying the app: ${appId}`);
-  const params = orgaId ? [orgaId, appId] : [appId];
-  const query = {};
-  if (commitId) {
-    query.commit = commitId;
-  }
-  if (withoutCache) {
-    query.useCache = 'no';
-  }
-  return api.owner(orgaId).applications._.instances.post()
-    .withParams(params)
-    .withQuery(query)
-    .send();
+  const useCache = (withoutCache != null) ? 'no' : null;
+  return application.redeploy({ id: ownerId, appId, commit, useCache }).then(sendToApi);
 };
 
 function mergeScalabilityParameters (scalabilityParameters, instance) {
