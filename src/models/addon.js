@@ -75,7 +75,7 @@ async function create ({ ownerId, name, providerName, planName, region, skipConf
     await Interact.confirm(
       `You're about to pay ${result.totalTTC}€, confirm? (yes or no) `,
       'No confirmation, aborting addon creation',
-    ).toPromise();
+    );
   }
 
   return createAddon({ id: ownerId }, addonToCreate).then(sendToApi);
@@ -117,7 +117,7 @@ async function deleteAddon (ownerId, addonIdOrName, skipConfirmation) {
   const addonId = await getId(ownerId, addonIdOrName);
 
   if (!skipConfirmation) {
-    await Interact.confirm('Deleting the addon can\'t be undone, are you sure? ', 'No confirmation, aborting addon deletion').toPromise();
+    await Interact.confirm('Deleting the addon can\'t be undone, are you sure? ', 'No confirmation, aborting addon deletion');
   }
 
   return removeAddon({ id: ownerId, addonId }).then(sendToApi);

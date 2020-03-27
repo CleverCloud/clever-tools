@@ -92,7 +92,8 @@ async function deleteApp (addDetails, skipConfirmation) {
     await Interact.confirm(
       `Deleting the application ${addDetails.name} can't be undone, please type '${addDetails.name}' to confirm: `,
       'No confirmation, aborting application deletion',
-      [addDetails.name]).toPromise();
+      [addDetails.name],
+    );
   }
 
   return application.remove({ id: addDetails.ownerId, appId: addDetails.appId }).then(sendToApi);
