@@ -1,5 +1,9 @@
 # clever-tools changelog
 
+## 2.2.3 (2020-03-30)
+
+- Fix `link` when app ID is not in personal space
+
 ## 2.2.2 (2020-03-28)
 
 - Fix `login` and `logout` commands, update mkdirp usage (new version returns a promise)
