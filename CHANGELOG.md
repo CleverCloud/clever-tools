@@ -1,5 +1,9 @@
 # clever-tools changelog
 
+## 2.3.0 (2020-03-30)
+
+* Add `clever tcp-redirs` command to configure TCP redirections
+
 ## 2.2.3 (2020-03-30)
 
 - Fix `link` when app ID is not in personal space
