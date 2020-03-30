@@ -120,6 +120,14 @@ function get (ownerId, appId) {
   return application.get({ id: ownerId, appId }).then(sendToApi);
 };
 
+function getFromSelf (appId) {
+  Logger.debug(`Get information for the app: ${appId}`);
+  // /self differs from /organisations only for this one:
+  // it fallbacks to the organisations of which the user
+  // is a member, if it doesn't belong to Personal Space.
+  return application.get({ appId }).then(sendToApi);
+};
+
 async function linkRepo (app, orgaIdOrName, alias, ignoreParentConfig) {
   Logger.debug(`Linking current repository to the app: ${app.app_id || app.app_name}`);
 
@@ -128,7 +136,7 @@ async function linkRepo (app, orgaIdOrName, alias, ignoreParentConfig) {
     : await User.getCurrentId();
 
   const appData = (app.app_id != null)
-    ? await get(ownerId, app.app_id)
+    ? await getFromSelf(app.app_id)
     : await getByName(ownerId, app.app_name);
 
   return AppConfiguration.addLinkedApplication(appData, alias, ignoreParentConfig);
