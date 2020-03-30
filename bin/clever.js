@@ -74,6 +74,7 @@ const Addon = lazyRequire('../src/models/addon.js');
 const Application = lazyRequire('../src/models/application.js');
 const Drain = lazyRequire('../src/models/drain.js');
 const Notification = lazyRequire('../src/models/notification.js');
+const Organisation = lazyRequire('../src/models/organisation.js');
 
 function run () {
 
@@ -107,6 +108,10 @@ function run () {
       parser: Parsers.commaSeparated,
     }),
     envVariableValue: cliparse.argument('variable-value', { description: 'Value of the environment variable' }),
+    port: cliparse.argument('port', {
+      description: 'port identifying the TCP redirection',
+      parser: Parsers.integer,
+    }),
   };
 
   // OPTIONS
@@ -166,6 +171,12 @@ function run () {
     deploymentId: cliparse.option('deployment-id', {
       metavar: 'deployment_id',
       description: 'Fetch logs for a given deployment',
+    }),
+    namespace: cliparse.option('namespace', {
+      metavar: 'namespace',
+      description: 'namespace in which the TCP redirection should be',
+      required: true,
+      complete: Organisation('completeNamespaces'),
     }),
     notificationEventType: cliparse.option('event', {
       metavar: 'type',
@@ -337,6 +348,10 @@ function run () {
     confirmApplicationDeletion: cliparse.flag('yes', {
       aliases: ['y'],
       description: 'Skip confirmation and delete the application directly',
+    }),
+    confirmTcpRedirCreation: cliparse.flag('yes', {
+      aliases: ['y'],
+      description: 'Skip confirmation even if the TCP redirection is not free',
     }),
   };
 
@@ -641,6 +656,26 @@ function run () {
     options: [opts.alias],
   }, stop('stop'));
 
+  // TCP-REDIRS COMMAND
+  const tcpRedirs = lazyRequirePromiseModule('../src/commands/tcp-redirs.js');
+  const tcpRedirsListNamespacesCommand = cliparse.command('list-namespaces', {
+    description: 'List the namespaces in which you can create new TCP redirections',
+  }, tcpRedirs('listNamespaces'));
+  const tcpRedirsAddCommand = cliparse.command('add', {
+    description: 'Add a new TCP redirection to the application',
+    options: [opts.namespace, opts.confirmTcpRedirCreation],
+  }, tcpRedirs('add'));
+  const tcpRedirsRemoveCommand = cliparse.command('remove', {
+    description: 'Remove a TCP redirection from the application',
+    options: [opts.namespace],
+    args: [args.port],
+  }, tcpRedirs('remove'));
+  const tcpRedirsCommands = cliparse.command('tcp-redirs', {
+    description: 'Control the TCP redirections from reverse proxies to your application',
+    options: [opts.alias],
+    commands: [tcpRedirsListNamespacesCommand, tcpRedirsAddCommand, tcpRedirsRemoveCommand],
+  }, tcpRedirs('list'));
+
   // UNLINK COMMAND
   const unlink = lazyRequirePromiseModule('../src/commands/unlink.js');
   const appUnlinkCommand = cliparse.command('unlink', {
@@ -708,6 +743,7 @@ function run () {
       sshCommand,
       statusCommand,
       stopCommand,
+      tcpRedirsCommands,
       versionCommand,
       webhooksCommand,
     ],

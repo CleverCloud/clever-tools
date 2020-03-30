@@ -78,6 +78,14 @@ function accessLogsFormat (format) {
   return cliparse.parsers.error('The format must be one of ' + availableFormats.join(', '));
 }
 
+function integer (string) {
+  const integer = parseInt(string);
+  if (isNaN(integer)) {
+    return cliparse.parsers.error('Invalid number: ' + string);
+  }
+  return cliparse.parsers.success(integer);
+}
+
 module.exports = {
   buildFlavor,
   flavor,
@@ -88,4 +96,5 @@ module.exports = {
   addonIdOrName,
   commaSeparated,
   accessLogsFormat,
+  integer,
 };
