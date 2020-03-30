@@ -7,6 +7,9 @@ pipeline {
     BINTRAY_API_KEY = credentials('BINTRAY_CC_TOOLS_API_KEY')
     NPM_TOKEN = credentials('NPM_TOKEN')
   }
+  options {
+    buildDiscarder(logRotator(daysToKeepStr: '5', numToKeepStr: '10', artifactDaysToKeepStr: '5', artifactNumToKeepStr: '10'))
+  }
   stages {
     stage('build') {
       steps {
@@ -83,7 +86,7 @@ pipeline {
   }
   post {
     always {
-      archiveArtifacts artifacts: 'releases/**/*', fingerprint: true
+      archiveArtifacts artifacts: 'releases/**/*', fingerprint: true, onlyIfSuccessful: true
     }
   }
 }
