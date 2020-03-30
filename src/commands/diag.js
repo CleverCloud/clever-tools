@@ -12,7 +12,7 @@ const { loadOAuthConf } = require('../models/configuration.js');
 
 async function diag () {
 
-  const userId = await User.getCurrent().then((u) => u.id).catch(() => 'Not connected');
+  const userId = await User.getCurrentId().catch(() => 'Not connected');
   const oauthToken = await loadOAuthConf().then((o) => o.token).catch(() => 'Not connected');
 
   Logger.println('clever-tools  ' + colors.green(pkg.version));
