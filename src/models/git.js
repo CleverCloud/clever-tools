@@ -23,7 +23,7 @@ async function getRepo () {
 }
 
 async function onAuth () {
-  const tokens = await loadOAuthConf().toPromise();
+  const tokens = await loadOAuthConf();
   return {
     username: tokens.token,
     password: tokens.secret,
