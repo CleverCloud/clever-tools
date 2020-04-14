@@ -1,7 +1,8 @@
 'use strict';
 
+const _ = require('lodash');
 const readline = require('readline');
-const { ERROR_TYPES, parseRaw, toNameValueObject } = require('@clevercloud/client/cjs/utils/env-vars.js');
+const { ERROR_TYPES, parseRaw, toNameValueObject, validateName } = require('@clevercloud/client/cjs/utils/env-vars.js');
 
 function readStdin () {
 
@@ -28,17 +29,28 @@ function readStdin () {
 }
 
 function parseFromJSON (rawStdin) {
+  let json;
   try {
-    const json = JSON.parse(rawStdin);
-    // The JSON structure is not checked before sending it to the API.
-    // In the case of an error, the API call will fail and an error will
-    // be logged. It could be possible to add a check here to improve the
-    // UX a bit (but we'd have to make sure it's consistent with what the
-    // API checks).
-    return json;
+    json = JSON.parse(rawStdin);
   }
   catch (e) {
     throw new Error('Error when parsing json', e);
+  }
+
+  if (_.isArray(json)) {
+    const isValidPair = ({ name }) => validateName(name);
+
+    const invalidPairs = json.filter((p) => !isValidPair(p));
+
+    if (invalidPairs.length !== 0) {
+      throw new Error(invalidPairs.map(({ name }) => `${name} is not a valid variable name`));
+    }
+    else {
+      return toNameValueObject(json);
+    }
+  }
+  else {
+    throw new Error('You need to provide a list of key / value pairs, for instance: [{"name": "PORT", "value": 8080}]');
   }
 }
 
