@@ -67,7 +67,7 @@ async function importEnv (params) {
   Logger.println('Environment variables have been set');
 };
 
-async function importEnvVars (params) {
+async function importVarsFromLocalEnv (params) {
   const [envNames] = params.args;
   const { alias } = params.options;
 
@@ -88,4 +88,4 @@ async function importEnvVars (params) {
   Logger.println('Your environment variables have been successfully saved');
 };
 
-module.exports = { list, set, rm, importEnv, importEnvVars };
+module.exports = { list, set, rm, importEnv, importVarsFromLocalEnv };
