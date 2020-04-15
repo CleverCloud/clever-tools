@@ -3,13 +3,13 @@
 
 // These need to be set before Logger and other stuffs
 if (process.argv.includes('-v') || process.argv.includes('--verbose')) {
-  process.env['CLEVER_VERBOSE'] = '1';
+  process.env.CLEVER_VERBOSE = '1';
 }
 
 // These need to be set before Logger and other stuffs
 // Don't log anything in autocomplete mode
 if (process.argv.includes('--autocomplete-index')) {
-  process.env['CLEVER_QUIET'] = '1';
+  process.env.CLEVER_QUIET = '1';
 }
 
 const cliparse = require('cliparse');
@@ -199,12 +199,12 @@ function run () {
     }),
     forceDeploy: cliparse.flag('force', {
       aliases: ['f'],
-      description: `Force deploy even if it's not fast-forwardable`,
+      description: 'Force deploy even if it\'s not fast-forwardable',
     }),
     webhookFormat: cliparse.option('format', {
       metavar: 'format',
       default: 'raw',
-      description: `Format of the body sent to the webhook ('raw', 'slack', 'gitter', or 'flowdock')`,
+      description: 'Format of the body sent to the webhook (\'raw\', \'slack\', \'gitter\', or \'flowdock\')',
     }),
     github: cliparse.option('github', {
       metavar: 'OWNER/REPO',
@@ -258,7 +258,7 @@ function run () {
       parser: Parsers.instances,
       description: 'The minimum number of parallels instances',
     }),
-    noUpdateNotifier: cliparse.flag('no-update-notifier', { description: `Don't notify available updates for clever-tools` }),
+    noUpdateNotifier: cliparse.flag('no-update-notifier', { description: 'Don\'t notify available updates for clever-tools' }),
     emailNotificationTarget: cliparse.option('notify', {
       metavar: '<email_address>|<user_id>|"organisation"',
       description: 'Notify a user, a specific email address or the whole organisation (multiple values allowed, comma separated)',
@@ -285,7 +285,7 @@ function run () {
       description: 'Addon plan, depends on the provider',
       complete: Addon('completePlan'),
     }),
-    quiet: cliparse.flag('quiet', { aliases: ['q'], description: `Don't show logs during deployment` }),
+    quiet: cliparse.flag('quiet', { aliases: ['q'], description: 'Don\'t show logs during deployment' }),
     addonRegion: cliparse.option('region', {
       aliases: ['r'],
       default: 'eu',
@@ -297,7 +297,7 @@ function run () {
       aliases: ['r'],
       default: 'par',
       metavar: 'zone',
-      description: `Region, can be 'par' for Paris or 'mtl' for Montreal`,
+      description: 'Region, can be \'par\' for Paris or \'mtl\' for Montreal',
       complete: Application('listAvailableZones'),
     }),
     search: cliparse.option('search', {
