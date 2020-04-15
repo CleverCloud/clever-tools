@@ -585,11 +585,11 @@ function run () {
     args: [args.envVariableName, args.envVariableValue],
   }, publishedConfig('set'));
   const publishedConfigRemoveCommand = cliparse.command('rm', {
-    description: 'Remove a published configuration item from a Clever Cloud application',
+    description: 'Remove a published configuration variable from a Clever Cloud application',
     args: [args.envVariableName],
   }, publishedConfig('rm'));
   const publishedConfigImportCommand = cliparse.command('import', {
-    description: 'Load published configuration from STDIN',
+    description: 'Load published configuration from STDIN\n(WARNING: this deletes all current variables and replace them with the new list loaded from STDIN)',
   }, publishedConfig('importEnv'));
   const publishedConfigCommands = cliparse.command('published-config', {
     description: 'Manage the configuration made available to other applications by this application',
