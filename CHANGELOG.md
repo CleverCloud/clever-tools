@@ -2,7 +2,7 @@
 
 ## 2.4.0 (2020-04-16)
 
-* Add `--json` option to `clever env import` and `clever published-config import`
+* Add `--json` option to `clever env import` and `clever published-config import` (Clément Delafargue)
 
 ## 2.3.0 (2020-03-30)
 
