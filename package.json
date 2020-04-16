@@ -69,8 +69,8 @@
   "scripts": {
     "pretest": "npm run lint",
     "test": "grunt test",
-    "lint": "eslint src scripts",
-    "lint:fix": "eslint --fix src scripts"
+    "lint": "eslint bin src scripts",
+    "lint:fix": "eslint --fix bin src scripts"
   },
   "repository": {
     "type": "git",

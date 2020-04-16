@@ -3,13 +3,13 @@
 
 // These need to be set before Logger and other stuffs
 if (process.argv.includes('-v') || process.argv.includes('--verbose')) {
-  process.env['CLEVER_VERBOSE'] = '1';
+  process.env.CLEVER_VERBOSE = '1';
 }
 
 // These need to be set before Logger and other stuffs
 // Don't log anything in autocomplete mode
 if (process.argv.includes('--autocomplete-index')) {
-  process.env['CLEVER_QUIET'] = '1';
+  process.env.CLEVER_QUIET = '1';
 }
 
 const cliparse = require('cliparse');
@@ -131,6 +131,7 @@ function run () {
       aliases: ['f'],
       description: 'Display access logs continuously (ignores before/until, after/since)',
     }),
+    importAsJson: cliparse.flag('json', { description: 'Import variables as JSON (an array of { "name": "THE_NAME", "value": "the value" } objects)' }),
     addonId: cliparse.option('addon', { metavar: 'addon_id', description: 'Addon ID' }),
     after: cliparse.option('after', {
       metavar: 'after',
@@ -198,12 +199,12 @@ function run () {
     }),
     forceDeploy: cliparse.flag('force', {
       aliases: ['f'],
-      description: `Force deploy even if it's not fast-forwardable`,
+      description: 'Force deploy even if it\'s not fast-forwardable',
     }),
     webhookFormat: cliparse.option('format', {
       metavar: 'format',
       default: 'raw',
-      description: `Format of the body sent to the webhook ('raw', 'slack', 'gitter', or 'flowdock')`,
+      description: 'Format of the body sent to the webhook (\'raw\', \'slack\', \'gitter\', or \'flowdock\')',
     }),
     github: cliparse.option('github', {
       metavar: 'OWNER/REPO',
@@ -257,7 +258,7 @@ function run () {
       parser: Parsers.instances,
       description: 'The minimum number of parallels instances',
     }),
-    noUpdateNotifier: cliparse.flag('no-update-notifier', { description: `Don't notify available updates for clever-tools` }),
+    noUpdateNotifier: cliparse.flag('no-update-notifier', { description: 'Don\'t notify available updates for clever-tools' }),
     emailNotificationTarget: cliparse.option('notify', {
       metavar: '<email_address>|<user_id>|"organisation"',
       description: 'Notify a user, a specific email address or the whole organisation (multiple values allowed, comma separated)',
@@ -284,7 +285,7 @@ function run () {
       description: 'Addon plan, depends on the provider',
       complete: Addon('completePlan'),
     }),
-    quiet: cliparse.flag('quiet', { aliases: ['q'], description: `Don't show logs during deployment` }),
+    quiet: cliparse.flag('quiet', { aliases: ['q'], description: 'Don\'t show logs during deployment' }),
     addonRegion: cliparse.option('region', {
       aliases: ['r'],
       default: 'eu',
@@ -296,7 +297,7 @@ function run () {
       aliases: ['r'],
       default: 'par',
       metavar: 'zone',
-      description: `Region, can be 'par' for Paris or 'mtl' for Montreal`,
+      description: 'Region, can be \'par\' for Paris or \'mtl\' for Montreal',
       complete: Application('listAvailableZones'),
     }),
     search: cliparse.option('search', {
@@ -495,15 +496,16 @@ function run () {
   }, env('rm'));
   const envImportCommand = cliparse.command('import', {
     description: 'Load environment variables from STDIN\n(WARNING: this deletes all current variables and replace them with the new list loaded from STDIN)',
+    options: [opts.importAsJson],
   }, env('importEnv'));
-  const envImportVarsCommand = cliparse.command('import-vars', {
+  const envImportVarsFromLocalEnvCommand = cliparse.command('import-vars', {
     description: 'Add or update environment variables named <variable-names> (comma separated), taking their values from the current environment',
     args: [args.envVariableNames],
-  }, env('importEnvVars'));
+  }, env('importVarsFromLocalEnv'));
   const envCommands = cliparse.command('env', {
     description: 'Manage Clever Cloud application environment',
     options: [opts.alias, opts.sourceableEnvVarsList],
-    commands: [envSetCommand, envRemoveCommand, envImportCommand, envImportVarsCommand],
+    commands: [envSetCommand, envRemoveCommand, envImportCommand, envImportVarsFromLocalEnvCommand],
   }, env('list'));
 
   // LINK COMMAND
@@ -585,11 +587,12 @@ function run () {
     args: [args.envVariableName, args.envVariableValue],
   }, publishedConfig('set'));
   const publishedConfigRemoveCommand = cliparse.command('rm', {
-    description: 'Remove a published configuration item from a Clever Cloud application',
+    description: 'Remove a published configuration variable from a Clever Cloud application',
     args: [args.envVariableName],
   }, publishedConfig('rm'));
   const publishedConfigImportCommand = cliparse.command('import', {
-    description: 'Load published configuration from STDIN',
+    description: 'Load published configuration from STDIN\n(WARNING: this deletes all current variables and replace them with the new list loaded from STDIN)',
+    options: [opts.importAsJson],
   }, publishedConfig('importEnv'));
   const publishedConfigCommands = cliparse.command('published-config', {
     description: 'Manage the configuration made available to other applications by this application',

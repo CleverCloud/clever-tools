@@ -50,10 +50,11 @@ async function rm (params) {
 };
 
 async function importEnv (params) {
-  const { alias } = params.options;
+  const { alias, json } = params.options;
+  const format = json ? 'json' : 'name-equals-value';
   const { ownerId, appId } = await AppConfig.getAppDetails({ alias });
 
-  const publishedConfigs = await variables.readVariablesFromStdin();
+  const publishedConfigs = await variables.readVariablesFromStdin(format);
   await application.updateAllExposedEnvVars({ id: ownerId, appId }, publishedConfigs).then(sendToApi);
 
   Logger.println('Your published configs have been set');
