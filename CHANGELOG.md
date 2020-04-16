@@ -1,5 +1,9 @@
 # clever-tools changelog
 
+## 2.4.0 (2020-04-16)
+
+* Add `--json` option to `clever env import` and `clever published-config import`
+
 ## 2.3.0 (2020-03-30)
 
 * Add `clever tcp-redirs` command to configure TCP redirections
