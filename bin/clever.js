@@ -113,6 +113,7 @@ function run () {
       parser: Parsers.integer,
     }),
     configurationName: cliparse.argument('configuration-name', { description: 'The name of the configuration to manage' }),
+    configurationValue: cliparse.argument('configuration-value', { description: 'The new value of the configuration' }),
   };
 
   // OPTIONS
@@ -421,10 +422,14 @@ function run () {
     description: 'Get the current configuration',
     args: [args.configurationName],
   }, config('get'));
+  const configSetCommand = cliparse.command('set', {
+    description: 'Set the configuration',
+    args: [args.configurationName, args.configurationValue],
+  }, config('set'));
   const configCommands = cliparse.command('config', {
     description: 'Get and edit the configuration of your application',
     options: [opts.alias],
-    commands: [configGetCommand],
+    commands: [configGetCommand, configSetCommand],
   }, config('get'));
 
   // CREATE COMMAND

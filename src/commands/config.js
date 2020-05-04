@@ -1,15 +1,19 @@
 'use strict';
 
+const application = require('@clevercloud/client/cjs/api/application.js');
+
 const AppConfig = require('../models/app_configuration.js');
 const Application = require('../models/application.js');
 const Logger = require('../logger.js');
 
+const { sendToApi } = require('../models/send-to-api.js');
+
 const CONFIG_KEYS = [
   { id: 'name', name: 'name', displayName: 'Name' },
   { id: 'description', name: 'description', displayName: 'Description' },
-  { id: 'zero-downtime', name: 'homogeneous', displayName: 'Zero-downtime deployment', displayer: zeroDowntimeDisplayer },
-  { id: 'sticky-sessions', name: 'stickySessions', displayName: 'Sticky sessions', displayer: booleanDisplayer },
-  { id: 'cancel-on-push', name: 'cancelOnPush', displayName: 'Cancel current deployment on push', displayer: booleanDisplayer },
+  { id: 'zero-downtime', name: 'homogeneous', displayName: 'Zero-downtime deployment', displayer: zeroDowntimeDisplayer, parser: zeroDowntimeParser },
+  { id: 'sticky-sessions', name: 'stickySessions', displayName: 'Sticky sessions', displayer: booleanDisplayer, parser: booleanParser },
+  { id: 'cancel-on-push', name: 'cancelOnPush', displayName: 'Cancel current deployment on push', displayer: booleanDisplayer, parser: booleanParser },
 ];
 
 function getConfigById (id) {
@@ -31,6 +35,18 @@ function booleanDisplayer (value) {
 
 function defaultDisplayer (value) {
   return `${value}`;
+}
+
+function zeroDowntimeParser (value) {
+  return !booleanParser(value);
+}
+
+function booleanParser (value) {
+  return (value !== 'false');
+}
+
+function identity (value) {
+  return value;
 }
 
 function printConfig (app, config) {
@@ -63,4 +79,18 @@ async function get (params) {
   printConfiguration(app, configurationName);
 }
 
-module.exports = { get };
+async function set (params) {
+  const [configurationName, configurationValue] = params.args;
+  const { alias } = params.options;
+  const { ownerId, appId } = await AppConfig.getAppDetails({ alias });
+  const config = getConfigById(configurationName);
+
+  if (config !== undefined) {
+    const parser = config.parser || identity;
+    const app = await application.update({ id: ownerId, appId }, { [config.name]: parser(configurationValue) }).then(sendToApi);
+
+    printConfiguration(app, configurationName);
+  }
+}
+
+module.exports = { get, set };
