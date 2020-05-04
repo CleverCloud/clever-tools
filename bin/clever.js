@@ -76,6 +76,8 @@ const Drain = lazyRequire('../src/models/drain.js');
 const Notification = lazyRequire('../src/models/notification.js');
 const Organisation = lazyRequire('../src/models/organisation.js');
 
+const config = lazyRequirePromiseModule('../src/commands/config.js');
+
 function run () {
 
   // ARGUMENTS
@@ -112,7 +114,12 @@ function run () {
       description: 'port identifying the TCP redirection',
       parser: Parsers.integer,
     }),
-    configurationName: cliparse.argument('configuration-name', { description: 'The name of the configuration to manage' }),
+    configurationName: cliparse.argument('configuration-name', {
+      description: 'The name of the configuration to manage',
+      complete () {
+        return cliparse.autocomplete.words(config('listAvailableConfigurations')());
+      },
+    }),
     configurationValue: cliparse.argument('configuration-value', { description: 'The new value of the configuration' }),
   };
 
@@ -417,7 +424,6 @@ function run () {
   }, cancelDeploy('cancelDeploy'));
 
   // CONFIG COMMAND
-  const config = lazyRequirePromiseModule('../src/commands/config.js');
   const configGetCommand = cliparse.command('get', {
     description: 'Get the current configuration',
     args: [args.configurationName],

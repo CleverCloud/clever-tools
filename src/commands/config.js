@@ -16,11 +16,15 @@ const CONFIG_KEYS = [
   { id: 'cancel-on-push', name: 'cancelOnPush', displayName: 'Cancel current deployment on push', displayer: booleanDisplayer, parser: booleanParser },
 ];
 
+function listAvailableConfigurations () {
+  return CONFIG_KEYS.map((config) => config.id);
+}
+
 function getConfigById (id) {
   const config = CONFIG_KEYS.find((config) => config.id === id);
   if (config == null) {
     Logger.error(`Invalid configuration name: ${id}.`);
-    Logger.error(`Available configuration names are: ${CONFIG_KEYS.map((config) => config.id).join(', ')}.`);
+    Logger.error(`Available configuration names are: ${listAvailableConfigurations().join(', ')}.`);
   }
   return config;
 }
@@ -93,4 +97,4 @@ async function set (params) {
   }
 }
 
-module.exports = { get, set };
+module.exports = { listAvailableConfigurations, get, set };
