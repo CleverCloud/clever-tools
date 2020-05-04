@@ -112,6 +112,7 @@ function run () {
       description: 'port identifying the TCP redirection',
       parser: Parsers.integer,
     }),
+    configurationName: cliparse.argument('configuration-name', { description: 'The name of the configuration to manage' }),
   };
 
   // OPTIONS
@@ -413,6 +414,18 @@ function run () {
     description: 'Cancel an ongoing deployment on Clever Cloud',
     options: [opts.alias],
   }, cancelDeploy('cancelDeploy'));
+
+  // CONFIG COMMAND
+  const config = lazyRequirePromiseModule('../src/commands/config.js');
+  const configGetCommand = cliparse.command('get', {
+    description: 'Get the current configuration',
+    args: [args.configurationName],
+  }, config('get'));
+  const configCommands = cliparse.command('config', {
+    description: 'Get and edit the configuration of your application',
+    options: [opts.alias],
+    commands: [configGetCommand],
+  }, config('get'));
 
   // CREATE COMMAND
   const create = lazyRequirePromiseModule('../src/commands/create.js');
@@ -725,6 +738,7 @@ function run () {
       appLinkCommand,
       appUnlinkCommand,
       cancelDeployCommand,
+      configCommands,
       deleteCommand,
       deployCommand,
       diagCommand,
