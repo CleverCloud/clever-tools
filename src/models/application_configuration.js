@@ -10,6 +10,7 @@ const CONFIG_KEYS = [
   { id: 'zero-downtime', name: 'homogeneous', displayName: 'Zero-downtime deployment', kind: 'inverted-bool' },
   { id: 'sticky-sessions', name: 'stickySessions', displayName: 'Sticky sessions', kind: 'bool' },
   { id: 'cancel-on-push', name: 'cancelOnPush', displayName: 'Cancel current deployment on push', kind: 'bool' },
+  { id: 'force-https', name: 'forceHttps', displayName: 'Force redirection of HTTP to HTTPS', kind: 'force-https' },
 ];
 
 function listAvailableIds () {
@@ -33,6 +34,9 @@ function display (config, value) {
     case 'inverted-bool': {
       return (value) ? 'disabled' : 'enabled';
     }
+    case 'force-https': {
+      return value.toLowerCase();
+    }
     default: {
       return String(value);
     }
@@ -47,6 +51,9 @@ function parse (config, value) {
     case 'inverted-bool': {
       return (value === 'false');
     }
+    case 'force-https': {
+      return (value === 'false') ? 'DISABLED' : 'ENABLED';
+    }
     default: {
       return value;
     }
@@ -60,7 +67,8 @@ function getUpdateOptions () {
 function getConfigOptions (config) {
   switch (config.kind) {
     case 'bool':
-    case 'inverted-bool': {
+    case 'inverted-bool':
+    case 'force-https': {
       return [
         cliparse.flag(`enable-${config.id}`, { description: `Enable ${config.id}` }),
         cliparse.flag(`disable-${config.id}`, { description: `Disable ${config.id}` }),
@@ -102,6 +110,18 @@ function parseConfigOption (config, options) {
       }
       else if (enable || disable) {
         return [config.name, enable];
+      }
+      return null;
+    }
+    case 'force-https': {
+      const enable = options[`enable-${config.id}`];
+      const disable = options[`disable-${config.id}`];
+      if (enable && disable) {
+        Logger.warn(`${config.id} is both enabled and disabled, ignoring`);
+      }
+      else if (enable || disable) {
+        const value = (enable) ? 'ENABLED' : 'DISABLED';
+        return [config.name, value];
       }
       return null;
     }
