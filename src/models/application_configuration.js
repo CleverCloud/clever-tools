@@ -1,5 +1,7 @@
 'use strict';
 
+const cliparse = require('cliparse');
+
 const Logger = require('../logger.js');
 
 const CONFIG_KEYS = [
@@ -51,6 +53,67 @@ function parse (config, value) {
   }
 }
 
+function getUpdateOptions () {
+  return CONFIG_KEYS.flatMap((config) => getConfigOptions(config));
+}
+
+function getConfigOptions (config) {
+  switch (config.kind) {
+    case 'bool':
+    case 'inverted-bool': {
+      return [
+        cliparse.flag(`enable-${config.id}`, { description: `Enable ${config.id}` }),
+        cliparse.flag(`disable-${config.id}`, { description: `Disable ${config.id}` }),
+      ];
+    }
+    default: {
+      return [
+        cliparse.option(`${config.id}`, { description: `Set ${config.id}` }),
+      ];
+    }
+  }
+}
+
+function parseOptions (options) {
+  const newOptions = CONFIG_KEYS
+    .map((config) => parseConfigOption(config, options))
+    .filter((a) => a != null);
+  return Object.fromEntries(newOptions);
+}
+
+function parseConfigOption (config, options) {
+  switch (config.kind) {
+    case 'bool': {
+      const enable = options[`enable-${config.id}`];
+      const disable = options[`disable-${config.id}`];
+      if (enable && disable) {
+        Logger.warn(`${config.id} is both enabled and disabled, ignoring`);
+      }
+      else if (enable || disable) {
+        return [config.name, enable];
+      }
+      return null;
+    }
+    case 'inverted-bool': {
+      const disable = options[`enable-${config.id}`];
+      const enable = options[`disable-${config.id}`];
+      if (enable && disable) {
+        Logger.warn(`${config.id} is both enabled and disabled, ignoring`);
+      }
+      else if (enable || disable) {
+        return [config.name, enable];
+      }
+      return null;
+    }
+    default: {
+      if (options[config.id] !== null) {
+        return [config.name, options[config.id]];
+      }
+      return null;
+    }
+  }
+}
+
 function printConfig (app, config) {
   if (app[config.name] != null) {
     Logger.println(`${config.displayName}: ${display(config, app[config.name])}`);
@@ -64,10 +127,15 @@ function printById (app, id) {
   }
 }
 
+function printByName (app, name) {
+  const config = CONFIG_KEYS.find((config) => config.name === name);
+  printConfig(app, config);
+}
+
 function print (app) {
   for (const config of CONFIG_KEYS) {
     printConfig(app, config);
   }
 }
 
-module.exports = { listAvailableIds, getById, parse, printById, print };
+module.exports = { listAvailableIds, getById, getUpdateOptions, parse, parseOptions, printById, printByName, print };

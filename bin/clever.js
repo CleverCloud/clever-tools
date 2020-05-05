@@ -432,10 +432,14 @@ function run () {
     description: 'Set the configuration',
     args: [args.configurationName, args.configurationValue],
   }, config('set'));
+  const configUpdateCommand = cliparse.command('update', {
+    description: 'Update the configuration',
+    options: ApplicationConfiguration('getUpdateOptions')(),
+  }, config('update'));
   const configCommands = cliparse.command('config', {
     description: 'Get and edit the configuration of your application',
     options: [opts.alias],
-    commands: [configGetCommand, configSetCommand],
+    commands: [configGetCommand, configSetCommand, configUpdateCommand],
   }, config('get'));
 
   // CREATE COMMAND

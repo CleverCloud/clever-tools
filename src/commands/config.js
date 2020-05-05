@@ -35,4 +35,20 @@ async function set (params) {
   }
 }
 
-module.exports = { get, set };
+async function update (params) {
+  const { alias } = params.options;
+  const { ownerId, appId } = await AppConfig.getAppDetails({ alias });
+  const options = ApplicationConfiguration.parseOptions(params.options);
+
+  if (Object.keys(options).length === 0) {
+    throw new Error('No configuration to update');
+  }
+
+  const app = await application.update({ id: ownerId, appId }, options).then(sendToApi);
+
+  for (const configName of Object.keys(options)) {
+    ApplicationConfiguration.printByName(app, configName);
+  }
+}
+
+module.exports = { get, set, update };
