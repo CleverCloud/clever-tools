@@ -1,6 +1,7 @@
 'use strict';
 
 const cliparse = require('cliparse');
+const colors = require('colors/safe');
 
 const Logger = require('../logger.js');
 
@@ -136,7 +137,7 @@ function parseConfigOption (config, options) {
 
 function printConfig (app, config) {
   if (app[config.name] != null) {
-    Logger.println(`${config.displayName}: ${display(config, app[config.name])}`);
+    Logger.println(`${config.displayName}: ${colors.bold(display(config, app[config.name]))}`);
   }
 }
 
