@@ -62,7 +62,9 @@ function parse (config, value) {
 }
 
 function getUpdateOptions () {
-  return CONFIG_KEYS.flatMap((config) => getConfigOptions(config));
+  return CONFIG_KEYS
+    .map((config) => getConfigOptions(config))
+    .reduce((a, b) => [...a, ...b], []);
 }
 
 function getConfigOptions (config) {
