@@ -72,6 +72,7 @@ function lazyRequireFunction (modulePath) {
 const AccessLogs = lazyRequire('../src/models/accesslogs.js');
 const Addon = lazyRequire('../src/models/addon.js');
 const Application = lazyRequire('../src/models/application.js');
+const ApplicationConfiguration = lazyRequire('../src/models/application_configuration.js');
 const Drain = lazyRequire('../src/models/drain.js');
 const Notification = lazyRequire('../src/models/notification.js');
 const Organisation = lazyRequire('../src/models/organisation.js');
@@ -112,6 +113,13 @@ function run () {
       description: 'port identifying the TCP redirection',
       parser: Parsers.integer,
     }),
+    configurationName: cliparse.argument('configuration-name', {
+      description: 'The name of the configuration to manage',
+      complete () {
+        return cliparse.autocomplete.words(ApplicationConfiguration('listAvailableIds')());
+      },
+    }),
+    configurationValue: cliparse.argument('configuration-value', { description: 'The new value of the configuration' }),
   };
 
   // OPTIONS
@@ -413,6 +421,26 @@ function run () {
     description: 'Cancel an ongoing deployment on Clever Cloud',
     options: [opts.alias],
   }, cancelDeploy('cancelDeploy'));
+
+  // CONFIG COMMAND
+  const config = lazyRequirePromiseModule('../src/commands/config.js');
+  const configGetCommand = cliparse.command('get', {
+    description: 'Get the current configuration',
+    args: [args.configurationName],
+  }, config('get'));
+  const configSetCommand = cliparse.command('set', {
+    description: 'Set the configuration',
+    args: [args.configurationName, args.configurationValue],
+  }, config('set'));
+  const configUpdateCommand = cliparse.command('update', {
+    description: 'Update the configuration',
+    options: ApplicationConfiguration('getUpdateOptions')(),
+  }, config('update'));
+  const configCommands = cliparse.command('config', {
+    description: 'Get and edit the configuration of your application',
+    options: [opts.alias],
+    commands: [configGetCommand, configSetCommand, configUpdateCommand],
+  }, config('get'));
 
   // CREATE COMMAND
   const create = lazyRequirePromiseModule('../src/commands/create.js');
@@ -725,6 +753,7 @@ function run () {
       appLinkCommand,
       appUnlinkCommand,
       cancelDeployCommand,
+      configCommands,
       deleteCommand,
       deployCommand,
       diagCommand,
