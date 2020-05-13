@@ -41,7 +41,7 @@ async function deploy (params) {
 
   Logger.println('Your source code has been pushed to Clever Cloud.');
 
-  const s_logs = Log.getAllLogs(push, appData, commitIdToPush, quiet);
+  const s_logs = await Log.getAllLogs(push, appData, commitIdToPush, quiet);
   s_logs.onValue(Logger.println);
   return s_logs.toPromise();
 }

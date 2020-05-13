@@ -22,7 +22,7 @@ async function restart (params) {
     Logger.println(`Restarting ${appData.name} on commit ${colors.green(commitId)}${cacheSuffix}`);
   }
   const redeploy = await Application.redeploy(appData.ownerId, appData.appId, fullCommitId, withoutCache);
-  const s_logs = Log.getAllLogs(redeploy, appData, remoteCommitId, quiet);
+  const s_logs = await Log.getAllLogs(redeploy, appData, remoteCommitId, quiet);
   s_logs.onValue(Logger.println);
   return s_logs.toPromise();
 }

@@ -1,6 +1,5 @@
 'use strict';
 
-const _ = require('lodash');
 const colors = require('colors/safe');
 const moment = require('moment');
 
@@ -75,6 +74,14 @@ function handleEvent (previousEvent, event) {
   return event;
 }
 
+function onEvent (previousEvent, newEvent) {
+  const { event, date, data: { state, action, commit, cause } } = newEvent;
+  if (event !== 'DEPLOYMENT_ACTION_BEGIN' && event !== 'DEPLOYMENT_ACTION_END') {
+    return previousEvent;
+  }
+  return handleEvent(previousEvent, { date, state, action, commit, cause, isLast: true });
+}
+
 async function activity (params) {
   const { alias, 'show-all': showAll, follow } = params.options;
   const { ownerId, appId } = await AppConfig.getAppDetails({ alias });
@@ -85,23 +92,19 @@ async function activity (params) {
       const isLast = index === all.length - 1;
       return ({ ...event, isLast });
     });
-  const lastEvent = reversedArrayWithIndex.reduce(handleEvent, {});
+  let lastEvent = reversedArrayWithIndex.reduce(handleEvent, {});
 
   if (!follow) {
     return lastEvent;
   }
 
-  return Event.getEvents(appId)
-    .filter(({ event }) => {
-      return event === 'DEPLOYMENT_ACTION_BEGIN'
-        || event === 'DEPLOYMENT_ACTION_END';
-    })
-    .map(({ date, data: { state, action, commit, cause } }) => {
-      return { date, state, action, commit, cause, isLast: true };
-    })
-    .skipDuplicates(_.isEqual)
-    .scan(lastEvent, handleEvent)
-    .toPromise();
+  const stream = await Event.getEventsStream(appId);
+  return Event.openEventsStream(stream, (event) => {
+    lastEvent = onEvent(lastEvent, event);
+    return lastEvent;
+  }, (error) => {
+    throw new Error(error);
+  });
 }
 
 module.exports = { activity };
