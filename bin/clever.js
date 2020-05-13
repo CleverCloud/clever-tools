@@ -458,11 +458,11 @@ function run () {
   }, deleteCommandModule('deleteApp'));
 
   // DEPLOY COMMAND
-  const deploy = lazyRequireFunction('../src/commands/deploy.js');
+  const deploy = lazyRequirePromiseModule('../src/commands/deploy.js');
   const deployCommand = cliparse.command('deploy', {
     description: 'Deploy an application to Clever Cloud',
     options: [opts.alias, opts.branch, opts.quiet, opts.forceDeploy],
-  }, deploy);
+  }, deploy('deploy'));
 
   // DIAG COMMAND
   const diag = lazyRequirePromiseModule('../src/commands/diag.js');
