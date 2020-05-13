@@ -14,7 +14,7 @@ async function restartPromise (params) {
   const { alias, quiet, commit, 'without-cache': withoutCache } = params.options;
 
   const appData = await AppConfig.getAppDetails({ alias });
-  const fullCommitId = await git.resolveFullCommitId(commit).toPromise();
+  const fullCommitId = await git.resolveFullCommitId(commit);
   const app = await Application.get(appData.ownerId, appData.appId);
   const remoteCommitId = app.commitId;
 
