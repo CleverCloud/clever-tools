@@ -1,30 +1,20 @@
 'use strict';
 
-const Bacon = require('baconjs');
-
 const AppConfig = require('../models/app_configuration.js');
-const handleCommandStream = require('../command-stream-handler');
 const Log = require('../models/log.js');
 const Logger = require('../logger.js');
 
-function appLogs (params) {
+async function appLogs (params) {
   const { alias, before, after, search, 'deployment-id': deploymentId } = params.options;
   const { addon: addonId } = params.options;
 
   // ignore --search ""
   const filter = (search !== '') ? search : null;
+  const appAddonId = addonId || await AppConfig.getAppDetails({ alias }).then(({ appId }) => appId);
+  const s_logs = Log.getAppLogs(appAddonId, null, before, after, filter, deploymentId);
 
-  const s_appAddonId = (addonId != null)
-    ? Bacon.once(addonId)
-    : Bacon.fromPromise(AppConfig.getAppDetails({ alias })).flatMapLatest((appData) => appData.appId);
-
-  const s_logs = s_appAddonId
-    .flatMapLatest((appAddonId) => {
-      return Log.getAppLogs(appAddonId, null, before, after, filter, deploymentId);
-    })
-    .map(Logger.println);
-
-  handleCommandStream(s_logs);
+  s_logs.onValue(Logger.println);
+  return s_logs.toPromise();
 }
 
-module.exports = appLogs;
+module.exports = { appLogs };

@@ -558,11 +558,11 @@ function run () {
   }, logout('logout'));
 
   // LOGS COMMAND
-  const logs = lazyRequireFunction('../src/commands/logs.js');
+  const logs = lazyRequirePromiseModule('../src/commands/logs.js');
   const logsCommand = cliparse.command('logs', {
     description: 'Fetch application logs, continuously',
     options: [opts.alias, opts.before, opts.after, opts.search, opts.deploymentId, opts.addonId],
-  }, logs);
+  }, logs('appLogs'));
 
   // MAKE DEFAULT COMMAND
   const makeDefault = lazyRequirePromiseModule('../src/commands/makeDefault.js');
