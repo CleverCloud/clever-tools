@@ -1,10 +1,9 @@
 'use strict';
 
-const fs = require('fs');
+const { promises: fs } = require('fs');
 const path = require('path');
 
 const _ = require('lodash');
-const Bacon = require('baconjs');
 const slugify = require('slugify');
 
 const Logger = require('../logger.js');
@@ -12,26 +11,28 @@ const User = require('./user.js');
 const { conf } = require('./configuration.js');
 
 // TODO: Maybe use fs-utils findPath()
-function loadApplicationConf (ignoreParentConfig = false, pathToFolder) {
+async function loadApplicationConf (ignoreParentConfig = false, pathToFolder) {
   if (pathToFolder == null) {
     pathToFolder = path.dirname(conf.APP_CONFIGURATION_FILE);
   }
   const fileName = path.basename(conf.APP_CONFIGURATION_FILE);
   const fullPath = path.join(pathToFolder, fileName);
   Logger.debug('Loading app configuration from ' + fullPath);
-  return Bacon.fromNodeCallback(fs.readFile, fullPath)
-    .flatMapLatest(Bacon.try(JSON.parse))
-    .flatMapError((error) => {
-      Logger.info('Cannot load app configuration from ' + conf.APP_CONFIGURATION_FILE + ' (' + error + ')');
-      if (ignoreParentConfig || path.parse(pathToFolder).root === pathToFolder) {
-        return { apps: [] };
-      }
-      return loadApplicationConf(ignoreParentConfig, path.normalize(path.join(pathToFolder, '..')));
-    });
+  try {
+    const contents = await fs.readFile(fullPath);
+    return JSON.parse(contents);
+  }
+  catch (error) {
+    Logger.info('Cannot load app configuration from ' + conf.APP_CONFIGURATION_FILE + ' (' + error + ')');
+    if (ignoreParentConfig || path.parse(pathToFolder).root === pathToFolder) {
+      return { apps: [] };
+    }
+    return loadApplicationConf(ignoreParentConfig, path.normalize(path.join(pathToFolder, '..')));
+  }
 };
 
 async function addLinkedApplication (appData, alias, ignoreParentConfig) {
-  const currentConfig = await loadApplicationConf(ignoreParentConfig).toPromise();
+  const currentConfig = await loadApplicationConf(ignoreParentConfig);
 
   const appEntry = {
     app_id: appData.id,
@@ -49,16 +50,16 @@ async function addLinkedApplication (appData, alias, ignoreParentConfig) {
     currentConfig.apps.push(appEntry);
   }
 
-  return persistConfig(currentConfig).toPromise();
+  return persistConfig(currentConfig);
 };
 
 async function removeLinkedApplication (alias) {
-  const currentConfig = await loadApplicationConf().toPromise();
+  const currentConfig = await loadApplicationConf();
   const newConfig = {
     ...currentConfig,
     apps: currentConfig.apps.filter((appEntry) => appEntry.alias !== alias),
   };
-  return persistConfig(newConfig).toPromise();
+  return persistConfig(newConfig);
 };
 
 function findApp (config, alias) {
@@ -95,7 +96,7 @@ function findApp (config, alias) {
 }
 
 async function getAppDetails ({ alias }) {
-  const config = await loadApplicationConf().toPromise();
+  const config = await loadApplicationConf();
   const app = findApp(config, alias);
   const ownerId = (app.org_id != null)
     ? app.org_id
@@ -111,14 +112,14 @@ async function getAppDetails ({ alias }) {
 
 function persistConfig (modifiedConfig) {
   const jsonContents = JSON.stringify(modifiedConfig);
-  return Bacon.fromNodeCallback(fs.writeFile, conf.APP_CONFIGURATION_FILE, jsonContents);
+  return fs.writeFile(conf.APP_CONFIGURATION_FILE, jsonContents);
 };
 
 async function setDefault (alias) {
-  const config = await loadApplicationConf().toPromise();
+  const config = await loadApplicationConf();
   const app = findApp(config, alias);
   const newConfig = { ...config, default: app.app_id };
-  return persistConfig(newConfig).toPromise();
+  return persistConfig(newConfig);
 }
 
 module.exports = {
