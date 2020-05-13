@@ -629,11 +629,11 @@ function run () {
   }, publishedConfig('list'));
 
   // RESTART COMMAND
-  const restart = lazyRequireFunction('../src/commands/restart.js');
+  const restart = lazyRequirePromiseModule('../src/commands/restart.js');
   const restartCommand = cliparse.command('restart', {
     description: 'Start or restart a Clever Cloud application',
     options: [opts.alias, opts.commit, opts.withoutCache, opts.quiet],
-  }, restart);
+  }, restart('restart'));
 
   // SCALE COMMAND
   const scale = lazyRequirePromiseModule('../src/commands/scale.js');
