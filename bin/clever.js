@@ -62,13 +62,6 @@ function lazyRequire (modulePath) {
   };
 }
 
-function lazyRequireFunction (modulePath) {
-  return function (...args) {
-    const theFunction = dynamicRequire(modulePath);
-    return theFunction.apply(this, args);
-  };
-}
-
 const AccessLogs = lazyRequire('../src/models/accesslogs.js');
 const Addon = lazyRequire('../src/models/addon.js');
 const Application = lazyRequire('../src/models/application.js');
