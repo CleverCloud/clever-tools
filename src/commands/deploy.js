@@ -1,16 +1,14 @@
 'use strict';
 
-const Bacon = require('baconjs');
 const colors = require('colors/safe');
 
 const AppConfig = require('../models/app_configuration.js');
 const Application = require('../models/application.js');
 const git = require('../models/git');
-const handleCommandStream = require('../command-stream-handler');
 const Log = require('../models/log.js');
 const Logger = require('../logger.js');
 
-async function deployPromise (params) {
+async function deploy (params) {
   const { alias, branch: branchName, quiet, force } = params.options;
 
   const appData = await AppConfig.getAppDetails({ alias });
@@ -43,19 +41,9 @@ async function deployPromise (params) {
 
   Logger.println('Your source code has been pushed to Clever Cloud.');
 
-  return { push, appData, commitIdToPush, quiet };
-};
-
-function deploy (params) {
-
-  const stream = Bacon
-    .fromPromise(deployPromise(params))
-    .flatMapLatest(({ push, appData, commitIdToPush, quiet }) => {
-      return Log.getAllLogs(push, appData, commitIdToPush, quiet);
-    })
-    .map(Logger.println);
-
-  handleCommandStream(stream);
+  const s_logs = await Log.getAllLogs(push, appData, commitIdToPush, quiet);
+  s_logs.onValue(Logger.println);
+  return s_logs.toPromise();
 }
 
-module.exports = deploy;
+module.exports = { deploy };

@@ -93,17 +93,18 @@ function getAppLogs (appId, instances, before, after, filter, deploymentId) {
     });
 };
 
-function getAllLogs (push, appData, commitId, quiet) {
+async function getAllLogs (push, appData, commitId, quiet) {
 
   const deploymentId = _.get(push, 'deploymentId');
-  const s_deploymentEvents = Event
-    .getEvents(appData.appId)
-    .filter((e) => {
-      if (deploymentId != null) {
-        return _.get(e, 'data.uuid') === deploymentId;
-      }
-      return _.get(e, 'data.commit') === commitId;
-    });
+  const stream = await Event.getEventsStream(appData.appId);
+  const s_deploymentEvents = Bacon.fromBinder((sink) => {
+    return Event.openEventsStream(stream, sink, (error) => sink(new Bacon.Error(error)));
+  }).filter((e) => {
+    if (deploymentId != null) {
+      return _.get(e, 'data.uuid') === deploymentId;
+    }
+    return _.get(e, 'data.commit') === commitId;
+  });
 
   const s_deploymentStart = s_deploymentEvents
     .filter((e) => e.event === 'DEPLOYMENT_ACTION_BEGIN')

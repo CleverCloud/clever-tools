@@ -22,10 +22,7 @@ function listAvailableZones () {
 };
 
 function listAvailableAliases () {
-  const s_aliases = AppConfiguration.loadApplicationConf().map((conf) => {
-    return _.map(conf.apps, 'alias');
-  });
-  return s_aliases.toPromise().then(autocomplete.words);
+  return AppConfiguration.loadApplicationConf().then(({ apps }) => autocomplete.words(_.map(apps, 'alias')));
 };
 
 function listAvailableFlavors () {

@@ -8,7 +8,7 @@ const Logger = require('../logger.js');
 async function list (params) {
   const { 'only-aliases': onlyAliases } = params.options;
 
-  const { apps } = await AppConfig.loadApplicationConf().toPromise();
+  const { apps } = await AppConfig.loadApplicationConf();
 
   const formattedApps = formatApps(apps, onlyAliases);
   Logger.println(formattedApps);

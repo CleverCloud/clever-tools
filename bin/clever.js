@@ -62,13 +62,6 @@ function lazyRequire (modulePath) {
   };
 }
 
-function lazyRequireFunction (modulePath) {
-  return function (...args) {
-    const theFunction = dynamicRequire(modulePath);
-    return theFunction.apply(this, args);
-  };
-}
-
 const AccessLogs = lazyRequire('../src/models/accesslogs.js');
 const Addon = lazyRequire('../src/models/addon.js');
 const Application = lazyRequire('../src/models/application.js');
@@ -372,11 +365,11 @@ function run () {
   }, accesslogsModule('accessLogs'));
 
   // ACTIVITY COMMAND
-  const activity = lazyRequireFunction('../src/commands/activity.js');
+  const activity = lazyRequirePromiseModule('../src/commands/activity.js');
   const activityCommand = cliparse.command('activity', {
     description: 'Show last deployments of a Clever Cloud application',
     options: [opts.alias, opts.follow, opts.showAllActivity],
-  }, activity);
+  }, activity('activity'));
 
   // ADDON COMMANDS
   const addon = lazyRequirePromiseModule('../src/commands/addon.js');
@@ -458,11 +451,11 @@ function run () {
   }, deleteCommandModule('deleteApp'));
 
   // DEPLOY COMMAND
-  const deploy = lazyRequireFunction('../src/commands/deploy.js');
+  const deploy = lazyRequirePromiseModule('../src/commands/deploy.js');
   const deployCommand = cliparse.command('deploy', {
     description: 'Deploy an application to Clever Cloud',
     options: [opts.alias, opts.branch, opts.quiet, opts.forceDeploy],
-  }, deploy);
+  }, deploy('deploy'));
 
   // DIAG COMMAND
   const diag = lazyRequirePromiseModule('../src/commands/diag.js');
@@ -558,11 +551,11 @@ function run () {
   }, logout('logout'));
 
   // LOGS COMMAND
-  const logs = lazyRequireFunction('../src/commands/logs.js');
+  const logs = lazyRequirePromiseModule('../src/commands/logs.js');
   const logsCommand = cliparse.command('logs', {
     description: 'Fetch application logs, continuously',
     options: [opts.alias, opts.before, opts.after, opts.search, opts.deploymentId, opts.addonId],
-  }, logs);
+  }, logs('appLogs'));
 
   // MAKE DEFAULT COMMAND
   const makeDefault = lazyRequirePromiseModule('../src/commands/makeDefault.js');
@@ -629,11 +622,11 @@ function run () {
   }, publishedConfig('list'));
 
   // RESTART COMMAND
-  const restart = lazyRequireFunction('../src/commands/restart.js');
+  const restart = lazyRequirePromiseModule('../src/commands/restart.js');
   const restartCommand = cliparse.command('restart', {
     description: 'Start or restart a Clever Cloud application',
     options: [opts.alias, opts.commit, opts.withoutCache, opts.quiet],
-  }, restart);
+  }, restart('restart'));
 
   // SCALE COMMAND
   const scale = lazyRequirePromiseModule('../src/commands/scale.js');

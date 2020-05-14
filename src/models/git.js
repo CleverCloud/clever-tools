@@ -3,7 +3,6 @@
 const fs = require('fs');
 
 const _ = require('lodash');
-const Bacon = require('baconjs');
 const git = require('isomorphic-git');
 const { autocomplete } = require('cliparse');
 
@@ -31,19 +30,20 @@ async function addRemote (remoteName, url) {
   }
 }
 
-function resolveFullCommitId (commitId) {
+async function resolveFullCommitId (commitId) {
   if (commitId == null) {
-    return Bacon.constant(null);
+    return null;
   }
-  const fullCommitIdPromise = getRepo()
-    .then((repo) => git.expandOid({ ...repo, oid: commitId }));
-  return Bacon.fromPromise(fullCommitIdPromise)
-    .flatMapError((e) => {
-      if (e.code === 'ShortOidNotFound') {
-        return new Bacon.Error(`Commit id ${commitId} is ambiguous`);
-      }
-      return e;
-    });
+  try {
+    const repo = await getRepo();
+    return await git.expandOid({ ...repo, oid: commitId });
+  }
+  catch (e) {
+    if (e.code === 'ShortOidNotFound') {
+      throw new Error(`Commit id ${commitId} is ambiguous`);
+    }
+    throw e;
+  }
 }
 
 async function getRemoteCommit (remoteUrl) {
