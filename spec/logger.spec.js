@@ -1,7 +1,5 @@
-var path = require("path");
+'use strict';
 
-var _ = require("lodash");
-var Bacon = require("baconjs");
 var expect = require('chai').expect;
 
 var Logger = require("../src/logger.js");
@@ -33,7 +31,7 @@ describe("logger.processApiError", function() {
       }
     };
     expect(Logger.processApiError(error)).to.equal(
-      "Your application did not satisfy our requirements [501]\n" + 
+      "Your application did not satisfy our requirements [501]\n" +
       "zone: Wrong zone\n" +
       "other: Wrong other"
     );
