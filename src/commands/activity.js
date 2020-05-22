@@ -5,9 +5,11 @@ const moment = require('moment');
 
 const Activity = require('../models/activity.js');
 const AppConfig = require('../models/app_configuration.js');
-const Event = require('../models/events.js');
 const formatTable = require('../format-table');
 const Logger = require('../logger.js');
+const { Deferred } = require('../models/utils.js');
+const { EventsStream } = require('@clevercloud/client/cjs/streams/events.node.js');
+const { getHostAndTokens } = require('../models/send-to-api.js');
 
 function getColoredState (state, isLast) {
   if (state === 'OK') {
@@ -98,13 +100,24 @@ async function activity (params) {
     return lastEvent;
   }
 
-  const stream = await Event.getEventsStream(appId);
-  return Event.openEventsStream(stream, (event) => {
-    lastEvent = onEvent(lastEvent, event);
-    return lastEvent;
-  }, (error) => {
-    throw new Error(error);
-  });
+  const { apiHost, tokens } = await getHostAndTokens();
+  const eventsStream = new EventsStream({ apiHost, tokens, appId });
+
+  const deferred = new Deferred();
+
+  eventsStream
+    .on('open', () => Logger.debug('WS for events (open) ' + JSON.stringify({ appId })))
+    .on('event', (event) => {
+      lastEvent = onEvent(lastEvent, event);
+      return lastEvent;
+    })
+    .on('ping', () => Logger.debug('WS for events (ping)'))
+    .on('close', ({ reason }) => Logger.debug('WS for events (close) ' + reason))
+    .on('error', deferred.reject);
+
+  eventsStream.open({ autoRetry: true, maxRetryCount: 6 });
+
+  return deferred.promise;
 }
 
 module.exports = { activity };

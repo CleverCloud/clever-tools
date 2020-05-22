@@ -4,27 +4,29 @@ const colors = require('colors/safe');
 
 const AppConfig = require('../models/app_configuration.js');
 const Application = require('../models/application.js');
-const git = require('../models/git');
-const Log = require('../models/log');
+const git = require('../models/git.js');
+const Log = require('../models/log.js');
 const Logger = require('../logger.js');
 
+// Once the API call to redeploy() has been triggerred successfully,
+// the rest (waiting for deployment state to evolve and displaying logs) is done with auto retry (resilient to network pb)
 async function restart (params) {
   const { alias, quiet, commit, 'without-cache': withoutCache } = params.options;
 
-  const appData = await AppConfig.getAppDetails({ alias });
+  const { ownerId, appId, name: appName } = await AppConfig.getAppDetails({ alias });
   const fullCommitId = await git.resolveFullCommitId(commit);
-  const app = await Application.get(appData.ownerId, appData.appId);
+  const app = await Application.get(ownerId, appId);
   const remoteCommitId = app.commitId;
 
   const commitId = fullCommitId || remoteCommitId;
   if (commitId != null) {
     const cacheSuffix = withoutCache ? ' without using cache' : '';
-    Logger.println(`Restarting ${appData.name} on commit ${colors.green(commitId)}${cacheSuffix}`);
+    Logger.println(`Restarting ${appName} on commit ${colors.green(commitId)}${cacheSuffix}`);
   }
-  const redeploy = await Application.redeploy(appData.ownerId, appData.appId, fullCommitId, withoutCache);
-  const s_logs = await Log.getAllLogs(redeploy, appData, remoteCommitId, quiet);
-  s_logs.onValue(Logger.println);
-  return s_logs.toPromise();
+
+  const redeploy = await Application.redeploy(ownerId, appId, fullCommitId, withoutCache);
+
+  return Log.watchDeploymentAndDisplayLogs({ ownerId, appId, deploymentId: redeploy.deploymentId, quiet });
 }
 
 module.exports = { restart };
