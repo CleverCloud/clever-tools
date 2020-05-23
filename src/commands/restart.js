@@ -11,7 +11,7 @@ const Logger = require('../logger.js');
 // Once the API call to redeploy() has been triggerred successfully,
 // the rest (waiting for deployment state to evolve and displaying logs) is done with auto retry (resilient to network pb)
 async function restart (params) {
-  const { alias, quiet, commit, 'without-cache': withoutCache } = params.options;
+  const { alias, quiet, commit, 'without-cache': withoutCache, follow } = params.options;
 
   const { ownerId, appId, name: appName } = await AppConfig.getAppDetails({ alias });
   const fullCommitId = await git.resolveFullCommitId(commit);
@@ -26,7 +26,7 @@ async function restart (params) {
 
   const redeploy = await Application.redeploy(ownerId, appId, fullCommitId, withoutCache);
 
-  return Log.watchDeploymentAndDisplayLogs({ ownerId, appId, deploymentId: redeploy.deploymentId, quiet });
+  return Log.watchDeploymentAndDisplayLogs({ ownerId, appId, deploymentId: redeploy.deploymentId, quiet, follow });
 }
 
 module.exports = { restart };

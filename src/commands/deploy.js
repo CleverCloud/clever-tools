@@ -13,7 +13,7 @@ const { sendToApi } = require('../models/send-to-api.js');
 // Once the API call to redeploy() has been triggered successfully,
 // the rest (waiting for deployment state to evolve and displaying logs) is done with auto retry (resilient to network failures)
 async function deploy (params) {
-  const { alias, branch: branchName, quiet, force } = params.options;
+  const { alias, branch: branchName, quiet, force, follow } = params.options;
 
   const appData = await AppConfig.getAppDetails({ alias });
   const { ownerId, appId } = appData;
@@ -51,7 +51,7 @@ async function deploy (params) {
   await git.push(appData.deployUrl, branchRefspec, force);
   Logger.println(colors.bold.green('Your source code has been pushed to Clever Cloud.'));
 
-  return Log.watchDeploymentAndDisplayLogs({ ownerId, appId, commitId: commitIdToPush, knownDeployments, quiet });
+  return Log.watchDeploymentAndDisplayLogs({ ownerId, appId, commitId: commitIdToPush, knownDeployments, quiet, follow });
 }
 
 module.exports = { deploy };
