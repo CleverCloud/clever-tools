@@ -42,14 +42,22 @@ function formatLogLine (line) {
   return `${timestamp}: ${message}`;
 }
 
-async function displayLiveLogs ({ appId, filter, deploymentId }, deferred) {
+async function displayLiveLogs ({ appId, filter, until, deploymentId }, deferred) {
 
   const { apiHost, tokens } = await getHostAndTokens();
   const logsStream = new LogsStream({ apiHost, tokens, appId, filter, deploymentId });
 
   logsStream
     .on('open', () => Logger.debug('SSE for logs (open) ' + JSON.stringify({ appId, filter, deploymentId })))
-    .on('log', (line) => Logger.println(formatLogLine(line)))
+    .on('log', (line) => {
+      const { '@timestamp': timestamp } = line._source;
+      if (until != null && new Date(timestamp) > until) {
+        logsStream.close();
+      }
+      else {
+        Logger.println(formatLogLine(line));
+      }
+    })
     .on('ping', () => Logger.debug('SSE for logs (ping)'))
     .on('close', ({ reason }) => Logger.debug('SSE for logs (close) ' + reason))
     .on('error', (error) => deferred.reject(error));
@@ -86,7 +94,7 @@ async function displayLogs ({ appAddonId, until, since, filter, deploymentId }) 
 
   const deferred = new Deferred();
 
-  await displayLiveLogs({ appId: appAddonId, filter, deploymentId }, deferred);
+  await displayLiveLogs({ appId: appAddonId, filter, deploymentId, until }, deferred);
 
   return deferred.promise;
 }
