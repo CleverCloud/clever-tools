@@ -79,6 +79,11 @@ async function displayLogs ({ appAddonId, until, since, filter, deploymentId }) 
     }
   }
 
+  // No need to fetch live logs if until date is in the past
+  if (until != null && until < now) {
+    return;
+  }
+
   const deferred = new Deferred();
 
   await displayLiveLogs({ appId: appAddonId, filter, deploymentId }, deferred);
