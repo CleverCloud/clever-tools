@@ -1,7 +1,6 @@
-var path = require("path");
+'use strict';
 
 var _ = require("lodash");
-var Bacon = require("baconjs");
 var expect = require('chai').expect;
 
 var Application = require("../src/models/application.js");

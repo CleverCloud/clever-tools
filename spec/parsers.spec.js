@@ -1,5 +1,5 @@
-var _ = require("lodash");
-var Bacon = require("baconjs");
+'use strict';
+
 var expect = require('chai').expect;
 
 var Parsers = require('../src/parsers.js');

@@ -287,6 +287,9 @@ function run () {
       complete: Addon('completePlan'),
     }),
     quiet: cliparse.flag('quiet', { aliases: ['q'], description: 'Don\'t show logs during deployment' }),
+    followDeployLogs: cliparse.flag('follow', {
+      description: 'Continue to follow logs after deployment has ended',
+    }),
     addonRegion: cliparse.option('region', {
       aliases: ['r'],
       default: 'eu',
@@ -454,7 +457,7 @@ function run () {
   const deploy = lazyRequirePromiseModule('../src/commands/deploy.js');
   const deployCommand = cliparse.command('deploy', {
     description: 'Deploy an application to Clever Cloud',
-    options: [opts.alias, opts.branch, opts.quiet, opts.forceDeploy],
+    options: [opts.alias, opts.branch, opts.quiet, opts.forceDeploy, opts.followDeployLogs],
   }, deploy('deploy'));
 
   // DIAG COMMAND
@@ -625,7 +628,7 @@ function run () {
   const restart = lazyRequirePromiseModule('../src/commands/restart.js');
   const restartCommand = cliparse.command('restart', {
     description: 'Start or restart a Clever Cloud application',
-    options: [opts.alias, opts.commit, opts.withoutCache, opts.quiet],
+    options: [opts.alias, opts.commit, opts.withoutCache, opts.quiet, opts.followDeployLogs],
   }, restart('restart'));
 
   // SCALE COMMAND
