@@ -1,5 +1,19 @@
 # clever-tools changelog
 
+## 2.5.0 (2020-05-26)
+
+* Add `clever config` command to configure application options
+  * Existing supported options: `name`, `description`, `zero-downtime`, `sticky-sessions` and `cancel-on-push`
+  * New supported option: `force-https` 
+* Fix #318 where `clever deploy` and `clever restart` would sometimes never exit
+   * We changed the way we detect when a deployment is finished
+* Fix #304 where `clever logs` would run endlessly even when using `--before/--until`
+
+### Internals
+
+* We completely removed our dependency to Bacon.js, goodbye old friend 😘
+* `@clevercloud/client` was updated to `6.0.0` so we can use the new event based API for logs and events 
+
 ## 2.4.0 (2020-04-16)
 
 * Add `--json` option to `clever env import` and `clever published-config import` (Clément Delafargue)
