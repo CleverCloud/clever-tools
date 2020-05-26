@@ -4,7 +4,8 @@
 
 * Add `clever config` command to configure application options
   * Existing supported options: `name`, `description`, `zero-downtime`, `sticky-sessions` and `cancel-on-push`
-  * New supported option: `force-https` 
+  * New supported option: `force-https`
+* Add `--follow` to `clever deploy` and `clever restart` so you can continue to follow logs after the deployment is finished 
 * Fix #318 where `clever deploy` and `clever restart` would sometimes never exit
    * We changed the way we detect when a deployment is finished
 * Fix #304 where `clever logs` would run endlessly even when using `--before/--until`
