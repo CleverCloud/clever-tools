@@ -488,7 +488,7 @@ function run () {
   const drainCreateCommand = cliparse.command('create', {
     description: 'Create a drain',
     args: [args.drainType, args.drainUrl],
-    options: [opts.drainUsername, opts.drainPassword, opts.drainAPIKey],
+    options: [opts.addonId, opts.drainUsername, opts.drainPassword, opts.drainAPIKey],
   }, drain('create'));
   const drainRemoveCommand = cliparse.command('remove', {
     description: 'Remove a drain',
@@ -504,7 +504,7 @@ function run () {
   }, drain('disable'));
   const drainCommands = cliparse.command('drain', {
     description: 'Manage drains',
-    options: [opts.alias],
+    options: [opts.alias, opts.addonId],
     commands: [drainCreateCommand, drainRemoveCommand, drainEnableCommand, drainDisableCommand],
   }, drain('list'));
 

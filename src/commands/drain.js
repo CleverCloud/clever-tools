@@ -7,11 +7,22 @@ const Logger = require('../logger.js');
 const { getDrains, createDrain, deleteDrain, updateDrainState } = require('@clevercloud/client/cjs/api/log.js');
 const { sendToApi } = require('../models/send-to-api.js');
 
-async function list (params) {
-  const { alias } = params.options;
+// TODO: This could be useful in other commands
+async function getAppOrAddonId ({ alias, addonId }) {
+  return (addonId != null)
+    ? addonId
+    : AppConfig.getAppDetails({ alias }).then(({ appId }) => appId);
+}
 
-  const { appId } = await AppConfig.getAppDetails({ alias });
-  const drains = await getDrains({ appId }).then(sendToApi);
+async function list (params) {
+  const { alias, addon: addonId } = params.options;
+
+  const appIdOrAddonId = await getAppOrAddonId({ alias, addonId });
+  const drains = await getDrains({ appId: appIdOrAddonId }).then(sendToApi);
+
+  if (drains.length === 0) {
+    Logger.println(`There are no drains for ${appIdOrAddonId}`);
+  }
 
   drains.forEach((drain) => {
     const { id, state, target: { url, drainType } } = drain;
@@ -21,43 +32,43 @@ async function list (params) {
 
 async function create (params) {
   const [drainTargetType, drainTargetURL] = params.args;
-  const { alias, username, password, 'api-key': apiKey } = params.options;
+  const { alias, addon: addonId, username, password, 'api-key': apiKey } = params.options;
   const drainTargetCredentials = { username, password };
   const drainTargetConfig = { apiKey };
 
-  const { appId } = await AppConfig.getAppDetails({ alias });
-  const body = createDrainBody(appId, drainTargetURL, drainTargetType, drainTargetCredentials, drainTargetConfig);
-  await createDrain({ appId }, body).then(sendToApi);
+  const appIdOrAddonId = await getAppOrAddonId({ alias, addonId });
+  const body = createDrainBody(appIdOrAddonId, drainTargetURL, drainTargetType, drainTargetCredentials, drainTargetConfig);
+  await createDrain({ appId: appIdOrAddonId }, body).then(sendToApi);
 
   Logger.println('Your drain has been successfully saved');
 }
 
 async function rm (params) {
   const [drainId] = params.args;
-  const { alias } = params.options;
+  const { alias, addon: addonId } = params.options;
 
-  const { appId } = await AppConfig.getAppDetails({ alias });
-  await deleteDrain({ appId, drainId }).then(sendToApi);
+  const appIdOrAddonId = await getAppOrAddonId({ alias, addonId });
+  await deleteDrain({ appId: appIdOrAddonId, drainId }).then(sendToApi);
 
   Logger.println('Your drain has been successfully removed');
 }
 
 async function enable (params) {
   const [drainId] = params.args;
-  const { alias } = params.options;
+  const { alias, addon: addonId } = params.options;
 
-  const { appId } = await AppConfig.getAppDetails({ alias });
-  await updateDrainState({ appId, drainId }, { state: 'ENABLED' }).then(sendToApi);
+  const appIdOrAddonId = await getAppOrAddonId({ alias, addonId });
+  await updateDrainState({ appId: appIdOrAddonId, drainId }, { state: 'ENABLED' }).then(sendToApi);
 
   Logger.println('Your drain has been enabled');
 }
 
 async function disable (params) {
   const [drainId] = params.args;
-  const { alias } = params.options;
+  const { alias, addon: addonId } = params.options;
 
-  const { appId } = await AppConfig.getAppDetails({ alias });
-  await updateDrainState({ appId, drainId }, { state: 'DISABLED' }).then(sendToApi);
+  const appIdOrAddonId = await getAppOrAddonId({ alias, addonId });
+  await updateDrainState({ appId: appIdOrAddonId, drainId }, { state: 'DISABLED' }).then(sendToApi);
 
   Logger.println('Your drain has been disabled');
 }
