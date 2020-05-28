@@ -1,5 +1,9 @@
 # clever-tools changelog
 
+## 2.6.0 (2020-05-28)
+
+* Add `--addon` option for all `clever drain` commands
+
 ## 2.5.0 (2020-05-26)
 
 * Add `clever config` command to configure application options
