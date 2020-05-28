@@ -20,6 +20,10 @@ async function list (params) {
   const appIdOrAddonId = await getAppOrAddonId({ alias, addonId });
   const drains = await getDrains({ appId: appIdOrAddonId }).then(sendToApi);
 
+  if (drains.length === 0) {
+    Logger.println(`There are no drains for ${appIdOrAddonId}`);
+  }
+
   drains.forEach((drain) => {
     const { id, state, target: { url, drainType } } = drain;
     Logger.println(`${id} -> ${state} for ${url} as ${drainType}`);
