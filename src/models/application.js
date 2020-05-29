@@ -146,7 +146,7 @@ function unlinkRepo (alias) {
 
 function redeploy (ownerId, appId, commit, withoutCache) {
   Logger.debug(`Redeploying the app: ${appId}`);
-  const useCache = (withoutCache != null) ? 'no' : null;
+  const useCache = (withoutCache) ? 'no' : null;
   return application.redeploy({ id: ownerId, appId, commit, useCache }).then(sendToApi);
 };
 
