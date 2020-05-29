@@ -1,5 +1,10 @@
 # clever-tools changelog
 
+## 2.6.1 (2020-05-29)
+
+* Fix `clever restart` default cache behaviour and option `--without-cache`
+* Fix `clever config` docs wording (Clément Delafargue)
+
 ## 2.6.0 (2020-05-28)
 
 * Add `--addon` option for all `clever drain` commands
