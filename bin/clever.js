@@ -429,7 +429,7 @@ function run () {
     args: [args.configurationName, args.configurationValue],
   }, config('set'));
   const configUpdateCommand = cliparse.command('update', {
-    description: 'Edit multiple configuration settings at the same time',
+    description: 'Edit multiple configuration settings at once',
     options: ApplicationConfiguration('getUpdateOptions')(),
   }, config('update'));
   const configCommands = cliparse.command('config', {
