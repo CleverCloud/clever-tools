@@ -421,19 +421,19 @@ function run () {
   // CONFIG COMMAND
   const config = lazyRequirePromiseModule('../src/commands/config.js');
   const configGetCommand = cliparse.command('get', {
-    description: 'Get the current configuration',
+    description: 'Display the current configuration',
     args: [args.configurationName],
   }, config('get'));
   const configSetCommand = cliparse.command('set', {
-    description: 'Set the configuration',
+    description: 'Edit one configuration setting',
     args: [args.configurationName, args.configurationValue],
   }, config('set'));
   const configUpdateCommand = cliparse.command('update', {
-    description: 'Update the configuration',
+    description: 'Edit multiple configuration settings at the same time',
     options: ApplicationConfiguration('getUpdateOptions')(),
   }, config('update'));
   const configCommands = cliparse.command('config', {
-    description: 'Get and edit the configuration of your application',
+    description: 'Display or edit the configuration of your application',
     options: [opts.alias],
     commands: [configGetCommand, configSetCommand, configUpdateCommand],
   }, config('get'));
