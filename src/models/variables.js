@@ -40,7 +40,7 @@ function parseFromJson (rawStdin) {
     variables = JSON.parse(rawStdin);
   }
   catch (e) {
-    throw new Error('Error when parsing JSON input');
+    throw new Error(`Error when parsing JSON input : ${e.message}`);
   }
 
   if (!Array.isArray(variables) || variables.some((entry) => typeof entry !== 'object')) {
