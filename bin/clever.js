@@ -477,10 +477,30 @@ function run () {
     description: 'Remove a domain name from a Clever Cloud application',
     args: [args.fqdn],
   }, domain('rm'));
+  const domainGetFavouriteCommand = cliparse.command('get', {
+    description: 'Get the favourite domain for a Clever Cloud application',
+    options: [opts.alias],
+    args: [],
+  }, domain('getFavourite'));
+  const domainSetFavouriteCommand = cliparse.command('set', {
+    description: 'Set the favourite domain for a Clever Cloud application',
+    options: [opts.alias],
+    args: [args.fqdn],
+  }, domain('setFavourite'));
+  const domainUnsetFavouriteCommand = cliparse.command('unset', {
+    description: 'Unset the favourite domain for a Clever Cloud application',
+    options: [opts.alias],
+    args: [args.fqdn],
+  }, domain('unsetFavourite'));
+  const domainFavouriteCommands = cliparse.command('favourite', {
+    description: 'Manage Clever Cloud application favourite domain name',
+    options: [opts.alias],
+    commands: [domainGetFavouriteCommand, domainSetFavouriteCommand, domainUnsetFavouriteCommand],
+  }, domain('getFavourite'));
   const domainCommands = cliparse.command('domain', {
     description: 'Manage Clever Cloud application domain names',
     options: [opts.alias],
-    commands: [domainCreateCommand, domainRemoveCommand],
+    commands: [domainCreateCommand, domainFavouriteCommands, domainRemoveCommand],
   }, domain('list'));
 
   // DRAIN COMMANDS
