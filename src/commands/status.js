@@ -61,7 +61,7 @@ function displayScalability (app) {
   Auto scalability: ${enabled ? colors.green('enabled') : colors.red('disabled')}
   Scalers: ${colors.bold(horizontal)}
   Sizes: ${colors.bold(vertical)}
-  Decicated build: ${app.separateBuild ? colors.bold(app.buildFlavor.name) : colors.red('disabled')}`;
+  Dedicated build: ${app.separateBuild ? colors.bold(app.buildFlavor.name) : colors.red('disabled')}`;
 }
 
 async function status (params) {
