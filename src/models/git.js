@@ -4,6 +4,7 @@ const fs = require('fs');
 
 const _ = require('lodash');
 const git = require('isomorphic-git');
+const http = require('isomorphic-git/http/node');
 const { autocomplete } = require('cliparse');
 
 const slugify = require('slugify');
@@ -13,11 +14,19 @@ const { loadOAuthConf } = require('./configuration.js');
 async function getRepo () {
   try {
     const dir = await findPath('.', '.git');
-    return { fs, dir };
+    return { fs, dir, http };
   }
   catch (e) {
     throw new Error('Could not find the .git folder.');
   }
+}
+
+async function onAuth () {
+  const tokens = await loadOAuthConf();
+  return {
+    username: tokens.token,
+    password: tokens.secret,
+  };
 }
 
 async function addRemote (remoteName, url) {
@@ -48,11 +57,9 @@ async function resolveFullCommitId (commitId) {
 
 async function getRemoteCommit (remoteUrl) {
   const repo = await getRepo();
-  const tokens = await loadOAuthConf();
   const remoteInfos = await git.getRemoteInfo({
     ...repo,
-    username: tokens.token,
-    password: tokens.secret,
+    onAuth,
     url: remoteUrl,
   });
   return _.get(remoteInfos, 'refs.heads.master');
@@ -61,7 +68,8 @@ async function getRemoteCommit (remoteUrl) {
 async function getFullBranch (branchName) {
   const repo = await getRepo();
   if (branchName === '') {
-    return git.currentBranch({ ...repo, fullname: true });
+    const currentBranch = await git.currentBranch({ ...repo, fullname: true });
+    return currentBranch || 'HEAD';
   }
   return git.expandRef({ ...repo, ref: branchName });
 };
@@ -73,12 +81,10 @@ async function getBranchCommit (refspec) {
 
 async function push (remoteUrl, branchRefspec, force) {
   const repo = await getRepo();
-  const tokens = await loadOAuthConf();
   try {
     const push = await git.push({
       ...repo,
-      username: tokens.token,
-      password: tokens.secret,
+      onAuth,
       url: remoteUrl,
       ref: branchRefspec,
       remoteRef: 'master',

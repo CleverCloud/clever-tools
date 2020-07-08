@@ -48,6 +48,7 @@ async function deploy (params) {
   // So before pushing, we get the last deployments so we can after the push figure out which deployment is new...
   const knownDeployments = await getAllDeployments({ id: ownerId, appId, limit: 5 }).then(sendToApi);
 
+  Logger.println('Pushing source code to Clever Cloud...');
   await git.push(appData.deployUrl, branchRefspec, force);
   Logger.println(colors.bold.green('Your source code has been pushed to Clever Cloud.'));
 
