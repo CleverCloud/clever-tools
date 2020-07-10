@@ -1,6 +1,7 @@
 'use strict';
 
 const fs = require('fs');
+const path = require('path');
 
 const _ = require('lodash');
 const git = require('isomorphic-git');
@@ -109,6 +110,17 @@ function completeBranches () {
     .then(autocomplete.words);
 }
 
+async function isShallow () {
+  const { dir } = await getRepo();
+  try {
+    await fs.promises.access(path.join(dir, '.git', 'shallow'));
+    return true;
+  }
+  catch (e) {
+    return false;
+  }
+}
+
 module.exports = {
   addRemote,
   resolveFullCommitId,
@@ -117,4 +129,5 @@ module.exports = {
   getBranchCommit,
   push,
   completeBranches,
+  isShallow,
 };

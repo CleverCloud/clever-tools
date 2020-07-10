@@ -49,7 +49,16 @@ async function deploy (params) {
   const knownDeployments = await getAllDeployments({ id: ownerId, appId, limit: 5 }).then(sendToApi);
 
   Logger.println('Pushing source code to Clever Cloud...');
-  await git.push(appData.deployUrl, branchRefspec, force);
+  await git.push(appData.deployUrl, branchRefspec, force)
+    .catch(async (e) => {
+      const isShallow = await git.isShallow();
+      if (isShallow) {
+        throw new Error('Failed to push your source code because your repository is shallow and therefore cannot be pushed to the Clever Cloud remote.');
+      }
+      else {
+        throw e;
+      }
+    });
   Logger.println(colors.bold.green('Your source code has been pushed to Clever Cloud.'));
 
   return Log.watchDeploymentAndDisplayLogs({ ownerId, appId, commitId: commitIdToPush, knownDeployments, quiet, follow });
