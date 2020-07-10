@@ -33,7 +33,7 @@
     "eventsource": "^1.0.7",
     "isomorphic-git": "0.37.0",
     "linux-release-info": "^2.0.0",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.16",
     "mkdirp": "^1.0.3",
     "moment": "^2.24.0",
     "opn": "^6.0.0",
