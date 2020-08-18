@@ -31,7 +31,7 @@
     "colors": "^1.4.0",
     "common-env": "^6.3.1",
     "eventsource": "^1.0.7",
-    "isomorphic-git": "1.7.0",
+    "isomorphic-git": "1.7.4",
     "linux-release-info": "^2.0.0",
     "lodash": "^4.17.15",
     "mkdirp": "^1.0.3",
