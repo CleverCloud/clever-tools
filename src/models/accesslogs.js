@@ -1,6 +1,6 @@
 'use strict';
 
-const clfDate = require('@weseek/clf-date');
+const clfDate = require('clf-date');
 
 function listAvailableFormats () {
   return ['simple', 'extended', 'clf', 'json'];
