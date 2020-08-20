@@ -1,5 +1,22 @@
 # clever-tools changelog
 
+## 2.7.0 (2020-08-20) 
+
+* Improve `clever deploy` perfs in several cases (partial push, force push...)
+  * NOTE: Pushing a brand new repo is still slow in some situations
+* Add commands for favourite domains (Julien Tanguy)
+  * `clever domain` now displays a star prefix `*` before the favourite domain in the list
+  * `clever domain favourite` just displays the favourite domain (no prefix)
+  * `clever domain favourite set example.com` sets the favourite domain to `example.com`
+  * `clever domain favourite unset` unsets the favourite domain for this app
+* Add a message while waiting for deploy to start `clever deploy` and `clever restart` 
+* Add shallow detection with appropriate error message for `clever deploy` 
+* Fix `clever status` typo in output (Clément Delafargue)
+* Fix `clever env` error message when JSON input is incorrect (Jean Baptiste Noblot)
+* Update dependencies
+
+This is the one with the latest isomorphic-git!!!
+
 ## 2.6.1 (2020-05-29)
 
 * Fix `clever restart` default cache behaviour and option `--without-cache`
