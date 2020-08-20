@@ -48,7 +48,7 @@ async function waitForDeploymentEnd ({ ownerId, appId, deploymentId }) {
   return waitFor(async () => {
     try {
       const deployment = await getDeployment({ id: ownerId, appId, deploymentId }).then(sendToApi);
-      // If it's not WIP, it means it has ended (OK, FAIL, CANCELLED...)
+      // If it's not WIP, it means it has ended (OK, FAIL, CANCELLED…)
       if (deployment.state !== 'WIP') {
         Logger.debug(`Deployment is finished (state:${deployment.state})`);
         return deployment;

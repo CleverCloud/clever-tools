@@ -45,10 +45,20 @@ async function deploy (params) {
 
   // It's sometimes tricky to figure out the deployment ID for the current git push.
   // We on have the commit ID but there in a situation where the last deployment was cancelled, it may have the same commit ID.
-  // So before pushing, we get the last deployments so we can after the push figure out which deployment is new...
+  // So before pushing, we get the last deployments so we can after the push figure out which deployment is new…
   const knownDeployments = await getAllDeployments({ id: ownerId, appId, limit: 5 }).then(sendToApi);
 
-  await git.push(appData.deployUrl, branchRefspec, force);
+  Logger.println('Pushing source code to Clever Cloud…');
+  await git.push(appData.deployUrl, branchRefspec, force)
+    .catch(async (e) => {
+      const isShallow = await git.isShallow();
+      if (isShallow) {
+        throw new Error('Failed to push your source code because your repository is shallow and therefore cannot be pushed to the Clever Cloud remote.');
+      }
+      else {
+        throw e;
+      }
+    });
   Logger.println(colors.bold.green('Your source code has been pushed to Clever Cloud.'));
 
   return Log.watchDeploymentAndDisplayLogs({ ownerId, appId, commitId: commitIdToPush, knownDeployments, quiet, follow });

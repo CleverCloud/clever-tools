@@ -101,6 +101,7 @@ async function displayLogs ({ appAddonId, until, since, filter, deploymentId }) 
 
 async function watchDeploymentAndDisplayLogs ({ ownerId, appId, deploymentId, commitId, knownDeployments, quiet, follow }) {
 
+  Logger.println('Waiting for deployment to start…');
   const deployment = await waitForDeploymentStart({ ownerId, appId, deploymentId, commitId, knownDeployments });
   Logger.println(colors.bold.blue(`Deployment started (${deployment.uuid})`));
 
@@ -108,7 +109,7 @@ async function watchDeploymentAndDisplayLogs ({ ownerId, appId, deploymentId, co
   let logsStream;
 
   if (!quiet) {
-    // About the deferred...
+    // About the deferred…
     // If displayLiveLogs() throws an error,
     // the async function we're in (watchDeploymentAndDisplayLogs) will stop here and the error will be passed to the parent.
     // displayLiveLogs() defines callback listeners so if it catches error in those callbacks,
