@@ -101,6 +101,7 @@ async function displayLogs ({ appAddonId, until, since, filter, deploymentId }) 
 
 async function watchDeploymentAndDisplayLogs ({ ownerId, appId, deploymentId, commitId, knownDeployments, quiet, follow }) {
 
+  Logger.println('Waiting for deployment to start...');
   const deployment = await waitForDeploymentStart({ ownerId, appId, deploymentId, commitId, knownDeployments });
   Logger.println(colors.bold.blue(`Deployment started (${deployment.uuid})`));
 
