@@ -1,5 +1,9 @@
 # clever-tools changelog
 
+## 2.7.1 (2020-08-21)
+
+* Fix linux-release-info usage in `clever diag`
+
 ## 2.7.0 (2020-08-20) 
 
 * Improve `clever deploy` perfs in several cases (partial push, force push...)
