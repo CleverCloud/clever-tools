@@ -2,7 +2,7 @@
 
 const os = require('os');
 
-const getLinuxInfos = require('linux-release-info');
+const { releaseInfo: getLinuxInfos } = require('linux-release-info');
 const colors = require('colors/safe');
 
 const Logger = require('../logger.js');
