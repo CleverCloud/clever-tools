@@ -129,7 +129,7 @@ async function rename (ownerId, addon, name) {
 }
 
 function completeRegion () {
-  return autocomplete.words(['eu', 'us']);
+  return autocomplete.words(['par', 'mtl']);
 }
 
 // TODO: We need to fix this

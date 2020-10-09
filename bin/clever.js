@@ -292,7 +292,7 @@ function run () {
     }),
     addonRegion: cliparse.option('region', {
       aliases: ['r'],
-      default: 'eu',
+      default: 'par',
       metavar: 'region',
       description: 'Region to provision the addon in, depends on the provider',
       complete: Addon('completeRegion'),

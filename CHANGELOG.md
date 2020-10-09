@@ -1,5 +1,9 @@
 # clever-tools changelog
 
+## Unreleased (????-??-??)
+
+* addon: fix create relying on default region
+
 ## 2.7.1 (2020-08-21)
 
 * Fix linux-release-info usage in `clever diag`
