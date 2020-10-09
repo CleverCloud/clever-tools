@@ -1,6 +1,6 @@
 # clever-tools changelog
 
-## Unreleased (????-??-??)
+## 2.7.2 (2020-10-09)
 
 * addon: fix create relying on default region
 
