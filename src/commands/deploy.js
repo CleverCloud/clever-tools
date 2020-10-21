@@ -7,7 +7,7 @@ const Application = require('../models/application.js');
 const git = require('../models/git.js');
 const Log = require('../models/log.js');
 const Logger = require('../logger.js');
-const { getAllDeployments } = require('@clevercloud/client/cjs/api/application.js');
+const { getAllDeployments } = require('@clevercloud/client/cjs/api/v2/application.js');
 const { sendToApi } = require('../models/send-to-api.js');
 
 // Once the API call to redeploy() has been triggered successfully,

@@ -4,7 +4,7 @@ const { promisify } = require('util');
 const delay = promisify(setTimeout);
 
 const Logger = require('../logger.js');
-const { getDeployment, getAllDeployments } = require('@clevercloud/client/cjs/api/application.js');
+const { getDeployment, getAllDeployments } = require('@clevercloud/client/cjs/api/v2/application.js');
 const { sendToApi } = require('./send-to-api.js');
 
 const DEPLOYMENT_POLLING_DELAY = 5000;

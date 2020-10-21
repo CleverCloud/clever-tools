@@ -1,5 +1,9 @@
 # clever-tools changelog
 
+## Unreleased (2020-10-21)
+
+* Update @clevercloud/client (v2 prefix)
+
 ## 2.7.2 (2020-10-09)
 
 * addon: fix create relying on default region

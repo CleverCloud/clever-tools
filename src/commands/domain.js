@@ -9,7 +9,7 @@ const {
   markFavouriteDomain,
   unmarkFavouriteDomain,
   removeDomain,
-} = require('@clevercloud/client/cjs/api/application.js');
+} = require('@clevercloud/client/cjs/api/v2/application.js');
 const { sendToApi } = require('../models/send-to-api.js');
 
 function getFavouriteDomain ({ ownerId, appId }) {

@@ -3,7 +3,7 @@
 const _ = require('lodash');
 
 const Logger = require('../logger.js');
-const { getAllDomains, getFavouriteDomain } = require('@clevercloud/client/cjs/api/application.js');
+const { getAllDomains, getFavouriteDomain } = require('@clevercloud/client/cjs/api/v2/application.js');
 const { sendToApi } = require('../models/send-to-api.js');
 
 async function getBest (appId, orgaId) {

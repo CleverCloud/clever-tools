@@ -5,7 +5,7 @@ const colors = require('colors/safe');
 const Logger = require('../logger.js');
 const { getOwnerAndApp, getOrgaIdOrUserId } = require('../models/notification.js');
 
-const { getEmailhooks, createEmailhook, deleteEmailhook } = require('@clevercloud/client/cjs/api/notification.js');
+const { getEmailhooks, createEmailhook, deleteEmailhook } = require('@clevercloud/client/cjs/api/v2/notification.js');
 const { sendToApi } = require('../models/send-to-api.js');
 
 function displayEmailhook (hook) {

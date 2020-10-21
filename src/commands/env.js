@@ -5,7 +5,7 @@ const Logger = require('../logger.js');
 const variables = require('../models/variables.js');
 const { sendToApi } = require('../models/send-to-api.js');
 const { toNameEqualsValueString, validateName } = require('@clevercloud/client/cjs/utils/env-vars.js');
-const application = require('@clevercloud/client/cjs/api/application.js');
+const application = require('@clevercloud/client/cjs/api/v2/application.js');
 
 async function list (params) {
   const { alias, 'add-export': addExports } = params.options;

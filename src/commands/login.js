@@ -53,7 +53,7 @@ async function loginViaConsole () {
   consoleUrl.searchParams.set('cli_token', cliToken);
 
   const cliPollUrl = new URL(conf.API_HOST);
-  cliPollUrl.pathname = '/v2/self/cli_tokens';
+  cliPollUrl.pathname = '/self/cli_tokens';
   cliPollUrl.searchParams.set('cli_token', cliToken);
 
   Logger.debug('Try to login to Clever Cloud…');

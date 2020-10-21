@@ -1,11 +1,11 @@
 'use strict';
 
-const application = require('@clevercloud/client/cjs/api/application.js');
+const application = require('@clevercloud/client/cjs/api/v2/application.js');
 const autocomplete = require('cliparse').autocomplete;
 const colors = require('colors/safe');
-const { get: getAddon, getAll: getAllAddons, remove: removeAddon, create: createAddon, preorder: preorderAddon, update: updateAddon } = require('@clevercloud/client/cjs/api/addon.js');
-const { getAllAddonProviders } = require('@clevercloud/client/cjs/api/product.js');
-const { getSummary } = require('@clevercloud/client/cjs/api/user.js');
+const { get: getAddon, getAll: getAllAddons, remove: removeAddon, create: createAddon, preorder: preorderAddon, update: updateAddon } = require('@clevercloud/client/cjs/api/v2/addon.js');
+const { getAllAddonProviders } = require('@clevercloud/client/cjs/api/v2/product.js');
+const { getSummary } = require('@clevercloud/client/cjs/api/v2/user.js');
 
 const Interact = require('./interact.js');
 const Logger = require('../logger.js');

@@ -5,8 +5,8 @@ const autocomplete = require('cliparse').autocomplete;
 
 const AppConfig = require('./app_configuration.js');
 
-const organisation = require('@clevercloud/client/cjs/api/organisation.js');
-const { getSummary } = require('@clevercloud/client/cjs/api/user.js');
+const organisation = require('@clevercloud/client/cjs/api/v2/organisation.js');
+const { getSummary } = require('@clevercloud/client/cjs/api/v2/user.js');
 const { sendToApi } = require('../models/send-to-api.js');
 
 async function getId (orgaIdOrName) {
