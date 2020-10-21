@@ -586,6 +586,12 @@ function run () {
     args: [args.alias],
   }, makeDefault('makeDefault'));
 
+  // NETWORKGROUPS COMMAND
+  const networkgroups = lazyRequirePromiseModule('../src/commands/networkgroups.js');
+  const networkgroupsCommand = cliparse.command('networkgroups', {
+    description: 'List linked networkgroups',
+  }, networkgroups('getNetworkgroups'));
+
   // NOTIFY-EMAIL COMMAND
   const notifyEmail = lazyRequirePromiseModule('../src/commands/notify-email.js');
   const addEmailNotificationCommand = cliparse.command('add', {
@@ -780,6 +786,7 @@ function run () {
       logoutCommand,
       logsCommand,
       makeDefaultCommand,
+      networkgroupsCommand,
       openCommand,
       consoleCommand,
       profileCommand,
