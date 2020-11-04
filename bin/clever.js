@@ -113,6 +113,9 @@ function run () {
       },
     }),
     configurationValue: cliparse.argument('configuration-value', { description: 'The new value of the configuration' }),
+    networkgroupId: cliparse.argument('networkgroup-id', { description: 'The networkgroup id' }),
+    networkgroupLabel: cliparse.argument('label', { description: 'Networkgroup label, also used for dns context' }),
+    networkgroupDescription: cliparse.argument('description', { description: 'Networkgroup description' }),
   };
 
   // OPTIONS
@@ -366,6 +369,39 @@ function run () {
       aliases: ['y'],
       description: 'Skip confirmation even if the TCP redirection is not free',
     }),
+    networkgroupIdOption: cliparse.option('ng-id', {
+      aliases: ['ng'],
+      required: true,
+      metavar: 'ng_id',
+      description: 'The networkgroup id',
+      //  complete: networkgroup('listAvailableTypes'),
+    }),
+    networkgroupMemberIdOption: cliparse.option('member-id', {
+      required: true,
+      metavar: 'member_id',
+      description: 'The app id, addon id or the external node category id',
+      //  complete: networkgroup('listAvailableTypes'),
+    }),
+    networkgroupPeerIdOption: cliparse.option('peer-id', {
+      required: true,
+      metavar: 'peer_id',
+      description: 'The peer id',
+      //  complete: networkgroup('listAvailableTypes'),
+    }),
+    optNetworkgroupIdOption: cliparse.option('ng-id', {
+      aliases: ['ng'],
+      required: false,
+      metavar: 'ng_id',
+      description: 'The networkgroup id',
+      //  complete: networkgroup('listAvailableTypes'),
+    }),
+    optNetworkgroupSearchAppIdOption: cliparse.option('app-id', {
+      required: false,
+      metavar: 'app_id',
+      description: 'The app id to search',
+      //  complete: networkgroup('listAvailableTypes'),
+    }),
+    jsonFormat: cliparse.flag('json', { aliases: ['j'], description: 'Result in Json format' }),
   };
 
   // ACCESSLOGS COMMAND
@@ -588,9 +624,72 @@ function run () {
 
   // NETWORKGROUPS COMMAND
   const networkgroups = lazyRequirePromiseModule('../src/commands/networkgroups.js');
+
+  // networkgroup category - start
+  const networkgroupsListCommand = cliparse.command('list', {
+    description: 'List the networkgroup with their labels',
+    options: [opts.jsonFormat],
+  }, networkgroups('listNetworkgroups'));
+  const networkgroupsCreateCommand = cliparse.command('create', {
+    description: 'create a networkgroup',
+    args: [args.networkgroupLabel, args.networkgroupDescription],
+    options: [opts.jsonFormat],
+  }, networkgroups('createNg'));
+  const networkgroupsDeleteCommand = cliparse.command('delete', {
+    description: 'List the networkgroup with their labels',
+    options: [opts.alias, opts.networkgroupIdOption],
+  }, networkgroups('deleteNg'));
+  // networkgroup category - end
+
+  // member category - start
+  const networkgroupsMemberListCommand = cliparse.command('list', {
+    description: 'List the members of a networkgroup',
+    options: [opts.alias, opts.optNetworkgroupIdOption, opts.optNetworkgroupSearchAppIdOption, opts.jsonFormat],
+  }, networkgroups('listMembers'));
+  const networkgroupsMemberGetCommand = cliparse.command('get', {
+    description: 'Get a networkgroup member details',
+    options: [opts.alias, opts.networkgroupIdOption, opts.orgaIdOrName, opts.networkgroupMemberIdOption, opts.jsonFormat],
+  }, networkgroups('getMember'));
+  const networkgroupsMemberAddCommand = cliparse.command('add', {
+    description: 'Add an app or addon as a networkgroup member',
+    options: [opts.alias, opts.networkgroupIdOption, opts.orgaIdOrName],
+  }, networkgroups('addMember'));
+  const networkgroupsMemberRemoveCommand = cliparse.command('remove', {
+    description: 'Remove an app or addon from a networkgroup',
+    options: [opts.alias, opts.networkgroupIdOption, opts.orgaIdOrName, opts.networkgroupMemberIdOption],
+  }, networkgroups('removeMember'));
+  const networkgroupsMembersCategoryCommand = cliparse.command('members', {
+    description: 'List the members of a networkgroup',
+    commands: [networkgroupsMemberListCommand, networkgroupsMemberGetCommand, networkgroupsMemberAddCommand, networkgroupsMemberRemoveCommand],
+  });
+  // member category - end
+
+  // peer category - start
+  const networkgroupsPeerListCommand = cliparse.command('list', {
+    description: 'List the peers of a networkgroup',
+    options: [opts.alias, opts.optNetworkgroupIdOption, opts.optNetworkgroupSearchAppIdOption, opts.jsonFormat],
+  }, networkgroups('listPeers'));
+  const networkgroupsPeerGetCommand = cliparse.command('get', {
+    description: 'Get a networkgroup peer details',
+    options: [opts.alias, opts.networkgroupIdOption, opts.orgaIdOrName, opts.networkgroupPeerIdOption, opts.jsonFormat],
+  }, networkgroups('getPeer'));
+  const networkgroupsPeerAddCommand = cliparse.command('add-external', {
+    description: 'Add an external node as a networkgroup peer',
+    options: [opts.alias, opts.networkgroupIdOption, opts.orgaIdOrName],
+  }, networkgroups('addPeer'));
+  const networkgroupsPeerRemoveExternalCommand = cliparse.command('remove-external', {
+    description: 'Remove an external node from a networkgroup',
+    options: [opts.alias, opts.networkgroupIdOption, opts.orgaIdOrName, opts.networkgroupPeerIdOption],
+  }, networkgroups('removePeer'));
+  const networkgroupsPeersCategoryCommand = cliparse.command('Peers', {
+    commands: [networkgroupsPeerListCommand, networkgroupsPeerGetCommand, networkgroupsPeerAddCommand, networkgroupsPeerRemoveExternalCommand],
+  });
+  // peer category - end
+
   const networkgroupsCommand = cliparse.command('networkgroups', {
-    description: 'List linked networkgroups',
-  }, networkgroups('getNetworkgroups'));
+    description: 'List networkgroups commands',
+    commands: [networkgroupsListCommand, networkgroupsCreateCommand, networkgroupsDeleteCommand, networkgroupsMembersCategoryCommand, networkgroupsPeersCategoryCommand],
+  });
 
   // NOTIFY-EMAIL COMMAND
   const notifyEmail = lazyRequirePromiseModule('../src/commands/notify-email.js');
