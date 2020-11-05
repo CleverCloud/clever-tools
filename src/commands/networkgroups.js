@@ -77,21 +77,62 @@ async function getMember (params) {
 }
 
 async function addMember (params) {
-  Logger.println('add member');
-
   const { alias, 'ng-id': ng_id, 'app-id': app_id } = params.options;
   const { ownerId, appId } = await AppConfig.getAppDetails({ alias });
 
   const result = await networkgroup.addMember({ owner_id: ownerId, id: ng_id }, { id: app_id, label, 'domain-name': domainName, 'type': mtype }).then(sendToApi);
+
+  Logger.println('add member : OK');
 }
 
 async function removeMember (params) {
-  Logger.println('remove member');
-
   const { alias, 'ng-id': ng_id, 'member-id': memberId } = params.options;
   const { ownerId, appId } = await AppConfig.getAppDetails({ alias });
 
   const result = await networkgroup.removeMember({ owner_id: ownerId, ngId: ng_id, memberId }).then(sendToApi);
+
+  Logger.println('remove member : OK');
+}
+
+async function listPeers (params) {
+  const { alias, 'ng-id': ng_id, json } = params.options;
+  const { ownerId } = await AppConfig.getAppDetails({ alias });
+
+  const result = await networkgroup.listPeers({ owner_id: ownerId, id: ng_id }).then(sendToApi);
+
+  if (json) {
+    Logger.println(JSON.stringify(result, null, 2));
+  } else {
+    Logger.println('Networkgroup contains theses peers :');
+  //  Logger.println("id | member type | label | domain name");
+    for (const peer of result) {
+      const ip = (peer.endpoint.type === 'ServerEndpoint') ? peer.endpoint['ng-term'].ip : peer.endpoint['ng-ip'];
+      Logger.println(peer.id, '|', peer.type, '|', peer.endpoint.type, '|', peer.label, '|', peer.hostname, '|', ip);
+    }
+  }
+}
+
+async function getPeer (params) {
+  const { alias, 'ng-id': ng_id, json, 'peer-id': peerId } = params.options;
+  const { ownerId } = await AppConfig.getAppDetails({ alias });
+
+  const peer = await networkgroup.getPeer({ owner_id: ownerId, ngId: ng_id, peerId }).then(sendToApi);
+
+  if (json) {
+    Logger.println(JSON.stringify(peer, null, 2));
+  } else {
+    const ip = (peer.endpoint.type === 'ServerEndpoint') ? peer.endpoint['ng-term'].ip : peer.endpoint['ng-ip'];
+    Logger.println(peer.id, '|', peer.type, '|', peer.endpoint.type, '|', peer.label, '|', peer.hostname, '|', ip);
+  }
+}
+
+async function removeExternalPeer (params) {
+  const { alias, 'ng-id': ng_id, 'peer-id': peerId } = params.options;
+  const { ownerId, appId } = await AppConfig.getAppDetails({ alias });
+
+  const result = await networkgroup.removeExternalPeer({ owner_id: ownerId, ngId: ng_id, peerId }).then(sendToApi);
+
+  Logger.println('remove external peer : OK');
 }
 
 module.exports = {
@@ -102,4 +143,7 @@ module.exports = {
   getMember,
   addMember,
   removeMember,
+  listPeers,
+  getPeer,
+  removeExternalPeer,
 };

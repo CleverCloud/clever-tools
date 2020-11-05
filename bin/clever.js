@@ -676,12 +676,12 @@ function run () {
   const networkgroupsPeerAddCommand = cliparse.command('add-external', {
     description: 'Add an external node as a networkgroup peer',
     options: [opts.alias, opts.networkgroupIdOption, opts.orgaIdOrName],
-  }, networkgroups('addPeer'));
+  }, networkgroups('addExternalPeer'));
   const networkgroupsPeerRemoveExternalCommand = cliparse.command('remove-external', {
     description: 'Remove an external node from a networkgroup',
     options: [opts.alias, opts.networkgroupIdOption, opts.orgaIdOrName, opts.networkgroupPeerIdOption],
-  }, networkgroups('removePeer'));
-  const networkgroupsPeersCategoryCommand = cliparse.command('Peers', {
+  }, networkgroups('removeExternalPeer'));
+  const networkgroupsPeersCategoryCommand = cliparse.command('peers', {
     commands: [networkgroupsPeerListCommand, networkgroupsPeerGetCommand, networkgroupsPeerAddCommand, networkgroupsPeerRemoveExternalCommand],
   });
   // peer category - end
