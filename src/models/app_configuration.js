@@ -111,7 +111,7 @@ async function getAppDetails ({ alias }) {
 };
 
 function persistConfig (modifiedConfig) {
-  const jsonContents = JSON.stringify(modifiedConfig);
+  const jsonContents = JSON.stringify(modifiedConfig, null, 2);
   return fs.writeFile(conf.APP_CONFIGURATION_FILE, jsonContents);
 };
 
