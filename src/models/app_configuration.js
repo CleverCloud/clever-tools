@@ -63,7 +63,6 @@ async function removeLinkedApplication (alias) {
 };
 
 function findApp (config, alias) {
-
   if (_.isEmpty(config.apps)) {
     throw new Error('There are no applications linked. You can add one with `clever link`');
   }
@@ -77,6 +76,14 @@ function findApp (config, alias) {
       throw new Error(`There are several applications matching alias ${alias}. This should not happen, your \`.clever.json\` should be fixed.`);
     }
     return appByAlias;
+  }
+
+  return findDefaultApp(config);
+}
+
+function findDefaultApp (config) {
+  if (_.isEmpty(config.apps)) {
+    throw new Error('There are no applications linked. You can add one with `clever link`');
   }
 
   if (config.default != null) {
@@ -95,6 +102,25 @@ function findApp (config, alias) {
   throw new Error(`Several applications are linked. You can specify one with the "--alias" option. Run "clever applications" to list linked applications. Available aliases: ${aliases}`);
 }
 
+async function getAppDetailsForId (appId) {
+  const config = await loadApplicationConf();
+
+  if (_.isEmpty(config.apps)) {
+    throw new Error('There are no applications linked. You can add one with `clever link`');
+  }
+
+  const [appById, secondAppById] = _.filter(config.apps, { app_id: appId });
+  if (appById == null) {
+    throw new Error(`There are no applications matching id '${appId}'`);
+  }
+  if (secondAppById != null) {
+    throw new Error(`There are several applications matching id '${appId}'.`
+                  + 'This should not happen, your `.clever.json` should be fixed.');
+  }
+
+  return appById;
+}
+
 async function getAppDetails ({ alias }) {
   const config = await loadApplicationConf();
   const app = findApp(config, alias);
@@ -109,6 +135,11 @@ async function getAppDetails ({ alias }) {
     alias: app.alias,
   };
 };
+
+async function getMostNaturalName (appId) {
+  const details = await getAppDetailsForId(appId);
+  return details.alias ?? details.name ?? appId;
+}
 
 function persistConfig (modifiedConfig) {
   const jsonContents = JSON.stringify(modifiedConfig, null, 2);
@@ -128,5 +159,6 @@ module.exports = {
   removeLinkedApplication,
   findApp,
   getAppDetails,
+  getMostNaturalName,
   setDefault,
 };

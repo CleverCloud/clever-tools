@@ -10,7 +10,7 @@ const xdg = require('xdg');
 const Logger = require('../logger.js');
 const env = commonEnv(Logger);
 
-function getConfigDir () {
+function getConfigDir() {
   if (process.platform === 'win32') {
     return path.resolve(process.env.APPDATA, 'clever-cloud');
   }
@@ -19,12 +19,12 @@ function getConfigDir () {
   }
 }
 
-function getConfigPath () {
+function getConfigPath() {
   const configDir = getConfigDir();
   return path.resolve(configDir, 'clever-tools.json');
 }
 
-async function isFile (path) {
+async function isFile(path) {
   try {
     const pathStat = await fs.stat(path);
     return pathStat.isFile();
@@ -34,7 +34,7 @@ async function isFile (path) {
   }
 }
 
-async function maybeMigrateFromLegacyConfigurationPath () {
+async function maybeMigrateFromLegacyConfigurationPath() {
   // This used to be a file
   const configDir = getConfigDir();
   const legacyConfig = await isFile(configDir);
@@ -50,8 +50,8 @@ async function maybeMigrateFromLegacyConfigurationPath () {
   }
 }
 
-async function loadOAuthConf () {
-  Logger.debug('Load configuration from environment variables');
+async function loadOAuthConf() {
+  Logger.debug('Loading configuration from environment variables');
   if (process.env.CLEVER_TOKEN != null && process.env.CLEVER_SECRET != null) {
     return {
       token: process.env.CLEVER_TOKEN,
@@ -70,8 +70,8 @@ async function loadOAuthConf () {
   }
 }
 
-async function writeOAuthConf (oauthData) {
-  Logger.debug('Write the tokens in the configuration file…');
+async function writeOAuthConf(oauthData) {
+  Logger.debug('Writing the tokens in the configuration file…');
   const configDir = path.dirname(conf.CONFIGURATION_FILE);
   try {
     await mkdirp(configDir, { mode: 0o700 });

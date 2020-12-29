@@ -15,9 +15,9 @@
   "author": "Clever Cloud <ci@clever-cloud.com>",
   "license": "Apache-2.0",
   "bin": {
-    "clever": "./bin/clever.js",
-    "install-clever-completion": "./scripts/install-autocomplete.sh",
-    "uninstall-clever-completion": "./scripts/uninstall-autocomplete.sh"
+    "clever": "bin/clever.js",
+    "install-clever-completion": "scripts/install-autocomplete.sh",
+    "uninstall-clever-completion": "scripts/uninstall-autocomplete.sh"
   },
   "files": [
     "bin",
@@ -40,6 +40,7 @@
     "slugify": "^1.5.3",
     "string-length": "^4.0.2",
     "superagent": "^6.1.0",
+    "prompts": "^2.4.0",
     "text-table": "^0.2.0",
     "update-notifier": "^5.1.0",
     "ws": "^7.4.6",

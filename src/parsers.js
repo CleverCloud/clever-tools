@@ -66,6 +66,15 @@ function addonIdOrName (string) {
   return cliparse.parsers.success({ addon_name: string });
 }
 
+const ngIdRegex = /^ng_[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+function ngIdOrLabel (string) {
+  if (string.match(ngIdRegex)) {
+    return cliparse.parsers.success({ ng_id: string });
+  }
+  return cliparse.parsers.success({ ng_label: string });
+}
+
 function commaSeparated (string) {
   return cliparse.parsers.success(string.split(','));
 }
@@ -86,6 +95,42 @@ function integer (string) {
   return cliparse.parsers.success(integer);
 }
 
+// /^[a-z0-9](?:[a-z0-9_-]*[a-z0-9])?$/i;
+const tagRegex = /^[^,\s]+$/;
+
+function tag (string) {
+  if (string.match(tagRegex)) {
+    return cliparse.parsers.success(string);
+  }
+  return cliparse.parsers.error(`Invalid tag '${string}'. Should match ${tagRegex}`);
+}
+
+function tags (string) {
+  const tags = string.split(',');
+  for (const current of tags) {
+    if (tag(current).error) {
+      return cliparse.parsers.error(`Invalid tag '${current}'. Should match \`${tagRegex}\``);
+    }
+  }
+  return cliparse.parsers.success(tags);
+}
+
+function ngMemberType (string) {
+  const possible = ['application', 'addon', 'external'];
+  if (possible.includes(string)) {
+    return cliparse.parsers.success(string);
+  }
+  return cliparse.parsers.error(`Invalid member type '${string}'. Should be in ${JSON.stringify(possible)}`);
+}
+
+function ngPeerRole (string) {
+  const possible = ['client', 'server'];
+  if (possible.includes(string)) {
+    return cliparse.parsers.success(string);
+  }
+  return cliparse.parsers.error(`Invalid peer role '${string}'. Should be in ${JSON.stringify(possible)}`);
+}
+
 module.exports = {
   buildFlavor,
   flavor,
@@ -94,7 +139,12 @@ module.exports = {
   appIdOrName,
   orgaIdOrName,
   addonIdOrName,
+  ngIdOrLabel,
   commaSeparated,
   accessLogsFormat,
   integer,
+  tag,
+  tags,
+  ngMemberType,
+  ngPeerRole,
 };
