@@ -4,6 +4,7 @@ const networkgroup = require('@clevercloud/client/cjs/api/v4/networkgroup.js');
 const { NetworkgroupStream } = require('@clevercloud/client/cjs/streams/networkgroup.node.js');
 
 const formatTable = require('../format-table');
+const colors = require('colors/safe');
 const { v4: uuidv4 } = require('uuid');
 const prompts = require('prompts');
 const { ngQuestions } = require('../models/questions');
@@ -15,27 +16,33 @@ const Networkgroup = require('../models/networkgroup.js');
 const { sendToApi, getHostAndTokens } = require('../models/send-to-api.js');
 
 function printSeparator (columnLengths) {
-  Logger.println('-'.repeat(columnLengths.reduce((a, b) => a + b + 2)));
+  Logger.println('─'.repeat(columnLengths.reduce((a, b) => a + b + 2)));
 }
 
 // We use examples of maximum width text to have a clean display
 const networkgroupsTableColumnLengths = [
   40, /* id length */
   20, /* label length */
+  7, /* members length */
+  5, /* peers length */
   40, /* description */
 ];
 const formatNetworkgroupsTable = formatTable(networkgroupsTableColumnLengths);
 function formatNetworkgroupsLine (ng) {
   return formatNetworkgroupsTable([
-    [ng.id, ng.label, ng.description || ' '],
+    [
+      formatId(ng.id),
+      formatString(ng.label, false),
+      formatNumber(ng.members.length),
+      formatNumber(ng.peers.length),
+      formatString(ng.description || ' ', false),
+    ],
   ]);
 };
 function printNetworkgroupsTableHeader () {
-  Logger.println(formatNetworkgroupsLine({
-    id: 'Networkgroup ID',
-    label: 'Label',
-    description: 'Description',
-  }));
+  Logger.println(colors.bold(formatNetworkgroupsTable([
+    ['Networkgroup ID', 'Label', 'Members', 'Peers', 'Description'],
+  ])));
   printSeparator(networkgroupsTableColumnLengths);
 }
 
@@ -44,27 +51,27 @@ const membersTableColumnLengths = [
   25, /* type length */
   40, /* label length */
   20, /* domain-name length */
-  40, /* description */
 ];
 const formatMembersTable = formatTable(membersTableColumnLengths);
 async function formatMembersLine (member, showAliases = false) {
   return formatMembersTable([
     [
-      showAliases ? await AppConfig.getMostNaturalName(member.id) : member.id,
-      member.type, member.label,
-      member['domain-name'] || ' ',
-      member.description || ' ',
+      showAliases ? formatString(await AppConfig.getMostNaturalName(member.id), false) : formatId(member.id),
+      formatString(member.type, false),
+      formatString(member.label, false),
+      formatString(member['domain-name'] || ' ', false),
     ],
   ]);
 };
 async function printMembersTableHeader (naturalName = false) {
-  Logger.println(await formatMembersLine({
-    id: naturalName ? 'Member' : 'Member ID',
-    type: 'Member Type',
-    label: 'Label',
-    'domain-name': 'Domain Name',
-    description: 'Description',
-  }));
+  Logger.println(colors.bold(formatMembersTable([
+    [
+      naturalName ? 'Member' : 'Member ID',
+      'Member Type',
+      'Label',
+      'Domain Name',
+    ],
+  ])));
   printSeparator(membersTableColumnLengths);
 }
 
@@ -80,21 +87,44 @@ const formatPeersTable = formatTable(peersTableColumnLengths);
 function formatPeersLine (peer) {
   const ip = (peer.endpoint.type === 'ServerEndpoint') ? peer.endpoint['ng-term'].ip : peer.endpoint['ng-ip'];
   return formatPeersTable([
-    [peer.id, peer.type, peer.endpoint.type, peer.label, peer.hostname, ip],
+    [
+      formatId(peer.id),
+      formatString(peer.type, false),
+      formatString(peer.endpoint.type, false),
+      formatString(peer.label, false),
+      formatString(peer.hostname, false),
+      formatIp(ip),
+    ],
   ]);
 };
 function printPeersTableHeader () {
-  Logger.println(formatPeersLine({
-    id: 'Peer ID',
-    type: 'Peer Type',
-    endpoint: {
-      type: 'Endpoint Type',
-      'ng-ip': 'IP Address',
-    },
-    label: 'Label',
-    hostname: 'Hostname',
-  }));
+  Logger.println(colors.bold(formatPeersTable([
+    [
+      'Peer ID',
+      'Peer Type',
+      'Endpoint Type',
+      'Label',
+      'Hostname',
+      'IP Address',
+    ],
+  ])));
   printSeparator(peersTableColumnLengths);
+}
+
+function formatId (id) {
+  return colors.dim(id);
+}
+
+function formatString (str, showingQuotes = true) {
+  return colors.green(showingQuotes ? `'${str}'` : str);
+}
+
+function formatNumber (number) {
+  return colors.yellow(number);
+}
+
+function formatIp (ip) {
+  return colors.blue(ip);
 }
 
 async function getOwnerId () {
@@ -105,7 +135,7 @@ async function listNetworkgroups (params) {
   const { json } = params.options;
   const ownerId = await getOwnerId();
 
-  Logger.debug(`Listing networkgroups from owner '${ownerId}'`);
+  Logger.debug(`Listing networkgroups from owner ${formatString(ownerId)}`);
   const result = await networkgroup.get({ ownerId }).then(sendToApi);
 
   if (json) {
@@ -113,7 +143,7 @@ async function listNetworkgroups (params) {
   }
   else {
     if (result.length === 0) {
-      Logger.println('No networkgroup found');
+      Logger.println('No networkgroup found. You can create one with `clever networkgroups create`.');
     }
     else {
       printNetworkgroupsTableHeader();
@@ -145,7 +175,7 @@ async function createNg (params) {
     }
   }
 
-  Logger.debug(`Creating networkgroup from owner '${ownerId}'`);
+  Logger.debug(`Creating networkgroup from owner ${formatString(ownerId)}`);
   const body = { owner_id: ownerId, label, description, tags };
   Logger.debug('Sending body: ' + JSON.stringify(body, null, 2));
   const result = await networkgroup.createNg({ ownerId }, body).then(sendToApi);
@@ -154,7 +184,7 @@ async function createNg (params) {
     Logger.println(JSON.stringify(result, null, 2));
   }
   else {
-    Logger.println(`Networkgroup was created with the id '${result.id}'`);
+    Logger.println(`Networkgroup ${formatString(label)} was created with the id ${formatString(result.id)}.`);
   }
 }
 
@@ -163,13 +193,14 @@ async function deleteNg (params) {
   const ownerId = await getOwnerId();
   const ngId = await Networkgroup.getId(ownerId, ngIdOrLabel);
 
-  Logger.debug(`Deleting networkgroup '${ngId}' from owner '${ownerId}'`);
+  Logger.debug(`Deleting networkgroup ${formatString(ngId)} from owner ${formatString(ownerId)}`);
   await networkgroup.deleteNg({ ownerId, ngId }).then(sendToApi);
 
-  Logger.println(`Networkgroup '${ngId}' was successfully deleted`);
+  Logger.println(`Networkgroup ${formatString(ngId)} was successfully deleted.`);
 }
 
 async function joinNg (params) {
+  // FIXME: Test if `wg-quick` is installed
   // FIXME: Allow join as server
   const [ngIdOrLabel] = params.args;
   const { 'public-key': publicKey, label, interactive } = params.options;
@@ -253,37 +284,32 @@ async function joinNg (params) {
   // Create new params keeping previous ones (e.g. verbose)
   const options = { ...params.options, ng: { ng_id: ngId }, 'peer-id': peerId, role: 'client', 'public-key': publicKey, label, parent: parentId };
   await addExternalPeer({ args: params.args, options });
+  // FIXME: peerId is not used to create the external peer, so peerId doesn't exist
 
   const { apiHost, tokens } = await getHostAndTokens();
   const networkgroupStream = new NetworkgroupStream({ apiHost, tokens, ownerId, ngId, peerId });
-  networkgroupStream.prepareWireguardConfigurationSse();
 
   networkgroupStream
-    .on('open', () => Logger.debug('SSE for networkgroup configuration (open) ' + JSON.stringify({ ownerId, ngId, peerId })))
+    .on('open', () => Logger.debug(`SSE for networkgroup configuration (${colors.green('open')}): ${JSON.stringify({ ownerId, ngId, peerId })}`))
     .on('conf', (conf) => {
-      //Logger.println(formatLogLine(line));
       Logger.println(JSON.stringify(conf, null, 2));
+      // FIXME: Apply new conf
     })
     .on('ping', () => Logger.debug('SSE for networkgroup configuration (ping)'))
-    .on('close', ({ reason }) => Logger.debug('SSE for networkgroup configuration (close) ' + reason))
-    .on('error', (error) => Logger.error(`SSE for networkgroup configuration (error): ${error}`));
+    .on('close', (reason) => {
+      Logger.debug(`SSE for networkgroup configuration (${colors.red('close')}): ${JSON.stringify(reason)}`);
+      // FIXME: Leave NG
+    })
+    .on('error', (error) => {
+      Logger.error(`SSE for networkgroup configuration (${colors.red('error')}): ${error}`);
+      // FIXME: Leave NG
+    });
 
   networkgroupStream.open({ autoRetry: true, maxRetryCount: 6 });
 
-  Logger.println(`Successfully joined networkgroup '${ngId}'`);
+  Logger.println(`Successfully joined networkgroup ${formatString(ngId)}`);
 
   return networkgroupStream;
-
-  //await networkgroup.sseWgConf({ ownerId, ngId, peerId }).then(sendToApi);
-}
-
-async function leaveNg (params) {
-  const { ng: ngIdOrLabel } = params.options;
-  const ownerId = await getOwnerId();
-  const ngId = await Networkgroup.getId(ownerId, ngIdOrLabel);
-
-  throw new Error('Not implemented yet.');
-  // await networkgroup.sseWgConf({ ownerId, ngId, peerId }).then(sendToApi);
 }
 
 async function listMembers (params) {
@@ -299,7 +325,7 @@ async function listMembers (params) {
   }
   else {
     if (result.length === 0) {
-      Logger.println('No member found');
+      Logger.println('No member found. You can add one with `clever networkgroups members add`.');
     }
     else {
       await printMembersTableHeader(naturalName);
@@ -315,7 +341,7 @@ async function getMember (params) {
   const ownerId = await getOwnerId();
   const ngId = await Networkgroup.getId(ownerId, ngIdOrLabel);
 
-  Logger.debug(`Getting details for member '${memberId}' in networkgroup '${ngId}'`);
+  Logger.debug(`Getting details for member ${formatString(memberId)} in networkgroup ${formatString(ngId)}`);
   const result = await networkgroup.getMember({ ownerId, ngId, memberId }).then(sendToApi);
 
   if (json) {
@@ -336,7 +362,7 @@ async function addMember (params) {
   Logger.debug('Sending body: ' + JSON.stringify(body, null, 2));
   await networkgroup.addMember({ ownerId, ngId }, body).then(sendToApi);
 
-  Logger.println(`Successfully added member '${memberId}' to networkgroup '${ngId}'`);
+  Logger.println(`Successfully added member ${formatString(memberId)} to networkgroup ${formatString(ngId)}.`);
 }
 
 async function removeMember (params) {
@@ -346,7 +372,7 @@ async function removeMember (params) {
 
   await networkgroup.removeMember({ ownerId, ngId, memberId }).then(sendToApi);
 
-  Logger.println(`Successfully removed member '${memberId}' from networkgroup '${ngId}'`);
+  Logger.println(`Successfully removed member ${formatString(memberId)} from networkgroup ${formatString(ngId)}.`);
 }
 
 async function listPeers (params) {
@@ -354,16 +380,22 @@ async function listPeers (params) {
   const ownerId = await getOwnerId();
   const ngId = await Networkgroup.getId(ownerId, ngIdOrLabel);
 
-  const result = await networkgroup.listPeers({ ownerId: ownerId, ngId: ngId }).then(sendToApi);
+  Logger.debug(`Listing peers from networkgroup ${formatString(ngId)}`);
+  const result = await networkgroup.listPeers({ ownerId, ngId }).then(sendToApi);
 
   if (json) {
     Logger.println(JSON.stringify(result, null, 2));
   }
   else {
-    printPeersTableHeader();
-    result.forEach((peer) => {
-      Logger.println(formatPeersLine(peer));
-    });
+    if (result.length === 0) {
+      Logger.println('No peer found. You can add an external one with `clever networkgroups peers add-external`.');
+    }
+    else {
+      printPeersTableHeader();
+      result.forEach((peer) => {
+        Logger.println(formatPeersLine(peer));
+      });
+    }
   }
 }
 
@@ -372,6 +404,7 @@ async function getPeer (params) {
   const ownerId = await getOwnerId();
   const ngId = await Networkgroup.getId(ownerId, ngIdOrLabel);
 
+  Logger.debug(`Getting details for peer ${formatString(peerId)} in networkgroup ${formatString(ngId)}`);
   const peer = await networkgroup.getPeer({ ownerId, ngId, peerId }).then(sendToApi);
 
   if (json) {
@@ -389,10 +422,11 @@ async function addExternalPeer (params) {
   const ngId = await Networkgroup.getId(ownerId, ngIdOrLabel);
 
   const body = { id: peerId, 'peer-role': role, 'public-key': publicKey, label, parent_member: parent };
+  Logger.debug(`Adding external peer ${peerId == null ? '(auto id)' : formatString(peerId)} to networkgroup ${formatString(ngId)}`);
   Logger.debug('Sending body: ' + JSON.stringify(body, null, 2));
   await networkgroup.addExternalPeer({ ownerId, ngId, peerId }, body).then(sendToApi);
 
-  Logger.println(`Adding external peer '${peerId}' to networkgroup '${ngId}'...`);
+  Logger.println(`External peer ${peerId == null ? '(auto id)' : formatString(peerId)} must have been added to networkgroup ${formatString(ngId)}.`);
 }
 
 async function removeExternalPeer (params) {
@@ -400,9 +434,10 @@ async function removeExternalPeer (params) {
   const ownerId = await getOwnerId();
   const ngId = await Networkgroup.getId(ownerId, ngIdOrLabel);
 
+  Logger.println(`Removing external peer ${formatString(peerId)} from networkgroup ${formatString(ngId)}`);
   await networkgroup.removeExternalPeer({ ownerId, ngId, peerId }).then(sendToApi);
 
-  Logger.println(`Removing external peer '${peerId}' from networkgroup '${ngId}'...`);
+  Logger.println(`External peer ${formatString(peerId)} must have been removed from networkgroup ${formatString(ngId)}.`);
 }
 
 module.exports = {
@@ -410,7 +445,6 @@ module.exports = {
   createNg,
   deleteNg,
   joinNg,
-  leaveNg,
   listMembers,
   getMember,
   addMember,
