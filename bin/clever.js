@@ -406,10 +406,17 @@ function run () {
     description: 'List available addon providers',
     commands: [addonShowProviderCommand],
   }, addon('listProviders'));
+
+  const addonListEnvs = cliparse.command('list', {
+    description: 'List the env variables for addon',
+    options: [opts.orgaIdOrName],
+    args: [opts.addonId],
+  }, addon('listAddonsEnvCallback'));
+
   const addonCommands = cliparse.command('addon', {
     description: 'Manage addons',
     options: [opts.orgaIdOrName],
-    commands: [addonCreateCommand, addonDeleteCommand, addonRenameCommand, addonProvidersCommand],
+    commands: [addonCreateCommand, addonDeleteCommand, addonRenameCommand, addonProvidersCommand, addonListEnvs],
   }, addon('list'));
 
   // APPLICATIONS COMMAND
@@ -763,6 +770,7 @@ function run () {
       accesslogsCommand,
       activityCommand,
       addonCommands,
+      addonListEnvs,
       appCreateCommand,
       applicationsCommand,
       appLinkCommand,

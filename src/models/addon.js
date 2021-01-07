@@ -3,10 +3,19 @@
 const application = require('@clevercloud/client/cjs/api/v2/application.js');
 const autocomplete = require('cliparse').autocomplete;
 const colors = require('colors/safe');
-const { get: getAddon, getAll: getAllAddons, remove: removeAddon, create: createAddon, preorder: preorderAddon, update: updateAddon } = require('@clevercloud/client/cjs/api/v2/addon.js');
 const { getAllAddonProviders } = require('@clevercloud/client/cjs/api/v2/product.js');
 const { getSummary } = require('@clevercloud/client/cjs/api/v2/user.js');
 const { getAddonProvider } = require('@clevercloud/client/cjs/api/v4/addon-providers.js');
+const {
+  get: getAddon,
+  getAll: getAllAddons,
+  remove: removeAddon,
+  create: createAddon,
+  preorder: preorderAddon,
+  update: updateAddon,
+  getAllEnvVars,
+} = require('@clevercloud/client/cjs/api/v2/addon.js');
+const { getSummary } = require('@clevercloud/client/cjs/api/user.js');
 
 const Interact = require('./interact.js');
 const Logger = require('../logger.js');
@@ -255,6 +264,13 @@ async function findById (addonId) {
   throw new Error(`Could not find add-on with ID: ${addonId}`);
 }
 
+async function listAddonEnv (organisationId, addonId) {
+  return getAllEnvVars({
+    id: organisationId,
+    addonId,
+  }).then(sendToApi);
+}
+
 function parseAddonOptions (options) {
   if (options == null) {
     return {};
@@ -296,4 +312,5 @@ module.exports = {
   parseAddonOptions,
   rename,
   unlink,
+  listAddonEnv,
 };
