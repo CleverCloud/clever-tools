@@ -407,7 +407,7 @@ function run () {
     commands: [addonShowProviderCommand],
   }, addon('listProviders'));
 
-  const addonListEnvs = cliparse.command('list', {
+  const addonListEnvs = cliparse.command('listEnv', {
     description: 'List the env variables for addon',
     options: [opts.orgaIdOrName],
     args: [opts.addonId],
