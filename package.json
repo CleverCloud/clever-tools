@@ -46,7 +46,7 @@
     "xdg": "^0.1.1"
   },
   "devDependencies": {
-    "aws-sdk": "^2.735.0",
+    "aws-sdk": "^2.814.0",
     "chai": "^4.2.0",
     "del": "^5.1.0",
     "eslint": "^7.7.0",
