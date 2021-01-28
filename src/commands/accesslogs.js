@@ -1,7 +1,7 @@
 'use strict';
 
 const { getAccessLogsFromWarp10InBatches, getContinuousAccessLogsFromWarp10 } = require('@clevercloud/client/cjs/access-logs.js');
-const { getWarp10AccessLogsToken } = require('@clevercloud/client/cjs/api/warp-10.js');
+const { getWarp10AccessLogsToken } = require('@clevercloud/client/cjs/api/v2/warp-10.js');
 const { ONE_HOUR_MICROS, ONE_SECOND_MICROS, toMicroTimestamp } = require('@clevercloud/client/cjs/utils/date.js');
 
 const Addon = require('../models/addon.js');

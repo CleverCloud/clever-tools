@@ -1,6 +1,6 @@
 'use strict';
 
-const { get } = require('@clevercloud/client/cjs/api/organisation.js');
+const { get } = require('@clevercloud/client/cjs/api/v2/organisation.js');
 const { sendToApi } = require('../models/send-to-api.js');
 
 function getCurrent () {

@@ -6,7 +6,7 @@ const colors = require('colors/safe');
 const AppConfig = require('../models/app_configuration.js');
 const Logger = require('../logger.js');
 
-const { get: getApplication, getAllInstances } = require('@clevercloud/client/cjs/api/application.js');
+const { get: getApplication, getAllInstances } = require('@clevercloud/client/cjs/api/v2/application.js');
 const { sendToApi } = require('../models/send-to-api.js');
 
 function displayGroupInfo (instances, commit) {

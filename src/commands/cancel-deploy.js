@@ -2,7 +2,7 @@
 
 const AppConfig = require('../models/app_configuration.js');
 const Logger = require('../logger.js');
-const { getAllDeployments, cancelDeployment } = require('@clevercloud/client/cjs/api/application.js');
+const { getAllDeployments, cancelDeployment } = require('@clevercloud/client/cjs/api/v2/application.js');
 const { sendToApi } = require('../models/send-to-api.js');
 
 async function cancelDeploy (params) {

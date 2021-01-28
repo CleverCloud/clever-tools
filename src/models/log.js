@@ -5,7 +5,7 @@ const colors = require('colors/safe');
 
 const Logger = require('../logger.js');
 const { Deferred } = require('./utils.js');
-const { getOldLogs } = require('@clevercloud/client/cjs/api/log.js');
+const { getOldLogs } = require('@clevercloud/client/cjs/api/v2/log.js');
 const { LogsStream } = require('@clevercloud/client/cjs/streams/logs.node.js');
 const { sendToApi, getHostAndTokens } = require('./send-to-api.js');
 const { waitForDeploymentEnd, waitForDeploymentStart } = require('./deployments.js');

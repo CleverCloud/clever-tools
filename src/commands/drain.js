@@ -4,7 +4,7 @@ const AppConfig = require('../models/app_configuration.js');
 const { createDrainBody } = require('../models/drain.js');
 const Logger = require('../logger.js');
 
-const { getDrains, createDrain, deleteDrain, updateDrainState } = require('@clevercloud/client/cjs/api/log.js');
+const { getDrains, createDrain, deleteDrain, updateDrainState } = require('@clevercloud/client/cjs/api/v2/log.js');
 const { sendToApi } = require('../models/send-to-api.js');
 
 // TODO: This could be useful in other commands
