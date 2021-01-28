@@ -6,6 +6,7 @@ const colors = require('colors/safe');
 const { get: getAddon, getAll: getAllAddons, remove: removeAddon, create: createAddon, preorder: preorderAddon, update: updateAddon } = require('@clevercloud/client/cjs/api/v2/addon.js');
 const { getAllAddonProviders } = require('@clevercloud/client/cjs/api/v2/product.js');
 const { getSummary } = require('@clevercloud/client/cjs/api/v2/user.js');
+const { getAddonProvider } = require('@clevercloud/client/cjs/api/v4/addon-providers.js');
 
 const Interact = require('./interact.js');
 const Logger = require('../logger.js');
@@ -22,6 +23,16 @@ async function getProvider (providerName) {
     throw new Error('invalid provider name');
   }
   return provider;
+}
+
+function getProviderInfos (providerName) {
+  return getAddonProvider({ providerId: providerName }).then(sendToApi)
+    .catch(() => {
+      // An error can occur because the add-on api doesn't implement this endpoint yet
+      // This is fine, just ignore it
+      Logger.debug(`${providerName} doesn't yet implement the provider info endpoint`);
+      return Promise.resolve(null);
+    });
 }
 
 async function list (ownerId, appId, showAll) {
@@ -160,6 +171,7 @@ module.exports = {
   delete: deleteAddon,
   findById,
   getProvider,
+  getProviderInfos,
   link,
   list,
   listProviders,

@@ -95,6 +95,8 @@ async function showProvider (params) {
   const [providerName] = params.args;
 
   const provider = await Addon.getProvider(providerName);
+  const providerInfos = await Addon.getProviderInfos(providerName);
+  const providerPlans = provider.plans.sort((a, b) => a.price - b.price);
 
   Logger.println(colors.bold(provider.id));
   Logger.println(`${provider.name}: ${provider.shortDesc}`);
@@ -103,11 +105,35 @@ async function showProvider (params) {
   Logger.println();
   Logger.println('Available plans');
 
-  provider.plans.forEach((plan) => {
+  providerPlans.forEach((plan) => {
     Logger.println(`Plan ${colors.bold(plan.slug)}`);
     _(plan.features)
       .sortBy('name')
       .forEach(({ name, value }) => Logger.println(`  ${name}: ${value}`));
+
+    if (providerInfos != null) {
+      const planType = plan.features.find(({ name }) => name.toLowerCase() === 'type');
+      if (planType != null && planType.value.toLowerCase() === 'dedicated') {
+        const planVersions = Object.keys(providerInfos.dedicated);
+        const versions = planVersions.map((version) => {
+          if (version === providerInfos.defaultDedicatedVersion) {
+            return `${version} (default)`;
+          }
+          else {
+            return version;
+          }
+        });
+        Logger.println(`  Available versions: ${versions.join(', ')}`);
+
+        planVersions.forEach((version) => {
+          const features = providerInfos.dedicated[version].features;
+          Logger.println(`  Options for version ${version}:`);
+          features.forEach(({ name, enabled }) => {
+            Logger.println(`    ${name}: default=${enabled}`);
+          });
+        });
+      }
+    }
   });
 }
 
