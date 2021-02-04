@@ -19,6 +19,8 @@ List networkgroups with their labels
 | `[--verbose, -v]` | Verbose output (default: false)             |
 | `[--json, -j]`    | Show result in JSON format (default: false) |
 
+---
+
 ### `create`
 
 Create a networkgroup
@@ -32,6 +34,8 @@ Create a networkgroup
 | `[--interactive]`              | Answer questions instead of passing optional flags (default: false) |
 | `[--json, -j]`                 | Show result in JSON format (default: false)                         |
 
+---
+
 ### `delete`
 
 Delete a networkgroup
@@ -40,6 +44,8 @@ Delete a networkgroup
 | ----------------- | ------------------------------- |
 | `[--verbose, -v]` | Verbose output (default: false) |
 | `--ng NG`         | Networkgroup ID or label        |
+
+---
 
 ### `join`
 
@@ -53,11 +59,13 @@ Join a networkgroup
 | `[--node-category-id, -c] NODE_CATEGORY_ID` | The external node category ID                                       |
 | `[--interactive]`                           | Answer questions instead of passing optional flags (default: false) |
 
+---
+
 ### `members`
 
 List commands for interacting with networkgroups members
 
-#### `list`
+#### `members list`
 
 List members of a networkgroup
 
@@ -68,7 +76,7 @@ List members of a networkgroup
 | `[--natural-name, -n]` | Show application names or aliases if possible (default: false) |
 | `[--json, -j]`         | Show result in JSON format (default: false)                    |
 
-#### `get`
+#### `members get`
 
 Get a networkgroup member details
 
@@ -80,7 +88,7 @@ Get a networkgroup member details
 | `[--natural-name, -n]`      | Show application names or aliases if possible (default: false)                                       |
 | `[--json, -j]`              | Show result in JSON format (default: false)                                                          |
 
-#### `add`
+#### `members add`
 
 Add an app or addon as a networkgroup member
 
@@ -93,7 +101,7 @@ Add an app or addon as a networkgroup member
 | `--domain-name DOMAIN_NAME` | Member name used in the `<memberName>.m.<ngID>.ng.clever-cloud.com` domain name alias                |
 | `[--label] MEMBER_LABEL`    | The member label                                                                                     |
 
-#### `remove`
+#### `members remove`
 
 Remove an app or addon from a networkgroup
 
@@ -103,11 +111,13 @@ Remove an app or addon from a networkgroup
 | `--ng NG`                   | Networkgroup ID or label                                                                             |
 | `--member-id, -m MEMBER_ID` | The member ID: an app ID (i.e. `app_xxx`), add-on ID (i.e. `addon_xxx`) or external node category ID |
 
+---
+
 ### `peers`
 
 List commands for interacting with networkgroups peers
 
-### `list`
+### `peers list`
 
 List peers of a networkgroup
 
@@ -117,7 +127,7 @@ List peers of a networkgroup
 | --ng NG           | Networkgroup ID or label                    |
 | [--json, -j]      | Show result in JSON format (default: false) |
 
-### `get`
+### `peers get`
 
 Get a networkgroup peer details
 
@@ -128,7 +138,7 @@ Get a networkgroup peer details
 | `--peer-id PEER_ID` | The peer ID                                 |
 | `[--json, -j]`      | Show result in JSON format (default: false) |
 
-### `add-external`
+### `peers add-external`
 
 Add an external node as a networkgroup peer
 
@@ -142,7 +152,7 @@ Add an external node as a networkgroup peer
 | `--label PEER_LABEL`      | Networkgroup peer label                          |
 | `--parent MEMBER_ID`      | Networkgroup peer category ID (parent member ID) |
 
-### `remove-external`
+### `peers remove-external`
 
 Remove an external node from a networkgroup
 
