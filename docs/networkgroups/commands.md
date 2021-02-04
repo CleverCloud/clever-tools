@@ -8,7 +8,28 @@ To improve readability, and to avoid errors, every option value is written insid
 
 > **Disclaimer:** This document isn't generated from code, and therefore might **not** be up-to-date.
 
+## Table Of Contents
+
+- [Table Of Contents](#table-of-contents)
+- [`clever networkgroups` | `clever ng`](#clever-networkgroups--clever-ng)
+  - [`list`](#list)
+  - [`create`](#create)
+  - [`delete`](#delete)
+  - [`join`](#join)
+  - [`members`](#members)
+    - [`members list`](#members-list)
+    - [`members get`](#members-get)
+    - [`members add`](#members-add)
+    - [`members remove`](#members-remove)
+  - [`peers`](#peers)
+  - [`peers list`](#peers-list)
+  - [`peers get`](#peers-get)
+  - [`peers add-external`](#peers-add-external)
+  - [`peers remove-external`](#peers-remove-external)
+
 ## `clever networkgroups` | `clever ng`
+
+List networkgroups commands
 
 ### `list`
 
