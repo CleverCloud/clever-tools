@@ -739,8 +739,7 @@ function run () {
   }, networkgroups('deleteNg'));
   const networkgroupsJoinCommand = cliparse.command('join', {
     description: 'Join a networkgroup',
-    args: [args.ngIdOrLabel],
-    options: [opts.wgPublicKey, opts.ngPeerLabel, opts.optNgNodeCategoryId, opts.interactive],
+    options: [opts.ngIdOrLabel, opts.ngPeerLabel, opts.wgPublicKey, opts.optNgNodeCategoryId, opts.interactive],
   }, networkgroups('joinNg'));
   // networkgroup category - end
 

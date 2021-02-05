@@ -75,8 +75,9 @@ Join a networkgroup
 | Param                                       | Description                                                         |
 | ------------------------------------------- | ------------------------------------------------------------------- |
 | `[--verbose, -v]`                           | Verbose output (default: false)                                     |
-| `--public-key PUBLIC_KEY`                   | A WireGuard public key                                              |
+| `--ng NG`                                   | Networkgroup ID or label                                            |
 | `--label PEER_LABEL`                        | Networkgroup peer label                                             |
+| `--public-key PUBLIC_KEY`                   | A WireGuard public key                                              |
 | `[--node-category-id, -c] NODE_CATEGORY_ID` | The external node category ID                                       |
 | `[--interactive]`                           | Answer questions instead of passing optional flags (default: false) |
 

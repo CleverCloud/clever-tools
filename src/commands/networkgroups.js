@@ -202,8 +202,7 @@ async function deleteNg (params) {
 async function joinNg (params) {
   // FIXME: Test if `wg-quick` is installed
   // FIXME: Allow join as server
-  const [ngIdOrLabel] = params.args;
-  const { 'public-key': publicKey, label, interactive } = params.options;
+  const { ng: ngIdOrLabel, label, 'public-key': publicKey, interactive } = params.options;
   let { 'node-category-id': parentId } = params.options;
   const ownerId = await getOwnerId();
   const ngId = await Networkgroup.getId(ownerId, ngIdOrLabel);
@@ -293,7 +292,7 @@ async function joinNg (params) {
     .on('open', () => Logger.debug(`SSE for networkgroup configuration (${colors.green('open')}): ${JSON.stringify({ ownerId, ngId, peerId })}`))
     .on('conf', (conf) => {
       Logger.println(JSON.stringify(conf, null, 2));
-      // FIXME: Apply new conf
+      // FIXME: Apply new conf (decode Base64 and fill privateKey placeholder)
     })
     .on('ping', () => Logger.debug('SSE for networkgroup configuration (ping)'))
     .on('close', (reason) => {
@@ -308,6 +307,8 @@ async function joinNg (params) {
   networkgroupStream.open({ autoRetry: true, maxRetryCount: 6 });
 
   Logger.println(`Successfully joined networkgroup ${formatString(ngId)}`);
+
+  // FIXME: Intercept Ctrl+C
 
   return networkgroupStream;
 }
