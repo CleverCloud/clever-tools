@@ -85,7 +85,7 @@ async function listProviders () {
     return [
       colors.bold(provider.id),
       provider.name,
-      provider.shortDesc,
+      provider.shortDesc || '',
     ];
   });
   Logger.println(formatTable(formattedProviders));
