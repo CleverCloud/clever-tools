@@ -25,7 +25,8 @@ function isDeploymentFailedMessage (line) {
 };
 
 function isBuildSucessMessage (line) {
-  return _.startsWith(line._source['@message'].toLowerCase(), 'build succeeded in');
+  return isCleverMessage(line)
+    && _.startsWith(line._source['@message'].toLowerCase(), 'build succeeded in');
 };
 
 function formatLogLine (line) {
