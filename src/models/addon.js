@@ -3,7 +3,15 @@
 const application = require('@clevercloud/client/cjs/api/application.js');
 const autocomplete = require('cliparse').autocomplete;
 const colors = require('colors/safe');
-const { get: getAddon, getAll: getAllAddons, remove: removeAddon, create: createAddon, preorder: preorderAddon, update: updateAddon } = require('@clevercloud/client/cjs/api/addon.js');
+const {
+  get: getAddon,
+  getAll: getAllAddons,
+  remove: removeAddon,
+  create: createAddon,
+  preorder: preorderAddon,
+  update: updateAddon,
+  getAllEnvVars,
+} = require('@clevercloud/client/cjs/api/addon.js');
 const { getAllAddonProviders } = require('@clevercloud/client/cjs/api/product.js');
 const { getSummary } = require('@clevercloud/client/cjs/api/user.js');
 
@@ -153,6 +161,13 @@ async function findById (addonId) {
   throw new Error(`Could not find add-on with ID: ${addonId}`);
 }
 
+async function listAddonEnv (organisationId, addonId) {
+  return getAllEnvVars({
+    id: organisationId,
+    addonId,
+  }).then(sendToApi);
+}
+
 module.exports = {
   completePlan,
   completeRegion,
@@ -165,4 +180,5 @@ module.exports = {
   listProviders,
   rename,
   unlink,
+  listAddonEnv,
 };

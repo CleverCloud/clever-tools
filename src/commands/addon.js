@@ -111,6 +111,14 @@ async function showProvider (params) {
   });
 }
 
+async function listAddonsEnvCallback (params) {
+  const { org } = params.options;
+  const organisationId = org.orga_id;
+  const [addon] = params.args;
+  const response = await Addon.listAddonEnv(organisationId, addon);
+  Logger.println(response);
+}
+
 module.exports = {
   list,
   create,
@@ -118,4 +126,5 @@ module.exports = {
   rename,
   listProviders,
   showProvider,
+  listAddonsEnvCallback,
 };
