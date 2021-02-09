@@ -374,7 +374,9 @@ async function joinNg (params) {
 
   // Automatically leave the networkgroup when the user kills the program
   async function leaveNgOnExit (signal) {
-    console.debug(`\nReceived ${signal}`);
+    // Add new line after ^C
+    Logger.println('');
+    Logger.debug(`Received ${signal}`);
     await leaveNg(ngId, peerId);
     process.exit();
   }
