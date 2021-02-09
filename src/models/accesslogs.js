@@ -19,12 +19,21 @@ function getFormatter (format, isAddon) {
   }
 }
 
+function formatSource (l) {
+  if (l.s != null) {
+    const location = l.s.ct ? `${l.s.ct}, ${l.s.co}` : l.s.co;
+    return `${l.ipS} - ${location}`;
+  } else {
+    return l.ipS;
+  }
+}
+
 function formatSimple (l) {
   return `${new Date(l.t).toISOString()} ${l.ipS} ${l.vb} ${l.path}`;
 }
 
 function formatExtended (l) {
-  return `${new Date(l.t).toISOString()} [ ${l.ipS} - ${l.s.ct ? `${l.s.ct}, ${l.s.co}` : `${l.s.co}`} ] ${l.vb} ${l.h} ${l.path} ${l.sC}`;
+  return `${new Date(l.t).toISOString()} [ ${formatSource(l)} ] ${l.vb} ${l.h} ${l.path} ${l.sC}`;
 }
 
 function formatCLF (l) {
@@ -36,7 +45,7 @@ function formatSimpleAddon (l) {
 }
 
 function formatExtendedAddon (l) {
-  return `${new Date(l.t).toISOString()} [ ${l.ipS} - ${l.s.ct ? `${l.s.ct}, ${l.s.co}` : `${l.s.co}`} ] duration(ms): ${l.sDuration}`;
+  return `${new Date(l.t).toISOString()} [ ${formatSource(l)} ] duration(ms): ${l.sDuration}`;
 }
 
 function formatCLFAddon (l) {
