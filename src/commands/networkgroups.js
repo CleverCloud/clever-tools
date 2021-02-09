@@ -219,6 +219,7 @@ async function joinNg (params) {
   // Check that `wg` and `wg-quick` are installed
   try {
     // The redirect to `/dev/null` ensures that your program does not produce the output of these commands.
+    // FIXME: Check that these commands work on non Linux OSs
     execSync('which wg > /dev/null 2>&1');
     execSync('which wg-quick > /dev/null 2>&1');
   }
