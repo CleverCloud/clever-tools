@@ -336,9 +336,10 @@ async function joinNg (params) {
   // FIXME: peerId is not used to create the external peer, so peerId doesn't exist
 
   // TODO: See if we can use runtime dirs
-  const confName = `wgcc${ngId.slice(-8)}.conf`;
+  const confName = `wgcc${ngId.slice(-8)}`;
   const confFolder = path.join(os.tmpdir(), 'com.clever-cloud.networkgroups');
-  const confPath = path.join(confFolder, confName);
+  const confPath = path.join(confFolder, `${confName}.conf`);
+  let interfaceName = confName;
 
   // Create configuration folder if needed
   if (!fs.existsSync(confFolder)) {
@@ -354,7 +355,7 @@ async function joinNg (params) {
   // FIXME: Check configuration version > actual
 
   // Fill PrivateKey placeholder
-  conf = conf.replace('<%PrivateKey%>', privateKey);
+  conf = conf.replace('<%PrivateKey%>', privateKey).trim();
 
   // Save conf
   // FIXME: Check if root as owner poses a problem
@@ -368,7 +369,16 @@ async function joinNg (params) {
       try {
         // Activate WireGuard® tunnel
         execSync(`wg-quick up ${confPath}`);
-        Logger.println(colors.green('Activated WireGuard® tunnel'));
+        Logger.println('Activated WireGuard® tunnel');
+        Logger.println(colors.green(`Successfully joined networkgroup ${formatString(ngId)}`));
+
+        const interfaceNameFile = `/var/run/wireguard/${confName}.name`;
+        try {
+          interfaceName = fs.readFileSync(interfaceNameFile, { encoding: 'utf-8' }).trim();
+        }
+        catch (error) {
+          Logger.debug(`A problem occured while reading WireGuard® interface name in ${formatUrl(interfaceNameFile)}, fallback to configuration name (${formatString(confName)})`);
+        }
       }
       catch (error) {
         Logger.error(`Error activating WireGuard® tunnel: ${error}`);
@@ -376,8 +386,6 @@ async function joinNg (params) {
       }
     }
   });
-
-  Logger.println(`Successfully joined networkgroup ${formatString(ngId)}`);
 
   // Automatically leave the networkgroup when the user kills the program
   async function leaveNgOnExit (signal) {
@@ -402,7 +410,7 @@ async function joinNg (params) {
         Logger.debug(`[CONFIGURATION]\n${conf}\n[/CONFIGURATION]`);
 
         // Fill PrivateKey placeholder
-        conf.replace('<%PrivateKey%>', privateKey);
+        conf = conf.replace('<%PrivateKey%>', privateKey).trim();
 
         // Save conf
         // FIXME: Check if root as owner poses a problem
@@ -414,11 +422,7 @@ async function joinNg (params) {
             Logger.debug(`Saved new WireGuard® configuration file to ${formatUrl(confPath)}`);
             try {
               // Update WireGuard® configuration
-              // FIXME: Not save but:
-              //        - wg-quick down -> up
-              //        - wg setconf + (wg-quick strip conf)
-              //          - Check avalability on non Linux OSs
-              execSync(`wg-quick save ${confPath}`);
+              execSync(`wg-quick strip ${confPath} | wg syncconf ${interfaceName} /dev/stdin`);
               Logger.println('Updated WireGuard® tunnel configuration');
             }
             catch (error) {
