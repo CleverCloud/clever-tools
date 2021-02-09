@@ -343,7 +343,7 @@ async function joinNg (params) {
   // Get current configuration
   const confAsB64 = await networkgroup.getWgConf({ ownerId, ngId, peerId }).then(sendToApi);
   let conf = Buffer.from(confAsB64, 'base64').toString();
-  Logger.debug('WireGuard configuration received');
+  Logger.debug('WireGuard® configuration received');
   Logger.debug(`[CONFIGURATION]\n${conf}\n[/CONFIGURATION]`);
 
   // FIXME: Check configuration version > actual
@@ -355,18 +355,18 @@ async function joinNg (params) {
   // FIXME: Warning: `/private/tmp/com.clever-cloud.networkgroups/wgcc<id>.conf' is world accessible
   fs.writeFile(confPath, conf, (err) => {
     if (err) {
-      Logger.error(`Error saving WireGuard configuration: ${err}`);
+      Logger.error(`Error saving WireGuard® configuration: ${err}`);
       process.exit(1);
     }
     else {
-      Logger.debug(`Saved WireGuard configuration file to ${formatUrl(confPath)}`);
+      Logger.debug(`Saved WireGuard® configuration file to ${formatUrl(confPath)}`);
       try {
-        // Activate WireGuard tunnel
+        // Activate WireGuard® tunnel
         execSync(`wg-quick up ${confPath}`);
-        Logger.println(colors.green('Activated WireGuard tunnel'));
+        Logger.println(colors.green('Activated WireGuard® tunnel'));
       }
       catch (error) {
-        Logger.error(`Error activating WireGuard tunnel: ${error}`);
+        Logger.error(`Error activating WireGuard® tunnel: ${error}`);
         process.exit(1);
       }
     }
@@ -393,7 +393,7 @@ async function joinNg (params) {
     .on('open', () => Logger.debug(`SSE for networkgroup configuration (${colors.green('open')}): ${JSON.stringify({ ownerId, ngId, peerId })}`))
     .on('conf', (conf) => {
       if (conf !== null && conf.length !== 0) {
-        Logger.debug('New WireGuard configuration received');
+        Logger.debug('New WireGuard® configuration received');
         Logger.debug(`[CONFIGURATION]\n${conf}\n[/CONFIGURATION]`);
 
         // Fill PrivateKey placeholder
@@ -403,21 +403,21 @@ async function joinNg (params) {
         // FIXME: Warning: `/private/tmp/com.clever-cloud.networkgroups/wgcc<id>.conf' is world accessible
         fs.writeFile(confPath, conf, (err) => {
           if (err) {
-            Logger.error(`Error saving new WireGuard configuration: ${err}`);
+            Logger.error(`Error saving new WireGuard® configuration: ${err}`);
           }
           else {
-            Logger.debug(`Saved new WireGuard configuration file to ${formatUrl(confPath)}`);
+            Logger.debug(`Saved new WireGuard® configuration file to ${formatUrl(confPath)}`);
             try {
-              // Update WireGuard configuration
+              // Update WireGuard® configuration
               // FIXME: Not save but:
               //        - wg-quick down -> up
               //        - wg setconf + (wg-quick strip conf)
               //          - Check avalability on non Linux OSs
               execSync(`wg-quick save ${confPath}`);
-              Logger.println('Updated WireGuard tunnel configuration');
+              Logger.println('Updated WireGuard® tunnel configuration');
             }
             catch (error) {
-              Logger.error(`Error updating WireGuard tunnel configuration: ${error}`);
+              Logger.error(`Error updating WireGuard® tunnel configuration: ${error}`);
               process.exit(1);
             }
           }
