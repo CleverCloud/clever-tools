@@ -223,9 +223,7 @@ async function joinNg (params) {
     execSync('which wg-quick > /dev/null 2>&1');
   }
   catch (error) {
-    // FIXME: (TM)
-    // FIXME: Generalize to WireGuard
-    Logger.error(`Clever Cloud's networkgroups use WireGuard. Therefore, this command requires ${formatCommand('wg')} and ${formatCommand('wg-quick')} installed on your computer.\n\nInstallation steps can be found at ${formatUrl('https://www.wireguard.com/install/')}.`);
+    Logger.error(`Clever Cloud's networkgroups use WireGuard®. Therefore, this command requires WireGuard® commands available on your computer.\n\nFollow instructions at ${formatUrl('https://www.wireguard.com/install/')} to install it.`);
     return false;
   }
 
