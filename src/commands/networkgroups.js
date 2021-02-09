@@ -353,9 +353,9 @@ async function joinNg (params) {
 
   // Save conf
   // FIXME: Check if root as owner poses a problem
-  fs.writeFile(confPath, conf, { mode: 0o600 }, (err) => {
-    if (err) {
-      Logger.error(`Error saving WireGuard® configuration: ${err}`);
+  fs.writeFile(confPath, conf, { mode: 0o600 }, (error) => {
+    if (error) {
+      Logger.error(`Error saving WireGuard® configuration: ${error}`);
       process.exit(1);
     }
     else {
@@ -401,9 +401,9 @@ async function joinNg (params) {
 
         // Save conf
         // FIXME: Check if root as owner poses a problem
-        fs.writeFile(confPath, conf, { mode: 0o600 }, (err) => {
-          if (err) {
-            Logger.error(`Error saving new WireGuard® configuration: ${err}`);
+        fs.writeFile(confPath, conf, { mode: 0o600 }, (error) => {
+          if (error) {
+            Logger.error(`Error saving new WireGuard® configuration: ${error}`);
           }
           else {
             Logger.debug(`Saved new WireGuard® configuration file to ${formatUrl(confPath)}`);
