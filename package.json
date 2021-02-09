@@ -1,6 +1,6 @@
 {
   "name": "clever-tools",
-  "version": "2.7.2",
+  "version": "2.8.0",
   "description": "Command Line Interface for Clever Cloud.",
   "main": "bin/clever.js",
   "keywords": [
