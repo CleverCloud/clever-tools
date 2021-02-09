@@ -22,8 +22,8 @@ memberId1='my-member-1'
 memberId2='my-member-2'
 peerLabel1='my-peer-1'
 peerLabel2='my-peer-2'
-publicKey1='<pub_key_1>'
-publicKey2='<pub_key_2>'
+publicKey1=`wg genkey | wg pubkey`
+publicKey2=`wg genkey | wg pubkey`
 
 # Invalid cases
 ngLabelForInvalidCases1='test-1'

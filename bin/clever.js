@@ -483,6 +483,11 @@ function run () {
       metavar: 'public_key',
       description: 'A WireGuard public key',
     }),
+    optWgPrivateKey: cliparse.option('private-key', {
+      required: false,
+      metavar: 'private_key',
+      description: 'A WireGuard private key',
+    }),
     jsonFormat: cliparse.flag('json', { aliases: ['j'], description: 'Show result in JSON format' }),
     tag: cliparse.option('tag', {
       required: true,
@@ -739,7 +744,8 @@ function run () {
   }, networkgroups('deleteNg'));
   const networkgroupsJoinCommand = cliparse.command('join', {
     description: 'Join a networkgroup',
-    options: [opts.ngIdOrLabel, opts.ngPeerLabel, opts.wgPublicKey, opts.optNgNodeCategoryId, opts.interactive],
+    // FIXME: Remove optNgPeerId
+    options: [opts.ngIdOrLabel, opts.ngPeerLabel, opts.optWgPrivateKey, opts.optNgNodeCategoryId, opts.interactive, opts.optNgPeerId],
   }, networkgroups('joinNg'));
   // networkgroup category - end
 

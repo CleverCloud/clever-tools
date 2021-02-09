@@ -1,5 +1,10 @@
 'use strict';
 
+const { execSync } = require('child_process');
+const fs = require('fs');
+const path = require('path');
+const isElevated = require('is-elevated');
+
 const networkgroup = require('@clevercloud/client/cjs/api/v4/networkgroup.js');
 const { NetworkgroupStream } = require('@clevercloud/client/cjs/streams/networkgroup.node.js');
 
@@ -32,10 +37,10 @@ function formatNetworkgroupsLine (ng) {
   return formatNetworkgroupsTable([
     [
       formatId(ng.id),
-      formatString(ng.label, false),
+      formatString(ng.label, true, false),
       formatNumber(ng.members.length),
       formatNumber(ng.peers.length),
-      formatString(ng.description || ' ', false),
+      formatString(ng.description || ' ', true, false),
     ],
   ]);
 };
@@ -56,10 +61,10 @@ const formatMembersTable = formatTable(membersTableColumnLengths);
 async function formatMembersLine (member, showAliases = false) {
   return formatMembersTable([
     [
-      showAliases ? formatString(await AppConfig.getMostNaturalName(member.id), false) : formatId(member.id),
-      formatString(member.type, false),
-      formatString(member.label, false),
-      formatString(member['domain-name'] || ' ', false),
+      showAliases ? formatString(await AppConfig.getMostNaturalName(member.id), true, false) : formatId(member.id),
+      formatString(member.type, true, false),
+      formatString(member.label, true, false),
+      formatString(member['domain-name'] || ' ', true, false),
     ],
   ]);
 };
@@ -89,10 +94,10 @@ function formatPeersLine (peer) {
   return formatPeersTable([
     [
       formatId(peer.id),
-      formatString(peer.type, false),
-      formatString(peer.endpoint.type, false),
-      formatString(peer.label, false),
-      formatString(peer.hostname, false),
+      formatString(peer.type, true, false),
+      formatString(peer.endpoint.type, true, false),
+      formatString(peer.label, true, false),
+      formatString(peer.hostname, true, false),
       formatIp(ip),
     ],
   ]);
@@ -111,20 +116,31 @@ function printPeersTableHeader () {
   printSeparator(peersTableColumnLengths);
 }
 
-function formatId (id) {
-  return colors.dim(id);
+function formatId (id, colored = true) {
+  return colored ? colors.dim(id) : id;
 }
 
-function formatString (str, showingQuotes = true) {
-  return colors.green(showingQuotes ? `'${str}'` : str);
+function formatString (str, colored = true, decorated = true) {
+  const string = decorated ? `'${str}'` : str;
+  return colored ? colors.green(string) : string;
 }
 
-function formatNumber (number) {
-  return colors.yellow(number);
+function formatNumber (number, colored = true) {
+  return colored ? colors.yellow(number) : number;
 }
 
-function formatIp (ip) {
-  return colors.blue(ip);
+function formatIp (ip, colored = true) {
+  return colored ? colors.blue(ip) : ip;
+}
+
+function formatUrl (url, colored = true, decorated = true) {
+  const string = decorated ? `<${url}>` : url;
+  return colored ? colors.blue(string) : string;
+}
+
+function formatCommand (command, colored = true, decorated = true) {
+  const string = decorated ? `\`${command}\`` : command;
+  return colored ? colors.magenta(string) : string;
 }
 
 async function getOwnerId () {
@@ -143,7 +159,7 @@ async function listNetworkgroups (params) {
   }
   else {
     if (result.length === 0) {
-      Logger.println('No networkgroup found. You can create one with `clever networkgroups create`.');
+      Logger.println(`No networkgroup found. You can create one with ${formatCommand('clever networkgroups create')}.`);
     }
     else {
       printNetworkgroupsTableHeader();
@@ -200,10 +216,27 @@ async function deleteNg (params) {
 }
 
 async function joinNg (params) {
-  // FIXME: Test if `wg-quick` is installed
+  // Check that `wg` and `wg-quick` are installed
+  try {
+    // The redirect to `/dev/null` ensures that your program does not produce the output of these commands.
+    execSync('which wg > /dev/null 2>&1');
+    execSync('which wg-quick > /dev/null 2>&1');
+  }
+  catch (error) {
+    Logger.error(`Clever Cloud's networkgroups use WireGuard. Therefore, this command requires ${formatCommand('wg')} and ${formatCommand('wg-quick')} installed on your computer.\n\nInstallation steps can be found at ${formatUrl('https://www.wireguard.com/install/')}.`);
+    return false;
+  }
+
+  // Check if command was run with `sudo`
+  if (!await isElevated()) {
+    Logger.error(`This command uses ${formatCommand('wg-quick')} under the hood. It needs privileges to create network interfaces. Please retry using ${formatCommand('sudo')}.`);
+    return false;
+  }
+
   // FIXME: Allow join as server
-  const { ng: ngIdOrLabel, label, 'public-key': publicKey, interactive } = params.options;
-  let { 'node-category-id': parentId } = params.options;
+  // FIXME: Remove peerId
+  const { ng: ngIdOrLabel, label, interactive, 'peer-id': peerId } = params.options;
+  let { 'node-category-id': parentId, 'private-key': privateKey } = params.options;
   const ownerId = await getOwnerId();
   const ngId = await Networkgroup.getId(ownerId, ngIdOrLabel);
 
@@ -233,10 +266,17 @@ async function joinNg (params) {
           ],
           initial: 0,
         });
+
+        // If user aborts
+        if (result.memberId === undefined) {
+          Logger.error(`You cannot skip this question. Remove ${formatCommand('--interactive')} and add ${formatCommand('--node-category-id')} to select an external node category manually.`);
+          return false;
+        }
+
         parentId = result.memberId;
       }
       else {
-        Logger.println(`This networkgroup already has an external node category. Add \`--node-category-id ${members[0].id}\` to select it.`);
+        Logger.error(`This networkgroup already has an external node category. Add ${formatCommand(`--node-category-id ${formatString(members[0].id)}`)} to select it.`);
         return false;
       }
     }
@@ -273,17 +313,74 @@ async function joinNg (params) {
         parentId = memberId;
       }
       else {
-        Logger.println('See `clever networkgroups members add` or add `--interactive` tag to create a new external member (node).');
+        Logger.println(`See ${formatCommand('clever networkgroups members add')} or add ${formatCommand('--interactive')} tag to create a new external member (node).`);
         return false;
       }
     }
   }
 
-  const peerId = `external_${uuidv4()}`;
+  if (privateKey === null) {
+    privateKey = execSync('wg genkey', { encoding: 'utf-8' }).trim();
+  }
+  const publicKey = execSync(`echo '${privateKey}' | wg pubkey`, { encoding: 'utf-8' }).trim();
+
   // Create new params keeping previous ones (e.g. verbose)
   const options = { ...params.options, ng: { ng_id: ngId }, 'peer-id': peerId, role: 'client', 'public-key': publicKey, label, parent: parentId };
   await addExternalPeer({ args: params.args, options });
   // FIXME: peerId is not used to create the external peer, so peerId doesn't exist
+
+  const confName = `wgcc${ngId.substr(3, 8)}.conf`;
+  const confFolder = path.join('/tmp', 'com.clever-cloud.networkgroups');
+  const confPath = path.join(confFolder, confName);
+
+  // Create configuration folder if needed
+  if (!fs.existsSync(confFolder)) {
+    fs.mkdirSync(confFolder);
+  }
+
+  // Get current configuration
+  const confAsB64 = await networkgroup.getWgConf({ ownerId, ngId, peerId }).then(sendToApi);
+  let conf = Buffer.from(confAsB64, 'base64').toString();
+  Logger.debug('WireGuard configuration received');
+  Logger.debug(`[CONFIGURATION]\n${conf}\n[/CONFIGURATION]`);
+
+  // FIXME: Check configuration version > actual
+
+  // Fill PrivateKey placeholder
+  conf = conf.replace('<%PrivateKey%>', privateKey);
+
+  // Save conf
+  // FIXME: Warning: `/private/tmp/com.clever-cloud.networkgroups/wgcc<id>.conf' is world accessible
+  fs.writeFile(confPath, conf, (err) => {
+    if (err) {
+      Logger.error(`Error saving WireGuard configuration: ${err}`);
+      process.exit(1);
+    }
+    else {
+      Logger.debug(`Saved WireGuard configuration file to ${formatUrl(confPath)}`);
+      try {
+        // Activate WireGuard tunnel
+        execSync(`wg-quick up ${confPath}`);
+        Logger.println(colors.green('Activated WireGuard tunnel'));
+      }
+      catch (error) {
+        Logger.error(`Error activating WireGuard tunnel: ${error}`);
+        process.exit(1);
+      }
+    }
+  });
+
+  Logger.println(`Successfully joined networkgroup ${formatString(ngId)}`);
+
+  // Automatically leave the networkgroup when the user kills the program
+  async function leaveNgOnExit (signal) {
+    console.debug(`\nReceived ${signal}`);
+    await leaveNg(ngId, peerId);
+    process.exit();
+  }
+
+  process.on('SIGINT', leaveNgOnExit);
+  process.on('SIGTERM', leaveNgOnExit);
 
   const { apiHost, tokens } = await getHostAndTokens();
   const networkgroupStream = new NetworkgroupStream({ apiHost, tokens, ownerId, ngId, peerId });
@@ -291,26 +388,53 @@ async function joinNg (params) {
   networkgroupStream
     .on('open', () => Logger.debug(`SSE for networkgroup configuration (${colors.green('open')}): ${JSON.stringify({ ownerId, ngId, peerId })}`))
     .on('conf', (conf) => {
-      Logger.println(JSON.stringify(conf, null, 2));
-      // FIXME: Apply new conf (decode Base64 and fill privateKey placeholder)
+      if (conf !== null && conf.length !== 0) {
+        Logger.debug('New WireGuard configuration received');
+        Logger.debug(`[CONFIGURATION]\n${conf}\n[/CONFIGURATION]`);
+
+        // Fill PrivateKey placeholder
+        conf.replace('<%PrivateKey%>', privateKey);
+
+        // Save conf
+        // FIXME: Warning: `/private/tmp/com.clever-cloud.networkgroups/wgcc<id>.conf' is world accessible
+        fs.writeFile(confPath, conf, (err) => {
+          if (err) {
+            Logger.error(`Error saving new WireGuard configuration: ${err}`);
+          }
+          else {
+            Logger.debug(`Saved new WireGuard configuration file to ${formatUrl(confPath)}`);
+            try {
+              // Update WireGuard configuration
+              execSync(`wg-quick save ${confPath}`);
+              Logger.println('Updated WireGuard tunnel configuration');
+            }
+            catch (error) {
+              Logger.error(`Error updating WireGuard tunnel configuration: ${error}`);
+              process.exit(1);
+            }
+          }
+        });
+      }
     })
-    .on('ping', () => Logger.debug('SSE for networkgroup configuration (ping)'))
-    .on('close', (reason) => {
+    .on('ping', () => Logger.debug(`SSE for networkgroup configuration (${colors.blue('ping')})`))
+    .on('close', async (reason) => {
       Logger.debug(`SSE for networkgroup configuration (${colors.red('close')}): ${JSON.stringify(reason)}`);
-      // FIXME: Leave NG
+      await leaveNg(ngId, peerId);
     })
-    .on('error', (error) => {
+    .on('error', async (error) => {
       Logger.error(`SSE for networkgroup configuration (${colors.red('error')}): ${error}`);
-      // FIXME: Leave NG
+      await leaveNg(ngId, peerId);
     });
 
   networkgroupStream.open({ autoRetry: true, maxRetryCount: 6 });
 
-  Logger.println(`Successfully joined networkgroup ${formatString(ngId)}`);
-
-  // FIXME: Intercept Ctrl+C
-
   return networkgroupStream;
+}
+
+async function leaveNg (ngId, peerId) {
+  await removeExternalPeer({ options: { ng: { ng_id: ngId }, 'peer-id': peerId } });
+  // FIXME: `wg-quick down`
+  // FIXME: Remove WG conf file
 }
 
 async function listMembers (params) {
