@@ -1,5 +1,6 @@
 'use strict';
 
+const os = require('os');
 const { execSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
@@ -334,9 +335,9 @@ async function joinNg (params) {
   await addExternalPeer({ args: params.args, options });
   // FIXME: peerId is not used to create the external peer, so peerId doesn't exist
 
-  // FIXME: Use runtime/temp dir from node library
+  // TODO: See if we can use runtime dirs
   const confName = `wgcc${ngId.slice(-8)}.conf`;
-  const confFolder = path.join('/tmp', 'com.clever-cloud.networkgroups');
+  const confFolder = path.join(os.tmpdir(), 'com.clever-cloud.networkgroups');
   const confPath = path.join(confFolder, confName);
 
   // Create configuration folder if needed
