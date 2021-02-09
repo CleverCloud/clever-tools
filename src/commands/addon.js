@@ -9,6 +9,7 @@ const formatTable = require('../format-table')();
 const Logger = require('../logger.js');
 const Organisation = require('../models/organisation.js');
 const User = require('../models/user.js');
+const { parseAddonOptions } = require('../models/addon.js');
 
 async function list (params) {
   const { org: orgaIdOrName } = params.options;
@@ -30,6 +31,8 @@ async function list (params) {
 async function create (params) {
   const [providerName, name] = params.args;
   const { link: linkedAppAlias, plan: planName, region, yes: skipConfirmation, org: orgaIdOrName } = params.options;
+  const version = params.options['addon-version'];
+  const addonOptions = parseAddonOptions(params.options.option);
 
   const ownerId = (orgaIdOrName != null)
     ? await Organisation.getId(orgaIdOrName)
@@ -47,12 +50,14 @@ async function create (params) {
       planName,
       region,
       skipConfirmation,
+      version,
+      addonOptions,
     });
     await Addon.link(linkedAppData.ownerId, linkedAppData.appId, { addon_id: newAddon.id });
     Logger.println(`Addon ${name} (id: ${newAddon.id}) successfully created and linked to the application`);
   }
   else {
-    const newAddon = await Addon.create({ ownerId, name, providerName, planName, region, skipConfirmation });
+    const newAddon = await Addon.create({ ownerId, name, providerName, planName, region, skipConfirmation, version, addonOptions });
     Logger.println(`Addon ${name} (id: ${newAddon.id}) successfully created`);
   }
 }
@@ -95,6 +100,8 @@ async function showProvider (params) {
   const [providerName] = params.args;
 
   const provider = await Addon.getProvider(providerName);
+  const providerInfos = await Addon.getProviderInfos(providerName);
+  const providerPlans = provider.plans.sort((a, b) => a.price - b.price);
 
   Logger.println(colors.bold(provider.id));
   Logger.println(`${provider.name}: ${provider.shortDesc}`);
@@ -103,11 +110,35 @@ async function showProvider (params) {
   Logger.println();
   Logger.println('Available plans');
 
-  provider.plans.forEach((plan) => {
+  providerPlans.forEach((plan) => {
     Logger.println(`Plan ${colors.bold(plan.slug)}`);
     _(plan.features)
       .sortBy('name')
       .forEach(({ name, value }) => Logger.println(`  ${name}: ${value}`));
+
+    if (providerInfos != null) {
+      const planType = plan.features.find(({ name }) => name.toLowerCase() === 'type');
+      if (planType != null && planType.value.toLowerCase() === 'dedicated') {
+        const planVersions = Object.keys(providerInfos.dedicated);
+        const versions = planVersions.map((version) => {
+          if (version === providerInfos.defaultDedicatedVersion) {
+            return `${version} (default)`;
+          }
+          else {
+            return version;
+          }
+        });
+        Logger.println(`  Available versions: ${versions.join(', ')}`);
+
+        planVersions.forEach((version) => {
+          const features = providerInfos.dedicated[version].features;
+          Logger.println(`  Options for version ${version}:`);
+          features.forEach(({ name, enabled }) => {
+            Logger.println(`    ${name}: default=${enabled}`);
+          });
+        });
+      }
+    }
   });
 }
 

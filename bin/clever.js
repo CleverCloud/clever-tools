@@ -297,6 +297,14 @@ function run () {
       description: 'Region to provision the addon in, depends on the provider',
       complete: Addon('completeRegion'),
     }),
+    addonVersion: cliparse.option('addon-version', {
+      metavar: 'addon-version',
+      description: 'The version to use for the add-on',
+    }),
+    addonOptions: cliparse.option('option', {
+      metavar: 'option',
+      description: 'Option to enable for the add-on. Multiple --option argument can be passed to enable multiple options',
+    }),
     region: cliparse.option('region', {
       aliases: ['r'],
       default: 'par',
@@ -379,7 +387,7 @@ function run () {
   const addonCreateCommand = cliparse.command('create', {
     description: 'Create an addon',
     args: [args.addonProvider, args.addonName],
-    options: [opts.linkAddon, opts.confirmAddonCreation, opts.addonPlan, opts.addonRegion],
+    options: [opts.linkAddon, opts.confirmAddonCreation, opts.addonPlan, opts.addonRegion, opts.addonVersion, opts.addonOptions],
   }, addon('create'));
   const addonDeleteCommand = cliparse.command('delete', {
     description: 'Delete an addon',

@@ -1,6 +1,6 @@
 'use strict';
 
-const application = require('@clevercloud/client/cjs/api/application.js');
+const application = require('@clevercloud/client/cjs/api/v2/application.js');
 
 const { sendToApi } = require('./send-to-api.js');
 

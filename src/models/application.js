@@ -1,9 +1,9 @@
 'use strict';
 
 const _ = require('lodash');
-const application = require('@clevercloud/client/cjs/api/application.js');
+const application = require('@clevercloud/client/cjs/api/v2/application.js');
 const autocomplete = require('cliparse').autocomplete;
-const product = require('@clevercloud/client/cjs/api/product.js');
+const product = require('@clevercloud/client/cjs/api/v2/product.js');
 
 const AppConfiguration = require('./app_configuration.js');
 const Interact = require('./interact.js');

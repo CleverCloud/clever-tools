@@ -55,8 +55,8 @@ async function writeOAuthConf (oauthData) {
 }
 
 const conf = env.getOrElseAll({
-  API_HOST: 'https://api.clever-cloud.com/v2',
-  // API_HOST: 'https://ccapi-preprod.cleverapps.io/v2',
+  API_HOST: 'https://api.clever-cloud.com',
+  // API_HOST: 'https://ccapi-preprod.cleverapps.io',
   LOG_WS_URL: 'wss://api.clever-cloud.com/v2/logs/logs-socket/<%- appId %>?since=<%- timestamp %>',
   LOG_HTTP_URL: 'https://api.clever-cloud.com/v2/logs/<%- appId %>',
   EVENT_URL: 'wss://api.clever-cloud.com/v2/events/event-socket',

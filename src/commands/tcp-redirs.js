@@ -7,7 +7,7 @@ const Organisation = require('../models/organisation.js');
 const { sendToApi } = require('../models/send-to-api.js');
 const Interact = require('../models/interact.js');
 const Logger = require('../logger.js');
-const application = require('@clevercloud/client/cjs/api/application.js');
+const application = require('@clevercloud/client/cjs/api/v2/application.js');
 
 async function listNamespaces (params) {
   const namespaces = await Organisation.getNamespaces(params);
