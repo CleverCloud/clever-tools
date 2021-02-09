@@ -116,7 +116,7 @@ async function watchDeploymentAndDisplayLogs ({ ownerId, appId, deploymentId, co
     // displayLiveLogs() defines callback listeners so if it catches error in those callbacks,
     // it has no proper way to bubble up the error here.
     // Using the deferred enables this.
-    logsStream = await displayLiveLogs({ appId, deploymentId }, deferred);
+    logsStream = await displayLiveLogs({ appId, deploymentId: deployment.uuid }, deferred);
   }
 
   Logger.println('Waiting for application logs…');
