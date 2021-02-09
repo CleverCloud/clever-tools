@@ -36,7 +36,8 @@ async function addRemote (remoteName, url) {
   const allRemotes = await git.listRemotes({ ...repo });
   const existingRemote = _.find(allRemotes, { remote: safeRemoteName });
   if (existingRemote == null) {
-    return git.addRemote({ ...repo, remote: safeRemoteName, url });
+    // In some situations, we may end up with race conditions so we force it
+    return git.addRemote({ ...repo, remote: safeRemoteName, url, force: true });
   }
 }
 
