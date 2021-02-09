@@ -223,6 +223,8 @@ async function joinNg (params) {
     execSync('which wg-quick > /dev/null 2>&1');
   }
   catch (error) {
+    // FIXME: (TM)
+    // FIXME: Generalize to WireGuard
     Logger.error(`Clever Cloud's networkgroups use WireGuard. Therefore, this command requires ${formatCommand('wg')} and ${formatCommand('wg-quick')} installed on your computer.\n\nInstallation steps can be found at ${formatUrl('https://www.wireguard.com/install/')}.`);
     return false;
   }
@@ -329,6 +331,7 @@ async function joinNg (params) {
   await addExternalPeer({ args: params.args, options });
   // FIXME: peerId is not used to create the external peer, so peerId doesn't exist
 
+  // FIXME: Use runtime/temp dir from node library
   const confName = `wgcc${ngId.substr(3, 8)}.conf`;
   const confFolder = path.join('/tmp', 'com.clever-cloud.networkgroups');
   const confPath = path.join(confFolder, confName);
@@ -407,6 +410,10 @@ async function joinNg (params) {
             Logger.debug(`Saved new WireGuard configuration file to ${formatUrl(confPath)}`);
             try {
               // Update WireGuard configuration
+              // FIXME: Not save but:
+              //        - wg-quick down -> up
+              //        - wg setconf + (wg-quick strip conf)
+              //          - Check avalability on non Linux OSs
               execSync(`wg-quick save ${confPath}`);
               Logger.println('Updated WireGuard tunnel configuration');
             }
