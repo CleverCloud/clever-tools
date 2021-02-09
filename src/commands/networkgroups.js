@@ -352,8 +352,8 @@ async function joinNg (params) {
   conf = conf.replace('<%PrivateKey%>', privateKey);
 
   // Save conf
-  // FIXME: Warning: `/private/tmp/com.clever-cloud.networkgroups/wgcc<id>.conf' is world accessible
-  fs.writeFile(confPath, conf, (err) => {
+  // FIXME: Check if root as owner poses a problem
+  fs.writeFile(confPath, conf, { mode: 0o600 }, (err) => {
     if (err) {
       Logger.error(`Error saving WireGuard® configuration: ${err}`);
       process.exit(1);
@@ -400,8 +400,8 @@ async function joinNg (params) {
         conf.replace('<%PrivateKey%>', privateKey);
 
         // Save conf
-        // FIXME: Warning: `/private/tmp/com.clever-cloud.networkgroups/wgcc<id>.conf' is world accessible
-        fs.writeFile(confPath, conf, (err) => {
+        // FIXME: Check if root as owner poses a problem
+        fs.writeFile(confPath, conf, { mode: 0o600 }, (err) => {
           if (err) {
             Logger.error(`Error saving new WireGuard® configuration: ${err}`);
           }
