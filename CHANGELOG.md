@@ -1,5 +1,15 @@
 # clever-tools changelog
 
+## 2.8.0 (2021-02-09)
+
+* Add options support for `clever addon create` (options like encryption-at-rest)
+* Display available versions in `clever addon providers show <provider>`
+* Display available options in `clever addon providers show <provider>`
+* Fix `clever deploy` which was displaying logs from runtime instances
+* Fix `clever accesslogs` so it doesn't fail when source object is undefined
+* Prevent race conditions on parallel CI configs with `clever deploy` and git add remote
+* Format `.clever.json` (Mickael Chanrion)
+
 ## 2.7.2 (2020-10-09)
 
 * addon: fix create relying on default region
