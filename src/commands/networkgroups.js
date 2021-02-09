@@ -332,7 +332,7 @@ async function joinNg (params) {
   // FIXME: peerId is not used to create the external peer, so peerId doesn't exist
 
   // FIXME: Use runtime/temp dir from node library
-  const confName = `wgcc${ngId.substr(3, 8)}.conf`;
+  const confName = `wgcc${ngId.slice(-8)}.conf`;
   const confFolder = path.join('/tmp', 'com.clever-cloud.networkgroups');
   const confPath = path.join(confFolder, confName);
 
