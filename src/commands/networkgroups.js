@@ -317,6 +317,16 @@ async function askForParentMember ({ ownerId, ngId, interactive }) {
   return parentId;
 }
 
+function confWithoutPlaceholders (conf, { privateKey }) {
+  conf = conf.replace('<%PrivateKey%>', privateKey);
+
+  // TODO: This just removes leading and trailing new lines in the configuration file
+  //       It should be better formatted on the API's side
+  conf = conf.trim();
+
+  return conf;
+}
+
 async function joinNg (params) {
   // Check that `wg` and `wg-quick` are installed
   try {
@@ -372,8 +382,7 @@ async function joinNg (params) {
   Logger.debug('WireGuard® configuration received');
   Logger.debug(`[CONFIGURATION]\n${conf}\n[/CONFIGURATION]`);
 
-  // Fill PrivateKey placeholder
-  conf = conf.replace('<%PrivateKey%>', privateKey).trim();
+  conf = confWithoutPlaceholders(conf, { privateKey });
 
   // Save conf
   // FIXME: Check if root as owner poses a problem
@@ -429,8 +438,7 @@ async function joinNg (params) {
 
         // FIXME: Check configuration version > actual
 
-        // Fill PrivateKey placeholder
-        conf = conf.replace('<%PrivateKey%>', privateKey).trim();
+        conf = confWithoutPlaceholders(conf, { privateKey });
 
         // Save conf
         // FIXME: Check if root as owner poses a problem
