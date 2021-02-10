@@ -478,8 +478,12 @@ async function joinNg (params) {
 
 async function leaveNg (ngId, peerId) {
   await removeExternalPeer({ options: { ng: { ng_id: ngId }, 'peer-id': peerId } });
-  // FIXME: `wg-quick down`
-  // FIXME: Remove WG conf file
+
+  const { confPath } = getConfInformation(ngId);
+  execSync(`wg-quick down ${confPath}`);
+
+  fs.rmSync(confPath);
+  Logger.debug(`Successfully deleted WireGuard® configuration file for ${formatId(ngId)}`);
 }
 
 async function listMembers (params) {
