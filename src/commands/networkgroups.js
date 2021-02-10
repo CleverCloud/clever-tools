@@ -372,8 +372,6 @@ async function joinNg (params) {
   Logger.debug('WireGuard® configuration received');
   Logger.debug(`[CONFIGURATION]\n${conf}\n[/CONFIGURATION]`);
 
-  // FIXME: Check configuration version > actual
-
   // Fill PrivateKey placeholder
   conf = conf.replace('<%PrivateKey%>', privateKey).trim();
 
@@ -428,6 +426,8 @@ async function joinNg (params) {
       if (conf !== null && conf.length !== 0) {
         Logger.debug('New WireGuard® configuration received');
         Logger.debug(`[CONFIGURATION]\n${conf}\n[/CONFIGURATION]`);
+
+        // FIXME: Check configuration version > actual
 
         // Fill PrivateKey placeholder
         conf = conf.replace('<%PrivateKey%>', privateKey).trim();
