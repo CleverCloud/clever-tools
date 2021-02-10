@@ -235,6 +235,88 @@ function getConfInformation (ngId) {
   return { confName, confPath };
 }
 
+async function askForParentMember ({ ownerId, ngId, interactive }) {
+  let members = await networkgroup.listMembers({ ownerId, ngId }).then(sendToApi);
+  members = members.filter((member) => {
+    return member.type === 'externalNode';
+  });
+
+  let parentId = null;
+  if (members.length === 0) {
+    // Case 1: If there are no 'externalNode's, create a new one.
+    Logger.println('You have to create an external node category (networkgroup member) to join a networkgroup.');
+    parentId = 'new';
+  }
+  else {
+    if (interactive) {
+      // Case 2: If some 'externalNode's are already created, ask for selection (+ 'new' case).
+      // - If selected, join with selected member as parent.
+      // - If 'new', case 1.
+      const result = await prompts({
+        type: 'autocomplete',
+        name: 'memberId',
+        message: 'What category do you want to join?',
+        choices: [
+          ...members.map((m) => ({ title: m.label, value: m.id })),
+          { title: 'Create new category', value: 'new' },
+        ],
+        initial: 0,
+      });
+
+      // If user aborts
+      if (result.memberId === undefined) {
+        Logger.error(`You cannot skip this question. Remove ${formatCommand('--interactive')} and add ${formatCommand('--node-category-id')} to select an external node category manually.`);
+        return process.exit(1);
+      }
+
+      parentId = result.memberId;
+    }
+    else {
+      Logger.error(`This networkgroup already has an external node category. Add ${formatCommand(`--node-category-id ${formatString(members[0].id)}`)} to select it.`);
+      return process.exit(1);
+    }
+  }
+
+  if (parentId === 'new') {
+    if (interactive) {
+      const result = await prompts([
+        {
+          type: 'text',
+          name: 'memberLabel',
+          message: 'How do you want to call it (label)?',
+          // FIXME: Add real validation
+          validate: (value) => true,
+        },
+        {
+          type: 'text',
+          name: 'domainName',
+          message: 'What domain name do you want it to have?',
+          // FIXME: Add real validation
+          validate: (value) => true,
+        },
+      ]);
+      const memberId = uuidv4();
+      const { memberLabel, domainName } = result;
+      await addMember({
+        options: {
+          ng: { ng_id: ngId },
+          'member-id': memberId,
+          type: 'external',
+          'domain-name': domainName,
+          label: memberLabel,
+        },
+      });
+      parentId = memberId;
+    }
+    else {
+      Logger.error(`See ${formatCommand('clever networkgroups members add')} or add ${formatCommand('--interactive')} tag to create a new external member (node).`);
+      return process.exit(1);
+    }
+  }
+
+  return parentId;
+}
+
 async function joinNg (params) {
   // Check that `wg` and `wg-quick` are installed
   try {
@@ -265,83 +347,8 @@ async function joinNg (params) {
   const ownerId = await getOwnerId();
   const ngId = await Networkgroup.getId(ownerId, ngIdOrLabel);
 
-  let members = await networkgroup.listMembers({ ownerId, ngId }).then(sendToApi);
-  members = members.filter((member) => {
-    return member.type === 'externalNode';
-  });
-
   if (parentId === null) {
-    if (members.length === 0) {
-      // Case 1: If there are no 'externalNode's, create a new one.
-      Logger.println('You have to create an external node category (networkgroup member) to join a networkgroup.');
-      parentId = 'new';
-    }
-    else {
-      if (interactive) {
-        // Case 2: If some 'externalNode's are already created, ask for selection (+ 'new' case).
-        // - If selected, join with selected member as parent.
-        // - If 'new', case 1.
-        const result = await prompts({
-          type: 'autocomplete',
-          name: 'memberId',
-          message: 'What category do you want to join?',
-          choices: [
-            ...members.map((m) => ({ title: m.label, value: m.id })),
-            { title: 'Create new category', value: 'new' },
-          ],
-          initial: 0,
-        });
-
-        // If user aborts
-        if (result.memberId === undefined) {
-          Logger.error(`You cannot skip this question. Remove ${formatCommand('--interactive')} and add ${formatCommand('--node-category-id')} to select an external node category manually.`);
-          return false;
-        }
-
-        parentId = result.memberId;
-      }
-      else {
-        Logger.error(`This networkgroup already has an external node category. Add ${formatCommand(`--node-category-id ${formatString(members[0].id)}`)} to select it.`);
-        return false;
-      }
-    }
-
-    if (parentId === 'new') {
-      if (interactive) {
-        const result = await prompts([
-          {
-            type: 'text',
-            name: 'memberLabel',
-            message: 'How do you want to call it (label)?',
-            // FIXME: Add real validation
-            validate: (value) => true,
-          },
-          {
-            type: 'text',
-            name: 'domainName',
-            message: 'What domain name do you want it to have?',
-            // FIXME: Add real validation
-            validate: (value) => true,
-          },
-        ]);
-        const memberId = uuidv4();
-        const { memberLabel, domainName } = result;
-        await addMember({
-          options: {
-            ng: { ng_id: ngId },
-            'member-id': memberId,
-            type: 'external',
-            'domain-name': domainName,
-            label: memberLabel,
-          },
-        });
-        parentId = memberId;
-      }
-      else {
-        Logger.println(`See ${formatCommand('clever networkgroups members add')} or add ${formatCommand('--interactive')} tag to create a new external member (node).`);
-        return false;
-      }
-    }
+    parentId = await askForParentMember({ ownerId, ngId, interactive });
   }
 
   if (privateKey === null) {
