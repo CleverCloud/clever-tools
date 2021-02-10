@@ -216,6 +216,25 @@ async function deleteNg (params) {
   Logger.println(`Networkgroup ${formatString(ngId)} was successfully deleted.`);
 }
 
+function getWgConfFolder () {
+  // TODO: See if we can use runtime dirs
+  return path.join(os.tmpdir(), 'com.clever-cloud.networkgroups');
+}
+
+function createWgConfFolderIfNeeded () {
+  const confFolder = getWgConfFolder();
+  if (!fs.existsSync(confFolder)) {
+    fs.mkdirSync(confFolder);
+  }
+}
+
+function getConfInformation (ngId) {
+  const confName = `wgcc${ngId.slice(-8)}`;
+  const confPath = path.join(getWgConfFolder(), `${confName}.conf`);
+
+  return { confName, confPath };
+}
+
 async function joinNg (params) {
   // Check that `wg` and `wg-quick` are installed
   try {
@@ -335,16 +354,10 @@ async function joinNg (params) {
   await addExternalPeer({ args: params.args, options });
   // FIXME: peerId is not used to create the external peer, so peerId doesn't exist
 
-  // TODO: See if we can use runtime dirs
-  const confName = `wgcc${ngId.slice(-8)}`;
-  const confFolder = path.join(os.tmpdir(), 'com.clever-cloud.networkgroups');
-  const confPath = path.join(confFolder, `${confName}.conf`);
+  const { confName, confPath } = getConfInformation(ngId);
   let interfaceName = confName;
 
-  // Create configuration folder if needed
-  if (!fs.existsSync(confFolder)) {
-    fs.mkdirSync(confFolder);
-  }
+  createWgConfFolderIfNeeded();
 
   // Get current configuration
   const confAsB64 = await networkgroup.getWgConf({ ownerId, ngId, peerId }).then(sendToApi);
