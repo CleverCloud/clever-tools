@@ -131,12 +131,12 @@ function formatNumber (number, colored = true) {
 }
 
 function formatIp (ip, colored = true) {
-  return colored ? colors.blue(ip) : ip;
+  return colored ? colors.cyan(ip) : ip;
 }
 
 function formatUrl (url, colored = true, decorated = true) {
   const string = decorated ? `<${url}>` : url;
-  return colored ? colors.blue(string) : string;
+  return colored ? colors.cyan(string) : string;
 }
 
 function formatCommand (command, colored = true, decorated = true) {
@@ -486,7 +486,7 @@ async function joinNg (params) {
         });
       }
     })
-    .on('ping', () => Logger.debug(`SSE for networkgroup configuration (${colors.blue('ping')})`))
+    .on('ping', () => Logger.debug(`SSE for networkgroup configuration (${colors.cyan('ping')})`))
     .on('close', async (reason) => {
       Logger.debug(`SSE for networkgroup configuration (${colors.red('close')}): ${JSON.stringify(reason)}`);
       await leave(ngId, peerId);
