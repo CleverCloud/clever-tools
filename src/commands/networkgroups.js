@@ -480,6 +480,7 @@ async function leaveNg (ngId, peerId) {
   await removeExternalPeer({ options: { ng: { ng_id: ngId }, 'peer-id': peerId } });
 
   const { confPath } = getConfInformation(ngId);
+  // FIXME: `wg-quick down <FILE_PATH>` not working on macOS
   execSync(`wg-quick down ${confPath}`);
 
   fs.rmSync(confPath);
