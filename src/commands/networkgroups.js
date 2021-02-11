@@ -235,6 +235,25 @@ function getConfInformation (ngId) {
   return { confName, confPath };
 }
 
+function storePeerId (peerId, confName) {
+  const filePath = path.join(getWgConfFolder(), `${confName}.id`);
+  fs.writeFileSync(filePath, peerId, { mode: 0o600 }, (error) => {
+    if (error) {
+      Logger.error(`Error saving peer ID: ${error}`);
+      process.exit(1);
+    }
+    else {
+      Logger.debug(`Saved peer ID file to ${formatUrl(filePath)}`);
+    }
+  });
+}
+
+function getPeerId (confName) {
+  const filePath = path.join(getWgConfFolder(), `${confName}.id`);
+  Logger.debug(`Reading peer ID from ${formatUrl(filePath)}`);
+  return fs.readFileSync(filePath, { encoding: 'utf-8' }).trim();
+}
+
 async function askForParentMember ({ ownerId, ngId, interactive }) {
   let members = await networkgroup.listMembers({ ownerId, ngId }).then(sendToApi);
   members = members.filter((member) => {
@@ -374,6 +393,8 @@ async function joinNg (params) {
   const { confName, confPath } = getConfInformation(ngId);
   let interfaceName = confName;
 
+  storePeerId(peerId, confName);
+
   createWgConfFolderIfNeeded();
 
   // Get current configuration
@@ -386,7 +407,7 @@ async function joinNg (params) {
 
   // Save conf
   // FIXME: Check if root as owner poses a problem
-  fs.writeFile(confPath, conf, { mode: 0o600 }, (error) => {
+  fs.writeFileSync(confPath, conf, { mode: 0o600 }, (error) => {
     if (error) {
       Logger.error(`Error saving WireGuard® configuration: ${error}`);
       process.exit(1);
@@ -414,12 +435,16 @@ async function joinNg (params) {
     }
   });
 
+  async function leave (ngId, peerId) {
+    return leaveNg({ options: { ng: { ng_id: ngId }, 'peer-id': peerId } });
+  }
+
   // Automatically leave the networkgroup when the user kills the program
   async function leaveNgOnExit (signal) {
     // Add new line after ^C
     Logger.println('');
     Logger.debug(`Received ${signal}`);
-    await leaveNg(ngId, peerId);
+    await leave(ngId, peerId);
     process.exit();
   }
 
@@ -464,11 +489,11 @@ async function joinNg (params) {
     .on('ping', () => Logger.debug(`SSE for networkgroup configuration (${colors.blue('ping')})`))
     .on('close', async (reason) => {
       Logger.debug(`SSE for networkgroup configuration (${colors.red('close')}): ${JSON.stringify(reason)}`);
-      await leaveNg(ngId, peerId);
+      await leave(ngId, peerId);
     })
     .on('error', async (error) => {
       Logger.error(`SSE for networkgroup configuration (${colors.red('error')}): ${error}`);
-      await leaveNg(ngId, peerId);
+      await leave(ngId, peerId);
     });
 
   networkgroupStream.open({ autoRetry: true, maxRetryCount: 6 });
@@ -476,10 +501,19 @@ async function joinNg (params) {
   return networkgroupStream;
 }
 
-async function leaveNg (ngId, peerId) {
+async function leaveNg (params) {
+  const { ng: ngIdOrLabel } = params.options;
+  let { 'peer-id': peerId } = params.options;
+  const ownerId = await getOwnerId();
+  const ngId = await Networkgroup.getId(ownerId, ngIdOrLabel);
+  const { confName, confPath } = getConfInformation(ngId);
+
+  if (peerId === null) {
+    peerId = getPeerId(confName);
+  }
+
   await removeExternalPeer({ options: { ng: { ng_id: ngId }, 'peer-id': peerId } });
 
-  const { confPath } = getConfInformation(ngId);
   // FIXME: `wg-quick down <FILE_PATH>` not working on macOS
   execSync(`wg-quick down ${confPath}`);
 
