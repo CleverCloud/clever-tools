@@ -444,6 +444,7 @@ async function joinNg (params) {
     // Add new line after ^C
     Logger.println('');
     Logger.debug(`Received ${signal}`);
+    networkgroupStream.close();
     await leave(ngId, peerId);
     process.exit();
   }
@@ -489,7 +490,6 @@ async function joinNg (params) {
     .on('ping', () => Logger.debug(`SSE for networkgroup configuration (${colors.cyan('ping')})`))
     .on('close', async (reason) => {
       Logger.debug(`SSE for networkgroup configuration (${colors.red('close')}): ${JSON.stringify(reason)}`);
-      await leave(ngId, peerId);
     })
     .on('error', async (error) => {
       Logger.error(`SSE for networkgroup configuration (${colors.red('error')}): ${error}`);
