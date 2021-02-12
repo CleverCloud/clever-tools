@@ -152,7 +152,7 @@ async function listNetworkgroups (params) {
   const { json } = params.options;
   const ownerId = await getOwnerId();
 
-  Logger.debug(`Listing networkgroups from owner ${formatString(ownerId)}`);
+  Logger.info(`Listing networkgroups from owner ${formatString(ownerId)}`);
   const result = await networkgroup.get({ ownerId }).then(sendToApi);
 
   if (json) {
@@ -192,7 +192,7 @@ async function createNg (params) {
     }
   }
 
-  Logger.debug(`Creating networkgroup from owner ${formatString(ownerId)}`);
+  Logger.info(`Creating networkgroup from owner ${formatString(ownerId)}`);
   const body = { owner_id: ownerId, label, description, tags };
   Logger.debug('Sending body: ' + JSON.stringify(body, null, 2));
   const result = await networkgroup.createNg({ ownerId }, body).then(sendToApi);
@@ -210,7 +210,7 @@ async function deleteNg (params) {
   const ownerId = await getOwnerId();
   const ngId = await Networkgroup.getId(ownerId, ngIdOrLabel);
 
-  Logger.debug(`Deleting networkgroup ${formatString(ngId)} from owner ${formatString(ownerId)}`);
+  Logger.info(`Deleting networkgroup ${formatString(ngId)} from owner ${formatString(ownerId)}`);
   await networkgroup.deleteNg({ ownerId, ngId }).then(sendToApi);
 
   Logger.println(`Networkgroup ${formatString(ngId)} was successfully deleted.`);
@@ -247,7 +247,7 @@ function storePeerId (peerId, confName) {
       process.exit(1);
     }
     else {
-      Logger.debug(`Saved peer ID file to ${formatUrl(filePath)}`);
+      Logger.info(`Saved peer ID file to ${formatUrl(filePath)}`);
     }
   });
 }
@@ -269,7 +269,7 @@ function deletePeerIdFile (ngId) {
   const { confName } = getConfInformation(ngId);
   const filePath = getPeerIdPath(confName);
   fs.rmSync(filePath);
-  Logger.debug(`Deleted peer ID from ${formatUrl(filePath)}`);
+  Logger.info(`Deleted peer ID from ${formatUrl(filePath)}`);
 }
 
 async function askForParentMember ({ ownerId, ngId, interactive }) {
@@ -431,7 +431,7 @@ async function joinNg (params) {
       process.exit(1);
     }
     else {
-      Logger.debug(`Saved WireGuard® configuration file to ${formatUrl(confPath)}`);
+      Logger.info(`Saved WireGuard® configuration file to ${formatUrl(confPath)}`);
       try {
         // Activate WireGuard® tunnel
         // We must use `spawn` with `detached: true` instead of `exec`
@@ -495,11 +495,11 @@ async function joinNg (params) {
             Logger.error(`Error saving new WireGuard® configuration: ${error}`);
           }
           else {
-            Logger.debug(`Saved new WireGuard® configuration file to ${formatUrl(confPath)}`);
+            Logger.info(`Saved new WireGuard® configuration file to ${formatUrl(confPath)}`);
             try {
               // Update WireGuard® configuration
               execSync(`wg-quick strip ${confPath} | wg syncconf ${interfaceName} /dev/stdin`);
-              Logger.println('Updated WireGuard® tunnel configuration');
+              Logger.info('Updated WireGuard® tunnel configuration');
             }
             catch (error) {
               Logger.error(`Error updating WireGuard® tunnel configuration: ${error}`);
@@ -541,7 +541,7 @@ async function leaveNg (params) {
 
   deletePeerIdFile(ngId);
   fs.rmSync(confPath);
-  Logger.debug(`Deleted WireGuard® configuration file for ${formatString(ngId)}`);
+  Logger.info(`Deleted WireGuard® configuration file for ${formatString(ngId)}`);
 }
 
 async function listMembers (params) {
@@ -549,7 +549,7 @@ async function listMembers (params) {
   const ownerId = await getOwnerId();
   const ngId = await Networkgroup.getId(ownerId, ngIdOrLabel);
 
-  Logger.debug(`Listing members from networkgroup '${ngId}'`);
+  Logger.info(`Listing members from networkgroup '${ngId}'`);
   const result = await networkgroup.listMembers({ ownerId, ngId }).then(sendToApi);
 
   if (json) {
@@ -573,7 +573,7 @@ async function getMember (params) {
   const ownerId = await getOwnerId();
   const ngId = await Networkgroup.getId(ownerId, ngIdOrLabel);
 
-  Logger.debug(`Getting details for member ${formatString(memberId)} in networkgroup ${formatString(ngId)}`);
+  Logger.info(`Getting details for member ${formatString(memberId)} in networkgroup ${formatString(ngId)}`);
   const result = await networkgroup.getMember({ ownerId, ngId, memberId }).then(sendToApi);
 
   if (json) {
@@ -612,7 +612,7 @@ async function listPeers (params) {
   const ownerId = await getOwnerId();
   const ngId = await Networkgroup.getId(ownerId, ngIdOrLabel);
 
-  Logger.debug(`Listing peers from networkgroup ${formatString(ngId)}`);
+  Logger.info(`Listing peers from networkgroup ${formatString(ngId)}`);
   const result = await networkgroup.listPeers({ ownerId, ngId }).then(sendToApi);
 
   if (json) {
@@ -636,7 +636,7 @@ async function getPeer (params) {
   const ownerId = await getOwnerId();
   const ngId = await Networkgroup.getId(ownerId, ngIdOrLabel);
 
-  Logger.debug(`Getting details for peer ${formatString(peerId)} in networkgroup ${formatString(ngId)}`);
+  Logger.info(`Getting details for peer ${formatString(peerId)} in networkgroup ${formatString(ngId)}`);
   const peer = await networkgroup.getPeer({ ownerId, ngId, peerId }).then(sendToApi);
 
   if (json) {
@@ -654,7 +654,7 @@ async function addExternalPeer (params) {
   const ngId = await Networkgroup.getId(ownerId, ngIdOrLabel);
 
   const body = { id: peerId, 'peer-role': role, 'public-key': publicKey, label, parent_member: parent };
-  Logger.debug(`Adding external peer ${peerId == null ? '(auto id)' : formatString(peerId)} to networkgroup ${formatString(ngId)}`);
+  Logger.info(`Adding external peer ${peerId == null ? '(auto id)' : formatString(peerId)} to networkgroup ${formatString(ngId)}`);
   Logger.debug('Sending body: ' + JSON.stringify(body, null, 2));
   await networkgroup.addExternalPeer({ ownerId, ngId, peerId }, body).then(sendToApi);
 
@@ -666,7 +666,7 @@ async function removeExternalPeer (params) {
   const ownerId = await getOwnerId();
   const ngId = await Networkgroup.getId(ownerId, ngIdOrLabel);
 
-  Logger.println(`Removing external peer ${formatString(peerId)} from networkgroup ${formatString(ngId)}`);
+  Logger.info(`Removing external peer ${formatString(peerId)} from networkgroup ${formatString(ngId)}`);
   await networkgroup.removeExternalPeer({ ownerId, ngId, peerId }).then(sendToApi);
 
   Logger.println(`External peer ${formatString(peerId)} must have been removed from networkgroup ${formatString(ngId)}.`);
