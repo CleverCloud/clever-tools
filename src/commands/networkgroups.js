@@ -1,7 +1,7 @@
 'use strict';
 
 const os = require('os');
-const { execSync } = require('child_process');
+const { execSync, spawnSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 const isElevated = require('is-elevated');
@@ -235,8 +235,12 @@ function getConfInformation (ngId) {
   return { confName, confPath };
 }
 
+function getPeerIdPath (confName) {
+  return path.join(getWgConfFolder(), `${confName}.id`);
+}
+
 function storePeerId (peerId, confName) {
-  const filePath = path.join(getWgConfFolder(), `${confName}.id`);
+  const filePath = getPeerIdPath(confName);
   fs.writeFileSync(filePath, peerId, { mode: 0o600 }, (error) => {
     if (error) {
       Logger.error(`Error saving peer ID: ${error}`);
@@ -248,10 +252,24 @@ function storePeerId (peerId, confName) {
   });
 }
 
-function getPeerId (confName) {
-  const filePath = path.join(getWgConfFolder(), `${confName}.id`);
-  Logger.debug(`Reading peer ID from ${formatUrl(filePath)}`);
-  return fs.readFileSync(filePath, { encoding: 'utf-8' }).trim();
+function getPeerId (ngId) {
+  const { confName } = getConfInformation(ngId);
+  const filePath = getPeerIdPath(confName);
+  if (fs.existsSync(filePath)) {
+    Logger.debug(`Reading peer ID from ${formatUrl(filePath)}`);
+    return fs.readFileSync(filePath, { encoding: 'utf-8' }).trim();
+  }
+  else {
+    Logger.debug(`No file found at ${formatUrl(filePath)}`);
+    return null;
+  }
+}
+
+function deletePeerIdFile (ngId) {
+  const { confName } = getConfInformation(ngId);
+  const filePath = getPeerIdPath(confName);
+  fs.rmSync(filePath);
+  Logger.debug(`Deleted peer ID from ${formatUrl(filePath)}`);
 }
 
 async function askForParentMember ({ ownerId, ngId, interactive }) {
@@ -407,7 +425,7 @@ async function joinNg (params) {
 
   // Save conf
   // FIXME: Check if root as owner poses a problem
-  fs.writeFileSync(confPath, conf, { mode: 0o600 }, (error) => {
+  fs.writeFile(confPath, conf, { mode: 0o600 }, async (error) => {
     if (error) {
       Logger.error(`Error saving WireGuard® configuration: ${error}`);
       process.exit(1);
@@ -416,7 +434,11 @@ async function joinNg (params) {
       Logger.debug(`Saved WireGuard® configuration file to ${formatUrl(confPath)}`);
       try {
         // Activate WireGuard® tunnel
-        execSync(`wg-quick up ${confPath}`);
+        // We must use `spawn` with `detached: true` instead of `exec`
+        // because `wg-quick up` starts a `wireguard-go` used by `wg-quick down`
+        const { stdout, stderr } = spawnSync('wg-quick', ['up', confPath], { detached: true, encoding: 'utf-8' });
+        if (stdout.length > 0) Logger.debug(stdout.trim());
+        if (stderr.length > 0) Logger.debug(stderr.trim());
         Logger.println('Activated WireGuard® tunnel');
         Logger.println(colors.green(`Successfully joined networkgroup ${formatString(ngId)}`));
 
@@ -439,6 +461,9 @@ async function joinNg (params) {
     return leaveNg({ options: { ng: { ng_id: ngId }, 'peer-id': peerId } });
   }
 
+  const { apiHost, tokens } = await getHostAndTokens();
+  const networkgroupStream = new NetworkgroupStream({ apiHost, tokens, ownerId, ngId, peerId });
+
   // Automatically leave the networkgroup when the user kills the program
   async function leaveNgOnExit (signal) {
     // Add new line after ^C
@@ -451,9 +476,6 @@ async function joinNg (params) {
 
   process.on('SIGINT', leaveNgOnExit);
   process.on('SIGTERM', leaveNgOnExit);
-
-  const { apiHost, tokens } = await getHostAndTokens();
-  const networkgroupStream = new NetworkgroupStream({ apiHost, tokens, ownerId, ngId, peerId });
 
   networkgroupStream
     .on('open', () => Logger.debug(`SSE for networkgroup configuration (${colors.green('open')}): ${JSON.stringify({ ownerId, ngId, peerId })}`))
@@ -506,19 +528,20 @@ async function leaveNg (params) {
   let { 'peer-id': peerId } = params.options;
   const ownerId = await getOwnerId();
   const ngId = await Networkgroup.getId(ownerId, ngIdOrLabel);
-  const { confName, confPath } = getConfInformation(ngId);
+  const { confPath } = getConfInformation(ngId);
 
   if (peerId === null) {
-    peerId = getPeerId(confName);
+    peerId = getPeerId(ngId);
   }
 
   await removeExternalPeer({ options: { ng: { ng_id: ngId }, 'peer-id': peerId } });
+  const { stdout, stderr } = spawnSync('wg-quick', ['down', confPath], { encoding: 'utf-8' });
+  if (stdout.length > 0) Logger.debug(stdout.trim());
+  if (stderr.length > 0) Logger.debug(stderr.trim());
 
-  // FIXME: `wg-quick down <FILE_PATH>` not working on macOS
-  execSync(`wg-quick down ${confPath}`);
-
+  deletePeerIdFile(ngId);
   fs.rmSync(confPath);
-  Logger.debug(`Successfully deleted WireGuard® configuration file for ${formatId(ngId)}`);
+  Logger.debug(`Deleted WireGuard® configuration file for ${formatString(ngId)}`);
 }
 
 async function listMembers (params) {
