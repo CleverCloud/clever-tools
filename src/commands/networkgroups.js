@@ -241,7 +241,7 @@ function getPeerIdPath (confName) {
 
 function storePeerId (peerId, confName) {
   const filePath = getPeerIdPath(confName);
-  fs.writeFileSync(filePath, peerId, { mode: 0o600 }, (error) => {
+  fs.writeFileSync(filePath, peerId, { mode: 0o600, flag: 'wx' }, (error) => {
     if (error) {
       Logger.error(`Error saving peer ID: ${error}`);
       process.exit(1);
@@ -268,7 +268,8 @@ function getPeerId (ngId) {
 function deletePeerIdFile (ngId) {
   const { confName } = getConfInformation(ngId);
   const filePath = getPeerIdPath(confName);
-  fs.rmSync(filePath);
+  // We need `force: true` to avoid errors if file doesn't exist
+  fs.rmSync(filePath, { force: true });
   Logger.info(`Deleted peer ID from ${formatUrl(filePath)}`);
 }
 
@@ -393,6 +394,12 @@ async function joinNg (params) {
   const ownerId = await getOwnerId();
   const ngId = await Networkgroup.getId(ownerId, ngIdOrLabel);
 
+  const { confName, confPath } = getConfInformation(ngId);
+  if (fs.existsSync(confPath)) {
+    Logger.error(`You cannot join a networkgroup twice at the same time with the same computer. Try using ${formatCommand('clever networkgroups leave')} and running this command again.`);
+    return false;
+  }
+
   if (parentId === null) {
     parentId = await askForParentMember({ ownerId, ngId, interactive });
   }
@@ -405,11 +412,16 @@ async function joinNg (params) {
   // Create new params keeping previous ones (e.g. verbose)
   const options = { ...params.options, ng: { ng_id: ngId }, role: 'client', 'public-key': publicKey, label, parent: parentId };
   const peerId = await addExternalPeer({ args: params.args, options });
-
-  const { confName, confPath } = getConfInformation(ngId);
   let interfaceName = confName;
 
-  storePeerId(peerId, confName);
+  try {
+    storePeerId(peerId, confName);
+  }
+  catch (error) {
+    // If networkgroup already joined, remove freshly created external peer
+    await removeExternalPeer({ options: { ng: { ng_id: ngId }, 'peer-id': peerId } });
+    throw error;
+  }
 
   createWgConfFolderIfNeeded();
 
@@ -423,7 +435,7 @@ async function joinNg (params) {
 
   // Save conf
   // FIXME: Check if root as owner poses a problem
-  fs.writeFile(confPath, conf, { mode: 0o600 }, async (error) => {
+  fs.writeFile(confPath, conf, { mode: 0o600, flag: 'wx' }, async (error) => {
     if (error) {
       Logger.error(`Error saving WireGuard® configuration: ${error}`);
       process.exit(1);
@@ -530,6 +542,10 @@ async function leaveNg (params) {
 
   if (peerId === null) {
     peerId = getPeerId(ngId);
+    if (peerId === null) {
+      Logger.error(`We cannot find the ID you had in this networkgroup. Try finding yourself in the results of ${formatCommand('clever networkgroups peers list')} and running this command again adding the parameter ${formatCommand('--peer-id PEER_ID')}.`);
+      process.exit(1);
+    }
   }
 
   await removeExternalPeer({ options: { ng: { ng_id: ngId }, 'peer-id': peerId } });
@@ -538,7 +554,8 @@ async function leaveNg (params) {
   if (stderr.length > 0) Logger.debug(stderr.trim());
 
   deletePeerIdFile(ngId);
-  fs.rmSync(confPath);
+  // We need `force: true` to avoid errors if file doesn't exist
+  fs.rmSync(confPath, { force: true });
   Logger.info(`Deleted WireGuard® configuration file for ${formatString(ngId)}`);
 }
 
@@ -666,6 +683,10 @@ async function removeExternalPeer (params) {
   const ngId = await Networkgroup.getId(ownerId, ngIdOrLabel);
 
   Logger.info(`Removing external peer ${formatString(peerId)} from networkgroup ${formatString(ngId)}`);
+  // FIXME: Currently, when an external peer is already deleted, the API returns 404.
+  //        This is detected as an error status code and throws an error.
+  //        This prevents `clever ng leave` from working correctly in some cases.
+  //        This status code will be changed to 204 soon.
   await networkgroup.removeExternalPeer({ ownerId, ngId, peerId }).then(sendToApi);
 
   Logger.println(`External peer ${formatString(peerId)} must have been removed from networkgroup ${formatString(ngId)}.`);
@@ -676,6 +697,7 @@ module.exports = {
   createNg,
   deleteNg,
   joinNg,
+  leaveNg,
   listMembers,
   getMember,
   addMember,
