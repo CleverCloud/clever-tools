@@ -572,7 +572,7 @@ async function listMembers (params) {
   }
   else {
     if (result.length === 0) {
-      Logger.println('No member found. You can add one with `clever networkgroups members add`.');
+      Logger.println(`No member found. You can add one with ${formatCommand('clever networkgroups members add')}.`);
     }
     else {
       await printMembersTableHeader(naturalName);
@@ -635,7 +635,7 @@ async function listPeers (params) {
   }
   else {
     if (result.length === 0) {
-      Logger.println('No peer found. You can add an external one with `clever networkgroups peers add-external`.');
+      Logger.println(`No peer found. You can add an external one with ${formatCommand('clever networkgroups peers add-external')}.`);
     }
     else {
       printPeersTableHeader();
