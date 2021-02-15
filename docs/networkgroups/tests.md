@@ -123,7 +123,7 @@ ngLabelForInvalidCases2='test-2'
    cleverr ng --ng "$ngLabel" peers list
    # No peer found. You can add an external one with `clever networkgroups peers add-external`.
    cleverr ng --ng "$ngLabel" peers add-external --role 'client' --public-key "$publicKey1" --label "$peerLabel1" --parent "$memberId1"
-   # External peer (auto id) must have been added to networkgroup 'ng_84c65dce-4a48-4858-b327-83bddf5f0a79'.
+   # External peer 'external_3b3e82e2-e656-450b-8cc7-b7498d0134f4' must have been added to networkgroup 'ng_84c65dce-4a48-4858-b327-83bddf5f0a79'.
    cleverr ng --ng "$ngLabel" peers list
    # Peer ID                                        Peer Type                  Endpoint Type              Label                                          Hostname              IP Address
    # ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -147,7 +147,7 @@ ngLabelForInvalidCases2='test-2'
    cleverr ng --ng "$ngLabel" members add --member-id "$memberId1" --type 'external' --domain-name 'my-nodes-category' --label '[Test] My external nodes category'
    # Successfully added member 'my-member-1' to networkgroup 'ng_620b3482-f286-4189-9931-a8910f2ea706'.
    cleverr ng --ng "$ngLabel" peers add-external --role 'client' --public-key "$publicKey1" --label "$peerLabel1" --parent "$memberId1"
-   # External peer (auto id) must have been added to networkgroup 'ng_620b3482-f286-4189-9931-a8910f2ea706'.
+   # External peer 'external_3056ea93-c10d-4175-a91d-b6ed2803ce7c' must have been added to networkgroup 'ng_620b3482-f286-4189-9931-a8910f2ea706'.
    cleverr ng --ng "$ngLabel" peers list
    # Peer ID                                        Peer Type                  Endpoint Type              Label                                          Hostname              IP Address
    # ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -171,7 +171,7 @@ ngLabelForInvalidCases2='test-2'
 
    ```sh
    cleverr ng --ng "$ngLabel" peers add-external --role 'client' --public-key "$publicKey2" --label "$peerLabel2" --parent "$memberId1"
-   # External peer (auto id) must have been added to networkgroup 'ng_620b3482-f286-4189-9931-a8910f2ea706'.
+   # External peer 'external_0839394b-1ddf-49dc-a9a2-09b0437ed59e' must have been added to networkgroup 'ng_620b3482-f286-4189-9931-a8910f2ea706'.
    ```
 
    Call this endpoint again:

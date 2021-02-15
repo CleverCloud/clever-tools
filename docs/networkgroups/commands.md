@@ -168,7 +168,6 @@ Add an external node as a networkgroup peer
 | ------------------------- | ------------------------------------------------ |
 | `[--verbose, -v]`         | Verbose output (default: false)                  |
 | `--ng NG`                 | Networkgroup ID or label                         |
-| `[--peer-id] PEER_ID`     | The peer ID                                      |
 | `--role PEER_ROLE`        | The peer role, ('client' or 'server')            |
 | `--public-key PUBLIC_KEY` | A WireGuard public key                           |
 | `--label PEER_LABEL`      | Networkgroup peer label                          |

@@ -388,8 +388,7 @@ async function joinNg (params) {
   }
 
   // FIXME: Allow join as server
-  // FIXME: Remove peerId
-  const { ng: ngIdOrLabel, label, interactive, 'peer-id': peerId } = params.options;
+  const { ng: ngIdOrLabel, label, interactive } = params.options;
   let { 'node-category-id': parentId, 'private-key': privateKey } = params.options;
   const ownerId = await getOwnerId();
   const ngId = await Networkgroup.getId(ownerId, ngIdOrLabel);
@@ -404,9 +403,8 @@ async function joinNg (params) {
   const publicKey = execSync(`echo '${privateKey}' | wg pubkey`, { encoding: 'utf-8' }).trim();
 
   // Create new params keeping previous ones (e.g. verbose)
-  const options = { ...params.options, ng: { ng_id: ngId }, 'peer-id': peerId, role: 'client', 'public-key': publicKey, label, parent: parentId };
-  await addExternalPeer({ args: params.args, options });
-  // FIXME: peerId is not used to create the external peer, so peerId doesn't exist
+  const options = { ...params.options, ng: { ng_id: ngId }, role: 'client', 'public-key': publicKey, label, parent: parentId };
+  const peerId = await addExternalPeer({ args: params.args, options });
 
   const { confName, confPath } = getConfInformation(ngId);
   let interfaceName = confName;
@@ -649,16 +647,17 @@ async function getPeer (params) {
 }
 
 async function addExternalPeer (params) {
-  const { ng: ngIdOrLabel, 'peer-id': peerId, role, 'public-key': publicKey, label, parent } = params.options;
+  const { ng: ngIdOrLabel, role, 'public-key': publicKey, label, parent } = params.options;
   const ownerId = await getOwnerId();
   const ngId = await Networkgroup.getId(ownerId, ngIdOrLabel);
 
-  const body = { id: peerId, 'peer-role': role, 'public-key': publicKey, label, parent_member: parent };
-  Logger.info(`Adding external peer ${peerId == null ? '(auto id)' : formatString(peerId)} to networkgroup ${formatString(ngId)}`);
+  const body = { 'peer-role': role, 'public-key': publicKey, label, parent_member: parent };
+  Logger.info(`Adding external peer to networkgroup ${formatString(ngId)}`);
   Logger.debug('Sending body: ' + JSON.stringify(body, null, 2));
-  await networkgroup.addExternalPeer({ ownerId, ngId, peerId }, body).then(sendToApi);
+  const { id: peerId } = await networkgroup.addExternalPeer({ ownerId, ngId }, body).then(sendToApi);
 
-  Logger.println(`External peer ${peerId == null ? '(auto id)' : formatString(peerId)} must have been added to networkgroup ${formatString(ngId)}.`);
+  Logger.println(`External peer ${formatString(peerId)} must have been added to networkgroup ${formatString(ngId)}.`);
+  return peerId;
 }
 
 async function removeExternalPeer (params) {

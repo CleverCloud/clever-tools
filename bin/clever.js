@@ -744,8 +744,7 @@ function run () {
   }, networkgroups('deleteNg'));
   const networkgroupsJoinCommand = cliparse.command('join', {
     description: 'Join a networkgroup',
-    // FIXME: Remove optNgPeerId
-    options: [opts.ngIdOrLabel, opts.ngPeerLabel, opts.optWgPrivateKey, opts.optNgNodeCategoryId, opts.interactive, opts.optNgPeerId],
+    options: [opts.ngIdOrLabel, opts.ngPeerLabel, opts.optWgPrivateKey, opts.optNgNodeCategoryId, opts.interactive],
   }, networkgroups('joinNg'));
   const networkgroupsLeaveCommand = cliparse.command('leave', {
     description: 'Manually leave a networkgroup if a problem occured',
@@ -790,7 +789,7 @@ function run () {
   }, networkgroups('getPeer'));
   const networkgroupsPeerAddCommand = cliparse.command('add-external', {
     description: 'Add an external node as a networkgroup peer',
-    options: [opts.ngIdOrLabel, opts.optNgPeerId, opts.ngPeerRole, opts.wgPublicKey, opts.ngPeerLabel, opts.ngPeerParentMemberId],
+    options: [opts.ngIdOrLabel, opts.ngPeerRole, opts.wgPublicKey, opts.ngPeerLabel, opts.ngPeerParentMemberId],
   }, networkgroups('addExternalPeer'));
   const networkgroupsPeerRemoveExternalCommand = cliparse.command('remove-external', {
     description: 'Remove an external node from a networkgroup',
