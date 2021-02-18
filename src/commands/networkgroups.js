@@ -389,10 +389,18 @@ async function joinNg (params) {
   }
 
   // FIXME: Allow join as server
-  const { ng: ngIdOrLabel, label, interactive } = params.options;
-  let { 'node-category-id': parentId, 'private-key': privateKey } = params.options;
+  const { ng: ngIdOrLabel, label, ip, port, interactive } = params.options;
+  let { 'node-category-id': parentId, 'private-key': privateKey, role } = params.options;
   const ownerId = await getOwnerId();
   const ngId = await Networkgroup.getId(ownerId, ngIdOrLabel);
+
+  // Default role to client
+  role = role ?? 'client';
+  // FIXME: Ask if --interactive
+  if (role === 'server' && [ip, port].includes(undefined)) {
+    Logger.error(`To join a networkgroup as server, you need to specify an IP address and a port number. Please try again with ${formatCommand('--ip IP_ADDRESS')} and ${formatCommand('--port PORT_NUMBER')}.`);
+    return false;
+  }
 
   const { confName, confPath } = getConfInformation(ngId);
   if (fs.existsSync(confPath)) {
@@ -410,7 +418,7 @@ async function joinNg (params) {
   const publicKey = execSync(`echo '${privateKey}' | wg pubkey`, { encoding: 'utf-8' }).trim();
 
   // Create new params keeping previous ones (e.g. verbose)
-  const options = { ...params.options, ng: { ng_id: ngId }, role: 'client', 'public-key': publicKey, label, parent: parentId };
+  const options = { ...params.options, ng: { ng_id: ngId }, role, 'public-key': publicKey, label, parent: parentId, ip, port };
   const peerId = await addExternalPeer({ args: params.args, options });
   let interfaceName = confName;
 
@@ -664,11 +672,11 @@ async function getPeer (params) {
 }
 
 async function addExternalPeer (params) {
-  const { ng: ngIdOrLabel, role, 'public-key': publicKey, label, parent } = params.options;
+  const { ng: ngIdOrLabel, role, 'public-key': publicKey, label, parent, ip, port } = params.options;
   const ownerId = await getOwnerId();
   const ngId = await Networkgroup.getId(ownerId, ngIdOrLabel);
 
-  const body = { 'peer-role': role, 'public-key': publicKey, label, parent_member: parent };
+  const body = { 'peer-role': role, 'public-key': publicKey, label, parent_member: parent, ip, port };
   Logger.info(`Adding external peer to networkgroup ${formatString(ngId)}`);
   Logger.debug('Sending body: ' + JSON.stringify(body, null, 2));
   const { id: peerId } = await networkgroup.addExternalPeer({ ownerId, ngId }, body).then(sendToApi);

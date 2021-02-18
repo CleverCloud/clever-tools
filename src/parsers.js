@@ -131,6 +131,24 @@ function ngPeerRole (string) {
   return cliparse.parsers.error(`Invalid peer role '${string}'. Should be in ${JSON.stringify(possible)}`);
 }
 
+const ipAddressRegex = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9]?[0-9])\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9]?[0-9])$/;
+
+function ipAddress (string) {
+  if (string.match(ipAddressRegex)) {
+    return cliparse.parsers.success(string);
+  }
+  return cliparse.parsers.error(`Invalid IP address '${string}'. Should match ${ipAddressRegex}`);
+}
+
+const portNumberRegex = /^\d{1,5}$/;
+
+function portNumber (number) {
+  if (String(number).match(portNumberRegex)) {
+    return cliparse.parsers.success(number);
+  }
+  return cliparse.parsers.error(`Invalid port number '${number}'. Should match ${portNumberRegex}`);
+}
+
 module.exports = {
   buildFlavor,
   flavor,
@@ -147,4 +165,6 @@ module.exports = {
   tags,
   ngMemberType,
   ngPeerRole,
+  ipAddress,
+  portNumber,
 };

@@ -472,6 +472,13 @@ function run () {
       description: 'The peer ID',
       // complete: Networkgroup('xxx'),
     }),
+    optNgPeerRole: cliparse.option('role', {
+      required: false,
+      metavar: 'peer_role',
+      description: 'The peer role, (\'client\' or \'server\')',
+      parser: Parsers.ngPeerRole,
+      complete: Networkgroup('listAvailablePeerRoles'),
+    }),
     optNgSearchAppId: cliparse.option('app-id', {
       required: false,
       metavar: 'app_id',
@@ -505,6 +512,18 @@ function run () {
       metavar: 'tags',
       description: 'List of tags separated by a comma',
       parser: Parsers.tags,
+    }),
+    optIpAddress: cliparse.option('ip', {
+      required: false,
+      metavar: 'ip_address',
+      description: 'An IP address',
+      parser: Parsers.ipAddress,
+    }),
+    optPortNumber: cliparse.option('port', {
+      required: false,
+      metavar: 'port_number',
+      description: 'A port number',
+      parser: Parsers.portNumber,
     }),
   };
 
@@ -744,7 +763,7 @@ function run () {
   }, networkgroups('deleteNg'));
   const networkgroupsJoinCommand = cliparse.command('join', {
     description: 'Join a networkgroup',
-    options: [opts.ngIdOrLabel, opts.ngPeerLabel, opts.optWgPrivateKey, opts.optNgNodeCategoryId, opts.interactive],
+    options: [opts.ngIdOrLabel, opts.ngPeerLabel, opts.optWgPrivateKey, opts.optNgNodeCategoryId, opts.optNgPeerRole, opts.optIpAddress, opts.optPortNumber, opts.interactive],
   }, networkgroups('joinNg'));
   const networkgroupsLeaveCommand = cliparse.command('leave', {
     description: 'Manually leave a networkgroup if a problem occured',
