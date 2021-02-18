@@ -395,8 +395,6 @@ async function joinNg (params) {
   const ownerId = await getOwnerId();
   const ngId = await Networkgroup.getId(ownerId, ngIdOrLabel);
 
-  // Default role to client
-  role = role ?? 'client';
   if (role === 'server' && [ip, port].includes(null)) {
     if (interactive) {
       const result = await prompts([

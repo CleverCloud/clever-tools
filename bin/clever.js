@@ -474,6 +474,7 @@ function run () {
     }),
     optNgPeerRole: cliparse.option('role', {
       required: false,
+      default: 'client',
       metavar: 'peer_role',
       description: 'The peer role, (\'client\' or \'server\')',
       parser: Parsers.ngPeerRole,
