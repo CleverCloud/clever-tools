@@ -143,7 +143,11 @@ sudo clever ng --ng 'first-ng' join --node-category-id 'dev-laptops-category'
 ```
 
 ```log
-TODO
+External peer 'external_2dfac7bf-ebab-4bf7-9763-d83f465fbc86' must have been added to networkgroup 'ng_bcce10f3-ec6a-4d51-8e28-50cd622d2ecb'.
+Activated WireGuard® tunnel
+Successfully joined networkgroup 'ng_bcce10f3-ec6a-4d51-8e28-50cd622d2ecb'
+^C
+External peer 'external_2dfac7bf-ebab-4bf7-9763-d83f465fbc86' must have been removed from networkgroup 'ng_bcce10f3-ec6a-4d51-8e28-50cd622d2ecb'.
 ```
 
 When you join a networkgroup, your CLI hangs. Hit <kbd><kbd>Ctrl</kbd>+<kbd>C</kbd></kbd> or anything else that produces `SIGINT` or `SIGTERM` and the CLI will automatically leave the networkgroup. In case some problem happened, or you sent a `SIGKILL` signal, you can run `sudo clever ng leave` to leave the networkgroup and clean residual files. These are stored in your OS's temporary folder (e.g. `/tmp`), so they will be deleted at some point anyway.
