@@ -18,6 +18,7 @@ const { ngQuestions } = require('../models/questions');
 const AppConfig = require('../models/app_configuration.js');
 const Logger = require('../logger.js');
 const Networkgroup = require('../models/networkgroup.js');
+const Parsers = require('../parsers.js');
 
 const { sendToApi, getHostAndTokens } = require('../models/send-to-api.js');
 
@@ -389,17 +390,50 @@ async function joinNg (params) {
   }
 
   // FIXME: Allow join as server
-  const { ng: ngIdOrLabel, label, ip, port, interactive } = params.options;
-  let { 'node-category-id': parentId, 'private-key': privateKey, role } = params.options;
+  const { ng: ngIdOrLabel, label, interactive } = params.options;
+  let { 'node-category-id': parentId, 'private-key': privateKey, role, ip, port } = params.options;
   const ownerId = await getOwnerId();
   const ngId = await Networkgroup.getId(ownerId, ngIdOrLabel);
 
   // Default role to client
   role = role ?? 'client';
-  // FIXME: Ask if --interactive
-  if (role === 'server' && [ip, port].includes(undefined)) {
-    Logger.error(`To join a networkgroup as server, you need to specify an IP address and a port number. Please try again with ${formatCommand('--ip IP_ADDRESS')} and ${formatCommand('--port PORT_NUMBER')}.`);
-    return false;
+  if (role === 'server' && [ip, port].includes(null)) {
+    if (interactive) {
+      const result = await prompts([
+        {
+          type: ip ? null : 'text',
+          name: 'ip',
+          message: 'Your server peer IP address:',
+          // FIXME: Add real validation
+          validate: (value) => String(value).match(Parsers.ipAddressRegex),
+        },
+        {
+          type: port ? null : 'number',
+          name: 'port',
+          message: 'Your server peer port:',
+          // FIXME: Add real validation
+          validate: (value) => String(value).match(Parsers.portNumberRegex),
+        },
+      ]);
+
+      // If user aborts
+      // Note: This is ugly, but for some reason, the `onCancel` method of `prompts` is called before a question even appears…
+      if (!ip && !result.ip) {
+        Logger.error(`You cannot skip this question. Remove ${formatCommand('--interactive')} and add ${formatCommand('--ip IP_ADDRESS')} to specify an IP address manually.`);
+        return process.exit(1);
+      }
+      if (!port && !result.port) {
+        Logger.error(`You cannot skip this question. Remove ${formatCommand('--interactive')} and add ${formatCommand('--port PORT_NUMBER')} to specify a port manually.`);
+        return process.exit(1);
+      }
+
+      ip = ip ?? result.ip;
+      port = port ?? result.port;
+    }
+    else {
+      Logger.error(`To join a networkgroup as server, you need to specify an IP address and a port number. Please try again with ${formatCommand('--ip IP_ADDRESS')} and ${formatCommand('--port PORT_NUMBER')}.`);
+      return false;
+    }
   }
 
   const { confName, confPath } = getConfInformation(ngId);

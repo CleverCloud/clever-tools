@@ -165,6 +165,8 @@ module.exports = {
   tags,
   ngMemberType,
   ngPeerRole,
+  ipAddressRegex,
   ipAddress,
+  portNumberRegex,
   portNumber,
 };
