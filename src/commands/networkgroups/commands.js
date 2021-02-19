@@ -9,18 +9,18 @@ const isElevated = require('is-elevated');
 const networkgroup = require('@clevercloud/client/cjs/api/v4/networkgroup.js');
 const { NetworkgroupStream } = require('@clevercloud/client/cjs/streams/networkgroup.node.js');
 
-const formatTable = require('../format-table');
+const formatTable = require('../../format-table');
 const colors = require('colors/safe');
 const { v4: uuidv4 } = require('uuid');
 const prompts = require('prompts');
-const { ngQuestions } = require('../models/questions');
+const { ngQuestions } = require('../../models/questions');
 
-const AppConfig = require('../models/app_configuration.js');
-const Logger = require('../logger.js');
-const Networkgroup = require('../models/networkgroup.js');
-const Parsers = require('../parsers.js');
+const AppConfig = require('../../models/app_configuration.js');
+const Logger = require('../../logger.js');
+const Networkgroup = require('../../models/networkgroup.js');
+const Parsers = require('../../parsers.js');
 
-const { sendToApi, getHostAndTokens } = require('../models/send-to-api.js');
+const { sendToApi, getHostAndTokens } = require('../../models/send-to-api.js');
 
 function printSeparator (columnLengths) {
   Logger.println('─'.repeat(columnLengths.reduce((a, b) => a + b + 2)));

@@ -747,7 +747,7 @@ function run () {
   }, makeDefault('makeDefault'));
 
   // NETWORKGROUPS COMMAND
-  const networkgroups = lazyRequirePromiseModule('../src/commands/networkgroups.js');
+  const networkgroups = lazyRequirePromiseModule('../src/commands/networkgroups/commands.js');
 
   // networkgroup category - start
   const networkgroupsListCommand = cliparse.command('list', {
