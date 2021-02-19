@@ -106,7 +106,10 @@ function tag (string) {
 }
 
 function tags (string) {
-  const tags = string.split(',');
+  if (String(string).length === 0) {
+    return cliparse.parsers.success([]);
+  }
+  const tags = String(string).split(',');
   for (const current of tags) {
     if (tag(current).error) {
       return cliparse.parsers.error(`Invalid tag '${current}'. Should match \`${tagRegex}\``);
