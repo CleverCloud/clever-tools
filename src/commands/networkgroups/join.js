@@ -13,9 +13,9 @@ const prompts = require('prompts');
 
 const Logger = require('../../logger.js');
 const Networkgroup = require('../../models/networkgroup.js');
-const Parsers = require('../../parsers.js');
 const Formatter = require('./format-string.js');
 const WgConf = require('./wireguard-conf.js');
+const { ngQuestions } = require('../../models/questions');
 
 const { addMember } = require('./members.js');
 const { addExternalPeer, removeExternalPeer } = require('./peers.js');
@@ -39,24 +39,17 @@ async function askForParentMember ({ ownerId, ngId, interactive }) {
       // Case 2: If some 'externalNode's are already created, ask for selection (+ 'new' case).
       // - If selected, join with selected member as parent.
       // - If 'new', case 1.
-      const result = await prompts({
-        type: 'autocomplete',
-        name: 'memberId',
-        message: 'What category do you want to join?',
-        choices: [
-          ...members.map((m) => ({ title: m.label, value: m.id })),
-          { title: 'Create new category', value: 'new' },
-        ],
-        initial: 0,
-      });
+      const questions = [];
+      questions.push(ngQuestions.ngNodeCategory(members));
+      const result = await prompts(questions);
 
       // If user aborts
-      if (result.memberId === undefined) {
+      if (!result.ngNodeCategory) {
         Logger.error(`You cannot skip this question. Remove ${Formatter.formatCommand('--interactive')} and add ${Formatter.formatCommand('--node-category-id')} to select an external node category manually.`);
         return process.exit(1);
       }
 
-      parentId = result.memberId;
+      parentId = result.ngNodeCategory;
     }
     else {
       Logger.error(`This networkgroup already has an external node category. Add ${Formatter.formatCommand(`--node-category-id ${Formatter.formatString(members[0].id)}`)} to select it.`);
@@ -66,33 +59,22 @@ async function askForParentMember ({ ownerId, ngId, interactive }) {
 
   if (parentId === 'new') {
     if (interactive) {
-      const result = await prompts([
-        {
-          type: 'text',
-          name: 'memberLabel',
-          message: 'How do you want to call it (label)?',
-          // FIXME: Add real validation
-          validate: (value) => true,
-        },
-        {
-          type: 'text',
-          name: 'domainName',
-          message: 'What domain name do you want it to have?',
-          // FIXME: Add real validation
-          validate: (value) => true,
-        },
-      ]);
+      const questions = [];
+      questions.push(ngQuestions.ngMemberLabel);
+      questions.push(ngQuestions.ngMemberDomainName);
+      const result = await prompts(questions);
+
       const memberId = uuidv4();
-      const { memberLabel, domainName } = result;
       await addMember({
         options: {
           ng: { ng_id: ngId },
           'member-id': memberId,
           type: 'external',
-          'domain-name': domainName,
-          label: memberLabel,
+          'domain-name': result.ngMemberDomainName,
+          label: result.ngMemberLabel,
         },
       });
+
       parentId = memberId;
     }
     else {
@@ -135,34 +117,24 @@ async function joinNg (params) {
 
   if (role === 'server' && [ip, port].includes(null)) {
     if (interactive) {
-      const result = await prompts([
-        {
-          type: ip ? null : 'text',
-          name: 'ip',
-          message: 'Your server peer IP address:',
-          validate: (value) => String(value).match(Parsers.ipAddressRegex),
-        },
-        {
-          type: port ? null : 'number',
-          name: 'port',
-          message: 'Your server peer port:',
-          validate: (value) => String(value).match(Parsers.portNumberRegex),
-        },
-      ]);
+      const questions = [];
+      if (!ip) questions.push(ngQuestions.ngServerIp);
+      if (!port) questions.push(ngQuestions.ngServerPort);
+      const result = await prompts(questions);
 
       // If user aborts
       // Note: This is ugly, but for some reason, the `onCancel` method of `prompts` is called before a question even appears…
-      if (!ip && !result.ip) {
+      if (!ip && !result.ngServerIp) {
         Logger.error(`You cannot skip this question. Remove ${Formatter.formatCommand('--interactive')} and add ${Formatter.formatCommand('--ip IP_ADDRESS')} to specify an IP address manually.`);
         return process.exit(1);
       }
-      if (!port && !result.port) {
+      if (!port && !result.ngServerPort) {
         Logger.error(`You cannot skip this question. Remove ${Formatter.formatCommand('--interactive')} and add ${Formatter.formatCommand('--port PORT_NUMBER')} to specify a port manually.`);
         return process.exit(1);
       }
 
-      ip = ip ?? result.ip;
-      port = port ?? result.port;
+      ip = ip ?? result.ngServerIp;
+      port = port ?? result.ngServerPort;
     }
     else {
       Logger.error(`To join a networkgroup as server, you need to specify an IP address and a port number. Please try again with ${Formatter.formatCommand('--ip IP_ADDRESS')} and ${Formatter.formatCommand('--port PORT_NUMBER')}.`);
