@@ -140,14 +140,12 @@ async function joinNg (params) {
           type: ip ? null : 'text',
           name: 'ip',
           message: 'Your server peer IP address:',
-          // FIXME: Add real validation
           validate: (value) => String(value).match(Parsers.ipAddressRegex),
         },
         {
           type: port ? null : 'number',
           name: 'port',
           message: 'Your server peer port:',
-          // FIXME: Add real validation
           validate: (value) => String(value).match(Parsers.portNumberRegex),
         },
       ]);
