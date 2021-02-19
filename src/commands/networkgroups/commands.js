@@ -1,9 +1,7 @@
 'use strict';
 
-const os = require('os');
 const { execSync, spawnSync } = require('child_process');
 const fs = require('fs');
-const path = require('path');
 const isElevated = require('is-elevated');
 
 const networkgroup = require('@clevercloud/client/cjs/api/v4/networkgroup.js');
@@ -18,67 +16,11 @@ const Networkgroup = require('../../models/networkgroup.js');
 const Parsers = require('../../parsers.js');
 const Formatter = require('./format-string.js');
 const TableFormatter = require('./format-table.js');
+const WgConf = require('./wireguard-conf.js');
 
 const { listNetworkgroups, createNg, deleteNg } = require('./index.js');
 
 const { sendToApi, getHostAndTokens } = require('../../models/send-to-api.js');
-
-function getWgConfFolder () {
-  // TODO: See if we can use runtime dirs
-  return path.join(os.tmpdir(), 'com.clever-cloud.networkgroups');
-}
-
-function createWgConfFolderIfNeeded () {
-  const confFolder = getWgConfFolder();
-  if (!fs.existsSync(confFolder)) {
-    fs.mkdirSync(confFolder);
-  }
-}
-
-function getConfInformation (ngId) {
-  const confName = `wgcc${ngId.slice(-8)}`;
-  const confPath = path.join(getWgConfFolder(), `${confName}.conf`);
-
-  return { confName, confPath };
-}
-
-function getPeerIdPath (confName) {
-  return path.join(getWgConfFolder(), `${confName}.id`);
-}
-
-function storePeerId (peerId, confName) {
-  const filePath = getPeerIdPath(confName);
-  fs.writeFileSync(filePath, peerId, { mode: 0o600, flag: 'wx' }, (error) => {
-    if (error) {
-      Logger.error(`Error saving peer ID: ${error}`);
-      process.exit(1);
-    }
-    else {
-      Logger.info(`Saved peer ID file to ${Formatter.formatUrl(filePath)}`);
-    }
-  });
-}
-
-function getPeerId (ngId) {
-  const { confName } = getConfInformation(ngId);
-  const filePath = getPeerIdPath(confName);
-  if (fs.existsSync(filePath)) {
-    Logger.debug(`Reading peer ID from ${Formatter.formatUrl(filePath)}`);
-    return fs.readFileSync(filePath, { encoding: 'utf-8' }).trim();
-  }
-  else {
-    Logger.debug(`No file found at ${Formatter.formatUrl(filePath)}`);
-    return null;
-  }
-}
-
-function deletePeerIdFile (ngId) {
-  const { confName } = getConfInformation(ngId);
-  const filePath = getPeerIdPath(confName);
-  // We need `force: true` to avoid errors if file doesn't exist
-  fs.rmSync(filePath, { force: true });
-  Logger.info(`Deleted peer ID from ${Formatter.formatUrl(filePath)}`);
-}
 
 async function askForParentMember ({ ownerId, ngId, interactive }) {
   let members = await networkgroup.listMembers({ ownerId, ngId }).then(sendToApi);
@@ -240,7 +182,7 @@ async function joinNg (params) {
     }
   }
 
-  const { confName, confPath } = getConfInformation(ngId);
+  const { confName, confPath } = WgConf.getConfInformation(ngId);
   if (fs.existsSync(confPath)) {
     Logger.error(`You cannot join a networkgroup twice at the same time with the same computer. Try using ${Formatter.formatCommand('clever networkgroups leave')} and running this command again.`);
     return false;
@@ -261,7 +203,7 @@ async function joinNg (params) {
   let interfaceName = confName;
 
   try {
-    storePeerId(peerId, confName);
+    WgConf.storePeerId(peerId, confName);
   }
   catch (error) {
     // If networkgroup already joined, remove freshly created external peer
@@ -269,7 +211,7 @@ async function joinNg (params) {
     throw error;
   }
 
-  createWgConfFolderIfNeeded();
+  WgConf.createWgConfFolderIfNeeded();
 
   // Get current configuration
   const confAsB64 = await networkgroup.getWgConf({ ownerId, ngId, peerId }).then(sendToApi);
@@ -384,10 +326,10 @@ async function leaveNg (params) {
   let { 'peer-id': peerId } = params.options;
   const ownerId = await Networkgroup.getOwnerId();
   const ngId = await Networkgroup.getId(ownerId, ngIdOrLabel);
-  const { confPath } = getConfInformation(ngId);
+  const { confPath } = WgConf.getConfInformation(ngId);
 
   if (peerId === null) {
-    peerId = getPeerId(ngId);
+    peerId = WgConf.getPeerId(ngId);
     if (peerId === null) {
       Logger.error(`We cannot find the ID you had in this networkgroup. Try finding yourself in the results of ${Formatter.formatCommand('clever networkgroups peers list')} and running this command again adding the parameter ${Formatter.formatCommand('--peer-id PEER_ID')}.`);
       process.exit(1);
@@ -399,7 +341,7 @@ async function leaveNg (params) {
   if (stdout.length > 0) Logger.debug(stdout.trim());
   if (stderr.length > 0) Logger.debug(stderr.trim());
 
-  deletePeerIdFile(ngId);
+  WgConf.deletePeerIdFile(ngId);
   // We need `force: true` to avoid errors if file doesn't exist
   fs.rmSync(confPath, { force: true });
   Logger.info(`Deleted WireGuard® configuration file for ${Formatter.formatString(ngId)}`);
