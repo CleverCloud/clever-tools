@@ -86,8 +86,10 @@ async function askForParentMember ({ ownerId, ngId, interactive }) {
   return parentId;
 }
 
-async function joinNg (params) {
-  // Check that `wg` and `wg-quick` are installed
+/**
+ * Check that `wg` and `wg-quick` are installed
+ */
+function checkWgAvailable () {
   try {
     // The redirect to `/dev/null` ensures that your program does not produce the output of these commands.
     execSync('which wg > /dev/null 2>&1');
@@ -102,6 +104,10 @@ async function joinNg (params) {
     Logger.error(`Clever Cloud's networkgroups use WireGuard®. Therefore, this command requires WireGuard® commands available on your computer.\n\nFollow instructions at ${Formatter.formatUrl('https://www.wireguard.com/install/')} to install it.`);
     return false;
   }
+}
+
+async function joinNg (params) {
+  checkWgAvailable();
 
   // Check if command was run with `sudo`
   if (!await isElevated()) {
