@@ -12,88 +12,16 @@ const { NetworkgroupStream } = require('@clevercloud/client/cjs/streams/networkg
 const colors = require('colors/safe');
 const { v4: uuidv4 } = require('uuid');
 const prompts = require('prompts');
-const { ngQuestions } = require('../../models/questions');
 
-const AppConfig = require('../../models/app_configuration.js');
 const Logger = require('../../logger.js');
 const Networkgroup = require('../../models/networkgroup.js');
 const Parsers = require('../../parsers.js');
 const Formatter = require('./format-string.js');
 const TableFormatter = require('./format-table.js');
 
+const { listNetworkgroups, createNg, deleteNg } = require('./index.js');
+
 const { sendToApi, getHostAndTokens } = require('../../models/send-to-api.js');
-
-async function getOwnerId () {
-  return (await AppConfig.getAppDetails({})).ownerId;
-}
-
-async function listNetworkgroups (params) {
-  const { json } = params.options;
-  const ownerId = await getOwnerId();
-
-  Logger.info(`Listing networkgroups from owner ${Formatter.formatString(ownerId)}`);
-  const result = await networkgroup.get({ ownerId }).then(sendToApi);
-
-  if (json) {
-    Logger.println(JSON.stringify(result, null, 2));
-  }
-  else {
-    if (result.length === 0) {
-      Logger.println(`No networkgroup found. You can create one with ${Formatter.formatCommand('clever networkgroups create')}.`);
-    }
-    else {
-      TableFormatter.printNetworkgroupsTableHeader();
-      const resultToPrint = result.map((ng) => TableFormatter.formatNetworkgroupsLine(ng));
-      for (const ng of resultToPrint) {
-        Logger.println(ng);
-      }
-    }
-  }
-}
-
-async function createNg (params) {
-  let { label, description, tags, interactive, json } = params.options;
-  const ownerId = await getOwnerId();
-
-  // Ask for missing data if interactive
-  if (interactive) {
-    const questions = [];
-    if (tags === null) {
-      questions.push(ngQuestions.tags);
-    }
-    if (questions.length > 0) {
-      const onCancel = (prompt) => {
-        // Do not abort prompt loop on cancel
-        return true;
-      };
-      const test1 = await prompts(questions, { onCancel });
-      tags = tags ?? test1.ngTags;
-    }
-  }
-
-  Logger.info(`Creating networkgroup from owner ${Formatter.formatString(ownerId)}`);
-  const body = { owner_id: ownerId, label, description, tags };
-  Logger.debug('Sending body: ' + JSON.stringify(body, null, 2));
-  const result = await networkgroup.createNg({ ownerId }, body).then(sendToApi);
-
-  if (json) {
-    Logger.println(JSON.stringify(result, null, 2));
-  }
-  else {
-    Logger.println(`Networkgroup ${Formatter.formatString(label)} was created with the id ${Formatter.formatString(result.id)}.`);
-  }
-}
-
-async function deleteNg (params) {
-  const { ng: ngIdOrLabel } = params.options;
-  const ownerId = await getOwnerId();
-  const ngId = await Networkgroup.getId(ownerId, ngIdOrLabel);
-
-  Logger.info(`Deleting networkgroup ${Formatter.formatString(ngId)} from owner ${Formatter.formatString(ownerId)}`);
-  await networkgroup.deleteNg({ ownerId, ngId }).then(sendToApi);
-
-  Logger.println(`Networkgroup ${Formatter.formatString(ngId)} was successfully deleted.`);
-}
 
 function getWgConfFolder () {
   // TODO: See if we can use runtime dirs
@@ -270,7 +198,7 @@ async function joinNg (params) {
   // FIXME: Allow join as server
   const { ng: ngIdOrLabel, label, interactive } = params.options;
   let { 'node-category-id': parentId, 'private-key': privateKey, role, ip, port } = params.options;
-  const ownerId = await getOwnerId();
+  const ownerId = await Networkgroup.getOwnerId();
   const ngId = await Networkgroup.getId(ownerId, ngIdOrLabel);
 
   if (role === 'server' && [ip, port].includes(null)) {
@@ -454,7 +382,7 @@ async function joinNg (params) {
 async function leaveNg (params) {
   const { ng: ngIdOrLabel } = params.options;
   let { 'peer-id': peerId } = params.options;
-  const ownerId = await getOwnerId();
+  const ownerId = await Networkgroup.getOwnerId();
   const ngId = await Networkgroup.getId(ownerId, ngIdOrLabel);
   const { confPath } = getConfInformation(ngId);
 
@@ -479,7 +407,7 @@ async function leaveNg (params) {
 
 async function listMembers (params) {
   const { ng: ngIdOrLabel, 'natural-name': naturalName, json } = params.options;
-  const ownerId = await getOwnerId();
+  const ownerId = await Networkgroup.getOwnerId();
   const ngId = await Networkgroup.getId(ownerId, ngIdOrLabel);
 
   Logger.info(`Listing members from networkgroup '${ngId}'`);
@@ -503,7 +431,7 @@ async function listMembers (params) {
 
 async function getMember (params) {
   const { ng: ngIdOrLabel, 'member-id': memberId, 'natural-name': naturalName, json } = params.options;
-  const ownerId = await getOwnerId();
+  const ownerId = await Networkgroup.getOwnerId();
   const ngId = await Networkgroup.getId(ownerId, ngIdOrLabel);
 
   Logger.info(`Getting details for member ${Formatter.formatString(memberId)} in networkgroup ${Formatter.formatString(ngId)}`);
@@ -520,7 +448,7 @@ async function getMember (params) {
 
 async function addMember (params) {
   const { ng: ngIdOrLabel, 'member-id': memberId, type, 'domain-name': domainName, label } = params.options;
-  const ownerId = await getOwnerId();
+  const ownerId = await Networkgroup.getOwnerId();
   const ngId = await Networkgroup.getId(ownerId, ngIdOrLabel);
 
   const body = { id: memberId, label, 'domain-name': domainName, type };
@@ -532,7 +460,7 @@ async function addMember (params) {
 
 async function removeMember (params) {
   const { ng: ngIdOrLabel, 'member-id': memberId } = params.options;
-  const ownerId = await getOwnerId();
+  const ownerId = await Networkgroup.getOwnerId();
   const ngId = await Networkgroup.getId(ownerId, ngIdOrLabel);
 
   await networkgroup.removeMember({ ownerId, ngId, memberId }).then(sendToApi);
@@ -542,7 +470,7 @@ async function removeMember (params) {
 
 async function listPeers (params) {
   const { ng: ngIdOrLabel, json } = params.options;
-  const ownerId = await getOwnerId();
+  const ownerId = await Networkgroup.getOwnerId();
   const ngId = await Networkgroup.getId(ownerId, ngIdOrLabel);
 
   Logger.info(`Listing peers from networkgroup ${Formatter.formatString(ngId)}`);
@@ -566,7 +494,7 @@ async function listPeers (params) {
 
 async function getPeer (params) {
   const { ng: ngIdOrLabel, 'peer-id': peerId, json } = params.options;
-  const ownerId = await getOwnerId();
+  const ownerId = await Networkgroup.getOwnerId();
   const ngId = await Networkgroup.getId(ownerId, ngIdOrLabel);
 
   Logger.info(`Getting details for peer ${Formatter.formatString(peerId)} in networkgroup ${Formatter.formatString(ngId)}`);
@@ -583,7 +511,7 @@ async function getPeer (params) {
 
 async function addExternalPeer (params) {
   const { ng: ngIdOrLabel, role, 'public-key': publicKey, label, parent, ip, port } = params.options;
-  const ownerId = await getOwnerId();
+  const ownerId = await Networkgroup.getOwnerId();
   const ngId = await Networkgroup.getId(ownerId, ngIdOrLabel);
 
   const body = { 'peer-role': role, 'public-key': publicKey, label, parent_member: parent, ip, port };
@@ -597,7 +525,7 @@ async function addExternalPeer (params) {
 
 async function removeExternalPeer (params) {
   const { ng: ngIdOrLabel, 'peer-id': peerId } = params.options;
-  const ownerId = await getOwnerId();
+  const ownerId = await Networkgroup.getOwnerId();
   const ngId = await Networkgroup.getId(ownerId, ngIdOrLabel);
 
   Logger.info(`Removing external peer ${Formatter.formatString(peerId)} from networkgroup ${Formatter.formatString(ngId)}`);
