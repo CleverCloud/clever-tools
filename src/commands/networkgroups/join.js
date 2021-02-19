@@ -1,6 +1,5 @@
 'use strict';
 
-const { execSync, spawnSync } = require('child_process');
 const fs = require('fs');
 const isElevated = require('is-elevated');
 
@@ -14,6 +13,7 @@ const prompts = require('prompts');
 const Logger = require('../../logger.js');
 const Networkgroup = require('../../models/networkgroup.js');
 const Formatter = require('./format-string.js');
+const Wg = require('./wireguard.js');
 const WgConf = require('./wireguard-conf.js');
 const { ngQuestions } = require('../../models/questions');
 
@@ -86,23 +86,10 @@ async function askForParentMember ({ ownerId, ngId, interactive }) {
   return parentId;
 }
 
-/**
- * Check that `wg` and `wg-quick` are installed
- */
 function checkWgAvailable () {
-  try {
-    // The redirect to `/dev/null` ensures that your program does not produce the output of these commands.
-    execSync('which wg > /dev/null 2>&1');
-    execSync('which wg-quick > /dev/null 2>&1');
-
-    // FIXME: Handle Windows
-    //        - Those checks won't work on Windows, and wg-quick doesn't exist anyway.
-    //          - We need to wait for a Windows version of wg-quick to support the rest of the operations
-    //          - Or we could use vanilla wg on Windows, and wg-quick on other OSs
-  }
-  catch (error) {
+  if (!Wg.available()) {
     Logger.error(`Clever Cloud's networkgroups use WireGuard®. Therefore, this command requires WireGuard® commands available on your computer.\n\nFollow instructions at ${Formatter.formatUrl('https://www.wireguard.com/install/')} to install it.`);
-    return false;
+    process.exit(1);
   }
 }
 
@@ -158,10 +145,8 @@ async function joinNg (params) {
     parentId = await askForParentMember({ ownerId, ngId, interactive });
   }
 
-  if (privateKey === null) {
-    privateKey = execSync('wg genkey', { encoding: 'utf-8' }).trim();
-  }
-  const publicKey = execSync(`echo '${privateKey}' | wg pubkey`, { encoding: 'utf-8' }).trim();
+  privateKey = privateKey ?? Wg.privateKey();
+  const publicKey = Wg.publicKey(privateKey);
 
   // Create new params keeping previous ones (e.g. verbose)
   const options = { ...params.options, ng: { ng_id: ngId }, role, 'public-key': publicKey, label, parent: parentId, ip, port };
@@ -198,12 +183,7 @@ async function joinNg (params) {
       Logger.info(`Saved WireGuard® configuration file to ${Formatter.formatUrl(confPath)}`);
       try {
         // Activate WireGuard® tunnel
-        // We must use `spawn` with `detached: true` instead of `exec`
-        // because `wg-quick up` starts a `wireguard-go` used by `wg-quick down`
-        const { stdout, stderr } = spawnSync('wg-quick', ['up', confPath], { detached: true, encoding: 'utf-8' });
-        if (stdout.length > 0) Logger.debug(stdout.trim());
-        if (stderr.length > 0) Logger.debug(stderr.trim());
-        Logger.println('Activated WireGuard® tunnel');
+        Wg.up(confPath);
         Logger.println(colors.green(`Successfully joined networkgroup ${Formatter.formatString(ngId)}`));
 
         const interfaceNameFile = `/var/run/wireguard/${confName}.name`;
@@ -260,15 +240,7 @@ async function joinNg (params) {
           }
           else {
             Logger.info(`Saved new WireGuard® configuration file to ${Formatter.formatUrl(confPath)}`);
-            try {
-              // Update WireGuard® configuration
-              execSync(`wg-quick strip ${confPath} | wg syncconf ${interfaceName} /dev/stdin`);
-              Logger.info('Updated WireGuard® tunnel configuration');
-            }
-            catch (error) {
-              Logger.error(`Error updating WireGuard® tunnel configuration: ${error}`);
-              process.exit(1);
-            }
+            Wg.update(confPath, interfaceName);
           }
         });
       }
@@ -303,9 +275,7 @@ async function leaveNg (params) {
   }
 
   await removeExternalPeer({ options: { ng: { ng_id: ngId }, 'peer-id': peerId } });
-  const { stdout, stderr } = spawnSync('wg-quick', ['down', confPath], { encoding: 'utf-8' });
-  if (stdout.length > 0) Logger.debug(stdout.trim());
-  if (stderr.length > 0) Logger.debug(stderr.trim());
+  Wg.down(confPath);
 
   WgConf.deletePeerIdFile(ngId);
   // We need `force: true` to avoid errors if file doesn't exist
