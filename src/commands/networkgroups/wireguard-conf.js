@@ -64,9 +64,20 @@ function deletePeerIdFile (ngId) {
   Logger.info(`Deleted peer ID from ${Formatter.formatUrl(filePath)}`);
 }
 
+function confWithoutPlaceholders (conf, { privateKey }) {
+  conf = conf.replace('<%PrivateKey%>', privateKey);
+
+  // TODO: This just removes leading and trailing new lines in the configuration file
+  //       It should be better formatted on the API's side
+  conf = conf.trim();
+
+  return conf;
+}
+
 module.exports = {
   createWgConfFolderIfNeeded,
   storePeerId,
   getPeerId,
   deletePeerIdFile,
+  confWithoutPlaceholders,
 };
