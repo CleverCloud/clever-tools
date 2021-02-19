@@ -1,20 +1,22 @@
 'use strict';
 
-const ngLabelQuestion = {
+const ngLabel = {
   type: 'text',
   name: 'ngLabel',
   message: 'Networkgroup label (also used for DNS context)',
+  // FIXME: Add real validation
   validate: (value) => value.length > 0,
 };
 
-const ngDescriptionQuestion = {
+const ngDescription = {
   type: 'text',
   name: 'ngDescription',
   message: 'Networkgroup description',
-  validate: (value) => value.length > 100,
+  // FIXME: Add real validation
+  validate: (value) => true,
 };
 
-const ngTagsQuestion = {
+const ngTags = {
   type: 'list',
   name: 'ngTags',
   message: 'Networkgroup tags separated by commas (Ctrl+C or Esc to skip)',
@@ -22,15 +24,8 @@ const ngTagsQuestion = {
   separator: ',',
 };
 
-const ngQuestions = {
-  label: ngLabelQuestion,
-  description: ngDescriptionQuestion,
-  tags: ngTagsQuestion,
-};
+const ngQuestions = { ngLabel, ngDescription, ngTags };
 
 module.exports = {
   ngQuestions,
-  ngLabelQuestion,
-  ngDescriptionQuestion,
-  ngTagsQuestion,
 };

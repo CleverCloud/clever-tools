@@ -44,7 +44,7 @@ async function createNg (params) {
   if (interactive) {
     const questions = [];
     if (tags === null) {
-      questions.push(ngQuestions.tags);
+      questions.push(ngQuestions.ngTags);
     }
     if (questions.length > 0) {
       const onCancel = (prompt) => {
