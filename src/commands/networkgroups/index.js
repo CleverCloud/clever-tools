@@ -47,8 +47,8 @@ async function createNg (params) {
     if (questions.length > 0) {
       // Do not abort prompt loop on cancel
       const onCancel = () => true;
-      const test1 = await prompts(questions, { onCancel });
-      tags = tags ?? test1.ngTags;
+      const result = await prompts(questions, { onCancel });
+      tags = tags ?? result.ngTags;
     }
   }
 
