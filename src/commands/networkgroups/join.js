@@ -28,7 +28,7 @@ async function askForParentMember ({ ownerId, ngId, interactive }) {
     return member.type === 'externalNode';
   });
 
-  let parentId = null;
+  let parentId;
   if (members.length === 0) {
     // Case 1: If there are no 'externalNode's, create a new one.
     Logger.println('You have to create an external node category (networkgroup member) to join a networkgroup.');
@@ -141,11 +141,9 @@ async function joinNg (params) {
     return false;
   }
 
-  if (parentId === null) {
-    parentId = await askForParentMember({ ownerId, ngId, interactive });
-  }
+  if (!parentId) parentId = await askForParentMember({ ownerId, ngId, interactive });
 
-  privateKey = privateKey ?? Wg.privateKey();
+  if (!privateKey) privateKey = Wg.privateKey();
   const publicKey = Wg.publicKey(privateKey);
 
   // Create new params keeping previous ones (e.g. verbose)
@@ -266,9 +264,9 @@ async function leaveNg (params) {
   const ngId = await Networkgroup.getId(ownerId, ngIdOrLabel);
   const { confPath } = WgConf.getConfInformation(ngId);
 
-  if (peerId === null) {
+  if (!peerId) {
     peerId = WgConf.getPeerId(ngId);
-    if (peerId === null) {
+    if (!peerId) {
       Logger.error(`We cannot find the ID you had in this networkgroup. Try finding yourself in the results of ${Formatter.formatCommand('clever networkgroups peers list')} and running this command again adding the parameter ${Formatter.formatCommand('--peer-id PEER_ID')}.`);
       process.exit(1);
     }
