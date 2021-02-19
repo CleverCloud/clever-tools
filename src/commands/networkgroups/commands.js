@@ -9,7 +9,6 @@ const isElevated = require('is-elevated');
 const networkgroup = require('@clevercloud/client/cjs/api/v4/networkgroup.js');
 const { NetworkgroupStream } = require('@clevercloud/client/cjs/streams/networkgroup.node.js');
 
-const formatTable = require('../../format-table');
 const colors = require('colors/safe');
 const { v4: uuidv4 } = require('uuid');
 const prompts = require('prompts');
@@ -19,131 +18,10 @@ const AppConfig = require('../../models/app_configuration.js');
 const Logger = require('../../logger.js');
 const Networkgroup = require('../../models/networkgroup.js');
 const Parsers = require('../../parsers.js');
+const Formatter = require('./format-string.js');
+const TableFormatter = require('./format-table.js');
 
 const { sendToApi, getHostAndTokens } = require('../../models/send-to-api.js');
-
-function printSeparator (columnLengths) {
-  Logger.println('─'.repeat(columnLengths.reduce((a, b) => a + b + 2)));
-}
-
-// We use examples of maximum width text to have a clean display
-const networkgroupsTableColumnLengths = [
-  40, /* id length */
-  20, /* label length */
-  7, /* members length */
-  5, /* peers length */
-  40, /* description */
-];
-const formatNetworkgroupsTable = formatTable(networkgroupsTableColumnLengths);
-function formatNetworkgroupsLine (ng) {
-  return formatNetworkgroupsTable([
-    [
-      formatId(ng.id),
-      formatString(ng.label, true, false),
-      formatNumber(ng.members.length),
-      formatNumber(ng.peers.length),
-      formatString(ng.description || ' ', true, false),
-    ],
-  ]);
-};
-function printNetworkgroupsTableHeader () {
-  Logger.println(colors.bold(formatNetworkgroupsTable([
-    ['Networkgroup ID', 'Label', 'Members', 'Peers', 'Description'],
-  ])));
-  printSeparator(networkgroupsTableColumnLengths);
-}
-
-const membersTableColumnLengths = [
-  40, /* id length */
-  25, /* type length */
-  40, /* label length */
-  20, /* domain-name length */
-];
-const formatMembersTable = formatTable(membersTableColumnLengths);
-async function formatMembersLine (member, showAliases = false) {
-  return formatMembersTable([
-    [
-      showAliases ? formatString(await AppConfig.getMostNaturalName(member.id), true, false) : formatId(member.id),
-      formatString(member.type, true, false),
-      formatString(member.label, true, false),
-      formatString(member['domain-name'] || ' ', true, false),
-    ],
-  ]);
-};
-async function printMembersTableHeader (naturalName = false) {
-  Logger.println(colors.bold(formatMembersTable([
-    [
-      naturalName ? 'Member' : 'Member ID',
-      'Member Type',
-      'Label',
-      'Domain Name',
-    ],
-  ])));
-  printSeparator(membersTableColumnLengths);
-}
-
-const peersTableColumnLengths = [
-  45, /* id length */
-  25, /* type length */
-  25, /* endpoint type length */
-  45, /* label length */
-  20, /* hostname */
-  16, /* ip */
-];
-const formatPeersTable = formatTable(peersTableColumnLengths);
-function formatPeersLine (peer) {
-  const ip = (peer.endpoint.type === 'ServerEndpoint') ? peer.endpoint['ng-term'].ip : peer.endpoint['ng-ip'];
-  return formatPeersTable([
-    [
-      formatId(peer.id),
-      formatString(peer.type, true, false),
-      formatString(peer.endpoint.type, true, false),
-      formatString(peer.label, true, false),
-      formatString(peer.hostname, true, false),
-      formatIp(ip),
-    ],
-  ]);
-};
-function printPeersTableHeader () {
-  Logger.println(colors.bold(formatPeersTable([
-    [
-      'Peer ID',
-      'Peer Type',
-      'Endpoint Type',
-      'Label',
-      'Hostname',
-      'IP Address',
-    ],
-  ])));
-  printSeparator(peersTableColumnLengths);
-}
-
-function formatId (id, colored = true) {
-  return colored ? colors.dim(id) : id;
-}
-
-function formatString (str, colored = true, decorated = true) {
-  const string = decorated ? `'${str}'` : str;
-  return colored ? colors.green(string) : string;
-}
-
-function formatNumber (number, colored = true) {
-  return colored ? colors.yellow(number) : number;
-}
-
-function formatIp (ip, colored = true) {
-  return colored ? colors.cyan(ip) : ip;
-}
-
-function formatUrl (url, colored = true, decorated = true) {
-  const string = decorated ? `<${url}>` : url;
-  return colored ? colors.cyan(string) : string;
-}
-
-function formatCommand (command, colored = true, decorated = true) {
-  const string = decorated ? `\`${command}\`` : command;
-  return colored ? colors.magenta(string) : string;
-}
 
 async function getOwnerId () {
   return (await AppConfig.getAppDetails({})).ownerId;
@@ -153,7 +31,7 @@ async function listNetworkgroups (params) {
   const { json } = params.options;
   const ownerId = await getOwnerId();
 
-  Logger.info(`Listing networkgroups from owner ${formatString(ownerId)}`);
+  Logger.info(`Listing networkgroups from owner ${Formatter.formatString(ownerId)}`);
   const result = await networkgroup.get({ ownerId }).then(sendToApi);
 
   if (json) {
@@ -161,11 +39,11 @@ async function listNetworkgroups (params) {
   }
   else {
     if (result.length === 0) {
-      Logger.println(`No networkgroup found. You can create one with ${formatCommand('clever networkgroups create')}.`);
+      Logger.println(`No networkgroup found. You can create one with ${Formatter.formatCommand('clever networkgroups create')}.`);
     }
     else {
-      printNetworkgroupsTableHeader();
-      const resultToPrint = result.map((ng) => formatNetworkgroupsLine(ng));
+      TableFormatter.printNetworkgroupsTableHeader();
+      const resultToPrint = result.map((ng) => TableFormatter.formatNetworkgroupsLine(ng));
       for (const ng of resultToPrint) {
         Logger.println(ng);
       }
@@ -193,7 +71,7 @@ async function createNg (params) {
     }
   }
 
-  Logger.info(`Creating networkgroup from owner ${formatString(ownerId)}`);
+  Logger.info(`Creating networkgroup from owner ${Formatter.formatString(ownerId)}`);
   const body = { owner_id: ownerId, label, description, tags };
   Logger.debug('Sending body: ' + JSON.stringify(body, null, 2));
   const result = await networkgroup.createNg({ ownerId }, body).then(sendToApi);
@@ -202,7 +80,7 @@ async function createNg (params) {
     Logger.println(JSON.stringify(result, null, 2));
   }
   else {
-    Logger.println(`Networkgroup ${formatString(label)} was created with the id ${formatString(result.id)}.`);
+    Logger.println(`Networkgroup ${Formatter.formatString(label)} was created with the id ${Formatter.formatString(result.id)}.`);
   }
 }
 
@@ -211,10 +89,10 @@ async function deleteNg (params) {
   const ownerId = await getOwnerId();
   const ngId = await Networkgroup.getId(ownerId, ngIdOrLabel);
 
-  Logger.info(`Deleting networkgroup ${formatString(ngId)} from owner ${formatString(ownerId)}`);
+  Logger.info(`Deleting networkgroup ${Formatter.formatString(ngId)} from owner ${Formatter.formatString(ownerId)}`);
   await networkgroup.deleteNg({ ownerId, ngId }).then(sendToApi);
 
-  Logger.println(`Networkgroup ${formatString(ngId)} was successfully deleted.`);
+  Logger.println(`Networkgroup ${Formatter.formatString(ngId)} was successfully deleted.`);
 }
 
 function getWgConfFolder () {
@@ -248,7 +126,7 @@ function storePeerId (peerId, confName) {
       process.exit(1);
     }
     else {
-      Logger.info(`Saved peer ID file to ${formatUrl(filePath)}`);
+      Logger.info(`Saved peer ID file to ${Formatter.formatUrl(filePath)}`);
     }
   });
 }
@@ -257,11 +135,11 @@ function getPeerId (ngId) {
   const { confName } = getConfInformation(ngId);
   const filePath = getPeerIdPath(confName);
   if (fs.existsSync(filePath)) {
-    Logger.debug(`Reading peer ID from ${formatUrl(filePath)}`);
+    Logger.debug(`Reading peer ID from ${Formatter.formatUrl(filePath)}`);
     return fs.readFileSync(filePath, { encoding: 'utf-8' }).trim();
   }
   else {
-    Logger.debug(`No file found at ${formatUrl(filePath)}`);
+    Logger.debug(`No file found at ${Formatter.formatUrl(filePath)}`);
     return null;
   }
 }
@@ -271,7 +149,7 @@ function deletePeerIdFile (ngId) {
   const filePath = getPeerIdPath(confName);
   // We need `force: true` to avoid errors if file doesn't exist
   fs.rmSync(filePath, { force: true });
-  Logger.info(`Deleted peer ID from ${formatUrl(filePath)}`);
+  Logger.info(`Deleted peer ID from ${Formatter.formatUrl(filePath)}`);
 }
 
 async function askForParentMember ({ ownerId, ngId, interactive }) {
@@ -304,14 +182,14 @@ async function askForParentMember ({ ownerId, ngId, interactive }) {
 
       // If user aborts
       if (result.memberId === undefined) {
-        Logger.error(`You cannot skip this question. Remove ${formatCommand('--interactive')} and add ${formatCommand('--node-category-id')} to select an external node category manually.`);
+        Logger.error(`You cannot skip this question. Remove ${Formatter.formatCommand('--interactive')} and add ${Formatter.formatCommand('--node-category-id')} to select an external node category manually.`);
         return process.exit(1);
       }
 
       parentId = result.memberId;
     }
     else {
-      Logger.error(`This networkgroup already has an external node category. Add ${formatCommand(`--node-category-id ${formatString(members[0].id)}`)} to select it.`);
+      Logger.error(`This networkgroup already has an external node category. Add ${Formatter.formatCommand(`--node-category-id ${Formatter.formatString(members[0].id)}`)} to select it.`);
       return process.exit(1);
     }
   }
@@ -348,7 +226,7 @@ async function askForParentMember ({ ownerId, ngId, interactive }) {
       parentId = memberId;
     }
     else {
-      Logger.error(`See ${formatCommand('clever networkgroups members add')} or add ${formatCommand('--interactive')} tag to create a new external member (node).`);
+      Logger.error(`See ${Formatter.formatCommand('clever networkgroups members add')} or add ${Formatter.formatCommand('--interactive')} tag to create a new external member (node).`);
       return process.exit(1);
     }
   }
@@ -379,13 +257,13 @@ async function joinNg (params) {
     //          - Or we could use vanilla wg on Windows, and wg-quick on other OSs
   }
   catch (error) {
-    Logger.error(`Clever Cloud's networkgroups use WireGuard®. Therefore, this command requires WireGuard® commands available on your computer.\n\nFollow instructions at ${formatUrl('https://www.wireguard.com/install/')} to install it.`);
+    Logger.error(`Clever Cloud's networkgroups use WireGuard®. Therefore, this command requires WireGuard® commands available on your computer.\n\nFollow instructions at ${Formatter.formatUrl('https://www.wireguard.com/install/')} to install it.`);
     return false;
   }
 
   // Check if command was run with `sudo`
   if (!await isElevated()) {
-    Logger.error(`This command uses ${formatCommand('wg-quick')} under the hood. It needs privileges to create network interfaces. Please retry using ${formatCommand('sudo')}.`);
+    Logger.error(`This command uses ${Formatter.formatCommand('wg-quick')} under the hood. It needs privileges to create network interfaces. Please retry using ${Formatter.formatCommand('sudo')}.`);
     return false;
   }
 
@@ -417,11 +295,11 @@ async function joinNg (params) {
       // If user aborts
       // Note: This is ugly, but for some reason, the `onCancel` method of `prompts` is called before a question even appears…
       if (!ip && !result.ip) {
-        Logger.error(`You cannot skip this question. Remove ${formatCommand('--interactive')} and add ${formatCommand('--ip IP_ADDRESS')} to specify an IP address manually.`);
+        Logger.error(`You cannot skip this question. Remove ${Formatter.formatCommand('--interactive')} and add ${Formatter.formatCommand('--ip IP_ADDRESS')} to specify an IP address manually.`);
         return process.exit(1);
       }
       if (!port && !result.port) {
-        Logger.error(`You cannot skip this question. Remove ${formatCommand('--interactive')} and add ${formatCommand('--port PORT_NUMBER')} to specify a port manually.`);
+        Logger.error(`You cannot skip this question. Remove ${Formatter.formatCommand('--interactive')} and add ${Formatter.formatCommand('--port PORT_NUMBER')} to specify a port manually.`);
         return process.exit(1);
       }
 
@@ -429,14 +307,14 @@ async function joinNg (params) {
       port = port ?? result.port;
     }
     else {
-      Logger.error(`To join a networkgroup as server, you need to specify an IP address and a port number. Please try again with ${formatCommand('--ip IP_ADDRESS')} and ${formatCommand('--port PORT_NUMBER')}.`);
+      Logger.error(`To join a networkgroup as server, you need to specify an IP address and a port number. Please try again with ${Formatter.formatCommand('--ip IP_ADDRESS')} and ${Formatter.formatCommand('--port PORT_NUMBER')}.`);
       return false;
     }
   }
 
   const { confName, confPath } = getConfInformation(ngId);
   if (fs.existsSync(confPath)) {
-    Logger.error(`You cannot join a networkgroup twice at the same time with the same computer. Try using ${formatCommand('clever networkgroups leave')} and running this command again.`);
+    Logger.error(`You cannot join a networkgroup twice at the same time with the same computer. Try using ${Formatter.formatCommand('clever networkgroups leave')} and running this command again.`);
     return false;
   }
 
@@ -481,7 +359,7 @@ async function joinNg (params) {
       process.exit(1);
     }
     else {
-      Logger.info(`Saved WireGuard® configuration file to ${formatUrl(confPath)}`);
+      Logger.info(`Saved WireGuard® configuration file to ${Formatter.formatUrl(confPath)}`);
       try {
         // Activate WireGuard® tunnel
         // We must use `spawn` with `detached: true` instead of `exec`
@@ -490,14 +368,14 @@ async function joinNg (params) {
         if (stdout.length > 0) Logger.debug(stdout.trim());
         if (stderr.length > 0) Logger.debug(stderr.trim());
         Logger.println('Activated WireGuard® tunnel');
-        Logger.println(colors.green(`Successfully joined networkgroup ${formatString(ngId)}`));
+        Logger.println(colors.green(`Successfully joined networkgroup ${Formatter.formatString(ngId)}`));
 
         const interfaceNameFile = `/var/run/wireguard/${confName}.name`;
         try {
           interfaceName = fs.readFileSync(interfaceNameFile, { encoding: 'utf-8' }).trim();
         }
         catch (error) {
-          Logger.debug(`A problem occured while reading WireGuard® interface name in ${formatUrl(interfaceNameFile)}, fallback to configuration name (${formatString(confName)})`);
+          Logger.debug(`A problem occured while reading WireGuard® interface name in ${Formatter.formatUrl(interfaceNameFile)}, fallback to configuration name (${Formatter.formatString(confName)})`);
         }
       }
       catch (error) {
@@ -545,7 +423,7 @@ async function joinNg (params) {
             Logger.error(`Error saving new WireGuard® configuration: ${error}`);
           }
           else {
-            Logger.info(`Saved new WireGuard® configuration file to ${formatUrl(confPath)}`);
+            Logger.info(`Saved new WireGuard® configuration file to ${Formatter.formatUrl(confPath)}`);
             try {
               // Update WireGuard® configuration
               execSync(`wg-quick strip ${confPath} | wg syncconf ${interfaceName} /dev/stdin`);
@@ -583,7 +461,7 @@ async function leaveNg (params) {
   if (peerId === null) {
     peerId = getPeerId(ngId);
     if (peerId === null) {
-      Logger.error(`We cannot find the ID you had in this networkgroup. Try finding yourself in the results of ${formatCommand('clever networkgroups peers list')} and running this command again adding the parameter ${formatCommand('--peer-id PEER_ID')}.`);
+      Logger.error(`We cannot find the ID you had in this networkgroup. Try finding yourself in the results of ${Formatter.formatCommand('clever networkgroups peers list')} and running this command again adding the parameter ${Formatter.formatCommand('--peer-id PEER_ID')}.`);
       process.exit(1);
     }
   }
@@ -596,7 +474,7 @@ async function leaveNg (params) {
   deletePeerIdFile(ngId);
   // We need `force: true` to avoid errors if file doesn't exist
   fs.rmSync(confPath, { force: true });
-  Logger.info(`Deleted WireGuard® configuration file for ${formatString(ngId)}`);
+  Logger.info(`Deleted WireGuard® configuration file for ${Formatter.formatString(ngId)}`);
 }
 
 async function listMembers (params) {
@@ -612,12 +490,12 @@ async function listMembers (params) {
   }
   else {
     if (result.length === 0) {
-      Logger.println(`No member found. You can add one with ${formatCommand('clever networkgroups members add')}.`);
+      Logger.println(`No member found. You can add one with ${Formatter.formatCommand('clever networkgroups members add')}.`);
     }
     else {
-      await printMembersTableHeader(naturalName);
+      await TableFormatter.printMembersTableHeader(naturalName);
       result.forEach(async (ng) => {
-        Logger.println(await formatMembersLine(ng, naturalName));
+        Logger.println(await TableFormatter.formatMembersLine(ng, naturalName));
       });
     }
   }
@@ -628,15 +506,15 @@ async function getMember (params) {
   const ownerId = await getOwnerId();
   const ngId = await Networkgroup.getId(ownerId, ngIdOrLabel);
 
-  Logger.info(`Getting details for member ${formatString(memberId)} in networkgroup ${formatString(ngId)}`);
+  Logger.info(`Getting details for member ${Formatter.formatString(memberId)} in networkgroup ${Formatter.formatString(ngId)}`);
   const result = await networkgroup.getMember({ ownerId, ngId, memberId }).then(sendToApi);
 
   if (json) {
     Logger.println(JSON.stringify(result, null, 2));
   }
   else {
-    await printMembersTableHeader(naturalName);
-    Logger.println(await formatMembersLine(result, naturalName));
+    await TableFormatter.printMembersTableHeader(naturalName);
+    Logger.println(await TableFormatter.formatMembersLine(result, naturalName));
   }
 }
 
@@ -649,7 +527,7 @@ async function addMember (params) {
   Logger.debug('Sending body: ' + JSON.stringify(body, null, 2));
   await networkgroup.addMember({ ownerId, ngId }, body).then(sendToApi);
 
-  Logger.println(`Successfully added member ${formatString(memberId)} to networkgroup ${formatString(ngId)}.`);
+  Logger.println(`Successfully added member ${Formatter.formatString(memberId)} to networkgroup ${Formatter.formatString(ngId)}.`);
 }
 
 async function removeMember (params) {
@@ -659,7 +537,7 @@ async function removeMember (params) {
 
   await networkgroup.removeMember({ ownerId, ngId, memberId }).then(sendToApi);
 
-  Logger.println(`Successfully removed member ${formatString(memberId)} from networkgroup ${formatString(ngId)}.`);
+  Logger.println(`Successfully removed member ${Formatter.formatString(memberId)} from networkgroup ${Formatter.formatString(ngId)}.`);
 }
 
 async function listPeers (params) {
@@ -667,7 +545,7 @@ async function listPeers (params) {
   const ownerId = await getOwnerId();
   const ngId = await Networkgroup.getId(ownerId, ngIdOrLabel);
 
-  Logger.info(`Listing peers from networkgroup ${formatString(ngId)}`);
+  Logger.info(`Listing peers from networkgroup ${Formatter.formatString(ngId)}`);
   const result = await networkgroup.listPeers({ ownerId, ngId }).then(sendToApi);
 
   if (json) {
@@ -675,12 +553,12 @@ async function listPeers (params) {
   }
   else {
     if (result.length === 0) {
-      Logger.println(`No peer found. You can add an external one with ${formatCommand('clever networkgroups peers add-external')}.`);
+      Logger.println(`No peer found. You can add an external one with ${Formatter.formatCommand('clever networkgroups peers add-external')}.`);
     }
     else {
-      printPeersTableHeader();
+      TableFormatter.printPeersTableHeader();
       result.forEach((peer) => {
-        Logger.println(formatPeersLine(peer));
+        Logger.println(TableFormatter.formatPeersLine(peer));
       });
     }
   }
@@ -691,15 +569,15 @@ async function getPeer (params) {
   const ownerId = await getOwnerId();
   const ngId = await Networkgroup.getId(ownerId, ngIdOrLabel);
 
-  Logger.info(`Getting details for peer ${formatString(peerId)} in networkgroup ${formatString(ngId)}`);
+  Logger.info(`Getting details for peer ${Formatter.formatString(peerId)} in networkgroup ${Formatter.formatString(ngId)}`);
   const peer = await networkgroup.getPeer({ ownerId, ngId, peerId }).then(sendToApi);
 
   if (json) {
     Logger.println(JSON.stringify(peer, null, 2));
   }
   else {
-    printPeersTableHeader();
-    Logger.println(formatPeersLine(peer));
+    TableFormatter.printPeersTableHeader();
+    Logger.println(TableFormatter.formatPeersLine(peer));
   }
 }
 
@@ -709,11 +587,11 @@ async function addExternalPeer (params) {
   const ngId = await Networkgroup.getId(ownerId, ngIdOrLabel);
 
   const body = { 'peer-role': role, 'public-key': publicKey, label, parent_member: parent, ip, port };
-  Logger.info(`Adding external peer to networkgroup ${formatString(ngId)}`);
+  Logger.info(`Adding external peer to networkgroup ${Formatter.formatString(ngId)}`);
   Logger.debug('Sending body: ' + JSON.stringify(body, null, 2));
   const { id: peerId } = await networkgroup.addExternalPeer({ ownerId, ngId }, body).then(sendToApi);
 
-  Logger.println(`External peer ${formatString(peerId)} must have been added to networkgroup ${formatString(ngId)}.`);
+  Logger.println(`External peer ${Formatter.formatString(peerId)} must have been added to networkgroup ${Formatter.formatString(ngId)}.`);
   return peerId;
 }
 
@@ -722,14 +600,14 @@ async function removeExternalPeer (params) {
   const ownerId = await getOwnerId();
   const ngId = await Networkgroup.getId(ownerId, ngIdOrLabel);
 
-  Logger.info(`Removing external peer ${formatString(peerId)} from networkgroup ${formatString(ngId)}`);
+  Logger.info(`Removing external peer ${Formatter.formatString(peerId)} from networkgroup ${Formatter.formatString(ngId)}`);
   // FIXME: Currently, when an external peer is already deleted, the API returns 404.
   //        This is detected as an error status code and throws an error.
   //        This prevents `clever ng leave` from working correctly in some cases.
   //        This status code will be changed to 204 soon.
   await networkgroup.removeExternalPeer({ ownerId, ngId, peerId }).then(sendToApi);
 
-  Logger.println(`External peer ${formatString(peerId)} must have been removed from networkgroup ${formatString(ngId)}.`);
+  Logger.println(`External peer ${Formatter.formatString(peerId)} must have been removed from networkgroup ${Formatter.formatString(ngId)}.`);
 }
 
 module.exports = {
