@@ -13,11 +13,11 @@ function printSeparator (columnLengths) {
 
 // We use examples of maximum width text to have a clean display
 const networkgroupsTableColumnLengths = [
-  40, /* id length */
-  20, /* label length */
+  39, /* id length */
+  48, /* label length */
   7, /* members length */
   5, /* peers length */
-  40, /* description */
+  48, /* description */
 ];
 const formatNetworkgroupsTable = formatTable(networkgroupsTableColumnLengths);
 function formatNetworkgroupsLine (ng) {
@@ -39,10 +39,10 @@ function printNetworkgroupsTableHeader () {
 }
 
 const membersTableColumnLengths = [
-  40, /* id length */
-  25, /* type length */
-  40, /* label length */
-  20, /* domain-name length */
+  48, /* id length */
+  12, /* type length */
+  48, /* label length */
+  24, /* domain-name length */
 ];
 const formatMembersTable = formatTable(membersTableColumnLengths);
 async function formatMembersLine (member, showAliases = false) {
@@ -71,11 +71,11 @@ async function printMembersTableHeader (naturalName = false) {
 
 const peersTableColumnLengths = [
   45, /* id length */
-  25, /* type length */
-  25, /* endpoint type length */
-  45, /* label length */
-  20, /* hostname */
-  16, /* ip */
+  12, /* type length */
+  14, /* endpoint type length */
+  48, /* label length */
+  24, /* hostname */
+  15, /* ip */
 ];
 const formatPeersTable = formatTable(peersTableColumnLengths);
 function formatPeersLine (peer) {
