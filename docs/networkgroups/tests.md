@@ -193,6 +193,43 @@ ngLabelForInvalidCases2='test-2'
    # Networkgroup 'ng_620b3482-f286-4189-9931-a8910f2ea706' was successfully deleted.
    ```
 
+#### Join a networkgroup
+
+1. Setup
+
+   ```sh
+   cleverr ng create --label "$ngLabel" --description '[Test] Join a networkgroup'
+   # Networkgroup 'temp-test' was created with the id 'ng_dd8b43b0-4b4f-478c-9a91-989027937b36'.
+   cleverr ng --ng "$ngLabel" members add --member-id "$memberId1" --type 'external' --domain-name 'my-nodes-category' --label '[Test] My external nodes category'
+   # Successfully added member 'my-member-1' to networkgroup 'ng_dd8b43b0-4b4f-478c-9a91-989027937b36'.
+   ```
+
+2. Test
+
+   ```sh
+   cleverr ng --ng "$ngLabel" peers list
+   # No peer found. You can add an external one with `clever networkgroups peers add-external`.
+   cleverr ng --ng "$ngLabel" peers add-external --role 'client' --public-key "$publicKey1" --label "$peerLabel1" --parent "$memberId1"
+   # External peer 'external_532e04c7-6f15-4b60-af08-13153e37f434' must have been added to networkgroup 'ng_dd8b43b0-4b4f-478c-9a91-989027937b36'.
+   cleverr ng --ng "$ngLabel" peers list
+   # Peer ID                                        Peer Type                  Endpoint Type              Label                                          Hostname              IP Address
+   # ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+   # external_532e04c7-6f15-4b60-af08-13153e37f434  ExternalPeer               ClientEndpoint             my-peer-1                                      my-peer-1             10.102.0.5
+   sudo cleverr ng --ng "$ngLabel" join --label 'my-laptop' --node-category-id "$memberId1" 
+   # External peer 'external_8ec3c451-f391-4992-93e7-9f4833db2107' must have been added to networkgroup 'ng_dd8b43b0-4b4f-478c-9a91-989027937b36'.
+   # Activated WireGuard® tunnel
+   # Successfully joined networkgroup 'ng_dd8b43b0-4b4f-478c-9a91-989027937b36'
+   # ^C
+   # External peer 'external_8ec3c451-f391-4992-93e7-9f4833db2107' must have been removed from networkgroup 'ng_dd8b43b0-4b4f-478c-9a91-989027937b36'.
+   ```
+
+3. Tear down
+
+   ```sh
+   cleverr ng delete --ng "$ngLabel"
+   # Networkgroup 'ng_dd8b43b0-4b4f-478c-9a91-989027937b36' was successfully deleted.
+   ```
+
 ### Invalid cases
 
 #### Create two networkgroups with same label
