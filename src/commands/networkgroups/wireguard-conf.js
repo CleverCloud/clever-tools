@@ -76,6 +76,7 @@ function confWithoutPlaceholders (conf, { privateKey }) {
 
 module.exports = {
   createWgConfFolderIfNeeded,
+  getWgConfInformation,
   storePeerId,
   getPeerId,
   deletePeerIdFile,

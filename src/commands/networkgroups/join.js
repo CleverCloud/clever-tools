@@ -87,7 +87,7 @@ async function askForParentMember ({ ownerId, ngId, interactive }) {
 }
 
 function checkWgAvailable () {
-  if (!Wg.available()) {
+  if (!Wg.checkAvailable()) {
     Logger.error(`Clever Cloud's networkgroups use WireGuard®. Therefore, this command requires WireGuard® commands available on your computer.\n\nFollow instructions at ${Formatter.formatUrl('https://www.wireguard.com/install/')} to install it.`);
     process.exit(1);
   }
@@ -135,7 +135,7 @@ async function joinNg (params) {
     }
   }
 
-  const { confName, confPath } = WgConf.getConfInformation(ngId);
+  const { confName, confPath } = WgConf.getWgConfInformation(ngId);
   if (fs.existsSync(confPath)) {
     Logger.error(`You cannot join a networkgroup twice at the same time with the same computer. Try using ${Formatter.formatCommand('clever networkgroups leave')} and running this command again.`);
     return false;
@@ -262,7 +262,7 @@ async function leaveNg (params) {
   let { 'peer-id': peerId } = params.options;
   const ownerId = await Networkgroup.getOwnerId();
   const ngId = await Networkgroup.getId(ownerId, ngIdOrLabel);
-  const { confPath } = WgConf.getConfInformation(ngId);
+  const { confPath } = WgConf.getWgConfInformation(ngId);
 
   if (!peerId) {
     peerId = WgConf.getPeerId(ngId);
