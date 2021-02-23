@@ -12,9 +12,9 @@ const prompts = require('prompts');
 
 const Logger = require('../../logger.js');
 const Networkgroup = require('../../models/networkgroup.js');
-const Formatter = require('./format-string.js');
-const Wg = require('./wireguard.js');
-const WgConf = require('./wireguard-conf.js');
+const Formatter = require('../../models/format-string.js');
+const Wg = require('../../models/wireguard.js');
+const WgConf = require('../../models/wireguard-conf.js');
 const { ngQuestions } = require('../../models/questions');
 
 const { addMember } = require('./members.js');

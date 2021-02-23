@@ -6,8 +6,8 @@ const { sendToApi } = require('../../models/send-to-api.js');
 
 const Logger = require('../../logger.js');
 const Networkgroup = require('../../models/networkgroup.js');
-const Formatter = require('./format-string.js');
-const TableFormatter = require('./format-table.js');
+const Formatter = require('../../models/format-string.js');
+const TableFormatter = require('../../models/format-table.js');
 
 async function listMembers (params) {
   const { ng: ngIdOrLabel, 'natural-name': naturalName, json } = params.options;

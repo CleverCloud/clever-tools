@@ -4,7 +4,7 @@ const os = require('os');
 const fs = require('fs');
 const path = require('path');
 
-const Logger = require('../../logger.js');
+const Logger = require('../logger.js');
 const Formatter = require('./format-string.js');
 
 function getWgConfFolder () {

@@ -1,7 +1,7 @@
 'use strict';
 
 const { execSync, spawnSync } = require('child_process');
-const Logger = require('../../logger.js');
+const Logger = require('../logger.js');
 
 function privateKey () {
   return execSync('wg genkey', { encoding: 'utf-8' }).trim();

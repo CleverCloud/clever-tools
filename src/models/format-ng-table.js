@@ -1,10 +1,10 @@
 'use strict';
 
-const formatTable = require('../../format-table');
+const formatNgTable = require('../format-table.js');
 const colors = require('colors/safe');
 
-const AppConfig = require('../../models/app_configuration.js');
-const Logger = require('../../logger.js');
+const AppConfig = require('./app_configuration.js');
+const Logger = require('../logger.js');
 const Formatter = require('./format-string.js');
 
 function printSeparator (columnLengths) {
@@ -19,7 +19,7 @@ const networkgroupsTableColumnLengths = [
   5, /* peers length */
   48, /* description */
 ];
-const formatNetworkgroupsTable = formatTable(networkgroupsTableColumnLengths);
+const formatNetworkgroupsTable = formatNgTable(networkgroupsTableColumnLengths);
 function formatNetworkgroupsLine (ng) {
   return formatNetworkgroupsTable([
     [
@@ -44,7 +44,7 @@ const membersTableColumnLengths = [
   48, /* label length */
   24, /* domain-name length */
 ];
-const formatMembersTable = formatTable(membersTableColumnLengths);
+const formatMembersTable = formatNgTable(membersTableColumnLengths);
 async function formatMembersLine (member, showAliases = false) {
   return formatMembersTable([
     [
@@ -77,7 +77,7 @@ const peersTableColumnLengths = [
   24, /* hostname */
   15, /* ip */
 ];
-const formatPeersTable = formatTable(peersTableColumnLengths);
+const formatPeersTable = formatNgTable(peersTableColumnLengths);
 function formatPeersLine (peer) {
   const ip = (peer.endpoint.type === 'ServerEndpoint') ? peer.endpoint['ng-term'].ip : peer.endpoint['ng-ip'];
   return formatPeersTable([
