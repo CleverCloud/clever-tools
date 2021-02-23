@@ -28,10 +28,9 @@ async function listNetworkgroups (params) {
     }
     else {
       TableFormatter.printNetworkgroupsTableHeader();
-      const resultToPrint = result.map((ng) => TableFormatter.formatNetworkgroupsLine(ng));
-      for (const ng of resultToPrint) {
-        Logger.println(ng);
-      }
+      result
+        .map((ng) => TableFormatter.formatNetworkgroupsLine(ng))
+        .forEach((ng) => Logger.println(ng));
     }
   }
 }
