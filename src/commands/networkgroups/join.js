@@ -104,7 +104,6 @@ async function joinNg (params) {
     throw new Error(`This command uses ${Formatter.formatCommand('wg-quick')} under the hood. It needs privileges to create network interfaces. Please retry using ${Formatter.formatCommand('sudo')}.`)
   }
 
-  // FIXME: Allow join as server
   const { ng: ngIdOrLabel, label, interactive } = params.options;
   let { 'node-category-id': parentId, 'private-key': privateKey, role, ip, port } = params.options;
   const ownerId = await Networkgroup.getOwnerId();
