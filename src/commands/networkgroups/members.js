@@ -26,9 +26,9 @@ async function listMembers (params) {
     }
     else {
       await TableFormatter.printMembersTableHeader(naturalName);
-      result.forEach(async (ng) => {
+      for (const ng of result) {
         Logger.println(await TableFormatter.formatMembersLine(ng, naturalName));
-      });
+      }
     }
   }
 }
