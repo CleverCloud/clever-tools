@@ -49,7 +49,7 @@ async function createNg (params) {
       // Do not abort prompt loop on cancel
       const onCancel = () => true;
       const result = await prompts(questions, { onCancel });
-      tags = tags ?? result.ngTags;
+      tags = tags || result.ngTags;
     }
   }
 

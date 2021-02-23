@@ -130,8 +130,8 @@ async function joinNg (params) {
         return process.exit(1);
       }
 
-      ip = ip ?? result.ngServerIp;
-      port = port ?? result.ngServerPort;
+      ip = ip || result.ngServerIp;
+      port = port || result.ngServerPort;
     }
     else {
       Logger.error(`To join a networkgroup as server, you need to specify an IP address and a port number. Please try again with ${Formatter.formatCommand('--ip IP_ADDRESS')} and ${Formatter.formatCommand('--port PORT_NUMBER')}.`);

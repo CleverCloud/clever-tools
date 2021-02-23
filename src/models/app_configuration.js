@@ -138,7 +138,7 @@ async function getAppDetails ({ alias }) {
 
 async function getMostNaturalName (appId) {
   const details = await getAppDetailsForId(appId);
-  return details.alias ?? details.name ?? appId;
+  return details.alias || details.name || appId;
 }
 
 function persistConfig (modifiedConfig) {
