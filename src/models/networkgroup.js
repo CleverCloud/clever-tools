@@ -1,6 +1,5 @@
 'use strict';
 
-const _ = require('lodash');
 const autocomplete = require('cliparse').autocomplete;
 
 const AppConfig = require('./app_configuration.js');
@@ -27,7 +26,7 @@ async function getId (ownerId, ngIdOrLabel) {
 
 async function getByLabel (ownerId, label) {
   const networkgroups = await ngApi.get({ ownerId }).then(sendToApi);
-  const filteredNgs = _.filter(networkgroups, { label });
+  const filteredNgs = networkgroups.filter((ng) => ng.label === label);
 
   if (filteredNgs.length === 0) {
     throw new Error('Networkgroup not found');
