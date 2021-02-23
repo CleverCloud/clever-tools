@@ -24,10 +24,10 @@ function formatNetworkgroupsLine (ng) {
   return formatNetworkgroupsTable([
     [
       Formatter.formatId(ng.id),
-      Formatter.formatString(ng.label, true, false),
+      Formatter.formatString(ng.label, false),
       Formatter.formatNumber(ng.members.length),
       Formatter.formatNumber(ng.peers.length),
-      Formatter.formatString(ng.description || ' ', true, false),
+      Formatter.formatString(ng.description || ' ', false),
     ],
   ]);
 };
@@ -49,11 +49,11 @@ async function formatMembersLine (member, showAliases = false) {
   return formatMembersTable([
     [
       showAliases
-        ? Formatter.formatString(await AppConfig.getMostNaturalName(member.id), true, false)
+        ? Formatter.formatString(await AppConfig.getMostNaturalName(member.id), false)
         : Formatter.formatId(member.id),
-      Formatter.formatString(member.type, true, false),
-      Formatter.formatString(member.label, true, false),
-      Formatter.formatString(member['domain-name'] || ' ', true, false),
+      Formatter.formatString(member.type, false),
+      Formatter.formatString(member.label, false),
+      Formatter.formatString(member['domain-name'] || ' ', false),
     ],
   ]);
 };
@@ -83,10 +83,10 @@ function formatPeersLine (peer) {
   return formatPeersTable([
     [
       Formatter.formatId(peer.id),
-      Formatter.formatString(peer.type, true, false),
-      Formatter.formatString(peer.endpoint.type, true, false),
-      Formatter.formatString(peer.label, true, false),
-      Formatter.formatString(peer.hostname, true, false),
+      Formatter.formatString(peer.type, false),
+      Formatter.formatString(peer.endpoint.type, false),
+      Formatter.formatString(peer.label, false),
+      Formatter.formatString(peer.hostname, false),
       Formatter.formatIp(ip),
     ],
   ]);

@@ -2,31 +2,31 @@
 
 const colors = require('colors/safe');
 
-function formatId (id, colored = true) {
-  return colored ? colors.dim(id) : id;
+function formatId (id) {
+  return colors.dim(id);
 }
 
-function formatString (str, colored = true, decorated = true) {
+function formatString (str, decorated = true) {
   const string = decorated ? `'${str}'` : str;
-  return colored ? colors.green(string) : string;
+  return colors.green(string);
 }
 
-function formatNumber (number, colored = true) {
-  return colored ? colors.yellow(number) : number;
+function formatNumber (number) {
+  return colors.yellow(number);
 }
 
-function formatIp (ip, colored = true) {
-  return colored ? colors.cyan(ip) : ip;
+function formatIp (ip) {
+  return colors.cyan(ip);
 }
 
-function formatUrl (url, colored = true, decorated = true) {
+function formatUrl (url, decorated = true) {
   const string = decorated ? `<${url}>` : url;
-  return colored ? colors.cyan(string) : string;
+  return colors.cyan(string);
 }
 
-function formatCommand (command, colored = true, decorated = true) {
+function formatCommand (command, decorated = true) {
   const string = decorated ? `\`${command}\`` : command;
-  return colored ? colors.magenta(string) : string;
+  return colors.magenta(string);
 }
 
 module.exports = {
