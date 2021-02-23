@@ -197,6 +197,7 @@ async function joinNg (params) {
         Wg.up(confPath);
         Logger.println(colors.green(`Successfully joined networkgroup ${Formatter.formatString(ngId)}`));
 
+        // FIXME: check with keruspe
         const interfaceNameFile = `/var/run/wireguard/${confName}.name`;
         try {
           interfaceName = fs.readFileSync(interfaceNameFile, { encoding: 'utf-8' }).trim();
