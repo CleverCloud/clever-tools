@@ -16,6 +16,7 @@ const Formatter = require('../../models/format-string.js');
 const Wg = require('../../models/wireguard.js');
 const WgConf = require('../../models/wireguard-conf.js');
 const { ngQuestions } = require('../../models/questions');
+const { Deferred } = require('../../models/utils.js');
 
 const { addMember } = require('./members.js');
 const { addExternalPeer, removeExternalPeer } = require('./peers.js');
@@ -219,33 +220,39 @@ async function joinNg (params) {
   const { apiHost, tokens } = await getHostAndTokens();
   const networkgroupStream = new NetworkgroupStream({ apiHost, tokens, ownerId, ngId, peerId });
 
+  const deferred = new Deferred();
+
   // Automatically leave the networkgroup when the user kills the program
-  async function leaveNgOnExit (signal) {
+  function leaveNgOnExit (signal) {
     // Add new line after ^C
     Logger.println('');
     Logger.debug(`Received ${signal}`);
     networkgroupStream.close();
-    await leave(ngId, peerId);
-    process.exit();
+    leave(ngId, peerId)
+      .then(() => {
+        // FIXME: ask kerupse if we need a special status code for user SIGTERM
+        process.exit();
+      })
+      .catch((leaveError) => deferred.reject(leaveError));
   }
 
   process.on('SIGINT', leaveNgOnExit);
   process.on('SIGTERM', leaveNgOnExit);
 
   networkgroupStream
-    .on('open', () => Logger.debug(`SSE for networkgroup configuration (${colors.green('open')}): ${JSON.stringify({
-      ownerId,
-      ngId,
-      peerId,
-    })}`))
-    .on('conf', (conf) => {
-      if (conf != null && conf.length !== 0) {
+    .on('open', () => {
+      const details = JSON.stringify({ ownerId, ngId, peerId });
+      return Logger.debug(`SSE for networkgroup configuration (${colors.green('open')}): ${details}`);
+    })
+    .on('conf', (rawConf) => {
+      // FIXME: filter conf events in the clever-client Stream
+      if (rawConf != null && rawConf.length !== 0) {
         Logger.debug('New WireGuard® configuration received');
-        Logger.debug(`[CONFIGURATION]\n${conf}\n[/CONFIGURATION]`);
+        Logger.debug(`[CONFIGURATION]\n${rawConf}\n[/CONFIGURATION]`);
 
         // FIXME: Check configuration version > actual
 
-        conf = WgConf.confWithoutPlaceholders(conf, { privateKey });
+        const conf = WgConf.confWithoutPlaceholders(rawConf, { privateKey });
 
         // Save conf
         // FIXME: Check if root as owner poses a problem
@@ -261,17 +268,20 @@ async function joinNg (params) {
       }
     })
     .on('ping', () => Logger.debug(`SSE for networkgroup configuration (${colors.cyan('ping')})`))
-    .on('close', async (reason) => {
+    .on('close', (reason) => {
       Logger.debug(`SSE for networkgroup configuration (${colors.red('close')}): ${JSON.stringify(reason)}`);
     })
-    .on('error', async (error) => {
-      Logger.error(`SSE for networkgroup configuration (${colors.red('error')}): ${error}`);
-      await leave(ngId, peerId);
+    .on('error', (streamError) => {
+      Logger.debug(`SSE for networkgroup configuration (${colors.red('error')}): ${streamError}`);
+      leave(ngId, peerId)
+        // FIXME: put the correct user facing error message
+        .then(() => deferred.reject(new Error('')))
+        .catch((leaveError) => deferred.reject(leaveError));
     });
 
   networkgroupStream.open({ autoRetry: true, maxRetryCount: 6 });
 
-  return networkgroupStream;
+  return deferred.promise;
 }
 
 async function leaveNg (params) {
@@ -284,8 +294,7 @@ async function leaveNg (params) {
   if (!peerId) {
     peerId = WgConf.getPeerId(ngId);
     if (!peerId) {
-      Logger.error(`We cannot find the ID you had in this networkgroup. Try finding yourself in the results of ${Formatter.formatCommand('clever networkgroups peers list')} and running this command again adding the parameter ${Formatter.formatCommand('--peer-id PEER_ID')}.`);
-      process.exit(1);
+      throw new Error(`We cannot find the ID you had in this networkgroup. Try finding yourself in the results of ${Formatter.formatCommand('clever networkgroups peers list')} and running this command again adding the parameter ${Formatter.formatCommand('--peer-id PEER_ID')}.`);
     }
   }
 
