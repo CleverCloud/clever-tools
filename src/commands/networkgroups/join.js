@@ -101,7 +101,7 @@ async function joinNg (params) {
 
   // Check if command was run with `sudo`
   if (!await isElevated()) {
-    throw new Error(`This command uses ${Formatter.formatCommand('wg-quick')} under the hood. It needs privileges to create network interfaces. Please retry using ${Formatter.formatCommand('sudo')}.`)
+    throw new Error(`This command uses ${Formatter.formatCommand('wg-quick')} under the hood. It needs privileges to create network interfaces. Please retry using ${Formatter.formatCommand('sudo')}.`);
   }
 
   const { ng: ngIdOrLabel, label, interactive } = params.options;
@@ -123,27 +123,23 @@ async function joinNg (params) {
       // If user aborts
       // Note: This is ugly, but for some reason, the `onCancel` method of `prompts` is called before a question even appears…
       if (!ip && !result.ngServerIp) {
-        Logger.error(`You cannot skip this question. Remove ${Formatter.formatCommand('--interactive')} and add ${Formatter.formatCommand('--ip IP_ADDRESS')} to specify an IP address manually.`);
-        return process.exit(1);
+        throw new Error(`You cannot skip this question. Remove ${Formatter.formatCommand('--interactive')} and add ${Formatter.formatCommand('--ip IP_ADDRESS')} to specify an IP address manually.`);
       }
       if (!port && !result.ngServerPort) {
-        Logger.error(`You cannot skip this question. Remove ${Formatter.formatCommand('--interactive')} and add ${Formatter.formatCommand('--port PORT_NUMBER')} to specify a port manually.`);
-        return process.exit(1);
+        throw new Error(`You cannot skip this question. Remove ${Formatter.formatCommand('--interactive')} and add ${Formatter.formatCommand('--port PORT_NUMBER')} to specify a port manually.`);
       }
 
       ip = ip || result.ngServerIp;
       port = port || result.ngServerPort;
     }
     else {
-      Logger.error(`To join a networkgroup as server, you need to specify an IP address and a port number. Please try again with ${Formatter.formatCommand('--ip IP_ADDRESS')} and ${Formatter.formatCommand('--port PORT_NUMBER')}.`);
-      return false;
+      throw new Error(`To join a networkgroup as server, you need to specify an IP address and a port number. Please try again with ${Formatter.formatCommand('--ip IP_ADDRESS')} and ${Formatter.formatCommand('--port PORT_NUMBER')}.`);
     }
   }
 
   const { confName, confPath } = WgConf.getWgConfInformation(ngId);
   if (fs.existsSync(confPath)) {
-    Logger.error(`You cannot join a networkgroup twice at the same time with the same computer. Try using ${Formatter.formatCommand('clever networkgroups leave')} and running this command again.`);
-    return false;
+    throw new Error(`You cannot join a networkgroup twice at the same time with the same computer. Try using ${Formatter.formatCommand('clever networkgroups leave')} and running this command again.`);
   }
 
   if (!parentId) {
@@ -192,8 +188,7 @@ async function joinNg (params) {
   // FIXME: Check if root as owner poses a problem
   fs.writeFile(confPath, conf, { mode: 0o600, flag: 'wx' }, async (error) => {
     if (error) {
-      Logger.error(`Error saving WireGuard® configuration: ${error}`);
-      process.exit(1);
+      throw new Error(`Error saving WireGuard® configuration: ${error}`);
     }
     else {
       Logger.info(`Saved WireGuard® configuration file to ${Formatter.formatUrl(confPath)}`);
@@ -211,8 +206,7 @@ async function joinNg (params) {
         }
       }
       catch (error) {
-        Logger.error(`Error activating WireGuard® tunnel: ${error}`);
-        process.exit(1);
+        throw new Error(`Error activating WireGuard® tunnel: ${error}`);
       }
     }
   });

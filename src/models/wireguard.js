@@ -31,8 +31,7 @@ function update (confPath, interfaceName) {
     Logger.info('Updated WireGuard® tunnel configuration');
   }
   catch (error) {
-    Logger.error(`Error updating WireGuard® tunnel configuration: ${error}`);
-    process.exit(1);
+    throw new Error(`Error updating WireGuard® tunnel configuration: ${error}`);
   }
 }
 
