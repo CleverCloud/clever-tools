@@ -88,8 +88,11 @@ async function askForParentMember ({ ownerId, ngId, interactive }) {
 
 function checkWgAvailable () {
   if (!Wg.checkAvailable()) {
-    Logger.error(`Clever Cloud's networkgroups use WireGuard®. Therefore, this command requires WireGuard® commands available on your computer.\n\nFollow instructions at ${Formatter.formatUrl('https://www.wireguard.com/install/')} to install it.`);
-    process.exit(1);
+    throw new Error([
+      'Clever Cloud\'s networkgroups use WireGuard®. Therefore, this command requires WireGuard® commands available on your computer.',
+      '',
+      `Follow instructions at ${Formatter.formatUrl('https://www.wireguard.com/install/')} to install it.`,
+    ].join('\n'));
   }
 }
 
@@ -98,8 +101,7 @@ async function joinNg (params) {
 
   // Check if command was run with `sudo`
   if (!await isElevated()) {
-    Logger.error(`This command uses ${Formatter.formatCommand('wg-quick')} under the hood. It needs privileges to create network interfaces. Please retry using ${Formatter.formatCommand('sudo')}.`);
-    return false;
+    throw new Error(`This command uses ${Formatter.formatCommand('wg-quick')} under the hood. It needs privileges to create network interfaces. Please retry using ${Formatter.formatCommand('sudo')}.`)
   }
 
   // FIXME: Allow join as server
@@ -155,7 +157,16 @@ async function joinNg (params) {
   const publicKey = Wg.publicKey(privateKey);
 
   // Create new params keeping previous ones (e.g. verbose)
-  const options = { ...params.options, ng: { ng_id: ngId }, role, 'public-key': publicKey, label, parent: parentId, ip, port };
+  const options = {
+    ...params.options,
+    ng: { ng_id: ngId },
+    role,
+    'public-key': publicKey,
+    label,
+    parent: parentId,
+    ip,
+    port,
+  };
   const peerId = await addExternalPeer({ args: params.args, options });
   let interfaceName = confName;
 
@@ -228,7 +239,11 @@ async function joinNg (params) {
   process.on('SIGTERM', leaveNgOnExit);
 
   networkgroupStream
-    .on('open', () => Logger.debug(`SSE for networkgroup configuration (${colors.green('open')}): ${JSON.stringify({ ownerId, ngId, peerId })}`))
+    .on('open', () => Logger.debug(`SSE for networkgroup configuration (${colors.green('open')}): ${JSON.stringify({
+      ownerId,
+      ngId,
+      peerId,
+    })}`))
     .on('conf', (conf) => {
       if (conf != null && conf.length !== 0) {
         Logger.debug('New WireGuard® configuration received');
