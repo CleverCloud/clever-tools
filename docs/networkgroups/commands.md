@@ -16,16 +16,17 @@ To improve readability, and to avoid errors, every option value is written insid
   - [`create`](#create)
   - [`delete`](#delete)
   - [`join`](#join)
+  - [`leave`](#leave)
   - [`members`](#members)
     - [`members list`](#members-list)
     - [`members get`](#members-get)
     - [`members add`](#members-add)
     - [`members remove`](#members-remove)
   - [`peers`](#peers)
-  - [`peers list`](#peers-list)
-  - [`peers get`](#peers-get)
-  - [`peers add-external`](#peers-add-external)
-  - [`peers remove-external`](#peers-remove-external)
+    - [`peers list`](#peers-list)
+    - [`peers get`](#peers-get)
+    - [`peers add-external`](#peers-add-external)
+    - [`peers remove-external`](#peers-remove-external)
 
 ## `clever networkgroups` | `clever ng`
 
@@ -79,7 +80,21 @@ Join a networkgroup
 | `--label PEER_LABEL`                        | Networkgroup peer label                                             |
 | `[--private-key PRIVATE_KEY]`               | A WireGuard private key                                             |
 | `[--node-category-id, -c] NODE_CATEGORY_ID` | The external node category ID                                       |
+| `[--role] PEER_ROLE`                        | The peer role, ('client' or 'server') (default: client)             |
+| `[--ip] IP_ADDRESS`                         | An IP address                                                       |
+| `[--port] PORT_NUMBER`                      | A port number                                                       |
 | `[--interactive]`                           | Answer questions instead of passing optional flags (default: false) |
+
+---
+
+### `leave`
+
+Manually leave a networkgroup if a problem occured
+
+| Param                 | Description              |
+| --------------------- | ------------------------ |
+| `--ng NG`             | Networkgroup ID or label |
+| `[--peer-id] PEER_ID` | The peer ID              |
 
 ---
 
@@ -139,7 +154,7 @@ Remove an app or addon from a networkgroup
 
 List commands for interacting with networkgroups peers
 
-### `peers list`
+#### `peers list`
 
 List peers of a networkgroup
 
@@ -149,7 +164,7 @@ List peers of a networkgroup
 | --ng NG           | Networkgroup ID or label                    |
 | [--json, -j]      | Show result in JSON format (default: false) |
 
-### `peers get`
+#### `peers get`
 
 Get a networkgroup peer details
 
@@ -160,7 +175,7 @@ Get a networkgroup peer details
 | `--peer-id PEER_ID` | The peer ID                                 |
 | `[--json, -j]`      | Show result in JSON format (default: false) |
 
-### `peers add-external`
+#### `peers add-external`
 
 Add an external node as a networkgroup peer
 
@@ -173,7 +188,7 @@ Add an external node as a networkgroup peer
 | `--label PEER_LABEL`      | Networkgroup peer label                          |
 | `--parent MEMBER_ID`      | Networkgroup peer category ID (parent member ID) |
 
-### `peers remove-external`
+#### `peers remove-external`
 
 Remove an external node from a networkgroup
 
