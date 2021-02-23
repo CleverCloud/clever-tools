@@ -1,6 +1,6 @@
 'use strict';
 
-const client = require('@clevercloud/client/cjs/api/v4/networkgroup.js');
+const ngApi = require('@clevercloud/client/cjs/api/v4/networkgroup.js');
 
 const { sendToApi } = require('../../models/send-to-api.js');
 
@@ -15,7 +15,7 @@ async function listPeers (params) {
   const ngId = await Networkgroup.getId(ownerId, ngIdOrLabel);
 
   Logger.info(`Listing peers from networkgroup ${Formatter.formatString(ngId)}`);
-  const result = await client.listPeers({ ownerId, ngId }).then(sendToApi);
+  const result = await ngApi.listPeers({ ownerId, ngId }).then(sendToApi);
 
   if (json) {
     Logger.println(JSON.stringify(result, null, 2));
@@ -39,7 +39,7 @@ async function getPeer (params) {
   const ngId = await Networkgroup.getId(ownerId, ngIdOrLabel);
 
   Logger.info(`Getting details for peer ${Formatter.formatString(peerId)} in networkgroup ${Formatter.formatString(ngId)}`);
-  const peer = await client.getPeer({ ownerId, ngId, peerId }).then(sendToApi);
+  const peer = await ngApi.getPeer({ ownerId, ngId, peerId }).then(sendToApi);
 
   if (json) {
     Logger.println(JSON.stringify(peer, null, 2));
@@ -58,7 +58,7 @@ async function addExternalPeer (params) {
   const body = { 'peer-role': role, 'public-key': publicKey, label, parent_member: parent, ip, port };
   Logger.info(`Adding external peer to networkgroup ${Formatter.formatString(ngId)}`);
   Logger.debug('Sending body: ' + JSON.stringify(body, null, 2));
-  const { id: peerId } = await client.addExternalPeer({ ownerId, ngId }, body).then(sendToApi);
+  const { id: peerId } = await ngApi.addExternalPeer({ ownerId, ngId }, body).then(sendToApi);
 
   Logger.println(`External peer ${Formatter.formatString(peerId)} must have been added to networkgroup ${Formatter.formatString(ngId)}.`);
   return peerId;
@@ -74,7 +74,7 @@ async function removeExternalPeer (params) {
   //        This is detected as an error status code and throws an error.
   //        This prevents `clever ng leave` from working correctly in some cases.
   //        This status code will be changed to 204 soon.
-  await client.removeExternalPeer({ ownerId, ngId, peerId }).then(sendToApi);
+  await ngApi.removeExternalPeer({ ownerId, ngId, peerId }).then(sendToApi);
 
   Logger.println(`External peer ${Formatter.formatString(peerId)} must have been removed from networkgroup ${Formatter.formatString(ngId)}.`);
 }

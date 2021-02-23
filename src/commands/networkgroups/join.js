@@ -3,7 +3,7 @@
 const fs = require('fs');
 const isElevated = require('is-elevated');
 
-const client = require('@clevercloud/client/cjs/api/v4/networkgroup.js');
+const ngApi = require('@clevercloud/client/cjs/api/v4/networkgroup.js');
 const { NetworkgroupStream } = require('@clevercloud/client/cjs/streams/networkgroup.node.js');
 
 const colors = require('colors/safe');
@@ -23,7 +23,7 @@ const { addExternalPeer, removeExternalPeer } = require('./peers.js');
 const { sendToApi, getHostAndTokens } = require('../../models/send-to-api.js');
 
 async function askForParentMember ({ ownerId, ngId, interactive }) {
-  let members = await client.listMembers({ ownerId, ngId }).then(sendToApi);
+  let members = await ngApi.listMembers({ ownerId, ngId }).then(sendToApi);
   members = members.filter((member) => {
     return member.type === 'externalNode';
   });
@@ -171,7 +171,7 @@ async function joinNg (params) {
   WgConf.createWgConfFolderIfNeeded();
 
   // Get current configuration
-  const confAsB64 = await client.getWgConf({ ownerId, ngId, peerId }).then(sendToApi);
+  const confAsB64 = await ngApi.getWgConf({ ownerId, ngId, peerId }).then(sendToApi);
   let conf = Buffer.from(confAsB64, 'base64').toString();
   Logger.debug('WireGuard® configuration received');
   Logger.debug(`[CONFIGURATION]\n${conf}\n[/CONFIGURATION]`);

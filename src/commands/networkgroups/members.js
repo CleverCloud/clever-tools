@@ -1,6 +1,6 @@
 'use strict';
 
-const client = require('@clevercloud/client/cjs/api/v4/networkgroup.js');
+const ngApi = require('@clevercloud/client/cjs/api/v4/networkgroup.js');
 
 const { sendToApi } = require('../../models/send-to-api.js');
 
@@ -15,7 +15,7 @@ async function listMembers (params) {
   const ngId = await Networkgroup.getId(ownerId, ngIdOrLabel);
 
   Logger.info(`Listing members from networkgroup '${ngId}'`);
-  const result = await client.listMembers({ ownerId, ngId }).then(sendToApi);
+  const result = await ngApi.listMembers({ ownerId, ngId }).then(sendToApi);
 
   if (json) {
     Logger.println(JSON.stringify(result, null, 2));
@@ -39,7 +39,7 @@ async function getMember (params) {
   const ngId = await Networkgroup.getId(ownerId, ngIdOrLabel);
 
   Logger.info(`Getting details for member ${Formatter.formatString(memberId)} in networkgroup ${Formatter.formatString(ngId)}`);
-  const result = await client.getMember({ ownerId, ngId, memberId }).then(sendToApi);
+  const result = await ngApi.getMember({ ownerId, ngId, memberId }).then(sendToApi);
 
   if (json) {
     Logger.println(JSON.stringify(result, null, 2));
@@ -57,7 +57,7 @@ async function addMember (params) {
 
   const body = { id: memberId, label, 'domain-name': domainName, type };
   Logger.debug('Sending body: ' + JSON.stringify(body, null, 2));
-  await client.addMember({ ownerId, ngId }, body).then(sendToApi);
+  await ngApi.addMember({ ownerId, ngId }, body).then(sendToApi);
 
   Logger.println(`Successfully added member ${Formatter.formatString(memberId)} to networkgroup ${Formatter.formatString(ngId)}.`);
 }
@@ -67,7 +67,7 @@ async function removeMember (params) {
   const ownerId = await Networkgroup.getOwnerId();
   const ngId = await Networkgroup.getId(ownerId, ngIdOrLabel);
 
-  await client.removeMember({ ownerId, ngId, memberId }).then(sendToApi);
+  await ngApi.removeMember({ ownerId, ngId, memberId }).then(sendToApi);
 
   Logger.println(`Successfully removed member ${Formatter.formatString(memberId)} from networkgroup ${Formatter.formatString(ngId)}.`);
 }

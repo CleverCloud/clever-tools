@@ -5,7 +5,7 @@ const autocomplete = require('cliparse').autocomplete;
 
 const AppConfig = require('./app_configuration.js');
 
-const client = require('@clevercloud/client/cjs/api/v4/networkgroup.js');
+const ngApi = require('@clevercloud/client/cjs/api/v4/networkgroup.js');
 const { sendToApi } = require('./send-to-api.js');
 
 async function getOwnerId () {
@@ -26,7 +26,7 @@ async function getId (ownerId, ngIdOrLabel) {
 }
 
 async function getByLabel (ownerId, label) {
-  const networkgroups = await client.get({ ownerId }).then(sendToApi);
+  const networkgroups = await ngApi.get({ ownerId }).then(sendToApi);
   const filteredNgs = _.filter(networkgroups, { label });
 
   if (filteredNgs.length === 0) {
