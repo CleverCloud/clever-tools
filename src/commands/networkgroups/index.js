@@ -42,7 +42,9 @@ async function createNg (params) {
   // Ask for missing data if interactive
   if (interactive) {
     const questions = [];
-    if (!tags) questions.push(ngQuestions.ngTags);
+    if (!tags) {
+      questions.push(ngQuestions.ngTags);
+    }
     if (questions.length > 0) {
       // Do not abort prompt loop on cancel
       const onCancel = () => true;

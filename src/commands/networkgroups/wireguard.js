@@ -15,8 +15,12 @@ function up (confPath) {
   // We must use `spawn` with `detached: true` instead of `exec`
   // because `wg-quick up` starts a `wireguard-go` used by `wg-quick down`
   const { stdout, stderr } = spawnSync('wg-quick', ['up', confPath], { detached: true, encoding: 'utf-8' });
-  if (stdout.length > 0) Logger.debug(stdout.trim());
-  if (stderr.length > 0) Logger.debug(stderr.trim());
+  if (stdout.length > 0) {
+    Logger.debug(stdout.trim());
+  }
+  if (stderr.length > 0) {
+    Logger.debug(stderr.trim());
+  }
   Logger.println('Activated WireGuard® tunnel');
 }
 
@@ -34,8 +38,12 @@ function update (confPath, interfaceName) {
 
 function down (confPath) {
   const { stdout, stderr } = spawnSync('wg-quick', ['down', confPath], { encoding: 'utf-8' });
-  if (stdout.length > 0) Logger.debug(stdout.trim());
-  if (stderr.length > 0) Logger.debug(stderr.trim());
+  if (stdout.length > 0) {
+    Logger.debug(stdout.trim());
+  }
+  if (stderr.length > 0) {
+    Logger.debug(stderr.trim());
+  }
 }
 
 /**

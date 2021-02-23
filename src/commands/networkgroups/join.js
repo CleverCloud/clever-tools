@@ -111,8 +111,12 @@ async function joinNg (params) {
   if (role === 'server' && [ip, port].includes(null)) {
     if (interactive) {
       const questions = [];
-      if (!ip) questions.push(ngQuestions.ngServerIp);
-      if (!port) questions.push(ngQuestions.ngServerPort);
+      if (!ip) {
+        questions.push(ngQuestions.ngServerIp);
+      }
+      if (!port) {
+        questions.push(ngQuestions.ngServerPort);
+      }
       const result = await prompts(questions);
 
       // If user aborts
@@ -141,9 +145,13 @@ async function joinNg (params) {
     return false;
   }
 
-  if (!parentId) parentId = await askForParentMember({ ownerId, ngId, interactive });
+  if (!parentId) {
+    parentId = await askForParentMember({ ownerId, ngId, interactive });
+  }
 
-  if (!privateKey) privateKey = Wg.privateKey();
+  if (!privateKey) {
+    privateKey = Wg.privateKey();
+  }
   const publicKey = Wg.publicKey(privateKey);
 
   // Create new params keeping previous ones (e.g. verbose)
@@ -222,7 +230,7 @@ async function joinNg (params) {
   networkgroupStream
     .on('open', () => Logger.debug(`SSE for networkgroup configuration (${colors.green('open')}): ${JSON.stringify({ ownerId, ngId, peerId })}`))
     .on('conf', (conf) => {
-      if (conf !== null && conf.length !== 0) {
+      if (conf != null && conf.length !== 0) {
         Logger.debug('New WireGuard® configuration received');
         Logger.debug(`[CONFIGURATION]\n${conf}\n[/CONFIGURATION]`);
 

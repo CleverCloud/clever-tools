@@ -129,7 +129,7 @@ function parseConfigOption (config, options) {
       return null;
     }
     default: {
-      if (options[config.id] !== null) {
+      if (options[config.id] != null) {
         return [config.name, options[config.id]];
       }
       return null;
