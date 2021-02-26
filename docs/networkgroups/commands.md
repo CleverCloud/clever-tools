@@ -53,7 +53,6 @@ Create a networkgroup
 | `--label NG_LABEL`             | Networkgroup label, also used for dns context                       |
 | `--description NG_DESCRIPTION` | Networkgroup description                                            |
 | `[--tags] TAGS`                | List of tags separated by a comma                                   |
-| `[--interactive]`              | Answer questions instead of passing optional flags (default: false) |
 | `[--json, -j]`                 | Show result in JSON format (default: false)                         |
 
 ---
@@ -78,12 +77,11 @@ Join a networkgroup
 | `[--verbose, -v]`                           | Verbose output (default: false)                                     |
 | `--ng NG`                                   | Networkgroup ID or label                                            |
 | `--label PEER_LABEL`                        | Networkgroup peer label                                             |
+| `--node-category-id, -c NODE_CATEGORY_ID`   | The external node category ID                                       |
 | `[--private-key PRIVATE_KEY]`               | A WireGuard private key                                             |
-| `[--node-category-id, -c] NODE_CATEGORY_ID` | The external node category ID                                       |
 | `[--role] PEER_ROLE`                        | The peer role, ('client' or 'server') (default: client)             |
 | `[--ip] IP_ADDRESS`                         | An IP address                                                       |
 | `[--port] PORT_NUMBER`                      | A port number                                                       |
-| `[--interactive]`                           | Answer questions instead of passing optional flags (default: false) |
 
 ---
 

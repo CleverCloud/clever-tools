@@ -2,10 +2,7 @@
 
 const ngApi = require('@clevercloud/client/cjs/api/v4/networkgroup.js');
 
-const prompts = require('prompts');
-
 const { sendToApi } = require('../../models/send-to-api.js');
-const { ngQuestions } = require('../../models/questions');
 
 const Logger = require('../../logger.js');
 const Networkgroup = require('../../models/networkgroup.js');
@@ -36,22 +33,8 @@ async function listNetworkgroups (params) {
 }
 
 async function createNg (params) {
-  let { label, description, tags, interactive, json } = params.options;
+  const { label, description, tags, json } = params.options;
   const ownerId = await Networkgroup.getOwnerId();
-
-  // Ask for missing data if interactive
-  if (interactive) {
-    const questions = [];
-    if (!tags) {
-      questions.push(ngQuestions.ngTags);
-    }
-    if (questions.length > 0) {
-      // Do not abort prompt loop on cancel
-      const onCancel = () => true;
-      const result = await prompts(questions, { onCancel });
-      tags = tags || result.ngTags;
-    }
-  }
 
   Logger.info(`Creating networkgroup from owner ${Formatter.formatString(ownerId)}`);
   const body = { owner_id: ownerId, label, description, tags };

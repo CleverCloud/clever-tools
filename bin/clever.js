@@ -123,9 +123,6 @@ function run () {
 
   // OPTIONS
   const opts = {
-    interactive: cliparse.flag('interactive', {
-      description: 'Answer questions instead of passing optional flags',
-    }),
     sourceableEnvVarsList: cliparse.flag('add-export', { description: 'Display sourceable env variables setting' }),
     accesslogsFormat: cliparse.option('format', {
       aliases: ['F'],
@@ -435,6 +432,13 @@ function run () {
       required: true,
       metavar: 'member_label',
       description: 'Networkgroup member label',
+    }),
+    ngNodeCategoryId: cliparse.option('node-category-id', {
+      required: true,
+      aliases: ['c'],
+      metavar: 'node_category_id',
+      description: 'The external node category ID',
+      // complete: Networkgroup('xxx'),
     }),
     ngPeerLabel: cliparse.option('label', {
       required: true,
@@ -756,7 +760,7 @@ function run () {
   }, networkgroups('listNetworkgroups'));
   const networkgroupsCreateCommand = cliparse.command('create', {
     description: 'Create a networkgroup',
-    options: [opts.ngLabel, opts.ngDescription, opts.optTags, opts.interactive, opts.jsonFormat],
+    options: [opts.ngLabel, opts.ngDescription, opts.optTags, opts.jsonFormat],
   }, networkgroups('createNg'));
   const networkgroupsDeleteCommand = cliparse.command('delete', {
     description: 'Delete a networkgroup',
@@ -764,7 +768,7 @@ function run () {
   }, networkgroups('deleteNg'));
   const networkgroupsJoinCommand = cliparse.command('join', {
     description: 'Join a networkgroup',
-    options: [opts.ngIdOrLabel, opts.ngPeerLabel, opts.optWgPrivateKey, opts.optNgNodeCategoryId, opts.optNgPeerRole, opts.optIpAddress, opts.optPortNumber, opts.interactive],
+    options: [opts.ngIdOrLabel, opts.ngPeerLabel, opts.ngNodeCategoryId, opts.optWgPrivateKey, opts.optNgPeerRole, opts.optIpAddress, opts.optPortNumber],
   }, networkgroups('joinNg'));
   const networkgroupsLeaveCommand = cliparse.command('leave', {
     description: 'Manually leave a networkgroup if a problem occured',
