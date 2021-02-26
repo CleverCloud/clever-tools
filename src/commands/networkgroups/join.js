@@ -245,27 +245,24 @@ async function joinNg (params) {
       return Logger.debug(`SSE for networkgroup configuration (${colors.green('open')}): ${details}`);
     })
     .on('conf', (rawConf) => {
-      // FIXME: filter conf events in the clever-client Stream
-      if (rawConf != null && rawConf.length !== 0) {
-        Logger.debug('New WireGuard® configuration received');
-        Logger.debug(`[CONFIGURATION]\n${rawConf}\n[/CONFIGURATION]`);
+      Logger.debug('New WireGuard® configuration received');
+      Logger.debug(`[CONFIGURATION]\n${rawConf}\n[/CONFIGURATION]`);
 
-        // FIXME: Check configuration version > actual
+      // FIXME: Check configuration version > actual
 
-        const conf = WgConf.confWithoutPlaceholders(rawConf, { privateKey });
+      const conf = WgConf.confWithoutPlaceholders(rawConf, { privateKey });
 
-        // Save conf
-        // FIXME: Check if root as owner poses a problem
-        fs.writeFile(confPath, conf, { mode: 0o600 }, (error) => {
-          if (error) {
-            Logger.error(`Error saving new WireGuard® configuration: ${error}`);
-          }
-          else {
-            Logger.info(`Saved new WireGuard® configuration file to ${Formatter.formatUrl(confPath)}`);
-            Wg.update(confPath, interfaceName);
-          }
-        });
-      }
+      // Save conf
+      // FIXME: Check if root as owner poses a problem
+      fs.writeFile(confPath, conf, { mode: 0o600 }, (error) => {
+        if (error) {
+          Logger.error(`Error saving new WireGuard® configuration: ${error}`);
+        }
+        else {
+          Logger.info(`Saved new WireGuard® configuration file to ${Formatter.formatUrl(confPath)}`);
+          Wg.update(confPath, interfaceName);
+        }
+      });
     })
     .on('ping', () => Logger.debug(`SSE for networkgroup configuration (${colors.cyan('ping')})`))
     .on('close', (reason) => {
