@@ -177,17 +177,18 @@ async function joinNg (params) {
     throw error;
   }
 
-  // Get current configuration
-  const confAsB64 = await ngApi.getWgConf({ ownerId, ngId, peerId }).then(sendToApi);
-  let conf = Buffer.from(confAsB64, 'base64').toString();
-  Logger.debug('WireGuard® configuration received');
-  Logger.debug(`[CONFIGURATION]\n${conf}\n[/CONFIGURATION]`);
+  // Get initial configuration
+  const initialConf = await ngApi.getWgConf({ ownerId, ngId, peerId }).then(sendToApi);
+  initialConf.configuration = Buffer.from(initialConf.configuration, 'base64').toString();
+  Logger.debug(`WireGuard® configuration received (version: ${initialConf.version})`);
+  Logger.debug(`[CONFIGURATION]\n${initialConf.configuration}\n[/CONFIGURATION]`);
 
-  conf = WgConf.confWithoutPlaceholders(conf, { privateKey });
+  const initialConfFile = WgConf.confWithoutPlaceholders(initialConf.configuration, { privateKey });
+  let confVersion;
 
-  // Save conf
+  // Save initial conf
   // FIXME: Check if root as owner poses a problem
-  fs.writeFile(confPath, conf, { mode: 0o600, flag: 'wx' }, async (error) => {
+  fs.writeFile(confPath, initialConfFile, { mode: 0o600, flag: 'wx' }, async (error) => {
     if (error) {
       throw new Error(`Error saving WireGuard® configuration: ${error}`);
     }
@@ -196,6 +197,10 @@ async function joinNg (params) {
       try {
         // Activate WireGuard® tunnel
         Wg.up(confPath);
+
+        // Store initial configuration version
+        confVersion = initialConf.version;
+
         Logger.println(colors.green(`Successfully joined networkgroup ${Formatter.formatString(ngId)}`));
 
         // FIXME: check with keruspe
@@ -245,22 +250,28 @@ async function joinNg (params) {
       return Logger.debug(`SSE for networkgroup configuration (${colors.green('open')}): ${details}`);
     })
     .on('conf', (rawConf) => {
-      Logger.debug('New WireGuard® configuration received');
-      Logger.debug(`[CONFIGURATION]\n${rawConf}\n[/CONFIGURATION]`);
+      // Check configuration version > actual
+      if (rawConf.version <= confVersion) {
+        Logger.info(`WireGuard® configuration version ${rawConf.version} received, skipping (actual: ${confVersion})`);
+      }
 
-      // FIXME: Check configuration version > actual
+      Logger.debug(`New WireGuard® configuration received (version: ${rawConf.version})`);
+      Logger.debug(`[CONFIGURATION]\n${rawConf.configuration}\n[/CONFIGURATION]`);
 
-      const conf = WgConf.confWithoutPlaceholders(rawConf, { privateKey });
+      const confFile = WgConf.confWithoutPlaceholders(rawConf.configuration, { privateKey });
 
       // Save conf
       // FIXME: Check if root as owner poses a problem
-      fs.writeFile(confPath, conf, { mode: 0o600 }, (error) => {
+      fs.writeFile(confPath, confFile, { mode: 0o600 }, (error) => {
         if (error) {
           Logger.error(`Error saving new WireGuard® configuration: ${error}`);
         }
         else {
           Logger.info(`Saved new WireGuard® configuration file to ${Formatter.formatUrl(confPath)}`);
           Wg.update(confPath, interfaceName);
+
+          // Update actual configuration version
+          confVersion = rawConf.version;
         }
       });
     })
