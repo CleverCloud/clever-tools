@@ -32,13 +32,11 @@ async function askForParentMember ({ ownerId, ngId }) {
     parentId = 'new';
   }
   else {
-    Logger.error(`This networkgroup already has an external node category. Add ${Formatter.formatCommand(`--node-category-id ${Formatter.formatString(members[0].id)}`)} to select it.`);
-    return process.exit(1);
+    throw new Error(`This networkgroup already has an external node category. Add ${Formatter.formatCommand(`--node-category-id ${Formatter.formatString(members[0].id)}`)} to select it.`);
   }
 
   if (parentId === 'new') {
-    Logger.error(`See ${Formatter.formatCommand('clever networkgroups members add')} to create a new external member (node).`);
-    return process.exit(1);
+    throw new Error(`See ${Formatter.formatCommand('clever networkgroups members add')} to create a new external member (node).`);
   }
 
   return parentId;
