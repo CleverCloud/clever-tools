@@ -21,25 +21,19 @@ const { sendToApi, getHostAndTokens } = require('../../models/send-to-api.js');
 
 async function askForParentMember ({ ownerId, ngId }) {
   let members = await ngApi.listMembers({ ownerId, ngId }).then(sendToApi);
-  members = members.filter((member) => {
-    return member.type === 'externalNode';
-  });
+  members = members.filter((member) => member.type === 'externalNode');
 
-  let parentId;
-  if (members.length === 0) {
-    // Case 1: If there are no 'externalNode's, create a new one.
-    Logger.println('You have to create an external node category (networkgroup member) to join a networkgroup.');
-    parentId = 'new';
+  switch (members.length) {
+    case 0:
+      throw new Error([
+        'You have to create an external node category (networkgroup member) to join a networkgroup.',
+        `See ${Formatter.formatCommand('clever networkgroups members add')} to create a new external member (node).`,
+      ].join('\n'));
+    case 1:
+      throw new Error(`This networkgroup already has an external node category. Add ${Formatter.formatCommand(`--node-category-id ${Formatter.formatString(members[0].id)}`)} to select it.`);
+    default:
+      throw new Error(`This networkgroup already has external node categories. Add ${Formatter.formatCommand('--node-category-id NODE_CATEGORY_ID')} to select one.`);
   }
-  else {
-    throw new Error(`This networkgroup already has an external node category. Add ${Formatter.formatCommand(`--node-category-id ${Formatter.formatString(members[0].id)}`)} to select it.`);
-  }
-
-  if (parentId === 'new') {
-    throw new Error(`See ${Formatter.formatCommand('clever networkgroups members add')} to create a new external member (node).`);
-  }
-
-  return parentId;
 }
 
 function checkWgAvailable () {
