@@ -166,6 +166,8 @@ async function joinNg (params) {
   const peerId = await addExternalPeer({ args: params.args, options });
   let interfaceName = confName;
 
+  WgConf.createWgConfFolderIfNeeded();
+
   try {
     WgConf.storePeerId(peerId, confName);
   }
@@ -174,8 +176,6 @@ async function joinNg (params) {
     await removeExternalPeer({ options: { ng: { ng_id: ngId }, 'peer-id': peerId } });
     throw error;
   }
-
-  WgConf.createWgConfFolderIfNeeded();
 
   // Get current configuration
   const confAsB64 = await ngApi.getWgConf({ ownerId, ngId, peerId }).then(sendToApi);
