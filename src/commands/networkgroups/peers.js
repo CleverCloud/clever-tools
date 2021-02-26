@@ -7,7 +7,7 @@ const { sendToApi } = require('../../models/send-to-api.js');
 const Logger = require('../../logger.js');
 const Networkgroup = require('../../models/networkgroup.js');
 const Formatter = require('../../models/format-string.js');
-const TableFormatter = require('../../models/format-table.js');
+const TableFormatter = require('../../models/format-ng-table.js');
 
 async function listPeers (params) {
   const { ng: ngIdOrLabel, json } = params.options;

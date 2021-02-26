@@ -10,7 +10,7 @@ const { ngQuestions } = require('../../models/questions');
 const Logger = require('../../logger.js');
 const Networkgroup = require('../../models/networkgroup.js');
 const Formatter = require('../../models/format-string.js');
-const TableFormatter = require('../../models/format-table.js');
+const TableFormatter = require('../../models/format-ng-table.js');
 
 async function listNetworkgroups (params) {
   const { json } = params.options;
