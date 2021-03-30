@@ -24,12 +24,22 @@ function getConfigPath () {
   return path.resolve(configDir, 'clever-tools.json');
 }
 
+async function isFile (path) {
+  try {
+    const pathStat = await fs.stat(path);
+    return pathStat.isFile();
+  }
+  catch (e) {
+    return false;
+  }
+}
+
 async function maybeMigrateFromLegacyConfigurationPath () {
   // This used to be a file
   const configDir = getConfigDir();
-  const configDirStat = await fs.stat(configDir);
+  const legacyConfig = await isFile(configDir);
   // If it is still a file, we replace it with a dir and move it inside
-  if (configDirStat.isFile()) {
+  if (legacyConfig) {
     const tmpConfigFile = `${configDir}.tmp`;
     const configFile = getConfigPath();
 
