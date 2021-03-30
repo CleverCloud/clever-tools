@@ -5,6 +5,8 @@ const path = require('path');
 const util = require('util');
 
 const readFile = util.promisify(fs.readFile);
+const rename = util.promisify(fs.rename);
+const stat = util.promisify(fs.stat);
 const writeFile = util.promisify(fs.writeFile);
 
 const commonEnv = require('common-env');
@@ -14,12 +16,33 @@ const xdg = require('xdg');
 const Logger = require('../logger.js');
 const env = commonEnv(Logger);
 
-function getConfigPath () {
+function getConfigDir () {
   if (process.platform === 'win32') {
     return path.resolve(process.env.APPDATA, 'clever-cloud');
   }
   else {
     return xdg.basedir.configPath('clever-cloud');
+  }
+}
+
+function getConfigPath () {
+  const configDir = getConfigDir();
+  return path.resolve(configDir, 'clever-tools.json');
+}
+
+async function maybeMigrateFromLegacyConfigurationPath () {
+  // This used to be a file
+  const configDir = getConfigDir();
+  const configDirStat = await stat(configDir);
+  // If it is still a file, we replace it with a dir and move it inside
+  if (configDirStat.isFile()) {
+    const tmpConfigFile = `${configDir}.tmp`;
+    const configFile = getConfigPath();
+
+    // Rename so that we can create the directory
+    await rename(configDir, tmpConfigFile);
+    await mkdirp(configDir, { mode: 0o700 });
+    await rename(tmpConfigFile, configFile);
   }
 }
 
@@ -32,6 +55,7 @@ async function loadOAuthConf () {
     };
   }
   Logger.debug('Load configuration from ' + conf.CONFIGURATION_FILE);
+  await maybeMigrateFromLegacyConfigurationPath();
   try {
     const rawFile = await readFile(conf.CONFIGURATION_FILE);
     return JSON.parse(rawFile);
