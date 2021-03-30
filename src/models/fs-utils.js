@@ -1,14 +1,11 @@
 'use strict';
 
 const { join } = require('path');
-const fs = require('fs');
-const { promisify } = require('util');
-
-const fsStat = promisify(fs.stat);
+const { promises: fs } = require('fs');
 
 function findPath (dir, name) {
   const fullPath = join(dir, name);
-  return fsStat(fullPath)
+  return fs.stat(fullPath)
     .then(() => dir)
     .catch((e) => {
       if (e.code === 'ENOENT' && dir !== '/') {
