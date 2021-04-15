@@ -78,7 +78,7 @@ Join a networkgroup
 | `--ng NG`                                   | Networkgroup ID or label                                            |
 | `--label PEER_LABEL`                        | Networkgroup peer label                                             |
 | `--node-category-id, -c NODE_CATEGORY_ID`   | The external node category ID                                       |
-| `[--private-key PRIVATE_KEY]`               | A WireGuard private key                                             |
+| `[--private-key PRIVATE_KEY]`               | A WireGuard® private key                                             |
 | `[--role] PEER_ROLE`                        | The peer role, ('client' or 'server') (default: client)             |
 | `[--ip] IP_ADDRESS`                         | An IP address                                                       |
 | `[--port] PORT_NUMBER`                      | A port number                                                       |
@@ -182,7 +182,7 @@ Add an external node as a networkgroup peer
 | `[--verbose, -v]`         | Verbose output (default: false)                  |
 | `--ng NG`                 | Networkgroup ID or label                         |
 | `--role PEER_ROLE`        | The peer role, ('client' or 'server')            |
-| `--public-key PUBLIC_KEY` | A WireGuard public key                           |
+| `--public-key PUBLIC_KEY` | A WireGuard® public key                           |
 | `--label PEER_LABEL`      | Networkgroup peer label                          |
 | `--parent MEMBER_ID`      | Networkgroup peer category ID (parent member ID) |
 

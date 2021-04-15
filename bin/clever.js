@@ -493,12 +493,12 @@ function run () {
     wgPublicKey: cliparse.option('public-key', {
       required: true,
       metavar: 'public_key',
-      description: 'A WireGuard public key',
+      description: 'A WireGuard® public key',
     }),
     optWgPrivateKey: cliparse.option('private-key', {
       required: false,
       metavar: 'private_key',
-      description: 'A WireGuard private key',
+      description: 'A WireGuard® private key',
     }),
     jsonFormat: cliparse.flag('json', { aliases: ['j'], description: 'Show result in JSON format' }),
     tag: cliparse.option('tag', {

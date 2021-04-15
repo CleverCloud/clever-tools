@@ -137,12 +137,12 @@ ngLabelForInvalidCases2='test-2'
    # Networkgroup 'ng_84c65dce-4a48-4858-b327-83bddf5f0a79' was successfully deleted.
    ```
 
-#### WireGuard configuration updates when adding a peer
+#### WireGuard® configuration updates when adding a peer
 
 1. Setup
 
    ```sh
-   cleverr ng create --label "$ngLabel" --description '[Test] WireGuard configuration updates when adding a peer'
+   cleverr ng create --label "$ngLabel" --description '[Test] WireGuard® configuration updates when adding a peer'
    # Networkgroup 'temp-test' was created with the id 'ng_620b3482-f286-4189-9931-a8910f2ea706'.
    cleverr ng --ng "$ngLabel" members add --member-id "$memberId1" --type 'external' --domain-name 'my-nodes-category' --label '[Test] My external nodes category'
    # Successfully added member 'my-member-1' to networkgroup 'ng_620b3482-f286-4189-9931-a8910f2ea706'.
