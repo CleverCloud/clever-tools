@@ -26,6 +26,14 @@ npm install -g clever-tools@beta
 
 #### Debian/Ubuntu (.deb)
 
+---
+
+##### Warning
+
+Bintray is ending on May 1st 2021, we will migrate hosting as soon as possible. Please refer to the dedicated [issue](https://github.com/CleverCloud/clever-tools/issues/454) to track the migration.
+
+---
+
 If you are using a GNU/Linux distribution that uses `.deb` packages like Debian or Ubuntu, you can run:
 
 ```sh
@@ -45,6 +53,14 @@ echo "deb https://dl.bintray.com/clevercloud/deb unstable beta" | tee -a /etc/ap
 ```
 
 #### CentOS/Fedora (.rpm)
+
+---
+
+##### Warning
+
+Bintray is ending on May 1st 2021, we will migrate hosting as soon as possible. Please refer to the dedicated [issue](https://github.com/CleverCloud/clever-tools/issues/454) to track the migration.
+
+---
 
 If you are using a GNU/Linux distribution that uses `.rpm` packages like CentOS or Fedora, you can run:
 
@@ -131,7 +147,15 @@ NOTES:
 
 #### Using chocolatey
 
-If you are using Windows and you have [chocolatey](https://chocolatey.org) installed, you can run: 
+---
+
+##### Warning
+
+Bintray is ending on May 1st 2021, we will migrate hosting as soon as possible. Please refer to the dedicated [issue](https://github.com/CleverCloud/clever-tools/issues/454) to track the migration.
+
+---
+
+If you are using Windows and you have [chocolatey](https://chocolatey.org) installed, you can run:
 
 ```bash
 choco sources add -n=clevercloud -s='https://api.bintray.com/nuget/clevercloud/nupkg'
@@ -168,7 +192,7 @@ If you are using Nix, you will find a Nix derivation on Fretlink's Github reposi
 
 The clever-tools CLI comes with a comprehensive auto-completion system.
 Some installation methods like `.deb` packages, `.rpm` packages or brew will try to enable it automatically.
-If it does not work, try this for bash: 
+If it does not work, try this for bash:
 
 ```bash
 clever --bash-autocomplete-script $(which clever) | sudo tee /usr/share/bash-completion/completions/clever
