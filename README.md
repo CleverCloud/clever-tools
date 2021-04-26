@@ -184,6 +184,14 @@ docker pull clevercloud/clever-tools
 docker run --rm clever-tools <command>
 ```
 
+#### Dockerfile
+
+In your `Dockerfile` you can copy the clever-tools CLI from the image itself with a simple one liner:
+
+```Dockerfile
+COPY --from=clevercloud/clever-tools /bin/clever /usr/local/bin/clever
+```
+
 ### Via Nix
 
 If you are using Nix, you will find a Nix derivation on Fretlink's Github repository: https://github.com/fretlink/clever-tools-nix
