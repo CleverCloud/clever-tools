@@ -70,10 +70,6 @@ async function removeExternalPeer (params) {
   const ngId = await Networkgroup.getId(ownerId, ngIdOrLabel);
 
   Logger.info(`Removing external peer ${Formatter.formatString(peerId)} from networkgroup ${Formatter.formatString(ngId)}`);
-  // FIXME: Currently, when an external peer is already deleted, the API returns 404.
-  //        This is detected as an error status code and throws an error.
-  //        This prevents `clever ng leave` from working correctly in some cases.
-  //        This status code will be changed to 204 soon.
   await ngApi.removeExternalPeer({ ownerId, ngId, peerId }).then(sendToApi);
 
   Logger.println(`External peer ${Formatter.formatString(peerId)} must have been removed from networkgroup ${Formatter.formatString(ngId)}.`);

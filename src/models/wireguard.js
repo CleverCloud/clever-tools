@@ -54,7 +54,7 @@ function checkAvailable () {
     execSync('which wg > /dev/null 2>&1');
     execSync('which wg-quick > /dev/null 2>&1');
 
-    // FIXME: Handle Windows
+    // TODO: Handle Windows
     //        - Those checks won't work on Windows, and wg-quick doesn't exist anyway.
     //          - We need to wait for a Windows version of wg-quick to support the rest of the operations
     //          - Or we could use vanilla wg on Windows, and wg-quick on other OSs

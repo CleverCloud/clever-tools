@@ -772,7 +772,6 @@ function run () {
   }, networkgroups('joinNg'));
   const networkgroupsLeaveCommand = cliparse.command('leave', {
     description: 'Manually leave a networkgroup if a problem occured',
-    // FIXME: Remove optNgPeerId
     options: [opts.ngIdOrLabel, opts.optNgPeerId],
   }, networkgroups('leaveNg'));
   // networkgroup category - end

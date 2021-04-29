@@ -64,6 +64,15 @@ function deletePeerIdFile (ngId) {
   Logger.info(`Deleted peer ID from ${Formatter.formatUrl(filePath)}`);
 }
 
+function getInterfaceName (confName) {
+  // This file is created by WireGuard®, hence the file path (`/var/run/…`)
+  // TODO: Handle Windows
+  const interfaceNameFile = path.join('var', 'run', 'wireguard', `${confName}.name`);
+
+  Logger.debug(`Reading WireGuard® interface name in ${Formatter.formatUrl(interfaceNameFile)}…`);
+  return fs.readFileSync(interfaceNameFile, { encoding: 'utf-8' }).trim();
+}
+
 function confWithoutPlaceholders (conf, { privateKey }) {
   conf = conf.replace('<%PrivateKey%>', privateKey);
 
@@ -80,5 +89,6 @@ module.exports = {
   storePeerId,
   getPeerId,
   deletePeerIdFile,
+  getInterfaceName,
   confWithoutPlaceholders,
 };

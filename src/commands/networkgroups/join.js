@@ -128,13 +128,12 @@ async function joinNg (params) {
 
         Logger.println(colors.green(`Successfully joined networkgroup ${Formatter.formatString(ngId)}`));
 
-        // FIXME: check with keruspe
-        const interfaceNameFile = `/var/run/wireguard/${confName}.name`;
+        // Read name of network interface created by WireGuard® (useful later)
         try {
-          interfaceName = fs.readFileSync(interfaceNameFile, { encoding: 'utf-8' }).trim();
+          interfaceName = WgConf.getInterfaceName(confName);
         }
         catch (error) {
-          Logger.debug(`A problem occured while reading WireGuard® interface name in ${Formatter.formatUrl(interfaceNameFile)}, fallback to configuration name (${Formatter.formatString(confName)})`);
+          Logger.debug(`A problem occured while reading WireGuard® interface name, fallback to configuration name (${Formatter.formatString(confName)})`);
         }
       }
       catch (error) {
@@ -207,8 +206,7 @@ async function joinNg (params) {
     .on('error', (streamError) => {
       Logger.debug(`SSE for networkgroup configuration (${colors.red('error')}): ${streamError}`);
       leave(ngId, peerId)
-        // FIXME: put the correct user facing error message
-        .then(() => deferred.reject(new Error('')))
+        .then(() => deferred.reject(new Error(`An error happened when listening to WireGuard® configuration changes: ${streamError}`)))
         .catch((leaveError) => deferred.reject(leaveError));
     });
 
