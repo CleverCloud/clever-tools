@@ -23,7 +23,8 @@ function formatSource (l) {
   if (l.s != null) {
     const location = l.s.ct ? `${l.s.ct}, ${l.s.co}` : l.s.co;
     return `${l.ipS} - ${location}`;
-  } else {
+  }
+  else {
     return l.ipS;
   }
 }

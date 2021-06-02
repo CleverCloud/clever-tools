@@ -1,11 +1,7 @@
 'use strict';
 
-const fs = require('fs');
+const { promises: fs } = require('fs');
 const path = require('path');
-const util = require('util');
-
-const readFile = util.promisify(fs.readFile);
-const writeFile = util.promisify(fs.writeFile);
 
 const commonEnv = require('common-env');
 const mkdirp = require('mkdirp');
@@ -14,12 +10,43 @@ const xdg = require('xdg');
 const Logger = require('../logger.js');
 const env = commonEnv(Logger);
 
-function getConfigPath () {
+function getConfigDir () {
   if (process.platform === 'win32') {
     return path.resolve(process.env.APPDATA, 'clever-cloud');
   }
   else {
     return xdg.basedir.configPath('clever-cloud');
+  }
+}
+
+function getConfigPath () {
+  const configDir = getConfigDir();
+  return path.resolve(configDir, 'clever-tools.json');
+}
+
+async function isFile (path) {
+  try {
+    const pathStat = await fs.stat(path);
+    return pathStat.isFile();
+  }
+  catch (e) {
+    return false;
+  }
+}
+
+async function maybeMigrateFromLegacyConfigurationPath () {
+  // This used to be a file
+  const configDir = getConfigDir();
+  const legacyConfig = await isFile(configDir);
+  // If it is still a file, we replace it with a dir and move it inside
+  if (legacyConfig) {
+    const tmpConfigFile = `${configDir}.tmp`;
+    const configFile = getConfigPath();
+
+    // Rename so that we can create the directory
+    await fs.rename(configDir, tmpConfigFile);
+    await mkdirp(configDir, { mode: 0o700 });
+    await fs.rename(tmpConfigFile, configFile);
   }
 }
 
@@ -32,8 +59,9 @@ async function loadOAuthConf () {
     };
   }
   Logger.debug('Load configuration from ' + conf.CONFIGURATION_FILE);
+  await maybeMigrateFromLegacyConfigurationPath();
   try {
-    const rawFile = await readFile(conf.CONFIGURATION_FILE);
+    const rawFile = await fs.readFile(conf.CONFIGURATION_FILE);
     return JSON.parse(rawFile);
   }
   catch (error) {
@@ -47,7 +75,7 @@ async function writeOAuthConf (oauthData) {
   const configDir = path.dirname(conf.CONFIGURATION_FILE);
   try {
     await mkdirp(configDir, { mode: 0o700 });
-    await writeFile(conf.CONFIGURATION_FILE, JSON.stringify(oauthData));
+    await fs.writeFile(conf.CONFIGURATION_FILE, JSON.stringify(oauthData));
   }
   catch (error) {
     throw new Error(`Cannot write configuration to ${conf.CONFIGURATION_FILE}\n${error.message}`);
