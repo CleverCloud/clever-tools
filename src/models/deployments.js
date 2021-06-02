@@ -30,6 +30,7 @@ async function waitForDeploymentStart ({ ownerId, appId, deploymentId, commitId,
           const isNew = knownDeployments.every(({ uuid }) => uuid !== d.uuid);
           return isNew && d.commit === commitId;
         }
+        return false;
       });
       if (deployment != null) {
         Logger.debug(`Deployment has started (state:${deployment.state})`);

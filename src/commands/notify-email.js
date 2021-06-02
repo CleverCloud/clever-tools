@@ -55,6 +55,7 @@ function getEmailNotificationTargets (notifTargets) {
       if (el.toLowerCase() === 'organisation') {
         return { type: 'organisation' };
       }
+      return null;
     })
     .filter((e) => e != null);
 }
