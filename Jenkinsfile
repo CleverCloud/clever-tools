@@ -35,9 +35,9 @@ pipeline {
             sh 'node scripts/job-publish-cellar.js'
           }
         }
-        stage('bintray') {
+        stage('nexus') {
           steps {
-            sh 'node scripts/job-publish-bintray.js'
+            sh 'node scripts/job-publish-nexus.sh'
           }
         }
         stage('arch') {

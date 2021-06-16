@@ -46,14 +46,15 @@ That's why we need `S3_KEY_ID` and `S3_SECRET_KEY` from the credentials.
 * If it's a stable version we publish the files under `X.Y.Z` but also under `latest`.
 * If it's a beta version we only publish the files under `X.Y.Z-beta.W`.
 
-#### Bintray
+#### Nexus
 
-`.deb` and `.rpm` are published on Bintray.
-That's why we need `BINTRAY_API_KEY` from the credentials.
+`.deb`, `.nupkg` and `.rpm` are published on Clever Cloud's public Nexus instance.
+That's why we need the `NEXUS_PASSWORD` and `NUGET_API_KEY` environment variables.
 
-* `.deb` are published on [Bintray](https://bintray.com/clevercloud/deb).
+* `.deb` are published on [Nexus](https://nexus.clever-cloud.com/repository/deb).
   * We use the `distribution` metadata to identify beta versions.
-* `.rpm` are published on [Bintray](https://bintray.com/clevercloud/rpm).
+* `.rpm` are published on [Nexus](https://nexus.clever-cloud.com/repository/rpm).
+* `.nupkg` are published on [Nexus](https://nexus.clever-cloud.com/repository/nupkg).
 
 #### Archlinux
 

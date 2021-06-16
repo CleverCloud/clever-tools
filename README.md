@@ -30,26 +30,26 @@ npm install -g clever-tools@beta
 
 ##### Warning
 
-Bintray is ending on May 1st 2021, we will migrate hosting as soon as possible. Please refer to the dedicated [issue](https://github.com/CleverCloud/clever-tools/issues/454) to track the migration.
+We recently moved from Bintray to a self hosted Nexus repository available at [https://nexus.clever-cloud.com](https://nexus.clever-cloud.com). You have to update the URL of your repository with the new one. If you experience any issue please let us know on the following [issue https://github.com/CleverCloud/clever-tools/issues/454](https://github.com/CleverCloud/clever-tools/issues/454).
 
 ---
 
 If you are using a GNU/Linux distribution that uses `.deb` packages like Debian or Ubuntu, you can run:
 
 ```sh
-apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys "379CE192D401AB61"
-echo "deb https://dl.bintray.com/clevercloud/deb stable main" | tee -a /etc/apt/sources.list
+apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys "a7b8f38c536f1df2"
+echo "deb https://nexus.clever-cloud.com/repository/deb stable main" | tee -a /etc/apt/sources.list
 apt-get update
 apt-get install clever-tools
 ```
 
 NOTES:
 
-* The `.deb` packages are hosted on Bintray (their GPG key is required to trust their signed packages).
+* The `.deb` packages are hosted on Clever Cloud's public Nexus instance available at [https://nexus.clever-cloud.com](https://nexus.clever-cloud.com).(their GPG key is required to trust their signed packages).
 * If you want access to the beta channel, you can use this in your `sources.list`:
 
 ```sh
-echo "deb https://dl.bintray.com/clevercloud/deb unstable beta" | tee -a /etc/apt/sources.list
+echo "deb https://nexus.clever-cloud.com/repository/deb bionic unstable beta" | tee -a /etc/apt/sources.list
 ```
 
 #### CentOS/Fedora (.rpm)
@@ -58,21 +58,21 @@ echo "deb https://dl.bintray.com/clevercloud/deb unstable beta" | tee -a /etc/ap
 
 ##### Warning
 
-Bintray is ending on May 1st 2021, we will migrate hosting as soon as possible. Please refer to the dedicated [issue](https://github.com/CleverCloud/clever-tools/issues/454) to track the migration.
+We recently moved from Bintray to a self hosted Nexus repository available at [https://nexus.clever-cloud.com](https://nexus.clever-cloud.com). You have to update the URL of your repository with the new one. If you experience any issue please let us know on the following [issue https://github.com/CleverCloud/clever-tools/issues/454](https://github.com/CleverCloud/clever-tools/issues/454).
 
 ---
 
 If you are using a GNU/Linux distribution that uses `.rpm` packages like CentOS or Fedora, you can run:
 
 ```sh
-curl https://bintray.com/clevercloud/rpm/rpm > /etc/yum.repos.d/bintray-clevercloud-rpm.repo
-echo "exclude=*beta*" >> /etc/yum.repos.d/bintray-clevercloud-rpm.repo
+curl https://nexus.clever-cloud.com/repository/rpm/ > /etc/yum.repos.d/nexus-clevercloud-rpm.repo
+echo "exclude=*beta*" >> /etc/yum.repos.d/nexus-clevercloud-rpm.repo
 yum install clever-tools
 ```
 
 NOTES:
 
-* The `.rpm` packages are hosted on Bintray.
+* The `.rpm` packages are hosted on Clever Cloud's public Nexus instance available at  [https://nexus.clever-cloud.com](https://nexus.clever-cloud.com).
 * If you want access to the beta channel, you can omit the second line which contains an exclude option.
 
 #### Arch Linux
@@ -151,14 +151,14 @@ NOTES:
 
 ##### Warning
 
-Bintray is ending on May 1st 2021, we will migrate hosting as soon as possible. Please refer to the dedicated [issue](https://github.com/CleverCloud/clever-tools/issues/454) to track the migration.
+We recently moved from Bintray to a self hosted Nexus repository available at [https://nexus.clever-cloud.com](https://nexus.clever-cloud.com). You have to update the URL of your chocolatey repository with the new one. If you experience any issue please let us know on the following [issue https://github.com/CleverCloud/clever-tools/issues/454](https://github.com/CleverCloud/clever-tools/issues/454).
 
 ---
 
 If you are using Windows and you have [chocolatey](https://chocolatey.org) installed, you can run:
 
 ```bash
-choco sources add -n=clevercloud -s='https://api.bintray.com/nuget/clevercloud/nupkg'
+choco sources add -n=clevercloud -s='https://nexus.clever-cloud.com/repository/nupkg'
 choco install clever-tools
 ```
 
