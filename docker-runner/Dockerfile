@@ -26,7 +26,3 @@ RUN echo \
 RUN apt-get update -y
 
 RUN apt-get install -y docker-ce docker-ce-cli containerd.io
-
-RUN usermod -a -G docker jenkins
-
-USER jenkins
