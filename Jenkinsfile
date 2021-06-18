@@ -1,5 +1,5 @@
 pipeline {
-  agent { label 'cc-ci-agent' }
+  agent { label 'test-zepag-hyoob-todelete' }
   environment {
     GIT_TAG_NAME = gitTagName()
     S3_KEY_ID = credentials('CELLAR_CC_TOOLS_ACCESS_KEY_ID')
