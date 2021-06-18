@@ -10,10 +10,6 @@ const cellar = {
   host: 'cellar-c2.services.clever-cloud.com',
   bucket: 'clever-tools.clever-cloud.com',
 };
-const bintray = {
-  subject: 'clevercloud',
-  user: 'ci-clevercloud',
-};
 const git = {
   email: 'ci@clever-cloud.com',
   name: 'Clever Cloud CI',
@@ -79,12 +75,17 @@ function getBundleFilepath (type, version) {
   return `${releasesDir}/${version}/${appInfos.name}-${version}.${type}`;
 }
 
-function getBintrayApiKey () {
-  const apiKey = process.env.BINTRAY_API_KEY;
-  if (!apiKey) {
-    throw new Error('Could not read bintray API key!');
+function getNexusAuth () {
+  const user = process.env.NEXUS_USER || 'ci';
+  const password = process.env.NEXUS_PASSWORD;
+  const nugetApiKey = process.env.NEXUS_NUGET_API_KEY;
+  if (password == null) {
+    throw new Error('Could not read Nexus password!');
   }
-  return apiKey;
+  if (nugetApiKey == null) {
+    throw new Error('Could not read Nexus Nuget API key!');
+  }
+  return { user, password, nugetApiKey };
 }
 
 function getNpmToken () {
@@ -100,7 +101,6 @@ module.exports = {
   nodeVersion,
   releasesDir,
   cellar,
-  bintray,
   git,
   appInfos,
   getVersion,
@@ -109,6 +109,6 @@ module.exports = {
   getBinaryFilepath,
   getArchiveFilepath,
   getBundleFilepath,
-  getBintrayApiKey,
+  getNexusAuth,
   getNpmToken,
 };
