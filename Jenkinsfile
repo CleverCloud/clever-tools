@@ -14,7 +14,7 @@ pipeline {
     stage('test') {
       agent {
         docker {
-          image 'centos:7'
+          image 'archlinux'
           // Run the container on the node specified at the top-level of the Pipeline, in the same workspace, rather than on a new node entirely:
           reuseNode true
         }
@@ -23,6 +23,7 @@ pipeline {
           sh 'echo "hello foobar"'
           sh 'ls /'
           sh 'uname -a'
+          sh 'cat /etc/os-release'
       }
     }
   }
