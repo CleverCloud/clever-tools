@@ -20,7 +20,9 @@ pipeline {
         }
       }
       steps {
-          sh 'cat /etc/*release'
+          sh 'echo "hello foobar"'
+          sh 'ls /'
+          sh 'uname -a'
       }
     }
   }

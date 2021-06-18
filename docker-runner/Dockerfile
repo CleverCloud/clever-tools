@@ -1,5 +1,7 @@
 FROM jenkins/jnlp-slave
 
+# We need this for all the installations
+# We also need this for the docker sibling mode on Clever (not jenkins user)
 USER root
 
 RUN curl -sL https://deb.nodesource.com/setup_14.x | bash -
