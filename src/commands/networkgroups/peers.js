@@ -55,7 +55,7 @@ async function addExternalPeer (params) {
   const ownerId = await Networkgroup.getOwnerId();
   const ngId = await Networkgroup.getId(ownerId, ngIdOrLabel);
 
-  const body = { 'peer-role': role, 'public-key': publicKey, label, parent_member: parent, ip, port };
+  const body = { peer_role: role, public_key: publicKey, label, parent_member: parent, ip, port };
   Logger.info(`Adding external peer to networkgroup ${Formatter.formatString(ngId)}`);
   Logger.debug('Sending body: ' + JSON.stringify(body, null, 2));
   const { id: peerId } = await ngApi.addExternalPeer({ ownerId, ngId }, body).then(sendToApi);

@@ -55,7 +55,7 @@ async function addMember (params) {
   const ownerId = await Networkgroup.getOwnerId();
   const ngId = await Networkgroup.getId(ownerId, ngIdOrLabel);
 
-  const body = { id: memberId, label, 'domain-name': domainName, type };
+  const body = { id: memberId, label, domain_name: domainName, type };
   Logger.debug('Sending body: ' + JSON.stringify(body, null, 2));
   await ngApi.addMember({ ownerId, ngId }, body).then(sendToApi);
 
