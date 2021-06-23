@@ -53,7 +53,7 @@ async function formatMembersLine (member, showAliases = false) {
         : Formatter.formatId(member.id),
       Formatter.formatString(member.type, false),
       Formatter.formatString(member.label, false),
-      Formatter.formatString(member['domain-name'] || ' ', false),
+      Formatter.formatString(member.domain_name || ' ', false),
     ],
   ]);
 };
@@ -79,7 +79,7 @@ const peersTableColumnLengths = [
 ];
 const formatPeersTable = formatNgTable(peersTableColumnLengths);
 function formatPeersLine (peer) {
-  const ip = (peer.endpoint.type === 'ServerEndpoint') ? peer.endpoint['ng-term'].ip : peer.endpoint['ng-ip'];
+  const ip = (peer.endpoint.type === 'ServerEndpoint') ? peer.endpoint.ng_term.ip : peer.endpoint.ng_ip;
   return formatPeersTable([
     [
       Formatter.formatId(peer.id),
