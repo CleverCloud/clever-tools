@@ -1,6 +1,6 @@
 'use strict';
 
-const fs = require('fs');
+const { promises: fs, existsSync } = require('fs');
 const isElevated = require('is-elevated');
 
 const ngApi = require('@clevercloud/client/cjs/api/v4/networkgroup.js');
@@ -64,7 +64,7 @@ async function joinNg (params) {
   }
 
   const { confName, confPath } = WgConf.getWgConfInformation(ngId);
-  if (fs.existsSync(confPath)) {
+  if (existsSync(confPath)) {
     throw new Error(`You cannot join a networkgroup twice at the same time with the same computer. Try using ${Formatter.formatCommand('clever networkgroups leave')} and running this command again.`);
   }
 
@@ -111,36 +111,37 @@ async function joinNg (params) {
   const initialConfFile = WgConf.confWithoutPlaceholders(initialConf.configuration, { privateKey });
   let confVersion;
 
-  // Save initial conf
-  // FIXME: Check if root as owner poses a problem
-  fs.writeFile(confPath, initialConfFile, { mode: 0o600, flag: 'wx' }, async (error) => {
-    if (error) {
-      throw new Error(`Error saving WireGuard® configuration: ${error}`);
-    }
-    else {
-      Logger.info(`Saved WireGuard® configuration file to ${Formatter.formatUrl(confPath)}`);
+  try {
+    // Save initial conf
+    // FIXME: Check if root as owner poses a problem
+    await fs.writeFile(confPath, initialConfFile, { mode: 0o600, flag: 'wx' });
+    Logger.info(`Saved WireGuard® configuration file to ${Formatter.formatUrl(confPath)}`);
+
+    try {
+      // Activate WireGuard® tunnel
+      Wg.up(confPath);
+
+      // Store initial configuration version
+      confVersion = initialConf.version;
+
+      Logger.println(colors.green(`Successfully joined networkgroup ${Formatter.formatString(ngId)}`));
+
+      // Read name of network interface created by WireGuard® (useful later)
       try {
-        // Activate WireGuard® tunnel
-        Wg.up(confPath);
-
-        // Store initial configuration version
-        confVersion = initialConf.version;
-
-        Logger.println(colors.green(`Successfully joined networkgroup ${Formatter.formatString(ngId)}`));
-
-        // Read name of network interface created by WireGuard® (useful later)
-        try {
-          interfaceName = WgConf.getInterfaceName(confName);
-        }
-        catch (error) {
-          Logger.debug(`A problem occured while reading WireGuard® interface name, fallback to configuration name (${Formatter.formatString(confName)})`);
-        }
+        interfaceName = WgConf.getInterfaceName(confName);
       }
       catch (error) {
-        throw new Error(`Error activating WireGuard® tunnel: ${error}`);
+        // Do not bubble up the error, just keep default configuration name
+        Logger.debug(`A problem occured while reading WireGuard® interface name, fallback to configuration name (${Formatter.formatString(confName)})`);
       }
     }
-  });
+    catch (error) {
+      throw new Error(`Error activating WireGuard® tunnel: ${error}`);
+    }
+  }
+  catch (error) {
+    throw new Error(`Error saving WireGuard® configuration: ${error}`);
+  }
 
   async function leave (ngId, peerId) {
     return leaveNg({ options: { ng: { ng_id: ngId }, 'peer-id': peerId } });
@@ -186,18 +187,20 @@ async function joinNg (params) {
 
       // Save conf
       // FIXME: Check if root as owner poses a problem
-      fs.writeFile(confPath, confFile, { mode: 0o600 }, (error) => {
-        if (error) {
-          Logger.error(`Error saving new WireGuard® configuration: ${error}`);
-        }
-        else {
+      fs.writeFile(confPath, confFile, { mode: 0o600 })
+        .then(() => {
           Logger.info(`Saved new WireGuard® configuration file to ${Formatter.formatUrl(confPath)}`);
+
+          // Update WireGuard® configuration
           Wg.update(confPath, interfaceName);
 
           // Update actual configuration version
           confVersion = rawConf.version;
-        }
-      });
+        })
+        .catch((error) => {
+          // Do not bubble up the error, it's not critical if we miss a configuration
+          Logger.error(`Error saving new WireGuard® configuration: ${error}`);
+        });
     })
     .on('ping', () => Logger.debug(`SSE for networkgroup configuration (${colors.cyan('ping')})`))
     .on('close', (reason) => {
@@ -234,7 +237,7 @@ async function leaveNg (params) {
 
   WgConf.deletePeerIdFile(ngId);
   // We need `force: true` to avoid errors if file doesn't exist
-  fs.rmSync(confPath, { force: true });
+  await fs.rm(confPath, { force: true });
   Logger.info(`Deleted WireGuard® configuration file for ${Formatter.formatString(ngId)}`);
 }
 
