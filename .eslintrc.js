@@ -11,5 +11,7 @@ module.exports = {
     // disabled for now
     'camelcase': 'off',
     'operator-linebreak': ['error', 'before'],
+    'curly': ['error', 'all'],
+    'eqeqeq': ['error', 'always', { 'null': 'never' }],
   },
 };

@@ -3,3 +3,6 @@ spec/empty-repo
 spec/application.instance-types.js
 .clever.json
 releases/
+
+# macOS system files
+.DS_Store

@@ -51,7 +51,7 @@ async function maybeMigrateFromLegacyConfigurationPath () {
 }
 
 async function loadOAuthConf () {
-  Logger.debug('Load configuration from environment variables');
+  Logger.debug('Loading configuration from environment variables');
   if (process.env.CLEVER_TOKEN != null && process.env.CLEVER_SECRET != null) {
     return {
       token: process.env.CLEVER_TOKEN,
@@ -71,7 +71,7 @@ async function loadOAuthConf () {
 }
 
 async function writeOAuthConf (oauthData) {
-  Logger.debug('Write the tokens in the configuration file…');
+  Logger.debug('Writing the tokens in the configuration file…');
   const configDir = path.dirname(conf.CONFIGURATION_FILE);
   try {
     await mkdirp(configDir, { mode: 0o700 });
