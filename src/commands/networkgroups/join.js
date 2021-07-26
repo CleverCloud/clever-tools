@@ -91,10 +91,10 @@ async function joinNg (params) {
   const peerId = await addExternalPeer({ args: params.args, options });
   let interfaceName = confName;
 
-  WgConf.createWgConfFolderIfNeeded();
+  await WgConf.createWgConfFolderIfNeeded();
 
   try {
-    WgConf.storePeerId(peerId, confName);
+    await WgConf.storePeerId(peerId, confName);
   }
   catch (error) {
     // If networkgroup already joined, remove freshly created external peer
@@ -106,7 +106,7 @@ async function joinNg (params) {
   const initialConf = await ngApi.getWgConf({ ownerId, ngId, peerId }).then(sendToApi);
   initialConf.configuration = Buffer.from(initialConf.configuration, 'base64').toString();
   Logger.debug(`WireGuard® configuration received (version: ${initialConf.version})`);
-  Logger.debug(`[CONFIGURATION]\n${initialConf.configuration}\n[/CONFIGURATION]`);
+  // Logger.debug(`[CONFIGURATION]\n${initialConf.configuration}\n[/CONFIGURATION]`);
 
   const initialConfFile = WgConf.confWithoutPlaceholders(initialConf.configuration, { privateKey });
   let confVersion;
@@ -128,7 +128,7 @@ async function joinNg (params) {
 
       // Read name of network interface created by WireGuard® (useful later)
       try {
-        interfaceName = WgConf.getInterfaceName(confName);
+        interfaceName = await WgConf.getInterfaceName(confName);
       }
       catch (error) {
         // Do not bubble up the error, just keep default configuration name
@@ -174,33 +174,34 @@ async function joinNg (params) {
       const details = JSON.stringify({ ownerId, ngId, peerId });
       return Logger.debug(`SSE for networkgroup configuration (${colors.green('open')}): ${details}`);
     })
-    .on('conf', (rawConf) => {
+    .on('conf', async (rawConf) => {
       // Check configuration version > actual
       if (rawConf.version <= confVersion) {
         Logger.info(`WireGuard® configuration version ${rawConf.version} received, skipping (actual: ${confVersion})`);
       }
 
       Logger.debug(`New WireGuard® configuration received (version: ${rawConf.version})`);
-      Logger.debug(`[CONFIGURATION]\n${rawConf.configuration}\n[/CONFIGURATION]`);
+      // Logger.debug(`[CONFIGURATION]\n${rawConf.configuration}\n[/CONFIGURATION]`);
 
       const confFile = WgConf.confWithoutPlaceholders(rawConf.configuration, { privateKey });
 
-      // Save conf
-      // FIXME: Check if root as owner poses a problem
-      fs.writeFile(confPath, confFile, { mode: 0o600 })
-        .then(() => {
-          Logger.info(`Saved new WireGuard® configuration file to ${Formatter.formatUrl(confPath)}`);
+      try {
+        // Save conf
+        // FIXME: Check if root as owner poses a problem
+        await fs.writeFile(confPath, confFile, { mode: 0o600 });
 
-          // Update WireGuard® configuration
-          Wg.update(confPath, interfaceName);
+        Logger.info(`Saved new WireGuard® configuration file to ${Formatter.formatUrl(confPath)}`);
 
-          // Update actual configuration version
-          confVersion = rawConf.version;
-        })
-        .catch((error) => {
-          // Do not bubble up the error, it's not critical if we miss a configuration
-          Logger.error(`Error saving new WireGuard® configuration: ${error}`);
-        });
+        // Update WireGuard® configuration
+        Wg.update(confPath, interfaceName);
+
+        // Update actual configuration version
+        confVersion = rawConf.version;
+      }
+      catch (error) {
+        // Do not bubble up the error, it's not critical if we miss a configuration
+        Logger.error(`Error saving new WireGuard® configuration: ${error}`);
+      }
     })
     .on('ping', () => Logger.debug(`SSE for networkgroup configuration (${colors.cyan('ping')})`))
     .on('close', (reason) => {
@@ -226,8 +227,12 @@ async function leaveNg (params) {
   const { confPath } = WgConf.getWgConfInformation(ngId);
 
   if (!peerId) {
-    peerId = WgConf.getPeerId(ngId);
+    peerId = await WgConf.getPeerId(ngId);
     if (!peerId) {
+      // Check if command was run with `sudo`, if not, maybe `peerId` was not found because the file was created by root
+      if (!await isElevated()) {
+        Logger.println(`Tip: You didn't run this command with ${Formatter.formatCommand('sudo')}, so we won't be able to leave a networkgroup you joined using ${Formatter.formatCommand('sudo')}.`);
+      }
       throw new Error(`We cannot find the ID you had in this networkgroup. Try finding yourself in the results of ${Formatter.formatCommand('clever networkgroups peers list')} and running this command again adding the parameter ${Formatter.formatCommand('--peer-id PEER_ID')}.`);
     }
   }
@@ -235,7 +240,7 @@ async function leaveNg (params) {
   await removeExternalPeer({ options: { ng: { ng_id: ngId }, 'peer-id': peerId } });
   Wg.down(confPath);
 
-  WgConf.deletePeerIdFile(ngId);
+  await WgConf.deletePeerIdFile(ngId);
   // We need `force: true` to avoid errors if file doesn't exist
   await fs.rm(confPath, { force: true });
   Logger.info(`Deleted WireGuard® configuration file for ${Formatter.formatString(ngId)}`);

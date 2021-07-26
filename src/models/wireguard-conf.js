@@ -1,7 +1,7 @@
 'use strict';
 
 const os = require('os');
-const fs = require('fs');
+const { promises: fs, existsSync } = require('fs');
 const path = require('path');
 
 const Logger = require('../logger.js');
@@ -12,10 +12,10 @@ function getWgConfFolder () {
   return path.join(os.tmpdir(), 'com.clever-cloud.networkgroups');
 }
 
-function createWgConfFolderIfNeeded () {
+async function createWgConfFolderIfNeeded () {
   const confFolder = getWgConfFolder();
-  if (!fs.existsSync(confFolder)) {
-    fs.mkdirSync(confFolder);
+  if (!existsSync(confFolder)) {
+    await fs.mkdir(confFolder);
   }
 }
 
@@ -30,25 +30,24 @@ function getPeerIdPath (confName) {
   return path.join(getWgConfFolder(), `${confName}.id`);
 }
 
-function storePeerId (peerId, confName) {
+async function storePeerId (peerId, confName) {
   const filePath = getPeerIdPath(confName);
-  fs.writeFileSync(filePath, peerId, { mode: 0o600, flag: 'wx' }, (error) => {
-    if (error) {
-      Logger.error(`Error saving peer ID: ${error}`);
-      process.exit(1);
-    }
-    else {
-      Logger.info(`Saved peer ID file to ${Formatter.formatUrl(filePath)}`);
-    }
-  });
+
+  try {
+    await fs.writeFile(filePath, peerId, { mode: 0o600, flag: 'wx' });
+    Logger.info(`Saved peer ID file to ${Formatter.formatUrl(filePath)}`);
+  }
+  catch (error) {
+    throw new Error(`Error saving peer ID: ${error}`);
+  }
 }
 
-function getPeerId (ngId) {
+async function getPeerId (ngId) {
   const { confName } = getWgConfInformation(ngId);
   const filePath = getPeerIdPath(confName);
-  if (fs.existsSync(filePath)) {
+  if (existsSync(filePath)) {
     Logger.debug(`Reading peer ID from ${Formatter.formatUrl(filePath)}`);
-    return fs.readFileSync(filePath, { encoding: 'utf-8' }).trim();
+    return (await fs.readFile(filePath, { encoding: 'utf-8' })).trim();
   }
   else {
     Logger.debug(`No file found at ${Formatter.formatUrl(filePath)}`);
@@ -56,21 +55,23 @@ function getPeerId (ngId) {
   }
 }
 
-function deletePeerIdFile (ngId) {
+async function deletePeerIdFile (ngId) {
   const { confName } = getWgConfInformation(ngId);
   const filePath = getPeerIdPath(confName);
   // We need `force: true` to avoid errors if file doesn't exist
-  fs.rmSync(filePath, { force: true });
+  await fs.rm(filePath, { force: true });
   Logger.info(`Deleted peer ID from ${Formatter.formatUrl(filePath)}`);
 }
 
-function getInterfaceName (confName) {
+async function getInterfaceName (confName) {
   // This file is created by WireGuard®, hence the file path (`/var/run/…`)
-  // TODO: Handle Windows
-  const interfaceNameFile = path.join('var', 'run', 'wireguard', `${confName}.name`);
+  // TODO: Handle Windows (not yet supported by `wg-quick` anyway)
+  const interfaceNameFile = path.join('/var', 'run', 'wireguard', `${confName}.name`);
 
   Logger.debug(`Reading WireGuard® interface name in ${Formatter.formatUrl(interfaceNameFile)}…`);
-  return fs.readFileSync(interfaceNameFile, { encoding: 'utf-8' }).trim();
+  const interfaceName = (await fs.readFile(interfaceNameFile, { encoding: 'utf-8' })).trim();
+  Logger.debug(`Found WireGuard® interface name ${Formatter.formatString(interfaceName)} for ${Formatter.formatString(confName)}`);
+  return interfaceName;
 }
 
 function confWithoutPlaceholders (conf, { privateKey }) {
