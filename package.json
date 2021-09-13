@@ -38,7 +38,7 @@
     "moment": "^2.29.1",
     "opn": "^6.0.0",
     "slugify": "^1.5.3",
-    "string-length": "^4.0.2",
+    "string-length": "^5.0.0",
     "superagent": "^6.1.0",
     "text-table": "^0.2.0",
     "update-notifier": "^5.1.0",
