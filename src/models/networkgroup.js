@@ -25,14 +25,14 @@ async function getId (ownerId, ngIdOrLabel) {
 }
 
 async function getByLabel (ownerId, label) {
-  const networkgroups = await ngApi.get({ ownerId }).then(sendToApi);
-  const filteredNgs = networkgroups.filter((ng) => ng.label === label);
+  const networkGroups = await ngApi.get({ ownerId }).then(sendToApi);
+  const filteredNgs = networkGroups.filter((ng) => ng.label === label);
 
   if (filteredNgs.length === 0) {
-    throw new Error('Networkgroup not found');
+    throw new Error('Network Group not found');
   }
   if (filteredNgs.length > 1) {
-    throw new Error('Ambiguous networkgroup label');
+    throw new Error('Ambiguous Network Group label');
   }
 
   return filteredNgs[0];

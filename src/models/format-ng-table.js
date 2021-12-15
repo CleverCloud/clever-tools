@@ -12,16 +12,16 @@ function printSeparator (columnLengths) {
 }
 
 // We use examples of maximum width text to have a clean display
-const networkgroupsTableColumnLengths = [
+const networkGroupsTableColumnLengths = [
   39, /* id length */
   48, /* label length */
   7, /* members length */
   5, /* peers length */
   48, /* description */
 ];
-const formatNetworkgroupsTable = formatNgTable(networkgroupsTableColumnLengths);
-function formatNetworkgroupsLine (ng) {
-  return formatNetworkgroupsTable([
+const formatNetworkGroupsTable = formatNgTable(networkGroupsTableColumnLengths);
+function formatNetworkGroupsLine (ng) {
+  return formatNetworkGroupsTable([
     [
       Formatter.formatId(ng.id),
       Formatter.formatString(ng.label, false),
@@ -31,11 +31,11 @@ function formatNetworkgroupsLine (ng) {
     ],
   ]);
 };
-function printNetworkgroupsTableHeader () {
-  Logger.println(colors.bold(formatNetworkgroupsTable([
-    ['Networkgroup ID', 'Label', 'Members', 'Peers', 'Description'],
+function printNetworkGroupsTableHeader () {
+  Logger.println(colors.bold(formatNetworkGroupsTable([
+    ['Network Group ID', 'Label', 'Members', 'Peers', 'Description'],
   ])));
-  printSeparator(networkgroupsTableColumnLengths);
+  printSeparator(networkGroupsTableColumnLengths);
 }
 
 const membersTableColumnLengths = [
@@ -106,8 +106,8 @@ function printPeersTableHeader () {
 }
 
 module.exports = {
-  formatNetworkgroupsLine,
-  printNetworkgroupsTableHeader,
+  formatNetworkGroupsLine,
+  printNetworkGroupsTableHeader,
   formatMembersLine,
   printMembersTableHeader,
   formatPeersLine,

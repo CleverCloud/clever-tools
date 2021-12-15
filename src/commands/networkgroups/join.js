@@ -4,12 +4,12 @@ const { promises: fs, existsSync } = require('fs');
 const isElevated = require('is-elevated');
 
 const ngApi = require('@clevercloud/client/cjs/api/v4/networkgroup.js');
-const { NetworkgroupStream } = require('@clevercloud/client/cjs/streams/networkgroup.node.js');
+const { NetworkgroupStream: NetworkGroupStream } = require('@clevercloud/client/cjs/streams/networkgroup.node.js');
 
 const colors = require('colors/safe');
 
 const Logger = require('../../logger.js');
-const Networkgroup = require('../../models/networkgroup.js');
+const NetworkGroup = require('../../models/networkgroup.js');
 const Formatter = require('../../models/format-string.js');
 const Wg = require('../../models/wireguard.js');
 const WgConf = require('../../models/wireguard-conf.js');
@@ -26,20 +26,20 @@ async function askForParentMember ({ ownerId, ngId }) {
   switch (members.length) {
     case 0:
       throw new Error([
-        'You have to create an external node category (networkgroup member) to join a networkgroup.',
+        'You have to create an external node category (Network Group member) to join a Network Group.',
         `See ${Formatter.formatCommand('clever networkgroups members add')} to create a new external member (node).`,
       ].join('\n'));
     case 1:
-      throw new Error(`This networkgroup already has an external node category. Add ${Formatter.formatCommand(`--node-category-id ${Formatter.formatString(members[0].id)}`)} to select it.`);
+      throw new Error(`This Network Group already has an external node category. Add ${Formatter.formatCommand(`--node-category-id ${Formatter.formatString(members[0].id)}`)} to select it.`);
     default:
-      throw new Error(`This networkgroup already has external node categories. Add ${Formatter.formatCommand('--node-category-id NODE_CATEGORY_ID')} to select one.`);
+      throw new Error(`This Network Group already has external node categories. Add ${Formatter.formatCommand('--node-category-id NODE_CATEGORY_ID')} to select one.`);
   }
 }
 
 function checkWgAvailable () {
   if (!Wg.checkAvailable()) {
     throw new Error([
-      'Clever Cloud\'s networkgroups use WireGuard®. Therefore, this command requires WireGuard® commands available on your computer.',
+      'Clever Cloud Network Groups use WireGuard®. Therefore, this command requires WireGuard® commands available on your computer.',
       '',
       `Follow instructions at ${Formatter.formatUrl('https://www.wireguard.com/install/')} to install it.`,
     ].join('\n'));
@@ -56,16 +56,16 @@ async function joinNg (params) {
 
   const { ng: ngIdOrLabel, label } = params.options;
   let { 'node-category-id': parentId, 'private-key': privateKey, role, ip, port } = params.options;
-  const ownerId = await Networkgroup.getOwnerId();
-  const ngId = await Networkgroup.getId(ownerId, ngIdOrLabel);
+  const ownerId = await NetworkGroup.getOwnerId();
+  const ngId = await NetworkGroup.getId(ownerId, ngIdOrLabel);
 
   if (role === 'server' && [ip, port].includes(null)) {
-    throw new Error(`To join a networkgroup as server, you need to specify an IP address and a port number. Please try again with ${Formatter.formatCommand('--ip IP_ADDRESS')} and ${Formatter.formatCommand('--port PORT_NUMBER')}.`);
+    throw new Error(`To join a Network Group as server, you need to specify an IP address and a port number. Please try again with ${Formatter.formatCommand('--ip IP_ADDRESS')} and ${Formatter.formatCommand('--port PORT_NUMBER')}.`);
   }
 
   const { confName, confPath } = WgConf.getWgConfInformation(ngId);
   if (existsSync(confPath)) {
-    throw new Error(`You cannot join a networkgroup twice at the same time with the same computer. Try using ${Formatter.formatCommand('clever networkgroups leave')} and running this command again.`);
+    throw new Error(`You cannot join a Network Group twice at the same time with the same computer. Try using ${Formatter.formatCommand('clever networkgroups leave')} and running this command again.`);
   }
 
   if (!parentId) {
@@ -97,7 +97,7 @@ async function joinNg (params) {
     await WgConf.storePeerId(peerId, confName);
   }
   catch (error) {
-    // If networkgroup already joined, remove freshly created external peer
+    // If Network Group already joined, remove freshly created external peer
     await removeExternalPeer({ options: { ng: { ng_id: ngId }, 'peer-id': peerId } });
     throw error;
   }
@@ -124,7 +124,7 @@ async function joinNg (params) {
       // Store initial configuration version
       confVersion = initialConf.version;
 
-      Logger.println(colors.green(`Successfully joined networkgroup ${Formatter.formatString(ngId)}`));
+      Logger.println(colors.green(`Successfully joined Network Group ${Formatter.formatString(ngId)}`));
 
       // Read name of network interface created by WireGuard® (useful later)
       try {
@@ -148,16 +148,16 @@ async function joinNg (params) {
   }
 
   const { apiHost, tokens } = await getHostAndTokens();
-  const networkgroupStream = new NetworkgroupStream({ apiHost, tokens, ownerId, ngId, peerId });
+  const networkGroupStream = new NetworkGroupStream({ apiHost, tokens, ownerId, ngId, peerId });
 
   const deferred = new Deferred();
 
-  // Automatically leave the networkgroup when the user kills the program
+  // Automatically leave the Network Group when the user kills the program
   function leaveNgOnExit (signal) {
     // Add new line after ^C
     Logger.println('');
     Logger.debug(`Received ${signal}`);
-    networkgroupStream.close();
+    networkGroupStream.close();
     leave(ngId, peerId)
       .then(() => {
         // FIXME: ask kerupse if we need a special status code for user SIGTERM
@@ -169,10 +169,10 @@ async function joinNg (params) {
   process.on('SIGINT', leaveNgOnExit);
   process.on('SIGTERM', leaveNgOnExit);
 
-  networkgroupStream
+  networkGroupStream
     .on('open', () => {
       const details = JSON.stringify({ ownerId, ngId, peerId });
-      return Logger.debug(`SSE for networkgroup configuration (${colors.green('open')}): ${details}`);
+      return Logger.debug(`SSE for Network Group configuration (${colors.green('open')}): ${details}`);
     })
     .on('conf', async (rawConf) => {
       // Check configuration version > actual
@@ -203,18 +203,18 @@ async function joinNg (params) {
         Logger.error(`Error saving new WireGuard® configuration: ${error}`);
       }
     })
-    .on('ping', () => Logger.debug(`SSE for networkgroup configuration (${colors.cyan('ping')})`))
+    .on('ping', () => Logger.debug(`SSE for Network Group configuration (${colors.cyan('ping')})`))
     .on('close', (reason) => {
-      Logger.debug(`SSE for networkgroup configuration (${colors.red('close')}): ${JSON.stringify(reason)}`);
+      Logger.debug(`SSE for Network Group configuration (${colors.red('close')}): ${JSON.stringify(reason)}`);
     })
     .on('error', (streamError) => {
-      Logger.debug(`SSE for networkgroup configuration (${colors.red('error')}): ${streamError}`);
+      Logger.debug(`SSE for Network Group configuration (${colors.red('error')}): ${streamError}`);
       leave(ngId, peerId)
         .then(() => deferred.reject(new Error(`An error happened when listening to WireGuard® configuration changes: ${streamError}`)))
         .catch((leaveError) => deferred.reject(leaveError));
     });
 
-  networkgroupStream.open({ autoRetry: true, maxRetryCount: 6 });
+  networkGroupStream.open({ autoRetry: true, maxRetryCount: 6 });
 
   return deferred.promise;
 }
@@ -222,8 +222,8 @@ async function joinNg (params) {
 async function leaveNg (params) {
   const { ng: ngIdOrLabel } = params.options;
   let { 'peer-id': peerId } = params.options;
-  const ownerId = await Networkgroup.getOwnerId();
-  const ngId = await Networkgroup.getId(ownerId, ngIdOrLabel);
+  const ownerId = await NetworkGroup.getOwnerId();
+  const ngId = await NetworkGroup.getId(ownerId, ngIdOrLabel);
   const { confPath } = WgConf.getWgConfInformation(ngId);
 
   if (!peerId) {
@@ -231,9 +231,9 @@ async function leaveNg (params) {
     if (!peerId) {
       // Check if command was run with `sudo`, if not, maybe `peerId` was not found because the file was created by root
       if (!await isElevated()) {
-        Logger.println(`Tip: You didn't run this command with ${Formatter.formatCommand('sudo')}, so we won't be able to leave a networkgroup you joined using ${Formatter.formatCommand('sudo')}.`);
+        Logger.println(`Tip: You didn't run this command with ${Formatter.formatCommand('sudo')}, so we won't be able to leave a Network Group you joined using ${Formatter.formatCommand('sudo')}.`);
       }
-      throw new Error(`We cannot find the ID you had in this networkgroup. Try finding yourself in the results of ${Formatter.formatCommand('clever networkgroups peers list')} and running this command again adding the parameter ${Formatter.formatCommand('--peer-id PEER_ID')}.`);
+      throw new Error(`We cannot find the ID you had in this Network Group. Try finding yourself in the results of ${Formatter.formatCommand('clever networkgroups peers list')} and running this command again adding the parameter ${Formatter.formatCommand('--peer-id PEER_ID')}.`);
     }
   }
 

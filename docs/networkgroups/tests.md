@@ -1,6 +1,6 @@
-# Networkgroups CLI tests
+# Network Groups CLI tests
 
-This document is a list of manual integration tests for the networkgroup-related commands.
+This document is a list of manual integration tests for the Network Group-related commands.
 
 For each command, an example output is commented right under.
 
@@ -34,47 +34,47 @@ ngLabelForInvalidCases2='test-2'
 
 ### Valid cases
 
-#### Create a networkgroup
+#### Create a Network Group
 
 1. Setup
 
    ```sh
-   cleverr ng create --label "$ngLabel" --description '[Test] Create a networkgroup'
-   # Networkgroup 'test-dev' was created with the id 'ng_cdf5cc11-4fdf-47cf-8d82-5b89f722450a'.
+   cleverr ng create --label "$ngLabel" --description '[Test] Create a Network Group'
+   # Network Group 'test-dev' was created with the id 'ng_cdf5cc11-4fdf-47cf-8d82-5b89f722450a'.
    ```
 
 2. Test
 
    ```sh
    cleverr ng list
-   # Networkgroup ID                           Label                 Members  Peers  Description
+   # Network Group ID                          Label                 Members  Peers  Description
    # ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-   # ng_cdf5cc11-4fdf-47cf-8d82-5b89f722450a   test-dev              0        0      [Test] Create a networkgroup.
+   # ng_cdf5cc11-4fdf-47cf-8d82-5b89f722450a   test-dev              0        0      [Test] Create a Network Group.
    ```
 
 3. Tear down
 
    ```sh
    cleverr ng delete --ng "$ngLabel"
-   # Networkgroup 'ng_cdf5cc11-4fdf-47cf-8d82-5b89f722450a' was successfully deleted.
+   # Network Group 'ng_cdf5cc11-4fdf-47cf-8d82-5b89f722450a' was successfully deleted.
    ```
 
-#### Delete a networkgroup
+#### Delete a Network Group
 
 1. Setup
 
    ```sh
-   cleverr ng create --label "$ngLabel" --description '[Test] Delete a networkgroup'
-   # Networkgroup 'test-dev' was created with the id 'ng_cdf5cc11-4fdf-47cf-8d82-5b89f722450a'.
+   cleverr ng create --label "$ngLabel" --description '[Test] Delete a Network Group'
+   # Network Group 'test-dev' was created with the id 'ng_cdf5cc11-4fdf-47cf-8d82-5b89f722450a'.
    cleverr ng delete --ng "$ngLabel"
-   # Networkgroup 'ng_cdf5cc11-4fdf-47cf-8d82-5b89f722450a' was successfully deleted.
+   # Network Group 'ng_cdf5cc11-4fdf-47cf-8d82-5b89f722450a' was successfully deleted.
    ```
 
 2. Test
 
    ```sh
    cleverr ng list
-   # No networkgroup found.
+   # No Network Group found.
    ```
 
 #### Add a member
@@ -83,7 +83,7 @@ ngLabelForInvalidCases2='test-2'
 
    ```sh
    cleverr ng create --label "$ngLabel" --description '[Test] Add a member'
-   # Networkgroup 'test-dev' was created with the id 'ng_cdf5cc11-4fdf-47cf-8d82-5b89f722450a'.
+   # Network Group 'test-dev' was created with the id 'ng_cdf5cc11-4fdf-47cf-8d82-5b89f722450a'.
    ```
 
 2. Test
@@ -92,7 +92,7 @@ ngLabelForInvalidCases2='test-2'
    cleverr ng --ng "$ngLabel" members list
    # No member found
    cleverr ng --ng "$ngLabel" members add --member-id "$testAppId" --type 'application' --domain-name 'api-tester' --label '[Test] API Tester'
-   # Successfully added member 'app_b888f06d-3adb-4cf1-b017-7eac4f096e90' to networkgroup 'ng_cdf5cc11-4fdf-47cf-8d82-5b89f722450a'.
+   # Successfully added member 'app_b888f06d-3adb-4cf1-b017-7eac4f096e90' to Network Group 'ng_cdf5cc11-4fdf-47cf-8d82-5b89f722450a'.
    cleverr ng --ng "$ngLabel" members list
    # Member ID                                 Member Type                Label                                     Domain Name
    # ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -103,7 +103,7 @@ ngLabelForInvalidCases2='test-2'
 
    ```sh
    cleverr ng delete --ng "$ngLabel"
-   # Networkgroup 'ng_cdf5cc11-4fdf-47cf-8d82-5b89f722450a' was successfully deleted.
+   # Network Group 'ng_cdf5cc11-4fdf-47cf-8d82-5b89f722450a' was successfully deleted.
    ```
 
 #### Add an external peer
@@ -112,9 +112,9 @@ ngLabelForInvalidCases2='test-2'
 
    ```sh
    cleverr ng create --label "$ngLabel" --description '[Test] Add an external peer'
-   # Networkgroup 'temp-test' was created with the id 'ng_84c65dce-4a48-4858-b327-83bddf5f0a79'.
+   # Network Group 'temp-test' was created with the id 'ng_84c65dce-4a48-4858-b327-83bddf5f0a79'.
    cleverr ng --ng "$ngLabel" members add --member-id "$memberId1" --type 'external' --domain-name 'my-nodes-category' --label '[Test] My external nodes category'
-   # Successfully added member 'my-member-1' to networkgroup 'ng_84c65dce-4a48-4858-b327-83bddf5f0a79'.
+   # Successfully added member 'my-member-1' to Network Group 'ng_84c65dce-4a48-4858-b327-83bddf5f0a79'.
    ```
 
 2. Test
@@ -123,7 +123,7 @@ ngLabelForInvalidCases2='test-2'
    cleverr ng --ng "$ngLabel" peers list
    # No peer found. You can add an external one with `clever networkgroups peers add-external`.
    cleverr ng --ng "$ngLabel" peers add-external --role 'client' --public-key "$publicKey1" --label "$peerLabel1" --parent "$memberId1"
-   # External peer 'external_3b3e82e2-e656-450b-8cc7-b7498d0134f4' must have been added to networkgroup 'ng_84c65dce-4a48-4858-b327-83bddf5f0a79'.
+   # External peer 'external_3b3e82e2-e656-450b-8cc7-b7498d0134f4' must have been added to Network Group 'ng_84c65dce-4a48-4858-b327-83bddf5f0a79'.
    cleverr ng --ng "$ngLabel" peers list
    # Peer ID                                        Peer Type                  Endpoint Type              Label                                          Hostname              IP Address
    # ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -134,7 +134,7 @@ ngLabelForInvalidCases2='test-2'
 
    ```sh
    cleverr ng delete --ng "$ngLabel"
-   # Networkgroup 'ng_84c65dce-4a48-4858-b327-83bddf5f0a79' was successfully deleted.
+   # Network Group 'ng_84c65dce-4a48-4858-b327-83bddf5f0a79' was successfully deleted.
    ```
 
 #### WireGuard® configuration updates when adding a peer
@@ -143,11 +143,11 @@ ngLabelForInvalidCases2='test-2'
 
    ```sh
    cleverr ng create --label "$ngLabel" --description '[Test] WireGuard® configuration updates when adding a peer'
-   # Networkgroup 'temp-test' was created with the id 'ng_620b3482-f286-4189-9931-a8910f2ea706'.
+   # Network Group 'temp-test' was created with the id 'ng_620b3482-f286-4189-9931-a8910f2ea706'.
    cleverr ng --ng "$ngLabel" members add --member-id "$memberId1" --type 'external' --domain-name 'my-nodes-category' --label '[Test] My external nodes category'
-   # Successfully added member 'my-member-1' to networkgroup 'ng_620b3482-f286-4189-9931-a8910f2ea706'.
+   # Successfully added member 'my-member-1' to Network Group 'ng_620b3482-f286-4189-9931-a8910f2ea706'.
    cleverr ng --ng "$ngLabel" peers add-external --role 'client' --public-key "$publicKey1" --label "$peerLabel1" --parent "$memberId1"
-   # External peer 'external_3056ea93-c10d-4175-a91d-b6ed2803ce7c' must have been added to networkgroup 'ng_620b3482-f286-4189-9931-a8910f2ea706'.
+   # External peer 'external_3056ea93-c10d-4175-a91d-b6ed2803ce7c' must have been added to Network Group 'ng_620b3482-f286-4189-9931-a8910f2ea706'.
    cleverr ng --ng "$ngLabel" peers list
    # Peer ID                                        Peer Type                  Endpoint Type              Label                                          Hostname              IP Address
    # ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -171,7 +171,7 @@ ngLabelForInvalidCases2='test-2'
 
    ```sh
    cleverr ng --ng "$ngLabel" peers add-external --role 'client' --public-key "$publicKey2" --label "$peerLabel2" --parent "$memberId1"
-   # External peer 'external_0839394b-1ddf-49dc-a9a2-09b0437ed59e' must have been added to networkgroup 'ng_620b3482-f286-4189-9931-a8910f2ea706'.
+   # External peer 'external_0839394b-1ddf-49dc-a9a2-09b0437ed59e' must have been added to Network Group 'ng_620b3482-f286-4189-9931-a8910f2ea706'.
    ```
 
    Call this endpoint again:
@@ -190,18 +190,18 @@ ngLabelForInvalidCases2='test-2'
 
    ```sh
    cleverr ng delete --ng "$ngLabel"
-   # Networkgroup 'ng_620b3482-f286-4189-9931-a8910f2ea706' was successfully deleted.
+   # Network Group 'ng_620b3482-f286-4189-9931-a8910f2ea706' was successfully deleted.
    ```
 
-#### Join a networkgroup
+#### Join a Network Group
 
 1. Setup
 
    ```sh
-   cleverr ng create --label "$ngLabel" --description '[Test] Join a networkgroup'
-   # Networkgroup 'temp-test' was created with the id 'ng_dd8b43b0-4b4f-478c-9a91-989027937b36'.
+   cleverr ng create --label "$ngLabel" --description '[Test] Join a Network Group'
+   # Network Group 'temp-test' was created with the id 'ng_dd8b43b0-4b4f-478c-9a91-989027937b36'.
    cleverr ng --ng "$ngLabel" members add --member-id "$memberId1" --type 'external' --domain-name 'my-nodes-category' --label '[Test] My external nodes category'
-   # Successfully added member 'my-member-1' to networkgroup 'ng_dd8b43b0-4b4f-478c-9a91-989027937b36'.
+   # Successfully added member 'my-member-1' to Network Group 'ng_dd8b43b0-4b4f-478c-9a91-989027937b36'.
    ```
 
 2. Test
@@ -210,35 +210,35 @@ ngLabelForInvalidCases2='test-2'
    cleverr ng --ng "$ngLabel" peers list
    # No peer found. You can add an external one with `clever networkgroups peers add-external`.
    cleverr ng --ng "$ngLabel" peers add-external --role 'client' --public-key "$publicKey1" --label "$peerLabel1" --parent "$memberId1"
-   # External peer 'external_532e04c7-6f15-4b60-af08-13153e37f434' must have been added to networkgroup 'ng_dd8b43b0-4b4f-478c-9a91-989027937b36'.
+   # External peer 'external_532e04c7-6f15-4b60-af08-13153e37f434' must have been added to Network Group 'ng_dd8b43b0-4b4f-478c-9a91-989027937b36'.
    cleverr ng --ng "$ngLabel" peers list
    # Peer ID                                        Peer Type                  Endpoint Type              Label                                          Hostname              IP Address
    # ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
    # external_532e04c7-6f15-4b60-af08-13153e37f434  ExternalPeer               ClientEndpoint             my-peer-1                                      my-peer-1             10.102.0.5
    sudo cleverr ng --ng "$ngLabel" join --label 'my-laptop' --node-category-id "$memberId1" 
-   # External peer 'external_8ec3c451-f391-4992-93e7-9f4833db2107' must have been added to networkgroup 'ng_dd8b43b0-4b4f-478c-9a91-989027937b36'.
+   # External peer 'external_8ec3c451-f391-4992-93e7-9f4833db2107' must have been added to Network Group 'ng_dd8b43b0-4b4f-478c-9a91-989027937b36'.
    # Activated WireGuard® tunnel
-   # Successfully joined networkgroup 'ng_dd8b43b0-4b4f-478c-9a91-989027937b36'
+   # Successfully joined Network Group 'ng_dd8b43b0-4b4f-478c-9a91-989027937b36'
    # ^C
-   # External peer 'external_8ec3c451-f391-4992-93e7-9f4833db2107' must have been removed from networkgroup 'ng_dd8b43b0-4b4f-478c-9a91-989027937b36'.
+   # External peer 'external_8ec3c451-f391-4992-93e7-9f4833db2107' must have been removed from Network Group 'ng_dd8b43b0-4b4f-478c-9a91-989027937b36'.
    ```
 
 3. Tear down
 
    ```sh
    cleverr ng delete --ng "$ngLabel"
-   # Networkgroup 'ng_dd8b43b0-4b4f-478c-9a91-989027937b36' was successfully deleted.
+   # Network Group 'ng_dd8b43b0-4b4f-478c-9a91-989027937b36' was successfully deleted.
    ```
 
 ### Invalid cases
 
-#### Create two networkgroups with same label
+#### Create two Network Groups with same label
 
 1. Setup
 
    ```sh
-   cleverr ng create --label "$ngLabel" --description '[Test] Create two networkgroups with same label'
-   # Networkgroup 'temp-test' was created with the id 'ng_ebee26cf-f1dc-464c-8359-d3a924a3fd97'.
+   cleverr ng create --label "$ngLabel" --description '[Test] Create two Network Groups with same label'
+   # Network Group 'temp-test' was created with the id 'ng_ebee26cf-f1dc-464c-8359-d3a924a3fd97'.
    ```
 
 2. Test
@@ -252,7 +252,7 @@ ngLabelForInvalidCases2='test-2'
 
    ```sh
    cleverr ng delete --ng "$ngLabel"
-   # Networkgroup 'ng_ebee26cf-f1dc-464c-8359-d3a924a3fd97' was successfully deleted.
+   # Network Group 'ng_ebee26cf-f1dc-464c-8359-d3a924a3fd97' was successfully deleted.
    ```
 
 #### Add invalid member
@@ -264,7 +264,7 @@ ngLabelForInvalidCases2='test-2'
 
    ```sh
    cleverr ng create --label "$ngLabel" --description '[Test] Add invalid member'
-   # Networkgroup 'temp-test' was created with the id 'ng_df116d7b-47f3-469b-bee7-ae5792ff92c4'.
+   # Network Group 'temp-test' was created with the id 'ng_df116d7b-47f3-469b-bee7-ae5792ff92c4'.
    ```
 
 2. Test
@@ -278,7 +278,7 @@ ngLabelForInvalidCases2='test-2'
 
    ```sh
    cleverr ng delete --ng "$ngLabel"
-   # Networkgroup 'ng_df116d7b-47f3-469b-bee7-ae5792ff92c4' was successfully deleted.
+   # Network Group 'ng_df116d7b-47f3-469b-bee7-ae5792ff92c4' was successfully deleted.
    ```
 
 #### Add peer with invalid parent
@@ -286,12 +286,12 @@ ngLabelForInvalidCases2='test-2'
 1. Setup
 
    ```sh
-   cleverr ng create --label "$ngLabelForInvalidCases1" --description '[Test] Networkgroup 1'
-   # Networkgroup 'test-1' was created with the id 'ng_cdf5cc11-4fdf-47cf-8d82-5b89f722450a'.
-   cleverr ng create --label "$ngLabelForInvalidCases2" --description '[Test] Networkgroup 2'
-   # Networkgroup 'test-2' was created with the id 'ng_c977973a-42ce-4f67-b906-4ffc2dcb250c'.
-   cleverr ng --ng "$ngLabelForInvalidCases2" members add --member-id "$memberId1" --type 'external' --domain-name 'member-2' --label '[Test] Member in other networkgroup'
-   # Successfully added member 'app_b888f06d-3adb-4cf1-b017-7eac4f096e90' to networkgroup 'ng_c977973a-42ce-4f67-b906-4ffc2dcb250c'.
+   cleverr ng create --label "$ngLabelForInvalidCases1" --description '[Test] Network Group 1'
+   # Network Group 'test-1' was created with the id 'ng_cdf5cc11-4fdf-47cf-8d82-5b89f722450a'.
+   cleverr ng create --label "$ngLabelForInvalidCases2" --description '[Test] Network Group 2'
+   # Network Group 'test-2' was created with the id 'ng_c977973a-42ce-4f67-b906-4ffc2dcb250c'.
+   cleverr ng --ng "$ngLabelForInvalidCases2" members add --member-id "$memberId1" --type 'external' --domain-name 'member-2' --label '[Test] Member in other Network Group'
+   # Successfully added member 'app_b888f06d-3adb-4cf1-b017-7eac4f096e90' to Network Group 'ng_c977973a-42ce-4f67-b906-4ffc2dcb250c'.
    ```
 
 2. Test
@@ -303,10 +303,10 @@ ngLabelForInvalidCases2='test-2'
      # [ERROR] Error from API: 404 Not Found
      ```
 
-   - Parent in another networkgroup
+   - Parent in another Network Group
 
      ```sh
-     cleverr ng --ng "$ngLabelForInvalidCases1" peers add-external --role 'client' --public-key "$publicKey1" --label '[Test] Parent in other networkgroup' --parent "$memberId1"
+     cleverr ng --ng "$ngLabelForInvalidCases1" peers add-external --role 'client' --public-key "$publicKey1" --label '[Test] Parent in other Network Group' --parent "$memberId1"
      # [ERROR] Error from API: 404 Not Found
      ```
 
@@ -314,34 +314,34 @@ ngLabelForInvalidCases2='test-2'
 
    ```sh
    cleverr ng delete --ng "$ngLabelForInvalidCases1"
-   # Networkgroup 'ng_cdf5cc11-4fdf-47cf-8d82-5b89f722450a' was successfully deleted.
+   # Network Group 'ng_cdf5cc11-4fdf-47cf-8d82-5b89f722450a' was successfully deleted.
    cleverr ng delete --ng "$ngLabelForInvalidCases2"
-   # Networkgroup 'ng_c977973a-42ce-4f67-b906-4ffc2dcb250c' was successfully deleted.
+   # Network Group 'ng_c977973a-42ce-4f67-b906-4ffc2dcb250c' was successfully deleted.
    ```
 
 ### Edge cases
 
-#### Create networkgroup after delete
+#### Create Network Group after delete
 
 1. Setup
 
    ```sh
    cleverr ng create --label "$ngLabel" --description '[Test] Should be deleted'
-   # Networkgroup 'temp-test' was created with the id 'ng_811d29f5-2d15-44a6-8f73-d16dee8f6316'.
+   # Network Group 'temp-test' was created with the id 'ng_811d29f5-2d15-44a6-8f73-d16dee8f6316'.
    cleverr ng delete --ng "$ngLabel"
-   # Networkgroup 'ng_811d29f5-2d15-44a6-8f73-d16dee8f6316' was successfully deleted.
+   # Network Group 'ng_811d29f5-2d15-44a6-8f73-d16dee8f6316' was successfully deleted.
    ```
 
 2. Test
 
    ```sh
-   cleverr ng create --label "$ngLabel" --description '[Test] Create networkgroup after delete'
-   # Networkgroup 'temp-test' was created with the id 'ng_4e2d4e0e-9a47-4cb7-95a4-d85355b1ccb3'.
+   cleverr ng create --label "$ngLabel" --description '[Test] Create Network Group after delete'
+   # Network Group 'temp-test' was created with the id 'ng_4e2d4e0e-9a47-4cb7-95a4-d85355b1ccb3'.
    ```
 
 3. Tear down
 
    ```sh
    cleverr ng delete --ng "$ngLabel"
-   # Networkgroup 'ng_4e2d4e0e-9a47-4cb7-95a4-d85355b1ccb3' was successfully deleted.
+   # Network Group 'ng_4e2d4e0e-9a47-4cb7-95a4-d85355b1ccb3' was successfully deleted.
    ```

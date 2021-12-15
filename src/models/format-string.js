@@ -29,6 +29,10 @@ function formatCommand (command, decorated = true) {
   return colors.magenta(string);
 }
 
+function formatCode (code, decorated = true) {
+  return formatCommand(code, decorated);
+}
+
 module.exports = {
   formatId,
   formatString,
@@ -36,4 +40,5 @@ module.exports = {
   formatIp,
   formatUrl,
   formatCommand,
+  formatCode,
 };
