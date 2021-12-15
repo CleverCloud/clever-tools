@@ -767,14 +767,6 @@ function run () {
     description: 'Delete a Network Group',
     options: [opts.ngIdOrLabel],
   }, networkgroups('deleteNg'));
-  const networkGroupsJoinCommand = cliparse.command('join', {
-    description: 'Join a Network Group',
-    options: [opts.ngIdOrLabel, opts.ngPeerLabel, opts.ngNodeCategoryId, opts.optWgPrivateKey, opts.optNgPeerRole, opts.optIpAddress, opts.optPortNumber],
-  }, networkgroups('joinNg'));
-  const networkGroupsLeaveCommand = cliparse.command('leave', {
-    description: 'Manually leave a Network Group if a problem occured',
-    options: [opts.ngIdOrLabel, opts.optNgPeerId],
-  }, networkgroups('leaveNg'));
   // network group category - end
 
   // member category - start
@@ -828,11 +820,11 @@ function run () {
 
   const networkGroupsCommand = cliparse.command('networkgroups', {
     description: 'List Network Group commands',
-    commands: [networkGroupsListCommand, networkGroupsCreateCommand, networkGroupsDeleteCommand, networkGroupsJoinCommand, networkGroupsLeaveCommand, networkGroupsMembersCategoryCommand, networkGroupsPeersCategoryCommand],
+    commands: [networkGroupsListCommand, networkGroupsCreateCommand, networkGroupsDeleteCommand, networkGroupsMembersCategoryCommand, networkGroupsPeersCategoryCommand],
   });
   const ngCommand = cliparse.command('ng', {
     description: `Alias for ${Formatter.formatCommand('clever networkgroups')}`,
-    commands: [networkGroupsListCommand, networkGroupsCreateCommand, networkGroupsDeleteCommand, networkGroupsJoinCommand, networkGroupsLeaveCommand, networkGroupsMembersCategoryCommand, networkGroupsPeersCategoryCommand],
+    commands: [networkGroupsListCommand, networkGroupsCreateCommand, networkGroupsDeleteCommand, networkGroupsMembersCategoryCommand, networkGroupsPeersCategoryCommand],
   });
 
   // NOTIFY-EMAIL COMMAND

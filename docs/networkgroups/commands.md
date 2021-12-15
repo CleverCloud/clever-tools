@@ -15,8 +15,6 @@ To improve readability, and to avoid errors, every option value is written insid
   - [`list`](#list)
   - [`create`](#create)
   - [`delete`](#delete)
-  - [`join`](#join)
-  - [`leave`](#leave)
   - [`members`](#members)
     - [`members list`](#members-list)
     - [`members get`](#members-get)
@@ -65,34 +63,6 @@ Delete a Network Group
 | ----------------- | ------------------------------- |
 | `[--verbose, -v]` | Verbose output (default: false) |
 | `--ng NG`         | Network Group ID or label       |
-
----
-
-### `join`
-
-Join a Network Group
-
-| Param                                       | Description                                             |
-| ------------------------------------------- | ------------------------------------------------------- |
-| `[--verbose, -v]`                           | Verbose output (default: false)                         |
-| `--ng NG`                                   | Network Group ID or label                               |
-| `--label PEER_LABEL`                        | Network Group peer label                                |
-| `--node-category-id, -c NODE_CATEGORY_ID`   | The external node category ID                           |
-| `[--private-key PRIVATE_KEY]`               | A WireGuard® private key                                |
-| `[--role] PEER_ROLE`                        | The peer role, ('client' or 'server') (default: client) |
-| `[--ip] IP_ADDRESS`                         | An IP address                                           |
-| `[--port] PORT_NUMBER`                      | A port number                                           |
-
----
-
-### `leave`
-
-Manually leave a Network Group if a problem occured
-
-| Param                 | Description               |
-| --------------------- | ------------------------- |
-| `--ng NG`             | Network Group ID or label |
-| `[--peer-id] PEER_ID` | The peer ID               |
 
 ---
 
