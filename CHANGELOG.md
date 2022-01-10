@@ -1,5 +1,9 @@
 # clever-tools changelog
 
+## 2.8.1 (2021-01-10)
+
+* Fix `colors` to `1.4.0`
+
 ## 2.8.0 (2021-02-09)
 
 * Add options support for `clever addon create` (options like encryption-at-rest)
