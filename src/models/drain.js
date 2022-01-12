@@ -8,12 +8,13 @@ const DRAIN_TYPES = [
   { id: 'HTTP', credentials: 'OPTIONAL' },
   { id: 'ElasticSearch', credentials: 'MANDATORY' },
   { id: 'DatadogHTTP' },
+  { id: 'NewRelicHTTP', apiKey: 'MANDATORY' },
 ];
 
 function createDrainBody (appId, drainTargetURL, drainTargetType, drainTargetCredentials, drainTargetConfig) {
 
-  if (!authorizeDrainCreation(drainTargetType, drainTargetCredentials)) {
-    throw new Error("Credentials are: optional for HTTP, mandatory for ElasticSearch and TCPSyslog/UDPSyslog don't need them.");
+  if (!authorizeDrainCreation(drainTargetType, drainTargetCredentials, drainTargetConfig)) {
+    throw new Error("Credentials are: optional for HTTP, mandatory for ElasticSearch, NewRelicHTTP and TCPSyslog/UDPSyslog don't need them.");
   }
 
   const body = {
@@ -26,20 +27,37 @@ function createDrainBody (appId, drainTargetURL, drainTargetType, drainTargetCre
       password: drainTargetCredentials.password || '',
     };
   }
+  if (keyExist(drainTargetConfig)) {
+    body.APIKey = drainTargetConfig.apiKey;
+  }
   return body;
 }
 
-function authorizeDrainCreation (drainTargetType, drainTargetCredentials) {
+function authorizeDrainCreation (drainTargetType, drainTargetCredentials, drainTargetConfig) {
   if (drainTypeExists(drainTargetType)) {
     // retrieve creds for drain type ('mandatory', 'optional', undefined)
-    const status = credentialsStatus(drainTargetType).credentials;
-    if (status === 'MANDATORY') {
+    const credStatus = credentialsStatus(drainTargetType).credentials;
+    const keyStatus = credentialsStatus(drainTargetType).apiKey;
+
+    if (credStatus === 'MANDATORY') {
       return credentialsExist(drainTargetCredentials);
     }
-    if (status === 'OPTIONAL') {
+    if (credStatus === 'OPTIONAL') {
       return true;
     }
-    return credentialsEmpty(drainTargetCredentials);
+    if (!credStatus && !keyStatus) {
+      return credentialsEmpty(drainTargetCredentials);
+    }
+
+    if (keyStatus === 'MANDATORY') {
+      return keyExist(drainTargetConfig);
+    }
+    if (keyStatus === 'OPTIONAL') {
+      return true;
+    }
+    if (!keyStatus) {
+      return keyEmpty(drainTargetConfig);
+    }
   }
 }
 
@@ -57,6 +75,14 @@ function credentialsExist ({ username, password }) {
 
 function credentialsEmpty ({ username, password }) {
   return username == null && password == null;
+}
+
+function keyExist ({ apiKey }) {
+  return apiKey != null;
+}
+
+function keyEmpty ({ apiKey }) {
+  return apiKey == null;
 }
 
 function listDrainTypes () {
