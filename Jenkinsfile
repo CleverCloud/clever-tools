@@ -35,11 +35,6 @@ pipeline {
             sh 'node scripts/job-publish-cellar.js'
           }
         }
-        stage('bintray') {
-          steps {
-            sh 'node scripts/job-publish-bintray.js'
-          }
-        }
         stage('arch') {
           steps {
             script {
