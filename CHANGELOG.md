@@ -1,6 +1,10 @@
 # clever-tools changelog
 
-## 2.8.1 (2021-01-10)
+## 2.9.0 (2022-01-12)
+
+* Add NewRelic support in `clever drains`
+
+## 2.8.1 (2022-01-10)
 
 * Fix `colors` to `1.4.0`
 
