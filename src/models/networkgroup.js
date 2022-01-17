@@ -4,7 +4,7 @@ const autocomplete = require('cliparse').autocomplete;
 
 const AppConfig = require('./app_configuration.js');
 
-const ngApi = require('@clevercloud/client/cjs/api/v4/networkgroup.js');
+const ngApi = require('@clevercloud/client/cjs/api/v4/network-group.js');
 const { sendToApi } = require('./send-to-api.js');
 
 async function getOwnerId () {

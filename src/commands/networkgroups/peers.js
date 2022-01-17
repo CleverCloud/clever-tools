@@ -1,6 +1,6 @@
 'use strict';
 
-const ngApi = require('@clevercloud/client/cjs/api/v4/networkgroup.js');
+const ngApi = require('@clevercloud/client/cjs/api/v4/network-group.js');
 
 const { sendToApi } = require('../../models/send-to-api.js');
 
