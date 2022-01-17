@@ -7,11 +7,11 @@ const AppConfig = require('./app_configuration.js');
 const ngApi = require('@clevercloud/client/cjs/api/v4/network-group.js');
 const { sendToApi } = require('./send-to-api.js');
 
-async function getOwnerId () {
+async function getOwnerId() {
   return (await AppConfig.getAppDetails({})).ownerId;
 }
 
-async function getId (ownerId, ngIdOrLabel) {
+async function getId(ownerId, ngIdOrLabel) {
   if (ngIdOrLabel == null) {
     return null;
   }
@@ -24,7 +24,7 @@ async function getId (ownerId, ngIdOrLabel) {
     .then((ng) => ng.id);
 }
 
-async function getByLabel (ownerId, label) {
+async function getByLabel(ownerId, label) {
   const networkGroups = await ngApi.get({ ownerId }).then(sendToApi);
   const filteredNgs = networkGroups.filter((ng) => ng.label === label);
 
@@ -38,11 +38,11 @@ async function getByLabel (ownerId, label) {
   return filteredNgs[0];
 }
 
-function listAvailablePeerRoles () {
+function listAvailablePeerRoles() {
   return autocomplete.words(['client', 'server']);
 }
 
-function listAvailableMemberTypes () {
+function listAvailableMemberTypes() {
   return autocomplete.words(['application', 'addon', 'external']);
 }
 

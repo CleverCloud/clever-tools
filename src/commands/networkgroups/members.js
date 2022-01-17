@@ -9,7 +9,7 @@ const NetworkGroup = require('../../models/networkgroup.js');
 const Formatter = require('../../models/format-string.js');
 const TableFormatter = require('../../models/format-ng-table.js');
 
-async function listMembers (params) {
+async function listMembers(params) {
   const { ng: ngIdOrLabel, 'natural-name': naturalName, json } = params.options;
   const ownerId = await NetworkGroup.getOwnerId();
   const ngId = await NetworkGroup.getId(ownerId, ngIdOrLabel);
@@ -33,7 +33,7 @@ async function listMembers (params) {
   }
 }
 
-async function getMember (params) {
+async function getMember(params) {
   const { ng: ngIdOrLabel, 'member-id': memberId, 'natural-name': naturalName, json } = params.options;
   const ownerId = await NetworkGroup.getOwnerId();
   const ngId = await NetworkGroup.getId(ownerId, ngIdOrLabel);
@@ -50,7 +50,7 @@ async function getMember (params) {
   }
 }
 
-async function addMember (params) {
+async function addMember(params) {
   const { ng: ngIdOrLabel, 'member-id': memberId, type, 'domain-name': domainName, label } = params.options;
   const ownerId = await NetworkGroup.getOwnerId();
   const ngId = await NetworkGroup.getId(ownerId, ngIdOrLabel);
@@ -62,7 +62,7 @@ async function addMember (params) {
   Logger.println(`Successfully added member ${Formatter.formatString(memberId)} to Network Group ${Formatter.formatString(ngId)}.`);
 }
 
-async function removeMember (params) {
+async function removeMember(params) {
   const { ng: ngIdOrLabel, 'member-id': memberId } = params.options;
   const ownerId = await NetworkGroup.getOwnerId();
   const ngId = await NetworkGroup.getId(ownerId, ngIdOrLabel);
