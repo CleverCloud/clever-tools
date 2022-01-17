@@ -11,11 +11,11 @@ const TableFormatter = require('../../models/format-ng-table.js');
 
 async function listMembers(params) {
   const { ng: ngIdOrLabel, 'natural-name': naturalName, json } = params.options;
-  const ownerId = await NetworkGroup.getOwnerId();
-  const ngId = await NetworkGroup.getId(ownerId, ngIdOrLabel);
+  const owner_id = await NetworkGroup.getOwnerId();
+  const ng_id = await NetworkGroup.getId(owner_id, ngIdOrLabel);
 
   Logger.info(`Listing members from Network Group '${ngId}'`);
-  const result = await ngApi.listMembers({ ownerId, ngId }).then(sendToApi);
+  const result = await ngApi.listNetworkGroupMembers({ owner_id, ng_id }).then(sendToApi);
 
   if (json) {
     Logger.println(JSON.stringify(result, null, 2));
@@ -34,12 +34,12 @@ async function listMembers(params) {
 }
 
 async function getMember(params) {
-  const { ng: ngIdOrLabel, 'member-id': memberId, 'natural-name': naturalName, json } = params.options;
-  const ownerId = await NetworkGroup.getOwnerId();
-  const ngId = await NetworkGroup.getId(ownerId, ngIdOrLabel);
+  const { ng: ngIdOrLabel, 'member-id': member_id, 'natural-name': naturalName, json } = params.options;
+  const owner_id = await NetworkGroup.getOwnerId();
+  const ng_id = await NetworkGroup.getId(owner_id, ngIdOrLabel);
 
-  Logger.info(`Getting details for member ${Formatter.formatString(memberId)} in Network Group ${Formatter.formatString(ngId)}`);
-  const result = await ngApi.getMember({ ownerId, ngId, memberId }).then(sendToApi);
+  Logger.info(`Getting details for member ${Formatter.formatString(member_id)} in Network Group ${Formatter.formatString(ngId)}`);
+  const result = await ngApi.getNetworkGroupMember({ owner_id, ng_id, member_id }).then(sendToApi);
 
   if (json) {
     Logger.println(JSON.stringify(result, null, 2));
@@ -51,25 +51,25 @@ async function getMember(params) {
 }
 
 async function addMember(params) {
-  const { ng: ngIdOrLabel, 'member-id': memberId, type, 'domain-name': domainName, label } = params.options;
-  const ownerId = await NetworkGroup.getOwnerId();
-  const ngId = await NetworkGroup.getId(ownerId, ngIdOrLabel);
+  const { ng: ngIdOrLabel, 'member-id': member_id, type, 'domain-name': domainName, label } = params.options;
+  const owner_id = await NetworkGroup.getOwnerId();
+  const ng_id = await NetworkGroup.getId(owner_id, ngIdOrLabel);
 
-  const body = { id: memberId, label, domain_name: domainName, type };
+  const body = { id: member_id, label, domain_name: domainName, type };
   Logger.debug('Sending body: ' + JSON.stringify(body, null, 2));
-  await ngApi.addMember({ ownerId, ngId }, body).then(sendToApi);
+  await ngApi.createNetworkGroupMember({ owner_id, ng_id }, body).then(sendToApi);
 
-  Logger.println(`Successfully added member ${Formatter.formatString(memberId)} to Network Group ${Formatter.formatString(ngId)}.`);
+  Logger.println(`Successfully added member ${Formatter.formatString(member_id)} to Network Group ${Formatter.formatString(ng_id)}.`);
 }
 
 async function removeMember(params) {
-  const { ng: ngIdOrLabel, 'member-id': memberId } = params.options;
-  const ownerId = await NetworkGroup.getOwnerId();
-  const ngId = await NetworkGroup.getId(ownerId, ngIdOrLabel);
+  const { ng: ngIdOrLabel, 'member-id': member_id } = params.options;
+  const owner_id = await NetworkGroup.getOwnerId();
+  const ng_id = await NetworkGroup.getId(owner_id, ngIdOrLabel);
 
-  await ngApi.removeMember({ ownerId, ngId, memberId }).then(sendToApi);
+  await ngApi.deleteNetworkGroupMember({ owner_id, ng_id, member_id }).then(sendToApi);
 
-  Logger.println(`Successfully removed member ${Formatter.formatString(memberId)} from Network Group ${Formatter.formatString(ngId)}.`);
+  Logger.println(`Successfully removed member ${Formatter.formatString(member_id)} from Network Group ${Formatter.formatString(ng_id)}.`);
 }
 
 module.exports = {

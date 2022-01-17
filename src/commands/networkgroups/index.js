@@ -14,7 +14,7 @@ async function listNetworkGroups(params) {
   const ownerId = await NetworkGroup.getOwnerId();
 
   Logger.info(`Listing Network Groups from owner ${Formatter.formatString(ownerId)}`);
-  const result = await ngApi.get({ ownerId }).then(sendToApi);
+  const result = await ngApi.listNetworkGroups({ owner_id: ownerId }).then(sendToApi);
 
   if (json) {
     Logger.println(JSON.stringify(result, null, 2));
@@ -39,7 +39,7 @@ async function createNg(params) {
   Logger.info(`Creating Network Group from owner ${Formatter.formatString(ownerId)}`);
   const body = { owner_id: ownerId, label, description, tags };
   Logger.debug('Sending body: ' + JSON.stringify(body, null, 2));
-  const result = await ngApi.createNg({ ownerId }, body).then(sendToApi);
+  const result = await ngApi.createNetworkGroup({ owner_id: ownerId }, body).then(sendToApi);
 
   if (json) {
     Logger.println(JSON.stringify(result, null, 2));
@@ -55,7 +55,7 @@ async function deleteNg(params) {
   const ngId = await NetworkGroup.getId(ownerId, ngIdOrLabel);
 
   Logger.info(`Deleting Network Group ${Formatter.formatString(ngId)} from owner ${Formatter.formatString(ownerId)}`);
-  await ngApi.deleteNg({ ownerId, ngId }).then(sendToApi);
+  await ngApi.deleteNetworkGroup({ owner_id: ownerId, ng_id: ngId }).then(sendToApi);
 
   Logger.println(`Network Group ${Formatter.formatString(ngId)} was successfully deleted.`);
 }

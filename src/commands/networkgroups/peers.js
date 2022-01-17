@@ -11,11 +11,11 @@ const TableFormatter = require('../../models/format-ng-table.js');
 
 async function listPeers(params) {
   const { ng: ngIdOrLabel, json } = params.options;
-  const ownerId = await NetworkGroup.getOwnerId();
-  const ngId = await NetworkGroup.getId(ownerId, ngIdOrLabel);
+  const owner_id = await NetworkGroup.getOwnerId();
+  const ng_id = await NetworkGroup.getId(owner_id, ngIdOrLabel);
 
-  Logger.info(`Listing peers from Network Group ${Formatter.formatString(ngId)}`);
-  const result = await ngApi.listPeers({ ownerId, ngId }).then(sendToApi);
+  Logger.info(`Listing peers from Network Group ${Formatter.formatString(ng_id)}`);
+  const result = await ngApi.listNetworkGroupPeers({ owner_id, ng_id }).then(sendToApi);
 
   if (json) {
     Logger.println(JSON.stringify(result, null, 2));
@@ -34,12 +34,12 @@ async function listPeers(params) {
 }
 
 async function getPeer(params) {
-  const { ng: ngIdOrLabel, 'peer-id': peerId, json } = params.options;
-  const ownerId = await NetworkGroup.getOwnerId();
-  const ngId = await NetworkGroup.getId(ownerId, ngIdOrLabel);
+  const { ng: ngIdOrLabel, 'peer-id': peer_id, json } = params.options;
+  const owner_id = await NetworkGroup.getOwnerId();
+  const ng_id = await NetworkGroup.get(owner_id, ngIdOrLabel);
 
-  Logger.info(`Getting details for peer ${Formatter.formatString(peerId)} in Network Group ${Formatter.formatString(ngId)}`);
-  const peer = await ngApi.getPeer({ ownerId, ngId, peerId }).then(sendToApi);
+  Logger.info(`Getting details for peer ${Formatter.formatString(peer_id)} in Network Group ${Formatter.formatString(ng_id)}`);
+  const peer = await ngApi.getNetworkGroupPeer({ owner_id, ng_id, peer_id }).then(sendToApi);
 
   if (json) {
     Logger.println(JSON.stringify(peer, null, 2));
@@ -52,27 +52,27 @@ async function getPeer(params) {
 
 async function addExternalPeer(params) {
   const { ng: ngIdOrLabel, role, 'public-key': publicKey, label, parent, ip, port } = params.options;
-  const ownerId = await NetworkGroup.getOwnerId();
-  const ngId = await NetworkGroup.getId(ownerId, ngIdOrLabel);
+  const owner_id = await NetworkGroup.getOwnerId();
+  const ng_id = await NetworkGroup.getId(owner_id, ngIdOrLabel);
 
   const body = { peer_role: role, public_key: publicKey, label, parent_member: parent, ip, port };
-  Logger.info(`Adding external peer to Network Group ${Formatter.formatString(ngId)}`);
+  Logger.info(`Adding external peer to Network Group ${Formatter.formatString(ng_id)}`);
   Logger.debug('Sending body: ' + JSON.stringify(body, null, 2));
-  const { id: peerId } = await ngApi.addExternalPeer({ ownerId, ngId }, body).then(sendToApi);
+  const { id: peer_id } = await ngApi.createNetworkGroupExternalPeer({ owner_id, ng_id }, body).then(sendToApi);
 
-  Logger.println(`External peer ${Formatter.formatString(peerId)} must have been added to Network Group ${Formatter.formatString(ngId)}.`);
-  return peerId;
+  Logger.println(`External peer ${Formatter.formatString(peer_id)} must have been added to Network Group ${Formatter.formatString(ng_id)}.`);
+  return peer_id;
 }
 
 async function removeExternalPeer(params) {
-  const { ng: ngIdOrLabel, 'peer-id': peerId } = params.options;
-  const ownerId = await NetworkGroup.getOwnerId();
-  const ngId = await NetworkGroup.getId(ownerId, ngIdOrLabel);
+  const { ng: ngIdOrLabel, 'peer-id': peer_id } = params.options;
+  const owner_id = await NetworkGroup.getOwnerId();
+  const ng_id = await NetworkGroup.getId(owner_id, ngIdOrLabel);
 
-  Logger.info(`Removing external peer ${Formatter.formatString(peerId)} from Network Group ${Formatter.formatString(ngId)}`);
-  await ngApi.removeExternalPeer({ ownerId, ngId, peerId }).then(sendToApi);
+  Logger.info(`Removing external peer ${Formatter.formatString(peer_id)} from Network Group ${Formatter.formatString(ng_id)}`);
+  await ngApi.deleteNetworkGroupExternalPeer({ owner_id, ng_id, peer_id }).then(sendToApi);
 
-  Logger.println(`External peer ${Formatter.formatString(peerId)} must have been removed from Network Group ${Formatter.formatString(ngId)}.`);
+  Logger.println(`External peer ${Formatter.formatString(peer_id)} must have been removed from Network Group ${Formatter.formatString(ng_id)}.`);
 }
 
 module.exports = {

@@ -24,8 +24,8 @@ async function getId(ownerId, ngIdOrLabel) {
     .then((ng) => ng.id);
 }
 
-async function getByLabel(ownerId, label) {
-  const networkGroups = await ngApi.get({ ownerId }).then(sendToApi);
+async function getByLabel(owner_id, label) {
+  const networkGroups = await ngApi.get({ owner_id }).then(sendToApi);
   const filteredNgs = networkGroups.filter((ng) => ng.label === label);
 
   if (filteredNgs.length === 0) {
