@@ -1,3 +1,5 @@
+# Published to https://hub.docker.com/r/clevercloud/clever-tools-builder
+
 FROM jenkins/jnlp-slave
 
 USER root

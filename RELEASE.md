@@ -15,13 +15,13 @@
 * We run this Jenkins job on an agent using this Docker image: [clever-tools-builder](https://hub.docker.com/r/clevercloud/clever-tools-builder/).
 * The `Dockerfile` to build this image is here: [docker-runner/Dockerfile](./docker-runner/Dockerfile)
 * The job is triggered on each new commit and each new tag via a classic Jenkins git hook setup in the GitHub project.
-  * If it's a commit in a branch, we only run the **build** and **package** steps and we archive artefacts afterwards.
+  * If it's a commit in a branch, we only run the **build** and **package** steps, and we archive artefacts afterwards.
   * If it's a commit in a tag, we run the **build**, **package** AND **publish** steps.
   * The version in the **publish** step uses the git tag.
 
 ### Build
 
-The first step of the job builds binaries for GNU/Linux, MacOS and Windows using [pkg](https://github.com/zeit/pkg).
+The first step of the job builds binaries for GNU/Linux, macOS and Windows using [pkg](https://github.com/zeit/pkg).
 This allows us to release a self-contained binary without having to worry about the inner node.js dependencies etc... and other implementation details of the project. 
 
 ### Package
@@ -29,14 +29,14 @@ This allows us to release a self-contained binary without having to worry about 
 The second step of the job packages various types of archives and bundles for different needs and computes SHA 256 sums:
 
 * `.tar.gz` archive for GNU/Linux
-* `.tar.gz` archive for MacOS
+* `.tar.gz` archive for macOS
 * `.zip` archive for Windows
 * `.deb` bundle for Debian/Ubuntu...
 * `.rpm` bundle for CentOS/Fedora... 
 
 ### Publish
 
-The third step of of the job will publish the new version via different method depending on the target.
+The third step of the job will publish the new version via different method depending on the target.
 
 #### Cellar
 
@@ -46,14 +46,19 @@ That's why we need `S3_KEY_ID` and `S3_SECRET_KEY` from the credentials.
 * If it's a stable version we publish the files under `X.Y.Z` but also under `latest`.
 * If it's a beta version we only publish the files under `X.Y.Z-beta.W`.
 
-#### Bintray
+NOTE: The Cellar instance ID is: `addon_fc310359-fc4f-4e30-b37c-b34127c4bb75`.
 
-`.deb` and `.rpm` are published on Bintray.
-That's why we need `BINTRAY_API_KEY` from the credentials.
+#### Nexus
 
-* `.deb` are published on [Bintray](https://bintray.com/clevercloud/deb).
-  * We use the `distribution` metadata to identify beta versions.
-* `.rpm` are published on [Bintray](https://bintray.com/clevercloud/rpm).
+`.deb`, `.nupkg` and `.rpm` are published on Clever Cloud's public Nexus instance.
+That's why we need the `NEXUS_PASSWORD` and `NUGET_API_KEY` environment variables.
+
+* `.deb` are published on Nexus repo: [deb](https://nexus.clever-cloud.com/#browse/browse:deb).
+  * beta versions are published on a separate Nexus repo: [deb-beta](https://nexus.clever-cloud.com/#browse/browse:deb-beta).
+* `.nupkg` are published on Nexus repo: [nupkg](https://nexus.clever-cloud.com/#browse/browse:nupkg).
+  * beta versions are published on a separate Nexus repo: [nupkg-beta](https://nexus.clever-cloud.com/#browse/browse:nupkg-beta).
+* `.rpm` are published on Nexus repo: [rpm](https://nexus.clever-cloud.com/#browse/browse:rpm).
+  * beta versions are published on a separate Nexus repo: [rpm-beta](https://nexus.clever-cloud.com/#browse/browse:rpm-beta).
 
 #### Archlinux
 

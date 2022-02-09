@@ -5,6 +5,9 @@ pipeline {
     S3_KEY_ID = credentials('CELLAR_CC_TOOLS_ACCESS_KEY_ID')
     S3_SECRET_KEY = credentials('CELLAR_CC_TOOLS_SECRET_ACCESS_KEY')
     BINTRAY_API_KEY = credentials('BINTRAY_CC_TOOLS_API_KEY')
+    NUGET_API_KEY = credentials('NUGET_API_KEY')
+    NEXUS_PASSWORD = credentials('NEXUS_PASSWORD')
+    NEXUS_USER = credentials('NEXUS_USER')
     NPM_TOKEN = credentials('NPM_TOKEN')
   }
   options {
@@ -33,6 +36,11 @@ pipeline {
         stage('cellar') {
           steps {
             sh 'node scripts/job-publish-cellar.js'
+          }
+        }
+        stage('nexus') {
+          steps {
+            sh 'node ./scripts/job-publish-nexus.js'
           }
         }
         stage('arch') {
