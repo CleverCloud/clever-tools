@@ -15,7 +15,6 @@ const {
   update: updateAddon,
   getAllEnvVars,
 } = require('@clevercloud/client/cjs/api/v2/addon.js');
-const { getSummary } = require('@clevercloud/client/cjs/api/user.js');
 
 const Interact = require('./interact.js');
 const Logger = require('../logger.js');
