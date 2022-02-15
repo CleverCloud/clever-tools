@@ -1,0 +1,13 @@
+[clever-tools-stable]
+name=clever-tools stable
+baseurl=https://nexus.clever-cloud.com/repository/rpm/
+enabled=1
+gpgcheck=1
+gpgkey=https://clever-tools.clever-cloud.com/gpg/cc-nexus-rpm.public.gpg.key
+
+[clever-tools-beta]
+name=clever-tools beta
+baseurl=https://nexus.clever-cloud.com/repository/rpm-beta/
+enabled=0
+gpgcheck=1
+gpgkey=https://clever-tools.clever-cloud.com/gpg/cc-nexus-rpm.public.gpg.key
