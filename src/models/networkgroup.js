@@ -1,14 +1,21 @@
 'use strict';
 
 const autocomplete = require('cliparse').autocomplete;
-
+const Organisation = require('../models/organisation.js');
 const AppConfig = require('./app_configuration.js');
-
 const ngApi = require('@clevercloud/client/cjs/api/v4/network-group.js');
 const { sendToApi } = require('./send-to-api.js');
 
-async function getOwnerId() {
-  return (await AppConfig.getAppDetails({})).ownerId;
+async function getOwnerId(orgaIdOrName) {
+  if (orgaIdOrName == null) {
+    try {
+      return (await AppConfig.getAppDetails({})).ownerId;
+    } catch {
+      throw new Error('There no Clever Cloud organisation defined for this command. You can provide one with the `--org` option or by linking an application with `clever link`.');
+    }
+  } else {
+    return (await Organisation.getId(orgaIdOrName));
+  }
 }
 
 async function getId(ownerId, ngIdOrLabel) {

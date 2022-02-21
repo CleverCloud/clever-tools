@@ -10,10 +10,11 @@ const Formatter = require('../../models/format-string.js');
 const TableFormatter = require('../../models/format-ng-table.js');
 
 async function listNetworkGroups(params) {
-  const { json } = params.options;
-  const ownerId = await NetworkGroup.getOwnerId();
+  const { org: orgaIdOrName, json } = params.options;
+  const ownerId = await NetworkGroup.getOwnerId(orgaIdOrName);
 
   Logger.info(`Listing Network Groups from owner ${Formatter.formatString(ownerId)}`);
+  
   const result = await ngApi.listNetworkGroups({ owner_id: ownerId }).then(sendToApi);
 
   if (json) {
@@ -33,8 +34,8 @@ async function listNetworkGroups(params) {
 }
 
 async function createNg(params) {
-  const { label, description, tags, json } = params.options;
-  const ownerId = await NetworkGroup.getOwnerId();
+  const { org: orgaIdOrName, label, description, tags, json } = params.options;
+  const ownerId = await NetworkGroup.getOwnerId(orgaIdOrName);
 
   Logger.info(`Creating Network Group from owner ${Formatter.formatString(ownerId)}`);
   const body = { owner_id: ownerId, label, description, tags };
@@ -50,8 +51,8 @@ async function createNg(params) {
 }
 
 async function deleteNg(params) {
-  const { ng: ngIdOrLabel } = params.options;
-  const ownerId = await NetworkGroup.getOwnerId();
+  const { org: orgaIdOrName, ng: ngIdOrLabel } = params.options;
+  const ownerId = await NetworkGroup.getOwnerId(orgaIdOrName);
   const ngId = await NetworkGroup.getId(ownerId, ngIdOrLabel);
 
   Logger.info(`Deleting Network Group ${Formatter.formatString(ngId)} from owner ${Formatter.formatString(ownerId)}`);
