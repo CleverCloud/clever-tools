@@ -10,8 +10,8 @@ const Formatter = require('../../models/format-string.js');
 const TableFormatter = require('../../models/format-ng-table.js');
 
 async function listNetworkGroups(params) {
-  const { org: orgaIdOrName, json } = params.options;
-  const ownerId = await NetworkGroup.getOwnerId(orgaIdOrName);
+  const { org: orgaIdOrName, alias, json } = params.options;
+  const ownerId = await NetworkGroup.getOwnerId(orgaIdOrName, alias);
 
   Logger.info(`Listing Network Groups from owner ${Formatter.formatString(ownerId)}`);
   
@@ -34,8 +34,8 @@ async function listNetworkGroups(params) {
 }
 
 async function createNg(params) {
-  const { org: orgaIdOrName, label, description, tags, json } = params.options;
-  const ownerId = await NetworkGroup.getOwnerId(orgaIdOrName);
+  const { org: orgaIdOrName, alias, label, description, tags, json } = params.options;
+  const ownerId = await NetworkGroup.getOwnerId(orgaIdOrName, alias);
 
   Logger.info(`Creating Network Group from owner ${Formatter.formatString(ownerId)}`);
   const body = { owner_id: ownerId, label, description, tags };
@@ -51,8 +51,8 @@ async function createNg(params) {
 }
 
 async function deleteNg(params) {
-  const { org: orgaIdOrName, ng: ngIdOrLabel } = params.options;
-  const ownerId = await NetworkGroup.getOwnerId(orgaIdOrName);
+  const { org: orgaIdOrName, alias, ng: ngIdOrLabel } = params.options;
+  const ownerId = await NetworkGroup.getOwnerId(orgaIdOrName, alias);
   const ngId = await NetworkGroup.getId(ownerId, ngIdOrLabel);
 
   Logger.info(`Deleting Network Group ${Formatter.formatString(ngId)} from owner ${Formatter.formatString(ownerId)}`);

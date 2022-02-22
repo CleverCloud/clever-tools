@@ -10,8 +10,8 @@ const Formatter = require('../../models/format-string.js');
 const TableFormatter = require('../../models/format-ng-table.js');
 
 async function listPeers(params) {
-  const { org: orgaIdOrName, ng: ngIdOrLabel, json } = params.options;
-  const owner_id = await NetworkGroup.getOwnerId(orgaIdOrName);
+  const { org: orgaIdOrName, alias, ng: ngIdOrLabel, json } = params.options;
+  const owner_id = await NetworkGroup.getOwnerId(orgaIdOrName, alias);
   const ng_id = await NetworkGroup.getId(owner_id, ngIdOrLabel);
 
   Logger.info(`Listing peers from Network Group ${Formatter.formatString(ng_id)}`);
@@ -34,8 +34,8 @@ async function listPeers(params) {
 }
 
 async function getPeer(params) {
-  const { org: orgaIdOrName, ng: ngIdOrLabel, 'peer-id': peer_id, json } = params.options;
-  const owner_id = await NetworkGroup.getOwnerId(orgaIdOrName);
+  const { org: orgaIdOrName, alias, ng: ngIdOrLabel, 'peer-id': peer_id, json } = params.options;
+  const owner_id = await NetworkGroup.getOwnerId(orgaIdOrName, alias);
   const ng_id = await NetworkGroup.get(owner_id, ngIdOrLabel);
 
   Logger.info(`Getting details for peer ${Formatter.formatString(peer_id)} in Network Group ${Formatter.formatString(ng_id)}`);
@@ -51,8 +51,8 @@ async function getPeer(params) {
 }
 
 async function addExternalPeer(params) {
-  const { org: orgaIdOrName, ng: ngIdOrLabel, role, 'public-key': publicKey, label, parent, ip, port } = params.options;
-  const owner_id = await NetworkGroup.getOwnerId(orgaIdOrName);
+  const { org: orgaIdOrName, alias, ng: ngIdOrLabel, role, 'public-key': publicKey, label, parent, ip, port } = params.options;
+  const owner_id = await NetworkGroup.getOwnerId(orgaIdOrName, alias);
   const ng_id = await NetworkGroup.getId(owner_id, ngIdOrLabel);
 
   const body = { peer_role: role, public_key: publicKey, label, parent_member: parent, ip, port };
@@ -65,8 +65,8 @@ async function addExternalPeer(params) {
 }
 
 async function removeExternalPeer(params) {
-  const { org: orgaIdOrName, ng: ngIdOrLabel, 'peer-id': peer_id } = params.options;
-  const owner_id = await NetworkGroup.getOwnerId(orgaIdOrName);
+  const { org: orgaIdOrName, alias, ng: ngIdOrLabel, 'peer-id': peer_id } = params.options;
+  const owner_id = await NetworkGroup.getOwnerId(orgaIdOrName, alias);
   const ng_id = await NetworkGroup.getId(owner_id, ngIdOrLabel);
 
   Logger.info(`Removing external peer ${Formatter.formatString(peer_id)} from Network Group ${Formatter.formatString(ng_id)}`);

@@ -820,12 +820,12 @@ function run () {
 
   const networkGroupsCommand = cliparse.command('networkgroups', {
     description: 'List Network Group commands',
-    options: [opts.orgaIdOrName],
+    options: [opts.orgaIdOrName, opts.alias],
     commands: [networkGroupsListCommand, networkGroupsCreateCommand, networkGroupsDeleteCommand, networkGroupsMembersCategoryCommand, networkGroupsPeersCategoryCommand],
   });
   const ngCommand = cliparse.command('ng', {
     description: `Alias for ${Formatter.formatCommand('clever networkgroups')}`,
-    options: [opts.orgaIdOrName],
+    options: [opts.orgaIdOrName, opts.alias],
     commands: [networkGroupsListCommand, networkGroupsCreateCommand, networkGroupsDeleteCommand, networkGroupsMembersCategoryCommand, networkGroupsPeersCategoryCommand],
   });
 

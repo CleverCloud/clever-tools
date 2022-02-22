@@ -10,8 +10,8 @@ const Formatter = require('../../models/format-string.js');
 const TableFormatter = require('../../models/format-ng-table.js');
 
 async function listMembers(params) {
-  const { org: orgaIdOrName, ng: ngIdOrLabel, 'natural-name': naturalName, json } = params.options;
-  const owner_id = await NetworkGroup.getOwnerId(orgaIdOrName);
+  const { org: orgaIdOrName, alias, ng: ngIdOrLabel, 'natural-name': naturalName, json } = params.options;
+  const owner_id = await NetworkGroup.getOwnerId(orgaIdOrName, alias);
   const ng_id = await NetworkGroup.getId(owner_id, ngIdOrLabel);
 
   Logger.info(`Listing members from Network Group '${ngId}'`);
@@ -34,8 +34,8 @@ async function listMembers(params) {
 }
 
 async function getMember(params) {
-  const { org: orgaIdOrName, ng: ngIdOrLabel, 'member-id': member_id, 'natural-name': naturalName, json } = params.options;
-  const owner_id = await NetworkGroup.getOwnerId(orgaIdOrName);
+  const { org: orgaIdOrName, alias, ng: ngIdOrLabel, 'member-id': member_id, 'natural-name': naturalName, json } = params.options;
+  const owner_id = await NetworkGroup.getOwnerId(orgaIdOrName, alias);
   const ng_id = await NetworkGroup.getId(owner_id, ngIdOrLabel);
 
   Logger.info(`Getting details for member ${Formatter.formatString(member_id)} in Network Group ${Formatter.formatString(ngId)}`);
@@ -51,8 +51,8 @@ async function getMember(params) {
 }
 
 async function addMember(params) {
-  const { org: orgaIdOrName, ng: ngIdOrLabel, 'member-id': member_id, type, 'domain-name': domainName, label } = params.options;
-  const owner_id = await NetworkGroup.getOwnerId(orgaIdOrName);
+  const { org: orgaIdOrName, alias, ng: ngIdOrLabel, 'member-id': member_id, type, 'domain-name': domainName, label } = params.options;
+  const owner_id = await NetworkGroup.getOwnerId(orgaIdOrName, alias);
   const ng_id = await NetworkGroup.getId(owner_id, ngIdOrLabel);
 
   const body = { id: member_id, label, domain_name: domainName, type };
@@ -63,8 +63,8 @@ async function addMember(params) {
 }
 
 async function removeMember(params) {
-  const { org: orgaIdOrName, ng: ngIdOrLabel, 'member-id': member_id } = params.options;
-  const owner_id = await NetworkGroup.getOwnerId(orgaIdOrName);
+  const { org: orgaIdOrName, alias, ng: ngIdOrLabel, 'member-id': member_id } = params.options;
+  const owner_id = await NetworkGroup.getOwnerId(orgaIdOrName, alias);
   const ng_id = await NetworkGroup.getId(owner_id, ngIdOrLabel);
 
   await ngApi.deleteNetworkGroupMember({ owner_id, ng_id, member_id }).then(sendToApi);

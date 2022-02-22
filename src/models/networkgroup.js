@@ -6,12 +6,16 @@ const AppConfig = require('./app_configuration.js');
 const ngApi = require('@clevercloud/client/cjs/api/v4/network-group.js');
 const { sendToApi } = require('./send-to-api.js');
 
-async function getOwnerId(orgaIdOrName) {
+async function getOwnerId(orgaIdOrName, alias) {
   if (orgaIdOrName == null) {
     try {
-      return (await AppConfig.getAppDetails({})).ownerId;
-    } catch {
-      throw new Error('There no Clever Cloud organisation defined for this command. You can provide one with the `--org` option or by linking an application with `clever link`.');
+      return (await AppConfig.getAppDetails({alias})).ownerId;
+    } catch (error) {
+      if (error.message.startsWith("There are no applications linked.")) {
+        throw new Error('There no Clever Cloud organisation defined for this command. You can provide one with the `--org` option or by linking an application with `clever link`.');
+      } else {
+        throw error
+      } 
     }
   } else {
     return (await Organisation.getId(orgaIdOrName));
