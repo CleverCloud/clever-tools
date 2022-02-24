@@ -1,5 +1,6 @@
 'use strict';
 
+const colors = require('colors/safe');
 const _ = require('lodash');
 const childProcess = require('child_process');
 const fs = require('fs-extra');
@@ -9,15 +10,26 @@ const { URL } = require('url');
 // This disables ES6+ template delimiters
 _.templateSettings.interpolate = /<%=([\s\S]+?)%>/g;
 
+function startTask (taskName, suffix='\n', separator='============================') {
+  process.stdout.write(colors.bold.grey(`${separator}\n`));
+  process.stdout.write(colors.bold.grey(`${taskName} ... ${suffix}`));
+}
+function endTask (taskName, suffix='\n\n', separator='============================') {
+  process.stdout.write(colors.bold.grey(`${taskName} `)+colors.bold.green('Done!')+'\n');
+  process.stdout.write(colors.bold.grey(`${separator}${suffix}`));
+}
+
 function exec (command, cwd) {
-  console.log(`Executing command: ${command}`);
+  console.log(colors.bold.blue(`=> Execute command`));
+  console.log(colors.blue(`${command}`));
   return new Promise((resolve, reject) => {
     childProcess.exec(command, { cwd }, (err, stdout, stderr) => {
+      console.log(stdout);
+      console.error(stderr);
       if (err) {
         console.error(stderr);
         return reject(err);
       }
-      console.log(stdout);
       return resolve();
     });
   });
@@ -46,6 +58,11 @@ async function applyTemplates (destPath, templatesPath, templateData) {
   }
 }
 
+async function writeStringToFile(content, destFilepath){
+  await fs.ensureFile(destFilepath)
+  await fs.writeFile(destFilepath, content)
+}
+
 async function applyOneTemplate (destFilepath, templateFilepath, templateData) {
   const template = await fs.readFile(templateFilepath, 'utf-8');
   const contents = _.template(template)(templateData);
@@ -65,4 +82,4 @@ async function tagAndPush ({ gitPath, tagName }) {
   await exec(`git push origin refs/tags/${tagName}`, gitPath);
 }
 
-module.exports = { exec, cloneGitProject, applyTemplates, applyOneTemplate, tagAndPush, commitAndPush };
+module.exports = { startTask, endTask, exec, cloneGitProject, writeStringToFile, applyTemplates, applyOneTemplate, tagAndPush, commitAndPush };
