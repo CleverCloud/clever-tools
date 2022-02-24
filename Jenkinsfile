@@ -9,8 +9,14 @@ pipeline {
     NEXUS_PASSWORD = credentials('NEXUS_PASSWORD')
     NEXUS_USER = credentials('NEXUS_USER')
     NPM_TOKEN = credentials('NPM_TOKEN')
+    RPM_GPG_PRIVATE_KEY = credentials('RPM_GPG_PRIVATE_KEY')
+    RPM_GPG_PUBLIC_KEY = credentials('RPM_GPG_PUBLIC_KEY')
+    RPM_GPG_NAME = 'Clever Cloud Nexus (rpm)'
+    RPM_GPG_PASS = credentials('RPM_GPG_PASSPHRASE')
+    FORCE_COLOR=3
   }
   options {
+    ansiColor('xterm')
     buildDiscarder(logRotator(daysToKeepStr: '5', numToKeepStr: '10', artifactDaysToKeepStr: '5', artifactNumToKeepStr: '10'))
   }
   stages {

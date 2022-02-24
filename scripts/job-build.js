@@ -4,6 +4,7 @@ const cfg = require('./config');
 const del = require('del');
 const fs = require('fs-extra');
 const pkg = require('pkg').exec;
+const { startTask, endTask } = require('./utils');
 
 async function run () {
 
@@ -14,14 +15,14 @@ async function run () {
   del.sync(releasesDir);
 
   for (const arch of archList) {
-    console.log(`Building pkg for ${arch} ...\n`);
+    startTask(`Building pkg for ${arch}`);
     const filepath = cfg.getBinaryFilepath(arch, version);
     await pkg(['.', '-t', `node${nodeVersion}-${arch}`, '-o', filepath]);
     if (isStableVersion) {
       const latestFilepath = cfg.getBinaryFilepath(arch, 'latest');
       await fs.copy(filepath, latestFilepath);
     }
-    console.log(`\nBuilding pkg for ${arch} DONE!\n`);
+    endTask(`Building pkg for ${arch}`);
   }
 }
 

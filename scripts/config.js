@@ -1,5 +1,6 @@
 'use strict';
 
+const os = require('os');
 const pkgJson = require('../package.json');
 const semver = require('semver');
 
@@ -80,7 +81,7 @@ function getNexusAuth () {
   const password = process.env.NEXUS_PASSWORD;
   const nugetApiKey = process.env.NUGET_API_KEY;
   if (user == null || password == null) {
-    throw new Error('Could not read Nexus password!');
+    throw new Error('Could not read Nexus credentials!');
   }
   if (nugetApiKey == null) {
     throw new Error('Could not read Nexus Nuget API key!');
@@ -94,6 +95,14 @@ function getNpmToken () {
     throw new Error('Could not read NPM token!');
   }
   return token;
+}
+
+function getGpgConf () {
+  const gpgPrivateKey = process.env.RPM_GPG_PRIVATE_KEY;
+  const gpgPath = process.env.RPM_GPG_PATH || os.homedir();
+  const gpgName = process.env.RPM_GPG_NAME;
+  const gpgPass = process.env.RPM_GPG_PASS;
+  return { gpgPrivateKey, gpgPath, gpgName, gpgPass}
 }
 
 module.exports = {
@@ -111,4 +120,5 @@ module.exports = {
   getBundleFilepath,
   getNexusAuth,
   getNpmToken,
+  getGpgConf,
 };
