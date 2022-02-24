@@ -83,18 +83,18 @@ async function writeOAuthConf (oauthData) {
 }
 
 const conf = env.getOrElseAll({
-  API_HOST: 'https://api.clever-cloud.com',
+  API_HOST: 'https://api.par0.clvrcld.net',
   // API_HOST: 'https://ccapi-preprod.cleverapps.io',
   LOG_WS_URL: 'wss://api.clever-cloud.com/v2/logs/logs-socket/<%- appId %>?since=<%- timestamp %>',
   LOG_HTTP_URL: 'https://api.clever-cloud.com/v2/logs/<%- appId %>',
   EVENT_URL: 'wss://api.clever-cloud.com/v2/events/event-socket',
   WARP_10_EXEC_URL: 'https://c1-warp10-clevercloud-customers.services.clever-cloud.com/api/v0/exec',
-  OAUTH_CONSUMER_KEY: 'T5nFjKeHH4AIlEveuGhB5S3xg8T19e',
-  OAUTH_CONSUMER_SECRET: 'MgVMqTr6fWlf2M0tkC2MXOnhfqBWDT',
+  OAUTH_CONSUMER_KEY: 'Kknbl68PTXy4JYvOZMEqKqE674pzYhbgBw',
+  OAUTH_CONSUMER_SECRET: 'HFM40RImtTZmtFdo8hO4EFwFtdIAAjeUul',
   SSH_GATEWAY: 'ssh@sshgateway-clevercloud-customers.services.clever-cloud.com',
 
   CONFIGURATION_FILE: getConfigPath(),
-  CONSOLE_TOKEN_URL: 'https://console.clever-cloud.com/cli-oauth',
+  CONSOLE_TOKEN_URL: 'https://console.par0.clvrcld.net/cli-oauth',
   // CONSOLE_TOKEN_URL: 'https://next-console.cleverapps.io/cli-oauth',
 
   CLEVER_CONFIGURATION_DIR: path.resolve('.', 'clevercloud'),
