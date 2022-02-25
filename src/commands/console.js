@@ -2,7 +2,7 @@
 
 const AppConfig = require('../models/app_configuration.js');
 const Logger = require('../logger.js');
-const openPage = require('opn');
+const openPage = require('open');
 
 async function openConsole (params) {
   const { alias } = params.options;
