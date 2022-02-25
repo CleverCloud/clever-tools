@@ -1,5 +1,9 @@
 # clever-tools changelog
 
+## Unrelease (????-??-??)
+
+* Upgrade opn to open
+
 ## 2.9.0 (2022-01-12)
 
 * Add NewRelic support in `clever drains`
