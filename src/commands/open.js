@@ -1,6 +1,6 @@
 'use strict';
 
-const openPage = require('opn');
+const openPage = require('open');
 
 const AppConfig = require('../models/app_configuration.js');
 const Domain = require('../models/domain.js');
