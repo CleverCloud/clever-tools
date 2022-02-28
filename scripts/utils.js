@@ -39,7 +39,7 @@ async function cloneGitProject ({ gitUrl, gitPath, git, cleanRepo = true }) {
   const { protocol, hostname } = new URL(gitUrl);
   if (protocol === 'ssh:') {
     await exec('mkdir -p ~/.ssh');
-    await exec(`ssh-keyscan -t rsa ${hostname} >> ~/.ssh/known_hosts`);
+    await exec(`ssh-keyscan -t ed25519 ${hostname} >> ~/.ssh/known_hosts`);
   }
   await exec(`git clone ${gitUrl} ${gitPath}`);
   await exec(`git config user.email "${git.email}"`, gitPath);
