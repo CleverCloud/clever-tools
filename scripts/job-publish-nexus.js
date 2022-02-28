@@ -33,9 +33,8 @@ async function run () {
   await publishNupkgToNexus({ releaseType, nexusAuth, filepath: cfg.getBundleFilepath('nupkg', version) })
     .catch(() => errorCount += 1);
 
-  // TODO: implement automatic signature and enable this
-  // await publishRpmToNexus({ releaseType, nexusAuth, filepath: cfg.getBundleFilepath('rpm', version) })
-  //   .catch(() => errorCount += 1);
+  await publishRpmToNexus({ releaseType, nexusAuth, filepath: cfg.getBundleFilepath('rpm', version) })
+    .catch(() => errorCount += 1);
 
   if (errorCount > 0) {
     throw new Error('Some error occured while publishing assets to Nexus.');
