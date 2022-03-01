@@ -21,7 +21,7 @@ async function listNetworkGroups(params) {
   }
   else {
     if (result.length === 0) {
-      Logger.println(`No Network Group found. You can create one with ${Formatter.formatCommand('clever networkgroups create')}.`);
+      Logger.println(`No Network Group found for ${ownerId}. You can create one with ${Formatter.formatCommand('clever networkgroups create')}.`);
     }
     else {
       TableFormatter.printNetworkGroupsTableHeader();
