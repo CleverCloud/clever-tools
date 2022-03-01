@@ -2,6 +2,7 @@
 
 const autocomplete = require('cliparse').autocomplete;
 const Organisation = require('../models/organisation.js');
+const User = require('../models/user.js');
 const AppConfig = require('./app_configuration.js');
 const ngApi = require('@clevercloud/client/cjs/api/v4/network-group.js');
 const { sendToApi } = require('./send-to-api.js');
@@ -11,11 +12,7 @@ async function getOwnerId(orgaIdOrName, alias) {
     try {
       return (await AppConfig.getAppDetails({alias})).ownerId;
     } catch (error) {
-      if (error.message.startsWith("There are no applications linked.")) {
-        throw new Error('There no Clever Cloud organisation defined for this command. You can provide one with the `--org` option or by linking an application with `clever link`.');
-      } else {
-        throw error
-      } 
+      return (await User.getCurrentId())
     }
   } else {
     return (await Organisation.getId(orgaIdOrName));

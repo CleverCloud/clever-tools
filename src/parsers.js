@@ -48,7 +48,7 @@ function appIdOrName (string) {
   return cliparse.parsers.success({ app_name: string });
 }
 
-const orgaIdRegex = /^orga_[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const orgaIdRegex = /^(user_|orga_)[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 function orgaIdOrName (string) {
   if (string.match(orgaIdRegex)) {
