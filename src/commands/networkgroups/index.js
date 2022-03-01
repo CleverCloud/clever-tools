@@ -10,11 +10,10 @@ const Formatter = require('../../models/format-string.js');
 const TableFormatter = require('../../models/format-ng-table.js');
 
 async function listNetworkGroups(params) {
-  const { org: orgaIdOrName, alias, json } = params.options;
-  const ownerId = await NetworkGroup.getOwnerId(orgaIdOrName, alias);
-
-  Logger.info(`Listing Network Groups from owner ${Formatter.formatString(ownerId)}`);
-  const result = await ngApi.listNetworkGroups({ ownerId }).then(sendToApi);
+  const { 'owner-id': ownerId, alias, json } = params.options;
+  const validOwnerId = await NetworkGroup.getOwnerId(ownerId, alias);
+  Logger.info(`Listing Network Groups from owner ${Formatter.formatString(validOwnerId)}`);
+  const result = await ngApi.listNetworkGroups({ ownerId: validOwnerId }).then(sendToApi);
 
   if (json) {
     Logger.println(JSON.stringify(result, null, 2));
@@ -33,13 +32,13 @@ async function listNetworkGroups(params) {
 }
 
 async function createNg(params) {
-  const { org: orgaIdOrName, alias, label, description, tags, json } = params.options;
-  const ownerId = await NetworkGroup.getOwnerId(orgaIdOrName, alias);
+  const { 'owner-id': ownerId, alias, label, description, tags, json } = params.options;
+  const validOwnerId = await NetworkGroup.getOwnerId(ownerId, alias);
 
-  Logger.info(`Creating Network Group from owner ${Formatter.formatString(ownerId)}`);
-  const body = { ownerId: ownerId, label, description, tags };
+  Logger.info(`Creating Network Group from owner ${Formatter.formatString(validOwnerId)}`);
+  const body = { validOwnerId: validOwnerId, label, description, tags };
   Logger.debug('Sending body: ' + JSON.stringify(body, null, 2));
-  const result = await ngApi.createNetworkGroup({ ownerId }, body).then(sendToApi);
+  const result = await ngApi.createNetworkGroup({ ownerId: validOwnerId }, body).then(sendToApi);
 
   if (json) {
     Logger.println(JSON.stringify(result, null, 2));
@@ -50,12 +49,12 @@ async function createNg(params) {
 }
 
 async function deleteNg(params) {
-  const { org: orgaIdOrName, alias, ng: networkGroupIdOrLabel } = params.options;
-  const ownerId = await NetworkGroup.getOwnerId(orgaIdOrName, alias);
-  const networkGroupId = await NetworkGroup.getId(ownerId, networkGroupIdOrLabel);
+  const { 'owner-id': ownerId, alias, ng: networkGroupIdOrLabel } = params.options;
+  const validOwnerId = await NetworkGroup.getOwnerId(ownerId, alias);
+  const networkGroupId = await NetworkGroup.getId(validOwnerId, networkGroupIdOrLabel);
 
-  Logger.info(`Deleting Network Group ${Formatter.formatString(networkGroupId)} from owner ${Formatter.formatString(ownerId)}`);
-  await ngApi.deleteNetworkGroup({ ownerId, networkGroupId }).then(sendToApi);
+  Logger.info(`Deleting Network Group ${Formatter.formatString(networkGroupId)} from owner ${Formatter.formatString(validOwnerId)}`);
+  await ngApi.deleteNetworkGroup({ validOwnerId, networkGroupId }).then(sendToApi);
 
   Logger.println(`Network Group ${Formatter.formatString(networkGroupId)} deletion will be performed asynchronously.`);
 }

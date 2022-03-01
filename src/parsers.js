@@ -49,12 +49,19 @@ function appIdOrName (string) {
 }
 
 const orgaIdRegex = /^orga_[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-
 function orgaIdOrName (string) {
   if (string.match(orgaIdRegex)) {
     return cliparse.parsers.success({ orga_id: string });
   }
   return cliparse.parsers.success({ orga_name: string });
+}
+
+const ownerIdRegex = /^(user_|orga_)[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+function ownerId (string) {
+  if (string.match(ownerIdRegex)) {
+    return cliparse.parsers.success({ owner_id: string });
+  }
+  return cliparse.parsers.error('Expect ownerId as user_ID or orga_ID');
 }
 
 const addonIdRegex = /^addon_[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -159,6 +166,7 @@ module.exports = {
   date,
   appIdOrName,
   orgaIdOrName,
+  ownerId,
   addonIdOrName,
   ngIdOrLabel,
   commaSeparated,

@@ -287,6 +287,11 @@ function run () {
       description: 'Organisation ID (or name, if unambiguous)',
       parser: Parsers.orgaIdOrName,
     }),
+    ownerId: cliparse.option('owner-id', {
+      aliases: ['o'],
+      description: 'Owner ID (organisation or user ID)',
+      parser: Parsers.ownerId,
+    }),
     drainPassword: cliparse.option('password', {
       aliases: ['p'],
       metavar: 'password',
@@ -820,12 +825,12 @@ function run () {
 
   const networkGroupsCommand = cliparse.command('networkgroups', {
     description: 'List Network Group commands',
-    options: [opts.orgaIdOrName, opts.alias],
+    options: [opts.ownerId, opts.alias],
     commands: [networkGroupsListCommand, networkGroupsCreateCommand, networkGroupsDeleteCommand, networkGroupsMembersCategoryCommand, networkGroupsPeersCategoryCommand],
   });
   const ngCommand = cliparse.command('ng', {
     description: `Alias for ${Formatter.formatCommand('clever networkgroups')}`,
-    options: [opts.orgaIdOrName, opts.alias],
+    options: [opts.ownerId, opts.alias],
     commands: [networkGroupsListCommand, networkGroupsCreateCommand, networkGroupsDeleteCommand, networkGroupsMembersCategoryCommand, networkGroupsPeersCategoryCommand],
   });
 

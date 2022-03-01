@@ -6,8 +6,8 @@ const AppConfig = require('./app_configuration.js');
 const ngApi = require('@clevercloud/client/cjs/api/v4/network-group.js');
 const { sendToApi } = require('./send-to-api.js');
 
-async function getOwnerId(orgaIdOrName, alias) {
-  if (orgaIdOrName == null) {
+async function getOwnerId(ownerId, alias) {
+  if (ownerId == null) {
     try {
       return (await AppConfig.getAppDetails({alias})).ownerId;
     } catch (error) {
@@ -18,7 +18,7 @@ async function getOwnerId(orgaIdOrName, alias) {
       } 
     }
   } else {
-    return (await Organisation.getId(orgaIdOrName));
+    return (await Organisation.getOwnerId(ownerId));
   }
 }
 

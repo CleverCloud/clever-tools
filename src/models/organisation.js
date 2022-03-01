@@ -9,6 +9,18 @@ const organisation = require('@clevercloud/client/cjs/api/v2/organisation.js');
 const { getSummary } = require('@clevercloud/client/cjs/api/v2/user.js');
 const { sendToApi } = require('../models/send-to-api.js');
 
+async function getOwnerId (ownerId) {
+  if (ownerId == null) {
+    return null;
+  }
+
+  if (ownerId.owner_id != null) {
+    return ownerId.owner_id;
+  } else {
+    throw new Error('Organisation not found: expect a valid ownerId');
+  }
+}
+
 async function getId (orgaIdOrName) {
   if (orgaIdOrName == null) {
     return null;
@@ -53,6 +65,7 @@ function completeNamespaces () {
 
 module.exports = {
   getId,
+  getOwnerId,
   getNamespaces,
   completeNamespaces,
 };
