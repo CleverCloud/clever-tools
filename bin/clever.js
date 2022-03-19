@@ -151,6 +151,9 @@ function run () {
       description: 'Short name for the application',
       complete: Application('listAvailableAliases'),
     }),
+    all: cliparse.flag('all', {
+      description: 'For all apps',
+    }),
     before: cliparse.option('before', {
       metavar: 'before',
       aliases: ['until'],
@@ -692,7 +695,7 @@ function run () {
   const status = lazyRequirePromiseModule('../src/commands/status.js');
   const statusCommand = cliparse.command('status', {
     description: 'See the status of an application on Clever Cloud',
-    options: [opts.alias],
+    options: [opts.alias, opts.all],
   }, status('status'));
 
   // STOP COMMAND
