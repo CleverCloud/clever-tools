@@ -48,7 +48,7 @@ function appIdOrName (string) {
   return cliparse.parsers.success({ app_name: string });
 }
 
-const orgaIdRegex = /^orga_[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const orgaIdRegex = /^(user_|orga_)[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 function orgaIdOrName (string) {
   if (string.match(orgaIdRegex)) {
@@ -64,6 +64,15 @@ function addonIdOrName (string) {
     return cliparse.parsers.success({ addon_id: string });
   }
   return cliparse.parsers.success({ addon_name: string });
+}
+
+const ngIdRegex = /^ng_[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+function ngIdOrLabel (string) {
+  if (string.match(ngIdRegex)) {
+    return cliparse.parsers.success({ ng_id: string });
+  }
+  return cliparse.parsers.success({ ng_label: string });
 }
 
 function commaSeparated (string) {
@@ -86,6 +95,63 @@ function integer (string) {
   return cliparse.parsers.success(integer);
 }
 
+// /^[a-z0-9](?:[a-z0-9_-]*[a-z0-9])?$/i;
+const tagRegex = /^[^,\s]+$/;
+
+function tag (string) {
+  if (string.match(tagRegex)) {
+    return cliparse.parsers.success(string);
+  }
+  return cliparse.parsers.error(`Invalid tag '${string}'. Should match ${tagRegex}`);
+}
+
+function tags (string) {
+  if (String(string).length === 0) {
+    return cliparse.parsers.success([]);
+  }
+  const tags = String(string).split(',');
+  for (const current of tags) {
+    if (tag(current).error) {
+      return cliparse.parsers.error(`Invalid tag '${current}'. Should match \`${tagRegex}\``);
+    }
+  }
+  return cliparse.parsers.success(tags);
+}
+
+function ngMemberType (string) {
+  const possible = ['application', 'addon', 'external'];
+  if (possible.includes(string)) {
+    return cliparse.parsers.success(string);
+  }
+  return cliparse.parsers.error(`Invalid member type '${string}'. Should be in ${JSON.stringify(possible)}`);
+}
+
+function ngPeerRole (string) {
+  const possible = ['client', 'server'];
+  if (possible.includes(string)) {
+    return cliparse.parsers.success(string);
+  }
+  return cliparse.parsers.error(`Invalid peer role '${string}'. Should be in ${JSON.stringify(possible)}`);
+}
+
+const ipAddressRegex = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9]?[0-9])\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9]?[0-9])$/;
+
+function ipAddress (string) {
+  if (string.match(ipAddressRegex)) {
+    return cliparse.parsers.success(string);
+  }
+  return cliparse.parsers.error(`Invalid IP address '${string}'. Should match ${ipAddressRegex}`);
+}
+
+const portNumberRegex = /^\d{1,5}$/;
+
+function portNumber (number) {
+  if (String(number).match(portNumberRegex)) {
+    return cliparse.parsers.success(number);
+  }
+  return cliparse.parsers.error(`Invalid port number '${number}'. Should match ${portNumberRegex}`);
+}
+
 module.exports = {
   buildFlavor,
   flavor,
@@ -94,7 +160,16 @@ module.exports = {
   appIdOrName,
   orgaIdOrName,
   addonIdOrName,
+  ngIdOrLabel,
   commaSeparated,
   accessLogsFormat,
   integer,
+  tag,
+  tags,
+  ngMemberType,
+  ngPeerRole,
+  ipAddressRegex,
+  ipAddress,
+  portNumberRegex,
+  portNumber,
 };

@@ -5,3 +5,6 @@ spec/application.instance-types.js
 releases/
 .s3cfg*
 *.gpg.key
+
+# macOS system files
+.DS_Store
