@@ -2,7 +2,9 @@
 
 ## Unrelease (????-??-??)
 
-...
+## 2.10.0-beta.0 (2022-09-06)
+
+* Add NetworkGroups commands `clever ng --help`
 
 ## 2.9.1 (2022-02-28)
 
