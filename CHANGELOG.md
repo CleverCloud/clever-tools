@@ -2,6 +2,10 @@
 
 ## Unrelease (????-??-??)
 
+## 2.10.0-beta.2 (2022-09-13)
+
+* NetworkGroups fix wrong function call.
+
 ## 2.10.0-beta.0 (2022-09-06)
 
 * Add NetworkGroups commands `clever ng --help`
