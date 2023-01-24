@@ -88,6 +88,8 @@ function run () {
       parser: Parsers.appIdOrName,
     }),
     appNameCreation: cliparse.argument('app-name', { description: 'Application name' }),
+    backupId: cliparse.argument('backup-id', { description: 'A Database backup ID (format: UUID)' }),
+    databaseId: cliparse.argument('database-id', { description: 'A database ID (format: postgres_UUID)' }),
     drainId: cliparse.argument('drain-id', { description: 'Drain ID' }),
     drainType: cliparse.argument('drain-type', {
       description: 'Drain type',
@@ -182,6 +184,10 @@ function run () {
     commit: cliparse.option('commit', {
       metavar: 'commit id',
       description: 'Restart the application with a specific commit id',
+    }),
+    databaseId: cliparse.option('database-id', {
+      metavar: 'database_id',
+      description: 'The Database ID (postgresql_xxx)',
     }),
     deploymentId: cliparse.option('deployment-id', {
       metavar: 'deployment_id',
@@ -286,6 +292,10 @@ function run () {
       aliases: ['o', 'owner'],
       description: 'Organisation ID (or name, if unambiguous)',
       parser: Parsers.orgaIdOrName,
+    }),
+    output: cliparse.option('output', {
+      aliases: ['out'],
+      description: 'redirect the output of the command in a file',
     }),
     drainPassword: cliparse.option('password', {
       aliases: ['p'],
@@ -996,6 +1006,26 @@ function run () {
     commands: [addWebhookCommand, removeWebhookCommand],
   }, webhooks('list'));
 
+  // DATABASES COMMANDS
+  const database = lazyRequirePromiseModule('../src/commands/database.js');
+  const downloadBackupCommand = cliparse.command('download', {
+    description: 'Download a database backup',
+    args: [args.databaseId, args.backupId],
+    options: [opts.orgaIdOrName, opts.output],
+  }, database('downloadBackups'));
+  const backupsCommand = cliparse.command('backups', {
+    description: 'List available database backups',
+    args: [args.databaseId],
+    options: [opts.orgaIdOrName],
+    commands: [
+      downloadBackupCommand,
+    ],
+  }, database('listBackups'));
+  const databaseCommand = cliparse.command('database', {
+    description: 'List available databases',
+    commands: [backupsCommand],
+  }, () => console.info('not available yet'));
+
   // CLI PARSER
   const cliParser = cliparse.cli({
     name: 'clever',
@@ -1012,6 +1042,7 @@ function run () {
       appUnlinkCommand,
       cancelDeployCommand,
       configCommands,
+      databaseCommand,
       deleteCommand,
       deployCommand,
       diagCommand,
