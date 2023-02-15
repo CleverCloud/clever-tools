@@ -1,6 +1,6 @@
 # Published to https://hub.docker.com/r/clevercloud/clever-tools-builder
 
-FROM jenkins/jnlp-slave
+FROM jenkins/inbound-agent
 
 USER root
 
@@ -10,6 +10,6 @@ RUN apt-get install -y nodejs
 RUN apt-get install -y rpm
 
 RUN apt-get install -y ruby ruby-dev rubygems build-essential
-RUN gem install --no-ri --no-rdoc fpm
+RUN gem install fpm
 
 USER jenkins
