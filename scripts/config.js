@@ -31,7 +31,7 @@ function getVersion (striclyFromTag = false) {
     if (striclyFromTag) {
       throw new Error('Could not read version from git tag!');
     }
-    return process.env.GIT_BRANCH;
+    return process.env.GIT_BRANCH.replace(/\//g, '-');
   }
   const gitTagVersion = gitTag.trim();
   if (gitTagVersion !== pkgJson.version) {
@@ -102,7 +102,7 @@ function getGpgConf () {
   const gpgPath = process.env.RPM_GPG_PATH || os.homedir();
   const gpgName = process.env.RPM_GPG_NAME;
   const gpgPass = process.env.RPM_GPG_PASS;
-  return { gpgPrivateKey, gpgPath, gpgName, gpgPass}
+  return { gpgPrivateKey, gpgPath, gpgName, gpgPass };
 }
 
 module.exports = {

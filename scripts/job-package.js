@@ -14,7 +14,7 @@ async function run () {
   const isStableVersion = cfg.isStableVersion();
   const { gpgPrivateKey, gpgPath, gpgName, gpgPass } = cfg.getGpgConf();
   // if no private key is found, do not try to sign package.
-  const signPackage = gpgPrivateKey ? true:false;
+  const signPackage = (gpgPrivateKey != null) ? true : false;
 
   del.sync([
     `${releasesDir}/${version}/*.deb`,
@@ -33,8 +33,8 @@ async function run () {
       `${releasesDir}/latest/*.zip`,
     ]);
   }
-  if (signPackage){
-    await prepareGpg({gpgPrivateKey, gpgPath, gpgName, gpgPass});
+  if (signPackage) {
+    await prepareGpg({ gpgPrivateKey, gpgPath, gpgName, gpgPass });
   }
 
   for (const arch of archList) {
@@ -84,15 +84,15 @@ async function packageArchiveForArch ({ binaryFilepath, archiveFilepath }) {
   endTask(`Packaging ${archiveFilepath}`);
 }
 
-async function prepareGpg({gpgPrivateKey, gpgPath, gpgName, gpgPass}){
+async function prepareGpg ({ gpgPrivateKey, gpgPath, gpgName, gpgPass }) {
   startTask(`Preparing GPG`);
   const templatesPath = './templates/gpg';
   const destPath = `${gpgPath}`;
-  await writeStringToFile(gpgPrivateKey,'/tmp/GPG-PRIVATE-KEY-Clever-Cloud')
+  await writeStringToFile(gpgPrivateKey, '/tmp/GPG-PRIVATE-KEY-Clever-Cloud');
   await applyTemplates(destPath, templatesPath, {
     gpgPath,
     gpgName,
-    gpgPass
+    gpgPass,
   });
   // import private/public key in GPG
   await exec(`gpg --batch --import /tmp/GPG-PRIVATE-KEY-Clever-Cloud`);
@@ -112,7 +112,7 @@ async function packageLinuxBundle ({ bundlePath, version, binaryFilepath, appInf
   const type = ext.slice(1);
   startTask(`Packaging Linux ${type}`);
   const { base: binaryFilename } = path.parse(binaryFilepath);
-  let signFlag=''
+  let signFlag = '';
   await exec(`fpm \
     -s dir \
     -t ${type} \
@@ -124,7 +124,7 @@ async function packageLinuxBundle ({ bundlePath, version, binaryFilepath, appInf
     --license "${appInfos.license}" \
     -v ${version} \
     ${binaryFilepath}=/usr/bin/${binaryFilename}`);
-  if (type === 'rpm' && signPackage === true){
+  if (type === 'rpm' && signPackage === true) {
     await exec(`rpm --addsign ${bundlePath}`);
   }
   endTask(`Packaging Linux ${type}`);
@@ -148,7 +148,7 @@ async function packageNupkg ({ version, appInfos, sha256, releasesDir, archiveFi
 }
 
 async function generateChecksumFile (filepath) {
-  startTask(`Generating checksum file for ${filepath}`,'');
+  startTask(`Generating checksum file for ${filepath}`, '');
   const sum = await new Promise((resolve, reject) => {
     const shasum = crypto.createHash('sha256');
     const stream = fs.ReadStream(filepath);
@@ -157,7 +157,7 @@ async function generateChecksumFile (filepath) {
     stream.on('error', reject);
   });
   await fs.outputFile(`${filepath}.sha256`, sum);
-  endTask('','\n\n');
+  endTask('', '\n\n');
   return sum;
 }
 
