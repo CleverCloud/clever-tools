@@ -4,6 +4,7 @@
 
 * add `clever database backups DATABASE-ID` command to list backups of a database 
 * add `clever database backups download DATABASE-ID BACKUP-IP` command to download a backup 
+* add `clever curl` so we can prefix any `curl` command with `clever` and benefit from the local oAuth v1 auth
 
 ## 2.10.0-beta.2 (2022-09-13)
 

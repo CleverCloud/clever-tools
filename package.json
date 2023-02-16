@@ -30,6 +30,7 @@
     "cliparse": "^0.3.3",
     "colors": "1.4.0",
     "common-env": "^6.4.0",
+    "curlconverter": "^3.21.0",
     "eventsource": "^1.1.0",
     "isomorphic-git": "^1.8.2",
     "linux-release-info": "^3.0.0",

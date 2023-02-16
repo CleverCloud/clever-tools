@@ -1078,4 +1078,11 @@ function run () {
   cliparse.parse(cliParser, cliArgs);
 }
 
-run();
+// Right now, this is the only way to do this properly
+// cliparse doesn't allow unknown options/arguments
+if (process.argv[2] === 'curl') {
+  require('../src/commands/curl.js').curl();
+}
+else {
+  run();
+}
