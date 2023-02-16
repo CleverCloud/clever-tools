@@ -90,8 +90,8 @@ const conf = env.getOrElseAll({
   EVENT_URL: 'wss://api.clever-cloud.com/v2/events/event-socket',
   WARP_10_EXEC_URL: 'https://c1-warp10-clevercloud-customers.services.clever-cloud.com/api/v0/exec',
   // the disclosure of these tokens is not considered as a vulnerability. Do not report this to our security service.
-  OAUTH_CONSUMER_KEY: 'T5nFjKeHH4AIlEveuGhB5S3xg8T19e',  
-  OAUTH_CONSUMER_SECRET: 'MgVMqTr6fWlf2M0tkC2MXOnhfqBWDT',  
+  OAUTH_CONSUMER_KEY: 'T5nFjKeHH4AIlEveuGhB5S3xg8T19e',
+  OAUTH_CONSUMER_SECRET: 'MgVMqTr6fWlf2M0tkC2MXOnhfqBWDT',
   SSH_GATEWAY: 'ssh@sshgateway-clevercloud-customers.services.clever-cloud.com',
 
   CONFIGURATION_FILE: getConfigPath(),

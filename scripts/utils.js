@@ -10,17 +10,17 @@ const { URL } = require('url');
 // This disables ES6+ template delimiters
 _.templateSettings.interpolate = /<%=([\s\S]+?)%>/g;
 
-function startTask (taskName, suffix='\n', separator='============================') {
+function startTask (taskName, suffix = '\n', separator = '============================') {
   process.stdout.write(colors.bold.grey(`${separator}\n`));
   process.stdout.write(colors.bold.grey(`${taskName} ... ${suffix}`));
 }
-function endTask (taskName, suffix='\n\n', separator='============================') {
-  process.stdout.write(colors.bold.grey(`${taskName} `)+colors.bold.green('Done!')+'\n');
+function endTask (taskName, suffix = '\n\n', separator = '============================') {
+  process.stdout.write(colors.bold.grey(`${taskName} `) + colors.bold.green('Done!') + '\n');
   process.stdout.write(colors.bold.grey(`${separator}${suffix}`));
 }
 
 function exec (command, cwd) {
-  console.log(colors.bold.blue(`=> Execute command`));
+  console.log(colors.bold.blue('=> Execute command'));
   console.log(colors.blue(`${command}`));
   return new Promise((resolve, reject) => {
     childProcess.exec(command, { cwd }, (err, stdout, stderr) => {
@@ -58,9 +58,9 @@ async function applyTemplates (destPath, templatesPath, templateData) {
   }
 }
 
-async function writeStringToFile(content, destFilepath){
-  await fs.ensureFile(destFilepath)
-  await fs.writeFile(destFilepath, content)
+async function writeStringToFile (content, destFilepath) {
+  await fs.ensureFile(destFilepath);
+  await fs.writeFile(destFilepath, content);
 }
 
 async function applyOneTemplate (destFilepath, templateFilepath, templateData) {

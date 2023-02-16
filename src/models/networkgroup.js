@@ -7,19 +7,21 @@ const AppConfig = require('./app_configuration.js');
 const ngApi = require('@clevercloud/client/cjs/api/v4/network-group.js');
 const { sendToApi } = require('./send-to-api.js');
 
-async function getOwnerId(orgaIdOrName, alias) {
+async function getOwnerId (orgaIdOrName, alias) {
   if (orgaIdOrName == null) {
     try {
-      return (await AppConfig.getAppDetails({alias})).ownerId;
-    } catch (error) {
-      return (await User.getCurrentId())
+      return (await AppConfig.getAppDetails({ alias })).ownerId;
     }
-  } else {
+    catch (error) {
+      return (await User.getCurrentId());
+    }
+  }
+  else {
     return (await Organisation.getId(orgaIdOrName));
   }
 }
 
-async function getId(ownerId, ngIdOrLabel) {
+async function getId (ownerId, ngIdOrLabel) {
   if (ngIdOrLabel == null) {
     return null;
   }
@@ -32,7 +34,7 @@ async function getId(ownerId, ngIdOrLabel) {
     .then((ng) => ng.id);
 }
 
-async function getByLabel(owner_id, label) {
+async function getByLabel (owner_id, label) {
   const networkGroups = await ngApi.listNetworkGroups({ owner_id }).then(sendToApi);
   const filteredNgs = networkGroups.filter((ng) => ng.label === label);
 
@@ -46,11 +48,11 @@ async function getByLabel(owner_id, label) {
   return filteredNgs[0];
 }
 
-function listAvailablePeerRoles() {
+function listAvailablePeerRoles () {
   return autocomplete.words(['client', 'server']);
 }
 
-function listAvailableMemberTypes() {
+function listAvailableMemberTypes () {
   return autocomplete.words(['application', 'addon', 'external']);
 }
 

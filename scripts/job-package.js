@@ -14,7 +14,7 @@ async function run () {
   const isStableVersion = cfg.isStableVersion();
   const { gpgPrivateKey, gpgPath, gpgName, gpgPass } = cfg.getGpgConf();
   // if no private key is found, do not try to sign package.
-  const signPackage = (gpgPrivateKey != null) ? true : false;
+  const signPackage = (gpgPrivateKey != null);
 
   del.sync([
     `${releasesDir}/${version}/*.deb`,
@@ -85,7 +85,7 @@ async function packageArchiveForArch ({ binaryFilepath, archiveFilepath }) {
 }
 
 async function prepareGpg ({ gpgPrivateKey, gpgPath, gpgName, gpgPass }) {
-  startTask(`Preparing GPG`);
+  startTask('Preparing GPG');
   const templatesPath = './templates/gpg';
   const destPath = `${gpgPath}`;
   await writeStringToFile(gpgPrivateKey, '/tmp/GPG-PRIVATE-KEY-Clever-Cloud');
@@ -95,16 +95,16 @@ async function prepareGpg ({ gpgPrivateKey, gpgPath, gpgName, gpgPass }) {
     gpgPass,
   });
   // import private/public key in GPG
-  await exec(`gpg --batch --import /tmp/GPG-PRIVATE-KEY-Clever-Cloud`);
+  await exec('gpg --batch --import /tmp/GPG-PRIVATE-KEY-Clever-Cloud');
   // export key in file
   await exec(`gpg --export -a "${gpgName}" > /tmp/RPM-GPG-KEY-Clever-Cloud`);
   // import key in rpm
-  await exec(`rpm --import /tmp/RPM-GPG-KEY-Clever-Cloud`);
+  await exec('rpm --import /tmp/RPM-GPG-KEY-Clever-Cloud');
   // cleanup temporary files
-  await exec(`rm -f /tmp/RPM-GPG-PRIVATE-KEY-Clever-Cloud`);
-  await exec(`rm -f /tmp/RPM-GPG-KEY-Clever-Cloud`);
+  await exec('rm -f /tmp/RPM-GPG-PRIVATE-KEY-Clever-Cloud');
+  await exec('rm -f /tmp/RPM-GPG-KEY-Clever-Cloud');
   console.log(`GPG configuration ready in ${gpgPath}`);
-  endTask(`Preparing GPG`);
+  endTask('Preparing GPG');
 }
 
 async function packageLinuxBundle ({ bundlePath, version, binaryFilepath, appInfos, signPackage }) {
@@ -112,7 +112,6 @@ async function packageLinuxBundle ({ bundlePath, version, binaryFilepath, appInf
   const type = ext.slice(1);
   startTask(`Packaging Linux ${type}`);
   const { base: binaryFilename } = path.parse(binaryFilepath);
-  let signFlag = '';
   await exec(`fpm \
     -s dir \
     -t ${type} \
@@ -132,7 +131,7 @@ async function packageLinuxBundle ({ bundlePath, version, binaryFilepath, appInf
 }
 
 async function packageNupkg ({ version, appInfos, sha256, releasesDir, archiveFilepath, nupkgPath }) {
-  startTask(`Packaging Nupkg (chocolatey)`);
+  startTask('Packaging Nupkg (chocolatey)');
   const templatesPath = './templates/choco';
   const destPath = `./${releasesDir}/${version}/chocolatey`;
   const relativeNupkgPath = path.relative(destPath, nupkgPath);
@@ -144,7 +143,7 @@ async function packageNupkg ({ version, appInfos, sha256, releasesDir, archiveFi
     ...appInfos,
   });
   await exec(`zip -r ${relativeNupkgPath} .`, destPath);
-  endTask(`Packaging Nupkg (chocolatey)`);
+  endTask('Packaging Nupkg (chocolatey)');
 }
 
 async function generateChecksumFile (filepath) {
