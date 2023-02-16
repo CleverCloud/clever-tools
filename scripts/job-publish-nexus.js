@@ -28,13 +28,19 @@ async function run () {
   let errorCount = 0;
 
   await publishDebToNexus({ releaseType, nexusAuth, filepath: cfg.getBundleFilepath('deb', version) })
-    .catch(() => errorCount += 1);
+    .catch(() => {
+      errorCount += 1;
+    });
 
   await publishNupkgToNexus({ releaseType, nexusAuth, filepath: cfg.getBundleFilepath('nupkg', version) })
-    .catch(() => errorCount += 1);
+    .catch(() => {
+      errorCount += 1;
+    });
 
   await publishRpmToNexus({ releaseType, nexusAuth, filepath: cfg.getBundleFilepath('rpm', version) })
-    .catch(() => errorCount += 1);
+    .catch(() => {
+      errorCount += 1;
+    });
 
   if (errorCount > 0) {
     throw new Error('Some error occured while publishing assets to Nexus.');
@@ -47,7 +53,7 @@ async function publishDebToNexus ({ releaseType, nexusAuth, filepath }) {
 
   const filebuffer = await fs.readFile(filepath);
 
-  console.log(`Uploading deb on Nexus...`);
+  console.log('Uploading deb on Nexus...');
   console.log(`  file ${filepath}`);
   console.log(`  to ${nexusRepo}`);
 
@@ -60,7 +66,7 @@ async function publishDebToNexus ({ releaseType, nexusAuth, filepath }) {
     .send(filebuffer)
     .then(() => console.log('  DONE!'))
     .catch((error) => {
-      console.error(`  FAILED!`);
+      console.error('  FAILED!');
       console.error(`  ${getNexusErrorFromHtml(error.response.text)}`);
       throw error;
     });
@@ -74,7 +80,7 @@ async function publishNupkgToNexus ({ releaseType, nexusAuth, filepath }) {
   const targetUrl = new URL(filename, nexusRepo).toString();
   const filebuffer = await fs.readFile(filepath);
 
-  console.log(`Uploading nupkg on Nexus...`);
+  console.log('Uploading nupkg on Nexus...');
   console.log(`  file ${filepath}`);
   console.log(`  to ${nexusRepo}`);
 
@@ -85,7 +91,7 @@ async function publishNupkgToNexus ({ releaseType, nexusAuth, filepath }) {
     .on('progress', displayProgress())
     .then(() => console.log('  DONE!'))
     .catch((error) => {
-      console.error(`  FAILED!`);
+      console.error('  FAILED!');
       console.error(`  ${error.response.error.message}`);
       throw error;
     });
@@ -99,7 +105,7 @@ async function publishRpmToNexus ({ releaseType, nexusAuth, filepath }) {
   const targetUrl = new URL(filename, nexusRepo).toString();
   const filebuffer = await fs.readFile(filepath);
 
-  console.log(`Uploading rpm on Nexus...`);
+  console.log('Uploading rpm on Nexus...');
   console.log(`  file ${filepath}`);
   console.log(`  to ${nexusRepo}`);
 
@@ -108,9 +114,9 @@ async function publishRpmToNexus ({ releaseType, nexusAuth, filepath }) {
     .auth(nexusAuth.user, nexusAuth.password)
     .on('progress', displayProgress())
     .send(filebuffer)
-    .then(() => console.log(`  DONE!`))
+    .then(() => console.log('  DONE!'))
     .catch((error) => {
-      console.error(`  FAILED!`);
+      console.error('  FAILED!');
       console.error(`  ${error.response.error.message}`);
       throw error;
     });

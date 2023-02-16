@@ -9,7 +9,7 @@ const NetworkGroup = require('../../models/networkgroup.js');
 const Formatter = require('../../models/format-string.js');
 const TableFormatter = require('../../models/format-ng-table.js');
 
-async function listNetworkGroups(params) {
+async function listNetworkGroups (params) {
   const { org: orgaIdOrName, alias, json } = params.options;
   const ownerId = await NetworkGroup.getOwnerId(orgaIdOrName, alias);
 
@@ -32,7 +32,7 @@ async function listNetworkGroups(params) {
   }
 }
 
-async function createNg(params) {
+async function createNg (params) {
   const { org: orgaIdOrName, alias, label, description, tags, json } = params.options;
   const ownerId = await NetworkGroup.getOwnerId(orgaIdOrName, alias);
 
@@ -49,7 +49,7 @@ async function createNg(params) {
   }
 }
 
-async function deleteNg(params) {
+async function deleteNg (params) {
   const { org: orgaIdOrName, alias, ng: networkGroupIdOrLabel } = params.options;
   const ownerId = await NetworkGroup.getOwnerId(orgaIdOrName, alias);
   const networkGroupId = await NetworkGroup.getId(ownerId, networkGroupIdOrLabel);

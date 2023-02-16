@@ -9,7 +9,7 @@ const NetworkGroup = require('../../models/networkgroup.js');
 const Formatter = require('../../models/format-string.js');
 const TableFormatter = require('../../models/format-ng-table.js');
 
-async function listPeers(params) {
+async function listPeers (params) {
   const { org: orgaIdOrName, alias, ng: networkGroupIdOrLabel, json } = params.options;
   const ownerId = await NetworkGroup.getOwnerId(orgaIdOrName, alias);
   const networkGroupId = await NetworkGroup.getId(ownerId, networkGroupIdOrLabel);
@@ -33,7 +33,7 @@ async function listPeers(params) {
   }
 }
 
-async function getPeer(params) {
+async function getPeer (params) {
   const { org: orgaIdOrName, alias, ng: networkGroupIdOrLabel, 'peer-id': peerId, json } = params.options;
   const ownerId = await NetworkGroup.getOwnerId(orgaIdOrName, alias);
   const networkGroupId = await NetworkGroup.getId(ownerId, networkGroupIdOrLabel);
@@ -50,7 +50,7 @@ async function getPeer(params) {
   }
 }
 
-async function addExternalPeer(params) {
+async function addExternalPeer (params) {
   const { org: orgaIdOrName, alias, ng: networkGroupIdOrLabel, role, 'public-key': publicKey, label, parent, ip, port } = params.options;
   const ownerId = await NetworkGroup.getOwnerId(orgaIdOrName, alias);
   const networkGroupId = await NetworkGroup.getId(ownerId, networkGroupIdOrLabel);
@@ -64,7 +64,7 @@ async function addExternalPeer(params) {
   return peerId;
 }
 
-async function removeExternalPeer(params) {
+async function removeExternalPeer (params) {
   const { org: orgaIdOrName, alias, ng: networkGroupIdOrLabel, 'peer-id': peerId } = params.options;
   const ownerId = await NetworkGroup.getOwnerId(orgaIdOrName, alias);
   const networkGroupId = await NetworkGroup.getId(ownerId, networkGroupIdOrLabel);
