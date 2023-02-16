@@ -1054,8 +1054,9 @@ function run () {
       logoutCommand,
       logsCommand,
       makeDefaultCommand,
-      networkGroupsCommand,
-      ngCommand,
+      // Not ready for stable release yet
+      // networkGroupsCommand,
+      // ngCommand,
       openCommand,
       consoleCommand,
       profileCommand,
