@@ -1024,7 +1024,11 @@ function run () {
   const databaseCommand = cliparse.command('database', {
     description: 'List available databases',
     commands: [backupsCommand],
-  }, () => console.info('not available yet'));
+  }, () => {
+    console.info('This command is not available, you can try the following commands:');
+    console.info('clever database backups');
+    console.info('clever database backups download');
+  });
 
   // CLI PARSER
   const cliParser = cliparse.cli({
