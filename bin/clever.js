@@ -89,7 +89,7 @@ function run () {
     }),
     appNameCreation: cliparse.argument('app-name', { description: 'Application name' }),
     backupId: cliparse.argument('backup-id', { description: 'A Database backup ID (format: UUID)' }),
-    databaseId: cliparse.argument('database-id', { description: 'A database ID (format: postgres_UUID)' }),
+    databaseId: cliparse.argument('database-id', { description: 'A database ID (format: postgresql_UUID, mysql_UUID, ...)' }),
     drainId: cliparse.argument('drain-id', { description: 'Drain ID' }),
     drainType: cliparse.argument('drain-type', {
       description: 'Drain type',
