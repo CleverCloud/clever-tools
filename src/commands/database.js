@@ -20,6 +20,11 @@ async function listBackups (params) {
 
   const backups = await getBackups({ ownerId, ref: databaseId }).then(sendToApi);
 
+  if (backups.length === 0) {
+    println('There are no backups yet');
+    return;
+  }
+
   const formattedLines = backups
     .sort((a, b) => a.creation_date.localeCompare(b.creation_date))
     .map((backup) => [
