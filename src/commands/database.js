@@ -83,7 +83,7 @@ async function resolveOwnerId (org, databaseId) {
 
   const summary = await getSummary().then(sendToApi);
 
-  const userHasAddon = summary.user.addons.some((addon) => addon.readId === databaseId);
+  const userHasAddon = summary.user.addons.some((addon) => addon.realId === databaseId);
   if (userHasAddon) {
     return summary.user.id;
   }
