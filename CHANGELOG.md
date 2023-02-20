@@ -2,6 +2,15 @@
 
 ## Unrelease (????-??-??)
 
+## 2.10.1 (2023-02-20)
+
+* `clever database` command
+  * Improve output when trying 
+* `clever database backups` command
+  * Improve output when there are no backups yet
+  * Fix command with personal orga
+  * Improve example for `database-id` option
+
 ## 2.10.0 (2023-02-16)
 
 * add `clever database backups DATABASE-ID` command to list backups of a database 
