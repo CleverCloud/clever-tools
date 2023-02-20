@@ -252,7 +252,7 @@ Where `type` is one of:
 - `php`: for PHP applications
 - `play1`: for Play1 applications
 - `play2`: for Play2 applications
-- `python`: for python27 applications
+- `python`: for python27 and python3 applications
 - `ruby`: for ruby applications
 - `rust`: for rust applications
 - `sbt`: for applications launched with SBT
