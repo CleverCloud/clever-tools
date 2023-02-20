@@ -20,6 +20,11 @@ async function listBackups (params) {
 
   const backups = await getBackups({ ownerId, ref: databaseId }).then(sendToApi);
 
+  if (backups.length === 0) {
+    println('There are no backups yet');
+    return;
+  }
+
   const formattedLines = backups
     .sort((a, b) => a.creation_date.localeCompare(b.creation_date))
     .map((backup) => [
@@ -83,7 +88,7 @@ async function resolveOwnerId (org, databaseId) {
 
   const summary = await getSummary().then(sendToApi);
 
-  const userHasAddon = summary.user.addons.some((addon) => addon.readId === databaseId);
+  const userHasAddon = summary.user.addons.some((addon) => addon.realId === databaseId);
   if (userHasAddon) {
     return summary.user.id;
   }
