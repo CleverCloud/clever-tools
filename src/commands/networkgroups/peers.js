@@ -8,8 +8,12 @@ const Logger = require('../../logger.js');
 const NetworkGroup = require('../../models/networkgroup.js');
 const Formatter = require('../../models/format-string.js');
 const TableFormatter = require('../../models/format-ng-table.js');
+const { displayAlphaBanner } = require('../../lib/banner.js');
 
 async function listPeers (params) {
+
+  displayAlphaBanner();
+
   const { org: orgaIdOrName, alias, ng: networkGroupIdOrLabel, json } = params.options;
   const ownerId = await NetworkGroup.getOwnerId(orgaIdOrName, alias);
   const networkGroupId = await NetworkGroup.getId(ownerId, networkGroupIdOrLabel);
@@ -34,6 +38,9 @@ async function listPeers (params) {
 }
 
 async function getPeer (params) {
+
+  displayAlphaBanner();
+
   const { org: orgaIdOrName, alias, ng: networkGroupIdOrLabel, 'peer-id': peerId, json } = params.options;
   const ownerId = await NetworkGroup.getOwnerId(orgaIdOrName, alias);
   const networkGroupId = await NetworkGroup.getId(ownerId, networkGroupIdOrLabel);
@@ -51,7 +58,20 @@ async function getPeer (params) {
 }
 
 async function addExternalPeer (params) {
-  const { org: orgaIdOrName, alias, ng: networkGroupIdOrLabel, role, 'public-key': publicKey, label, parent, ip, port } = params.options;
+
+  displayAlphaBanner();
+
+  const {
+    org: orgaIdOrName,
+    alias,
+    ng: networkGroupIdOrLabel,
+    role,
+    'public-key': publicKey,
+    label,
+    parent,
+    ip,
+    port,
+  } = params.options;
   const ownerId = await NetworkGroup.getOwnerId(orgaIdOrName, alias);
   const networkGroupId = await NetworkGroup.getId(ownerId, networkGroupIdOrLabel);
 
@@ -65,6 +85,9 @@ async function addExternalPeer (params) {
 }
 
 async function removeExternalPeer (params) {
+
+  displayAlphaBanner();
+
   const { org: orgaIdOrName, alias, ng: networkGroupIdOrLabel, 'peer-id': peerId } = params.options;
   const ownerId = await NetworkGroup.getOwnerId(orgaIdOrName, alias);
   const networkGroupId = await NetworkGroup.getId(ownerId, networkGroupIdOrLabel);
