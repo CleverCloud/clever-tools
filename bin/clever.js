@@ -23,6 +23,7 @@ const handleCommandPromise = require('../src/command-promise-handler.js');
 const Formatter = require('../src/models/format-string.js');
 const { AVAILABLE_ZONES } = require('../src/models/application.js');
 const { getOutputFormatOption, getSameCommitPolicyOption } = require('../src/command-options.js');
+const colors = require('colors/safe.js');
 
 // Exit cleanly if the program we pipe to exits abruptly
 process.stdout.on('error', (error) => {
@@ -861,13 +862,13 @@ function run () {
 
   // eslint-disable-next-line no-unused-vars
   const networkGroupsCommand = cliparse.command('networkgroups', {
-    description: 'List Network Group commands',
+    description: `List Network Group commands ${colors.yellow('(alpha feature)')}`,
     options: [opts.orgaIdOrName, opts.alias],
     commands: [networkGroupsListCommand, networkGroupsCreateCommand, networkGroupsDeleteCommand, networkGroupsMembersCategoryCommand, networkGroupsPeersCategoryCommand],
   });
   // eslint-disable-next-line no-unused-vars
   const ngCommand = cliparse.command('ng', {
-    description: `Alias for ${Formatter.formatCommand('clever networkgroups')}`,
+    description: `Alias for ${Formatter.formatCommand('clever networkgroups')} ${colors.yellow('(alpha feature)')}`,
     options: [opts.orgaIdOrName, opts.alias],
     commands: [networkGroupsListCommand, networkGroupsCreateCommand, networkGroupsDeleteCommand, networkGroupsMembersCategoryCommand, networkGroupsPeersCategoryCommand],
   });
