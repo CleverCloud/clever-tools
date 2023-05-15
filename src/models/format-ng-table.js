@@ -78,8 +78,8 @@ const peersTableColumnLengths = [
   15, /* ip */
 ];
 const formatPeersTable = formatNgTable(peersTableColumnLengths);
-function formatPeersLine (peer) {
-  const ip = (peer.endpoint.type === 'ServerEndpoint') ? peer.endpoint.ng_term.ip : peer.endpoint.ng_ip;
+function formatPeersLine(peer) {
+  const ip = (peer.endpoint.type === 'ServerEndpoint') ? peer.endpoint.ng_term.host : peer.endpoint.ng_ip;
   return formatPeersTable([
     [
       Formatter.formatId(peer.id),
