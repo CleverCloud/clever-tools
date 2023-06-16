@@ -42,7 +42,7 @@ const membersTableColumnLengths = [
   48, /* id length */
   12, /* type length */
   48, /* label length */
-  24, /* domain-name length */
+  110, /* domain-name length */
 ];
 const formatMembersTable = formatNgTable(membersTableColumnLengths);
 async function formatMembersLine (member, showAliases = false) {
@@ -71,23 +71,23 @@ async function printMembersTableHeader (naturalName = false) {
 
 const peersTableColumnLengths = [
   45, /* id length */
+  15, /* ip */
+  36, /* hostname */
   12, /* type length */
   14, /* endpoint type length */
-  48, /* label length */
-  24, /* hostname */
-  15, /* ip */
+  36, /* label length */
 ];
 const formatPeersTable = formatNgTable(peersTableColumnLengths);
-function formatPeersLine (peer) {
-  const ip = (peer.endpoint.type === 'ServerEndpoint') ? peer.endpoint.ng_term.ip : peer.endpoint.ng_ip;
+function formatPeersLine(peer) {
+  const ip = (peer.endpoint.type === 'ServerEndpoint') ? peer.endpoint.ng_term.host : peer.endpoint.ng_ip;
   return formatPeersTable([
     [
       Formatter.formatId(peer.id),
+      Formatter.formatIp(ip),
+      Formatter.formatString(peer.hostname, false),
       Formatter.formatString(peer.type, false),
       Formatter.formatString(peer.endpoint.type, false),
       Formatter.formatString(peer.label, false),
-      Formatter.formatString(peer.hostname, false),
-      Formatter.formatIp(ip),
     ],
   ]);
 };
@@ -95,11 +95,11 @@ function printPeersTableHeader () {
   Logger.println(colors.bold(formatPeersTable([
     [
       'Peer ID',
+      'IP Address',
+      'Hostname',
       'Peer Type',
       'Endpoint Type',
       'Label',
-      'Hostname',
-      'IP Address',
     ],
   ])));
   printSeparator(peersTableColumnLengths);
