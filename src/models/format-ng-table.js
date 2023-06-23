@@ -14,9 +14,11 @@ function printSeparator (columnLengths) {
 // We use examples of maximum width text to have a clean display
 const networkGroupsTableColumnLengths = [
   39, /* id length */
-  48, /* label length */
+  19, /* networkIp length */
+  17, /* lastAllocatedIp length */
   7, /* members length */
   5, /* peers length */
+  48, /* label length */
   48, /* description */
 ];
 const formatNetworkGroupsTable = formatNgTable(networkGroupsTableColumnLengths);
@@ -24,16 +26,18 @@ function formatNetworkGroupsLine (ng) {
   return formatNetworkGroupsTable([
     [
       Formatter.formatId(ng.id),
-      Formatter.formatString(ng.label, false),
+      Formatter.formatString(ng.networkIp, false),
+      Formatter.formatString(ng.lastAllocatedIp, false),
       Formatter.formatNumber(ng.members.length),
       Formatter.formatNumber(ng.peers.length),
+      Formatter.formatString(ng.label, false),
       Formatter.formatString(ng.description || ' ', false),
     ],
   ]);
 };
 function printNetworkGroupsTableHeader () {
   Logger.println(colors.bold(formatNetworkGroupsTable([
-    ['Network Group ID', 'Label', 'Members', 'Peers', 'Description'],
+    ['Network Group ID', 'Network CIDR', 'Last Allocated IP', 'Members', 'Peers', 'Label', 'Description'],
   ])));
   printSeparator(networkGroupsTableColumnLengths);
 }
@@ -79,7 +83,7 @@ const peersTableColumnLengths = [
 ];
 const formatPeersTable = formatNgTable(peersTableColumnLengths);
 function formatPeersLine (peer) {
-  const ip = (peer.endpoint.type === 'ServerEndpoint') ? peer.endpoint.ng_term.host : peer.endpoint.ng_ip;
+  const ip = (peer.endpoint.type === 'ServerEndpoint') ? peer.endpoint.ngTerm.host : peer.endpoint.ngIp;
   return formatPeersTable([
     [
       Formatter.formatId(peer.id),
