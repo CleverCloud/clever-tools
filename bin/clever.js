@@ -13,7 +13,9 @@ if (process.argv.includes('--autocomplete-index')) {
 }
 
 const cliparse = require('cliparse');
+const cliparseCommands = require('cliparse/src/command.js');
 const updateNotifier = require('update-notifier');
+const _sortBy = require('lodash/sortBy.js');
 
 const git = require('../src/models/git.js');
 const Parsers = require('../src/parsers.js');
@@ -1030,51 +1032,55 @@ function run () {
     console.info('clever database backups download');
   });
 
+  const commands = _sortBy([
+    accesslogsCommand,
+    activityCommand,
+    addonCommands,
+    appCreateCommand,
+    applicationsCommand,
+    appLinkCommand,
+    appUnlinkCommand,
+    cancelDeployCommand,
+    configCommands,
+    databaseCommand,
+    deleteCommand,
+    deployCommand,
+    diagCommand,
+    domainCommands,
+    drainCommands,
+    emailNotificationsCommand,
+    envCommands,
+    cliparseCommands.helpCommand,
+    loginCommand,
+    logoutCommand,
+    logsCommand,
+    makeDefaultCommand,
+    // Not ready for stable release yet
+    // networkGroupsCommand,
+    // ngCommand,
+    openCommand,
+    consoleCommand,
+    profileCommand,
+    publishedConfigCommands,
+    restartCommand,
+    scaleCommand,
+    serviceCommands,
+    sshCommand,
+    statusCommand,
+    stopCommand,
+    tcpRedirsCommands,
+    versionCommand,
+    webhooksCommand,
+  ], 'name');
+
   // CLI PARSER
   const cliParser = cliparse.cli({
     name: 'clever',
     description: 'CLI tool to manage Clever Cloud data and products',
     version: pkg.version,
     options: [opts.verbose, opts.noUpdateNotifier],
-    commands: [
-      accesslogsCommand,
-      activityCommand,
-      addonCommands,
-      appCreateCommand,
-      applicationsCommand,
-      appLinkCommand,
-      appUnlinkCommand,
-      cancelDeployCommand,
-      configCommands,
-      databaseCommand,
-      deleteCommand,
-      deployCommand,
-      diagCommand,
-      domainCommands,
-      drainCommands,
-      emailNotificationsCommand,
-      envCommands,
-      loginCommand,
-      logoutCommand,
-      logsCommand,
-      makeDefaultCommand,
-      // Not ready for stable release yet
-      // networkGroupsCommand,
-      // ngCommand,
-      openCommand,
-      consoleCommand,
-      profileCommand,
-      publishedConfigCommands,
-      restartCommand,
-      scaleCommand,
-      serviceCommands,
-      sshCommand,
-      statusCommand,
-      stopCommand,
-      tcpRedirsCommands,
-      versionCommand,
-      webhooksCommand,
-    ],
+    helpCommand: false,
+    commands,
   });
 
   // Make sure argv[0] is always "node"
