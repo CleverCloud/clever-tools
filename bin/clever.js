@@ -13,6 +13,7 @@ if (process.argv.includes('--autocomplete-index')) {
 }
 
 const cliparse = require('cliparse');
+const cliparseCommands = require('cliparse/src/command.js');
 const updateNotifier = require('update-notifier');
 const _sortBy = require('lodash/sortBy.js');
 
@@ -1049,6 +1050,7 @@ function run () {
     drainCommands,
     emailNotificationsCommand,
     envCommands,
+    cliparseCommands.helpCommand,
     loginCommand,
     logoutCommand,
     logsCommand,
@@ -1077,6 +1079,7 @@ function run () {
     description: 'CLI tool to manage Clever Cloud data and products',
     version: pkg.version,
     options: [opts.verbose, opts.noUpdateNotifier],
+    helpCommand: false,
     commands,
   });
 
