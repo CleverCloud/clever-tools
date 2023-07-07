@@ -1,11 +1,12 @@
 # clever-tools changelog
 
 ## Unrelease (????-??-??)
+* skip preorder step on addon creation
 
 ## 2.10.1 (2023-02-20)
 
 * `clever database` command
-  * Improve output when trying 
+  * Improve output when trying
 * `clever database backups` command
   * Improve output when there are no backups yet
   * Fix command with personal orga
@@ -13,8 +14,8 @@
 
 ## 2.10.0 (2023-02-16)
 
-* add `clever database backups DATABASE-ID` command to list backups of a database 
-* add `clever database backups download DATABASE-ID BACKUP-IP` command to download a backup 
+* add `clever database backups DATABASE-ID` command to list backups of a database
+* add `clever database backups download DATABASE-ID BACKUP-IP` command to download a backup
 * add `clever curl` so we can prefix any `curl` command with `clever` and benefit from the local oAuth v1 auth
 
 ## 2.10.0-beta.2 (2022-09-13)
@@ -55,7 +56,7 @@
 
 * Fix linux-release-info usage in `clever diag`
 
-## 2.7.0 (2020-08-20) 
+## 2.7.0 (2020-08-20)
 
 * Improve `clever deploy` perfs in several cases (partial push, force push...)
   * NOTE: Pushing a brand new repo is still slow in some situations
@@ -64,8 +65,8 @@
   * `clever domain favourite` just displays the favourite domain (no prefix)
   * `clever domain favourite set example.com` sets the favourite domain to `example.com`
   * `clever domain favourite unset` unsets the favourite domain for this app
-* Add a message while waiting for deploy to start `clever deploy` and `clever restart` 
-* Add shallow detection with appropriate error message for `clever deploy` 
+* Add a message while waiting for deploy to start `clever deploy` and `clever restart`
+* Add shallow detection with appropriate error message for `clever deploy`
 * Fix `clever status` typo in output (Clément Delafargue)
 * Fix `clever env` error message when JSON input is incorrect (Jean Baptiste Noblot)
 * Update dependencies
@@ -86,7 +87,7 @@ This is the one with the latest isomorphic-git!!!
 * Add `clever config` command to configure application options
   * Existing supported options: `name`, `description`, `zero-downtime`, `sticky-sessions` and `cancel-on-push`
   * New supported option: `force-https`
-* Add `--follow` to `clever deploy` and `clever restart` so you can continue to follow logs after the deployment is finished 
+* Add `--follow` to `clever deploy` and `clever restart` so you can continue to follow logs after the deployment is finished
 * Fix #318 where `clever deploy` and `clever restart` would sometimes never exit
    * We changed the way we detect when a deployment is finished
 * Fix #304 where `clever logs` would run endlessly even when using `--before/--until`
@@ -94,7 +95,7 @@ This is the one with the latest isomorphic-git!!!
 ### Internals
 
 * We completely removed our dependency to Bacon.js, goodbye old friend 😘
-* `@clevercloud/client` was updated to `6.0.0` so we can use the new event based API for logs and events 
+* `@clevercloud/client` was updated to `6.0.0` so we can use the new event based API for logs and events
 
 ## 2.4.0 (2020-04-16)
 
@@ -249,7 +250,7 @@ These release were only created for some tests on our CI pipeline.
 
 - Log error trace in --verbose mode
 - Update deps (rename opn => open)
-- Fix logs with `clever deploy` (update @clevercloud/client to 2.0.0-beta.1) 
+- Fix logs with `clever deploy` (update @clevercloud/client to 2.0.0-beta.1)
 - Fix typo "connexion" => "connection" in logs and README
 
 ## 1.5.0-beta.5 (2019-08-01)
@@ -279,7 +280,7 @@ These release were only created for some tests on our CI pipeline.
 - Ease testing for preprod with comments in config
 - Update @clevercloud/client to 2.0.0-beta.0
 
-## 1.5.0-beta.4 (2019-07-25) 
+## 1.5.0-beta.4 (2019-07-25)
 
 - Fix --add-export option for `clever env`
 
@@ -381,7 +382,7 @@ These release were only created for some tests on our CI pipeline.
 
 - Replace [nodegit](https://github.com/nodegit/nodegit) with [isomorphic-git](https://github.com/isomorphic-git/isomorphic-git)
 - Add ESLint config with a big refactoring to go along
-- Always use the npm `colors` package in safe mode: no global `String` pollution 
+- Always use the npm `colors` package in safe mode: no global `String` pollution
 - Build, package and publish with a multibranch pipeline project on Jenkins
 
 ### Packaging & distribution

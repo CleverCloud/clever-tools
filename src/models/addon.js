@@ -167,19 +167,6 @@ async function create ({ ownerId, name, providerName, planName, region, skipConf
     options: createOptions,
   };
 
-  const result = await preorderAddon({ id: ownerId }, addonToCreate).then(sendToApi);
-
-  if (result.totalTTC > 0 && !skipConfirmation) {
-    result.lines.forEach(({ description, VAT, price }) => Logger.println(`${description}\tVAT: ${VAT}%\tPrice: ${price}€`));
-    Logger.println(`Total (without taxes): ${result.totalHT}€`);
-    Logger.println(colors.bold(`Total (with taxes): ${result.totalTTC}€`));
-
-    await Interact.confirm(
-      `You're about to pay ${result.totalTTC}€, confirm? (yes or no) `,
-      'No confirmation, aborting addon creation',
-    );
-  }
-
   return createAddon({ id: ownerId }, addonToCreate).then(sendToApi);
 }
 
