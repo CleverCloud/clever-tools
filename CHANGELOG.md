@@ -4,6 +4,7 @@
 
 * skip preorder step on addon creation
 * add `clever addon env` command
+* improve implicit ID params (owner and add-on ID / real ID) for `clever database`
 
 ## 2.10.1 (2023-02-20)
 
