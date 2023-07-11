@@ -24,32 +24,6 @@ function getConfigPath () {
   return path.resolve(configDir, 'clever-tools.json');
 }
 
-async function isFile (path) {
-  try {
-    const pathStat = await fs.stat(path);
-    return pathStat.isFile();
-  }
-  catch (e) {
-    return false;
-  }
-}
-
-async function maybeMigrateFromLegacyConfigurationPath () {
-  // This used to be a file
-  const configDir = getConfigDir();
-  const legacyConfig = await isFile(configDir);
-  // If it is still a file, we replace it with a dir and move it inside
-  if (legacyConfig) {
-    const tmpConfigFile = `${configDir}.tmp`;
-    const configFile = getConfigPath();
-
-    // Rename so that we can create the directory
-    await fs.rename(configDir, tmpConfigFile);
-    await mkdirp(configDir, { mode: 0o700 });
-    await fs.rename(tmpConfigFile, configFile);
-  }
-}
-
 async function loadOAuthConf () {
   Logger.debug('Load configuration from environment variables');
   if (process.env.CLEVER_TOKEN != null && process.env.CLEVER_SECRET != null) {
@@ -59,7 +33,6 @@ async function loadOAuthConf () {
     };
   }
   Logger.debug('Load configuration from ' + conf.CONFIGURATION_FILE);
-  await maybeMigrateFromLegacyConfigurationPath();
   try {
     const rawFile = await fs.readFile(conf.CONFIGURATION_FILE);
     return JSON.parse(rawFile);
