@@ -9,7 +9,11 @@ const formatTable = require('../format-table')();
 const Logger = require('../logger.js');
 const Organisation = require('../models/organisation.js');
 const User = require('../models/user.js');
-const { parseAddonOptions } = require('../models/addon.js');
+const { parseAddonOptions, findOwnerId } = require('../models/addon.js');
+const { getAllEnvVars } = require('@clevercloud/client/cjs/api/v2/addon.js');
+const { sendToApi } = require('../models/send-to-api.js');
+const { toNameEqualsValueString } = require('@clevercloud/client/cjs/utils/env-vars.js');
+const { resolveAddonId } = require('../models/ids-resolver.js');
 
 async function list (params) {
   const { org: orgaIdOrName } = params.options;
@@ -57,7 +61,16 @@ async function create (params) {
     Logger.println(`Addon ${name} (id: ${newAddon.id}) successfully created and linked to the application`);
   }
   else {
-    const newAddon = await Addon.create({ ownerId, name, providerName, planName, region, skipConfirmation, version, addonOptions });
+    const newAddon = await Addon.create({
+      ownerId,
+      name,
+      providerName,
+      planName,
+      region,
+      skipConfirmation,
+      version,
+      addonOptions,
+    });
     Logger.println(`Addon ${name} (id: ${newAddon.id}) successfully created`);
   }
 }
@@ -142,6 +155,36 @@ async function showProvider (params) {
   });
 }
 
+async function env (params) {
+
+  const { org, format } = params.options;
+  const [addonIdOrRealId] = params.args;
+
+  const addonId = await resolveAddonId(addonIdOrRealId);
+  const ownerId = await findOwnerId(org, addonId);
+
+  const envFromAddon = await getAllEnvVars({ id: ownerId, addonId }).then(sendToApi);
+
+  switch (format) {
+
+    case 'json': {
+      const envFromAddonJson = Object.fromEntries(
+        envFromAddon.map(({ name, value }) => [name, value]),
+      );
+      Logger.println(JSON.stringify(envFromAddonJson, null, 2));
+      break;
+    }
+
+    case 'shell':
+      Logger.println(toNameEqualsValueString(envFromAddon, { addExports: true }));
+      break;
+
+    case 'human':
+    default:
+      Logger.println(toNameEqualsValueString(envFromAddon, { addExports: false }));
+  }
+}
+
 module.exports = {
   list,
   create,
@@ -149,4 +192,5 @@ module.exports = {
   rename,
   listProviders,
   showProvider,
+  env,
 };

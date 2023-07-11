@@ -130,6 +130,7 @@ function run () {
   const opts = {
     sourceableEnvVarsList: cliparse.flag('add-export', { description: 'Display sourceable env variables setting' }),
     accesslogsFormat: getOutputFormatOption(['simple', 'extended', 'clf']),
+    addonEnvFormat: getOutputFormatOption(['shell']),
     accesslogsFollow: cliparse.flag('follow', {
       aliases: ['f'],
       description: 'Display access logs continuously (ignores before/until, after/since)',
@@ -574,10 +575,16 @@ function run () {
     description: 'List available addon providers',
     commands: [addonShowProviderCommand],
   }, addon('listProviders'));
+  const addonEnvCommand = cliparse.command('env', {
+    description: 'List the environment variables for an add-on',
+    options: [opts.addonEnvFormat],
+    args: [opts.addonId],
+  }, addon('env'));
+
   const addonCommands = cliparse.command('addon', {
     description: 'Manage addons',
     options: [opts.orgaIdOrName],
-    commands: [addonCreateCommand, addonDeleteCommand, addonRenameCommand, addonProvidersCommand],
+    commands: [addonCreateCommand, addonDeleteCommand, addonRenameCommand, addonProvidersCommand, addonEnvCommand],
   }, addon('list'));
 
   // APPLICATIONS COMMAND

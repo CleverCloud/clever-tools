@@ -10,18 +10,16 @@ const xdg = require('xdg');
 const Logger = require('../logger.js');
 const env = commonEnv(Logger);
 
-function getConfigDir () {
-  if (process.platform === 'win32') {
-    return path.resolve(process.env.APPDATA, 'clever-cloud');
-  }
-  else {
-    return xdg.basedir.configPath('clever-cloud');
-  }
-}
+const CONFIG_FILES = {
+  MAIN: 'clever-tools.json',
+  IDS_CACHE: 'ids-cache.json',
+};
 
-function getConfigPath () {
-  const configDir = getConfigDir();
-  return path.resolve(configDir, 'clever-tools.json');
+function getConfigPath (configFile) {
+  const configDir = (process.platform === 'win32')
+    ? path.resolve(process.env.APPDATA, 'clever-cloud')
+    : xdg.basedir.configPath('clever-cloud');
+  return path.resolve(configDir, configFile);
 }
 
 async function loadOAuthConf () {
@@ -55,6 +53,32 @@ async function writeOAuthConf (oauthData) {
   }
 }
 
+async function loadIdsCache () {
+  const cachePath = getConfigPath(CONFIG_FILES.IDS_CACHE);
+  try {
+    const rawFile = await fs.readFile(cachePath);
+    return JSON.parse(rawFile);
+  }
+  catch (error) {
+    Logger.info(`Cannot load IDs cache from ${cachePath}\n${error.message}`);
+    return {
+      owners: {},
+      addons: {},
+    };
+  }
+}
+
+async function writeIdsCache (ids) {
+  const cachePath = getConfigPath(CONFIG_FILES.IDS_CACHE);
+  const idsJson = JSON.stringify(ids);
+  try {
+    await fs.writeFile(cachePath, idsJson);
+  }
+  catch (error) {
+    throw new Error(`Cannot write IDs cache to ${cachePath}\n${error.message}`);
+  }
+}
+
 const conf = env.getOrElseAll({
   API_HOST: 'https://api.clever-cloud.com',
   // API_HOST: 'https://ccapi-preprod.cleverapps.io',
@@ -67,7 +91,7 @@ const conf = env.getOrElseAll({
   OAUTH_CONSUMER_SECRET: 'MgVMqTr6fWlf2M0tkC2MXOnhfqBWDT',
   SSH_GATEWAY: 'ssh@sshgateway-clevercloud-customers.services.clever-cloud.com',
 
-  CONFIGURATION_FILE: getConfigPath(),
+  CONFIGURATION_FILE: getConfigPath(CONFIG_FILES.MAIN),
   CONSOLE_TOKEN_URL: 'https://console.clever-cloud.com/cli-oauth',
   // CONSOLE_TOKEN_URL: 'https://next-console.cleverapps.io/cli-oauth',
 
@@ -75,4 +99,4 @@ const conf = env.getOrElseAll({
   APP_CONFIGURATION_FILE: path.resolve('.', '.clever.json'),
 });
 
-module.exports = { conf, loadOAuthConf, writeOAuthConf };
+module.exports = { conf, loadOAuthConf, writeOAuthConf, loadIdsCache, writeIdsCache };

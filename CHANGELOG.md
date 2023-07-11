@@ -1,7 +1,9 @@
 # clever-tools changelog
 
 ## Unrelease (????-??-??)
+
 * skip preorder step on addon creation
+* add `clever addon env` command
 
 ## 2.10.1 (2023-02-20)
 
