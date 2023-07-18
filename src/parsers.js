@@ -79,14 +79,6 @@ function commaSeparated (string) {
   return cliparse.parsers.success(string.split(','));
 }
 
-function accessLogsFormat (format) {
-  const availableFormats = AccessLogs.listAvailableFormats();
-  if (availableFormats.includes(format)) {
-    return cliparse.parsers.success(format);
-  }
-  return cliparse.parsers.error('The format must be one of ' + availableFormats.join(', '));
-}
-
 function integer (string) {
   const integer = parseInt(string);
   if (isNaN(integer)) {
@@ -162,7 +154,6 @@ module.exports = {
   addonIdOrName,
   ngIdOrLabel,
   commaSeparated,
-  accessLogsFormat,
   integer,
   tag,
   tags,

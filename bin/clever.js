@@ -21,6 +21,7 @@ const git = require('../src/models/git.js');
 const Parsers = require('../src/parsers.js');
 const handleCommandPromise = require('../src/command-promise-handler.js');
 const Formatter = require('../src/models/format-string.js');
+const { getOutputFormatOption } = require('../src/get-output-format-option.js');
 
 // Exit cleanly if the program we pipe to exits abruptly
 process.stdout.on('error', (error) => {
@@ -65,7 +66,6 @@ function lazyRequire (modulePath) {
   };
 }
 
-const AccessLogs = lazyRequire('../src/models/accesslogs.js');
 const Addon = lazyRequire('../src/models/addon.js');
 const Application = lazyRequire('../src/models/application.js');
 const ApplicationConfiguration = lazyRequire('../src/models/application_configuration.js');
@@ -129,16 +129,7 @@ function run () {
   // OPTIONS
   const opts = {
     sourceableEnvVarsList: cliparse.flag('add-export', { description: 'Display sourceable env variables setting' }),
-    accesslogsFormat: cliparse.option('format', {
-      aliases: ['F'],
-      metavar: 'format',
-      parser: Parsers.accessLogsFormat,
-      default: 'simple',
-      description: 'Output format (one of simple, extended, clf or json)',
-      complete () {
-        return cliparse.autocomplete.words(AccessLogs('listAvailableFormats')());
-      },
-    }),
+    accesslogsFormat: getOutputFormatOption(['simple', 'extended', 'clf']),
     accesslogsFollow: cliparse.flag('follow', {
       aliases: ['f'],
       description: 'Display access logs continuously (ignores before/until, after/since)',
