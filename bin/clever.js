@@ -44,35 +44,23 @@ if (process.pkg == null) {
   });
 }
 
-// Use this alias so we get less warnings in pkg build :p
-const dynamicRequire = module.require.bind(module);
+// Patch cliparse.command so we can catch errors
+const cliparseCommand = cliparse.command;
 
-function lazyRequirePromiseModule (modulePath) {
-  return function (name) {
-    return function (...args) {
-      const module = dynamicRequire(modulePath);
-      const promise = module[name](...args);
-      handleCommandPromise(promise);
-    };
-  };
-}
+cliparse.command = function (name, options, cb) {
+  return cliparseCommand(name, options, (...args) => {
+    const promise = cb(...args);
+    handleCommandPromise(promise);
+  });
+};
 
-function lazyRequire (modulePath) {
-  return function (name) {
-    return function (...args) {
-      const module = dynamicRequire(modulePath);
-      return module[name].apply(this, args);
-    };
-  };
-}
-
-const Addon = lazyRequire('../src/models/addon.js');
-const Application = lazyRequire('../src/models/application.js');
-const ApplicationConfiguration = lazyRequire('../src/models/application_configuration.js');
-const Drain = lazyRequire('../src/models/drain.js');
-const Notification = lazyRequire('../src/models/notification.js');
-const Organisation = lazyRequire('../src/models/organisation.js');
-const NetworkGroup = lazyRequire('../src/models/networkgroup.js');
+const Addon = require('../src/models/addon.js');
+const Application = require('../src/models/application.js');
+const ApplicationConfiguration = require('../src/models/application_configuration.js');
+const Drain = require('../src/models/drain.js');
+const Notification = require('../src/models/notification.js');
+const Organisation = require('../src/models/organisation.js');
+const NetworkGroup = require('../src/models/networkgroup.js');
 
 function run () {
 
@@ -95,7 +83,7 @@ function run () {
     drainId: cliparse.argument('drain-id', { description: 'Drain ID' }),
     drainType: cliparse.argument('drain-type', {
       description: 'Drain type',
-      complete: Drain('listDrainTypes'),
+      complete: Drain.listDrainTypes,
     }),
     drainUrl: cliparse.argument('drain-url', { description: 'Drain URL' }),
     fqdn: cliparse.argument('fqdn', { description: 'Domain name of the Clever Cloud application' }),
@@ -115,7 +103,7 @@ function run () {
     configurationName: cliparse.argument('configuration-name', {
       description: 'The name of the configuration to manage',
       complete () {
-        return cliparse.autocomplete.words(ApplicationConfiguration('listAvailableIds')());
+        return cliparse.autocomplete.words(ApplicationConfiguration.listAvailableIds());
       },
     }),
     configurationValue: cliparse.argument('configuration-value', { description: 'The new value of the configuration' }),
@@ -154,7 +142,7 @@ function run () {
       aliases: ['a'],
       metavar: 'alias',
       description: 'Short name for the application',
-      complete: Application('listAvailableAliases'),
+      complete: Application.listAvailableAliases,
     }),
     naturalName: cliparse.flag('natural-name', {
       aliases: ['n'],
@@ -191,12 +179,12 @@ function run () {
       metavar: 'namespace',
       description: 'namespace in which the TCP redirection should be',
       required: true,
-      complete: Organisation('completeNamespaces'),
+      complete: Organisation.completeNamespaces,
     }),
     notificationEventType: cliparse.option('event', {
       metavar: 'type',
       description: 'Restrict notifications to specific event types',
-      complete: Notification('listMetaEvents'),
+      complete: Notification.listMetaEvents,
       parser: Parsers.commaSeparated,
     }),
     flavor: cliparse.option('flavor', {
@@ -204,7 +192,7 @@ function run () {
       parser: Parsers.flavor,
       description: 'The scale of your application',
       complete () {
-        return cliparse.autocomplete.words(Application('listAvailableFlavors')());
+        return cliparse.autocomplete.words(Application.listAvailableFlavors());
       },
     }),
     follow: cliparse.flag('follow', {
@@ -238,7 +226,7 @@ function run () {
       aliases: ['l'],
       metavar: 'alias',
       description: 'Link the created addon to the app with the specified alias',
-      complete: Application('listAvailableAliases'),
+      complete: Application.listAvailableAliases,
     }),
     listAllNotifications: cliparse.flag('list-all', { description: 'List all notifications for your user or for an organisation with the `--org` option' }),
     maxFlavor: cliparse.option('max-flavor', {
@@ -246,7 +234,7 @@ function run () {
       parser: Parsers.flavor,
       description: 'The maximum scale for your application',
       complete () {
-        return cliparse.autocomplete.words(Application('listAvailableFlavors')());
+        return cliparse.autocomplete.words(Application.listAvailableFlavors());
       },
     }),
     buildFlavor: cliparse.option('build-flavor', {
@@ -264,7 +252,7 @@ function run () {
       parser: Parsers.flavor,
       description: 'The minimum scale for your application',
       complete () {
-        return cliparse.autocomplete.words(Application('listAvailableFlavors')());
+        return cliparse.autocomplete.words(Application.listAvailableFlavors());
       },
     }),
     minInstances: cliparse.option('min-instances', {
@@ -301,7 +289,7 @@ function run () {
       default: 'dev',
       metavar: 'plan',
       description: 'Addon plan, depends on the provider',
-      complete: Addon('completePlan'),
+      complete: Addon.completePlan,
     }),
     quiet: cliparse.flag('quiet', { aliases: ['q'], description: 'Don\'t show logs during deployment' }),
     followDeployLogs: cliparse.flag('follow', {
@@ -312,7 +300,7 @@ function run () {
       default: 'par',
       metavar: 'region',
       description: 'Region to provision the addon in, depends on the provider',
-      complete: Addon('completeRegion'),
+      complete: Addon.completeRegion,
     }),
     addonVersion: cliparse.option('addon-version', {
       metavar: 'addon-version',
@@ -327,7 +315,7 @@ function run () {
       default: 'par',
       metavar: 'zone',
       description: 'Region, can be \'par\' for Paris or \'mtl\' for Montreal',
-      complete: Application('listAvailableZones'),
+      complete: Application.listAvailableZones,
     }),
     search: cliparse.option('search', {
       metavar: 'search',
@@ -353,7 +341,7 @@ function run () {
       required: true,
       metavar: 'type',
       description: 'Instance type',
-      complete: Application('listAvailableTypes'),
+      complete: Application.listAvailableTypes,
     }),
     drainUsername: cliparse.option('username', {
       aliases: ['u'],
@@ -393,7 +381,7 @@ function run () {
       metavar: 'ng',
       description: 'Network Group ID or label',
       parser: Parsers.ngIdOrLabel,
-      // complete: NetworkGroup('xxx'),
+      // complete: NetworkGroup.xxx,
     }),
     ngDescription: cliparse.option('description', {
       required: true,
@@ -405,7 +393,7 @@ function run () {
       required: true,
       metavar: 'member_id',
       description: `The member ID: an app ID (i.e. ${Formatter.formatCode('app_xxx')}), add-on ID (i.e. ${Formatter.formatCode('addon_xxx')}) or external node category ID`,
-      // complete: NetworkGroup('xxx'),
+      // complete: NetworkGroup.xxx,
     }),
     ngMemberDomainName: cliparse.option('domain-name', {
       required: true,
@@ -416,14 +404,14 @@ function run () {
       required: true,
       metavar: 'peer_id',
       description: 'The peer ID',
-      // complete: NetworkGroup('xxx'),
+      // complete: NetworkGroup.xxx,
     }),
     ngPeerRole: cliparse.option('role', {
       required: true,
       metavar: 'peer_role',
       description: `The peer role, (${Formatter.formatString('client')} or ${Formatter.formatString('server')})`,
       parser: Parsers.ngPeerRole,
-      complete: NetworkGroup('listAvailablePeerRoles'),
+      complete: NetworkGroup.listAvailablePeerRoles,
     }),
     // FIXME: Add "internal" member type
     ngMemberType: cliparse.option('type', {
@@ -431,7 +419,7 @@ function run () {
       metavar: 'member_type',
       description: `The member type (${Formatter.formatString('application')}, ${Formatter.formatString('addon')} or ${Formatter.formatString('external')})`,
       parser: Parsers.ngMemberType,
-      complete: NetworkGroup('listAvailableMemberTypes'),
+      complete: NetworkGroup.listAvailableMemberTypes,
     }),
     ngMemberLabel: cliparse.option('label', {
       required: true,
@@ -443,7 +431,7 @@ function run () {
       aliases: ['c'],
       metavar: 'node_category_id',
       description: 'The external node category ID',
-      // complete: NetworkGroup('xxx'),
+      // complete: NetworkGroup.xxx,
     }),
     ngPeerLabel: cliparse.option('label', {
       required: true,
@@ -454,14 +442,14 @@ function run () {
       required: true,
       metavar: 'member_id',
       description: 'Network Group peer category ID (parent member ID)',
-      // complete: NetworkGroup('xxx'),
+      // complete: NetworkGroup.xxx,
     }),
     optNgIdOrLabel: cliparse.option('ng', {
       required: false,
       metavar: 'ng',
       description: 'Network Group ID or label',
       parser: Parsers.ngIdOrLabel,
-      // complete: NetworkGroup('xxx'),
+      // complete: NetworkGroup.xxx,
     }),
     optNgMemberLabel: cliparse.option('label', {
       required: false,
@@ -473,13 +461,13 @@ function run () {
       aliases: ['c'],
       metavar: 'node_category_id',
       description: 'The external node category ID',
-      // complete: NetworkGroup('xxx'),
+      // complete: NetworkGroup.xxx,
     }),
     optNgPeerId: cliparse.option('peer-id', {
       required: false,
       metavar: 'peer_id',
       description: 'The peer ID',
-      // complete: NetworkGroup('xxx'),
+      // complete: NetworkGroup.xxx,
     }),
     optNgPeerRole: cliparse.option('role', {
       required: false,
@@ -487,13 +475,13 @@ function run () {
       metavar: 'peer_role',
       description: `The peer role, (${Formatter.formatString('client')} or ${Formatter.formatString('server')})`,
       parser: Parsers.ngPeerRole,
-      complete: NetworkGroup('listAvailablePeerRoles'),
+      complete: NetworkGroup.listAvailablePeerRoles,
     }),
     optNgSearchAppId: cliparse.option('app-id', {
       required: false,
       metavar: 'app_id',
       description: 'The app id to search',
-      // complete: NetworkGroup('xxx'),
+      // complete: NetworkGroup.xxx,
     }),
     wgPublicKey: cliparse.option('public-key', {
       required: true,
@@ -538,245 +526,245 @@ function run () {
   };
 
   // ACCESSLOGS COMMAND
-  const accesslogsModule = lazyRequirePromiseModule('../src/commands/accesslogs.js');
+  const accesslogsModule = require('../src/commands/accesslogs.js');
   const accesslogsCommand = cliparse.command('accesslogs', {
     description: 'Fetch access logs',
     options: [opts.alias, opts.accesslogsFormat, opts.before, opts.after, opts.accesslogsFollow, opts.addonId],
-  }, accesslogsModule('accessLogs'));
+  }, accesslogsModule.accessLogs);
 
   // ACTIVITY COMMAND
-  const activity = lazyRequirePromiseModule('../src/commands/activity.js');
+  const activity = require('../src/commands/activity.js');
   const activityCommand = cliparse.command('activity', {
     description: 'Show last deployments of a Clever Cloud application',
     options: [opts.alias, opts.follow, opts.showAllActivity],
-  }, activity('activity'));
+  }, activity.activity);
 
   // ADDON COMMANDS
-  const addon = lazyRequirePromiseModule('../src/commands/addon.js');
+  const addon = require('../src/commands/addon.js');
   const addonCreateCommand = cliparse.command('create', {
     description: 'Create an addon',
     args: [args.addonProvider, args.addonName],
     options: [opts.linkAddon, opts.confirmAddonCreation, opts.addonPlan, opts.addonRegion, opts.addonVersion, opts.addonOptions],
-  }, addon('create'));
+  }, addon.create);
   const addonDeleteCommand = cliparse.command('delete', {
     description: 'Delete an addon',
     args: [args.addonIdOrName],
     options: [opts.confirmAddonDeletion],
-  }, addon('delete'));
+  }, addon.delete);
   const addonRenameCommand = cliparse.command('rename', {
     description: 'Rename an addon',
     args: [args.addonIdOrName, args.addonName],
-  }, addon('rename'));
+  }, addon.rename);
   const addonShowProviderCommand = cliparse.command('show', {
     description: 'Show information about an addon provider',
     args: [args.addonProvider],
-  }, addon('showProvider'));
+  }, addon.showProvider);
   const addonProvidersCommand = cliparse.command('providers', {
     description: 'List available addon providers',
     commands: [addonShowProviderCommand],
-  }, addon('listProviders'));
+  }, addon.listProviders);
   const addonEnvCommand = cliparse.command('env', {
     description: 'List the environment variables for an add-on',
     options: [opts.sourceableEnvVarsList, opts.addonEnvFormat],
     args: [opts.addonId],
-  }, addon('env'));
+  }, addon.env);
 
   const addonCommands = cliparse.command('addon', {
     description: 'Manage addons',
     options: [opts.orgaIdOrName],
     commands: [addonCreateCommand, addonDeleteCommand, addonRenameCommand, addonProvidersCommand, addonEnvCommand],
-  }, addon('list'));
+  }, addon.list);
 
   // APPLICATIONS COMMAND
-  const applications = lazyRequirePromiseModule('../src/commands/applications.js');
+  const applications = require('../src/commands/applications.js');
   const applicationsCommand = cliparse.command('applications', {
     description: 'List linked applications',
     options: [opts.onlyAliases, opts.jsonFormat],
-  }, applications('list'));
+  }, applications.list);
 
   // CANCEL DEPLOY COMMAND
-  const cancelDeploy = lazyRequirePromiseModule('../src/commands/cancel-deploy.js');
+  const cancelDeploy = require('../src/commands/cancel-deploy.js');
   const cancelDeployCommand = cliparse.command('cancel-deploy', {
     description: 'Cancel an ongoing deployment on Clever Cloud',
     options: [opts.alias],
-  }, cancelDeploy('cancelDeploy'));
+  }, cancelDeploy.cancelDeploy);
 
   // CONFIG COMMAND
-  const config = lazyRequirePromiseModule('../src/commands/config.js');
+  const config = require('../src/commands/config.js');
   const configGetCommand = cliparse.command('get', {
     description: 'Display the current configuration',
     args: [args.configurationName],
-  }, config('get'));
+  }, config.get);
   const configSetCommand = cliparse.command('set', {
     description: 'Edit one configuration setting',
     args: [args.configurationName, args.configurationValue],
-  }, config('set'));
+  }, config.set);
   const configUpdateCommand = cliparse.command('update', {
     description: 'Edit multiple configuration settings at once',
-    options: ApplicationConfiguration('getUpdateOptions')(),
-  }, config('update'));
+    options: ApplicationConfiguration.getUpdateOptions(),
+  }, config.update);
   const configCommands = cliparse.command('config', {
     description: 'Display or edit the configuration of your application',
     options: [opts.alias],
     commands: [configGetCommand, configSetCommand, configUpdateCommand],
-  }, config('get'));
+  }, config.get);
 
   // CREATE COMMAND
-  const create = lazyRequirePromiseModule('../src/commands/create.js');
+  const create = require('../src/commands/create.js');
   const appCreateCommand = cliparse.command('create', {
     description: 'Create a Clever Cloud application',
     args: [args.appNameCreation],
     options: [opts.instanceType, opts.orgaIdOrName, opts.aliasCreation, opts.region, opts.github],
-  }, create('create'));
+  }, create.create);
 
   // DELETE COMMAND
-  const deleteCommandModule = lazyRequirePromiseModule('../src/commands/delete.js');
+  const deleteCommandModule = require('../src/commands/delete.js');
   const deleteCommand = cliparse.command('delete', {
     description: 'Delete a Clever Cloud application',
     options: [opts.alias, opts.confirmApplicationDeletion],
-  }, deleteCommandModule('deleteApp'));
+  }, deleteCommandModule.deleteApp);
 
   // DEPLOY COMMAND
-  const deploy = lazyRequirePromiseModule('../src/commands/deploy.js');
+  const deploy = require('../src/commands/deploy.js');
   const deployCommand = cliparse.command('deploy', {
     description: 'Deploy an application to Clever Cloud',
     options: [opts.alias, opts.branch, opts.quiet, opts.forceDeploy, opts.followDeployLogs],
-  }, deploy('deploy'));
+  }, deploy.deploy);
 
   // DIAG COMMAND
-  const diag = lazyRequirePromiseModule('../src/commands/diag.js');
+  const diag = require('../src/commands/diag.js');
   const diagCommand = cliparse.command('diag', {
     description: 'Diagnose the current installation (prints various informations for support)',
     args: [],
-  }, diag('diag'));
+  }, diag.diag);
 
   // DOMAIN COMMANDS
-  const domain = lazyRequirePromiseModule('../src/commands/domain.js');
+  const domain = require('../src/commands/domain.js');
   const domainCreateCommand = cliparse.command('add', {
     description: 'Add a domain name to a Clever Cloud application',
     args: [args.fqdn],
-  }, domain('add'));
+  }, domain.add);
   const domainRemoveCommand = cliparse.command('rm', {
     description: 'Remove a domain name from a Clever Cloud application',
     args: [args.fqdn],
-  }, domain('rm'));
+  }, domain.rm);
   const domainSetFavouriteCommand = cliparse.command('set', {
     description: 'Set the favourite domain for a Clever Cloud application',
     args: [args.fqdn],
-  }, domain('setFavourite'));
+  }, domain.setFavourite);
   const domainUnsetFavouriteCommand = cliparse.command('unset', {
     description: 'Unset the favourite domain for a Clever Cloud application',
-  }, domain('unsetFavourite'));
+  }, domain.unsetFavourite);
   const domainFavouriteCommands = cliparse.command('favourite', {
     description: 'Manage Clever Cloud application favourite domain name',
     commands: [domainSetFavouriteCommand, domainUnsetFavouriteCommand],
-  }, domain('getFavourite'));
+  }, domain.getFavourite);
   const domainCommands = cliparse.command('domain', {
     description: 'Manage Clever Cloud application domain names',
     options: [opts.alias],
     commands: [domainCreateCommand, domainFavouriteCommands, domainRemoveCommand],
-  }, domain('list'));
+  }, domain.list);
 
   // DRAIN COMMANDS
-  const drain = lazyRequirePromiseModule('../src/commands/drain.js');
+  const drain = require('../src/commands/drain.js');
   const drainCreateCommand = cliparse.command('create', {
     description: 'Create a drain',
     args: [args.drainType, args.drainUrl],
     options: [opts.addonId, opts.drainUsername, opts.drainPassword, opts.drainAPIKey],
-  }, drain('create'));
+  }, drain.create);
   const drainRemoveCommand = cliparse.command('remove', {
     description: 'Remove a drain',
     args: [args.drainId],
-  }, drain('rm'));
+  }, drain.rm);
   const drainEnableCommand = cliparse.command('enable', {
     description: 'Enable a drain',
     args: [args.drainId],
-  }, drain('enable'));
+  }, drain.enable);
   const drainDisableCommand = cliparse.command('disable', {
     description: 'Disable a drain',
     args: [args.drainId],
-  }, drain('disable'));
+  }, drain.disable);
   const drainCommands = cliparse.command('drain', {
     description: 'Manage drains',
     options: [opts.alias, opts.addonId],
     commands: [drainCreateCommand, drainRemoveCommand, drainEnableCommand, drainDisableCommand],
-  }, drain('list'));
+  }, drain.list);
 
   // ENV COMMANDS
-  const env = lazyRequirePromiseModule('../src/commands/env.js');
+  const env = require('../src/commands/env.js');
   const envSetCommand = cliparse.command('set', {
     description: 'Add or update an environment variable named <variable-name> with the value <variable-value>',
     args: [args.envVariableName, args.envVariableValue],
-  }, env('set'));
+  }, env.set);
   const envRemoveCommand = cliparse.command('rm', {
     description: 'Remove an environment variable from a Clever Cloud application',
     args: [args.envVariableName],
-  }, env('rm'));
+  }, env.rm);
   const envImportCommand = cliparse.command('import', {
     description: 'Load environment variables from STDIN\n(WARNING: this deletes all current variables and replace them with the new list loaded from STDIN)',
     options: [opts.importAsJson],
-  }, env('importEnv'));
+  }, env.importEnv);
   const envImportVarsFromLocalEnvCommand = cliparse.command('import-vars', {
     description: 'Add or update environment variables named <variable-names> (comma separated), taking their values from the current environment',
     args: [args.envVariableNames],
-  }, env('importVarsFromLocalEnv'));
+  }, env.importVarsFromLocalEnv);
   const envCommands = cliparse.command('env', {
     description: 'Manage Clever Cloud application environment',
     options: [opts.alias, opts.sourceableEnvVarsList],
     commands: [envSetCommand, envRemoveCommand, envImportCommand, envImportVarsFromLocalEnvCommand],
-  }, env('list'));
+  }, env.list);
 
   // LINK COMMAND
-  const link = lazyRequirePromiseModule('../src/commands/link.js');
+  const link = require('../src/commands/link.js');
   const appLinkCommand = cliparse.command('link', {
     description: 'Link this repo to an existing Clever Cloud application',
     args: [args.appIdOrName],
     options: [opts.aliasCreation, opts.orgaIdOrName],
-  }, link('link'));
+  }, link.link);
 
   // LOGIN COMMAND
-  const login = lazyRequirePromiseModule('../src/commands/login.js');
+  const login = require('../src/commands/login.js');
   const loginCommand = cliparse.command('login', {
     description: 'Login to Clever Cloud',
     options: [opts.loginToken, opts.loginSecret],
-  }, login('login'));
+  }, login.login);
 
   // LOGOUT COMMAND
-  const logout = lazyRequirePromiseModule('../src/commands/logout.js');
+  const logout = require('../src/commands/logout.js');
   const logoutCommand = cliparse.command('logout', {
     description: 'Logout from Clever Cloud',
-  }, logout('logout'));
+  }, logout.logout);
 
   // LOGS COMMAND
-  const logs = lazyRequirePromiseModule('../src/commands/logs.js');
+  const logs = require('../src/commands/logs.js');
   const logsCommand = cliparse.command('logs', {
     description: 'Fetch application logs, continuously',
     options: [opts.alias, opts.before, opts.after, opts.search, opts.deploymentId, opts.addonId],
-  }, logs('appLogs'));
+  }, logs.appLogs);
 
   // MAKE DEFAULT COMMAND
-  const makeDefault = lazyRequirePromiseModule('../src/commands/makeDefault.js');
+  const makeDefault = require('../src/commands/makeDefault.js');
   const makeDefaultCommand = cliparse.command('make-default', {
     description: 'Make a linked application the default one',
     args: [args.alias],
-  }, makeDefault('makeDefault'));
+  }, makeDefault.makeDefault);
 
   // NETWORK GROUPS COMMANDS
-  const networkgroups = lazyRequirePromiseModule('../src/commands/networkgroups/commands.js');
+  const networkgroups = require('../src/commands/networkgroups/commands.js');
 
   // network group category - start
   const networkGroupsListCommand = cliparse.command('list', {
     description: 'List Network Groups with their labels',
     options: [opts.jsonFormat],
-  }, networkgroups('listNetworkGroups'));
+  }, networkgroups.listNetworkGroups);
   const networkGroupsCreateCommand = cliparse.command('create', {
     description: 'Create a Network Group',
     options: [opts.ngLabel, opts.ngDescription, opts.optTags, opts.jsonFormat],
-  }, networkgroups('createNg'));
+  }, networkgroups.createNg);
   const networkGroupsDeleteCommand = cliparse.command('delete', {
     description: 'Delete a Network Group',
     options: [opts.ngIdOrLabel],
-  }, networkgroups('deleteNg'));
+  }, networkgroups.deleteNg);
   // network group category - end
 
   // member category - start
@@ -784,19 +772,19 @@ function run () {
     description: 'List members of a Network Group',
     // Add option opts.optNgSearchAppId ?
     options: [opts.ngIdOrLabel, opts.naturalName, opts.jsonFormat],
-  }, networkgroups('listMembers'));
+  }, networkgroups.listMembers);
   const networkGroupsMemberGetCommand = cliparse.command('get', {
     description: 'Get a Network Group member details',
     options: [opts.ngIdOrLabel, opts.ngMemberId, opts.naturalName, opts.jsonFormat],
-  }, networkgroups('getMember'));
+  }, networkgroups.getMember);
   const networkGroupsMemberAddCommand = cliparse.command('add', {
     description: 'Add an app or addon as a Network Group member',
     options: [opts.ngIdOrLabel, opts.ngMemberId, opts.ngMemberType, opts.ngMemberDomainName, opts.optNgMemberLabel],
-  }, networkgroups('addMember'));
+  }, networkgroups.addMember);
   const networkGroupsMemberRemoveCommand = cliparse.command('remove', {
     description: 'Remove an app or addon from a Network Group',
     options: [opts.ngIdOrLabel, opts.ngMemberId],
-  }, networkgroups('removeMember'));
+  }, networkgroups.removeMember);
 
   const networkGroupsMembersCategoryCommand = cliparse.command('members', {
     description: 'List commands for interacting with Network Group members',
@@ -808,19 +796,19 @@ function run () {
   const networkGroupsPeerListCommand = cliparse.command('list', {
     description: 'List peers of a Network Group',
     options: [opts.ngIdOrLabel, opts.jsonFormat],
-  }, networkgroups('listPeers'));
+  }, networkgroups.listPeers);
   const networkGroupsPeerGetCommand = cliparse.command('get', {
     description: 'Get a Network Group peer details',
     options: [opts.ngIdOrLabel, opts.ngPeerId, opts.jsonFormat],
-  }, networkgroups('getPeer'));
+  }, networkgroups.getPeer);
   const networkGroupsPeerAddCommand = cliparse.command('add-external', {
     description: 'Add an external node as a Network Group peer',
     options: [opts.ngIdOrLabel, opts.ngPeerRole, opts.wgPublicKey, opts.ngPeerLabel, opts.ngPeerParentMemberId],
-  }, networkgroups('addExternalPeer'));
+  }, networkgroups.addExternalPeer);
   const networkGroupsPeerRemoveExternalCommand = cliparse.command('remove-external', {
     description: 'Remove an external node from a Network Group',
     options: [opts.ngIdOrLabel, opts.ngPeerId],
-  }, networkgroups('removeExternalPeer'));
+  }, networkgroups.removeExternalPeer);
 
   const networkGroupsPeersCategoryCommand = cliparse.command('peers', {
     description: 'List commands for interacting with Network Group peers',
@@ -840,179 +828,179 @@ function run () {
   });
 
   // NOTIFY-EMAIL COMMAND
-  const notifyEmail = lazyRequirePromiseModule('../src/commands/notify-email.js');
+  const notifyEmail = require('../src/commands/notify-email.js');
   const addEmailNotificationCommand = cliparse.command('add', {
     description: 'Add a new email notification',
     options: [opts.notificationEventType, opts.notificationScope, opts.emailNotificationTarget],
     args: [args.notificationName],
-  }, notifyEmail('add'));
+  }, notifyEmail.add);
   const removeEmailNotificationCommand = cliparse.command('remove', {
     description: 'Remove an existing email notification',
     args: [args.notificationId],
-  }, notifyEmail('remove'));
+  }, notifyEmail.remove);
   const emailNotificationsCommand = cliparse.command('notify-email', {
     description: 'Manage email notifications',
     options: [opts.orgaIdOrName, opts.listAllNotifications],
     commands: [addEmailNotificationCommand, removeEmailNotificationCommand],
-  }, notifyEmail('list'));
+  }, notifyEmail.list);
 
   // OPEN COMMAND
-  const open = lazyRequirePromiseModule('../src/commands/open.js');
+  const open = require('../src/commands/open.js');
   const openCommand = cliparse.command('open', {
     description: 'Open an application in the browser',
     options: [opts.alias],
-  }, open('open'));
+  }, open.open);
 
   // CONSOLE COMMAND
-  const consoleModule = lazyRequirePromiseModule('../src/commands/console.js');
+  const consoleModule = require('../src/commands/console.js');
   const consoleCommand = cliparse.command('console', {
     description: 'Open an application in the console',
     options: [opts.alias],
-  }, consoleModule('openConsole'));
+  }, consoleModule.openConsole);
 
   // PROFILE COMMAND
-  const profile = lazyRequirePromiseModule('../src/commands/profile.js');
+  const profile = require('../src/commands/profile.js');
   const profileCommand = cliparse.command('profile', {
     description: 'Display the profile of the current user',
-  }, profile('profile'));
+  }, profile.profile);
 
   // PUBLISHED CONFIG COMMANDS
-  const publishedConfig = lazyRequirePromiseModule('../src/commands/published-config.js');
+  const publishedConfig = require('../src/commands/published-config.js');
   const publishedConfigSetCommand = cliparse.command('set', {
     description: 'Add or update a published configuration item named <variable-name> with the value <variable-value>',
     args: [args.envVariableName, args.envVariableValue],
-  }, publishedConfig('set'));
+  }, publishedConfig.set);
   const publishedConfigRemoveCommand = cliparse.command('rm', {
     description: 'Remove a published configuration variable from a Clever Cloud application',
     args: [args.envVariableName],
-  }, publishedConfig('rm'));
+  }, publishedConfig.rm);
   const publishedConfigImportCommand = cliparse.command('import', {
     description: 'Load published configuration from STDIN\n(WARNING: this deletes all current variables and replace them with the new list loaded from STDIN)',
     options: [opts.importAsJson],
-  }, publishedConfig('importEnv'));
+  }, publishedConfig.importEnv);
   const publishedConfigCommands = cliparse.command('published-config', {
     description: 'Manage the configuration made available to other applications by this application',
     options: [opts.alias],
     commands: [publishedConfigSetCommand, publishedConfigRemoveCommand, publishedConfigImportCommand],
-  }, publishedConfig('list'));
+  }, publishedConfig.list);
 
   // RESTART COMMAND
-  const restart = lazyRequirePromiseModule('../src/commands/restart.js');
+  const restart = require('../src/commands/restart.js');
   const restartCommand = cliparse.command('restart', {
     description: 'Start or restart a Clever Cloud application',
     options: [opts.alias, opts.commit, opts.withoutCache, opts.quiet, opts.followDeployLogs],
-  }, restart('restart'));
+  }, restart.restart);
 
   // SCALE COMMAND
-  const scale = lazyRequirePromiseModule('../src/commands/scale.js');
+  const scale = require('../src/commands/scale.js');
   const scaleCommand = cliparse.command('scale', {
     description: 'Change scalability of an application',
     options: [opts.alias, opts.flavor, opts.minFlavor, opts.maxFlavor, opts.instances, opts.minInstances, opts.maxInstances, opts.buildFlavor],
-  }, scale('scale'));
+  }, scale.scale);
 
   // SERVICE COMMANDS
-  const service = lazyRequirePromiseModule('../src/commands/service.js');
+  const service = require('../src/commands/service.js');
   const serviceLinkAppCommand = cliparse.command('link-app', {
     description: 'Add an existing app as a dependency',
     args: [args.appIdOrName],
-  }, service('linkApp'));
+  }, service.linkApp);
   const serviceUnlinkAppCommand = cliparse.command('unlink-app', {
     description: 'Remove an app from the dependencies',
     args: [args.appIdOrName],
-  }, service('unlinkApp'));
+  }, service.unlinkApp);
   const serviceLinkAddonCommand = cliparse.command('link-addon', {
     description: 'Link an existing addon to this application',
     args: [args.addonIdOrName],
-  }, service('linkAddon'));
+  }, service.linkAddon);
   const serviceUnlinkAddonCommand = cliparse.command('unlink-addon', {
     description: 'Unlink an addon from this application',
     args: [args.addonIdOrName],
-  }, service('unlinkAddon'));
+  }, service.unlinkAddon);
   const serviceCommands = cliparse.command('service', {
     description: 'Manage service dependencies',
     options: [opts.alias, opts.onlyApps, opts.onlyAddons, opts.showAll],
     commands: [serviceLinkAppCommand, serviceUnlinkAppCommand, serviceLinkAddonCommand, serviceUnlinkAddonCommand],
-  }, service('list'));
+  }, service.list);
 
   // SSH COMMAND
-  const ssh = lazyRequirePromiseModule('../src/commands/ssh.js');
+  const ssh = require('../src/commands/ssh.js');
   const sshCommand = cliparse.command('ssh', {
     description: 'Connect to running instances through SSH',
     options: [opts.alias, opts.sshIdentityFile],
-  }, ssh('ssh'));
+  }, ssh.ssh);
 
   // STATUS COMMAND
-  const status = lazyRequirePromiseModule('../src/commands/status.js');
+  const status = require('../src/commands/status.js');
   const statusCommand = cliparse.command('status', {
     description: 'See the status of an application on Clever Cloud',
     options: [opts.alias],
-  }, status('status'));
+  }, status.status);
 
   // STOP COMMAND
-  const stop = lazyRequirePromiseModule('../src/commands/stop.js');
+  const stop = require('../src/commands/stop.js');
   const stopCommand = cliparse.command('stop', {
     description: 'Stop a running application on Clever Cloud',
     options: [opts.alias],
-  }, stop('stop'));
+  }, stop.stop);
 
   // TCP-REDIRS COMMAND
-  const tcpRedirs = lazyRequirePromiseModule('../src/commands/tcp-redirs.js');
+  const tcpRedirs = require('../src/commands/tcp-redirs.js');
   const tcpRedirsListNamespacesCommand = cliparse.command('list-namespaces', {
     description: 'List the namespaces in which you can create new TCP redirections',
-  }, tcpRedirs('listNamespaces'));
+  }, tcpRedirs.listNamespaces);
   const tcpRedirsAddCommand = cliparse.command('add', {
     description: 'Add a new TCP redirection to the application',
     options: [opts.namespace, opts.confirmTcpRedirCreation],
-  }, tcpRedirs('add'));
+  }, tcpRedirs.add);
   const tcpRedirsRemoveCommand = cliparse.command('remove', {
     description: 'Remove a TCP redirection from the application',
     options: [opts.namespace],
     args: [args.port],
-  }, tcpRedirs('remove'));
+  }, tcpRedirs.remove);
   const tcpRedirsCommands = cliparse.command('tcp-redirs', {
     description: 'Control the TCP redirections from reverse proxies to your application',
     options: [opts.alias],
     commands: [tcpRedirsListNamespacesCommand, tcpRedirsAddCommand, tcpRedirsRemoveCommand],
-  }, tcpRedirs('list'));
+  }, tcpRedirs.list);
 
   // UNLINK COMMAND
-  const unlink = lazyRequirePromiseModule('../src/commands/unlink.js');
+  const unlink = require('../src/commands/unlink.js');
   const appUnlinkCommand = cliparse.command('unlink', {
     description: 'Unlink this repo from an existing Clever Cloud application',
     args: [args.alias],
-  }, unlink('unlink'));
+  }, unlink.unlink);
 
   // VERSION COMMAND
-  const version = lazyRequirePromiseModule('../src/commands/version.js');
+  const version = require('../src/commands/version.js');
   const versionCommand = cliparse.command('version', {
     description: 'Display the version',
     args: [],
-  }, version('version'));
+  }, version.version);
 
   // WEBHOOKS COMMAND
-  const webhooks = lazyRequirePromiseModule('../src/commands/webhooks.js');
+  const webhooks = require('../src/commands/webhooks.js');
   const addWebhookCommand = cliparse.command('add', {
     description: 'Register webhook to be called when events happen',
     options: [opts.webhookFormat, opts.notificationEventType, opts.notificationScope],
     args: [args.notificationName, args.webhookUrl],
-  }, webhooks('add'));
+  }, webhooks.add);
   const removeWebhookCommand = cliparse.command('remove', {
     description: 'Remove an existing webhook',
     args: [args.notificationId],
-  }, webhooks('remove'));
+  }, webhooks.remove);
   const webhooksCommand = cliparse.command('webhooks', {
     description: 'Manage webhooks',
     options: [opts.orgaIdOrName, opts.listAllNotifications],
     commands: [addWebhookCommand, removeWebhookCommand],
-  }, webhooks('list'));
+  }, webhooks.list);
 
   // DATABASES COMMANDS
-  const database = lazyRequirePromiseModule('../src/commands/database.js');
+  const database = require('../src/commands/database.js');
   const downloadBackupCommand = cliparse.command('download', {
     description: 'Download a database backup',
     args: [args.databaseId, args.backupId],
     options: [opts.orgaIdOrName, opts.output],
-  }, database('downloadBackups'));
+  }, database.downloadBackups);
   const backupsCommand = cliparse.command('backups', {
     description: 'List available database backups',
     args: [args.databaseId],
@@ -1020,7 +1008,7 @@ function run () {
     commands: [
       downloadBackupCommand,
     ],
-  }, database('listBackups'));
+  }, database.listBackups);
   const databaseCommand = cliparse.command('database', {
     description: 'List available databases',
     commands: [backupsCommand],
