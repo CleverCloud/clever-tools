@@ -1011,7 +1011,7 @@ function run () {
   const downloadBackupCommand = cliparse.command('download', {
     description: 'Download a database backup',
     args: [args.databaseId, args.backupId],
-    options: [opts.orgaIdOrName, opts.output],
+    options: [opts.output],
   }, database('downloadBackups'));
   const backupsCommand = cliparse.command('backups', {
     description: 'List available database backups',
