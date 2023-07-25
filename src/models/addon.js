@@ -2,8 +2,13 @@
 
 const application = require('@clevercloud/client/cjs/api/v2/application.js');
 const autocomplete = require('cliparse').autocomplete;
-const colors = require('colors/safe');
-const { get: getAddon, getAll: getAllAddons, remove: removeAddon, create: createAddon, preorder: preorderAddon, update: updateAddon } = require('@clevercloud/client/cjs/api/v2/addon.js');
+const {
+  get: getAddon,
+  getAll: getAllAddons,
+  remove: removeAddon,
+  create: createAddon,
+  update: updateAddon,
+} = require('@clevercloud/client/cjs/api/v2/addon.js');
 const { getAllAddonProviders } = require('@clevercloud/client/cjs/api/v2/product.js');
 const { getSummary } = require('@clevercloud/client/cjs/api/v2/user.js');
 const { getAddonProvider } = require('@clevercloud/client/cjs/api/v4/addon-providers.js');
@@ -11,6 +16,7 @@ const { getAddonProvider } = require('@clevercloud/client/cjs/api/v4/addon-provi
 const Interact = require('./interact.js');
 const Logger = require('../logger.js');
 const { sendToApi } = require('../models/send-to-api.js');
+const { resolveOwnerId } = require('./ids-resolver.js');
 
 function listProviders () {
   return getAllAddonProviders({}).then(sendToApi);
@@ -242,6 +248,20 @@ async function findById (addonId) {
   throw new Error(`Could not find add-on with ID: ${addonId}`);
 }
 
+async function findOwnerId (org, addonId) {
+
+  if (org != null && org.orga_id != null) {
+    return org.orga_id;
+  }
+
+  const ownerId = await resolveOwnerId(addonId);
+  if (ownerId != null) {
+    return ownerId;
+  }
+
+  throw new Error(`Add-on ${addonId} does not exist`);
+}
+
 function parseAddonOptions (options) {
   if (options == null) {
     return {};
@@ -275,6 +295,7 @@ module.exports = {
   create,
   delete: deleteAddon,
   findById,
+  findOwnerId,
   getProvider,
   getProviderInfos,
   link,

@@ -21,6 +21,7 @@ const git = require('../src/models/git.js');
 const Parsers = require('../src/parsers.js');
 const handleCommandPromise = require('../src/command-promise-handler.js');
 const Formatter = require('../src/models/format-string.js');
+const { getOutputFormatOption } = require('../src/get-output-format-option.js');
 
 // Exit cleanly if the program we pipe to exits abruptly
 process.stdout.on('error', (error) => {
@@ -65,7 +66,6 @@ function lazyRequire (modulePath) {
   };
 }
 
-const AccessLogs = lazyRequire('../src/models/accesslogs.js');
 const Addon = lazyRequire('../src/models/addon.js');
 const Application = lazyRequire('../src/models/application.js');
 const ApplicationConfiguration = lazyRequire('../src/models/application_configuration.js');
@@ -91,7 +91,7 @@ function run () {
     }),
     appNameCreation: cliparse.argument('app-name', { description: 'Application name' }),
     backupId: cliparse.argument('backup-id', { description: 'A Database backup ID (format: UUID)' }),
-    databaseId: cliparse.argument('database-id', { description: 'A database ID (format: postgresql_UUID, mysql_UUID, ...)' }),
+    databaseId: cliparse.argument('database-id', { description: 'Any database ID (format: addon_UUID, postgresql_UUID, mysql_UUID, ...)' }),
     drainId: cliparse.argument('drain-id', { description: 'Drain ID' }),
     drainType: cliparse.argument('drain-type', {
       description: 'Drain type',
@@ -129,16 +129,8 @@ function run () {
   // OPTIONS
   const opts = {
     sourceableEnvVarsList: cliparse.flag('add-export', { description: 'Display sourceable env variables setting' }),
-    accesslogsFormat: cliparse.option('format', {
-      aliases: ['F'],
-      metavar: 'format',
-      parser: Parsers.accessLogsFormat,
-      default: 'simple',
-      description: 'Output format (one of simple, extended, clf or json)',
-      complete () {
-        return cliparse.autocomplete.words(AccessLogs('listAvailableFormats')());
-      },
-    }),
+    accesslogsFormat: getOutputFormatOption(['simple', 'extended', 'clf']),
+    addonEnvFormat: getOutputFormatOption(['shell']),
     accesslogsFollow: cliparse.flag('follow', {
       aliases: ['f'],
       description: 'Display access logs continuously (ignores before/until, after/since)',
@@ -583,10 +575,16 @@ function run () {
     description: 'List available addon providers',
     commands: [addonShowProviderCommand],
   }, addon('listProviders'));
+  const addonEnvCommand = cliparse.command('env', {
+    description: 'List the environment variables for an add-on',
+    options: [opts.addonEnvFormat],
+    args: [opts.addonId],
+  }, addon('env'));
+
   const addonCommands = cliparse.command('addon', {
     description: 'Manage addons',
     options: [opts.orgaIdOrName],
-    commands: [addonCreateCommand, addonDeleteCommand, addonRenameCommand, addonProvidersCommand],
+    commands: [addonCreateCommand, addonDeleteCommand, addonRenameCommand, addonProvidersCommand, addonEnvCommand],
   }, addon('list'));
 
   // APPLICATIONS COMMAND
@@ -1013,7 +1011,7 @@ function run () {
   const downloadBackupCommand = cliparse.command('download', {
     description: 'Download a database backup',
     args: [args.databaseId, args.backupId],
-    options: [opts.orgaIdOrName, opts.output],
+    options: [opts.output],
   }, database('downloadBackups'));
   const backupsCommand = cliparse.command('backups', {
     description: 'List available database backups',
