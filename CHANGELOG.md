@@ -2,6 +2,8 @@
 
 ## Unrelease (????-??-??)
 
+## 2.11.0 (2023-07-25)
+
 * skip preorder step on addon creation
 * add `clever addon env` command
 * improve implicit ID params (owner and add-on ID / real ID) for `clever database`
