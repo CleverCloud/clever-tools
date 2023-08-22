@@ -28,6 +28,8 @@ async function diag () {
     Logger.println('Linux         ' + colors.green(linuxInfos));
   }
 
+  Logger.println('Shell         ' + colors.green(process.env.SHELL));
+
   const isPackaged = (process.pkg != null);
   Logger.println('Packaged      ' + colors.green(isPackaged));
   Logger.println('Exec path     ' + colors.green(process.execPath));

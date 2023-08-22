@@ -3,6 +3,7 @@
 ## Unreleased (????-??-??)
 
 * add config file and auth source to `clever diag`
+* add shell to `clever diag`
 
 ## 2.11.0 (2023-07-25)
 
