@@ -13,7 +13,7 @@ const { sendToApi } = require('../models/send-to-api.js');
 // Once the API call to redeploy() has been triggered successfully,
 // the rest (waiting for deployment state to evolve and displaying logs) is done with auto retry (resilient to network failures)
 async function deploy (params) {
-  const { alias, branch: branchName, quiet, force, follow } = params.options;
+  const { alias, branch: branchName, quiet, force, follow, 'same-commit-policy': sameCommitPolicy } = params.options;
 
   const appData = await AppConfig.getAppDetails({ alias });
   const { ownerId, appId } = appData;
@@ -31,11 +31,24 @@ async function deploy (params) {
   Logger.println(colors.bold.blue(`Remote application belongs to ${ownerId}`));
 
   if (commitIdToPush === remoteHeadCommitId) {
-    const upToDateMessage = `The clever-cloud application is up-to-date (${remoteHeadCommitId}). Try this command to restart the application:`;
-    if (commitIdToPush !== deployedCommitId) {
-      throw new Error(`${upToDateMessage}\nclever restart --commit ${commitIdToPush}`);
+    switch (sameCommitPolicy) {
+      case 'ignore':
+        Logger.println(`The clever-cloud application is up-to-date (${colors.green(remoteHeadCommitId)})`);
+        return;
+      case 'restart':
+        return restartOnSameCommit(ownerId, appId, commitIdToPush, quiet, follow, false);
+      case 'rebuild':
+        return restartOnSameCommit(ownerId, appId, commitIdToPush, quiet, follow, true);
+      case 'error':
+      default: {
+        const upToDateMessage = `The clever-cloud application is up-to-date (${colors.green(remoteHeadCommitId)}).\nYou can set a policy with 'same-commit-policy' to handle differently when remote HEAD has the same commit as the one to push.\nOr try this command to restart the application:`;
+        if (commitIdToPush !== deployedCommitId) {
+          const restartWithId = `clever restart --commit ${commitIdToPush}`
+          throw new Error(`${upToDateMessage}\n${colors.yellow(restartWithId)}`);
+        }
+        throw new Error(`${upToDateMessage}\n${colors.yellow('clever restart')}`);
+      }
     }
-    throw new Error(`${upToDateMessage}\nclever restart`);
   }
 
   if (remoteHeadCommitId == null || deployedCommitId == null) {
@@ -66,6 +79,11 @@ async function deploy (params) {
   Logger.println(colors.bold.green('Your source code has been pushed to Clever Cloud.'));
 
   return Log.watchDeploymentAndDisplayLogs({ ownerId, appId, commitId: commitIdToPush, knownDeployments, quiet, follow });
+}
+
+async function restartOnSameCommit (ownerId, appId, commitIdToPush, quiet, follow, withoutCache) {
+  const restart = await Application.redeploy(ownerId, appId, commitIdToPush, withoutCache);
+  return Log.watchDeploymentAndDisplayLogs({ ownerId, appId, deploymentId: restart.deploymentId, quiet, follow });
 }
 
 module.exports = { deploy };
