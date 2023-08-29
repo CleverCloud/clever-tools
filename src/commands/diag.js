@@ -12,7 +12,7 @@ const { conf, loadOAuthConf } = require('../models/configuration.js');
 
 async function diag () {
 
-  const userId = await User.getCurrentId().catch(() => 'Not connected');
+  const userId = await User.getCurrentId().catch(() => null);
   const authDetails = await loadOAuthConf();
 
   Logger.println('clever-tools  ' + colors.green(pkg.version));
@@ -36,8 +36,22 @@ async function diag () {
   Logger.println('Config file   ' + colors.green(conf.CONFIGURATION_FILE));
   Logger.println('Auth source   ' + colors.green(authDetails.source));
 
-  Logger.println('User id       ' + colors.green(userId || 'Not connected'));
-  Logger.println('oAuth token   ' + colors.green(authDetails.token || 'Not connected'));
+  const oauthToken = (authDetails.token != null)
+    ? colors.green(authDetails.token)
+    : colors.red('(none)');
+  Logger.println('oAuth token   ' + oauthToken);
+
+  if (authDetails.token != null) {
+    if (userId != null) {
+      Logger.println('User ID       ' + colors.green(userId));
+    }
+    else {
+      Logger.println('User ID       ' + colors.red('Authentication failed'));
+    }
+  }
+  else {
+    Logger.println('User ID       ' + colors.red('Not connected'));
+  }
 }
 
 module.exports = { diag };

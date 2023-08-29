@@ -4,6 +4,7 @@
 
 * add config file and auth source to `clever diag`
 * add shell to `clever diag`
+* improve `clever diag`, display (color and details) for oAuth token and user ID
 
 ## 2.11.0 (2023-07-25)
 
