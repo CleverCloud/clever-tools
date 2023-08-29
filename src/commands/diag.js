@@ -8,12 +8,12 @@ const colors = require('colors/safe');
 const Logger = require('../logger.js');
 const pkg = require('../../package.json');
 const User = require('../models/user.js');
-const { loadOAuthConf } = require('../models/configuration.js');
+const { conf, loadOAuthConf } = require('../models/configuration.js');
 
 async function diag () {
 
-  const userId = await User.getCurrentId().catch(() => 'Not connected');
-  const oauthToken = await loadOAuthConf().then((o) => o.token).catch(() => 'Not connected');
+  const userId = await User.getCurrentId().catch(() => null);
+  const authDetails = await loadOAuthConf();
 
   Logger.println('clever-tools  ' + colors.green(pkg.version));
   Logger.println('Node.js       ' + colors.green(process.version));
@@ -28,12 +28,30 @@ async function diag () {
     Logger.println('Linux         ' + colors.green(linuxInfos));
   }
 
+  Logger.println('Shell         ' + colors.green(process.env.SHELL));
+
   const isPackaged = (process.pkg != null);
   Logger.println('Packaged      ' + colors.green(isPackaged));
   Logger.println('Exec path     ' + colors.green(process.execPath));
+  Logger.println('Config file   ' + colors.green(conf.CONFIGURATION_FILE));
+  Logger.println('Auth source   ' + colors.green(authDetails.source));
 
-  Logger.println('User id       ' + colors.green(userId || 'Not connected'));
-  Logger.println('oAuth token   ' + colors.green(oauthToken));
+  const oauthToken = (authDetails.token != null)
+    ? colors.green(authDetails.token)
+    : colors.red('(none)');
+  Logger.println('oAuth token   ' + oauthToken);
+
+  if (authDetails.token != null) {
+    if (userId != null) {
+      Logger.println('User ID       ' + colors.green(userId));
+    }
+    else {
+      Logger.println('User ID       ' + colors.red('Authentication failed'));
+    }
+  }
+  else {
+    Logger.println('User ID       ' + colors.red('Not connected'));
+  }
 }
 
 module.exports = { diag };

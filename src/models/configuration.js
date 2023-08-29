@@ -26,6 +26,7 @@ async function loadOAuthConf () {
   Logger.debug('Load configuration from environment variables');
   if (process.env.CLEVER_TOKEN != null && process.env.CLEVER_SECRET != null) {
     return {
+      source: 'environment variables',
       token: process.env.CLEVER_TOKEN,
       secret: process.env.CLEVER_SECRET,
     };
@@ -33,11 +34,18 @@ async function loadOAuthConf () {
   Logger.debug('Load configuration from ' + conf.CONFIGURATION_FILE);
   try {
     const rawFile = await fs.readFile(conf.CONFIGURATION_FILE);
-    return JSON.parse(rawFile);
+    const { token, secret } = JSON.parse(rawFile);
+    return {
+      source: 'configuration file',
+      token,
+      secret,
+    };
   }
   catch (error) {
     Logger.info(`Cannot load configuration from ${conf.CONFIGURATION_FILE}\n${error.message}`);
-    return {};
+    return {
+      source: 'none',
+    };
   }
 }
 
