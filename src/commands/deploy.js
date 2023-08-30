@@ -26,6 +26,10 @@ async function deploy (params) {
 
   await git.addRemote(appData.alias, appData.deployUrl);
 
+  Logger.println(colors.bold.blue(`Remote application is app_id=${appId}, alias=${appData.alias}, name=${appData.name}`));
+
+  Logger.println(colors.bold.blue(`Remote application belongs to ${ownerId}`));
+
   if (commitIdToPush === remoteHeadCommitId) {
     const upToDateMessage = `The clever-cloud application is up-to-date (${remoteHeadCommitId}). Try this command to restart the application:`;
     if (commitIdToPush !== deployedCommitId) {
