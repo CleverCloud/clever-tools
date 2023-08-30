@@ -78,7 +78,19 @@ async function getFullBranch (branchName) {
 
 async function getBranchCommit (refspec) {
   const repo = await getRepo();
-  return git.resolveRef({ ...repo, ref: refspec });
+  const oid = await git.resolveRef({ ...repo, ref: refspec });
+  // When a refspec refers to an annotated tag, the OID ref represents the annotation and not the commit directly,
+  // that's why we need a call to `readCommit`.
+  const res = await git.readCommit({ ...repo, ref: refspec, oid });
+  return res.oid;
+}
+
+async function isExistingTag (tag) {
+  const repo = await getRepo();
+  const tags = await git.listTags({
+    ...repo,
+  });
+  return tags.includes(tag);
 }
 
 async function push (remoteUrl, branchRefspec, force) {
@@ -131,4 +143,5 @@ module.exports = {
   push,
   completeBranches,
   isShallow,
+  isExistingTag,
 };
