@@ -9,9 +9,9 @@
     "clever cloud"
   ],
   "engines": {
-    "node": ">=12"
+    "node": ">=18"
   },
-  "pkg-node-version": "12",
+  "pkg-node-version": "18",
   "author": "Clever Cloud <ci@clever-cloud.com>",
   "license": "Apache-2.0",
   "bin": {
@@ -64,7 +64,7 @@
     "grunt-http": "^2.3.3",
     "grunt-mocha-test": "^0.13.3",
     "mocha": "^8.4.0",
-    "pkg": "^5.2.1",
+    "pkg": "^5.8.1",
     "semver": "^7.3.5"
   },
   "scripts": {
@@ -87,7 +87,6 @@
     ]
   },
   "volta": {
-    "node": "12.22.8",
-    "npm": "6.14.15"
+    "node": "18.5.0"
   }
 }

@@ -2,6 +2,12 @@
 
 ## Unreleased (????-??-??)
 
+### ⚠ BREAKING CHANGES
+
+* Move from Node.js v12.22.8 to v18.5.0
+
+### Features
+
 * add config file and auth source to `clever diag`
 * add shell to `clever diag`
 * improve `clever diag`, display (color and details) for oAuth token and user ID
