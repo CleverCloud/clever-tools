@@ -8,8 +8,12 @@ const Logger = require('../../logger.js');
 const NetworkGroup = require('../../models/networkgroup.js');
 const Formatter = require('../../models/format-string.js');
 const TableFormatter = require('../../models/format-ng-table.js');
+const { displayAlphaBanner } = require('../../lib/banner.js');
 
 async function listMembers (params) {
+
+  displayAlphaBanner();
+
   const { org: orgaIdOrName, alias, ng: networkGroupIdOrLabel, 'natural-name': naturalName, json } = params.options;
   const ownerId = await NetworkGroup.getOwnerId(orgaIdOrName, alias);
   const networkGroupId = await NetworkGroup.getId(ownerId, networkGroupIdOrLabel);
@@ -34,9 +38,19 @@ async function listMembers (params) {
 }
 
 async function getMember (params) {
-  const { org: orgaIdOrName, alias, ng: networkGroupIdOrLabel, 'member-id': memberId, 'natural-name': naturalName, json } = params.options;
+
+  displayAlphaBanner();
+
+  const {
+    org: orgaIdOrName,
+    alias,
+    ng: networkGroupIdOrLabel,
+    'member-id': memberId,
+    'natural-name': naturalName,
+    json,
+  } = params.options;
   const ownerId = await NetworkGroup.getOwnerId(orgaIdOrName, alias);
-  const networkGroupId = await NetworkGroup.getId(ownerId, networkGroupIdOrLabel); ;
+  const networkGroupId = await NetworkGroup.getId(ownerId, networkGroupIdOrLabel);
 
   Logger.info(`Getting details for member ${Formatter.formatString(memberId)} in Network Group ${Formatter.formatString(networkGroupId)}`);
   const result = await ngApi.getNetworkGroupMember({ ownerId, networkGroupId, memberId: memberId }).then(sendToApi);
@@ -51,7 +65,18 @@ async function getMember (params) {
 }
 
 async function addMember (params) {
-  const { org: orgaIdOrName, alias, ng: networkGroupIdOrLabel, 'member-id': memberId, type, 'domain-name': domainName, label } = params.options;
+
+  displayAlphaBanner();
+
+  const {
+    org: orgaIdOrName,
+    alias,
+    ng: networkGroupIdOrLabel,
+    'member-id': memberId,
+    type,
+    'domain-name': domainName,
+    label,
+  } = params.options;
   const ownerId = await NetworkGroup.getOwnerId(orgaIdOrName, alias);
   const networkGroupId = await NetworkGroup.getId(ownerId, networkGroupIdOrLabel);
 
@@ -63,6 +88,9 @@ async function addMember (params) {
 }
 
 async function removeMember (params) {
+
+  displayAlphaBanner();
+
   const { org: orgaIdOrName, alias, ng: networkGroupIdOrLabel, 'member-id': memberId } = params.options;
   const ownerId = await NetworkGroup.getOwnerId(orgaIdOrName, alias);
   const networkGroupId = await NetworkGroup.getId(ownerId, networkGroupIdOrLabel);
