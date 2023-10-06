@@ -506,6 +506,7 @@ function run () {
       description: 'A WireGuard® private key',
     }),
     jsonFormat: cliparse.flag('json', { aliases: ['j'], description: 'Show result in JSON format' }),
+    humanJsonOutputFormat: getOutputFormatOption(),
     tag: cliparse.option('tag', {
       required: true,
       metavar: 'tag',
@@ -626,7 +627,7 @@ function run () {
   const appCreateCommand = cliparse.command('create', {
     description: 'Create a Clever Cloud application',
     args: [args.appNameCreation],
-    options: [opts.instanceType, opts.orgaIdOrName, opts.aliasCreation, opts.region, opts.github],
+    options: [opts.instanceType, opts.orgaIdOrName, opts.aliasCreation, opts.region, opts.github, opts.humanJsonOutputFormat],
   }, create('create'));
 
   // DELETE COMMAND
