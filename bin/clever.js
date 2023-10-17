@@ -828,11 +828,13 @@ function run () {
   });
   // peer category - end
 
+  // eslint-disable-next-line no-unused-vars
   const networkGroupsCommand = cliparse.command('networkgroups', {
     description: 'List Network Group commands',
     options: [opts.orgaIdOrName, opts.alias],
     commands: [networkGroupsListCommand, networkGroupsCreateCommand, networkGroupsDeleteCommand, networkGroupsMembersCategoryCommand, networkGroupsPeersCategoryCommand],
   });
+  // eslint-disable-next-line no-unused-vars
   const ngCommand = cliparse.command('ng', {
     description: `Alias for ${Formatter.formatCommand('clever networkgroups')}`,
     options: [opts.orgaIdOrName, opts.alias],
