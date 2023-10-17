@@ -2,7 +2,6 @@
 
 const cliparse = require('cliparse');
 
-const AccessLogs = require('./models/accesslogs.js');
 const Application = require('./models/application.js');
 
 function flavor (flavor) {
