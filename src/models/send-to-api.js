@@ -1,11 +1,11 @@
 'use strict';
 
 const Logger = require('../logger.js');
-const { addOauthHeader } = require('@clevercloud/client/cjs/oauth.node.js');
+const { addOauthHeader } = require('@clevercloud/client/cjs/oauth.js');
 const { conf, loadOAuthConf } = require('../models/configuration.js');
 const { execWarpscript } = require('@clevercloud/client/cjs/request-warp10.superagent.js');
 const { prefixUrl } = require('@clevercloud/client/cjs/prefix-url.js');
-const { request } = require('@clevercloud/client/cjs/request.superagent.js');
+const { request } = require('@clevercloud/client/cjs/request.fetch.js');
 
 async function loadTokens () {
   const tokens = await loadOAuthConf();

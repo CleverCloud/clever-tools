@@ -25,7 +25,7 @@
     "scripts/*.sh"
   ],
   "dependencies": {
-    "@clevercloud/client": "7.9.0",
+    "@clevercloud/client": "^8.0.1",
     "clf-date": "^0.2.0",
     "cliparse": "^0.3.3",
     "colors": "1.4.0",

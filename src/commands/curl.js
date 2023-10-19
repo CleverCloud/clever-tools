@@ -3,7 +3,7 @@
 const { parseCurlCommand } = require('curlconverter/util.js');
 const { spawn } = require('child_process');
 const { loadOAuthConf, conf } = require('../models/configuration.js');
-const { addOauthHeader } = require('@clevercloud/client/cjs/oauth.node.js');
+const { addOauthHeader } = require('@clevercloud/client/cjs/oauth.js');
 
 async function loadTokens () {
   const tokens = await loadOAuthConf();

@@ -5,7 +5,7 @@ const colors = require('colors/safe');
 const AppConfig = require('../models/app_configuration.js');
 const Application = require('../models/application.js');
 const git = require('../models/git.js');
-const Log = require('../models/log.js');
+const Log = require('../models/log-v4.js');
 const Logger = require('../logger.js');
 
 // Once the API call to redeploy() has been triggerred successfully,
@@ -24,9 +24,19 @@ async function restart (params) {
     Logger.println(`Restarting ${appName} on commit ${colors.green(commitId)}${cacheSuffix}`);
   }
 
+  // This should be handled by the API when a deployment ID is set but we'll do this for now
+  const redeployDate = new Date();
+
   const redeploy = await Application.redeploy(ownerId, appId, fullCommitId, withoutCache);
 
-  return Log.watchDeploymentAndDisplayLogs({ ownerId, appId, deploymentId: redeploy.deploymentId, quiet, follow });
+  return Log.watchDeploymentAndDisplayLogs({
+    ownerId,
+    appId,
+    deploymentId: redeploy.deploymentId,
+    quiet,
+    follow,
+    redeployDate,
+  });
 }
 
 module.exports = { restart };
