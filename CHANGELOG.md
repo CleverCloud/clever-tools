@@ -2,6 +2,10 @@
 
 ## Unreleased (????-??-??)
 
+...
+
+## 3.0.0 (2023-10-19)
+
 ### ⚠ BREAKING CHANGES
 
 * Move from Node.js v12.22.8 to v18.5.0
@@ -11,6 +15,9 @@
 * add config file and auth source to `clever diag`
 * add shell to `clever diag`
 * improve `clever diag`, display (color and details) for oAuth token and user ID
+* `clever deploy`: use new logs API (faster, longer, order)
+* `clever restart`: use new logs API (faster, longer, order)
+* `clever logs`: use new logs API (faster, longer, order), only for applications for now
 
 ## 2.11.0 (2023-07-25)
 
