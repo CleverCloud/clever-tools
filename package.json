@@ -67,6 +67,9 @@
     "pkg": "^5.8.1",
     "semver": "^7.3.5"
   },
+  "overrides": {
+    "pkg-fetch": "3.5.2"
+  },
   "scripts": {
     "pretest": "npm run lint",
     "test": "grunt test",
@@ -87,6 +90,6 @@
     ]
   },
   "volta": {
-    "node": "18.5.0"
+    "node": "18.15.0"
   }
 }
