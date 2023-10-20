@@ -34,10 +34,16 @@ function instances (instances) {
 
 function date (dateString) {
   const date = new Date(dateString);
-  if (isNaN(date.getTime())) {
-    return cliparse.parsers.error('Invalid date: ' + dateString + ' (timestamps or IS0 8601 dates are accepted)');
+  if (isNaN(dateString) && !isNaN(date.getTime())) {
+    return cliparse.parsers.success(date);
   }
-  return cliparse.parsers.success(date);
+
+  const duration = durationInSeconds(dateString);
+  if (duration.success) {
+    return cliparse.parsers.success(new Date(Date.now() - (duration.success * 1000)));
+  }
+
+  return duration;
 }
 
 const appIdRegex = /^app_[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -170,7 +176,6 @@ function durationInSeconds (durationStr = '') {
   }
   catch (err) {
     const n = Number.parseInt(durationStr);
-    console.log(`N: ${n}`);
     if (isNaN(n) || n < 0) {
       return failed;
     }

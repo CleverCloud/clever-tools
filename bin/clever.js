@@ -169,7 +169,7 @@ function run () {
       metavar: 'before',
       aliases: ['until'],
       parser: Parsers.date,
-      description: 'Fetch logs before this date/time (ISO8601)',
+      description: 'Fetch logs before this date/time (ISO8601 date or duration, positive number in seconds or duration Ex: 1h)',
     }),
     branch: cliparse.option('branch', {
       aliases: ['b'],
