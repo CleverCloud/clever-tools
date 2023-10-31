@@ -2,6 +2,10 @@
 
 ## Unreleased (????-??-??)
 
+...
+
+## 3.0.2 (2023-11-01)
+
 * chore: update @clevercloud/client to 8.0.2 (fix Node.js < 18.16 abort bug)
 
 ## 3.0.1 (2023-10-19)
