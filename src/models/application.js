@@ -18,7 +18,7 @@ function listAvailableTypes () {
 };
 
 function listAvailableZones () {
-  return autocomplete.words(['jed', 'mtl', 'par', 'rbx', 'rbxhds', 'scw', 'sgp', 'syd', 'wsw']);
+  return autocomplete.words(['fr-north-hds', 'jed', 'mtl', 'par', 'rbx', 'rbxhds', 'scw', 'sgp', 'syd', 'wsw']);
 };
 
 function listAvailableAliases () {
