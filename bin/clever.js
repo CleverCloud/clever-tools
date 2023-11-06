@@ -326,7 +326,7 @@ function run () {
       aliases: ['r'],
       default: 'par',
       metavar: 'zone',
-      description: 'Region, can be \'par\' for Paris or \'mtl\' for Montreal',
+      description: 'Region, can be \'par\', \'rbx", \'rbxhds\', \'scw\', \'jed\', \'mtl\', \'sgp\', \'syd\', \'wsw\'',
       complete: Application('listAvailableZones'),
     }),
     search: cliparse.option('search', {
