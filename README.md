@@ -15,7 +15,7 @@ If you want to install our latest beta release, you can run:
 ```sh
 npm install -g clever-tools@beta
 ```
-We also distribute binaries and packages for multiple systems and tools: 
+We also distribute binaries and packages for multiple systems and tools:
 
 * [GNU/Linux](docs/setup-systems.md#gnulinux)
   * [Arch Linux (AUR)](docs/setup-systems.md#arch-linux-aur)

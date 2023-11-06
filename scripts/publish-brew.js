@@ -3,18 +3,17 @@
 const cfg = require('./config');
 const fs = require('fs-extra');
 const { cloneGitProject, applyTemplates, commitAndPush } = require('./utils');
+const { getShaFilepath, getArchiveFilepath } = require('./paths.js');
 
-async function run () {
+module.exports = async function publishBrew (version) {
 
   const templatesPath = './templates/brew';
   const gitPath = './git-brew';
   const { git, appInfos } = cfg;
-  const isStableVersion = cfg.isStableVersion();
-  const gitProject = isStableVersion ? 'homebrew-tap' : 'homebrew-tap-beta';
+  const gitProject = 'homebrew-tap';
   const gitUrl = `ssh://git@github.com/CleverCloud/${gitProject}.git`;
-  const version = cfg.getVersion();
-  const archivePath = cfg.getArchiveFilepath('macos', version);
-  const sha256 = await fs.readFile(`${archivePath}.sha256`, 'utf-8');
+  const shaFilepath = getShaFilepath(getArchiveFilepath('macos', version));
+  const sha256 = await fs.readFile(shaFilepath, 'utf-8');
 
   await cloneGitProject({ gitUrl, gitPath, git });
   await applyTemplates(gitPath, templatesPath, {
@@ -25,8 +24,3 @@ async function run () {
   });
   await commitAndPush({ gitPath, version });
 }
-
-run().catch((e) => {
-  console.error(e);
-  process.exit(1);
-});

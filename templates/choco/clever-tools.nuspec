@@ -3,7 +3,7 @@
   <metadata>
     <id><%= name %></id>
     <title><%= name %></title>
-    <version><%= pkgVersion %></version>
+    <version><%= version %></version>
     <authors><%= vendor %></authors>
     <owners><%= vendor %></owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>

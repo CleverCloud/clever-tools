@@ -2,15 +2,14 @@
 
 const os = require('os');
 const pkgJson = require('../package.json');
-const semver = require('semver');
 
 const archList = ['linux', 'macos', 'win'];
+const archEmoji = {
+  'linux': '🐧',
+  'macos': '🍏',
+  'win': '🪟',
+}
 const nodeVersion = pkgJson['pkg-node-version'];
-const releasesDir = 'releases';
-const cellar = {
-  host: 'cellar-c2.services.clever-cloud.com',
-  bucket: 'clever-tools.clever-cloud.com',
-};
 const git = {
   email: 'ci@clever-cloud.com',
   name: 'Clever Cloud CI',
@@ -24,57 +23,6 @@ const appInfos = {
   maintainer: `${git.name} <${git.email}>`,
   keywords: pkgJson.keywords.join(' '),
 };
-
-function getVersion (striclyFromTag = false) {
-  const gitTag = process.env.GIT_TAG_NAME;
-  if (!gitTag) {
-    if (striclyFromTag) {
-      throw new Error('Could not read version from git tag!');
-    }
-    return process.env.GIT_BRANCH.replace(/\//g, '-');
-  }
-  const gitTagVersion = gitTag.trim();
-  if (gitTagVersion !== pkgJson.version) {
-    throw new Error(`Mismatch between git tag ${gitTagVersion} and package.json version ${pkgJson.version}`);
-  }
-  return gitTagVersion;
-}
-
-function getNupkgVersion (version) {
-  return version.replace('beta.', 'beta');
-}
-
-function isStableVersion () {
-  try {
-    const version = getVersion(true);
-    return semver.prerelease(version) == null;
-  }
-  catch (e) {
-    return false;
-  }
-}
-
-function getBinaryFilename (arch) {
-  return (arch === 'win') ? 'clever.exe' : 'clever';
-}
-
-function getBinaryFilepath (arch, version) {
-  const filename = getBinaryFilename(arch);
-  return `${releasesDir}/${version}/${appInfos.name}-${version}_${arch}/${filename}`;
-}
-
-function getArchiveFilepath (arch, version) {
-  const archiveExt = (arch === 'win') ? '.zip' : '.tar.gz';
-  return `${releasesDir}/${version}/${appInfos.name}-${version}_${arch}${archiveExt}`;
-}
-
-function getBundleFilepath (type, version) {
-  if (type === 'nupkg') {
-    const nupkgVersion = getNupkgVersion(version);
-    return `${releasesDir}/${version}/${appInfos.name}.${nupkgVersion}.${type}`;
-  }
-  return `${releasesDir}/${version}/${appInfos.name}-${version}.${type}`;
-}
 
 function getNexusAuth () {
   const user = process.env.NEXUS_USER || 'ci';
@@ -105,20 +53,34 @@ function getGpgConf () {
   return { gpgPrivateKey, gpgPath, gpgName, gpgPass };
 }
 
+function getCellarConf(scope) {
+  if (scope === 'previews') {
+    return {
+      host: 'cellar-c2.services.clever-cloud.com',
+      bucket: 'clever-tools-preview.clever-cloud.com',
+      accessKeyId: process.env.CC_CLEVER_TOOLS_PREVIEWS_CELLAR_KEY_ID,
+      secretAccessKey: process.env.CC_CLEVER_TOOLS_PREVIEWS_CELLAR_SECRET_KEY,
+    }
+  }
+  if (scope === 'releases') {
+    return {
+      host: 'cellar-c2.services.clever-cloud.com',
+      bucket: 'clever-tools.clever-cloud.com',
+      accessKeyId: process.env.CC_CLEVER_TOOLS_RELEASES_CELLAR_KEY_ID,
+      secretAccessKey: process.env.CC_CLEVER_TOOLS_RELEASES_CELLAR_SECRET_KEY,
+    }
+  }
+  throw new Error(`Unsupported cellar scope "${scope}". Supported scopes: "previews", "releases".`)
+}
+
 module.exports = {
   archList,
+  archEmoji,
   nodeVersion,
-  releasesDir,
-  cellar,
   git,
   appInfos,
-  getVersion,
-  getNupkgVersion,
-  isStableVersion,
-  getBinaryFilepath,
-  getArchiveFilepath,
-  getBundleFilepath,
   getNexusAuth,
   getNpmToken,
   getGpgConf,
+  getCellarConf,
 };

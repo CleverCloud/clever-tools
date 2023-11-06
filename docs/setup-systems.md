@@ -12,10 +12,6 @@ cd clever-tools
 makepkg -si
 ```
 
-NOTES:
-
-* If you want access to the beta channel, you can use this repo [clever-tools-bin-beta](https://aur.archlinux.org/packages/clever-tools-bin-beta/).
-
 ### CentOS/Fedora (.rpm)
 
 ---
@@ -38,7 +34,6 @@ yum install clever-tools
 NOTES:
 
 * The `.rpm` packages are hosted on Clever Cloud's public Nexus instance available at [https://nexus.clever-cloud.com](https://nexus.clever-cloud.com).
-* If you want access to the beta channel, you will need to edit `/etc/yum.repos.d/cc-nexus-rpm.repo` and set `enabled=1` for the `[clever-tools-beta]`.
 
 ### Debian/Ubuntu (.deb)
 
@@ -64,11 +59,6 @@ NOTES:
 
 * The `.deb` packages are hosted on Clever Cloud's public Nexus instance available at [https://nexus.clever-cloud.com](https://nexus.clever-cloud.com).
 * Our PGP key is required to trust the repository.
-* If you want access to the beta channel, you can use this in your `sources.list`:
-
-```sh
-echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/cc-nexus-deb.gpg] https://nexus.clever-cloud.com/repository/deb-beta beta main" | tee -a /etc/apt/sources.list
-```
 
 ### Exherbo
 
@@ -92,7 +82,6 @@ cp clever-tools-latest_linux/clever ~/.local/bin/
 NOTES:
 
 * The packages are available on Clever Cloud's Cellar bucket: [clever-tools-latest_linux.tar.gz](https://clever-tools.clever-cloud.com/releases/latest/clever-tools-latest_linux.tar.gz).
-* You can also retrieve any release (including beta) on this Cellar bucket by replacing `latest` (path and filename) with the version number you need.
 
 ## macOS
 
@@ -103,10 +92,6 @@ If you are using macOS and you have [homebrew](https://brew.sh) installed, you c
 ```sh
 brew install CleverCloud/homebrew-tap/clever-tools
 ```
-
-NOTES:
-
-* If you want access to the beta channel, you can use `CleverCloud/homebrew-tap-beta/clever-tools` instead.
 
 ### Binary (.tar.gz)
 
@@ -121,7 +106,6 @@ cp clever-tools-latest_macos/clever ~/.local/bin/
 NOTES:
 
 * The packages are available on Clever Cloud's Cellar bucket: [clever-tools-latest_macos.tar.gz](https://clever-tools.clever-cloud.com/releases/latest/clever-tools-latest_macos.tar.gz).
-* You can also retrieve any release (including beta) on this Cellar bucket by replacing `latest` (path and filename) with the version number you need.
 
 ## Windows
 
@@ -143,10 +127,6 @@ choco sources add -n=clevercloud -s='https://nexus.clever-cloud.com/repository/n
 choco install clever-tools
 ```
 
-NOTES:
-
-* If you want access to the beta channel, you can use `choco sources add -n=clevercloud -s='https://nexus.clever-cloud.com/repository/nupkg-beta/'` instead.
-
 ### Binary (.zip)
 
 If you are using Windows, but you don't have [chocolatey](https://chocolatey.org) installed, you can download a `.zip` archive and extract the binary in your `PATH`.
@@ -154,7 +134,6 @@ If you are using Windows, but you don't have [chocolatey](https://chocolatey.org
 NOTES:
 
 * The packages are available on Clever Cloud's Cellar bucket: [clever-tools-latest_win.zip](https://clever-tools.clever-cloud.com/releases/latest/clever-tools-latest_win.zip).
-* You can also retrieve any release (including beta) on this Cellar bucket by replacing `latest` (path and filename) with the version number you need.
 
 ## Docker
 

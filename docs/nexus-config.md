@@ -10,7 +10,6 @@ It's available at [https://nexus.clever-cloud.com/](https://nexus.clever-cloud.c
 We have two repositories for `.deb` packages:
 
 * stable: [deb](https://nexus.clever-cloud.com/#browse/browse:deb)
-* beta: [deb-beta](https://nexus.clever-cloud.com/#browse/browse:deb-beta)
 
 Link to Nexus [apt-repositories docs](https://help.sonatype.com/repomanager3/formats/apt-repositories).
 
@@ -24,7 +23,6 @@ The repository is signed with the PGP key `Clever Cloud Nexus (deb)`.
 We have two repositories for `.nupkg` packages:
 
 * stable: [nupkg](https://nexus.clever-cloud.com/#browse/browse:nupkg)
-* beta: [nupkg-beta](https://nexus.clever-cloud.com/#browse/browse:nupkg-beta)
 
 Link to Nexus [nuget-repositories docs](https://help.sonatype.com/repomanager3/formats/nuget-repositories).
 
@@ -35,7 +33,6 @@ WIP
 We have two repositories for `.rpm` packages:
 
 * stable: [rpm](https://nexus.clever-cloud.com/#browse/browse:rpm)
-* beta: [rpm-beta](https://nexus.clever-cloud.com/#browse/browse:rpm-beta)
 
 Link to Nexus [yum-repositories docs](https://help.sonatype.com/repomanager3/formats/yum-repositories).
 
@@ -58,7 +55,7 @@ Steps to follow to generate a new pair of PGP keys:
 * Export the public key in a file
   * `gpg --armor --output cc-nexus-deb.public.gpg.key --export <KEY_ID>`
 * Publish the public key on the Cellar
-  * `s3cmd -c .s3cfg put --acl-public cc-nexus-deb.public.gpg.key s3://clever-tools.clever-cloud.com/gpg/` 
+  * `s3cmd -c .s3cfg put --acl-public cc-nexus-deb.public.gpg.key s3://clever-tools.clever-cloud.com/gpg/`
 * Export the private key in a file
   * `gpg --armor --output cc-nexus-deb.private.gpg.key --export-secret-key <KEY_ID>`
 * Update the private key where it's needed

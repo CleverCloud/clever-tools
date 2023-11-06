@@ -6,6 +6,9 @@ const childProcess = require('child_process');
 const fs = require('fs-extra');
 const glob = require('glob');
 const { URL } = require('url');
+const crypto = require('crypto');
+const { getShaFilepath } = require('./paths.js');
+const del = require('del');
 
 // This disables ES6+ template delimiters
 _.templateSettings.interpolate = /<%=([\s\S]+?)%>/g;
@@ -33,6 +36,23 @@ function exec (command, cwd) {
       return resolve();
     });
   });
+}
+
+function execSync(command, cwd) {
+  const stdout = childProcess.execSync(command, {cwd});
+  return stdout.toString().trim();
+}
+
+function getCurrentBranch () {
+  return execSync('git branch --show-current');
+}
+
+function getCurrentCommit () {
+  return execSync('git rev-parse HEAD');
+}
+
+function getCurrentAuthor () {
+  return execSync(`git log -1 --pretty=format:'%an'`);
 }
 
 async function cloneGitProject ({ gitUrl, gitPath, git, cleanRepo = true }) {
@@ -82,4 +102,47 @@ async function tagAndPush ({ gitPath, tagName }) {
   await exec(`git push origin refs/tags/${tagName}`, gitPath);
 }
 
-module.exports = { startTask, endTask, exec, cloneGitProject, writeStringToFile, applyTemplates, applyOneTemplate, tagAndPush, commitAndPush };
+async function generateChecksumFile (filepath) {
+  startTask(`Generating checksum file for ${filepath}`, '');
+  const sum = await new Promise((resolve, reject) => {
+    const shasum = crypto.createHash('sha256');
+    const stream = fs.ReadStream(filepath);
+    stream.on('data', (d) => shasum.update(d));
+    stream.on('end', () => resolve(shasum.digest('hex')));
+    stream.on('error', reject);
+  });
+  await fs.outputFile(getShaFilepath(filepath), sum);
+  endTask('', '\n\n');
+  return sum;
+}
+
+async function cleanupDirectory(path) {
+  del.sync(path);
+  await fs.mkdirs(path);
+}
+
+async function assertFileExists(filepath) {
+  try {
+    await fs.exists(filepath)
+  } catch (e) {
+    throw new Error(`${filepath} is missing.`);
+  }
+}
+
+module.exports = {
+  startTask,
+  endTask,
+  exec,
+  cloneGitProject,
+  writeStringToFile,
+  applyTemplates,
+  applyOneTemplate,
+  tagAndPush,
+  commitAndPush,
+  getCurrentBranch,
+  getCurrentCommit,
+  getCurrentAuthor,
+  generateChecksumFile,
+  cleanupDirectory,
+  assertFileExists,
+};
