@@ -1,15 +1,34 @@
 #! /usr/bin/env node
 'use strict';
 
+function hasParam (param, paramValue) {
+  const index = process.argv.indexOf(param);
+  if (index === -1) {
+    return false;
+  }
+  if (paramValue != null) {
+    return process.argv[index + 1] === paramValue;
+  }
+  return true;
+}
+
 // These need to be set before Logger and other stuffs
-if (process.argv.includes('-v') || process.argv.includes('--verbose')) {
+if (hasParam('-v') || hasParam('--verbose')) {
   process.env.CLEVER_VERBOSE = '1';
 }
 
 // These need to be set before Logger and other stuffs
 // Don't log anything in autocomplete mode
-if (process.argv.includes('--autocomplete-index')) {
+if (hasParam('--autocomplete-index')) {
   process.env.CLEVER_QUIET = '1';
+}
+
+// These need to be set before other stuffs
+const colors = require('colors');
+const colorExplicitFalse = hasParam('--no-color') || hasParam('--color', 'false');
+const colorExplicitTrue = hasParam('--color', 'true');
+if (colorExplicitFalse || (!process.stdout.isTTY && !colorExplicitTrue)) {
+  colors.disable();
 }
 
 const cliparse = require('cliparse');
@@ -395,6 +414,10 @@ function run () {
       description: '(TCP and UDP drains) sd-params string (e.g.: `X-OVH-TOKEN=\\"REDACTED\\"`)',
     }),
     verbose: cliparse.flag('verbose', { aliases: ['v'], description: 'Verbose output' }),
+    color: cliparse.flag('color', {
+      description: 'Choose whether to print colors or not. You can also use --no-color',
+      default: true,
+    }),
     withoutCache: cliparse.flag('without-cache', { description: 'Restart the application without using cache' }),
     confirmAddonCreation: cliparse.flag('yes', {
       aliases: ['y'],
@@ -1122,7 +1145,7 @@ function run () {
     name: 'clever',
     description: 'CLI tool to manage Clever Cloud\'s data and products',
     version: pkg.version,
-    options: [opts.verbose, opts.noUpdateNotifier],
+    options: [opts.color, opts.verbose, opts.noUpdateNotifier],
     helpCommand: false,
     commands,
   });
