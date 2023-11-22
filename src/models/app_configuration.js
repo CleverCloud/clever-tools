@@ -38,6 +38,7 @@ async function addLinkedApplication (appData, alias, ignoreParentConfig) {
     app_id: appData.id,
     org_id: appData.ownerId,
     deploy_url: appData.deployment.httpUrl || appData.deployment.url,
+    git_ssh_url: appData.deployment.url,
     name: appData.name,
     alias: alias || slugify(appData.name),
   };
