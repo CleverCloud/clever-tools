@@ -360,6 +360,12 @@ function run () {
       metavar: 'token',
       description: 'Directly give an existing token',
     }),
+    taskCommand: cliparse.option('task', {
+      description: 'The application launch as a task executing the given command, then stopped',
+      aliases: ['T'],
+      parser: Parsers.nonEmptyString,
+      metavar: 'command',
+    }),
     instanceType: cliparse.option('type', {
       aliases: ['t'],
       required: true,
@@ -645,7 +651,7 @@ function run () {
   const appCreateCommand = cliparse.command('create', {
     description: 'Create an application',
     args: [args.appNameCreation],
-    options: [opts.instanceType, opts.orgaIdOrName, opts.aliasCreation, opts.region, opts.github, opts.humanJsonOutputFormat],
+    options: [opts.instanceType, opts.orgaIdOrName, opts.aliasCreation, opts.region, opts.github, opts.humanJsonOutputFormat, opts.taskCommand],
   }, create('create'));
 
   // CURL COMMAND
