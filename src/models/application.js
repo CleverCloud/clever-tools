@@ -53,7 +53,7 @@ async function getInstanceType (type) {
   return instanceVariant;
 };
 
-async function create (name, typeName, region, orgaIdOrName, github) {
+async function create (name, typeName, region, orgaIdOrName, github, task) {
   Logger.debug('Create the application…');
 
   const ownerId = (orgaIdOrName != null)
@@ -74,8 +74,9 @@ async function create (name, typeName, region, orgaIdOrName, github) {
     minInstances: 1,
     name: name,
     zone: region,
+    instanceLifetime: task ? "TASK" : "REGULAR",
   };
-
+  
   if (github != null) {
     newApp.oauthService = 'github';
     newApp.oauthApp = github;

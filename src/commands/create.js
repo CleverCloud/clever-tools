@@ -8,7 +8,7 @@ const Logger = require('../logger.js');
 async function create (params) {
   const { type: typeName } = params.options;
   const [rawName] = params.args;
-  const { org: orgaIdOrName, alias, region, github: githubOwnerRepo, format } = params.options;
+  const { org: orgaIdOrName, alias, region, github: githubOwnerRepo, format, task } = params.options;
   const { apps } = await AppConfig.loadApplicationConf();
 
   // Application name is optionnal, use current directory name if not specified (empty string)
@@ -17,7 +17,7 @@ async function create (params) {
   AppConfig.checkAlreadyLinked(apps, name, alias);
 
   const github = getGithubDetails(githubOwnerRepo);
-  const app = await Application.create(name, typeName, region, orgaIdOrName, github);
+  const app = await Application.create(name, typeName, region, orgaIdOrName, github, task);
   await AppConfig.addLinkedApplication(app, alias);
 
   switch (format) {

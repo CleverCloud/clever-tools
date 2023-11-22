@@ -360,6 +360,9 @@ function run () {
       metavar: 'token',
       description: 'Directly give an existing token',
     }),
+    instanceTask: cliparse.flag('task', {
+      description: 'The application is launched as a task: executed then stopped',
+    }),
     instanceType: cliparse.option('type', {
       aliases: ['t'],
       required: true,
@@ -396,7 +399,7 @@ function run () {
     confirmApplicationDeletion: cliparse.flag('yes', {
       aliases: ['y'],
       description: 'Skip confirmation and delete the application directly',
-    }),
+    }), 
     confirmTcpRedirCreation: cliparse.flag('yes', {
       aliases: ['y'],
       description: 'Skip confirmation even if the TCP redirection is not free',
@@ -645,7 +648,7 @@ function run () {
   const appCreateCommand = cliparse.command('create', {
     description: 'Create an application',
     args: [args.appNameCreation],
-    options: [opts.instanceType, opts.orgaIdOrName, opts.aliasCreation, opts.region, opts.github, opts.humanJsonOutputFormat],
+    options: [opts.instanceType, opts.orgaIdOrName, opts.aliasCreation, opts.region, opts.github, opts.humanJsonOutputFormat, opts.instanceTask],
   }, create('create'));
 
   // DELETE COMMAND
