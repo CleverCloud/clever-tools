@@ -109,7 +109,7 @@ function validateAddonVersionAndOptions (region, version, addonOptions, provider
           const optionNames = availableOptions.map(({ name }) => name).join(',');
           let availableOptionsError = null;
           if (optionNames.length > 0) {
-            availableOptionsError = `Avalailble options are: ${optionNames}.`;
+            availableOptionsError = `Available options are: ${optionNames}.`;
           }
           else {
             availableOptionsError = 'No options are available for this plan.';
