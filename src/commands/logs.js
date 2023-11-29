@@ -8,23 +8,32 @@ const { Deferred } = require('../models/utils.js');
 const colors = require('colors/safe');
 
 async function appLogs (params) {
-  const { alias, addon: addonId, after: since, before: until, search, 'deployment-id': deploymentId } = params.options;
+  const { alias, addon: addonId, after: since, before: until, search, 'deployment-id': deploymentId, format } = params.options;
 
   // ignore --search ""
   const filter = (search !== '') ? search : null;
 
   const { appId, ownerId } = await AppConfig.getAppDetails({ alias });
 
+  const isForHuman = (format === 'human');
+
   // TODO: drop when addons are migrated to the v4 API
   if (addonId) {
-    Logger.println(colors.blue('Waiting for addon logs…'));
+    if (isForHuman) {
+      Logger.println(colors.blue('Waiting for addon logs…'));
+    }
+    else {
+      throw new Error(`"${format}" format is not yet available for add-on logs`);
+    }
     return LogV2.displayLogs({ appAddonId: addonId, since, until, filter, deploymentId });
   }
 
-  Logger.println(colors.blue('Waiting for application logs…'));
+  if (isForHuman) {
+    Logger.println(colors.blue('Waiting for application logs…'));
+  }
 
   const deferred = new Deferred();
-  await Log.displayLogs({ ownerId, appId, since, until, filter, deploymentId, deferred });
+  await Log.displayLogs({ ownerId, appId, since, until, filter, deploymentId, format, deferred });
   return deferred.promise;
 }
 
