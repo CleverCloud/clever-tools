@@ -360,8 +360,10 @@ function run () {
       metavar: 'token',
       description: 'Directly give an existing token',
     }),
-    instanceTask: cliparse.flag('task', {
-      description: 'The application is launched as a task: executed then stopped',
+    instanceTask: cliparse.option('task', {
+      description: 'The application is launched as a task executing command then stopped',
+      aliases: ['T'],
+      metavar: 'command',
     }),
     instanceType: cliparse.option('type', {
       aliases: ['t'],
