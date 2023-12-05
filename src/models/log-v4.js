@@ -36,7 +36,7 @@ async function displayLogs (params) {
       Logger.debug(`stream opened! ${JSON.stringify({ appId, filter, deploymentId })}`);
     })
     .on('error', (event) => {
-      Logger.error(`an error occured: ${event.detail}`);
+      Logger.debug(`an error occured: ${event.detail}`);
     })
     .onLog((log) => {
       Logger.println(formatLogLine(log));
