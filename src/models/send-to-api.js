@@ -23,9 +23,7 @@ async function sendToApi (requestParams) {
     .then(prefixUrl(conf.API_HOST))
     .then(addOauthHeader(tokens))
     .then((requestParams) => {
-      if (process.env.CLEVER_VERBOSE) {
-        Logger.debug(`${requestParams.method.toUpperCase()} ${requestParams.url} ? ${JSON.stringify(requestParams.queryParams)}`);
-      }
+      Logger.debug(`${requestParams.method.toUpperCase()} ${requestParams.url} ? ${JSON.stringify(requestParams.queryParams)}`);
       return requestParams;
     })
     .then(request)
