@@ -28,7 +28,7 @@ async function sendToApi (requestParams) {
       }
       return requestParams;
     })
-    .then((requestParams) => request(requestParams, { retry: 1 }))
+    .then(request)
     .catch(processError);
 }
 
