@@ -1,4 +1,4 @@
-const { getHostAndTokens } = require('./send-to-api.js');
+const { getHostAndTokens, processError } = require('./send-to-api.js');
 const colors = require('colors/safe');
 const { Deferred } = require('./utils.js');
 const Logger = require('../logger.js');
@@ -45,6 +45,7 @@ async function displayLogs (params) {
   // start() is blocking until end of stream
   logStream.start()
     .then((reason) => deferred.resolve())
+    .catch(processError)
     .catch((error) => deferred.reject(error));
 
   return logStream;
