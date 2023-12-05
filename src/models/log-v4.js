@@ -33,10 +33,10 @@ async function displayLogs (params) {
 
   logStream
     .on('open', (event) => {
-      Logger.debug(`stream opened! ${JSON.stringify({ appId, filter, deploymentId })}`);
+      Logger.debug(colors.blue(`Logs stream (open) ${JSON.stringify({ appId, filter, deploymentId })}`));
     })
     .on('error', (event) => {
-      Logger.debug(`an error occured: ${event.detail}`);
+      Logger.debug(colors.red(`Logs stream (error) ${event.error.message}`));
     })
     .onLog((log) => {
       Logger.println(formatLogLine(log));
