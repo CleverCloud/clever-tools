@@ -248,7 +248,8 @@ Where `type` is one of:
 - `haskell`: for haskell applications
 - `jar`: for applications deployed as standalone jar files
 - `maven`: for applications launched with maven
-- `node`: for node.js applications
+- `meteor`: for Meteor applications launched with Node.js
+- `node`: for Node.js applications
 - `php`: for PHP applications
 - `play1`: for Play1 applications
 - `play2`: for Play2 applications
