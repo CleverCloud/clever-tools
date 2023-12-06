@@ -17,8 +17,10 @@ function listAvailableTypes () {
   return autocomplete.words(['docker', 'elixir', 'go', 'gradle', 'haskell', 'jar', 'maven', 'meteor', 'node', 'php', 'play1', 'play2', 'python', 'ruby', 'rust', 'sbt', 'static-apache', 'war']);
 };
 
+const AVAILABLE_ZONES = ['par', 'rbx', 'rbxhds', 'scw', 'jed', 'mtl', 'sgp', 'syd', 'wsw'];
+
 function listAvailableZones () {
-  return autocomplete.words(['par', 'rbx', 'rbxhds', 'scw', 'jed', 'mtl', 'sgp', 'syd', 'wsw']);
+  return autocomplete.words(AVAILABLE_ZONES);
 };
 
 function listAvailableAliases () {
@@ -241,6 +243,7 @@ module.exports = {
   listAvailableAliases,
   listAvailableFlavors,
   listAvailableTypes,
+  AVAILABLE_ZONES,
   listAvailableZones,
   listDependencies,
   __mergeScalabilityParameters: mergeScalabilityParameters,

@@ -22,6 +22,7 @@ const Parsers = require('../src/parsers.js');
 const handleCommandPromise = require('../src/command-promise-handler.js');
 const Formatter = require('../src/models/format-string.js');
 const { getOutputFormatOption } = require('../src/get-output-format-option.js');
+const { AVAILABLE_ZONES } = require('../src/models/application.js');
 
 // Exit cleanly if the program we pipe to exits abruptly
 process.stdout.on('error', (error) => {
@@ -326,7 +327,7 @@ function run () {
       aliases: ['r'],
       default: 'par',
       metavar: 'zone',
-      description: 'Region, can be \'par\' for Paris or \'mtl\' for Montreal',
+      description: `Region, can be ${AVAILABLE_ZONES.map((name) => `'${name}'`).join(', ')}`,
       complete: Application('listAvailableZones'),
     }),
     search: cliparse.option('search', {
