@@ -1,7 +1,5 @@
 # clever-tools
 
-[![Build Status](https://travis-ci.org/CleverCloud/clever-tools.svg?branch=master)](https://travis-ci.org/CleverCloud/clever-tools)
-
 Command Line Interface for Clever Cloud.
 
 ## Installation
@@ -383,10 +381,6 @@ clever deploy
 ## How to send feedback?
 
 [Send us an email!](mailto:support@clever-cloud.com) or [submit an issue](https://github.com/CleverCloud/clever-tools/issues).
-
-## Automated testing
-
-This project uses Travis CI to launch unit tests and validate pull requests before they're merged: https://travis-ci.org/CleverCloud/clever-tools
 
 ## Automated releases
 
