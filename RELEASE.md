@@ -99,14 +99,13 @@ That's why we need the `CI_CLEVER_CLOUD_SSH_KEY` SSH key from the credentials.
 Here's the guide to create a new release:
 
 1. Make sure you updated the `CHANGELOG.md` with all the new features and bugfixes.
-2. Make sure the unit tests all pass (on Travis CI).
-3. Decide if you're doing a **major**, **minor** or **patch** version or event a **prerelease** according to the [semver spec](https://semver.org/spec/v2.0.0.html).
-4. Make sure the commit you want to version is on master.
-5. run the `npm version` command with the right parameters (see details below).
+2. Decide if you're doing a **major**, **minor** or **patch** version or event a **prerelease** according to the [semver spec](https://semver.org/spec/v2.0.0.html).
+3. Make sure the commit you want to version is on master.
+4. run the `npm version` command with the right parameters (see details below).
   * This will update `package.json` and `package-lock.json` in a new commit.
   * This will create a git tag.
-6. Push the updated master branch with the new tag on GitHub (see details below).
-7. Follow the build on Jenkins and everything should be OK!
+5. Push the updated master branch with the new tag on GitHub (see details below).
+6. Follow the build on Jenkins and everything should be OK!
 
 `npm version` for a stable version:
 
