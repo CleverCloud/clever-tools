@@ -248,7 +248,8 @@ Where `type` is one of:
 - `haskell`: for haskell applications
 - `jar`: for applications deployed as standalone jar files
 - `maven`: for applications launched with maven
-- `node`: for node.js applications
+- `meteor`: for Meteor applications launched with Node.js
+- `node`: for Node.js applications
 - `php`: for PHP applications
 - `play1`: for Play1 applications
 - `play2`: for Play2 applications
@@ -261,11 +262,17 @@ Where `type` is one of:
 
 Where region is one of:
 
-- `par` (for Paris)
-- `mtl` (for Montreal)
+- `par` (Paris, [Clever Cloud](https://www.clever-cloud.com/infrastructure/))
+- `rbx` (Roubaix, OVHcloud)
+- `rbxhds` (Roubaix, HDS servers, OVHcloud)
+- `scw` (Paris, [Scaleway DC5](https://www.clever-cloud.com/blog/press/2023/01/17/clever-cloud-and-scaleway-join-forces-to-unveil-a-sovereign-european-paas-offering/))
+- `jed` (Jeddah, Oracle Cloud)
+- `mtl` (Montreal, OVHcloud)
+- `sgp` (Singapore, OVHcloud)
+- `syd` (Sydney, OVHcloud)
+- `wsw` (Warsaw, OVHcloud)
 
-`--org` allows you to chose the organisation in which your app is
-created.
+`--org` allows you to chose the organisation in which your app is created.
 
 `--alias` allows you to deploy the same application in multiple environments on Clever Cloud (eg: production, testing, …)
 
