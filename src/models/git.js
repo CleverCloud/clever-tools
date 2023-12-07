@@ -5,7 +5,7 @@ const path = require('path');
 
 const _ = require('lodash');
 const git = require('isomorphic-git');
-const http = require('isomorphic-git/http/node');
+const http = require('./isomorphic-http-with-agent.js');
 const { autocomplete } = require('cliparse');
 
 const slugify = require('slugify');
