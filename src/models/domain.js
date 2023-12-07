@@ -11,7 +11,7 @@ async function getBest (appId, orgaId) {
   return getFavouriteDomain({ id: orgaId, appId }).then(sendToApi)
     .catch(async (e) => {
 
-      if (e.status !== 404) {
+      if (e.response.status !== 404) {
         throw e;
       }
 
