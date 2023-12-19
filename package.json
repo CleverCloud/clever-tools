@@ -40,7 +40,7 @@
     "open": "^8.4.0",
     "slugify": "^1.5.3",
     "string-length": "^4.0.2",
-    "superagent": "^6.1.0",
+    "superagent": "^7.0.2",
     "text-table": "^0.2.0",
     "update-notifier": "^5.1.0",
     "uuid": "^8.3.2",
