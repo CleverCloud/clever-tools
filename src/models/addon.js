@@ -142,7 +142,8 @@ async function create ({ ownerId, name, providerName, planName, region, skipConf
   if (provider == null) {
     throw new Error('invalid provider name');
   }
-  if (!provider.regions.includes(region)) {
+
+  if (providerName != "addon-matomo" && !(provider.regions.includes(region))) {
     throw new Error(`invalid region name. Available regions: ${provider.regions.join(', ')}`);
   }
 
