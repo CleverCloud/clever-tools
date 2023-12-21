@@ -1,5 +1,5 @@
 
-### Logs Drains
+# Logs Drains
 
 ```sh
 # create drain
@@ -25,11 +25,11 @@ Where `DRAIN-TYPE` is one of:
 - `DatadogHTTP`: for Datadog endpoint (note that this endpoint needs your Datadog API Key).
 - `NewRelicHTTP`: for NewRelic endpoint (note that this endpoint needs your NewRelic API Key).
 
-#### ElasticSearch logs drains
+## ElasticSearch logs drains
 
 ElasticSearch drains use the Elastic bulk API. To match this endpoint, specify `/_bulk` at the end of your ElasticSearch endpoint.
 
-#### Datadog logs drains
+## Datadog logs drains
 
 Datadog has two zones, EU and COM. An account on one zone is not available on the other, make sure to target the good EU or COM intake endpoint.
 
@@ -44,7 +44,7 @@ clever drain create DatadogHTTP "https://http-intake.logs.datadoghq.com/v1/input
 
 Please note that the `host` query parameter is not mandatory: in the Datadog pipeline configuration, you can map `@source_host` which is the host provided by Clever Cloud in logs as `host` property.
 
-#### NewRelic logs drains
+## NewRelic logs drains
 
 NewRelic has two zones, EU and US. An account on one zone is not available on the other, make sure to target the good EU or US intake endpoint.
 
