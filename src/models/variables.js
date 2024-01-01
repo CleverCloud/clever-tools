@@ -119,6 +119,11 @@ async function readVariablesFromStdin (format) {
   }
 }
 
+async function readVariablesFromFile (data) {
+  return parseFromNameEqualsValue(data);
+}
+
 module.exports = {
   readVariablesFromStdin,
+  readVariablesFromFile,
 };

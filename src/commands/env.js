@@ -68,6 +68,15 @@ async function importEnv (params) {
   Logger.println('Environment variables have been set');
 };
 
+async function importEnvFromFile (alias, fileData) {
+  const { ownerId, appId } = await AppConfig.getAppDetails({ alias });
+
+  const envVars = await variables.readVariablesFromFile(fileData);
+  await application.updateAllEnvVars({ id: ownerId, appId }, envVars).then(sendToApi);
+
+  Logger.println('Environment variables have been set from file');
+};
+
 async function importVarsFromLocalEnv (params) {
   const [envNames] = params.args;
   const { alias, app: appIdOrName } = params.options;
@@ -89,4 +98,4 @@ async function importVarsFromLocalEnv (params) {
   Logger.println('Your environment variables have been successfully saved');
 };
 
-module.exports = { list, set, rm, importEnv, importVarsFromLocalEnv };
+module.exports = { list, set, rm, importEnv, importEnvFromFile, importVarsFromLocalEnv };
