@@ -13,7 +13,7 @@ function readStdin () {
       output: process.stdout,
       terminal: false,
     });
-
+    
     const lines = [];
     rl.on('line', (line) => {
       lines.push(line);
@@ -79,7 +79,7 @@ function parseFromJson (rawStdin) {
 
 function parseFromNameEqualsValue (rawStdin) {
   const { variables, errors } = parseRaw(rawStdin);
-
+  
   if (errors.length !== 0) {
 
     const formattedErrors = errors
@@ -119,6 +119,11 @@ async function readVariablesFromStdin (format) {
   }
 }
 
+async function readVariablesFromFile (data) {
+  return parseFromNameEqualsValue(data);
+}
+
 module.exports = {
   readVariablesFromStdin,
+  readVariablesFromFile
 };
