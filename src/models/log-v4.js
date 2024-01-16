@@ -9,6 +9,11 @@ const { ApplicationLogStream } = require('@clevercloud/client/cjs/streams/applic
 const THROTTLE_ELEMENTS = 2000;
 const THROTTLE_PER_IN_MILLISECONDS = 100;
 
+const retryConfiguration = {
+  enabled: true,
+  maxRetryCount: 6,
+};
+
 async function displayLogs (params) {
 
   const deferred = params.deferred || new Deferred();
@@ -20,6 +25,7 @@ async function displayLogs (params) {
     tokens,
     ownerId,
     appId,
+    retryConfiguration,
     since,
     until,
     deploymentId,
