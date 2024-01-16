@@ -63,7 +63,7 @@ async function removeLinkedApplication (alias) {
 };
 
 function findApp (config, alias) {
-
+  
   if (_.isEmpty(config.apps)) {
     throw new Error('There are no applications linked. You can add one with `clever link`');
   }
@@ -80,6 +80,20 @@ function findApp (config, alias) {
   }
 
   return findDefaultApp(config);
+}
+
+function checkAlreadyLinked (apps, name, alias) {
+
+  const appAliasExists = apps.some(app => alias && app.alias === alias);
+  const appNameExists = apps.some(app => app.name === name);
+
+  if (appNameExists) {
+    throw new Error(`An application is already linked with the name '${name}'`);
+  }
+
+  if (appAliasExists) {
+    throw new Error(`An application is already linked with the alias '${alias}'`);
+  }
 }
 
 function findDefaultApp (config) {
@@ -163,6 +177,7 @@ module.exports = {
   loadApplicationConf,
   addLinkedApplication,
   removeLinkedApplication,
+  checkAlreadyLinked,
   findApp,
   getAppDetails,
   getMostNaturalName,
