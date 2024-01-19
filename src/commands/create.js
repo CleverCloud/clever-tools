@@ -3,7 +3,6 @@
 const Application = require('../models/application.js');
 const AppConfig = require('../models/app_configuration.js');
 const Logger = require('../logger.js');
-const { toNameEqualsValueString } = require('@clevercloud/client/cjs/utils/env-vars.js');
 
 async function create (params) {
   const { type: typeName } = params.options;

@@ -21,8 +21,8 @@ const git = require('../src/models/git.js');
 const Parsers = require('../src/parsers.js');
 const handleCommandPromise = require('../src/command-promise-handler.js');
 const Formatter = require('../src/models/format-string.js');
-const { getOutputFormatOption } = require('../src/get-output-format-option.js');
 const { AVAILABLE_ZONES } = require('../src/models/application.js');
+const { getOutputFormatOption, getSameCommitPolicyOption } = require('../src/command-options.js');
 
 // Exit cleanly if the program we pipe to exits abruptly
 process.stdout.on('error', (error) => {
@@ -216,6 +216,7 @@ function run () {
       aliases: ['f'],
       description: 'Force deploy even if it\'s not fast-forwardable',
     }),
+    sameCommitPolicy: getSameCommitPolicyOption(),
     webhookFormat: cliparse.option('format', {
       metavar: 'format',
       default: 'raw',
@@ -642,7 +643,7 @@ function run () {
   const deploy = lazyRequirePromiseModule('../src/commands/deploy.js');
   const deployCommand = cliparse.command('deploy', {
     description: 'Deploy an application',
-    options: [opts.alias, opts.branch, opts.quiet, opts.forceDeploy, opts.followDeployLogs],
+    options: [opts.alias, opts.branch, opts.quiet, opts.forceDeploy, opts.followDeployLogs, opts.sameCommitPolicy],
   }, deploy('deploy'));
 
   // DIAG COMMAND
