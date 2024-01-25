@@ -3,17 +3,11 @@
 const cfg = require('./config');
 const { exec } = require('./utils');
 
-async function run () {
-  const isStableVersion = cfg.isStableVersion();
+module.exports = async function publishNpm () {
+
   const npmToken = cfg.getNpmToken();
-  const npmTag = isStableVersion ? 'latest' : 'beta';
 
   await exec('npm config set registry \'https://registry.npmjs.com/\'');
   await exec(`npm config set '//registry.npmjs.com/:_authToken' '${npmToken}'`);
-  await exec(`npm publish --tag ${npmTag}`);
+  await exec(`npm publish --tag latest`);
 }
-
-run().catch((e) => {
-  console.error(e);
-  process.exit(1);
-});

@@ -48,6 +48,8 @@
     "xdg": "^0.1.1"
   },
   "devDependencies": {
+    "@commitlint/cli": "^18.4.3",
+    "@commitlint/config-conventional": "^18.4.3",
     "aws-sdk": "^2.919.0",
     "chai": "^4.3.4",
     "del": "^6.0.0",
@@ -63,9 +65,11 @@
     "grunt-cli": "^1.4.3",
     "grunt-http": "^2.3.3",
     "grunt-mocha-test": "^0.13.3",
+    "mime-types": "^2.1.35",
     "mocha": "^8.4.0",
     "pkg": "^5.8.1",
-    "semver": "^7.3.5"
+    "semver": "^7.3.5",
+    "text-table": "^0.2.0"
   },
   "overrides": {
     "pkg-fetch": "3.5.2"

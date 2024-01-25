@@ -4,61 +4,48 @@ const cfg = require('./config');
 const { promises: fs } = require('fs');
 const path = require('path');
 const superagent = require('superagent');
+const { getBundleFilepath } = require('./paths.js');
 
-const NEXUS_DEB = {
-  stable: 'https://nexus.clever-cloud.com/repository/deb/',
-  beta: 'https://nexus.clever-cloud.com/repository/deb-beta/',
-};
-const NEXUS_NUPKG = {
-  stable: 'https://nexus.clever-cloud.com/repository/nupkg/',
-  beta: 'https://nexus.clever-cloud.com/repository/nupkg-beta/',
-};
-const NEXUS_RPM = {
-  stable: 'https://nexus.clever-cloud.com/repository/rpm/',
-  beta: 'https://nexus.clever-cloud.com/repository/rpm-beta/',
-};
+const NEXUS_DEB = 'https://nexus.clever-cloud.com/repository/deb/';
+const NEXUS_NUPKG = 'https://nexus.clever-cloud.com/repository/nupkg/';
+const NEXUS_RPM = 'https://nexus.clever-cloud.com/repository/rpm/';
 
-async function run () {
+module.exports = async function publishNexus (version) {
 
-  const version = cfg.getVersion(true);
-  const isStableVersion = cfg.isStableVersion();
-  const releaseType = isStableVersion ? 'stable' : 'beta';
   const nexusAuth = cfg.getNexusAuth();
 
   let errorCount = 0;
 
-  await publishDebToNexus({ releaseType, nexusAuth, filepath: cfg.getBundleFilepath('deb', version) })
+  await publishDebToNexus({ nexusAuth, filepath: getBundleFilepath('deb', version) })
     .catch(() => {
       errorCount += 1;
     });
 
-  await publishNupkgToNexus({ releaseType, nexusAuth, filepath: cfg.getBundleFilepath('nupkg', version) })
+  await publishNupkgToNexus({ nexusAuth, filepath: getBundleFilepath('nupkg', version) })
     .catch(() => {
       errorCount += 1;
     });
 
-  await publishRpmToNexus({ releaseType, nexusAuth, filepath: cfg.getBundleFilepath('rpm', version) })
+  await publishRpmToNexus({ nexusAuth, filepath: getBundleFilepath('rpm', version) })
     .catch(() => {
       errorCount += 1;
     });
 
   if (errorCount > 0) {
-    throw new Error('Some error occured while publishing assets to Nexus.');
+    throw new Error('Some error occurred while publishing assets to Nexus.');
   }
 }
 
-async function publishDebToNexus ({ releaseType, nexusAuth, filepath }) {
-
-  const nexusRepo = NEXUS_DEB[releaseType];
+async function publishDebToNexus ({ nexusAuth, filepath }) {
 
   const filebuffer = await fs.readFile(filepath);
 
   console.log('Uploading deb on Nexus...');
   console.log(`  file ${filepath}`);
-  console.log(`  to ${nexusRepo}`);
+  console.log(`  to ${NEXUS_DEB}`);
 
   return superagent
-    .post(nexusRepo)
+    .post(NEXUS_DEB)
     .auth(nexusAuth.user, nexusAuth.password)
     .set('accept', 'application/json')
     .type('multipart/form-data')
@@ -72,17 +59,15 @@ async function publishDebToNexus ({ releaseType, nexusAuth, filepath }) {
     });
 }
 
-async function publishNupkgToNexus ({ releaseType, nexusAuth, filepath }) {
-
-  const nexusRepo = NEXUS_NUPKG[releaseType];
+async function publishNupkgToNexus ({ nexusAuth, filepath }) {
 
   const { base: filename } = path.parse(filepath);
-  const targetUrl = new URL(filename, nexusRepo).toString();
+  const targetUrl = new URL(filename, NEXUS_NUPKG).toString();
   const filebuffer = await fs.readFile(filepath);
 
   console.log('Uploading nupkg on Nexus...');
   console.log(`  file ${filepath}`);
-  console.log(`  to ${nexusRepo}`);
+  console.log(`  to ${NEXUS_NUPKG}`);
 
   return superagent
     .put(targetUrl)
@@ -97,17 +82,15 @@ async function publishNupkgToNexus ({ releaseType, nexusAuth, filepath }) {
     });
 }
 
-async function publishRpmToNexus ({ releaseType, nexusAuth, filepath }) {
-
-  const nexusRepo = NEXUS_RPM[releaseType];
+async function publishRpmToNexus ({ nexusAuth, filepath }) {
 
   const { base: filename } = path.parse(filepath);
-  const targetUrl = new URL(filename, nexusRepo).toString();
+  const targetUrl = new URL(filename, NEXUS_RPM).toString();
   const filebuffer = await fs.readFile(filepath);
 
   console.log('Uploading rpm on Nexus...');
   console.log(`  file ${filepath}`);
-  console.log(`  to ${nexusRepo}`);
+  console.log(`  to ${NEXUS_RPM}`);
 
   return superagent
     .put(targetUrl)
@@ -140,8 +123,3 @@ function getNexusErrorFromHtml (html) {
     .replace(/<\/.*$/s, '')
     .trim();
 }
-
-run().catch((e) => {
-  console.error(e);
-  process.exit(1);
-});

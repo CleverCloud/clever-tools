@@ -1,7 +1,7 @@
 # Maintainer: <%= maintainer %>
 
 pkgname=<%= pkgbase %>
-pkgver=<%= pkgver %>
+pkgver=<%= version %>
 pkgrel=1
 pkgdesc="<%= description %>"
 arch=('x86_64')

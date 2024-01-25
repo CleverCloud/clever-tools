@@ -1,6 +1,6 @@
 pkgbase = <%= pkgbase %>
 	pkgdesc = <%= description %>
-	pkgver = <%= pkgver %>
+	pkgver = <%= version %>
 	pkgrel = 1
 	url = <%= url %>
 	arch = x86_64

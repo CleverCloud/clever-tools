@@ -1,0 +1,110 @@
+name: 'Preview'
+on:
+  pull_request:
+    types:
+      - synchronize
+      - opened
+      - closed
+
+env:
+  BRANCH: ${{ github.event.pull_request.head.ref }}
+  CC_CLEVER_TOOLS_PREVIEWS_CELLAR_KEY_ID: ${{ secrets.CC_CLEVER_TOOLS_PREVIEWS_CELLAR_KEY_ID }}
+  CC_CLEVER_TOOLS_PREVIEWS_CELLAR_SECRET_KEY: ${{ secrets.CC_CLEVER_TOOLS_PREVIEWS_CELLAR_SECRET_KEY }}
+
+jobs:
+  wait_for_build:
+    name: 'Wait for build to succeed'
+    if: |
+      (github.event.action == 'synchronize' || github.event.action == 'opened')
+      && github.event.repository.fork == false
+      && !startsWith(github.event.pull_request.head.ref, 'release-please--')
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'Wait for build to succeed'
+        uses: lewagon/wait-on-check-action@v1.3.1
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          check-name: Build
+          ref: ${{ github.event.pull_request.head.sha }}
+          allowed-conclusions: success
+  publish:
+    name: 'Publish Preview'
+    needs: wait_for_build
+    runs-on: ubuntu-latest
+    steps:
+      - name: '[Prepare] Checkout'
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: '[Prepare] Setup Node.js'
+        uses: actions/setup-node@v3
+        with:
+          node-version-file: 'package.json'
+          cache: 'npm'
+      - name: '[Prepare] Install dependencies'
+        run: npm ci
+      - name: '[Prepare] Check if a preview already exists'
+        id: check_preview
+        run: |
+          if node scripts/job-preview.js get ${BRANCH} > /dev/null 2>&1; then
+            echo "exists=yes" >> $GITHUB_OUTPUT
+          else
+            echo "exists=no" >> $GITHUB_OUTPUT
+          fi
+
+      - name: '[Run] Build preview'
+        run: node scripts/job-preview.js build ${BRANCH}
+      - name: '[Run] Publish preview'
+        run: node scripts/job-preview.js publish ${BRANCH}
+
+      - name: '[Finalize] Get preview links'
+        if: steps.check_preview.outputs.exists == 'no'
+        id: get_preview_links
+        run: |
+          PREVIEW_LINKS=$(node scripts/job-preview.js links $BRANCH | sed -z 's/\n/\\n/g'; echo)
+          echo "PREVIEW_LINKS=${PREVIEW_LINKS::-2}" >> $GITHUB_ENV
+      - name: '[Finalize] Add comment'
+        if: steps.check_preview.outputs.exists == 'no'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const links = "${{ env.PREVIEW_LINKS }}";
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: `🔎 A preview has been automatically published:\n\n${links}\n\n\n_This preview will be deleted once this PR is closed._`
+            });
+  delete:
+    if: |
+      github.event.action == 'closed'
+      && github.event.repository.fork == false
+      && !startsWith(github.event.pull_request.head.ref, 'release-please--')
+    name: 'Delete Preview'
+    runs-on: ubuntu-latest
+    steps:
+      - name: '[Prepare] Checkout'
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: '[Prepare] Setup Node.js'
+        uses: actions/setup-node@v3
+        with:
+          node-version-file: 'package.json'
+          cache: 'npm'
+      - name: '[Prepare] Install dependencies'
+        run: npm ci
+
+      - name: '[Run] Delete preview'
+        run: node scripts/job-preview.js delete ${BRANCH}
+
+      - name: '[Finalize] Add comment'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            await github.rest.issues.createComment({
+             owner: context.repo.owner,
+             repo: context.repo.repo,
+             issue_number: context.issue.number,
+              body: `🔎 The preview has been automatically deleted.`
+            });
