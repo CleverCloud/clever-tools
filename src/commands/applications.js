@@ -28,13 +28,16 @@ function formatApps (apps, onlyAliases, json) {
     }
     else {
       return apps
-        .map((app) =>
-          [
+        .map((app) => {
+          const sshUrl = app.git_ssh_url ?? app.deploy_url.replace('https://', 'git+ssh://git@');
+          return [
             `Application ${app.name}`,
             `  alias: ${colors.bold(app.alias)}`,
-            `  id: ${app.app_id}`,
-            `  deployment url: ${app.deploy_url}`].join('\n'),
-        )
+            `  ID: ${app.app_id}`,
+            `  deployment URL: ${app.deploy_url}`,
+            `  git+ssh URL: ${sshUrl}`,
+          ].join('\n');
+        })
         .join('\n\n');
     }
   }
