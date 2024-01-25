@@ -10,11 +10,6 @@ Clever Tools are availables from many channels. The simpler way to install them,
 npm install -g clever-tools
 ```
 
-If you want to install our latest beta release, you can run:
-
-```sh
-npm install -g clever-tools@beta
-```
 We also distribute binaries and packages for multiple systems and tools:
 
 * [GNU/Linux](docs/setup-systems.md#gnulinux)
@@ -161,5 +156,5 @@ clever deploy
 
 ## Automated releases
 
-This project uses Jenkins to build binaries, package them and release them automatically on the various repositories.
+This project uses GitHub Actions to build binaries, package them and release them automatically on the various repositories.
 If you want to know more or if you need to release a new version, please read [RELEASE.md](./RELEASE.md) carefully.
