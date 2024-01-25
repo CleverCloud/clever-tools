@@ -4,6 +4,25 @@
 
 ...
 
+## [3.1.0](https://github.com/CleverCloud/clever-tools/compare/3.0.2...3.1.0) (2024-01-25)
+
+
+### 🚀 Features
+
+* **applications:** display git+ssh deployment URL ([8c702ce](https://github.com/CleverCloud/clever-tools/commit/8c702ce94c6d4f018bc1b819cee6a0ed7486b050)), closes [#619](https://github.com/CleverCloud/clever-tools/issues/619)
+* **deploy:** add same-commit-policy option ([76ff6a2](https://github.com/CleverCloud/clever-tools/commit/76ff6a2fd183ee2ba0cb30dce6d07d3ae3e515cc))
+* **deploy:** log application and owner details ([e5929ae](https://github.com/CleverCloud/clever-tools/commit/e5929aee0f015337fc2664224772d2a0a0301d39))
+* update runtimes list in autocomplete ([f02f50f](https://github.com/CleverCloud/clever-tools/commit/f02f50f4ea1d887b4bd7ccafc36e72077ff0ab13))
+* update zones list in autocomplete ([3b18adb](https://github.com/CleverCloud/clever-tools/commit/3b18adbdda2c69ac1f6d5bf77604849f5d4033d0))
+
+
+### 🐛 Bug Fixes
+
+* add an alias/name check during app create ([4a5201a](https://github.com/CleverCloud/clever-tools/commit/4a5201aca2ee3225a9b086212bd28a2295089126)), closes [#656](https://github.com/CleverCloud/clever-tools/issues/656)
+* **addon:** fix a typo ([8ece4cd](https://github.com/CleverCloud/clever-tools/commit/8ece4cd56946ada1f2b6bc6f091f103b3fce1c33))
+* **domain:** use response object to access status ([18fba08](https://github.com/CleverCloud/clever-tools/commit/18fba08665ce3e133d68c06db26580d2cc43d7c2))
+* pass an HTTP agent with long timeout to isomorphic-git ([1bfbf40](https://github.com/CleverCloud/clever-tools/commit/1bfbf40d388cc78c9b987d3717ecd8b4e1bfe803)), closes [#640](https://github.com/CleverCloud/clever-tools/issues/640)
+
 ## 3.0.2 (2023-11-01)
 
 * chore: update @clevercloud/client to 8.0.2 (fix Node.js < 18.16 abort bug)
