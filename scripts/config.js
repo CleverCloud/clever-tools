@@ -45,6 +45,15 @@ function getNpmToken () {
   return token;
 }
 
+function getDockerHubConf () {
+  const username = process.env.DOCKERHUB_USERNAME;
+  const token = process.env.DOCKERHUB_TOKEN;
+  if (username == null || token == null) {
+    throw new Error('Could not read DockerHub credentials!');
+  }
+  return { username, token, imageName: 'clevercloud/clever-tools' };
+}
+
 function getGpgConf () {
   const gpgPrivateKey = process.env.RPM_GPG_PRIVATE_KEY;
   const gpgPath = process.env.RPM_GPG_PATH || os.homedir();
@@ -81,6 +90,7 @@ module.exports = {
   appInfos,
   getNexusAuth,
   getNpmToken,
+  getDockerHubConf,
   getGpgConf,
   getCellarConf,
 };
