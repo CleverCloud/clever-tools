@@ -1,8 +1,5 @@
 # clever-tools changelog
 
-## Unreleased (????-??-??)
-
-...
 
 ## [3.1.0](https://github.com/CleverCloud/clever-tools/compare/3.0.2...3.1.0) (2024-01-25)
 
