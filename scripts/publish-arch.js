@@ -23,4 +23,4 @@ module.exports = async function publishArch (version) {
     ...appInfos,
   });
   await commitAndPush({ gitPath, version });
-}
+};

@@ -43,7 +43,7 @@ async function deploy (params) {
       default: {
         const upToDateMessage = `The clever-cloud application is up-to-date (${colors.green(remoteHeadCommitId)}).\nYou can set a policy with 'same-commit-policy' to handle differently when remote HEAD has the same commit as the one to push.\nOr try this command to restart the application:`;
         if (commitIdToPush !== deployedCommitId) {
-          const restartWithId = `clever restart --commit ${commitIdToPush}`
+          const restartWithId = `clever restart --commit ${commitIdToPush}`;
           throw new Error(`${upToDateMessage}\n${colors.yellow(restartWithId)}`);
         }
         throw new Error(`${upToDateMessage}\n${colors.yellow('clever restart')}`);

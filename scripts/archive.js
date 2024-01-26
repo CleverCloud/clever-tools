@@ -35,9 +35,9 @@ module.exports = async function build (version, latest) {
       await generateChecksumFile(archiveLatestFilepath);
     }
   }
-}
+};
 
-//--- private
+// --- private
 
 async function packageArchive (binaryFilepath, archiveFilepath) {
   startTask(`Packaging ${archiveFilepath}`);

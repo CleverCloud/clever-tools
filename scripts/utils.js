@@ -38,8 +38,8 @@ function exec (command, cwd) {
   });
 }
 
-function execSync(command, cwd) {
-  const stdout = childProcess.execSync(command, {cwd});
+function execSync (command, cwd) {
+  const stdout = childProcess.execSync(command, { cwd });
   return stdout.toString().trim();
 }
 
@@ -52,7 +52,7 @@ function getCurrentCommit () {
 }
 
 function getCurrentAuthor () {
-  return execSync(`git log -1 --pretty=format:'%an'`);
+  return execSync('git log -1 --pretty=format:\'%an\'');
 }
 
 async function cloneGitProject ({ gitUrl, gitPath, git, cleanRepo = true }) {
@@ -116,15 +116,16 @@ async function generateChecksumFile (filepath) {
   return sum;
 }
 
-async function cleanupDirectory(path) {
+async function cleanupDirectory (path) {
   del.sync(path);
   await fs.mkdirs(path);
 }
 
-async function assertFileExists(filepath) {
+async function assertFileExists (filepath) {
   try {
-    await fs.exists(filepath)
-  } catch (e) {
+    await fs.exists(filepath);
+  }
+  catch (e) {
     throw new Error(`${filepath} is missing.`);
   }
 }

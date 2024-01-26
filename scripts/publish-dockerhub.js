@@ -17,4 +17,4 @@ module.exports = async function publishDockerhub (version) {
   });
   await commitAndPush({ gitPath, version });
   await tagAndPush({ gitPath, tagName: version });
-}
+};

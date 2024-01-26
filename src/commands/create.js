@@ -9,9 +9,9 @@ async function create (params) {
   const [name] = params.args;
   const { org: orgaIdOrName, alias, region, github: githubOwnerRepo, format } = params.options;
   const { apps } = await AppConfig.loadApplicationConf();
-  
+
   AppConfig.checkAlreadyLinked(apps, name, alias);
-  
+
   const github = getGithubDetails(githubOwnerRepo);
   const app = await Application.create(name, typeName, region, orgaIdOrName, github);
   await AppConfig.addLinkedApplication(app, alias);

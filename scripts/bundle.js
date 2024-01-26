@@ -1,7 +1,5 @@
 const path = require('path');
-const fs = require('fs-extra');
 const { readFile } = require('fs/promises');
-const del = require('del');
 const cfg = require('./config.js');
 const {
   startTask,
@@ -35,7 +33,7 @@ module.exports = async function bundle (version) {
   }
 };
 
-//--- private
+// --- private
 
 async function bundleRpm (version) {
   const bundleType = 'rpm';

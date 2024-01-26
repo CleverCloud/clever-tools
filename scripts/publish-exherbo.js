@@ -27,4 +27,4 @@ module.exports = async function publishExherbo (version) {
     version,
     commitMessage: `dev-util/clever-tools-bin: bump to ${version}`,
   });
-}
+};
