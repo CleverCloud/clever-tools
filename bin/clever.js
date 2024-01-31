@@ -154,9 +154,8 @@ function run () {
   // OPTIONS
   const opts = {
     sourceableEnvVarsList: cliparse.flag('add-export', { description: 'Display sourceable env variables setting' }),
-    accesslogsFormat: getOutputFormatOption(['simple', 'extended', 'clf']),
-    addonEnvFormat: getOutputFormatOption(['shell']),
     logsFormat: getOutputFormatOption(['json-stream']),
+    addonEnvFormat: getOutputFormatOption(['shell']),
     accesslogsFollow: cliparse.flag('follow', {
       aliases: ['f'],
       description: 'Display access logs continuously (ignores before/until, after/since)',
@@ -605,7 +604,7 @@ function run () {
   const accesslogsModule = lazyRequirePromiseModule('../src/commands/accesslogs.js');
   const accesslogsCommand = cliparse.command('accesslogs', {
     description: 'Fetch access logs',
-    options: [opts.alias, opts.appIdOrName, opts.accesslogsFormat, opts.before, opts.after, opts.accesslogsFollow, opts.addonId],
+    options: [opts.alias, opts.appIdOrName, opts.logsFormat, opts.before, opts.after, opts.addonId],
   }, accesslogsModule('accessLogs'));
 
   // ACTIVITY COMMAND

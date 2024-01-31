@@ -1,53 +1,133 @@
 'use strict';
 
-const { getAccessLogsFromWarp10InBatches, getContinuousAccessLogsFromWarp10 } = require('@clevercloud/client/cjs/access-logs.js');
-const { getWarp10AccessLogsToken } = require('@clevercloud/client/cjs/api/v2/warp-10.js');
-const { ONE_HOUR_MICROS, ONE_SECOND_MICROS, toMicroTimestamp } = require('@clevercloud/client/cjs/utils/date.js');
-
-const Addon = require('../models/addon.js');
 const Application = require('../models/application.js');
 const Logger = require('../logger.js');
-const { getFormatter } = require('../models/accesslogs.js');
-const { sendToApi, sendToWarp10 } = require('../models/send-to-api.js');
+const { getHostAndTokens } = require('../models/send-to-api.js');
+const { ApplicationAccessLogStream } = require('@clevercloud/client/cjs/streams/access-logs.js');
+const { JsonArray } = require('../models/json-array.js');
+const colors = require('colors/safe');
+const formatTable = require('../format-table.js');
+const { truncateWithEllipsis } = require('../models/utils.js');
 
-const CONTINUOUS_DELAY = ONE_SECOND_MICROS * 5;
+// 2000 logs per 100ms maximum
+const THROTTLE_ELEMENTS = 2000;
+const THROTTLE_PER_IN_MILLISECONDS = 100;
+const CITY_MAX_LENGTH = 20;
 
 async function accessLogs (params) {
-  const { alias, app: appIdOrName, format, before, after, addon: addonId, follow } = params.options;
 
-  const { ownerId, appId, realAddonId } = await getIds(addonId, appIdOrName, alias);
-  const to = (before != null) ? toMicroTimestamp(before.toISOString()) : toMicroTimestamp();
-  const from = (after != null) ? toMicroTimestamp(after.toISOString()) : to - ONE_HOUR_MICROS;
-  const warpToken = await getWarp10AccessLogsToken({ orgaId: ownerId }).then(sendToApi);
-
-  if (follow && (before != null || after != null)) {
-    Logger.warn('Access logs are displayed continuously with -f/--follow therefore --before and --after are ignored.');
+  // TODO: drop when addons are supported in API
+  if (params.options.addon) {
+    throw new Error('Add-on\'s access logs are not supported yet');
   }
 
-  const emitter = follow
-    ? getContinuousAccessLogsFromWarp10({ appId, realAddonId, warpToken, delay: CONTINUOUS_DELAY }, sendToWarp10)
-    : getAccessLogsFromWarp10InBatches({ appId, realAddonId, from, to, warpToken }, sendToWarp10);
+  const { apiHost, tokens } = await getHostAndTokens();
+  const { alias, app: appIdOrName, format, before: until, after: since } = params.options;
+  const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
 
-  const formatLogLine = getFormatter(format, addonId != null);
-
-  emitter.on('data', (data) => {
-    data.forEach((l) => Logger.println(formatLogLine(l)));
+  const stream = new ApplicationAccessLogStream({
+    apiHost,
+    tokens,
+    ownerId,
+    appId,
+    since,
+    until,
+    throttleElements: THROTTLE_ELEMENTS,
+    throttlePerInMilliseconds: THROTTLE_PER_IN_MILLISECONDS,
   });
 
-  return new Promise((resolve, reject) => {
-    emitter.on('error', reject);
-  });
+  if (format === 'human') {
+    Logger.warn(colors.yellow('/!\\ This feature is considered in alpha'));
+  }
+
+  if (format === 'json' && (!until)) {
+    throw new Error('JSON format only works with a limiting parameter such as `before`.');
+  }
+
+  // used for 'json' format
+  const jsonArray = new JsonArray();
+
+  stream
+    .on('open', (event) => {
+      Logger.debug(colors.blue(`Logs stream (open) ${JSON.stringify({ appId })}`));
+      if (format === 'json') {
+        jsonArray.open();
+      }
+    })
+    .on('error', (event) => {
+      Logger.debug(colors.red(`Logs stream (error) ${event.error.message}`));
+    })
+    .onLog((log) => {
+      switch (format) {
+        case 'json':
+          jsonArray.push(log);
+          break;
+        case 'json-stream':
+          Logger.printJson(log);
+          break;
+        case 'human':
+        default:
+          // when the connection is cut too early, or for TCP redirections, we don't have HTTP section
+          if (log.http == null) {
+            break;
+          }
+
+          Logger.println(formatHuman(log));
+          break;
+      }
+    });
+
+  // Properly close the stream
+  process.once('SIGINT', (signal) => stream.close(signal));
+
+  const closeReason = await stream.start();
+
+  if (format === 'json') {
+    jsonArray.close();
+  }
+
+  Logger.debug(`stream closed: ${closeReason?.type}`);
 }
 
-async function getIds (addonId, appIdOrName, alias) {
-  if (addonId != null) {
-    const addon = await Addon.findById(addonId);
-    return {
-      ownerId: addon.orgaId,
-      realAddonId: addon.realId,
-    };
+function formatHuman (log) {
+  const { date, http, source } = log;
+  const country = source.countryCode ?? '(unknown)';
+  const hasSourceCity = source.city ?? '';
+
+  return row([[
+    colors.grey(date.toISOString(date)),
+    source.ip,
+    `${country}${hasSourceCity ? '/' + truncateWithEllipsis(CITY_MAX_LENGTH, source.city) : ''}`,
+    colorStatusCode(http.response.statusCode),
+    http.request.method.toString().padEnd(4, ' ') + ' ' + http.request.path,
+  ]]);
+}
+
+const row = formatTable([
+  '2024-06-24T08:05:43.880Z',
+  '255.255.255.255',
+  // country / city
+  2 + 1 + CITY_MAX_LENGTH,
+  'XXX',
+  // longest method name
+  'OPTIONS',
+  // path
+]);
+
+function colorStatusCode (code) {
+  if (code >= 500) {
+    return colors.red(code);
   }
-  return await Application.resolveId(appIdOrName, alias);
+  if (code >= 400) {
+    return colors.yellow(code);
+  }
+  if (code >= 300) {
+    return colors.blue(code);
+  }
+  if (code >= 200) {
+    return colors.green(code);
+  }
+  return code;
 }
 
 module.exports = { accessLogs };
