@@ -19,7 +19,7 @@ module.exports = async function build (version) {
   }
 };
 
-//--- private
+// --- private
 
 async function buildBinary (arch, binaryFilepath) {
   const { nodeVersion } = cfg;

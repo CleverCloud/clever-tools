@@ -34,7 +34,7 @@ module.exports = async function publishNexus (version) {
   if (errorCount > 0) {
     throw new Error('Some error occurred while publishing assets to Nexus.');
   }
-}
+};
 
 async function publishDebToNexus ({ nexusAuth, filepath }) {
 

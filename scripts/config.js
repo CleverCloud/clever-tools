@@ -5,10 +5,10 @@ const pkgJson = require('../package.json');
 
 const archList = ['linux', 'macos', 'win'];
 const archEmoji = {
-  'linux': '🐧',
-  'macos': '🍏',
-  'win': '🪟',
-}
+  linux: '🐧',
+  macos: '🍏',
+  win: '🪟',
+};
 const nodeVersion = pkgJson['pkg-node-version'];
 const git = {
   email: 'ci@clever-cloud.com',
@@ -62,14 +62,14 @@ function getGpgConf () {
   return { gpgPrivateKey, gpgPath, gpgName, gpgPass };
 }
 
-function getCellarConf(scope) {
+function getCellarConf (scope) {
   if (scope === 'previews') {
     return {
       host: 'cellar-c2.services.clever-cloud.com',
       bucket: 'clever-tools-preview.clever-cloud.com',
       accessKeyId: process.env.CC_CLEVER_TOOLS_PREVIEWS_CELLAR_KEY_ID,
       secretAccessKey: process.env.CC_CLEVER_TOOLS_PREVIEWS_CELLAR_SECRET_KEY,
-    }
+    };
   }
   if (scope === 'releases') {
     return {
@@ -77,9 +77,9 @@ function getCellarConf(scope) {
       bucket: 'clever-tools.clever-cloud.com',
       accessKeyId: process.env.CC_CLEVER_TOOLS_RELEASES_CELLAR_KEY_ID,
       secretAccessKey: process.env.CC_CLEVER_TOOLS_RELEASES_CELLAR_SECRET_KEY,
-    }
+    };
   }
-  throw new Error(`Unsupported cellar scope "${scope}". Supported scopes: "previews", "releases".`)
+  throw new Error(`Unsupported cellar scope "${scope}". Supported scopes: "previews", "releases".`);
 }
 
 module.exports = {

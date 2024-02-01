@@ -4,7 +4,7 @@ const fs = require('fs-extra');
 const colors = require('colors/safe');
 const textTable = require('text-table');
 const cfg = require('./config.js');
-const { archList} = cfg;
+const { archList } = cfg;
 const build = require('./build.js');
 const archive = require('./archive.js');
 const { getArchiveFilename, getWorkingDirectory, getArchiveFilepath, getShaFilepath } = require('./paths.js');
@@ -18,7 +18,7 @@ async function run () {
   const [command, branch] = process.argv.slice(2);
 
   if (command == null || command.length === 0) {
-    throw new Error(`Missing argument 'command'`);
+    throw new Error('Missing argument \'command\'');
   }
 
   const previewName = () => (branch ?? getCurrentBranch()).replace(/\//g, '-');
@@ -41,14 +41,14 @@ async function run () {
   throw new Error('Unknown command!');
 }
 
-async function buildPreview(previewName) {
+async function buildPreview (previewName) {
   await cleanupDirectory(getWorkingDirectory(previewName));
 
   await build(previewName);
   await archive(previewName, false);
 }
 
-async function publishPreview(previewName) {
+async function publishPreview (previewName) {
   const cellarClient = cellar();
 
   for (const arch of archList) {
@@ -96,7 +96,7 @@ async function publishPreview(previewName) {
   await updateListIndex(manifest);
 }
 
-async function deletePreview(previewName) {
+async function deletePreview (previewName) {
   const manifest = await getManifest();
   const previewIndex = manifest.previews.findIndex((p) => p.name === previewName);
   if (previewIndex === -1) {
@@ -112,7 +112,7 @@ async function deletePreview(previewName) {
   await updateListIndex(manifest);
 }
 
-async function getPreview(previewName) {
+async function getPreview (previewName) {
   const manifest = await getManifest();
 
   const preview = manifest.previews.find((p) => p.name === previewName);
@@ -126,7 +126,7 @@ async function getPreview(previewName) {
   }
 }
 
-async function getPreviewLinks(previewName) {
+async function getPreviewLinks (previewName) {
   const manifest = await getManifest();
 
   const preview = manifest.previews.find((p) => p.name === previewName);
@@ -163,22 +163,21 @@ run().catch((e) => {
   process.exit(1);
 });
 
-
 // ----------
 
-function cellar() {
+function cellar () {
   return getCellarClient('previews');
 }
 
-function getArchiveRemoteFilepath(arch, name) {
+function getArchiveRemoteFilepath (arch, name) {
   return `${getArchiveRemoteDirectory(name)}/${getArchiveFilename(arch, name)}`;
 }
 
-function getArchiveRemoteDirectory(name) {
+function getArchiveRemoteDirectory (name) {
   return `${REMOTE_PREVIEW_DIR}/${name}`;
 }
 
-async function getManifest() {
+async function getManifest () {
   const cellarClient = cellar();
 
   try {
@@ -189,7 +188,7 @@ async function getManifest() {
       return {
         version: '1',
         previews: [],
-      }
+      };
     }
     throw e;
   }
@@ -248,9 +247,11 @@ async function updateListIndex (manifest) {
     </head>
     <body>
     <h1>Clever tools - Previews</h1>
-    ${manifest.previews.length === 0 ? `
+    ${manifest.previews.length === 0
+? `
       <p><em>No previews right now</em></p>
-    ` : `
+    `
+: `
       <table>
         <tr>
           <th>Branch</th>
@@ -265,8 +266,8 @@ async function updateListIndex (manifest) {
             <td>
               <div class="binaries">
                 ${p.urls.map((u) => {
-                  const url = `<a href="${u.url}">${archEmoji[u.arch]} ${u.arch}</a>`
-                  const checksum = `<code>${u.checksum.value}</code></span>`
+                  const url = `<a href="${u.url}">${archEmoji[u.arch]} ${u.arch}</a>`;
+                  const checksum = `<code>${u.checksum.value}</code></span>`;
                   return `${url}${checksum}`;
                 }).join('')}
               </div>
