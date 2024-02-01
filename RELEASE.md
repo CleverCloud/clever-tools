@@ -16,6 +16,7 @@
   * `npm`
   * `ssh-keyscan`
   * `fpm` (which is a ruby gem)
+  * `docker`
 
 ### Build
 
@@ -201,13 +202,14 @@ We publish new versions on [npmjs.org](https://www.npmjs.com/package/clever-tool
 
 #### Docker Hub
 
-We publish new versions on [Docker Hub](https://hub.docker.com/r/clevercloud/clever-tools/) using automated builds.
-They are triggered for new commits created and pushed to a [GitHub repo](https://github.com/CleverCloud/clever-tools-dockerhub).
+For Docker Hub, a new commit is created and pushed to a [GitHub repo](https://github.com/CleverCloud/clever-tools-dockerhub).
 
 * The new commit updates all files of the given repo using the templates in `templates/dockerhub`.
 
+Then, we build the docker image and publish it on [Docker Hub](https://hub.docker.com/r/clevercloud/clever-tools/).
+
 > [!IMPORTANT]
-> Required environment variables: `CI_CLEVER_CLOUD_SSH_KEY`.
+> Required environment variables: `CI_CLEVER_CLOUD_SSH_KEY`, `DOCKERHUB_USERNAME`, `DOCKERHUB_TOKEN`.
 
 #### Publish locally
 
