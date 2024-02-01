@@ -10,7 +10,7 @@ async function run () {
   const [versionArg, ...optionsArgs] = process.argv.slice(2);
 
   if (versionArg == null || versionArg.length === 0) {
-    throw new Error(`Missing argument 'version'`);
+    throw new Error('Missing argument \'version\'');
   }
 
   const version = getVersion(versionArg);
@@ -33,11 +33,11 @@ run().catch((e) => {
   process.exit(1);
 });
 
-function getVersion(version) {
+function getVersion (version) {
   return version.replace(/\//g, '-');
 }
 
-function resolveOptions(args) {
+function resolveOptions (args) {
   const options = {
     archive: false,
     latest: false,

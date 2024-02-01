@@ -28,8 +28,8 @@ jobs:
         if: github.event_name == 'pull_request'
         run: npx commitlint --from ${{ github.event.pull_request.base.sha }} --to ${{ github.event.pull_request.head.sha }} --verbose
 
-#      - name: '[Code quality] Check ESLint'
-#        run: npm run lint
+      - name: '[Code quality] Check ESLint'
+        run: npm run lint
 
       - name: '[Build] [Prepare] Setup ruby'
         uses: ruby/setup-ruby@v1

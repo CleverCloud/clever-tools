@@ -16,14 +16,14 @@ const PUBLISHERS = {
   exherbo: publishExherbo,
   nexus: publishNexus,
   npm: publishNpm,
-}
+};
 const TARGETS = Object.keys(PUBLISHERS);
 
 async function run () {
   const [version, ...requestedTargets] = process.argv.slice(2);
 
   if (version == null || version.length === 0) {
-    throw new Error(`Missing argument 'version'`);
+    throw new Error('Missing argument \'version\'');
   }
 
   assertVersionCoherence(version);
@@ -46,15 +46,15 @@ run().catch((e) => {
   process.exit(1);
 });
 
-//--
+// --
 
-function assertVersionCoherence(version) {
+function assertVersionCoherence (version) {
   if (version !== pkgJson.version) {
     throw new Error(`Mismatch between version ${version} and package.json version ${pkgJson.version}`);
   }
 }
 
-function resolveTargets(requestedTargets) {
+function resolveTargets (requestedTargets) {
   if (requestedTargets == null || requestedTargets.length === 0) {
     return {
       cellar: true,
@@ -77,7 +77,7 @@ function resolveTargets(requestedTargets) {
   };
 }
 
-async function assertPackagesAreOnCellar(version) {
+async function assertPackagesAreOnCellar (version) {
   try {
     await assertRemoteFilesAreOnCellar(version);
   }

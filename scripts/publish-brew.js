@@ -23,4 +23,4 @@ module.exports = async function publishBrew (version) {
     ...appInfos,
   });
   await commitAndPush({ gitPath, version });
-}
+};

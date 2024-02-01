@@ -8,23 +8,23 @@ const {
   getShaFilepath,
   getArchiveLatestFilepath,
   getBundleFilepath,
-  getBundleFilename
+  getBundleFilename,
 } = require('./paths.js');
 
 const { archList } = cfg;
-const bundlesList =  ['rpm', 'deb', 'nupkg'];
+const bundlesList = ['rpm', 'deb', 'nupkg'];
 
 async function publishCellar (version) {
-  const cellarClient = getCellarClient("releases");
+  const cellarClient = getCellarClient('releases');
 
   for (const file of getFilesToCopy(version)) {
     await cellarClient.upload(file.src, file.dest);
   }
 }
 
-function getFilesToCopy(version) {
+function getFilesToCopy (version) {
 
-  const withSha = (o) => [o, {src: getShaFilepath(o.src), dest: getShaFilepath(o.dest)}];
+  const withSha = (o) => [o, { src: getShaFilepath(o.src), dest: getShaFilepath(o.dest) }];
 
   const archives = archList.flatMap((arch) => {
     const archiveFilepath = getArchiveFilepath(arch, version);
@@ -39,7 +39,7 @@ function getFilesToCopy(version) {
         src: archiveLatestFilepath,
         dest: getRemoteFilepath(archiveLatestFilepath, 'latest'),
       }),
-    ]
+    ];
   });
 
   const bundles = bundlesList.flatMap((type) => {
@@ -53,24 +53,24 @@ function getFilesToCopy(version) {
       ...withSha({
         src: bundleFilepath,
         dest: getRemote(getBundleFilename(type, 'latest'), 'latest'),
-      })
-    ]
+      }),
+    ];
   });
 
-  return [...archives, ... bundles];
+  return [...archives, ...bundles];
 }
 
-function getRemoteFilepath(filepath, version) {
+function getRemoteFilepath (filepath, version) {
   const { base: filename } = path.parse(filepath);
   return getRemote(filename, version);
 }
 
-function getRemote(filename, version) {
+function getRemote (filename, version) {
   return `releases/${version}/${filename}`;
 }
 
-async function assertRemoteFilesAreOnCellar(version) {
-  const cellarClient = getCellarClient("releases");
+async function assertRemoteFilesAreOnCellar (version) {
+  const cellarClient = getCellarClient('releases');
 
   for (const file of getFilesToCopy(version)) {
     if (!await cellarClient.exists(file.dest)) {
@@ -82,4 +82,4 @@ async function assertRemoteFilesAreOnCellar(version) {
 module.exports = {
   publishCellar,
   assertRemoteFilesAreOnCellar,
-}
+};
