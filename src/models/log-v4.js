@@ -25,6 +25,7 @@ async function displayLogs (params) {
     tokens,
     ownerId,
     appId,
+    connectionTimeout: 10_000,
     retryConfiguration,
     since,
     until,
