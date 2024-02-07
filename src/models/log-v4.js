@@ -1,4 +1,4 @@
-const { getHostAndTokens } = require('./send-to-api.js');
+const { getHostAndTokens, processError } = require('./send-to-api.js');
 const colors = require('colors/safe');
 const { Deferred } = require('./utils.js');
 const Logger = require('../logger.js');
@@ -8,6 +8,11 @@ const { ApplicationLogStream } = require('@clevercloud/client/cjs/streams/applic
 // 2000 logs per 100ms maximum
 const THROTTLE_ELEMENTS = 2000;
 const THROTTLE_PER_IN_MILLISECONDS = 100;
+
+const retryConfiguration = {
+  enabled: true,
+  maxRetryCount: 6,
+};
 
 async function displayLogs (params) {
 
@@ -20,6 +25,8 @@ async function displayLogs (params) {
     tokens,
     ownerId,
     appId,
+    connectionTimeout: 10_000,
+    retryConfiguration,
     since,
     until,
     deploymentId,
@@ -33,10 +40,10 @@ async function displayLogs (params) {
 
   logStream
     .on('open', (event) => {
-      Logger.debug(`stream opened! ${JSON.stringify({ appId, filter, deploymentId })}`);
+      Logger.debug(colors.blue(`Logs stream (open) ${JSON.stringify({ appId, filter, deploymentId })}`));
     })
     .on('error', (event) => {
-      Logger.error(`an error occured: ${event.detail}`);
+      Logger.debug(colors.red(`Logs stream (error) ${event.error.message}`));
     })
     .onLog((log) => {
       Logger.println(formatLogLine(log));
@@ -45,6 +52,7 @@ async function displayLogs (params) {
   // start() is blocking until end of stream
   logStream.start()
     .then((reason) => deferred.resolve())
+    .catch(processError)
     .catch((error) => deferred.reject(error));
 
   return logStream;

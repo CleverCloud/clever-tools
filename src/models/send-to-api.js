@@ -23,12 +23,22 @@ async function sendToApi (requestParams) {
     .then(prefixUrl(conf.API_HOST))
     .then(addOauthHeader(tokens))
     .then((requestParams) => {
-      if (process.env.CLEVER_VERBOSE) {
-        Logger.debug(`${requestParams.method.toUpperCase()} ${requestParams.url} ? ${JSON.stringify(requestParams.queryParams)}`);
-      }
+      Logger.debug(`${requestParams.method.toUpperCase()} ${requestParams.url} ? ${JSON.stringify(requestParams.queryParams)}`);
       return requestParams;
     })
-    .then((requestParams) => request(requestParams, { retry: 1 }));
+    .then(request)
+    .catch(processError);
+}
+
+function processError (error) {
+  const code = error.code ?? error?.cause?.code;
+  if (code === 'EAI_AGAIN') {
+    throw new Error('Cannot reach the Clever Cloud API, please check your internet connection.', { cause: error });
+  }
+  if (code === 'ECONNRESET') {
+    throw new Error('The connection to the Clever Cloud API was closed abruptly, please try again.', { cause: error });
+  }
+  throw error;
 }
 
 function sendToWarp10 (requestParams) {
@@ -45,4 +55,4 @@ async function getHostAndTokens () {
   };
 }
 
-module.exports = { sendToApi, sendToWarp10, getHostAndTokens };
+module.exports = { sendToApi, sendToWarp10, getHostAndTokens, processError };
