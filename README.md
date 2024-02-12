@@ -88,6 +88,7 @@ Where `type` is one of:
 Where region is one of:
 
 - `par` (Paris, [Clever Cloud](https://www.clever-cloud.com/infrastructure/))
+- `grahds` (Gravelines, HDS servers, OVHcloud)
 - `rbx` (Roubaix, OVHcloud)
 - `rbxhds` (Roubaix, HDS servers, OVHcloud)
 - `scw` (Paris, [Scaleway DC5](https://www.clever-cloud.com/blog/press/2023/01/17/clever-cloud-and-scaleway-join-forces-to-unveil-a-sovereign-european-paas-offering/))
