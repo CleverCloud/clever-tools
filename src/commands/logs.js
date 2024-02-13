@@ -18,8 +18,7 @@ async function appLogs (params) {
   // TODO: drop when addons are migrated to the v4 API
   if (addonId) {
     Logger.println(colors.blue('Waiting for addon logs…'));
-    const appAddonId = addonId || await AppConfig.getAppDetails({ alias }).then(({ appId }) => appId);
-    return LogV2.displayLogs({ appAddonId, since, until, filter, deploymentId });
+    return LogV2.displayLogs({ appAddonId: addonId, since, until, filter, deploymentId });
   }
 
   Logger.println(colors.blue('Waiting for application logs…'));
