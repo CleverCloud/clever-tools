@@ -35,7 +35,7 @@ jobs:
       - name: '[Prepare] Setup ruby'
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: '2.7'
+          ruby-version: '3.3'
           bundler-cache: true
       - name: '[Prepare] Install fpm'
         run: gem install fpm
