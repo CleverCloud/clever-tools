@@ -14,24 +14,19 @@ module.exports = async function publishNexus (version) {
 
   const nexusAuth = cfg.getNexusAuth();
 
-  let errorCount = 0;
+  const errors = [];
 
   await publishDebToNexus({ nexusAuth, filepath: getBundleFilepath('deb', version) })
-    .catch(() => {
-      errorCount += 1;
-    });
+    .catch((error) => errors.push(error));
 
   await publishNupkgToNexus({ nexusAuth, filepath: getBundleFilepath('nupkg', version) })
-    .catch(() => {
-      errorCount += 1;
-    });
+    .catch((error) => errors.push(error));
 
   await publishRpmToNexus({ nexusAuth, filepath: getBundleFilepath('rpm', version) })
-    .catch(() => {
-      errorCount += 1;
-    });
+    .catch((error) => errors.push(error));
 
-  if (errorCount > 0) {
+  if (errors.length > 0) {
+    console.error(errors);
     throw new Error('Some error occurred while publishing assets to Nexus.');
   }
 };

@@ -134,6 +134,7 @@ module.exports = {
   startTask,
   endTask,
   exec,
+  execSync,
   cloneGitProject,
   writeStringToFile,
   applyTemplates,

@@ -20,7 +20,7 @@ module.exports = async function publishDockerhub (version) {
   await commitAndPush({ gitPath, version });
   await tagAndPush({ gitPath, tagName: version });
 
-  execSync(`docker build -t ${dockerHubConf.imageName}:latest -t ${dockerHubConf.imageName}:${version} .`);
+  execSync(`docker build -t ${dockerHubConf.imageName}:latest -t ${dockerHubConf.imageName}:${version} .`, gitPath);
   childProcess.execSync(`docker login -u ${dockerHubConf.username} --password-stdin`, { input: dockerHubConf.token });
   execSync(`docker push -a ${dockerHubConf.imageName}`);
   execSync('docker logout');
