@@ -1,6 +1,18 @@
 # clever-tools changelog
 
 
+## [3.3.0](https://github.com/CleverCloud/clever-tools/compare/3.2.0...3.3.0) (2024-02-15)
+
+
+### 🚀 Features
+
+* add new Gravelines HDS region to autocomplete ([fbebd40](https://github.com/CleverCloud/clever-tools/commit/fbebd406f674bbebc1e9e88a84f2e8270e6b0f7a))
+
+
+### 🐛 Bug Fixes
+
+* **logs:** show addon logs when addonId is provided ([6fb99d5](https://github.com/CleverCloud/clever-tools/commit/6fb99d591c0832e0cfb556f208ae479932b8d5af))
+
 ## [3.2.0](https://github.com/CleverCloud/clever-tools/compare/3.1.0...3.2.0) (2024-02-07)
 
 
