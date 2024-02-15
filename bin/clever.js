@@ -90,7 +90,10 @@ function run () {
       description: 'Application ID (or name, if unambiguous)',
       parser: Parsers.appIdOrName,
     }),
-    appNameCreation: cliparse.argument('app-name', { description: 'Application name' }),
+    appNameCreation: cliparse.argument('app-name', {
+      description: 'Application name (optional, current directory name is used if not specified)',
+      default: '',
+    }),
     backupId: cliparse.argument('backup-id', { description: 'A Database backup ID (format: UUID)' }),
     databaseId: cliparse.argument('database-id', { description: 'Any database ID (format: addon_UUID, postgresql_UUID, mysql_UUID, ...)' }),
     drainId: cliparse.argument('drain-id', { description: 'Drain ID' }),
