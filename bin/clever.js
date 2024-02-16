@@ -348,7 +348,7 @@ function run () {
       parser: Parsers.commaSeparated,
     }),
     showAllActivity: cliparse.flag('show-all', { description: 'Show all activity' }),
-    showAll: cliparse.flag('show-all', { description: 'Show all available dependencies' }),
+    showAll: cliparse.flag('show-all', { description: 'Show all available add-ons and applications' }),
     loginToken: cliparse.option('token', {
       metavar: 'token',
       description: 'Directly give an existing token',

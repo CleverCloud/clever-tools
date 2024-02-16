@@ -1,53 +1,38 @@
 # Nexus configuration
 
-We use a self hosted Nexus repository to distribute `.deb`, `.nupkg` and `.rpm`.
-It's available at [https://nexus.clever-cloud.com/](https://nexus.clever-cloud.com/).
+We use a self hosted Nexus repository to distribute `.deb`, `.nupkg` and `.rpm`. It's available at [https://nexus.clever-cloud.com/](https://nexus.clever-cloud.com/).
 
 ## Repositories
 
-### `.deb` repositories
+### `.deb` repository
 
-We have two repositories for `.deb` packages:
+We have a repository for `.deb` packages, available [here](https://nexus.clever-cloud.com/#browse/browse:deb).
 
 * stable: [deb](https://nexus.clever-cloud.com/#browse/browse:deb)
 
-Link to Nexus [apt-repositories docs](https://help.sonatype.com/repomanager3/formats/apt-repositories).
+The repository is signed with the PGP key `Clever Cloud Nexus (deb)`. The public key is published on the Cellar at [https://clever-tools.clever-cloud.com/gpg/cc-nexus-deb.public.gpg.key](https://clever-tools.clever-cloud.com/gpg/cc-nexus-deb.public.gpg.key). The private key, public key and passphrase are stored in our vault.
 
-The repository is signed with the PGP key `Clever Cloud Nexus (deb)`.
+### `.nupkg` repository
 
-* The public key is available publised on the Cellar at [https://clever-tools.clever-cloud.com/gpg/cc-nexus-deb.public.gpg.key](https://clever-tools.clever-cloud.com/gpg/cc-nexus-deb.public.gpg.key)
-* The private key, public key and passphrase are stored in our vault.
+We have a repository for `.nupkg` packages, available [here](https://nexus.clever-cloud.com/#browse/browse:nupkg)
 
-### `.nupkg` repositories
+* Link to Nexus [nuget-repositories docs](https://help.sonatype.com/repomanager3/formats/nuget-repositories)
 
-We have two repositories for `.nupkg` packages:
+### `.rpm` repository
 
-* stable: [nupkg](https://nexus.clever-cloud.com/#browse/browse:nupkg)
+We have a repository for `.rpm` packages, available [here](https://nexus.clever-cloud.com/#browse/browse:rpm).
 
-Link to Nexus [nuget-repositories docs](https://help.sonatype.com/repomanager3/formats/nuget-repositories).
+* Link to Nexus [yum-repositories docs](https://help.sonatype.com/repomanager3/formats/yum-repositories)
 
-WIP
+The repository is not signed, but the `.rpm` packages are.
 
-### `.rpm` repositories
+The repo description is maintained in this git repo at `templates/rpm/cc-nexus-rpm.repo`. It's published on the Cellar at [https://clever-tools.clever-cloud.com/repos/cc-nexus-rpm.repo](https://clever-tools.clever-cloud.com/repos/cc-nexus-rpm.repo). The public key is published on the Cellar at [https://clever-tools.clever-cloud.com/gpg/cc-nexus-rpm.public.gpg.key](https://clever-tools.clever-cloud.com/gpg/cc-nexus-rpm.public.gpg.key). The private key, public key and passphrase are stored in our vault.
 
-We have two repositories for `.rpm` packages:
+### GnuPG Keys
 
-* stable: [rpm](https://nexus.clever-cloud.com/#browse/browse:rpm)
+Steps to follow to generate a new pair of GnuPG keys:
 
-Link to Nexus [yum-repositories docs](https://help.sonatype.com/repomanager3/formats/yum-repositories).
-
-The repository is not signed but the `.rpm` packages are.
-
-* The repo description is maintained in this git repo at `templates/rpm/cc-nexus-rpm.repo`.
-  * It's published on the Cellar at [https://clever-tools.clever-cloud.com/repos/cc-nexus-rpm.repo](https://clever-tools.clever-cloud.com/repos/cc-nexus-rpm.repo)
-* The public key is available publised on the Cellar at [https://clever-tools.clever-cloud.com/gpg/cc-nexus-rpm.public.gpg.key](https://clever-tools.clever-cloud.com/gpg/cc-nexus-rpm.public.gpg.key)
-* The private key, public key and passphrase are stored in our vault.
-
-### PGP Keys
-
-Steps to follow to generate a new pair of PGP keys:
-
-* Prepate a random string for the passphrase (30 chars is good)
+* Prepare a random string for the passphrase (30+ chars is good)
 * Run `gpg --gen-key`
 * Name: `Clever Cloud Nexus (deb)`
 * Email: ci@clever-cloud.com
