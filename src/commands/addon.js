@@ -34,7 +34,14 @@ async function list (params) {
 
 async function create (params) {
   const [providerName, name] = params.args;
-  const { link: linkedAppAlias, plan: planName, region, yes: skipConfirmation, org: orgaIdOrName } = params.options;
+  const {
+    link: linkedAppAlias,
+    plan: planName,
+    region,
+    yes: skipConfirmation,
+    org: orgaIdOrName,
+    format,
+  } = params.options;
   const version = params.options['addon-version'];
   const addonOptions = parseAddonOptions(params.options.option);
 
@@ -42,36 +49,54 @@ async function create (params) {
     ? await Organisation.getId(orgaIdOrName)
     : await User.getCurrentId();
 
+  const addonToCreate = {
+    ownerId,
+    name,
+    providerName,
+    planName,
+    region,
+    skipConfirmation,
+    version,
+    addonOptions,
+  };
+
   if (linkedAppAlias != null) {
     const linkedAppData = await AppConfig.getAppDetails({ alias: linkedAppAlias });
-    if (orgaIdOrName != null && linkedAppData.ownerId !== ownerId) {
+    if (orgaIdOrName != null && linkedAppData.ownerId !== ownerId && format === 'human') {
       Logger.warn('The specified application does not belong to the specified organisation. Ignoring the `--org` option');
     }
     const newAddon = await Addon.create({
+      ...addonToCreate,
       ownerId: linkedAppData.ownerId,
-      name,
-      providerName,
-      planName,
-      region,
-      skipConfirmation,
-      version,
-      addonOptions,
     });
     await Addon.link(linkedAppData.ownerId, linkedAppData.appId, { addon_id: newAddon.id });
-    Logger.println(`Addon ${name} (id: ${newAddon.id}) successfully created and linked to the application`);
+    displayAddon(format, newAddon, `Add-on created and linked to application ${linkedAppAlias} successfully!`);
   }
   else {
-    const newAddon = await Addon.create({
-      ownerId,
-      name,
-      providerName,
-      planName,
-      region,
-      skipConfirmation,
-      version,
-      addonOptions,
-    });
-    Logger.println(`Addon ${name} (id: ${newAddon.id}) successfully created`);
+    const newAddon = await Addon.create(addonToCreate);
+    displayAddon(format, newAddon, 'Add-on created successfully!');
+  }
+}
+
+function displayAddon (format, addon, message) {
+  switch (format) {
+
+    case 'json': {
+      Logger.printJson({
+        id: addon.id,
+        name: addon.name,
+        realId: addon.realId,
+      });
+      break;
+    }
+
+    case 'human':
+    default:
+      Logger.println([
+        message,
+        `ID: ${addon.id}`,
+        `Real ID: ${addon.realId}`,
+      ].join('\n'));
   }
 }
 

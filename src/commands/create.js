@@ -19,13 +19,18 @@ async function create (params) {
   switch (format) {
 
     case 'json': {
-      console.log(JSON.stringify(app, null, 2));
+      Logger.printJson({
+        id: app.id,
+        name: app.name,
+        deployUrl: app.deployUrl,
+      });
       break;
     }
 
     case 'human':
     default:
-      Logger.println('Your application has been successfully created!');
+      Logger.println('Application created successfully!');
+      Logger.println(`ID: ${app.id}`);
   }
 };
 

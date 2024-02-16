@@ -52,6 +52,11 @@ const Logger = _(['debug', 'info', 'warn', 'error'])
 // No decoration for Logger.println
 Logger.println = console.log;
 
+// No decoration for Logger.println
+Logger.printJson = (obj) => {
+  console.log(JSON.stringify(obj, null, 2));
+};
+
 // No decoration for Logger.printErrorLine
 Logger.printErrorLine = console.error;
 
