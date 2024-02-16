@@ -35,6 +35,7 @@ async function create (params) {
     default:
       Logger.println('Application created successfully!');
       Logger.println(`ID: ${app.id}`);
+      Logger.println(`Name: ${name}`);
   }
 };
 
