@@ -84,8 +84,8 @@ function displayAddon (format, addon, message) {
     case 'json': {
       Logger.printJson({
         id: addon.id,
-        name: addon.name,
         realId: addon.realId,
+        name: addon.name,
       });
       break;
     }
@@ -96,6 +96,7 @@ function displayAddon (format, addon, message) {
         message,
         `ID: ${addon.id}`,
         `Real ID: ${addon.realId}`,
+        `Name: ${addon.name}`,
       ].join('\n'));
   }
 }
