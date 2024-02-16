@@ -135,6 +135,7 @@ function run () {
     sourceableEnvVarsList: cliparse.flag('add-export', { description: 'Display sourceable env variables setting' }),
     accesslogsFormat: getOutputFormatOption(['simple', 'extended', 'clf']),
     addonEnvFormat: getOutputFormatOption(['shell']),
+    logsFormat: getOutputFormatOption(['json-stream']),
     accesslogsFollow: cliparse.flag('follow', {
       aliases: ['f'],
       description: 'Display access logs continuously (ignores before/until, after/since)',
@@ -763,7 +764,7 @@ function run () {
   const logs = lazyRequirePromiseModule('../src/commands/logs.js');
   const logsCommand = cliparse.command('logs', {
     description: 'Fetch application logs, continuously',
-    options: [opts.alias, opts.before, opts.after, opts.search, opts.deploymentId, opts.addonId],
+    options: [opts.alias, opts.before, opts.after, opts.search, opts.deploymentId, opts.addonId, opts.logsFormat],
   }, logs('appLogs'));
 
   // MAKE DEFAULT COMMAND

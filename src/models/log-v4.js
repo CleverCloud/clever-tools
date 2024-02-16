@@ -18,7 +18,11 @@ async function displayLogs (params) {
 
   const deferred = params.deferred || new Deferred();
   const { apiHost, tokens } = await getHostAndTokens();
-  const { ownerId, appId, filter, since, until, deploymentId } = params;
+  const { ownerId, appId, filter, since, until, deploymentId, format } = params;
+
+  if (format === 'json' && until == null) {
+    throw new Error('"json" format is only applicable with a limiting parameter such as `--until`');
+  }
 
   const logStream = new ApplicationLogStream({
     apiHost,
@@ -37,21 +41,40 @@ async function displayLogs (params) {
 
   // Properly close the stream
   process.once('SIGINT', (signal) => logStream.close(signal));
+  const jsonArray = new JsonArray();
 
   logStream
     .on('open', (event) => {
       Logger.debug(colors.blue(`Logs stream (open) ${JSON.stringify({ appId, filter, deploymentId })}`));
+      if (format === 'json') {
+        jsonArray.open();
+      }
     })
     .on('error', (event) => {
       Logger.debug(colors.red(`Logs stream (error) ${event.error.message}`));
     })
     .onLog((log) => {
-      Logger.println(formatLogLine(log));
+      switch (format) {
+        case 'json':
+          jsonArray.push(log);
+          return;
+        case 'json-stream':
+          Logger.printJson(log);
+          return;
+        case 'human':
+        default:
+          Logger.println(formatLogLine(log));
+      }
     });
 
   // start() is blocking until end of stream
   logStream.start()
-    .then((reason) => deferred.resolve())
+    .then((reason) => {
+      if (format === 'json') {
+        jsonArray.close();
+      }
+      return deferred.resolve();
+    })
     .catch(processError)
     .catch((error) => deferred.reject(error));
 
@@ -142,3 +165,30 @@ function isBuildSucessMessage (log) {
 };
 
 module.exports = { displayLogs, watchDeploymentAndDisplayLogs };
+
+/**
+ * Helper to print a real JSON array with starting `[` and ending `]`
+ */
+class JsonArray {
+  constructor () {
+    this._isFirst = true;
+  }
+
+  open () {
+    process.stdout.write('[\n');
+  }
+
+  push (log) {
+    if (this._isFirst) {
+      this._isFirst = false;
+    }
+    else {
+      process.stdout.write(',\n');
+    }
+    process.stdout.write(`  ${JSON.stringify(log)}`);
+  }
+
+  close () {
+    process.stdout.write('\n]');
+  }
+}
