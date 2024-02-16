@@ -183,6 +183,12 @@ function run () {
       metavar: 'commit id',
       description: 'Restart the application with a specific commit ID',
     }),
+    gitTag: cliparse.option('tag', {
+      aliases: ['t'],
+      default: '',
+      metavar: 'tag',
+      description: 'Tag to push (none by default)',
+    }),
     databaseId: cliparse.option('database-id', {
       metavar: 'database_id',
       description: 'The Database ID (e.g.: postgresql_xxx)',
@@ -646,7 +652,7 @@ function run () {
   const deploy = lazyRequirePromiseModule('../src/commands/deploy.js');
   const deployCommand = cliparse.command('deploy', {
     description: 'Deploy an application',
-    options: [opts.alias, opts.branch, opts.quiet, opts.forceDeploy, opts.followDeployLogs, opts.sameCommitPolicy],
+    options: [opts.alias, opts.branch, opts.gitTag, opts.quiet, opts.forceDeploy, opts.followDeployLogs, opts.sameCommitPolicy],
   }, deploy('deploy'));
 
   // DIAG COMMAND
