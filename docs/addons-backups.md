@@ -32,6 +32,7 @@ You can set `plan`, `region`, `version`, `option` and directly `link` an add-on 
 [--region, -r] REGION               Region to provision the add-on in, depends on the provider (default: par)
 [--addon-version] ADDON-VERSION     The version to use for the add-on
 [--option] OPTION                   Option to enable for the add-on. Multiple --option argument can be passed to enable multiple options
+[--format, -F] FORMAT               Output format (human, json) (default: human)
 ```
 
 To rename an add-on, use:
