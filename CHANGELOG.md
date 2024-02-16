@@ -1,6 +1,23 @@
 # clever-tools changelog
 
 
+## [3.4.0](https://github.com/CleverCloud/clever-tools/compare/3.3.0...3.4.0) (2024-02-16)
+
+
+### 🚀 Features
+
+* **addon-create:** add support for JSON format (-F json) ([334cec5](https://github.com/CleverCloud/clever-tools/commit/334cec56a43e0e511a4eaae17350a6caea912576))
+* **create:** add support for JSON format (-F json) ([1f7842a](https://github.com/CleverCloud/clever-tools/commit/1f7842a3a9d0e4f8b1d235f13fd6c5dc06dc0fc0))
+* **create:** display name once app (or add-on) is created ([1a3eb9e](https://github.com/CleverCloud/clever-tools/commit/1a3eb9ea9acf44aebc431b617cbf7d522b27d880))
+* **create:** make app name optional (use current directory name if not specified) ([0a20393](https://github.com/CleverCloud/clever-tools/commit/0a2039302f8c237616e0ba48de97a2b1de89ec88))
+* **deploy:** support tag option ([52ea270](https://github.com/CleverCloud/clever-tools/commit/52ea270b5148d29b5c52d01321541b2227437f0a))
+* **logs:** support "json" and "json-stream" formats (for apps only) ([a909959](https://github.com/CleverCloud/clever-tools/commit/a909959314a3d5465d040304b2ee0036b35cde28))
+
+
+### 🐛 Bug Fixes
+
+* **docker:** inject Docker hub credentials to actions ([e5e546e](https://github.com/CleverCloud/clever-tools/commit/e5e546e88d5ff5f93de1384615619b883ea278bc))
+
 ## [3.3.0](https://github.com/CleverCloud/clever-tools/compare/3.2.0...3.3.0) (2024-02-15)
 
 
