@@ -14,6 +14,7 @@ It will `git push` your code on the remote repository of your application on Cle
 
 ```
 [--branch, -b] BRANCH                             Branch to push (current branch by default) (default: )
+[--tag, -t] TAG                                   Tag to push (none by default) (default: )
 [--quiet, -q]                                     Don't show logs during deployment (default: false)
 [--force, -f]                                     Force deploy even if it's not fast-forwardable (default: false)
 [--follow]                                        Continue to follow logs after deployment has ended (default: false)
@@ -77,11 +78,12 @@ You can also get logs from a specific timeline, deployment or add-on through
 options:
 
 ```
-[--before, --until] BEFORE          Fetch logs before this date (ISO8601)
-[--after, --since] AFTER            Fetch logs after this date (ISO8601)
+[--before, --until] BEFORE          Fetch logs before this date/time (ISO8601)
+[--after, --since] AFTER            Fetch logs after this date/time (ISO8601)
 [--search] SEARCH                   Fetch logs matching this pattern
 [--deployment-id] DEPLOYMENT_ID     Fetch logs for a given deployment
 [--addon] ADDON_ID                  Add-on ID
+[--format, -F] FORMAT               Output format (human, json, json-stream) (default: human)
 ```
 
 ## access logs
