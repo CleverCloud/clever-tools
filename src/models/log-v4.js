@@ -92,11 +92,16 @@ async function watchDeploymentAndDisplayLogs (options) {
     quiet,
     follow,
     redeployDate,
+    watch,
   } = options;
 
   Logger.println('Waiting for deployment to start…');
   const deployment = await waitForDeploymentStart({ ownerId, appId, deploymentId, commitId, knownDeployments });
   Logger.println(colors.bold.blue(`Deployment started (${deployment.uuid})`));
+
+  if (!watch) {
+    return;
+  }
 
   const deferred = new Deferred();
   let logsStream;

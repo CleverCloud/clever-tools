@@ -36,6 +36,7 @@ async function restart (params) {
     quiet,
     follow,
     redeployDate,
+    watch: true,
   });
 }
 

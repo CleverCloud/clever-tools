@@ -100,11 +100,15 @@ async function displayLogs ({ appAddonId, until, since, filter, deploymentId }) 
   return deferred.promise;
 }
 
-async function watchDeploymentAndDisplayLogs ({ ownerId, appId, deploymentId, commitId, knownDeployments, quiet, follow }) {
+async function watchDeploymentAndDisplayLogs ({ ownerId, appId, deploymentId, commitId, knownDeployments, quiet, follow, watch }) {
 
   Logger.println('Waiting for deployment to start…');
   const deployment = await waitForDeploymentStart({ ownerId, appId, deploymentId, commitId, knownDeployments });
   Logger.println(colors.bold.blue(`Deployment started (${deployment.uuid})`));
+
+  if (!watch) {
+    return;
+  }
 
   const deferred = new Deferred();
   let logsStream;
