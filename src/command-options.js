@@ -36,7 +36,26 @@ function getSameCommitPolicyOption () {
   });
 }
 
+function getExitOnOption () {
+  const availableExitOn = ['deploy-start', 'deploy-end', 'never'];
+  return cliparse.option('exit-on', {
+    aliases: ['e'],
+    metavar: 'exiton',
+    parser: (exitOnStrategy) => {
+      return availableExitOn.includes(exitOnStrategy)
+        ? cliparse.parsers.success(exitOnStrategy)
+        : cliparse.parsers.error(`The exit-on strategy must be one of ${availableExitOn.join(', ')}`);
+    },
+    default: 'deploy-end',
+    description: `Step at which the logs streaming is ended, steps are: ${availableExitOn.join(', ')}`,
+    complete () {
+      return cliparse.autocomplete.words(availableExitOn);
+    },
+  });
+}
+
 module.exports = {
   getOutputFormatOption,
   getSameCommitPolicyOption,
+  getExitOnOption,
 };

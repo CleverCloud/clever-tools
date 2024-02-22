@@ -5,6 +5,7 @@ const Logger = require('../logger.js');
 const { waitForDeploymentEnd, waitForDeploymentStart } = require('./deployments.js');
 const { ApplicationLogStream } = require('@clevercloud/client/cjs/streams/application-logs.js');
 const { JsonArray } = require('./json-array.js');
+const ExitStrategy = require('../models/exit-strategy-option.js');
 
 // 2000 logs per 100ms maximum
 const THROTTLE_ELEMENTS = 2000;
@@ -91,14 +92,19 @@ async function watchDeploymentAndDisplayLogs (options) {
     commitId,
     knownDeployments,
     quiet,
-    follow,
     redeployDate,
+    exitStrategy,
   } = options;
 
+  ExitStrategy.plotQuietWarning(exitStrategy, quiet);
   // If in quiet mode, we only log start/finished deployment messages
   !quiet && Logger.println('Waiting for deployment to start…');
   const deployment = await waitForDeploymentStart({ ownerId, appId, deploymentId, commitId, knownDeployments });
   Logger.println(colors.bold.blue(`Deployment started (${deployment.uuid})`));
+
+  if (exitStrategy === 'deploy-start') {
+    return;
+  }
 
   const deferred = new Deferred();
   let logsStream;
@@ -121,7 +127,7 @@ async function watchDeploymentAndDisplayLogs (options) {
     deferred.promise,
   ]);
 
-  if (!quiet && !follow) {
+  if (!quiet && exitStrategy !== 'never') {
     logsStream.close(quiet ? 'quiet' : 'follow');
   }
 

@@ -6,11 +6,14 @@ const Application = require('../models/application.js');
 const git = require('../models/git.js');
 const Log = require('../models/log-v4.js');
 const Logger = require('../logger.js');
+const ExitStrategy = require('../models/exit-strategy-option.js');
 
 // Once the API call to redeploy() has been triggerred successfully,
 // the rest (waiting for deployment state to evolve and displaying logs) is done with auto retry (resilient to network pb)
 async function restart (params) {
-  const { alias, app: appIdOrName, quiet, commit, 'without-cache': withoutCache, follow } = params.options;
+  const { alias, app: appIdOrName, quiet, commit, 'without-cache': withoutCache, follow, 'exit-on': exitOnDeploy } = params.options;
+
+  const exitStrategy = ExitStrategy.get(follow, exitOnDeploy);
 
   const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
   const fullCommitId = await git.resolveFullCommitId(commit);
@@ -38,8 +41,8 @@ async function restart (params) {
     appId,
     deploymentId: redeploy.deploymentId,
     quiet,
-    follow,
     redeployDate,
+    exitStrategy,
   });
 }
 
