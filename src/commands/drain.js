@@ -25,16 +25,22 @@ async function list (params) {
   }
 
   drains.forEach((drain) => {
-    const { id, state, target: { url, drainType } } = drain;
-    Logger.println(`${id} -> ${state} for ${url} as ${drainType}`);
+    const { id, state, target } = drain;
+    const { url, drainType, indexPrefix } = target;
+
+    let drainView = `${id} -> ${state} for ${url} as ${drainType}`;
+    if (indexPrefix != null) {
+      drainView += `, index: '${indexPrefix}-<YYYY-MM-DD>'`;
+    }
+    Logger.println(drainView);
   });
 }
 
 async function create (params) {
   const [drainTargetType, drainTargetURL] = params.args;
-  const { alias, addon: addonId, username, password, 'api-key': apiKey } = params.options;
+  const { alias, addon: addonId, username, password, 'api-key': apiKey, 'index-prefix': indexPrefix } = params.options;
   const drainTargetCredentials = { username, password };
-  const drainTargetConfig = { apiKey };
+  const drainTargetConfig = { apiKey, indexPrefix };
 
   const appIdOrAddonId = await getAppOrAddonId({ alias, addonId });
   const body = createDrainBody(appIdOrAddonId, drainTargetURL, drainTargetType, drainTargetCredentials, drainTargetConfig);

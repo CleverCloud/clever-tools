@@ -377,6 +377,12 @@ function run () {
       metavar: 'api_key',
       description: 'Drain custom key',
     }),
+    drainIndexPrefix: cliparse.option('index-prefix', {
+      aliases: ['i'],
+      metavar: 'index_prefix',
+      description: 'Optional drain index prefix for ElasticSearch: `<indexPrefix>-<YYYY-MM-DD>`',
+      default: 'logstash-<YYYY-MM-DD>',
+    }),
     verbose: cliparse.flag('verbose', { aliases: ['v'], description: 'Verbose output' }),
     withoutCache: cliparse.flag('without-cache', { description: 'Restart the application without using cache' }),
     confirmAddonCreation: cliparse.flag('yes', {
@@ -695,7 +701,7 @@ function run () {
   const drainCreateCommand = cliparse.command('create', {
     description: 'Create a drain',
     args: [args.drainType, args.drainUrl],
-    options: [opts.addonId, opts.drainUsername, opts.drainPassword, opts.drainAPIKey],
+    options: [opts.addonId, opts.drainUsername, opts.drainPassword, opts.drainAPIKey, opts.drainIndexPrefix],
   }, drain('create'));
   const drainRemoveCommand = cliparse.command('remove', {
     description: 'Remove a drain',
