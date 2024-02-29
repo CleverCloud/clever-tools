@@ -47,7 +47,6 @@ Default region is our Paris datacenters (`par`), but it can be:
 - `rbx` (Roubaix, OVHcloud)
 - `rbxhds` (Roubaix, HDS servers, OVHcloud)
 - `scw` (Paris, [Scaleway DC5](https://www.clever-cloud.com/blog/press/2023/01/17/clever-cloud-and-scaleway-join-forces-to-unveil-a-sovereign-european-paas-offering/))
-- `jed` (Jeddah, Oracle Cloud)
 - `mtl` (Montreal, OVHcloud)
 - `sgp` (Singapore, OVHcloud)
 - `syd` (Sydney, OVHcloud)

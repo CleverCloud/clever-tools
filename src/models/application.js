@@ -17,7 +17,7 @@ function listAvailableTypes () {
   return autocomplete.words(['docker', 'elixir', 'go', 'gradle', 'haskell', 'jar', 'maven', 'meteor', 'node', 'php', 'play1', 'play2', 'python', 'ruby', 'rust', 'sbt', 'static-apache', 'war']);
 };
 
-const AVAILABLE_ZONES = ['par', 'grahds', 'rbx', 'rbxhds', 'scw', 'jed', 'mtl', 'sgp', 'syd', 'wsw'];
+const AVAILABLE_ZONES = ['par', 'grahds', 'rbx', 'rbxhds', 'scw', 'mtl', 'sgp', 'syd', 'wsw'];
 
 function listAvailableZones () {
   return autocomplete.words(AVAILABLE_ZONES);
