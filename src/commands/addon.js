@@ -16,20 +16,40 @@ const { toNameEqualsValueString } = require('@clevercloud/client/cjs/utils/env-v
 const { resolveAddonId } = require('../models/ids-resolver.js');
 
 async function list (params) {
-  const { org: orgaIdOrName } = params.options;
+  const { org: orgaIdOrName, format } = params.options;
 
   const ownerId = await Organisation.getId(orgaIdOrName);
   const addons = await Addon.list(ownerId);
 
-  const formattedAddons = addons.map((addon) => {
-    return [
-      addon.plan.name + ' ' + addon.provider.name,
-      addon.region,
-      colors.bold.green(addon.name),
-      addon.id,
-    ];
-  });
-  Logger.println(formatTable(formattedAddons));
+  switch (format) {
+    case 'json': {
+      const formattedAddons = addons.map((addon) => {
+        return {
+          addonId: addon.id,
+          creationDate: addon.creationDate,
+          name: addon.name,
+          plan: addon.plan.name,
+          realId: addon.realId,
+          region: addon.region,
+          type: addon.provider.name,
+        };
+      });
+      Logger.printJson(formattedAddons);
+      break;
+    }
+    case 'human':
+    default: {
+      const formattedAddons = addons.map((addon) => {
+        return [
+          addon.plan.name + ' ' + addon.provider.name,
+          addon.region,
+          colors.bold.green(addon.name),
+          addon.id,
+        ];
+      });
+      Logger.println(formatTable(formattedAddons));
+    }
+  }
 }
 
 async function create (params) {
