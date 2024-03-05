@@ -94,7 +94,8 @@ async function watchDeploymentAndDisplayLogs (options) {
     redeployDate,
   } = options;
 
-  Logger.println('Waiting for deployment to start…');
+  // If in quiet mode, we only log start/finished deployment messages
+  !quiet && Logger.println('Waiting for deployment to start…');
   const deployment = await waitForDeploymentStart({ ownerId, appId, deploymentId, commitId, knownDeployments });
   Logger.println(colors.bold.blue(`Deployment started (${deployment.uuid})`));
 
@@ -111,7 +112,7 @@ async function watchDeploymentAndDisplayLogs (options) {
     logsStream = await displayLogs({ ownerId, appId, deploymentId: deployment.uuid, since: redeployDate, deferred });
   }
 
-  Logger.println('Waiting for application logs…');
+  !quiet && Logger.println('Waiting for application logs…');
 
   // Wait for deployment end (or an error thrown by logs with the deferred)
   const deploymentEnded = await Promise.race([
