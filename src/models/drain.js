@@ -6,7 +6,7 @@ const DRAIN_TYPES = [
   { id: 'TCPSyslog' },
   { id: 'UDPSyslog' },
   { id: 'HTTP', credentials: 'OPTIONAL' },
-  { id: 'ElasticSearch', credentials: 'MANDATORY' },
+  { id: 'ElasticSearch', credentials: 'MANDATORY', indexPrefix: 'OPTIONAL' },
   { id: 'DatadogHTTP' },
   { id: 'NewRelicHTTP', apiKey: 'MANDATORY' },
 ];
@@ -30,14 +30,18 @@ function createDrainBody (appId, drainTargetURL, drainTargetType, drainTargetCre
   if (keyExist(drainTargetConfig)) {
     body.APIKey = drainTargetConfig.apiKey;
   }
+  if (indexPrefixExist(drainTargetConfig)) {
+    body.indexPrefix = drainTargetConfig.indexPrefix;
+  }
   return body;
 }
 
 function authorizeDrainCreation (drainTargetType, drainTargetCredentials, drainTargetConfig) {
   if (drainTypeExists(drainTargetType)) {
-    // retrieve creds for drain type ('mandatory', 'optional', undefined)
-    const credStatus = credentialsStatus(drainTargetType).credentials;
-    const keyStatus = credentialsStatus(drainTargetType).apiKey;
+    // retrieve field for drain type ('mandatory', 'optional', undefined)
+    const credStatus = fieldStatus(drainTargetType).credentials;
+    const keyStatus = fieldStatus(drainTargetType).apiKey;
+    const indexPrefixStatus = fieldStatus(drainTargetType).indexPrefix;
 
     if (credStatus === 'MANDATORY') {
       return credentialsExist(drainTargetCredentials);
@@ -58,10 +62,20 @@ function authorizeDrainCreation (drainTargetType, drainTargetCredentials, drainT
     if (!keyStatus) {
       return keyEmpty(drainTargetConfig);
     }
+
+    if (indexPrefixStatus === 'MANDATORY') {
+      return indexPrefixExist(drainTargetConfig);
+    }
+    if (indexPrefixStatus === 'OPTIONAL') {
+      return true;
+    }
+    if (!indexPrefixStatus) {
+      return indexPrefixEmpty(drainTargetConfig);
+    }
   }
 }
 
-function credentialsStatus (drainTargetType) {
+function fieldStatus (drainTargetType) {
   return DRAIN_TYPES.find(({ id }) => id === drainTargetType);
 }
 
@@ -75,6 +89,14 @@ function credentialsExist ({ username, password }) {
 
 function credentialsEmpty ({ username, password }) {
   return username == null && password == null;
+}
+
+function indexPrefixExist ({ indexPrefix }) {
+  return indexPrefix != null;
+}
+
+function indexPrefixEmpty ({ indexPrefix }) {
+  return indexPrefix == null;
 }
 
 function keyExist ({ apiKey }) {
