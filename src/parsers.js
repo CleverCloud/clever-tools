@@ -3,6 +3,8 @@
 const cliparse = require('cliparse');
 
 const Application = require('./models/application.js');
+const ISO8601 = require('iso8601-duration');
+const Duration = require('duration-js');
 
 function flavor (flavor) {
   const flavors = Application.listAvailableFlavors();
@@ -143,6 +145,40 @@ function portNumber (number) {
   return cliparse.parsers.error(`Invalid port number '${number}'. Should match ${portNumberRegex}`);
 }
 
+/**
+ * Parse a duration into seconds
+ * A Zero seconds duration is allowed
+ * @param {string} durationStr an ISO8601, 1h or a positive number
+ * @returns {number} number of seconds
+ */
+function durationInSeconds (durationStr = '') {
+  const failed = cliparse.parsers.error(`Invalid duration: "${durationStr}", expect (IS0 8601 duration / a "1h, 1m, 30s" like duration / a positive number in seconds)`);
+
+  if (durationStr.startsWith('P')) {
+    try {
+      const d = ISO8601.parse(durationStr);
+      return cliparse.parsers.success(ISO8601.toSeconds(d));
+    }
+    catch (err) {
+      return failed;
+    }
+  }
+
+  try {
+    const duration = Duration.parse(durationStr);
+    return cliparse.parsers.success(duration.seconds());
+  }
+  catch (err) {
+    const n = Number.parseInt(durationStr);
+    console.log(`N: ${n}`);
+    if (isNaN(n) || n < 0) {
+      return failed;
+    }
+
+    return cliparse.parsers.success(n);
+  }
+}
+
 module.exports = {
   buildFlavor,
   flavor,
@@ -162,4 +198,5 @@ module.exports = {
   ipAddress,
   portNumberRegex,
   portNumber,
+  durationInSeconds,
 };
