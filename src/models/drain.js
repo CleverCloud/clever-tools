@@ -3,8 +3,8 @@
 const autocomplete = require('cliparse').autocomplete;
 
 const DRAIN_TYPES = [
-  { id: 'TCPSyslog' },
-  { id: 'UDPSyslog' },
+  { id: 'TCPSyslog', structuredDataParameters: 'OPTIONAL' },
+  { id: 'UDPSyslog', structuredDataParameters: 'OPTIONAL' },
   { id: 'HTTP', credentials: 'OPTIONAL' },
   { id: 'ElasticSearch', credentials: 'MANDATORY', indexPrefix: 'OPTIONAL' },
   { id: 'DatadogHTTP' },
@@ -33,6 +33,9 @@ function createDrainBody (appId, drainTargetURL, drainTargetType, drainTargetCre
   if (indexPrefixExist(drainTargetConfig)) {
     body.indexPrefix = drainTargetConfig.indexPrefix;
   }
+  if (structuredDataParametersExist(drainTargetConfig)) {
+    body.structuredDataParameters = drainTargetConfig.structuredDataParameters;
+  }
   return body;
 }
 
@@ -42,6 +45,7 @@ function authorizeDrainCreation (drainTargetType, drainTargetCredentials, drainT
     const credStatus = fieldStatus(drainTargetType).credentials;
     const keyStatus = fieldStatus(drainTargetType).apiKey;
     const indexPrefixStatus = fieldStatus(drainTargetType).indexPrefix;
+    const structuredDataParametersStatus = fieldStatus(drainTargetType).structuredDataParameters;
 
     if (credStatus === 'MANDATORY') {
       return credentialsExist(drainTargetCredentials);
@@ -72,6 +76,16 @@ function authorizeDrainCreation (drainTargetType, drainTargetCredentials, drainT
     if (!indexPrefixStatus) {
       return indexPrefixEmpty(drainTargetConfig);
     }
+
+    if (structuredDataParametersStatus === 'MANDATORY') {
+      return structuredDataParametersExist(drainTargetConfig);
+    }
+    if (structuredDataParametersStatus === 'OPTIONAL') {
+      return true;
+    }
+    if (!structuredDataParametersStatus) {
+      return structuredDataParametersEmpty(drainTargetConfig);
+    }
   }
 }
 
@@ -97,6 +111,14 @@ function indexPrefixExist ({ indexPrefix }) {
 
 function indexPrefixEmpty ({ indexPrefix }) {
   return indexPrefix == null;
+}
+
+function structuredDataParametersExist ({ structuredDataParameters }) {
+  return structuredDataParameters != null;
+}
+
+function structuredDataParametersEmpty ({ structuredDataParameters }) {
+  return structuredDataParameters == null;
 }
 
 function keyExist ({ apiKey }) {
