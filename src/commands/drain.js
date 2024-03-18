@@ -26,11 +26,14 @@ async function list (params) {
 
   drains.forEach((drain) => {
     const { id, state, target } = drain;
-    const { url, drainType, indexPrefix } = target;
+    const { url, drainType, indexPrefix, structuredDataParameters } = target;
 
     let drainView = `${id} -> ${state} for ${url} as ${drainType}`;
     if (indexPrefix != null) {
       drainView += `, index: '${indexPrefix}-<YYYY-MM-DD>'`;
+    }
+    if (structuredDataParameters != null) {
+      drainView += `, sd-parameters: '${structuredDataParameters}'`;
     }
     Logger.println(drainView);
   });
@@ -38,9 +41,9 @@ async function list (params) {
 
 async function create (params) {
   const [drainTargetType, drainTargetURL] = params.args;
-  const { alias, addon: addonId, username, password, 'api-key': apiKey, 'index-prefix': indexPrefix } = params.options;
+  const { alias, addon: addonId, username, password, 'api-key': apiKey, 'index-prefix': indexPrefix, 'sd-parameters': structuredDataParameters } = params.options;
   const drainTargetCredentials = { username, password };
-  const drainTargetConfig = { apiKey, indexPrefix };
+  const drainTargetConfig = { apiKey, indexPrefix, structuredDataParameters };
 
   const appIdOrAddonId = await getAppOrAddonId({ alias, addonId });
   const body = createDrainBody(appIdOrAddonId, drainTargetURL, drainTargetType, drainTargetCredentials, drainTargetConfig);
