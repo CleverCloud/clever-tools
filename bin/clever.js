@@ -310,7 +310,7 @@ function run () {
     }),
     addonPlan: cliparse.option('plan', {
       aliases: ['p'],
-      default: 'dev',
+      default: '',
       metavar: 'plan',
       description: 'Addon plan, depends on the provider',
       complete: Addon('completePlan'),
