@@ -12,6 +12,18 @@ if (process.argv.includes('--autocomplete-index')) {
   process.env.CLEVER_QUIET = '1';
 }
 
+// These need to be set before other stuff
+// Disable color globally if:
+// - It's a non-TTY environment and the user didn't ask for color
+// - The user asked with --no-color or --color false
+const noColorAsked = process. argv.includes('--no-color') || (process.argv.includes('--color') && process.argv[process.argv.indexOf('--color') + 1] === 'false');
+const noColorTTY = !process.stdout.isTTY && !(process.argv.includes('--color') && process.argv[process.argv.indexOf('--color') + 1] === 'true');
+
+if (noColorAsked || noColorTTY) {
+  const colors = require('colors');
+  colors.disable();
+}
+
 const cliparse = require('cliparse');
 const cliparseCommands = require('cliparse/src/command.js');
 const updateNotifier = require('update-notifier');
@@ -384,6 +396,10 @@ function run () {
       default: 'logstash-<YYYY-MM-DD>',
     }),
     verbose: cliparse.flag('verbose', { aliases: ['v'], description: 'Verbose output' }),
+    color: cliparse.flag('color', { 
+      description: 'Choose whether to print colors or not. You can also use --no-color',
+      default: true
+    }),
     withoutCache: cliparse.flag('without-cache', { description: 'Restart the application without using cache' }),
     confirmAddonCreation: cliparse.flag('yes', {
       aliases: ['y'],
@@ -1097,7 +1113,7 @@ function run () {
     name: 'clever',
     description: 'CLI tool to manage Clever Cloud\'s data and products',
     version: pkg.version,
-    options: [opts.verbose, opts.noUpdateNotifier],
+    options: [opts.color, opts.verbose, opts.noUpdateNotifier],
     helpCommand: false,
     commands,
   });
