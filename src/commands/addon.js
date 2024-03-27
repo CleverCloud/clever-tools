@@ -70,23 +70,26 @@ async function create (params) {
       ownerId: linkedAppData.ownerId,
     });
     await Addon.link(linkedAppData.ownerId, linkedAppData.appId, { addon_id: newAddon.id });
-    displayAddon(format, newAddon, `Add-on created and linked to application ${linkedAppAlias} successfully!`);
+    displayAddon(format, newAddon, providerName, `Add-on created and linked to application ${linkedAppAlias} successfully!`);
   }
   else {
     const newAddon = await Addon.create(addonToCreate);
-    displayAddon(format, newAddon, 'Add-on created successfully!');
+    displayAddon(format, newAddon, providerName, 'Add-on created successfully!');
   }
 }
 
-function displayAddon (format, addon, message) {
+function displayAddon (format, addon, providerName, message) {
   switch (format) {
 
     case 'json': {
-      Logger.printJson({
+      const jsonAddon = {
         id: addon.id,
         realId: addon.realId,
         name: addon.name,
-      });
+      };
+      Logger.printJson((providerName === 'kv')
+        ? { ...jsonAddon, availability: 'alpha', warning: 'Consider using it with care' }
+        : jsonAddon);
       break;
     }
 
@@ -98,6 +101,13 @@ function displayAddon (format, addon, message) {
         `Real ID: ${addon.realId}`,
         `Name: ${addon.name}`,
       ].join('\n'));
+      if (providerName === 'kv') {
+        const materia = `The materia ${providerName} provider is currently available in alpha, consider using it with care \n`
+          + 'To use the redis-cli command exec:\n'
+          + colors.yellow(`source <(clever addon env ${addon.id} -F shell)\n`)
+          + colors.yellow('redis-cli -h $KV_HOST -p $KV_PORT');
+        Logger.println(materia);
+      }
   }
 }
 
