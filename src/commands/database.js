@@ -7,7 +7,7 @@ const formatTable = require('../format-table')();
 const superagent = require('superagent');
 const fs = require('fs');
 const { findOwnerId } = require('../models/addon.js');
-const { resolveRealId } = require('../models/ids-resolver.js');
+const { resolveRealId, resolveAddonId } = require('../models/ids-resolver.js');
 const Logger = require('../logger.js');
 
 async function listBackups (params) {
@@ -15,24 +15,29 @@ async function listBackups (params) {
   const { org, format } = params.options;
   const [addonIdOrRealId] = params.args;
 
-  const addonId = await resolveRealId(addonIdOrRealId);
-  const ownerId = await findOwnerId(org, addonId);
+  const realId = await resolveRealId(addonIdOrRealId);
+  const addonId = await resolveAddonId(addonIdOrRealId);
+  const ownerId = await findOwnerId(org, realId);
 
-  const backups = await getBackups({ ownerId, ref: addonId }).then(sendToApi);
+  const backups = await getBackups({ ownerId, ref: realId }).then(sendToApi);
 
   if (backups.length === 0 && format === 'human') {
     println('There are no backups yet');
     return;
   }
 
+  const sortedBackups = backups.sort((a, b) => a.creation_date.localeCompare(b.creation_date));
+
   switch (format) {
     case 'json': {
-      const formattedBackups = backups.map((backup) => {
+      const formattedBackups = sortedBackups.map((backup) => {
         return {
           addonId: addonId,
           backupId: backup.backup_id,
           creationDate: backup.creation_date,
+          downloadUrl: backup.download_url,
           ownerId: ownerId,
+          realId: realId,
           status: backup.status,
         };
       });
@@ -40,8 +45,7 @@ async function listBackups (params) {
       break;
     }
     case 'human': {
-      const formattedLines = backups
-        .sort((a, b) => a.creation_date.localeCompare(b.creation_date))
+      const formattedLines = sortedBackups
         .map((backup) => [
           backup.backup_id,
           backup.creation_date,
