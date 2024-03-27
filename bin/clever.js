@@ -12,6 +12,14 @@ if (process.argv.includes('--autocomplete-index')) {
   process.env.CLEVER_QUIET = '1';
 }
 
+// These need to be set before Logger and other stuffs
+// If the user asked to disable update notifier with the --update-notifier flag, we set --no-update-notifier
+if ((process.argv.includes('--update-notifier') && process.argv[process.argv.indexOf('--update-notifier') + 1] === 'false')) {
+  if (!process.argv.includes('--no-update-notifier')) {
+    process.argv.push('--no-update-notifier');
+  }
+}
+
 const cliparse = require('cliparse');
 const cliparseCommands = require('cliparse/src/command.js');
 const updateNotifier = require('update-notifier');
@@ -284,7 +292,10 @@ function run () {
       parser: Parsers.instances,
       description: 'The minimum number of parallel instances',
     }),
-    noUpdateNotifier: cliparse.flag('no-update-notifier', { description: 'Don\'t notify available updates for clever-tools' }),
+    UpdateNotifier: cliparse.flag('update-notifier', { 
+      description: 'Choose whether to use update notifier or not. You can also use --no-update-notifier',
+      default: true,
+    }),
     emailNotificationTarget: cliparse.option('notify', {
       metavar: '<email_address>|<user_id>|"organisation"',
       description: 'Notify a user, a specific email address or the whole organisation (multiple values allowed, comma separated)',
@@ -1097,7 +1108,7 @@ function run () {
     name: 'clever',
     description: 'CLI tool to manage Clever Cloud\'s data and products',
     version: pkg.version,
-    options: [opts.verbose, opts.noUpdateNotifier],
+    options: [opts.verbose, opts.UpdateNotifier],
     helpCommand: false,
     commands,
   });
