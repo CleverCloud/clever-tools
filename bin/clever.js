@@ -226,6 +226,19 @@ function run () {
       aliases: ['f'],
       description: 'Force deploy even if it\'s not fast-forwardable',
     }),
+    watchDeploy: cliparse.option('watch', {
+      aliases: ['w'],
+      default: true,
+      description: 'Should watch a deployment logs',
+      parser: (watch) => {
+        const strWatch = watch.toString();
+        return strWatch === 'true' || strWatch === ''
+          ? cliparse.parsers.success(true)
+          : strWatch === 'false'
+            ? cliparse.parsers.success(false)
+            : cliparse.parsers.error('The watch must be empty or a boolean string as "true" or "false"');
+      },
+    }),
     sameCommitPolicy: getSameCommitPolicyOption(),
     webhookFormat: cliparse.option('format', {
       metavar: 'format',
@@ -659,7 +672,7 @@ function run () {
   const deploy = lazyRequirePromiseModule('../src/commands/deploy.js');
   const deployCommand = cliparse.command('deploy', {
     description: 'Deploy an application',
-    options: [opts.alias, opts.branch, opts.gitTag, opts.quiet, opts.forceDeploy, opts.followDeployLogs, opts.sameCommitPolicy],
+    options: [opts.alias, opts.branch, opts.gitTag, opts.quiet, opts.forceDeploy, opts.followDeployLogs, opts.sameCommitPolicy, opts.watchDeploy],
   }, deploy('deploy'));
 
   // DIAG COMMAND
