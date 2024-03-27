@@ -1,6 +1,22 @@
 # clever-tools changelog
 
 
+## [3.5.0](https://github.com/CleverCloud/clever-tools/compare/3.4.0...3.5.0) (2024-03-27)
+
+
+### 🚀 Features
+
+* **backups:** support JSON format when plotting a backup list ([c51c028](https://github.com/CleverCloud/clever-tools/commit/c51c028b8d25fd25d2bac91e408c63ae3acdfea9))
+* **database-backups:** rework json backup list ([5cbb381](https://github.com/CleverCloud/clever-tools/commit/5cbb381f11f52ad9f14aa6dca243cb30431f63fb))
+* **logs:** support duration in since parameters ([a223f3a](https://github.com/CleverCloud/clever-tools/commit/a223f3a77a20c6f062e8003a9548072aff0c657f))
+* **logs:** support indexPrefix customization for ElasticSearch log drain ([2dc0bd6](https://github.com/CleverCloud/clever-tools/commit/2dc0bd655b2b49b32bd749d5bf20b22841448446))
+* **parsers:** add duration parser ([62d6089](https://github.com/CleverCloud/clever-tools/commit/62d60893dc6214567869b31a54e208656661b634))
+
+
+### 🐛 Bug Fixes
+
+* **restart:** quieter mode ([e507113](https://github.com/CleverCloud/clever-tools/commit/e507113675de50c4a7e751add270deac8c260f6e))
+
 ## [3.4.0](https://github.com/CleverCloud/clever-tools/compare/3.3.0...3.4.0) (2024-02-16)
 
 
