@@ -15,6 +15,22 @@ const { sendToApi } = require('../models/send-to-api.js');
 const { toNameEqualsValueString } = require('@clevercloud/client/cjs/utils/env-vars.js');
 const { resolveAddonId } = require('../models/ids-resolver.js');
 
+function getPlan (inputPlan, providerName) {
+
+  // Return user plan
+  if (inputPlan !== '') {
+    return inputPlan;
+  }
+
+  // Choose a default plan based on the add-on provider
+  switch (providerName) {
+    case 'kv':
+      return 'alpha';
+    default:
+      return 'dev';
+  }
+}
+
 async function list (params) {
   const { org: orgaIdOrName, format } = params.options;
 
@@ -58,7 +74,7 @@ async function create (params) {
   const [providerName, name] = params.args;
   const {
     link: linkedAppAlias,
-    plan: planName,
+    plan: inputPlan,
     region,
     yes: skipConfirmation,
     org: orgaIdOrName,
@@ -66,6 +82,7 @@ async function create (params) {
   } = params.options;
   const version = params.options['addon-version'];
   const addonOptions = parseAddonOptions(params.options.option);
+  const planName = getPlan(inputPlan, providerName);
 
   const ownerId = (orgaIdOrName != null)
     ? await Organisation.getId(orgaIdOrName)
@@ -92,23 +109,26 @@ async function create (params) {
       ownerId: linkedAppData.ownerId,
     });
     await Addon.link(linkedAppData.ownerId, linkedAppData.appId, { addon_id: newAddon.id });
-    displayAddon(format, newAddon, `Add-on created and linked to application ${linkedAppAlias} successfully!`);
+    displayAddon(format, newAddon, providerName, `Add-on created and linked to application ${linkedAppAlias} successfully!`);
   }
   else {
     const newAddon = await Addon.create(addonToCreate);
-    displayAddon(format, newAddon, 'Add-on created successfully!');
+    displayAddon(format, newAddon, providerName, 'Add-on created successfully!');
   }
 }
 
-function displayAddon (format, addon, message) {
+function displayAddon (format, addon, providerName, message) {
   switch (format) {
 
     case 'json': {
-      Logger.printJson({
+      const jsonAddon = {
         id: addon.id,
         realId: addon.realId,
         name: addon.name,
-      });
+      };
+      Logger.printJson((providerName === 'kv')
+        ? { ...jsonAddon, availability: 'alpha', warning: 'Don\'t store sensitive or production grade data' }
+        : jsonAddon);
       break;
     }
 
@@ -120,6 +140,16 @@ function displayAddon (format, addon, message) {
         `Real ID: ${addon.realId}`,
         `Name: ${addon.name}`,
       ].join('\n'));
+      if (providerName === 'kv') {
+        const materiaMessage = [
+          '',
+          colors.yellow(`/!\\ The MateriaDB ${providerName.toUpperCase()} provider is in Alpha testing phase, don't store sensitive or production grade data`),
+          'You can easily use MateriaDB KV with \'redis-cli\', with such commands:',
+          colors.blue(`source <(clever addon env ${addon.id} -F shell)`),
+          colors.blue('redis-cli -h $KV_HOST -p $KV_PORT'),
+        ].join('\n');
+        Logger.println(materiaMessage);
+      }
   }
 }
 
