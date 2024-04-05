@@ -105,6 +105,10 @@ function run () {
       parser: Parsers.addonIdOrName,
     }),
     addonName: cliparse.argument('addon-name', { description: 'Add-on name' }),
+    kvCommand: cliparse.argument('command', { description: 'MateriaDB KV command' }),
+    kvKey: cliparse.argument('key', { description: 'MateriaDB KV key' }),
+    kvJsonKey: cliparse.argument('json-property', { description: 'JSON property of a MateriaDB KV value' }),
+    kvValue: cliparse.argument('value', { description: 'Value for a MateriaDB KV key' }),
     addonProvider: cliparse.argument('addon-provider', { description: 'Add-on provider' }),
     alias: cliparse.argument('app-alias', { description: 'Application alias' }),
     appIdOrName: cliparse.argument('app-id', {
@@ -1100,6 +1104,30 @@ function run () {
     commands: [addWebhookCommand, removeWebhookCommand],
   }, webhooks('list'));
 
+  // KV COMMANDS
+  const kv = lazyRequirePromiseModule('../src/commands/kv.js');
+  const kvGetCommand = cliparse.command('get', {
+    description: 'Get MateriaDB KV value from its key',
+    args: [args.kvKey],
+  }, kv('get'));
+  const kvGetJSONCommand = cliparse.command('getjson', {
+    description: 'Get value from a JSON stored in MateriaDB KV',
+    args: [args.kvKey, args.kvJsonKey],
+  }, kv('getjson'));
+  const kvSetCommand = cliparse.command('set', {
+    description: 'Set a MateriaDB KV key with a value',
+    args: [args.kvKey, args.kvValue],
+  }, kv('set'));
+  const kvCommand = cliparse.command('kv', {
+    description: 'Manage MateriaDB KV without a third-party client',
+    args: [args.kvCommand],
+    commands: [
+      kvGetCommand,
+      kvGetJSONCommand,
+      kvSetCommand,
+    ],
+  }, kv('get'));
+
   // DATABASES COMMANDS
   const database = lazyRequirePromiseModule('../src/commands/database.js');
   const downloadBackupCommand = cliparse.command('download', {
@@ -1147,6 +1175,7 @@ function run () {
     emailNotificationsCommand,
     envCommands,
     cliparseCommands.helpCommand,
+    kvCommand,
     loginCommand,
     logoutCommand,
     logsCommand,
