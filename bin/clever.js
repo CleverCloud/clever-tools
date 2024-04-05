@@ -648,6 +648,12 @@ function run () {
     options: [opts.instanceType, opts.orgaIdOrName, opts.aliasCreation, opts.region, opts.github, opts.humanJsonOutputFormat],
   }, create('create'));
 
+  // CURL COMMAND
+  // NOTE: it's just here for documentation purposes, look at the bottom of the file for the real "clever curl" command
+  const curlCommand = cliparse.command('curl', {
+    description: 'Query Clever Cloud\'s API using Clever Tools credentials',
+  }, () => null);
+
   // DELETE COMMAND
   const deleteCommandModule = lazyRequirePromiseModule('../src/commands/delete.js');
   const deleteCommand = cliparse.command('delete', {
@@ -1061,6 +1067,7 @@ function run () {
     appUnlinkCommand,
     cancelDeployCommand,
     configCommands,
+    curlCommand,
     databaseCommand,
     deleteCommand,
     deployCommand,
