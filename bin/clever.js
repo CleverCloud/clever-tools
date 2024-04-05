@@ -1057,6 +1057,9 @@ function run () {
     console.info('clever database backups download');
   });
 
+  // Patch help command description
+  cliparseCommands.helpCommand.description = 'Display help about the Clever Cloud CLI';
+
   const commands = _sortBy([
     accesslogsCommand,
     activityCommand,
