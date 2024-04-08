@@ -1,6 +1,31 @@
 # clever-tools changelog
 
 
+## [3.5.0](https://github.com/CleverCloud/clever-tools/compare/3.4.0...3.5.0) (2024-04-08)
+
+
+### 🚀 Features
+
+* **addon:** enable materia kv ([341a3fa](https://github.com/CleverCloud/clever-tools/commit/341a3fa9b4d74d422750b6755c59dadeb5a584b1))
+* **addon:** support JSON format when plotting an add-on list ([d01b3e0](https://github.com/CleverCloud/clever-tools/commit/d01b3e01db9097dad2e77347525a273732c7ffe9))
+* **backups:** support JSON format when plotting a backup list ([c51c028](https://github.com/CleverCloud/clever-tools/commit/c51c028b8d25fd25d2bac91e408c63ae3acdfea9))
+* **create:** add the ability to create an app as a task ([c217772](https://github.com/CleverCloud/clever-tools/commit/c217772638035cab0c6f26a75c250759ab5d0cdc))
+* **curl:** add a clever curl help message ([520d04b](https://github.com/CleverCloud/clever-tools/commit/520d04b08d34acfcb924c81a12fc79b8192b87d0))
+* **curl:** list the command in clever help ([b6e18d2](https://github.com/CleverCloud/clever-tools/commit/b6e18d2ec27c372cd34cffd850a29618085c1cf6))
+* **database-backups:** rework json backup list ([5cbb381](https://github.com/CleverCloud/clever-tools/commit/5cbb381f11f52ad9f14aa6dca243cb30431f63fb))
+* **help:** adjust description for help command ([85b3dec](https://github.com/CleverCloud/clever-tools/commit/85b3decce9ea55cf6b5a21d2eb8a9a8be09da84d))
+* **logs:** support duration in since parameters ([a223f3a](https://github.com/CleverCloud/clever-tools/commit/a223f3a77a20c6f062e8003a9548072aff0c657f))
+* **logs:** support indexPrefix customization for ElasticSearch log drain ([2dc0bd6](https://github.com/CleverCloud/clever-tools/commit/2dc0bd655b2b49b32bd749d5bf20b22841448446))
+* **parsers:** add duration parser ([62d6089](https://github.com/CleverCloud/clever-tools/commit/62d60893dc6214567869b31a54e208656661b634))
+* **status:** show instance lifetime (TASK/REGULAR) in status ([5c67aa7](https://github.com/CleverCloud/clever-tools/commit/5c67aa76fe59ac4c242918a83d647eb038ce2fc3))
+
+
+### 🐛 Bug Fixes
+
+* **logs:** allow real ID for addons with `clever logs` ([b50ae3e](https://github.com/CleverCloud/clever-tools/commit/b50ae3ed8344b99d8f4837700ab6dc440179446f)), closes [#710](https://github.com/CleverCloud/clever-tools/issues/710)
+* **logs:** fix logs for addon (when no linked apps) ([8c6d6f1](https://github.com/CleverCloud/clever-tools/commit/8c6d6f1ddc3d9f2c0d8f0bdab2bde9310f3f5f04)), closes [#644](https://github.com/CleverCloud/clever-tools/issues/644)
+* **restart:** quieter mode ([e507113](https://github.com/CleverCloud/clever-tools/commit/e507113675de50c4a7e751add270deac8c260f6e))
+
 ## [3.4.0](https://github.com/CleverCloud/clever-tools/compare/3.3.0...3.4.0) (2024-02-16)
 
 
