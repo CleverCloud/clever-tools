@@ -35,11 +35,12 @@ function computeStatus (instances, app) {
     : colors.bold.red('stopped');
 
   const statusLine = `${app.name}: ${statusMessage}`;
+  const taskLine = `Executed as: ${colors.bold(app.instance.lifetime)}`;
   const deploymentLine = isDeploying
     ? `Deployment in progress ${displayGroupInfo(deployingInstances, deployingCommit)}`
     : '';
 
-  return [statusLine, deploymentLine].join('\n');
+  return [statusLine, taskLine, deploymentLine].join('\n');
 }
 
 function displayScalability (app) {
