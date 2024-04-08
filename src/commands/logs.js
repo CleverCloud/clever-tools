@@ -12,13 +12,10 @@ async function appLogs (params) {
 
   // ignore --search ""
   const filter = (search !== '') ? search : null;
-
-  const { appId, ownerId } = await AppConfig.getAppDetails({ alias });
-
   const isForHuman = (format === 'human');
 
   // TODO: drop when addons are migrated to the v4 API
-  if (addonId) {
+  if (addonId != null) {
     if (isForHuman) {
       Logger.println(colors.blue('Waiting for addon logs…'));
     }
@@ -27,6 +24,8 @@ async function appLogs (params) {
     }
     return LogV2.displayLogs({ appAddonId: addonId, since, until, filter, deploymentId });
   }
+
+  const { appId, ownerId } = await AppConfig.getAppDetails({ alias });
 
   if (isForHuman) {
     Logger.println(colors.blue('Waiting for application logs…'));
