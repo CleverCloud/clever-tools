@@ -94,6 +94,13 @@ function integer (string) {
   return cliparse.parsers.success(integer);
 }
 
+function nonEmptyString (string) {
+  if (typeof string !== 'string' || string === '') {
+    return cliparse.parsers.error('Invalid string, it should not be empty');
+  }
+  return cliparse.parsers.success(string);
+}
+
 // /^[a-z0-9](?:[a-z0-9_-]*[a-z0-9])?$/i;
 const tagRegex = /^[^,\s]+$/;
 
@@ -204,4 +211,5 @@ module.exports = {
   portNumberRegex,
   portNumber,
   durationInSeconds,
+  nonEmptyString,
 };
