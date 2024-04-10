@@ -1,6 +1,13 @@
 # clever-tools changelog
 
 
+## [3.5.1](https://github.com/CleverCloud/clever-tools/compare/3.5.0...3.5.1) (2024-04-10)
+
+
+### 🐛 Bug Fixes
+
+* **build:** fix PKGBUILD template for arch/AUR build ([71d37f0](https://github.com/CleverCloud/clever-tools/commit/71d37f04c50fe592dc8a8ed9e74d8553404faa67)), closes [#708](https://github.com/CleverCloud/clever-tools/issues/708)
+
 ## [3.5.0](https://github.com/CleverCloud/clever-tools/compare/3.4.0...3.5.0) (2024-04-08)
 
 
