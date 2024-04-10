@@ -8,7 +8,8 @@ arch=('x86_64')
 url="<%= url %>"
 license=('<%= license %>')
 
-options=('!strip')
+OPTIONS=(!strip)
+
 source=("clever-tools-<%= version %>_linux.tar.gz::https://clever-tools.clever-cloud.com/releases/<%= version %>/clever-tools-<%= version %>_linux.tar.gz")
 sha256sums=('<%= sha256 %>')
 
