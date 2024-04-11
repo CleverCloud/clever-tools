@@ -1,6 +1,13 @@
 # clever-tools changelog
 
 
+## [3.5.2](https://github.com/CleverCloud/clever-tools/compare/3.5.1...3.5.2) (2024-04-11)
+
+
+### 🐛 Bug Fixes
+
+* **curl:** fix clever curl command when used with the auto packaged binary version ([7197f29](https://github.com/CleverCloud/clever-tools/commit/7197f2967ea298672600ed6080f43b6d5e04adf7)), closes [#713](https://github.com/CleverCloud/clever-tools/issues/713)
+
 ## [3.5.1](https://github.com/CleverCloud/clever-tools/compare/3.5.0...3.5.1) (2024-04-10)
 
 
