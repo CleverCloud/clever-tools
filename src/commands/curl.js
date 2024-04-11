@@ -5,6 +5,7 @@ const { loadOAuthConf, conf } = require('../models/configuration.js');
 const { addOauthHeader } = require('@clevercloud/client/cjs/oauth.js');
 const Logger = require('../logger.js');
 const colors = require('colors/safe');
+const curlParser = require('../../vendors/curlconverter-parse.js');
 
 async function loadTokens () {
   const tokens = await loadOAuthConf();
@@ -76,8 +77,6 @@ async function curl () {
 }
 
 async function parseCurlCommand (curlCommand) {
-
-  const curlParser = await import('curlconverter/dist/src/parse.js');
 
   const [request] = curlParser.parse(curlCommand);
   const url = request.urls[0];

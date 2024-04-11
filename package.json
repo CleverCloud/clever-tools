@@ -70,6 +70,7 @@
     "mime-types": "^2.1.35",
     "mocha": "^8.4.0",
     "pkg": "^5.8.1",
+    "rollup": "^4.14.1",
     "semver": "^7.3.5",
     "text-table": "^0.2.0"
   },
@@ -77,6 +78,7 @@
     "pkg-fetch": "3.5.2"
   },
   "scripts": {
+    "bundle-curlconverter": "rollup -c rollup-curlconverter.config.js",
     "pretest": "npm run lint",
     "test": "grunt test",
     "lint": "eslint bin src scripts",
