@@ -158,3 +158,14 @@ clever deploy
 
 This project uses GitHub Actions to build binaries, package them and release them automatically on the various repositories.
 If you want to know more or if you need to release a new version, please read [RELEASE.md](./RELEASE.md) carefully.
+
+
+## License
+
+This project is licensed under the [Apache-2.0](https://spdx.org/licenses/Apache-2.0.html).
+
+We're using a CJS bundled version of a file from [curlconverter](https://github.com/curlconverter/curlconverter):
+
+* The project is licensed with [MIT](https://github.com/curlconverter/curlconverter/blob/master/LICENSE)
+* The copyright is at the top the file `vendors/curlconverter-parse`
+* The details are explained in [README_VENDORS.md](vendors/README_VENDORS.md)
