@@ -145,7 +145,7 @@ function displayAddon (format, addon, providerName, message) {
           '',
           colors.yellow(`/!\\ The MateriaDB ${providerName.toUpperCase()} provider is in Alpha testing phase, don't store sensitive or production grade data`),
           'You can easily use MateriaDB KV with \'redis-cli\', with such commands:',
-          colors.blue(`source <(clever addon env ${addon.id} -F shell)`),
+          colors.blue(`source <(clever addon env ${addon.id} --add-export)`),
           colors.blue('redis-cli -h $KV_HOST -p $KV_PORT'),
         ].join('\n');
         Logger.println(materiaMessage);
@@ -235,7 +235,9 @@ async function showProvider (params) {
 
 async function env (params) {
 
-  const { org, format } = params.options;
+  const { org } = params.options;
+  const format = params.options['add-export'] ? 'shell' : params.options.format;
+
   const [addonIdOrRealId] = params.args;
 
   const addonId = await resolveAddonId(addonIdOrRealId);

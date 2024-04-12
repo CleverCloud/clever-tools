@@ -134,7 +134,7 @@ function run () {
   const opts = {
     sourceableEnvVarsList: cliparse.flag('add-export', { description: 'Display sourceable env variables setting' }),
     accesslogsFormat: getOutputFormatOption(['simple', 'extended', 'clf']),
-    addonEnvFormat: getOutputFormatOption(['shell']),
+    addonEnvFormat: cliparse.flag('add-export', { description: 'Display sourceable env variables setting' }),
     logsFormat: getOutputFormatOption(['json-stream']),
     accesslogsFollow: cliparse.flag('follow', {
       aliases: ['f'],
