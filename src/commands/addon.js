@@ -146,7 +146,7 @@ function displayAddon (format, addon, providerName, message) {
           colors.yellow(`/!\\ The MateriaDB ${providerName.toUpperCase()} provider is in Alpha testing phase, don't store sensitive or production grade data`),
           'You can easily use MateriaDB KV with \'redis-cli\', with such commands:',
           colors.blue(`source <(clever addon env ${addon.id} -F shell)`),
-          colors.blue('redis-cli -h $KV_HOST -p $KV_PORT'),
+          colors.blue('redis-cli -h $KV_HOST -p $KV_PORT --tls'),
         ].join('\n');
         Logger.println(materiaMessage);
       }
