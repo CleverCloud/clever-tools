@@ -610,11 +610,15 @@ function run () {
     options: [opts.addonEnvFormat],
     args: [opts.addonId],
   }, addon('env'));
+  const addonListCommand = cliparse.command('list', {
+    description: 'List all available add-ons for a given owner',
+    options: [opts.humanJsonOutputFormat],
+  }, addon('list'));
 
   const addonCommands = cliparse.command('addon', {
     description: 'Manage addons',
-    options: [opts.orgaIdOrName, opts.humanJsonOutputFormat],
-    commands: [addonCreateCommand, addonDeleteCommand, addonRenameCommand, addonProvidersCommand, addonEnvCommand],
+    options: [opts.orgaIdOrName],
+    commands: [addonCreateCommand, addonDeleteCommand, addonRenameCommand, addonProvidersCommand, addonEnvCommand, addonListCommand],
   }, addon('list'));
 
   // APPLICATIONS COMMAND
