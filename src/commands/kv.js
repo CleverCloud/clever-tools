@@ -78,4 +78,49 @@ async function set ( params ) {
     await client.disconnect();
 }
 
-module.exports = { get, getjson, set };
+async function incr ( params ) {
+    const client = await connect();
+    const [key] = params.args;
+    const value = await client.incr(key);
+    console.log(value);
+    await client.disconnect();
+}
+
+async function decr ( params ) {
+    const client = await connect();
+    const [key] = params.args;
+    const value = await client.decr(key);
+    console.log(value);
+    await client.disconnect();
+}
+
+async function del ( params ) {
+    const client = await connect();
+    const [key] = params.args;
+    const value = await client.del(key);
+    console.log(value);
+    await client.disconnect();
+}
+
+async function flushdb () {
+    const client = await connect();
+    const value = await client.flushdb();
+    console.log(value);
+    await client.disconnect();
+}
+
+async function ping () {
+    const client = await connect();
+    const value = await client.ping();
+    console.log(value);
+    await client.disconnect();
+}
+
+async function scan () {
+    const client = await connect();
+    const value = await client.scan(0);
+    console.log(value);
+    await client.disconnect();
+}
+
+module.exports = { get, getjson, set, incr, decr, del, flushdb, ping, scan };

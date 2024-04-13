@@ -1118,6 +1118,27 @@ function run () {
     description: 'Set a MateriaDB KV key with a value',
     args: [args.kvKey, args.kvValue],
   }, kv('set'));
+  const kvIncrCommand = cliparse.command('incr', {
+    description: 'Increment a MateriaDB KV key',
+    args: [args.kvKey],
+  }, kv('incr'));
+  const kvDecrCommand = cliparse.command('decr', {
+    description: 'Decrement a MateriaDB KV key',
+    args: [args.kvKey],
+  }, kv('decr'));
+  const kvDelCommand = cliparse.command('del', {
+    description: 'Delete a MateriaDB KV key',
+    args: [args.kvKey],
+  }, kv('del'));
+  const kvFlushdbCommand = cliparse.command('flushdb', {
+    description: 'Delete all MateriaDB KV keys',
+  }, kv('flushdb'));
+  const kvPingCommand = cliparse.command('ping', {
+    description: 'Check if the MateriaDB KV cluster responds',
+  }, kv('ping'));
+  const kvScanCommand = cliparse.command('scan', {
+    description: 'List all MateriaDB KV keys',
+  }, kv('scan'));
   const kvCommand = cliparse.command('kv', {
     description: 'Manage MateriaDB KV without a third-party client',
     args: [args.kvCommand],
@@ -1125,6 +1146,12 @@ function run () {
       kvGetCommand,
       kvGetJSONCommand,
       kvSetCommand,
+      kvIncrCommand,
+      kvDecrCommand,
+      kvDelCommand,
+      kvFlushdbCommand,
+      kvPingCommand,
+      kvScanCommand,
     ],
   }, kv('get'));
 
