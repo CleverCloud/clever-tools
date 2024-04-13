@@ -1,10 +1,10 @@
 # Clever Cloud Applications: deployment and lifecycle
 
-A Clever Cloud application can easily be deployed and accessed once created, through following commands. Each can target a specfic application in the current folder, adding `[--alias, -a] ALIAS`.
+A Clever Cloud application can easily be deployed and accessed once created, through following commands. Each can target a specific application in the current folder, adding `[--alias, -a] ALIAS`.
 
 ## deploy | cancel
 
-Once changes are commited in your local git repository, you can deploy it:
+Once changes are committed in your local git repository, you can deploy it:
 
 ```
 clever deploy
@@ -49,7 +49,7 @@ Once deployed, an application can be restarted:
 clever restart
 ```
 
-By default, it will use its build cache when available but you can override it or use other available options:
+By default, it will use its build cache when available. But you can override it or use other available options:
 
 ```
 [--commit] COMMIT ID       Restart the application with a specific commit id
@@ -74,11 +74,10 @@ When you deploy an application on Clever Cloud, we collect its logs, hosted in o
 clever logs
 ```
 
-You can also get logs from a specific timeline, deployment or add-on through
-options:
+You can also get logs from a specific timeline, deployment or add-on through options:
 
 ```
-[--before, --until] BEFORE          Fetch logs before this date/time (ISO8601)
+[--before, --until] BEFORE          Fetch logs before this date/time (ISO8601 date, positive number in seconds or duration, e.g.: 1h)
 [--after, --since] AFTER            Fetch logs after this date/time (ISO8601)
 [--search] SEARCH                   Fetch logs matching this pattern
 [--deployment-id] DEPLOYMENT_ID     Fetch logs for a given deployment
@@ -98,7 +97,7 @@ You can also get access logs from a specific timeline or add-on through options,
 
 ```
 [--format, -F] FORMAT          Output format (human, json, simple, extended, clf) (default: human)
-[--before, --until] BEFORE     Fetch logs before this date (ISO8601)
+[--before, --until] BEFORE          Fetch logs before this date/time (ISO8601 date, positive number in seconds or duration, e.g.: 1h)
 [--after, --since] AFTER       Fetch logs after this date (ISO8601)
 [--follow, -f]                 Display access logs continuously (ignores before/until, after/since) (default: false)
 [--addon] ADDON_ID             Add-on ID

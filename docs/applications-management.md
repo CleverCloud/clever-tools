@@ -2,10 +2,10 @@
 
 ## create
 
-You can create a new application on Clever Cloud and it will be linked to your local folder. Only its `type` is required, it should be one of: `docker`, `go`, `gradle`, `haskell`, `jar`,`maven`, `meteor`, `node`, `php`, `play1`, `play2`, `python`, `ruby`, `rust`, `sbt`, `static-apache` or `war`. Choose also its name <APP_NAME>.
+You can create a new application on Clever Cloud, linked to your local folder. Only its `type` is required, it should be one of: `docker`, `elixir`, `go`, `gradle`, `haskell`, `jar`,`maven`, `meteor`, `node`, `php`, `play1`, `play2`, `python`, `ruby`, `rust`, `sbt`, `static-apache` or `war`.
 
 ```
-clever create -t TYPE APP_NAME
+clever create -t TYPE [APP-NAME]
 ```
 
 You can also use one of the following optional parameters:
@@ -13,10 +13,10 @@ You can also use one of the following optional parameters:
 #### Tasks
 
 ```
---task -T [CC_RUN_COMMAND]
+[--task, -T] COMMAND
 ```
 
-You can declare a new application as a Clever Task. Once deployed, a Task executes its `CC_RUN_COMMAND` and then stops. This value can be set by an (optional) parameter or later through `clever env set` command.
+You can declare a new application as a Clever Task. Once deployed, a Task executes its command and then stops. This value can be set by an (optional) parameter or later through `clever env set CC_RUN_COMMAND command`.
 
 You can execute a Task whenever needed through a `clever restart` or modify it and `clever deploy` a new revision. You'll only be billed for the build/execution time, per second.
 
@@ -44,6 +44,7 @@ You can ask to deploy your application in a specific organisation/user account, 
 Default region is our Paris datacenters (`par`), but it can be:
 
 - `par` (Paris, [Clever Cloud](https://www.clever-cloud.com/infrastructure/))
+- `grahds` (Gravelines, HDS servers, OVHcloud)
 - `rbx` (Roubaix, OVHcloud)
 - `rbxhds` (Roubaix, HDS servers, OVHcloud)
 - `scw` (Paris, [Scaleway DC5](https://www.clever-cloud.com/blog/press/2023/01/17/clever-cloud-and-scaleway-join-forces-to-unveil-a-sovereign-european-paas-offering/))
@@ -60,13 +61,13 @@ After the application creation, you can ask for a `json` formatted report instea
 
 ## (un)link and make-default
 
-If an application already exists in you Clever Clound account, you can link it to any local directory to control it. You can even link several applications to a single folder, each one with a different name and/or alias. This is done through the `.clever.json` file.
+If an application already exists in your Clever Cloud account, you can link it to any local directory to control it. You can even link several applications to a single folder, each one with a different name and/or alias. This is done through the `.clever.json` file.
 
 ```
 clever link APP_ID/NAME [--alias, -a] ALIAS [--org, -o, --owner] ID/NAME
 ```
 
-If muliple applications are linked, you can define one as default with it alias:
+If multiple applications are linked, you can define one as default with it alias:
 
 ```
 clever make-default ALIAS
