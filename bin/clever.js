@@ -306,7 +306,7 @@ function run () {
     drainPassword: cliparse.option('password', {
       aliases: ['p'],
       metavar: 'password',
-      description: 'HTTP basic auth password',
+      description: '(HTTP drains) basic auth password',
     }),
     addonPlan: cliparse.option('plan', {
       aliases: ['p'],
@@ -376,18 +376,23 @@ function run () {
     drainUsername: cliparse.option('username', {
       aliases: ['u'],
       metavar: 'username',
-      description: 'HTTP basic auth username',
+      description: '(HTTP drains) basic auth username',
     }),
     drainAPIKey: cliparse.option('api-key', {
       aliases: ['k'],
       metavar: 'api_key',
-      description: 'Drain custom key',
+      description: '(NewRelic drain) API key',
     }),
     drainIndexPrefix: cliparse.option('index-prefix', {
       aliases: ['i'],
       metavar: 'index_prefix',
-      description: 'Optional drain index prefix for ElasticSearch: `<indexPrefix>-<YYYY-MM-DD>`',
+      description: '(ElasticSearch drain) Optional drain index prefix: `<indexPrefix>-<YYYY-MM-DD>`',
       default: 'logstash-<YYYY-MM-DD>',
+    }),
+    drainSDParameters: cliparse.option('sd-parameters', {
+      aliases: ['sdparams'],
+      metavar: 'sd_parameters',
+      description: '(TCP and UDP drains) Optional drain sd-params string: `X-OVH-TOKEN=\\"REDACTED\\"`',
     }),
     verbose: cliparse.flag('verbose', { aliases: ['v'], description: 'Verbose output' }),
     withoutCache: cliparse.flag('without-cache', { description: 'Restart the application without using cache' }),
@@ -713,7 +718,7 @@ function run () {
   const drainCreateCommand = cliparse.command('create', {
     description: 'Create a drain',
     args: [args.drainType, args.drainUrl],
-    options: [opts.addonId, opts.drainUsername, opts.drainPassword, opts.drainAPIKey, opts.drainIndexPrefix],
+    options: [opts.addonId, opts.drainUsername, opts.drainPassword, opts.drainAPIKey, opts.drainIndexPrefix, opts.drainSDParameters],
   }, drain('create'));
   const drainRemoveCommand = cliparse.command('remove', {
     description: 'Remove a drain',
