@@ -1,6 +1,6 @@
 # Clever Cloud Add-ons: management and backups
 
-Add-ons on Clever Cloud are databases, storage services, tools or third party services you can enable through ` clever addon provider`. For each of the folowing commands, you can target a specific user/organisation:
+Add-ons on Clever Cloud are databases, storage services, tools or third party services you can enable through ` clever addon provider`. For each of the following commands, you can target a specific user/organisation:
 
 ```
 [--org, -o, --owner]                Organisation ID (or name, if unambiguous)
@@ -8,7 +8,7 @@ Add-ons on Clever Cloud are databases, storage services, tools or third party se
 
 ## providers
 
-To use add-ons, you need to identify the corresponding provider. To get informations about them (plans, regions, versions), use:
+To use add-ons, you need to identify the corresponding provider. To get information about them (plans, regions, versions), use:
 
 ```
 clever addon providers
@@ -49,27 +49,41 @@ clever addon delete [--yes, -y] ADDON_ID_OR_NAME
 
 ## env
 
-Each add-on comes with environement variables. To get them, use:
+Each add-on comes with environment variables. To get them, use:
 
 ```
 clever addon env [--format, -F] FORMAT ADDON_ID
 ```
 
-> [!NOTE] 
+> [!NOTE]
 > Available formats are: `human` (default), `json` and `shell`
+
+If you're testing [MateriaDB KV](https://developers.clever-cloud.com/doc/addons/materia-db-kv/), our next generation of serverless distributed database, synchronously-replicated, compatible with Redis protocol, you can create an add-on and immediately use it:
+
+```
+clever addon create kv ADDON_NAME
+source <(clever addon env addon_id --format shell)
+redis-cli -h $KV_HOST -p $KV_PORT --tls
+```
 
 ## database backups
 
-Databases are backup every day, with last 7 days of backups available to download. To get these files, use:
+Databases are backup every day, with last 7 days of backups available to download. You can list them, available formats are: `human` (default) or `json`:
+
+```
+clever database backups DATABASE-ID [--format, -F] FORMAT
+```
+
+To download one of them, use:
 
 ```
 clever database backups download [--output, --out] OUTPUT_FILE DATABASE_ID BACKUP_ID
 ```
 
-This command is still under development and will evolve over time. To get informations about backups and download them, you can use our API and `clever curl`. For example:
+This command is still under development and will evolve over time. To get information about backups and download them, you can use our API and `clever curl`. For example:
 
 ```
 clever curl -X GET https://api.clever-cloud.com/v2/backups/<USER_ORG_ID>/<DATABASE_ID>
 ```
 
-This will list available backups for the database, with creation and delete time. The anwser will also contains a direct HTTPS `download_url`.
+This will list available backups for the database, with creation and delete time. The answer will also contain a direct HTTPS `download_url`.

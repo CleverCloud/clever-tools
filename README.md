@@ -2,9 +2,11 @@
 
 Deploy on Clever Cloud and control you applications, add-ons, services from command line.
 
+- [Create a Clever Cloud account](https://console.clever-cloud.com)
+
 ## Installation
 
-Clever Tools are availables from many channels. The simpler way to install them, if you already have Node.js on your system, is through `npm` package manager:
+Clever Tools are available from many channels. The simpler way to install them, if you already have Node.js on your system, is through `npm` package manager:
 
 ```sh
 npm install -g clever-tools
@@ -43,112 +45,18 @@ clever --zsh-autocomplete-script $(which clever) | sudo tee /usr/share/zsh/site-
 
 ## How to use
 
-### Login
+You can then login and check everything is working:
 
-To use `clever-tools`, you have to login.
-
-```sh
+```bash
 clever login
+clever profile
 ```
 
-It will open the Web console in your browser and reuse your existing session if you're already logged in.
-
-`clever login` tries to open a browser through `xdg-open` on GNU/Linux systems (and in bash for windows).
-Make sure you have `xdg-utils` available as well as a default browser set, or you can copy and paste the URL displayed in the console.
-
-### Create an application
-
-```sh
-clever create <name> --type <type> \
-  [--region <region>] \
-  [--org <organisation>] \
-  [--alias <alias>]
-```
-
-Where `type` is one of:
-
-- `docker`: for Docker-based applications
-- `go`: for Go applications
-- `gradle`: for applications launched with gradle
-- `haskell`: for haskell applications
-- `jar`: for applications deployed as standalone jar files
-- `maven`: for applications launched with maven
-- `meteor`: for Meteor applications launched with Node.js
-- `node`: for Node.js applications
-- `php`: for PHP applications
-- `play1`: for Play1 applications
-- `play2`: for Play2 applications
-- `python`: for python27 and python3 applications
-- `ruby`: for ruby applications
-- `rust`: for rust applications
-- `sbt`: for applications launched with SBT
-- `static-apache`: for static (HTML only) websites
-- `war`: for applications deployed as war files
-
-Where region is one of:
-
-- `par` (Paris, [Clever Cloud](https://www.clever-cloud.com/infrastructure/))
-- `grahds` (Gravelines, HDS servers, OVHcloud)
-- `rbx` (Roubaix, OVHcloud)
-- `rbxhds` (Roubaix, HDS servers, OVHcloud)
-- `scw` (Paris, [Scaleway DC5](https://www.clever-cloud.com/blog/press/2023/01/17/clever-cloud-and-scaleway-join-forces-to-unveil-a-sovereign-european-paas-offering/))
-- `mtl` (Montreal, OVHcloud)
-- `sgp` (Singapore, OVHcloud)
-- `syd` (Sydney, OVHcloud)
-- `wsw` (Warsaw, OVHcloud)
-
-`--org` allows you to chose the organisation in which your app is created.
-
-`--alias` allows you to deploy the same application in multiple environments on Clever Cloud (eg: production, testing, …)
-
-### Link an existing application
-
-```sh
-clever link [--org <ORG-NAME>] <APP-NAME> [--alias <alias>]
-```
-
-Where `APP-NAME` is the name of your application, and `ORG-NAME` is the name
-of the organisation it's in. You can specify a complete application id instead
-of its name (in that case, `--org` can be omitted).
-
-### Deploy an application
-
-```sh
-clever deploy [--alias <alias>]
-```
-
-`--alias` allows you to deploy your application several times on Clever Cloud
-(eg: production, testing, …)
-
-### Application status
-
-```sh
-clever status [--alias <alias>]
-```
-
-### Change application scalability
-
-```sh
-clever scale [--alias <alias>] [--min-flavor <minflavor>] [--max-flavor <maxflavor>] [--min-instances <mininstances>] [--max-instances <maxinstances>]
-```
-
-### Display help
-
-You can display help about each command with `clever help`.
-
-```sh
-clever help
-clever help deploy
-```
+Discover how to use Clever Tools through [our documentation](docs/).
 
 ## Examples
 
-```sh
-cd node_project
-clever login
-clever create "Node.js application" -t node -r mtl
-clever deploy
-```
+Discover how to deploy many applications on Clever Cloud within [our guides](https://developers.clever-cloud.com/guides/).
 
 ## How to send feedback?
 
@@ -158,7 +66,6 @@ clever deploy
 
 This project uses GitHub Actions to build binaries, package them and release them automatically on the various repositories.
 If you want to know more or if you need to release a new version, please read [RELEASE.md](./RELEASE.md) carefully.
-
 
 ## License
 

@@ -1,6 +1,6 @@
 # Clever Cloud Logs Drains
 
-You can use Clever Tools to control logs drains: 
+You can use Clever Tools to control logs drains:
 
 ```
 clever drain [--alias <alias>]
@@ -12,7 +12,7 @@ Where `DRAIN-TYPE` is one of:
 
 - `TCPSyslog`: for TCP syslog endpoint
 - `UDPSyslog`: for UDP syslog endpoint
-- `HTTP`: for TCP syslog endpoint (note that this endpoint has optional username/passwordparameters as HTTP Basic Authentication)
+- `HTTP`: for TCP syslog endpoint (note that this endpoint has optional username/password parameters as HTTP Basic Authentication)
 - `ElasticSearch`: for ElasticSearch endpoint (note that this endpoint requires username/password parameters as HTTP Basic Authentication)
 - `DatadogHTTP`: for Datadog endpoint (note that this endpoint needs your Datadog API Key)
 - `NewRelicHTTP`: for NewRelic endpoint (note that this endpoint needs your NewRelic API Key)
