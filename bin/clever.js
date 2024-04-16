@@ -106,6 +106,7 @@ function run () {
     }),
     addonName: cliparse.argument('addon-name', { description: 'Add-on name' }),
     kvCommand: cliparse.argument('command', { description: 'MateriaDB KV command' }),
+    kvRawCommand: cliparse.argument('raw-command', { description: 'MateriaDB KV raw command' }),
     kvKey: cliparse.argument('key', { description: 'MateriaDB KV key' }),
     kvJsonKey: cliparse.argument('json-property', { description: 'JSON property of a MateriaDB KV value' }),
     kvValue: cliparse.argument('value', { description: 'Value for a MateriaDB KV key' }),
@@ -1106,14 +1107,17 @@ function run () {
 
   // KV COMMANDS
   const kv = lazyRequirePromiseModule('../src/commands/kv.js');
+  const kvCommandListCommand = cliparse.command('commands', {
+    description: 'List all MateriaDB KV available commands',
+  }, kv('commands_list'));
+    const kvGetJSONCommand = cliparse.command('getjson', {
+    description: 'Get value from a JSON stored in MateriaDB KV',
+    args: [args.kvKey, args.kvJsonKey],
+  }, kv('getjson'));
   const kvGetCommand = cliparse.command('get', {
     description: 'Get MateriaDB KV value from its key',
     args: [args.kvKey],
   }, kv('get'));
-  const kvGetJSONCommand = cliparse.command('getjson', {
-    description: 'Get value from a JSON stored in MateriaDB KV',
-    args: [args.kvKey, args.kvJsonKey],
-  }, kv('getjson'));
   const kvSetCommand = cliparse.command('set', {
     description: 'Set a MateriaDB KV key with a value',
     args: [args.kvKey, args.kvValue],
@@ -1130,6 +1134,10 @@ function run () {
     description: 'Delete a MateriaDB KV key',
     args: [args.kvKey],
   }, kv('del'));
+  const kvRawCommand = cliparse.command('raw', {
+    description: 'Send a raw command to MateriaDB KV',
+    args: [args.kvRawCommand],
+  }, kv('raw'));
   const kvFlushdbCommand = cliparse.command('flushdb', {
     description: 'Delete all MateriaDB KV keys',
   }, kv('flushdb'));
@@ -1143,8 +1151,10 @@ function run () {
     description: 'Manage MateriaDB KV without a third-party client',
     args: [args.kvCommand],
     commands: [
-      kvGetCommand,
+      kvPingCommand,
+      kvCommandListCommand,
       kvGetJSONCommand,
+      kvGetCommand,
       kvSetCommand,
       kvIncrCommand,
       kvDecrCommand,
@@ -1152,9 +1162,9 @@ function run () {
       kvFlushdbCommand,
       kvPingCommand,
       kvScanCommand,
+      kvRawCommand,
     ],
   }, kv('get'));
-
   // DATABASES COMMANDS
   const database = lazyRequirePromiseModule('../src/commands/database.js');
   const downloadBackupCommand = cliparse.command('download', {

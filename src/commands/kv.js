@@ -56,7 +56,7 @@ async function isValidJSONAndHasName(jsonString, propertyToCheck) {
 async function get ( params ) {
     const client = await connect();
     const [key] = params.args;
-    const value = await client.get(key);
+    const value = await client.GET(key);
     console.log(value);
     await client.disconnect();
 }
@@ -64,7 +64,7 @@ async function get ( params ) {
 async function getjson ( params ) {
     const client = await connect();
     const [key, property] = params.args;
-    const value = await client.get(key);
+    const value = await client.GET(key);
     const jsonValue = await isValidJSONAndHasName(value, property);
     console.log(jsonValue);
     await client.disconnect();
@@ -73,7 +73,7 @@ async function getjson ( params ) {
 async function set ( params ) {
     const client = await connect();
     const [key, value] = params.args;
-    await client.set(key, value);
+    await client.SET(key, value);
     console.log({[key]: value});
     await client.disconnect();
 }
@@ -81,7 +81,7 @@ async function set ( params ) {
 async function incr ( params ) {
     const client = await connect();
     const [key] = params.args;
-    const value = await client.incr(key);
+    const value = await client.INCR(key);
     console.log(value);
     await client.disconnect();
 }
@@ -89,7 +89,7 @@ async function incr ( params ) {
 async function decr ( params ) {
     const client = await connect();
     const [key] = params.args;
-    const value = await client.decr(key);
+    const value = await client.DECR(key);
     console.log(value);
     await client.disconnect();
 }
@@ -97,30 +97,49 @@ async function decr ( params ) {
 async function del ( params ) {
     const client = await connect();
     const [key] = params.args;
-    const value = await client.del(key);
+    const value = await client.DEL(key);
     console.log(value);
     await client.disconnect();
 }
 
 async function flushdb () {
     const client = await connect();
-    const value = await client.flushdb();
+    const value = await client.FLUSHDB();
     console.log(value);
     await client.disconnect();
 }
 
 async function ping () {
     const client = await connect();
-    const value = await client.ping();
+    const value = await client.PING();
     console.log(value);
     await client.disconnect();
 }
 
 async function scan () {
     const client = await connect();
-    const value = await client.scan(0);
+    const value = await client.SCAN(0);
     console.log(value);
     await client.disconnect();
 }
 
-module.exports = { get, getjson, set, incr, decr, del, flushdb, ping, scan };
+async function commands_list () {
+  const client = await connect();
+  const commands = await client.COMMAND_LIST();
+  const sorted_commands = commands.sort();
+  sorted_commands.forEach((c) => {
+    console.log(c);
+  });
+  await client.disconnect();
+}
+
+async function raw ( params ) {
+    const client = await connect();
+    const [commands] = params.args;
+    const commandsArray = commands.split(' ');
+    const value = await client.sendCommand(commandsArray);
+    console.log(value);
+    await client.disconnect();
+}
+
+module.exports = { get, getjson, set, incr, decr, del, flushdb, commands_list, ping, raw, scan };
