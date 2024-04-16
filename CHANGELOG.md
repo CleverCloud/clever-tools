@@ -1,6 +1,20 @@
 # clever-tools changelog
 
 
+## [3.6.0](https://github.com/CleverCloud/clever-tools/compare/3.5.2...3.6.0) (2024-04-16)
+
+
+### 🚀 Features
+
+* **logs:** support SD-PARAM RFC5424 for UDP and TCP drains ([38407ad](https://github.com/CleverCloud/clever-tools/commit/38407adff14c5d49581181b37afadb9b8e41ea24))
+
+
+### 🐛 Bug Fixes
+
+* **addon:** add TLS param to MateriaDB KV connect info ([dcd01c1](https://github.com/CleverCloud/clever-tools/commit/dcd01c1ab2b0eb93a9ec9063d21f393216d95b4c))
+* **addon:** allow json format in new list subcommand ([cec0e85](https://github.com/CleverCloud/clever-tools/commit/cec0e8567286e1b56459fbc5e53da91b8ad7765b))
+* **logs:** add details about configuration for specific drains ([55054d4](https://github.com/CleverCloud/clever-tools/commit/55054d430c4b2bcec73cbfbd20fe9e63706c82fe))
+
 ## [3.5.2](https://github.com/CleverCloud/clever-tools/compare/3.5.1...3.5.2) (2024-04-11)
 
 
