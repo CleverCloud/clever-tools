@@ -1110,7 +1110,7 @@ function run () {
   const kvCommandListCommand = cliparse.command('commands', {
     description: 'List all MateriaDB KV available commands',
   }, kv('commands_list'));
-    const kvGetJSONCommand = cliparse.command('getjson', {
+  const kvGetJSONCommand = cliparse.command('getjson', {
     description: 'Get value from a JSON stored in MateriaDB KV',
     args: [args.kvKey, args.kvJsonKey],
   }, kv('getjson'));
