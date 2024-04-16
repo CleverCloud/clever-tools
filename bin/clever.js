@@ -80,11 +80,11 @@ function run () {
   // ARGUMENTS
   const args = {
     addonIdOrName: cliparse.argument('addon-id', {
-      description: 'Addon ID (or name, if unambiguous)',
+      description: 'Add-on ID (or name, if unambiguous)',
       parser: Parsers.addonIdOrName,
     }),
-    addonName: cliparse.argument('addon-name', { description: 'Addon name' }),
-    addonProvider: cliparse.argument('addon-provider', { description: 'Addon provider' }),
+    addonName: cliparse.argument('addon-name', { description: 'Add-on name' }),
+    addonProvider: cliparse.argument('addon-provider', { description: 'Add-on provider' }),
     alias: cliparse.argument('app-alias', { description: 'Application alias' }),
     appIdOrName: cliparse.argument('app-id', {
       description: 'Application ID (or name, if unambiguous)',
@@ -143,7 +143,7 @@ function run () {
     importAsJson: cliparse.flag('json', {
       description: 'Import variables as JSON (an array of { "name": "THE_NAME", "value": "THE_VALUE" } objects)',
     }),
-    addonId: cliparse.option('addon', { metavar: 'addon_id', description: 'Addon ID' }),
+    addonId: cliparse.option('addon', { metavar: 'addon_id', description: 'Add-on ID' }),
     after: cliparse.option('after', {
       metavar: 'after',
       aliases: ['since'],
@@ -249,7 +249,7 @@ function run () {
     linkAddon: cliparse.option('link', {
       aliases: ['l'],
       metavar: 'alias',
-      description: 'Link the created addon to the app with the specified alias',
+      description: 'Link the created add-on to the app with the specified alias',
       complete: Application('listAvailableAliases'),
     }),
     listAllNotifications: cliparse.flag('list-all', { description: 'List all notifications for your user or for an organisation with the \'--org\' option' }),
@@ -291,7 +291,7 @@ function run () {
       required: true,
       parser: Parsers.commaSeparated,
     }),
-    onlyAddons: cliparse.flag('only-addons', { description: 'Only show addon dependencies' }),
+    onlyAddons: cliparse.flag('only-addons', { description: 'Only show add-on dependencies' }),
     onlyAliases: cliparse.flag('only-aliases', { description: 'List only application aliases' }),
     onlyApps: cliparse.flag('only-apps', { description: 'Only show app dependencies' }),
     orgaIdOrName: cliparse.option('org', {
@@ -312,7 +312,7 @@ function run () {
       aliases: ['p'],
       default: '',
       metavar: 'plan',
-      description: 'Addon plan, depends on the provider',
+      description: 'Add-on plan, depends on the provider',
       complete: Addon('completePlan'),
     }),
     quiet: cliparse.flag('quiet', { aliases: ['q'], description: 'Don\'t show logs during deployment' }),
@@ -323,16 +323,16 @@ function run () {
       aliases: ['r'],
       default: 'par',
       metavar: 'region',
-      description: 'Region to provision the addon in, depends on the provider',
+      description: 'Region to provision the add-on in, depends on the provider',
       complete: Addon('completeRegion'),
     }),
     addonVersion: cliparse.option('addon-version', {
       metavar: 'addon-version',
-      description: 'The version to use for the addon',
+      description: 'The version to use for the add-on',
     }),
     addonOptions: cliparse.option('option', {
       metavar: 'option',
-      description: 'Option to enable for the addon. Multiple --option argument can be passed to enable multiple options',
+      description: 'Option to enable for the add-on. Multiple --option argument can be passed to enable multiple options',
     }),
     region: cliparse.option('region', {
       aliases: ['r'],
@@ -351,7 +351,7 @@ function run () {
     }),
     notificationScope: cliparse.option('service', {
       metavar: 'service_id',
-      description: 'Restrict notifications to specific applications and addons',
+      description: 'Restrict notifications to specific applications and add-ons',
       parser: Parsers.commaSeparated,
     }),
     showAllActivity: cliparse.flag('show-all', { description: 'Show all activity' }),
@@ -381,28 +381,28 @@ function run () {
     drainAPIKey: cliparse.option('api-key', {
       aliases: ['k'],
       metavar: 'api_key',
-      description: '(NewRelic drain) API key',
+      description: '(NewRelic drains) API key',
     }),
     drainIndexPrefix: cliparse.option('index-prefix', {
       aliases: ['i'],
       metavar: 'index_prefix',
-      description: '(ElasticSearch drain) Optional drain index prefix: `<indexPrefix>-<YYYY-MM-DD>`',
+      description: '(ElasticSearch drains) Index prefix',
       default: 'logstash-<YYYY-MM-DD>',
     }),
-    drainSDParameters: cliparse.option('sd-parameters', {
-      aliases: ['sdparams'],
-      metavar: 'sd_parameters',
-      description: '(TCP and UDP drains) Optional drain sd-params string: `X-OVH-TOKEN=\\"REDACTED\\"`',
+    drainSDParameters: cliparse.option('sd-params', {
+      aliases: ['s'],
+      metavar: 'sd_params',
+      description: '(TCP and UDP drains) sd-params string (e.g.: `X-OVH-TOKEN=\\"REDACTED\\"`)',
     }),
     verbose: cliparse.flag('verbose', { aliases: ['v'], description: 'Verbose output' }),
     withoutCache: cliparse.flag('without-cache', { description: 'Restart the application without using cache' }),
     confirmAddonCreation: cliparse.flag('yes', {
       aliases: ['y'],
-      description: 'Skip confirmation even if the addon is not free',
+      description: 'Skip confirmation even if the add-on is not free',
     }),
     confirmAddonDeletion: cliparse.flag('yes', {
       aliases: ['y'],
-      description: 'Skip confirmation and delete the addon directly',
+      description: 'Skip confirmation and delete the add-on directly',
     }),
     confirmApplicationDeletion: cliparse.flag('yes', {
       aliases: ['y'],
@@ -433,7 +433,7 @@ function run () {
       aliases: ['m'],
       required: true,
       metavar: 'member_id',
-      description: `The member ID: an app ID (e.g.: ${Formatter.formatCode('app_xxx')}), addon ID (e.g.: ${Formatter.formatCode('addon_xxx')}) or external node category ID`,
+      description: `The member ID: an app ID (e.g.: ${Formatter.formatCode('app_xxx')}), add-on ID (e.g.: ${Formatter.formatCode('addon_xxx')}) or external node category ID`,
       // complete: NetworkGroup('xxx'),
     }),
     ngMemberDomainName: cliparse.option('domain-name', {
@@ -584,41 +584,41 @@ function run () {
   // ADDON COMMANDS
   const addon = lazyRequirePromiseModule('../src/commands/addon.js');
   const addonCreateCommand = cliparse.command('create', {
-    description: 'Create an addon',
+    description: 'Create an add-on',
     args: [args.addonProvider, args.addonName],
     options: [opts.linkAddon, opts.confirmAddonCreation, opts.addonPlan, opts.addonRegion, opts.addonVersion, opts.addonOptions, opts.humanJsonOutputFormat],
   }, addon('create'));
   const addonDeleteCommand = cliparse.command('delete', {
-    description: 'Delete an addon',
+    description: 'Delete an add-on',
     args: [args.addonIdOrName],
     options: [opts.confirmAddonDeletion],
   }, addon('delete'));
   const addonRenameCommand = cliparse.command('rename', {
-    description: 'Rename an addon',
+    description: 'Rename an add-on',
     args: [args.addonIdOrName, args.addonName],
   }, addon('rename'));
   const addonShowProviderCommand = cliparse.command('show', {
-    description: 'Show information about an addon provider',
+    description: 'Show information about an add-on provider',
     args: [args.addonProvider],
   }, addon('showProvider'));
   const addonProvidersCommand = cliparse.command('providers', {
-    description: 'List available addon providers',
+    description: 'List available add-on providers',
     commands: [addonShowProviderCommand],
   }, addon('listProviders'));
   const addonEnvCommand = cliparse.command('env', {
-    description: 'List the environment variables for an addon',
+    description: 'List environment variables for an add-on',
     options: [opts.addonEnvFormat],
     args: [opts.addonId],
   }, addon('env'));
   const addonListCommand = cliparse.command('list', {
-    description: 'List all available add-ons for a given owner',
+    description: 'List available add-ons',
     options: [opts.humanJsonOutputFormat],
   }, addon('list'));
 
   const addonCommands = cliparse.command('addon', {
-    description: 'Manage addons',
+    description: 'Manage add-ons',
     options: [opts.orgaIdOrName],
-    commands: [addonCreateCommand, addonDeleteCommand, addonRenameCommand, addonProvidersCommand, addonEnvCommand, addonListCommand],
+    commands: [addonCreateCommand, addonDeleteCommand, addonRenameCommand, addonListCommand, addonProvidersCommand, addonEnvCommand],
   }, addon('list'));
 
   // APPLICATIONS COMMAND
@@ -830,11 +830,11 @@ function run () {
     options: [opts.ngIdOrLabel, opts.ngMemberId, opts.naturalName, opts.jsonFormat],
   }, networkgroups('getMember'));
   const networkGroupsMemberAddCommand = cliparse.command('add', {
-    description: 'Add an app or addon as a Network Group member',
+    description: 'Add an app or add-on as a Network Group member',
     options: [opts.ngIdOrLabel, opts.ngMemberId, opts.ngMemberType, opts.ngMemberDomainName, opts.optNgMemberLabel],
   }, networkgroups('addMember'));
   const networkGroupsMemberRemoveCommand = cliparse.command('remove', {
-    description: 'Remove an app or addon from a Network Group',
+    description: 'Remove an app or add-on from a Network Group',
     options: [opts.ngIdOrLabel, opts.ngMemberId],
   }, networkgroups('removeMember'));
 
@@ -963,11 +963,11 @@ function run () {
     args: [args.appIdOrName],
   }, service('unlinkApp'));
   const serviceLinkAddonCommand = cliparse.command('link-addon', {
-    description: 'Link an existing addon to this application',
+    description: 'Link an existing add-on to this application',
     args: [args.addonIdOrName],
   }, service('linkAddon'));
   const serviceUnlinkAddonCommand = cliparse.command('unlink-addon', {
-    description: 'Unlink an addon from this application',
+    description: 'Unlink an add-on from this application',
     args: [args.addonIdOrName],
   }, service('unlinkAddon'));
   const serviceCommands = cliparse.command('service', {
