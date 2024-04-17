@@ -29,6 +29,7 @@ async function connect () {
 }
 
 async function isValidJSONAndHasName (jsonString, propertyToCheck) {
+
   const jsonObject = JSON.parse(jsonString);
   if (!jsonObject || typeof jsonObject !== 'object') {
     throw new Error('JSON object is not valid');
@@ -53,12 +54,45 @@ async function isValidJSONAndHasName (jsonString, propertyToCheck) {
 
   const result = jsonata(propertyToCheck).evaluate(jsonObject);
   return result;
+
+}
+
+async function exists (params) {
+  const client = await connect();
+  const [key] = params.args;
+  const value = await client.EXISTS(key);
+  console.log(value);
+  await client.disconnect();
 }
 
 async function get (params) {
   const client = await connect();
   const [key] = params.args;
   const value = await client.GET(key);
+  console.log(value);
+  await client.disconnect();
+}
+
+async function keys (params) {
+  const client = await connect();
+  const [pattern] = params.args;
+  const value = await client.KEYS(pattern);
+  console.log(value);
+  await client.disconnect();
+}
+
+async function type (params) {
+  const client = await connect();
+  const [key] = params.args;
+  const value = await client.TYPE(key);
+  console.log(value);
+  await client.disconnect();
+}
+
+async function strlen (params) {
+  const client = await connect();
+  const [key] = params.args;
+  const value = await client.STRLEN(key);
   console.log(value);
   await client.disconnect();
 }
@@ -76,6 +110,14 @@ async function set (params) {
   const client = await connect();
   const [key, value] = params.args;
   await client.SET(key, value);
+  console.log({ [key]: value });
+  await client.disconnect();
+}
+
+async function append (params) {
+  const client = await connect();
+  const [key, value] = params.args;
+  await client.APPEND(key, value);
   console.log({ [key]: value });
   await client.disconnect();
 }
@@ -125,6 +167,13 @@ async function scan () {
   await client.disconnect();
 }
 
+async function dbsize () {
+  const client = await connect();
+  const value = await client.DBSIZE();
+  console.log(value);
+  await client.disconnect();
+}
+
 async function commands_list () {
   const client = await connect();
   const commands = await client.COMMAND_LIST();
@@ -135,7 +184,7 @@ async function commands_list () {
   await client.disconnect();
 }
 
-async function raw (params) {
+async function redis_raw (params) {
   const client = await connect();
   const [commands] = params.args;
   const commandsArray = commands.split(' ');
@@ -144,4 +193,22 @@ async function raw (params) {
   await client.disconnect();
 }
 
-module.exports = { get, getjson, set, incr, decr, del, flushdb, commands_list, ping, raw, scan };
+module.exports = {
+  append,
+  commands_list,
+  dbsize,
+  decr,
+  del,
+  exists,
+  flushdb,
+  get,
+  getjson,
+  incr,
+  keys,
+  ping,
+  redis_raw,
+  scan,
+  set,
+  strlen,
+  type,
+};

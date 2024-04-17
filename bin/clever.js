@@ -106,10 +106,11 @@ function run () {
     }),
     addonName: cliparse.argument('addon-name', { description: 'Add-on name' }),
     kvCommand: cliparse.argument('command', { description: 'MateriaDB KV command' }),
-    kvRawCommand: cliparse.argument('raw-command', { description: 'MateriaDB KV raw command' }),
+    kvRedisRawCommand: cliparse.argument('redis-raw-command', { description: 'Raw command for Redis protocol' }),
     kvKey: cliparse.argument('key', { description: 'MateriaDB KV key' }),
     kvJsonKey: cliparse.argument('json-property', { description: 'JSON property of a MateriaDB KV value' }),
     kvValue: cliparse.argument('value', { description: 'Value for a MateriaDB KV key' }),
+    kvPattern: cliparse.argument('pattern', { description: 'Pattern to search in MateriaDB KV keys, can be \'*\'' }),
     addonProvider: cliparse.argument('addon-provider', { description: 'Add-on provider' }),
     alias: cliparse.argument('app-alias', { description: 'Application alias' }),
     appIdOrName: cliparse.argument('app-id', {
@@ -1122,6 +1123,10 @@ function run () {
     description: 'Set a MateriaDB KV key with a value',
     args: [args.kvKey, args.kvValue],
   }, kv('set'));
+  const kvAppendCommand = cliparse.command('append', {
+    description: 'Append a value to a MateriaDB KV key',
+    args: [args.kvKey, args.kvValue],
+  }, kv('append'));
   const kvIncrCommand = cliparse.command('incr', {
     description: 'Increment a MateriaDB KV key',
     args: [args.kvKey],
@@ -1134,21 +1139,40 @@ function run () {
     description: 'Delete a MateriaDB KV key',
     args: [args.kvKey],
   }, kv('del'));
-  const kvRawCommand = cliparse.command('raw', {
-    description: 'Send a raw command to MateriaDB KV',
+  const kvRedisRawCommand = cliparse.command('redis_raw', {
+    description: 'Send a raw Redis protocol command to MateriaDB KV',
     args: [args.kvRawCommand],
-  }, kv('raw'));
+  }, kv('redis_raw'));
   const kvFlushdbCommand = cliparse.command('flushdb', {
     description: 'Delete all MateriaDB KV keys',
   }, kv('flushdb'));
   const kvPingCommand = cliparse.command('ping', {
     description: 'Check if the MateriaDB KV cluster responds',
   }, kv('ping'));
+  const kvExistsCommand = cliparse.command('exists', {
+    description: 'Check if a MateriaDB KV key exists',
+    args: [args.kvKey],
+  }, kv('exists'));
+  const kvStrlenCommand = cliparse.command('strlen', {
+    description: 'Get the length of a MateriaDB KV key',
+    args: [args.kvKey],
+  }, kv('strlen'));
+  const kvTypeCommand = cliparse.command('type', {
+    description: 'Get the type of a MateriaDB KV key',
+    args: [args.kvKey],
+  }, kv('type'));
+  const kvKeysCommand = cliparse.command('keys', {
+    description: 'List all MateriaDB KV keys, filtered by a pattern (can be \'*\')',
+    args: [args.kvPattern],
+  }, kv('keys'));
   const kvScanCommand = cliparse.command('scan', {
     description: 'List all MateriaDB KV keys',
   }, kv('scan'));
+  const kvDbSizeCommand = cliparse.command('dbsize', {
+    description: 'Get the number of keys in the MateriaDB KV',
+  }, kv('dbsize'));
   const kvCommand = cliparse.command('kv', {
-    description: 'Manage MateriaDB KV without a third-party client',
+    description: '/!\\ This is PoC software! Manage Materia KV without a third-party client',
     args: [args.kvCommand],
     commands: [
       kvPingCommand,
@@ -1156,13 +1180,19 @@ function run () {
       kvGetJSONCommand,
       kvGetCommand,
       kvSetCommand,
+      kvAppendCommand,
       kvIncrCommand,
       kvDecrCommand,
       kvDelCommand,
       kvFlushdbCommand,
       kvPingCommand,
+      kvExistsCommand,
+      kvStrlenCommand,
+      kvTypeCommand,
+      kvKeysCommand,
       kvScanCommand,
-      kvRawCommand,
+      kvDbSizeCommand,
+      kvRedisRawCommand,
     ],
   }, kv('get'));
   // DATABASES COMMANDS
