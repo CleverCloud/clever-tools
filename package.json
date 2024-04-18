@@ -22,7 +22,8 @@
   "files": [
     "bin",
     "src",
-    "scripts/*.sh"
+    "scripts/*.sh",
+    "vendors"
   ],
   "dependencies": {
     "@clevercloud/client": "^8.1.2",
