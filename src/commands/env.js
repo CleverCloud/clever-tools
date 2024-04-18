@@ -1,6 +1,6 @@
 'use strict';
 
-const AppConfig = require('../models/app_configuration.js');
+const Application = require('../models/application.js');
 const Logger = require('../logger.js');
 const variables = require('../models/variables.js');
 const { sendToApi } = require('../models/send-to-api.js');
@@ -8,8 +8,8 @@ const { toNameEqualsValueString, validateName } = require('@clevercloud/client/c
 const application = require('@clevercloud/client/cjs/api/v2/application.js');
 
 async function list (params) {
-  const { alias, 'add-export': addExports } = params.options;
-  const { ownerId, appId } = await AppConfig.getAppDetails({ alias });
+  const { alias, app: appIdOrName, 'add-export': addExports } = params.options;
+  const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
 
   const [envFromApp, envFromAddons, envFromDeps] = await Promise.all([
     application.getAllEnvVars({ id: ownerId, appId }).then(sendToApi),
@@ -33,14 +33,14 @@ async function list (params) {
 
 async function set (params) {
   const [envName, value] = params.args;
-  const { alias } = params.options;
+  const { alias, app: appIdOrName } = params.options;
 
   const nameIsValid = validateName(envName);
   if (!nameIsValid) {
     throw new Error(`Environment variable name ${envName} is invalid`);
   }
 
-  const { ownerId, appId } = await AppConfig.getAppDetails({ alias });
+  const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
 
   await application.updateEnvVar({ id: ownerId, appId, envName }, { value }).then(sendToApi);
 
@@ -49,8 +49,8 @@ async function set (params) {
 
 async function rm (params) {
   const [envName] = params.args;
-  const { alias } = params.options;
-  const { ownerId, appId } = await AppConfig.getAppDetails({ alias });
+  const { alias, app: appIdOrName } = params.options;
+  const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
 
   await application.removeEnvVar({ id: ownerId, appId, envName }).then(sendToApi);
 
@@ -58,9 +58,9 @@ async function rm (params) {
 };
 
 async function importEnv (params) {
-  const { alias, json } = params.options;
+  const { alias, app: appIdOrName, json } = params.options;
   const format = json ? 'json' : 'name-equals-value';
-  const { ownerId, appId } = await AppConfig.getAppDetails({ alias });
+  const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
 
   const envVars = await variables.readVariablesFromStdin(format);
   await application.updateAllEnvVars({ id: ownerId, appId }, envVars).then(sendToApi);
@@ -70,7 +70,7 @@ async function importEnv (params) {
 
 async function importVarsFromLocalEnv (params) {
   const [envNames] = params.args;
-  const { alias } = params.options;
+  const { alias, app: appIdOrName } = params.options;
 
   for (const envName of envNames) {
     const nameIsValid = validateName(envName);
@@ -79,7 +79,7 @@ async function importVarsFromLocalEnv (params) {
     }
   }
 
-  const { ownerId, appId } = await AppConfig.getAppDetails({ alias });
+  const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
 
   for (const envName of envNames) {
     const value = process.env[envName] || '';

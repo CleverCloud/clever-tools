@@ -796,7 +796,7 @@ function run () {
   }, env('importVarsFromLocalEnv'));
   const envCommands = cliparse.command('env', {
     description: 'Manage environment variables of an application',
-    options: [opts.alias, opts.sourceableEnvVarsList],
+    options: [opts.alias, opts.appIdOrName, opts.sourceableEnvVarsList],
     commands: [envSetCommand, envRemoveCommand, envImportCommand, envImportVarsFromLocalEnvCommand],
   }, env('list'));
 
