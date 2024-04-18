@@ -612,7 +612,7 @@ function run () {
   const activity = lazyRequirePromiseModule('../src/commands/activity.js');
   const activityCommand = cliparse.command('activity', {
     description: 'Show last deployments of an application',
-    options: [opts.alias, opts.follow, opts.showAllActivity],
+    options: [opts.alias, opts.appIdOrName, opts.follow, opts.showAllActivity],
   }, activity('activity'));
 
   // ADDON COMMANDS

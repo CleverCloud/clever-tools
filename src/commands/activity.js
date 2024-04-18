@@ -4,12 +4,12 @@ const colors = require('colors/safe');
 const moment = require('moment');
 
 const Activity = require('../models/activity.js');
-const AppConfig = require('../models/app_configuration.js');
 const formatTable = require('../format-table');
 const Logger = require('../logger.js');
 const { Deferred } = require('../models/utils.js');
 const { EventsStream } = require('@clevercloud/client/cjs/streams/events.node.js');
 const { getHostAndTokens } = require('../models/send-to-api.js');
+const Application = require('../models/application.js');
 
 function getColoredState (state, isLast) {
   if (state === 'OK') {
@@ -87,8 +87,8 @@ function onEvent (previousEvent, newEvent) {
 }
 
 async function activity (params) {
-  const { alias, 'show-all': showAll, follow } = params.options;
-  const { ownerId, appId } = await AppConfig.getAppDetails({ alias });
+  const { alias, app: appIdOrName, 'show-all': showAll, follow } = params.options;
+  const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
   const events = await Activity.list(ownerId, appId, showAll);
   const reversedArrayWithIndex = events
     .reverse()
