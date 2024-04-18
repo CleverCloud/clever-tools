@@ -685,7 +685,7 @@ function run () {
   }, config('update'));
   const configCommands = cliparse.command('config', {
     description: 'Display or edit the configuration of your application',
-    options: [opts.alias],
+    options: [opts.alias, opts.appIdOrName],
     commands: [configGetCommand, configSetCommand, configUpdateCommand],
   }, config('get'));
 
