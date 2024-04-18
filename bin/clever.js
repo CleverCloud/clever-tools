@@ -318,9 +318,15 @@ function run () {
     onlyAddons: cliparse.flag('only-addons', { description: 'Only show add-on dependencies' }),
     onlyAliases: cliparse.flag('only-aliases', { description: 'List only application aliases' }),
     onlyApps: cliparse.flag('only-apps', { description: 'Only show app dependencies' }),
+    appIdOrName: cliparse.option('app', {
+      metavar: 'ID_OR_NAME',
+      description: 'Application to manage by its ID (or name, if unambiguous)',
+      parser: Parsers.appIdOrName,
+    }),
     orgaIdOrName: cliparse.option('org', {
+      metavar: 'ID_OR_NAME',
       aliases: ['o', 'owner'],
-      description: 'Organisation ID (or name, if unambiguous)',
+      description: 'Organisation to target by its ID (or name, if unambiguous)',
       parser: Parsers.orgaIdOrName,
     }),
     output: cliparse.option('output', {
