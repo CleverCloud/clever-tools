@@ -62,9 +62,15 @@ If you're testing [MateriaDB KV](https://developers.clever-cloud.com/doc/addons/
 
 ```
 clever addon create kv ADDON_NAME
-source <(clever addon env addon_id --format shell)
+source <(clever addon env ADDON_ID --format shell)
 redis-cli -h $KV_HOST -p $KV_PORT --tls
 ```
+
+> [!TIP]
+> If you use the Fish shell, you can use the following command to set the environment variables:
+> ```
+> clever addon env ADDON_ID --format shell | source
+> ```
 
 ## database backups
 
