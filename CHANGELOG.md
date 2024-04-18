@@ -1,6 +1,13 @@
 # clever-tools changelog
 
 
+## [3.6.1](https://github.com/CleverCloud/clever-tools/compare/3.6.0...3.6.1) (2024-04-18)
+
+
+### 🐛 Bug Fixes
+
+* **build:** fix npm package ([df30809](https://github.com/CleverCloud/clever-tools/commit/df308095e9e3af7dc78ecb1f4a2bffbeffbe9a38)), closes [#729](https://github.com/CleverCloud/clever-tools/issues/729)
+
 ## [3.6.0](https://github.com/CleverCloud/clever-tools/compare/3.5.2...3.6.0) (2024-04-16)
 
 
