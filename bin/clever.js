@@ -1006,7 +1006,7 @@ function run () {
   }, service('unlinkAddon'));
   const serviceCommands = cliparse.command('service', {
     description: 'Manage service dependencies',
-    options: [opts.alias, opts.onlyApps, opts.onlyAddons, opts.showAll],
+    options: [opts.alias, opts.appIdOrName, opts.onlyApps, opts.onlyAddons, opts.showAll],
     commands: [serviceLinkAppCommand, serviceUnlinkAppCommand, serviceLinkAddonCommand, serviceUnlinkAddonCommand],
   }, service('list'));
 
