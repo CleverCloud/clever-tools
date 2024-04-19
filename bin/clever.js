@@ -93,8 +93,8 @@ const Application = lazyRequire('../src/models/application.js');
 const ApplicationConfiguration = lazyRequire('../src/models/application_configuration.js');
 const Drain = lazyRequire('../src/models/drain.js');
 const Notification = lazyRequire('../src/models/notification.js');
-const Organisation = lazyRequire('../src/models/organisation.js');
 const NetworkGroup = lazyRequire('../src/models/networkgroup.js');
+const Namespaces = lazyRequire('../src/models/namespaces.js');
 
 function run () {
 
@@ -223,7 +223,7 @@ function run () {
       metavar: 'namespace',
       description: 'Namespace in which the TCP redirection should be',
       required: true,
-      complete: Organisation('completeNamespaces'),
+      complete: Namespaces('completeNamespaces'),
     }),
     notificationEventType: cliparse.option('event', {
       metavar: 'type',
@@ -1047,7 +1047,7 @@ function run () {
   }, tcpRedirs('remove'));
   const tcpRedirsCommands = cliparse.command('tcp-redirs', {
     description: 'Control the TCP redirections from reverse proxies to your application',
-    options: [opts.alias],
+    options: [opts.alias, opts.appIdOrName],
     commands: [tcpRedirsListNamespacesCommand, tcpRedirsAddCommand, tcpRedirsRemoveCommand],
   }, tcpRedirs('list'));
 
