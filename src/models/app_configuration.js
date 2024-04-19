@@ -54,13 +54,21 @@ async function addLinkedApplication (appData, alias, ignoreParentConfig) {
   return persistConfig(currentConfig);
 };
 
-async function removeLinkedApplication (alias) {
+async function removeLinkedApplication ({ appId, alias }) {
   const currentConfig = await loadApplicationConf();
   const newConfig = {
     ...currentConfig,
-    apps: currentConfig.apps.filter((appEntry) => appEntry.alias !== alias),
+    apps: currentConfig.apps.filter((appEntry) => {
+      return appEntry.app_id !== appId && appEntry.alias !== alias;
+    }),
   };
-  return persistConfig(newConfig);
+
+  if (currentConfig.apps.length !== newConfig.apps.length) {
+    await persistConfig(newConfig);
+    return true;
+  }
+
+  return false;
 };
 
 function findApp (config, alias) {

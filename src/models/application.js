@@ -89,18 +89,18 @@ async function create (name, typeName, region, orgaIdOrName, github, isTask, env
   return application.create({ id: ownerId }, newApp).then(sendToApi);
 };
 
-async function deleteApp (addDetails, skipConfirmation) {
-  Logger.debug('Deleting app: ' + addDetails.name + ' (' + addDetails.appId + ')');
+async function deleteApp (app, skipConfirmation) {
+  Logger.debug('Deleting app: ' + app.name + ' (' + app.id + ')');
 
   if (!skipConfirmation) {
     await Interact.confirm(
-      `Deleting the application ${addDetails.name} can't be undone, please type '${addDetails.name}' to confirm: `,
+      `Deleting the application ${app.name} can't be undone, please type '${app.name}' to confirm: `,
       'No confirmation, aborting application deletion',
-      [addDetails.name],
+      [app.name],
     );
   }
 
-  return application.remove({ id: addDetails.ownerId, appId: addDetails.appId }).then(sendToApi);
+  return application.remove({ id: app.ownerId, appId: app.id }).then(sendToApi);
 };
 
 function getApplicationByName (apps, name) {
@@ -204,7 +204,7 @@ async function linkRepo (app, orgaIdOrName, alias, ignoreParentConfig) {
 
 function unlinkRepo (alias) {
   Logger.debug(`Unlinking current repository from the app: ${alias}`);
-  return AppConfiguration.removeLinkedApplication(alias);
+  return AppConfiguration.removeLinkedApplication({ alias });
 };
 
 function redeploy (ownerId, appId, commit, withoutCache) {
