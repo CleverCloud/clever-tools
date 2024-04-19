@@ -1021,7 +1021,7 @@ function run () {
   const status = lazyRequirePromiseModule('../src/commands/status.js');
   const statusCommand = cliparse.command('status', {
     description: 'See the status of an application',
-    options: [opts.alias],
+    options: [opts.alias, opts.appIdOrName],
   }, status('status'));
 
   // STOP COMMAND

@@ -3,7 +3,7 @@
 const _ = require('lodash');
 const colors = require('colors/safe');
 
-const AppConfig = require('../models/app_configuration.js');
+const Application = require('../models/application.js');
 const Logger = require('../logger.js');
 
 const { get: getApplication, getAllInstances } = require('@clevercloud/client/cjs/api/v2/application.js');
@@ -66,8 +66,8 @@ function displayScalability (app) {
 }
 
 async function status (params) {
-  const { alias } = params.options;
-  const { ownerId, appId } = await AppConfig.getAppDetails({ alias });
+  const { alias, app: appIdOrName } = params.options;
+  const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
 
   const instances = await getAllInstances({ id: ownerId, appId }).then(sendToApi);
   const app = await getApplication({ id: ownerId, appId }).then(sendToApi);
