@@ -1014,7 +1014,7 @@ function run () {
   const ssh = lazyRequirePromiseModule('../src/commands/ssh.js');
   const sshCommand = cliparse.command('ssh', {
     description: 'Connect to running instances through SSH',
-    options: [opts.alias, opts.sshIdentityFile],
+    options: [opts.alias, opts.appIdOrName, opts.sshIdentityFile],
   }, ssh('ssh'));
 
   // STATUS COMMAND
