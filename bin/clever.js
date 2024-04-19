@@ -1028,7 +1028,7 @@ function run () {
   const stop = lazyRequirePromiseModule('../src/commands/stop.js');
   const stopCommand = cliparse.command('stop', {
     description: 'Stop a running application',
-    options: [opts.alias],
+    options: [opts.alias, opts.appIdOrName],
   }, stop('stop'));
 
   // TCP-REDIRS COMMAND
