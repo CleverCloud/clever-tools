@@ -747,7 +747,7 @@ function run () {
   }, domain('getFavourite'));
   const domainCommands = cliparse.command('domain', {
     description: 'Manage domain names for an application',
-    options: [opts.alias],
+    options: [opts.alias, opts.appIdOrName],
     commands: [domainCreateCommand, domainFavouriteCommands, domainRemoveCommand],
   }, domain('list'));
 
