@@ -825,7 +825,7 @@ function run () {
   const logs = lazyRequirePromiseModule('../src/commands/logs.js');
   const logsCommand = cliparse.command('logs', {
     description: 'Fetch application logs, continuously',
-    options: [opts.alias, opts.before, opts.after, opts.search, opts.deploymentId, opts.addonId, opts.logsFormat],
+    options: [opts.alias, opts.appIdOrName, opts.before, opts.after, opts.search, opts.deploymentId, opts.addonId, opts.logsFormat],
   }, logs('appLogs'));
 
   // MAKE DEFAULT COMMAND
