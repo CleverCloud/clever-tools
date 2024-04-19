@@ -5,7 +5,7 @@ const { getWarp10AccessLogsToken } = require('@clevercloud/client/cjs/api/v2/war
 const { ONE_HOUR_MICROS, ONE_SECOND_MICROS, toMicroTimestamp } = require('@clevercloud/client/cjs/utils/date.js');
 
 const Addon = require('../models/addon.js');
-const AppConfig = require('../models/app_configuration.js');
+const Application = require('../models/application.js');
 const Logger = require('../logger.js');
 const { getFormatter } = require('../models/accesslogs.js');
 const { sendToApi, sendToWarp10 } = require('../models/send-to-api.js');
@@ -13,9 +13,9 @@ const { sendToApi, sendToWarp10 } = require('../models/send-to-api.js');
 const CONTINUOUS_DELAY = ONE_SECOND_MICROS * 5;
 
 async function accessLogs (params) {
-  const { alias, format, before, after, addon: addonId, follow } = params.options;
+  const { alias, app: appIdOrName, format, before, after, addon: addonId, follow } = params.options;
 
-  const { ownerId, appId, realAddonId } = await getIds(addonId, alias);
+  const { ownerId, appId, realAddonId } = await getIds(addonId, appIdOrName, alias);
   const to = (before != null) ? toMicroTimestamp(before.toISOString()) : toMicroTimestamp();
   const from = (after != null) ? toMicroTimestamp(after.toISOString()) : to - ONE_HOUR_MICROS;
   const warpToken = await getWarp10AccessLogsToken({ orgaId: ownerId }).then(sendToApi);
@@ -39,7 +39,7 @@ async function accessLogs (params) {
   });
 }
 
-async function getIds (addonId, alias) {
+async function getIds (addonId, appIdOrName, alias) {
   if (addonId != null) {
     const addon = await Addon.findById(addonId);
     return {
@@ -47,7 +47,7 @@ async function getIds (addonId, alias) {
       realAddonId: addon.realId,
     };
   }
-  return AppConfig.getAppDetails({ alias });
+  return await Application.resolveId(appIdOrName, alias);
 }
 
 module.exports = { accessLogs };

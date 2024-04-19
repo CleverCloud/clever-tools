@@ -605,7 +605,7 @@ function run () {
   const accesslogsModule = lazyRequirePromiseModule('../src/commands/accesslogs.js');
   const accesslogsCommand = cliparse.command('accesslogs', {
     description: 'Fetch access logs',
-    options: [opts.alias, opts.accesslogsFormat, opts.before, opts.after, opts.accesslogsFollow, opts.addonId],
+    options: [opts.alias, opts.appIdOrName, opts.accesslogsFormat, opts.before, opts.after, opts.accesslogsFollow, opts.addonId],
   }, accesslogsModule('accessLogs'));
 
   // ACTIVITY COMMAND
