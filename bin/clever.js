@@ -754,10 +754,16 @@ function run () {
     description: 'Manage the favourite domain name for an application',
     commands: [domainSetFavouriteCommand, domainUnsetFavouriteCommand],
   }, domain('getFavourite'));
+  const domainDiagCommand = cliparse.command('diag', {
+    description: 'TODO',
+  }, domain('diagApplication'));
+  const domainDiagAllCommand = cliparse.command('diag-all', {
+    description: 'TODO',
+  }, domain('diagAll'));
   const domainCommands = cliparse.command('domain', {
     description: 'Manage domain names for an application',
     options: [opts.alias, opts.appIdOrName],
-    commands: [domainCreateCommand, domainFavouriteCommands, domainRemoveCommand],
+    commands: [domainCreateCommand, domainFavouriteCommands, domainRemoveCommand, domainDiagCommand, domainDiagAllCommand],
   }, domain('list'));
 
   // DRAIN COMMANDS
