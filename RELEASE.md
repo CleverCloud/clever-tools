@@ -172,23 +172,28 @@ It is triggered when a new git tag is added.
 
 #### Archlinux
 
-For Archlinux, a new commit is created and pushed to AUR.
+For Archlinux, a new commit is created and pushed to an AUR git repository: [clever-tools-bin](https://aur.archlinux.org/packages/clever-tools-bin/).
 
-* The new commit updates all files of the given repo using the templates in `templates/arch`.
-* We use [clever-tools-bin](https://aur.archlinux.org/packages/clever-tools-bin/) for stable versions.
+* The new commit updates all files of this repo using the templates in `templates/arch`.
 
 > [!IMPORTANT]
-> Required environment variables: `CI_CLEVER_CLOUD_SSH_KEY`.
+> You need to have access to this repository using SSH key.
+
+> [!NOTE]
+> Note that our CI/CD has access to this repository using a GitHub secret.
 
 #### Homebrew
 
-For homebrew, a new commit is created and pushed to a homebrew tap on GitHub.
+For homebrew, a new commit is created and pushed to a GitHub repository: [homebrew-tap](https://github.com/CleverCloud/homebrew-tap).
 
 * The new commit updates all files of the given repo using the templates in `templates/brew`.
-* We use [homebrew-tap](https://github.com/CleverCloud/homebrew-tap) for stable versions.
 
 > [!IMPORTANT]
-> Required environment variables: `CI_CLEVER_CLOUD_SSH_KEY`.
+> You need to have access to this repository using SSH key.
+
+> [!NOTE]
+> Note that our CI/CD has access to this repository using a GitHub secret.
+
 
 #### npm
 
@@ -202,14 +207,18 @@ We publish new versions on [npmjs.org](https://www.npmjs.com/package/clever-tool
 
 #### Docker Hub
 
-For Docker Hub, a new commit is created and pushed to a [GitHub repo](https://github.com/CleverCloud/clever-tools-dockerhub).
+For Docker Hub, a new commit is created and pushed to a GitHub repository: [clever-tools-dockerhub](https://github.com/CleverCloud/clever-tools-dockerhub).
 
 * The new commit updates all files of the given repo using the templates in `templates/dockerhub`.
 
 Then, we build the docker image and publish it on [Docker Hub](https://hub.docker.com/r/clevercloud/clever-tools/).
 
 > [!IMPORTANT]
-> Required environment variables: `CI_CLEVER_CLOUD_SSH_KEY`, `DOCKERHUB_USERNAME`, `DOCKERHUB_TOKEN`.
+> Required environment variables: `DOCKERHUB_USERNAME`, `DOCKERHUB_TOKEN`.
+> You need to have access to this repository using an SSH key.
+
+> [!NOTE]
+> Note that our CI/CD has access to this repository using a GitHub secret.
 
 #### Publish locally
 
