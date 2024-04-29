@@ -1029,7 +1029,7 @@ var pkg = {
 	]
 };
 var volta = {
-	node: "18.5.0"
+	node: "20.12.2"
 };
 var pkg$1 = {
 	name: name,
