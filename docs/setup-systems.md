@@ -155,4 +155,4 @@ COPY --from=clevercloud/clever-tools /bin/clever /usr/local/bin/clever
 
 If you are using Nix, you will find a Nix derivation on Fretlink's GitHub repository:
 
-* https://github.com/fretlink/clever-tools-nix
+* https://github.com/funky-thunks/clever-tools-nix
