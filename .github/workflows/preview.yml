@@ -58,7 +58,6 @@ jobs:
         run: node scripts/job-preview.js publish ${BRANCH}
 
       - name: '[Finalize] Get preview links'
-        if: steps.check_preview.outputs.exists == 'no'
         id: get_preview_links
         run: |
           PREVIEW_LINKS=$(node scripts/job-preview.js links $BRANCH | sed -z 's/\n/\\n/g'; echo)
@@ -75,6 +74,29 @@ jobs:
               issue_number: context.issue.number,
               body: `🔎 A preview has been automatically published:\n\n${links}\n\n\n_This preview will be deleted once this PR is closed._`
             });
+      - name: '[Finalize] Edit comment'
+        if: steps.check_preview.outputs.exists == 'yes'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const comments = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number
+            });
+
+            const comment = comments.data.find((comment) => comment.body.startsWith(`🔎 A preview has been automatically published:`));
+
+            if (comment != null) {
+              const links = "${{ env.PREVIEW_LINKS }}";
+
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: comment.id,
+                body: `🔎 A preview has been automatically published:\n\n${links}\n\n\n_This preview will be deleted once this PR is closed._`
+              });
+            }
   delete:
     if: |
       github.event.action == 'closed'
