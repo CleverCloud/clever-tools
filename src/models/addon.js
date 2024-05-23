@@ -26,7 +26,7 @@ async function getProvider (providerName) {
   const providers = await listProviders();
   const provider = providers.find((p) => p.id === providerName);
   if (provider == null) {
-    throw new Error('invalid provider name');
+    throw new Error(`Invalid provider name. Available providers: ${providers.map((p) => p.id).join(', ')}`);
   }
   return provider;
 }
