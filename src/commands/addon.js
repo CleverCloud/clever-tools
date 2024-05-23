@@ -15,22 +15,6 @@ const { sendToApi } = require('../models/send-to-api.js');
 const { toNameEqualsValueString } = require('@clevercloud/client/cjs/utils/env-vars.js');
 const { resolveAddonId } = require('../models/ids-resolver.js');
 
-function getPlan (inputPlan, providerName) {
-
-  // Return user plan
-  if (inputPlan !== '') {
-    return inputPlan;
-  }
-
-  // Choose a default plan based on the add-on provider
-  switch (providerName) {
-    case 'kv':
-      return 'alpha';
-    default:
-      return 'dev';
-  }
-}
-
 async function list (params) {
   const { org: orgaIdOrName, format } = params.options;
 
@@ -74,7 +58,7 @@ async function create (params) {
   const [providerName, name] = params.args;
   const {
     link: linkedAppAlias,
-    plan: inputPlan,
+    plan: planName,
     region,
     yes: skipConfirmation,
     org: orgaIdOrName,
@@ -82,7 +66,6 @@ async function create (params) {
   } = params.options;
   const version = params.options['addon-version'];
   const addonOptions = parseAddonOptions(params.options.option);
-  const planName = getPlan(inputPlan, providerName);
 
   const ownerId = (orgaIdOrName != null)
     ? await Organisation.getId(orgaIdOrName)

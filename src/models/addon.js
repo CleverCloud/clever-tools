@@ -26,7 +26,7 @@ async function getProvider (providerName) {
   const providers = await listProviders();
   const provider = providers.find((p) => p.id === providerName);
   if (provider == null) {
-    throw new Error('invalid provider name');
+    throw new Error(`Invalid provider name. Available providers: ${providers.map((p) => p.id).join(', ')}`);
   }
   return provider;
 }
@@ -136,21 +136,16 @@ function validateAddonVersionAndOptions (region, version, addonOptions, provider
 async function create ({ ownerId, name, providerName, planName, region, skipConfirmation, version, addonOptions }) {
 
   // TODO: We should be able to use it without {}
-  const providers = await listProviders();
+  const provider = await getProvider(providerName);
 
-  const provider = providers.find((p) => p.id === providerName);
-  if (provider == null) {
-    throw new Error('invalid provider name');
-  }
   if (!provider.regions.includes(region)) {
-    throw new Error(`invalid region name. Available regions: ${provider.regions.join(', ')}`);
+    throw new Error(`Invalid region name. Available regions: ${provider.regions.join(', ')}`);
+  }
+  if (provider.plans.length === 0) {
+    throw new Error(`No plans available for provider ${providerName}`);
   }
 
-  const plan = provider.plans.find((p) => p.slug.toLowerCase() === planName.toLowerCase());
-  if (plan == null) {
-    const availablePlans = provider.plans.map((p) => p.slug);
-    throw new Error(`invalid plan name. Available plans: ${availablePlans.join(', ')}`);
-  }
+  const plan = getPlan(planName, provider.plans);
 
   const providerInfos = await getProviderInfos(provider.id);
   const planType = plan.features.find(({ name }) => name.toLowerCase() === 'type');
@@ -287,6 +282,20 @@ function parseAddonOptions (options) {
     options[key] = formattedValue;
     return options;
   }, {});
+}
+
+function getPlan (planName, plans) {
+  // if no plan specified, pick the cheapest one
+  if (planName == null || planName === '') {
+    return plans.sort((p1, p2) => p1.price - p2.price)[0];
+  }
+
+  const plan = plans.find((p) => p.slug.toLowerCase() === planName.toLowerCase());
+  if (plan == null) {
+    const availablePlans = plans.map((p) => p.slug);
+    throw new Error(`Invalid plan name. Available plans: ${availablePlans.join(', ')}`);
+  }
+  return plan;
 }
 
 module.exports = {
