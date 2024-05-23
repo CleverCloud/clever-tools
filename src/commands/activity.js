@@ -34,8 +34,8 @@ const formatActivityTable = formatTable([
   47,
   'IN PROGRESS',
   'downscale',
-  // a git commit id is 40 chars long
-  40,
+  // a git commit id is 8 chars long
+  8,
   0,
 ]);
 
@@ -46,7 +46,7 @@ function formatActivityLine (event) {
       event.uuid,
       getColoredState(event.state, event.isLast),
       event.action,
-      event.commit || 'not specified',
+      event?.commit?.substring(0, 8) ?? 'N/A',
       event.cause,
     ],
   ]);
