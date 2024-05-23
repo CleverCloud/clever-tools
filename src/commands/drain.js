@@ -33,7 +33,7 @@ async function list (params) {
       drainView += `, index: '${indexPrefix}-<YYYY-MM-DD>'`;
     }
     if (structuredDataParameters != null) {
-      drainView += `, sd-parameters: '${structuredDataParameters}'`;
+      drainView += `, sd-params: '${structuredDataParameters}'`;
     }
     Logger.println(drainView);
   });
@@ -41,7 +41,7 @@ async function list (params) {
 
 async function create (params) {
   const [drainTargetType, drainTargetURL] = params.args;
-  const { alias, addon: addonId, username, password, 'api-key': apiKey, 'index-prefix': indexPrefix, 'sd-parameters': structuredDataParameters } = params.options;
+  const { alias, addon: addonId, username, password, 'api-key': apiKey, 'index-prefix': indexPrefix, 'sd-params': structuredDataParameters } = params.options;
   const drainTargetCredentials = { username, password };
   const drainTargetConfig = { apiKey, indexPrefix, structuredDataParameters };
 
