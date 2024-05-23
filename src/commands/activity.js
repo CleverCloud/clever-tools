@@ -31,10 +31,11 @@ function getColoredState (state, isLast) {
 // We use examples of maximum width text to have a clean display
 const formatActivityTable = formatTable([
   moment().format(),
+  47,
   'IN PROGRESS',
   'downscale',
-  // a git commit id is 40 chars long
-  40,
+  // a git commit id is 8 chars long
+  8,
   0,
 ]);
 
@@ -42,9 +43,10 @@ function formatActivityLine (event) {
   return formatActivityTable([
     [
       moment(event.date).format(),
+      event.uuid,
       getColoredState(event.state, event.isLast),
       event.action,
-      event.commit || 'not specified',
+      event?.commit?.substring(0, 8) ?? 'N/A',
       event.cause,
     ],
   ]);
