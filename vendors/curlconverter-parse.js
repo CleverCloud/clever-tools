@@ -23,7 +23,7 @@
 'use strict';
 
 var Parser = require('tree-sitter');
-var Bash = require('@curlconverter/tree-sitter-bash');
+var Bash = require('tree-sitter-bash');
 
 class CCError extends Error {
 }
