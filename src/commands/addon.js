@@ -193,18 +193,39 @@ async function rename (params) {
   Logger.println(`Addon ${addon.addon_id || addon.addon_name} successfully renamed to ${newName}`);
 }
 
-async function listProviders () {
+async function listProviders (params) {
+  const { format } = params.options;
 
   const providers = await Addon.listProviders();
 
-  const formattedProviders = providers.map((provider) => {
-    return [
-      colors.bold(provider.id),
-      provider.name,
-      provider.shortDesc || '',
-    ];
-  });
-  Logger.println(formatTable(formattedProviders));
+  switch (format) {
+    case 'json': {
+      const formattedProviders = providers.map((provider) => ({
+        id: provider.id,
+        name: provider.name,
+        shortDesc: provider.shortDesc,
+        regions: provider.regions,
+        plans: provider.plans.map((plan) => ({
+          id: plan.id,
+          name: plan.name,
+          slug: plan.slug,
+        })),
+      }));
+      Logger.printJson(formattedProviders);
+      break;
+    }
+    case 'human':
+    default: {
+      const formattedProviders = providers.map((provider) => {
+        return [
+          colors.bold(provider.id),
+          provider.name,
+          provider.shortDesc || '',
+        ];
+      });
+      Logger.println(formatTable(formattedProviders));
+    }
+  }
 }
 
 async function showProvider (params) {

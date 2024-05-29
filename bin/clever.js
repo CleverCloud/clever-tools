@@ -638,6 +638,7 @@ function run () {
   const addonProvidersCommand = cliparse.command('providers', {
     description: 'List available add-on providers',
     commands: [addonShowProviderCommand],
+    options: [opts.humanJsonOutputFormat],
   }, addon('listProviders'));
   const addonEnvCommand = cliparse.command('env', {
     description: 'List environment variables for an add-on',
