@@ -1063,6 +1063,29 @@ function run () {
     console.info('clever database backups download');
   });
 
+  // DATABASES COMMANDS
+  const faas = lazyRequirePromiseModule('../src/commands/faas.js');
+  const faasListCommand = cliparse.command('list', {
+    description: 'TODO',
+    args: [],
+    options: [],
+  }, faas('list'));
+  const faasDeployCommand = cliparse.command('deploy', {
+    description: 'TODO',
+    args: [
+      cliparse.argument('filename', {
+        description: 'TODO',
+      }),
+    ],
+    options: [],
+  }, faas('deploy'));
+  const faasCommand = cliparse.command('faas', {
+    description: 'TODO',
+    args: [],
+    options: [],
+    commands: [faasListCommand, faasDeployCommand],
+  });
+
   // Patch help command description
   cliparseCommands.helpCommand.description = 'Display help about the Clever Cloud CLI';
 
@@ -1085,6 +1108,7 @@ function run () {
     drainCommands,
     emailNotificationsCommand,
     envCommands,
+    faasCommand,
     cliparseCommands.helpCommand,
     loginCommand,
     logoutCommand,

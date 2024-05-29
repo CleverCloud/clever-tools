@@ -26,6 +26,7 @@
   ],
   "dependencies": {
     "@clevercloud/client": "^8.1.2",
+    "@rollup/plugin-node-resolve": "^15.2.3",
     "clf-date": "^0.2.0",
     "cliparse": "^0.3.3",
     "colors": "1.4.0",
@@ -40,6 +41,7 @@
     "mkdirp": "^1.0.4",
     "moment": "^2.29.1",
     "open": "^8.4.0",
+    "rollup": "^4.18.0",
     "slugify": "^1.5.3",
     "string-length": "^4.0.2",
     "superagent": "^6.1.0",
