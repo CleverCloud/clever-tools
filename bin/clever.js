@@ -847,13 +847,8 @@ function run () {
   }, makeDefault('makeDefault'));
 
   // NETWORK GROUPS COMMANDS
-  const networkgroups = lazyRequirePromiseModule('../src/commands/networkgroups/commands.js');
+  const networkgroups = lazyRequirePromiseModule('../src/commands/ng.js');
 
-  // network group category - start
-  const networkGroupsListCommand = cliparse.command('list', {
-    description: 'List Network Groups with their labels',
-    options: [opts.jsonFormat],
-  }, networkgroups('listNetworkGroups'));
   const networkGroupsCreateCommand = cliparse.command('create', {
     description: 'Create a Network Group',
     options: [opts.ngLabel, opts.ngDescription, opts.optTags, opts.jsonFormat],
@@ -862,9 +857,12 @@ function run () {
     description: 'Delete a Network Group',
     options: [opts.ngIdOrLabel],
   }, networkgroups('deleteNg'));
-  // network group category - end
+  const networkGroupsListCommand = cliparse.command('list', {
+    description: 'List Network Groups with their labels',
+    options: [opts.jsonFormat],
+    description: 'List available Network Groups with their labels',
+  }, networkgroups('listNg'));
 
-  // member category - start
   const networkGroupsMemberListCommand = cliparse.command('list', {
     description: 'List members of a Network Group',
     // Add option opts.optNgSearchAppId ?
@@ -882,14 +880,11 @@ function run () {
     description: 'Remove an app or add-on from a Network Group',
     options: [opts.ngIdOrLabel, opts.ngMemberId],
   }, networkgroups('removeMember'));
-
   const networkGroupsMembersCategoryCommand = cliparse.command('members', {
     description: 'List commands for interacting with Network Group members',
     commands: [networkGroupsMemberListCommand, networkGroupsMemberGetCommand, networkGroupsMemberAddCommand, networkGroupsMemberRemoveCommand],
   });
-  // member category - end
 
-  // peer category - start
   const networkGroupsPeerListCommand = cliparse.command('list', {
     description: 'List peers of a Network Group',
     options: [opts.ngIdOrLabel, opts.jsonFormat],
@@ -906,7 +901,6 @@ function run () {
     description: 'Remove an external node from a Network Group',
     options: [opts.ngIdOrLabel, opts.ngPeerId],
   }, networkgroups('removeExternalPeer'));
-
   const networkGroupsPeersCategoryCommand = cliparse.command('peers', {
     description: 'List commands for interacting with Network Group peers',
     commands: [networkGroupsPeerListCommand, networkGroupsPeerGetCommand, networkGroupsPeerAddCommand, networkGroupsPeerRemoveExternalCommand],
