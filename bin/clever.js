@@ -776,6 +776,7 @@ function run () {
   const drainCommands = cliparse.command('drain', {
     description: 'Manage drains',
     options: [opts.alias, opts.appIdOrName, opts.addonId],
+    privateOptions: [opts.humanJsonOutputFormat],
     commands: [drainCreateCommand, drainRemoveCommand, drainEnableCommand, drainDisableCommand],
   }, drain('list'));
 

@@ -15,28 +15,43 @@ async function getAppOrAddonId ({ alias, appIdOrName, addonId }) {
 }
 
 async function list (params) {
-  const { alias, app: appIdOrName, addon: addonId } = params.options;
+  const { alias, app: appIdOrName, addon: addonId, format } = params.options;
 
   const appIdOrAddonId = await getAppOrAddonId({ alias, appIdOrName, addonId });
   const drains = await getDrains({ appId: appIdOrAddonId }).then(sendToApi);
 
-  if (drains.length === 0) {
-    Logger.println(`There are no drains for ${appIdOrAddonId}`);
+  switch (format) {
+    case 'json': {
+      const formattedDrains = drains.map((drain) => ({
+        id: drain.id,
+        target: drain.target,
+        state: drain.state,
+      }));
+
+      Logger.printJson(formattedDrains);
+      break;
+    }
+    case 'human':
+    default: {
+      if (drains.length === 0) {
+        Logger.println(`There are no drains for ${appIdOrAddonId}`);
+      }
+
+      drains.forEach((drain) => {
+        const { id, state, target } = drain;
+        const { url, drainType, indexPrefix, structuredDataParameters } = target;
+
+        let drainView = `${id} -> ${state} for ${url} as ${drainType}`;
+        if (indexPrefix != null) {
+          drainView += `, index: '${indexPrefix}-<YYYY-MM-DD>'`;
+        }
+        if (structuredDataParameters != null) {
+          drainView += `, sd-params: '${structuredDataParameters}'`;
+        }
+        Logger.println(drainView);
+      });
+    }
   }
-
-  drains.forEach((drain) => {
-    const { id, state, target } = drain;
-    const { url, drainType, indexPrefix, structuredDataParameters } = target;
-
-    let drainView = `${id} -> ${state} for ${url} as ${drainType}`;
-    if (indexPrefix != null) {
-      drainView += `, index: '${indexPrefix}-<YYYY-MM-DD>'`;
-    }
-    if (structuredDataParameters != null) {
-      drainView += `, sd-params: '${structuredDataParameters}'`;
-    }
-    Logger.println(drainView);
-  });
 }
 
 async function create (params) {
