@@ -652,6 +652,7 @@ function run () {
   const addonCommands = cliparse.command('addon', {
     description: 'Manage add-ons',
     options: [opts.orgaIdOrName],
+    privateOptions: [opts.humanJsonOutputFormat],
     commands: [addonCreateCommand, addonDeleteCommand, addonRenameCommand, addonListCommand, addonProvidersCommand, addonEnvCommand],
   }, addon('list'));
 
