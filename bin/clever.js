@@ -724,6 +724,7 @@ function run () {
   const diagCommand = cliparse.command('diag', {
     description: 'Diagnose the current installation (prints various informations for support)',
     args: [],
+    options: [opts.humanJsonOutputFormat],
   }, diag('diag'));
 
   // DOMAIN COMMANDS
