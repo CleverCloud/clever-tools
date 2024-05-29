@@ -155,7 +155,7 @@ function run () {
   const opts = {
     sourceableEnvVarsList: cliparse.flag('add-export', { description: 'Display sourceable env variables setting' }),
     logsFormat: getOutputFormatOption(['json-stream']),
-    addonEnvFormat: getOutputFormatOption(['shell']),
+    envFormat: getOutputFormatOption(['shell']),
     accesslogsFollow: cliparse.flag('follow', {
       aliases: ['f'],
       description: 'Display access logs continuously (ignores before/until, after/since)',
@@ -642,7 +642,7 @@ function run () {
   }, addon('listProviders'));
   const addonEnvCommand = cliparse.command('env', {
     description: 'List environment variables for an add-on',
-    options: [opts.addonEnvFormat],
+    options: [opts.envFormat],
     args: [opts.addonId],
   }, addon('env'));
   const addonListCommand = cliparse.command('list', {
@@ -801,6 +801,7 @@ function run () {
   const envCommands = cliparse.command('env', {
     description: 'Manage environment variables of an application',
     options: [opts.alias, opts.appIdOrName, opts.sourceableEnvVarsList],
+    privateOptions: [opts.envFormat],
     commands: [envSetCommand, envRemoveCommand, envImportCommand, envImportVarsFromLocalEnvCommand],
   }, env('list'));
 
