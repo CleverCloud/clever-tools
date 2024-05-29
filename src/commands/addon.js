@@ -126,8 +126,8 @@ function displayAddon (format, addon, providerName, message) {
       if (providerName === 'kv') {
         const materiaMessage = [
           '',
-          colors.yellow(`/!\\ The MateriaDB ${providerName.toUpperCase()} provider is in Alpha testing phase, don't store sensitive or production grade data`),
-          'You can easily use MateriaDB KV with \'redis-cli\', with such commands:',
+          colors.yellow(`/!\\ The Materia ${providerName.toUpperCase()} provider is in Alpha testing phase, don't store sensitive or production grade data`),
+          'You can easily use Materia KV with \'redis-cli\', with such commands:',
           colors.blue(`source <(clever addon env ${addon.id} -F shell)`),
           colors.blue('redis-cli -h $KV_HOST -p $KV_PORT --tls'),
         ].join('\n');

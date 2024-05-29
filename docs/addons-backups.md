@@ -58,7 +58,7 @@ clever addon env [--format, -F] FORMAT ADDON_ID
 > [!NOTE]
 > Available formats are: `human` (default), `json` and `shell`
 
-If you're testing [MateriaDB KV](https://developers.clever-cloud.com/doc/addons/materia-db-kv/), our next generation of serverless distributed database, synchronously-replicated, compatible with Redis protocol, you can create an add-on and immediately use it:
+If you're testing [Materia KV](https://developers.clever-cloud.com/doc/addons/materia-kv/), our next generation of serverless distributed database, synchronously-replicated, compatible with Redis protocol, you can create an add-on and immediately use it:
 
 ```
 clever addon create kv ADDON_NAME
