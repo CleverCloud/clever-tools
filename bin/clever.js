@@ -848,7 +848,6 @@ function run () {
 
   // NETWORK GROUPS COMMANDS
   const networkgroups = lazyRequirePromiseModule('../src/commands/ng.js');
-
   const networkGroupsCreateCommand = cliparse.command('create', {
     description: 'Create a Network Group',
     options: [opts.ngLabel, opts.ngDescription, opts.optTags, opts.jsonFormat],
@@ -905,19 +904,11 @@ function run () {
     description: 'List commands for interacting with Network Group peers',
     commands: [networkGroupsPeerListCommand, networkGroupsPeerGetCommand, networkGroupsPeerAddCommand, networkGroupsPeerRemoveExternalCommand],
   });
-  // peer category - end
 
-  // eslint-disable-next-line no-unused-vars
-  const networkGroupsCommand = cliparse.command('networkgroups', {
-    description: 'List Network Group commands',
+  const networkGroupsCommand = cliparse.command('ng', {
+    description: 'Manage Network Groups, their members and peers',
     options: [opts.orgaIdOrName, opts.alias],
-    commands: [networkGroupsListCommand, networkGroupsCreateCommand, networkGroupsDeleteCommand, networkGroupsMembersCategoryCommand, networkGroupsPeersCategoryCommand],
-  });
-  // eslint-disable-next-line no-unused-vars
-  const ngCommand = cliparse.command('ng', {
-    description: `Alias for ${Formatter.formatCommand('clever networkgroups')}`,
-    options: [opts.orgaIdOrName, opts.alias],
-    commands: [networkGroupsListCommand, networkGroupsCreateCommand, networkGroupsDeleteCommand, networkGroupsMembersCategoryCommand, networkGroupsPeersCategoryCommand],
+    commands: [networkGroupsCreateCommand, networkGroupsDeleteCommand, networkGroupsListCommand, networkGroupsMembersCategoryCommand, networkGroupsPeersCategoryCommand],
   });
 
   // NOTIFY-EMAIL COMMAND
