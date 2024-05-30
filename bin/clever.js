@@ -976,6 +976,7 @@ function run () {
   const publishedConfigCommands = cliparse.command('published-config', {
     description: 'Manage the configuration made available to other applications by this application',
     options: [opts.alias, opts.appIdOrName],
+    privateOptions: [opts.envFormat],
     commands: [publishedConfigSetCommand, publishedConfigRemoveCommand, publishedConfigImportCommand],
   }, publishedConfig('list'));
 

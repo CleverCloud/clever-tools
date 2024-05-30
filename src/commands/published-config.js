@@ -8,16 +8,27 @@ const { toNameEqualsValueString, validateName } = require('@clevercloud/client/c
 const application = require('@clevercloud/client/cjs/api/v2/application.js');
 
 async function list (params) {
-  const { alias, app: appIdOrName } = params.options;
+  const { alias, app: appIdOrName, format } = params.options;
   const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
 
   const publishedConfigs = await application.getAllExposedEnvVars({ id: ownerId, appId }).then(sendToApi);
-  const pairs = Object.entries(publishedConfigs)
-    .map(([name, value]) => ({ name, value }));
+  const pairs = Object.entries(publishedConfigs).map(([name, value]) => ({ name, value }));
 
-  Logger.println('# Published configs');
-  Logger.println(toNameEqualsValueString(pairs));
-};
+  switch (format) {
+    case 'json': {
+      Logger.printJson(pairs);
+      break;
+    }
+    case 'shell':
+      Logger.println(toNameEqualsValueString(pairs, { addExports: true }));
+      break;
+    case 'human':
+    default: {
+      Logger.println('# Published configs');
+      Logger.println(toNameEqualsValueString(pairs, { addExports: false }));
+    }
+  }
+}
 
 async function set (params) {
   const [varName, varValue] = params.args;
