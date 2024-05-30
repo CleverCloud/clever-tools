@@ -857,9 +857,8 @@ function run () {
     options: [opts.ngIdOrLabel],
   }, networkgroups('deleteNg'));
   const networkGroupsListCommand = cliparse.command('list', {
-    description: 'List Network Groups with their labels',
-    options: [opts.jsonFormat],
     description: 'List available Network Groups with their labels',
+    options: [opts.humanJsonOutputFormat],
   }, networkgroups('listNg'));
 
   const networkGroupsMemberListCommand = cliparse.command('list', {

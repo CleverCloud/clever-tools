@@ -8,21 +8,26 @@ const Logger = require('../logger.js');
 const NetworkGroup = require('../models/networkgroup.js');
 const TableFormatter = require('../models/format-ng-table.js');
 
-  const { org: orgaIdOrName, alias, json } = params.options;
 async function listNg (params) {
+  const { org: orgaIdOrName, alias, format } = params.options;
   const ownerId = await NetworkGroup.getOwnerId(orgaIdOrName, alias);
 
   Logger.info(`Listing Network Groups from owner ${Formatter.formatString(ownerId)}`);
   const result = await ngApi.listNetworkGroups({ ownerId }).then(sendToApi);
 
-  if (json) {
-    Logger.println(JSON.stringify(result, null, 2));
+  if (result.length === 0) {
+    Logger.println(`No Network Group found for ${ownerId}`);
+    Logger.println(`You can create one with ${Formatter.formatCommand('clever networkgroups create')} command`);
+    return;
   }
-  else {
-    if (result.length === 0) {
-      Logger.println(`No Network Group found for ${ownerId}. You can create one with ${Formatter.formatCommand('clever networkgroups create')}.`);
+
+  switch (format) {
+    case 'json': {
+      Logger.println(JSON.stringify(result, null, 2));
+      break;
     }
-    else {
+    case 'human':
+    default: {
       TableFormatter.printNetworkGroupsTableHeader();
       result
         .map((ng) => TableFormatter.formatNetworkGroupsLine(ng))
