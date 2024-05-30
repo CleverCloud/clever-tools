@@ -9,16 +9,43 @@ const Logger = require('../logger.js');
 const { get: getApplication, getAllInstances } = require('@clevercloud/client/cjs/api/v2/application.js');
 const { sendToApi } = require('../models/send-to-api.js');
 
-function displayGroupInfo (instances, commit) {
-  return `(${displayFlavors(instances)},  Commit: ${commit || 'N/A'})`;
+async function status (params) {
+  const { alias, app: appIdOrName, format } = params.options;
+  const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
+
+  const instances = await getAllInstances({ id: ownerId, appId }).then(sendToApi);
+  const app = await getApplication({ id: ownerId, appId }).then(sendToApi);
+
+  const status = computeStatus(instances, app);
+
+  switch (format) {
+    case 'json': {
+      Logger.printJson(status);
+      break;
+    }
+    case 'human':
+    default: {
+      const statusMessage = status.status === 'running'
+        ? `${colors.bold.green('running')} ${displayInstances(status.instances, status.commit)}`
+        : colors.bold.red('stopped');
+
+      Logger.println(`${status.name}: ${statusMessage}`);
+      Logger.println(`Executed as: ${colors.bold(status.lifetime)}`);
+      if (status.deploymentInProgress) {
+        Logger.println(`Deployment in progress ${displayInstances(status.deploymentInProgress.instances, status.deploymentInProgress.commit)}`);
+      }
+      Logger.println();
+      Logger.println('Scalability:');
+      Logger.println(`  Auto scalability: ${status.scalability.enabled ? colors.green('enabled') : colors.red('disabled')}`);
+      Logger.println(`  Scalers: ${colors.bold(formatScalability(status.scalability.horizontal))}`);
+      Logger.println(`  Sizes: ${colors.bold(formatScalability(status.scalability.vertical))}`);
+      Logger.println(`  Dedicated build: ${status.separateBuild ? colors.bold(status.buildFlavor) : colors.red('disabled')}`);
+    }
+  }
 }
 
-function displayFlavors (instances) {
-  return _(instances)
-    .groupBy((i) => i.flavor.name)
-    .map((instances, flavorName) => `${instances.length}*${flavorName}`)
-    .value()
-    .join(', ');
+function displayInstances (instances, commit) {
+  return `(${instances.map((instance) => `${instance.count}*${instance.flavor}`)},  Commit: ${commit || 'N/A'})`;
 }
 
 function computeStatus (instances, app) {
@@ -30,50 +57,49 @@ function computeStatus (instances, app) {
   const isDeploying = !_.isEmpty(deployingInstances);
   const deployingCommit = _(deployingInstances).map('commit').head();
 
-  const statusMessage = isUp
-    ? `${colors.bold.green('running')} ${displayGroupInfo(upInstances, upCommit)}`
-    : colors.bold.red('stopped');
-
-  const statusLine = `${app.name}: ${statusMessage}`;
-  const taskLine = `Executed as: ${colors.bold(app.instance.lifetime)}`;
-  const deploymentLine = isDeploying
-    ? `Deployment in progress ${displayGroupInfo(deployingInstances, deployingCommit)}`
-    : '';
-
-  return [statusLine, taskLine, deploymentLine].join('\n');
-}
-
-function displayScalability (app) {
-
   const { minFlavor, maxFlavor, minInstances, maxInstances } = app.instance;
 
-  const vertical = (minFlavor.name === maxFlavor.name)
-    ? minFlavor.name
-    : `${minFlavor.name} to ${maxFlavor.name}`;
-
-  const horizontal = (minInstances === maxInstances)
-    ? minInstances
-    : `${minInstances} to ${maxInstances}`;
-
-  const enabled = (minFlavor.name !== maxFlavor.name)
+  const scalabilityEnabled = (minFlavor.name !== maxFlavor.name)
     || (minInstances !== maxInstances);
 
-  return `Scalability:
-  Auto scalability: ${enabled ? colors.green('enabled') : colors.red('disabled')}
-  Scalers: ${colors.bold(horizontal)}
-  Sizes: ${colors.bold(vertical)}
-  Dedicated build: ${app.separateBuild ? colors.bold(app.buildFlavor.name) : colors.red('disabled')}`;
+  const status = {
+    id: app.id,
+    name: app.name,
+    lifetime: app.instance.lifetime,
+    status: isUp ? 'running' : 'stopped',
+    commit: upCommit,
+    instances: groupInstances(upInstances),
+    scalability: {
+      enabled: scalabilityEnabled,
+      vertical: { min: minFlavor.name, max: maxFlavor.name },
+      horizontal: { min: minInstances, max: maxInstances },
+    },
+    separateBuild: app.separateBuild,
+    buildFlavor: app.buildFlavor.name,
+  };
+
+  if (isDeploying) {
+    status.deploymentInProgress = {
+      commit: deployingCommit,
+      instances: groupInstances(deployingInstances),
+    };
+  }
+
+  return status;
 }
 
-async function status (params) {
-  const { alias, app: appIdOrName } = params.options;
-  const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
+function formatScalability ({ min, max }) {
+  return (min === max) ? min : `${min} to ${max}`;
+}
 
-  const instances = await getAllInstances({ id: ownerId, appId }).then(sendToApi);
-  const app = await getApplication({ id: ownerId, appId }).then(sendToApi);
-
-  Logger.println(computeStatus(instances, app));
-  Logger.println(displayScalability(app));
+function groupInstances (instances) {
+  return _(instances)
+    .groupBy((i) => i.flavor.name)
+    .map((instances, flavorName) => ({
+      flavor: flavorName,
+      count: instances.length,
+    }))
+    .value();
 }
 
 module.exports = { status };
