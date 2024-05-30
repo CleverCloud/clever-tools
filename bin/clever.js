@@ -956,6 +956,7 @@ function run () {
   const profile = lazyRequirePromiseModule('../src/commands/profile.js');
   const profileCommand = cliparse.command('profile', {
     description: 'Display the profile of the current user',
+    options: [opts.humanJsonOutputFormat],
   }, profile('profile'));
 
   // PUBLISHED CONFIG COMMANDS
