@@ -37,31 +37,47 @@ async function listNg (params) {
 }
 
 async function createNg (params) {
-  const { org: orgaIdOrName, alias, label, description, tags, json } = params.options;
+  const { org: orgaIdOrName, alias, description, tags, format } = params.options;
+  const [label] = params.args;
   const ownerId = await NetworkGroup.getOwnerId(orgaIdOrName, alias);
+  const body = { ownerId: ownerId, label, description, tags };
 
   Logger.info(`Creating Network Group from owner ${Formatter.formatString(ownerId)}`);
-  const body = { ownerId: ownerId, label, description, tags };
-  Logger.debug('Sending body: ' + JSON.stringify(body, null, 2));
+  Logger.debug(`Sending body: ${JSON.stringify(body, null, 2)}`);
   const result = await ngApi.createNetworkGroup({ ownerId }, body).then(sendToApi);
 
-  if (json) {
-    Logger.println(JSON.stringify(result, null, 2));
-  }
-  else {
-    Logger.println(`Network Group ${Formatter.formatString(label)} creation will be performed asynchronously.`);
+  switch (format) {
+    case 'json': {
+      Logger.println(JSON.stringify(result, null, 2));
+      break;
+    }
+    case 'human':
+    default: {
+      Logger.println(`Network Group ${Formatter.formatString(label)} creation will be performed asynchronously`);
+    }
   }
 }
 
 async function deleteNg (params) {
-  const { org: orgaIdOrName, alias, ng: networkGroupIdOrLabel } = params.options;
+  const { org: orgaIdOrName, alias, format } = params.options;
+  const [networkGroupIdOrLabel] = params.args;
+
   const ownerId = await NetworkGroup.getOwnerId(orgaIdOrName, alias);
   const networkGroupId = await NetworkGroup.getId(ownerId, networkGroupIdOrLabel);
 
   Logger.info(`Deleting Network Group ${Formatter.formatString(networkGroupId)} from owner ${Formatter.formatString(ownerId)}`);
-  await ngApi.deleteNetworkGroup({ ownerId, networkGroupId }).then(sendToApi);
+  const result = await ngApi.deleteNetworkGroup({ ownerId, networkGroupId }).then(sendToApi);
 
-  Logger.println(`Network Group ${Formatter.formatString(networkGroupId)} deletion will be performed asynchronously.`);
+  switch (format) {
+    case 'json': {
+      Logger.println(JSON.stringify(result, null, 2));
+      break;
+    }
+    case 'human':
+    default: {
+      Logger.println(`Network Group ${Formatter.formatString(networkGroupId)} deletion will be performed asynchronously`);
+    }
+  }
 }
 
 async function listMembers (params) {

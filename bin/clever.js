@@ -149,6 +149,7 @@ function run () {
       description: 'Network Group ID or label',
       parser: Parsers.ngIdOrLabel,
     }),
+    ngLabel: cliparse.argument('label', { description: 'Network Group label, also used for DNS context' }),
   };
 
   // OPTIONS
@@ -448,8 +449,7 @@ function run () {
       description: 'Skip confirmation even if the TCP redirection is not free',
     }),
     ngLabel: cliparse.option('label', {
-      required: true,
-      metavar: 'ng_label',
+      metavar: 'label',
       description: 'Network Group label, also used for DNS context',
     }),
     ngIdOrLabel: cliparse.option('ng', {
@@ -460,7 +460,6 @@ function run () {
       // complete: NetworkGroup('xxx'),
     }),
     ngDescription: cliparse.option('description', {
-      required: true,
       metavar: 'ng_description',
       description: 'Network Group description',
     }),
@@ -850,11 +849,13 @@ function run () {
   const networkgroups = lazyRequirePromiseModule('../src/commands/ng.js');
   const networkGroupsCreateCommand = cliparse.command('create', {
     description: 'Create a Network Group',
-    options: [opts.ngLabel, opts.ngDescription, opts.optTags, opts.jsonFormat],
+    args: [args.ngLabel],
+    options: [opts.ngDescription, opts.optTags, opts.humanJsonOutputFormat],
   }, networkgroups('createNg'));
   const networkGroupsDeleteCommand = cliparse.command('delete', {
     description: 'Delete a Network Group',
-    options: [opts.ngIdOrLabel],
+    args: [opts.ngIdOrLabel],
+    options: [opts.humanJsonOutputFormat],
   }, networkgroups('deleteNg'));
   const networkGroupsListCommand = cliparse.command('list', {
     description: 'List available Network Groups with their labels',
