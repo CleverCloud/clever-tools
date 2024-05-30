@@ -934,6 +934,7 @@ function run () {
   const emailNotificationsCommand = cliparse.command('notify-email', {
     description: 'Manage email notifications',
     options: [opts.orgaIdOrName, opts.listAllNotifications],
+    privateOptions: [opts.humanJsonOutputFormat],
     commands: [addEmailNotificationCommand, removeEmailNotificationCommand],
   }, notifyEmail('list'));
 

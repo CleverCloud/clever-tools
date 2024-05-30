@@ -8,34 +8,49 @@ const { getOwnerAndApp, getOrgaIdOrUserId } = require('../models/notification.js
 const { getEmailhooks, createEmailhook, deleteEmailhook } = require('@clevercloud/client/cjs/api/v2/notification.js');
 const { sendToApi } = require('../models/send-to-api.js');
 
-function displayEmailhook (hook) {
-  Logger.println((hook.name && colors.bold(hook.name)) || hook.id);
-  Logger.println(`  id: ${hook.id}`);
-  Logger.println(`  services: ${(hook.scope && hook.scope.join(', ')) || hook.ownerId}`);
-  Logger.println(`  events: ${(hook.events && hook.events.join(', ')) || colors.bold('ALL')}`);
-  if (hook.notified) {
-    Logger.println('  to:');
-    hook.notified.forEach((target) => Logger.println(`    ${target.target || 'whole team'}`));
-  }
-  else {
-    Logger.println('  to: whole team');
-  }
-  Logger.println();
-}
-
 async function list (params) {
-  const { org, 'list-all': listAll } = params.options;
+  const { org, 'list-all': listAll, format } = params.options;
 
   // TODO: fix alias option
   const { ownerId, appId } = await getOwnerAndApp(null, org, !listAll);
   const hooks = await getEmailhooks({ ownerId }).then(sendToApi);
 
-  hooks
+  const formattedHooks = hooks
     .filter((hook) => {
       const emptyScope = !hook.scope || hook.scope.length === 0;
       return !appId || emptyScope || hook.scope.includes(appId);
     })
-    .forEach((hook) => displayEmailhook(hook));
+    .map((hook) => ({
+      id: hook.id,
+      name: hook.name,
+      ownerId: hook.ownerId,
+      services: hook.scope ?? [hook.ownerId],
+      events: hook.events ?? ['ALL'],
+      notified: hook.notified ? hook.notified.map(({ target }) => target ?? 'whole team') : ['whole team'],
+    }));
+
+  switch (format) {
+    case 'json': {
+      Logger.printJson(formattedHooks);
+      break;
+    }
+    case 'human':
+    default: {
+      formattedHooks.forEach((hook, i) => {
+        Logger.println(colors.bold(hook.name ?? hook.id));
+        Logger.println(`  id: ${hook.id}`);
+        Logger.println(`  services: ${hook.services.join(', ')}`);
+        Logger.println(`  events: ${hook.events.join(', ')}`);
+        if (hook.notified.length > 1) {
+          Logger.println('  to:');
+          hook.notified.forEach((target) => Logger.println(`    ${target}`));
+        }
+        else {
+          Logger.println(`  to: ${hook.notified[0]}`);
+        }
+      });
+    }
+  }
 }
 
 function getEmailNotificationTargets (notifTargets) {
