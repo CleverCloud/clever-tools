@@ -32,10 +32,11 @@ async function getId (ownerId, ngIdOrLabel) {
 
   return getByLabel(ownerId, ngIdOrLabel.ng_label)
     .then((ng) => ng.id);
+
 }
 
-async function getByLabel (owner_id, label) {
-  const networkGroups = await ngApi.listNetworkGroups({ owner_id }).then(sendToApi);
+async function getByLabel (ownerId, label) {
+  const networkGroups = await ngApi.listNetworkGroups({ ownerId }).then(sendToApi);
   const filteredNgs = networkGroups.filter((ng) => ng.label === label);
 
   if (filteredNgs.length === 0) {
