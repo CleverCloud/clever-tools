@@ -1,6 +1,7 @@
 'use strict';
 
 const ngApi = require('@clevercloud/client/cjs/api/v4/network-group.js');
+const { v4: uuidv4 } = require('uuid');
 const { sendToApi } = require('../models/send-to-api.js');
 
 const Formatter = require('../models/format-string.js');
@@ -37,12 +38,40 @@ async function listNg (params) {
 }
 
 async function createNg (params) {
-  const { org: orgaIdOrName, alias, description, tags, format } = params.options;
+  const { org: orgaIdOrName, alias, description, tags, format, 'members-ids' : members_ids } = params.options;
   const [label] = params.args;
   const ownerId = await NetworkGroup.getOwnerId(orgaIdOrName, alias);
-  const body = { ownerId: ownerId, label, description, tags };
+  const ngId = `ng_${uuidv4()}`;
 
-  Logger.info(`Creating Network Group from owner ${Formatter.formatString(ownerId)}`);
+  let members = [];
+  if (members_ids) {
+    // For each member ID, we add a type depending on the ID format and a domain name
+    members = members_ids.map((id) => {
+      let type = 'application';
+      let domain_name = `app_${id}.m.${ngId}.ng.clever-cloud.com`;
+
+      if (id.startsWith('app_')) {
+        type = 'application';
+      }
+      else if (id.startsWith('addon_')) {
+        type = 'addon';
+        domain_name = `${id}.m.${ngId}.ng.clever-cloud.com`;
+      }
+      else if (id.startsWith('external_')) {
+        type = 'external';
+        domain_name = `${id}.m.${ngId}.ng.clever-cloud.com`;
+      }
+      else {
+        throw new Error (`Member ID ${Formatter.formatString(id)} is not a valid format. It should start with 'app_', 'addon_' or 'external_'`);
+      }
+      return { id, domain_name, type };
+    });
+  }
+
+  const body = { ownerId: ownerId, id: ngId, label, description, tags, members };
+
+  Logger.info(`Creating Network Group ${Formatter.formatString(label)} (${Formatter.formatId(ngId)}) from owner ${Formatter.formatString(ownerId)}`);
+  Logger.info(`${members.length} members will be added: ${members.map((m) => Formatter.formatString(m.id)).join(', ')}`);
   Logger.debug(`Sending body: ${JSON.stringify(body, null, 2)}`);
   const result = await ngApi.createNetworkGroup({ ownerId }, body).then(sendToApi);
 
@@ -53,7 +82,7 @@ async function createNg (params) {
     }
     case 'human':
     default: {
-      Logger.println(`Network Group ${Formatter.formatString(label)} creation will be performed asynchronously`);
+      Logger.println(`Network Group ${Formatter.formatString(label)} (${Formatter.formatId(ngId)}) creation will be performed asynchronously`);
     }
   }
 }

@@ -470,6 +470,11 @@ function run () {
       description: `The member ID: an app ID (e.g.: ${Formatter.formatCode('app_xxx')}), add-on ID (e.g.: ${Formatter.formatCode('addon_xxx')}) or external node category ID`,
       // complete: NetworkGroup('xxx'),
     }),
+    ngMembersIds: cliparse.option('members-ids', {
+      metavar: 'members_ids',
+      description: "Comma separated list of Network Group members IDs ('app_xxx', 'addon_xxx', 'external_xxx')",
+      parser: Parsers.commaSeparated,
+    }),
     ngMemberDomainName: cliparse.option('domain-name', {
       required: true,
       metavar: 'domain_name',
@@ -850,7 +855,7 @@ function run () {
   const networkGroupsCreateCommand = cliparse.command('create', {
     description: 'Create a Network Group',
     args: [args.ngLabel],
-    options: [opts.ngDescription, opts.optTags, opts.humanJsonOutputFormat],
+    options: [opts.ngMembersIds, opts.ngDescription, opts.optTags, opts.humanJsonOutputFormat],
   }, networkgroups('createNg'));
   const networkGroupsDeleteCommand = cliparse.command('delete', {
     description: 'Delete a Network Group',
