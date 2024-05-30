@@ -58,6 +58,7 @@ const handleCommandPromise = require('../src/command-promise-handler.js');
 const Formatter = require('../src/models/format-string.js');
 const { AVAILABLE_ZONES } = require('../src/models/application.js');
 const { getOutputFormatOption, getSameCommitPolicyOption, getExitOnOption } = require('../src/command-options.js');
+const { loadFeaturesConf } = require('../src/models/configuration.js');
 
 // Exit cleanly if the program we pipe to exits abruptly
 process.stdout.on('error', (error) => {
@@ -96,7 +97,7 @@ const Notification = lazyRequire('../src/models/notification.js');
 const NetworkGroup = lazyRequire('../src/models/networkgroup.js');
 const Namespaces = lazyRequire('../src/models/namespaces.js');
 
-function run () {
+async function run () {
 
   // ARGUMENTS
   const args = {
@@ -1127,7 +1128,7 @@ function run () {
   // Patch help command description
   cliparseCommands.helpCommand.description = 'Display help about the Clever Cloud CLI';
 
-  const commands = _sortBy([
+  let commands = [
     accesslogsCommand,
     activityCommand,
     addonCommands,
@@ -1151,9 +1152,6 @@ function run () {
     logoutCommand,
     logsCommand,
     makeDefaultCommand,
-    // Not ready for stable release yet
-    // networkGroupsCommand,
-    // ngCommand,
     openCommand,
     consoleCommand,
     profileCommand,
@@ -1167,7 +1165,14 @@ function run () {
     tcpRedirsCommands,
     versionCommand,
     webhooksCommand,
-  ], 'name');
+  ];
+
+  // Add experimental features only if they are enabled through the configuration file
+  const features = await loadFeaturesConf();
+  features.ng === true && commands.push(networkGroupsCommand);
+
+  // We sort the commands by name
+  commands = _sortBy(commands, 'name');
 
   // CLI PARSER
   const cliParser = cliparse.cli({
