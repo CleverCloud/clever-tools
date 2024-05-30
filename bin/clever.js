@@ -1015,6 +1015,7 @@ function run () {
   const serviceCommands = cliparse.command('service', {
     description: 'Manage service dependencies',
     options: [opts.alias, opts.appIdOrName, opts.onlyApps, opts.onlyAddons, opts.showAll],
+    privateOptions: [opts.humanJsonOutputFormat],
     commands: [serviceLinkAppCommand, serviceUnlinkAppCommand, serviceLinkAddonCommand, serviceUnlinkAddonCommand],
   }, service('list'));
 

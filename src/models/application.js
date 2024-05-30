@@ -273,7 +273,7 @@ async function listDependencies (ownerId, appId, showAll) {
   const applicationDeps = await application.getAllDependencies({ id: ownerId, appId }).then(sendToApi);
 
   if (!showAll) {
-    return applicationDeps;
+    return applicationDeps.map((app) => ({ ...app, isLinked: true }));
   }
 
   const allApps = await application.getAll({ id: ownerId }).then(sendToApi);
