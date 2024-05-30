@@ -1127,7 +1127,7 @@ function run () {
   // Patch help command description
   cliparseCommands.helpCommand.description = 'Display help about the Clever Cloud CLI';
 
-  const commands = _sortBy([
+  let commands = [
     accesslogsCommand,
     activityCommand,
     addonCommands,
@@ -1151,9 +1151,6 @@ function run () {
     logoutCommand,
     logsCommand,
     makeDefaultCommand,
-    // Not ready for stable release yet
-    // networkGroupsCommand,
-    // ngCommand,
     openCommand,
     consoleCommand,
     profileCommand,
@@ -1167,7 +1164,13 @@ function run () {
     tcpRedirsCommands,
     versionCommand,
     webhooksCommand,
-  ], 'name');
+  ];
+
+  // Add experimental features only if they are enabled through the environment
+  process.env.CC_FEATURE_NG === 'true' && commands.push(networkGroupsCommand);
+
+  // We sort the commands by name
+  commands = _sortBy(commands, 'name');
 
   // CLI PARSER
   const cliParser = cliparse.cli({
