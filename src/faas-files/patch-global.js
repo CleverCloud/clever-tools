@@ -1,5 +1,6 @@
 import { TextDecoder } from 'util';
 import { URL } from 'url';
+import { Buffer } from 'buffer';
 
 class Request {
   constructor (input, options) {
@@ -48,6 +49,11 @@ class Response {
   }
 };
 
+function atob (string) {
+  return Buffer.from(string, 'base64').toString();
+}
+
 globalThis.URL = URL;
 globalThis.Request = Request;
 globalThis.Response = Response;
+globalThis.atob = atob;
