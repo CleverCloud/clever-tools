@@ -1090,6 +1090,7 @@ function run () {
   const webhooksCommand = cliparse.command('webhooks', {
     description: 'Manage webhooks',
     options: [opts.orgaIdOrName, opts.listAllNotifications],
+    privateOptions: [opts.humanJsonOutputFormat],
     commands: [addWebhookCommand, removeWebhookCommand],
   }, webhooks('list'));
 
