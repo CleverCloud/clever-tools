@@ -22,8 +22,7 @@
   "files": [
     "bin",
     "src",
-    "scripts/*.sh",
-    "vendors"
+    "scripts/*.sh"
   ],
   "dependencies": {
     "@clevercloud/client": "^8.1.2",
@@ -31,7 +30,7 @@
     "cliparse": "0.3.5",
     "colors": "1.4.0",
     "common-env": "^6.4.0",
-    "curlconverter": "^4.9.0",
+    "curlconverter": "^3.21.0",
     "duration-js": "^4.0.0",
     "eventsource": "^1.1.0",
     "iso8601-duration": "^2.1.2",
@@ -79,7 +78,6 @@
     "pkg-fetch": "3.5.2"
   },
   "scripts": {
-    "bundle-curlconverter": "rollup -c rollup-curlconverter.config.js",
     "pretest": "npm run lint",
     "test": "grunt test",
     "lint": "eslint bin src scripts",

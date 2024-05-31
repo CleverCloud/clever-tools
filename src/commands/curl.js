@@ -5,7 +5,7 @@ const { loadOAuthConf, conf } = require('../models/configuration.js');
 const { addOauthHeader } = require('@clevercloud/client/cjs/oauth.js');
 const Logger = require('../logger.js');
 const colors = require('colors/safe');
-const curlParser = require('../../vendors/curlconverter-parse.js');
+const curlconverter = require('curlconverter');
 
 async function loadTokens () {
   const tokens = await loadOAuthConf();
@@ -49,7 +49,12 @@ async function curl () {
     return;
   }
 
-  const requestParams = await parseCurlCommand(['curl', ...curlArgs]);
+  // WARNING: Version 3.x of curlconverter uses a fork of yargs.
+  // For "reasons", when the command has a help param, it stops the parsing and triggers a very short and localized version of some help (WAT?).
+  // That's why we remove the help param before parsing and "reinstate" it before execution.
+  const curlArgsNoHelp = curlArgs.filter((arg) => arg !== '--help' && arg !== '-h');
+  const curlCommand = ['curl', ...curlArgsNoHelp].join(' ');
+  const requestParams = await parseCurlCommand(curlCommand);
 
   // We only allow request to the respective API_HOST
   if (!requestParams.url.startsWith(conf.API_HOST)) {
@@ -78,23 +83,15 @@ async function curl () {
 
 async function parseCurlCommand (curlCommand) {
 
-  const [request] = curlParser.parse(curlCommand);
-  const url = request.urls[0];
+  const jsonString = curlconverter.toJsonString(curlCommand);
+  const curlRequestParams = JSON.parse(jsonString);
 
   return {
-    method: url.method.toString(),
-    url: url.urlWithoutQueryArray.toString(),
-    headers: transformCurlConverterWordsToObject(request.headers.headers),
-    queryParams: transformCurlConverterWordsToObject(url.queryDict),
+    method: curlRequestParams.method,
+    url: curlRequestParams.url,
+    headers: curlRequestParams.headers,
+    queryParams: curlRequestParams.queries,
   };
-}
-
-function transformCurlConverterWordsToObject (words = []) {
-  return Object.fromEntries(
-    words.map(([key, value]) => {
-      return [key.toString(), value.toString()];
-    }),
-  );
 }
 
 module.exports = { curl };
