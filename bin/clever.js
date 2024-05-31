@@ -155,6 +155,7 @@ function run () {
   const opts = {
     sourceableEnvVarsList: cliparse.flag('add-export', { description: 'Display sourceable env variables setting' }),
     logsFormat: getOutputFormatOption(['json-stream']),
+    activityFormat: getOutputFormatOption(['json-stream']),
     envFormat: getOutputFormatOption(['shell']),
     accesslogsFollow: cliparse.flag('follow', {
       aliases: ['f'],
@@ -612,7 +613,7 @@ function run () {
   const activity = lazyRequirePromiseModule('../src/commands/activity.js');
   const activityCommand = cliparse.command('activity', {
     description: 'Show last deployments of an application',
-    options: [opts.alias, opts.appIdOrName, opts.follow, opts.showAllActivity],
+    options: [opts.alias, opts.appIdOrName, opts.follow, opts.showAllActivity, opts.activityFormat],
   }, activity('activity'));
 
   // ADDON COMMANDS
