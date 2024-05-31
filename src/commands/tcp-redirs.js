@@ -10,13 +10,37 @@ const application = require('@clevercloud/client/cjs/api/v2/application.js');
 const Application = require('../models/application.js');
 
 async function listNamespaces (params) {
-  const { alias, app: appIdOrName } = params.options;
+  const { alias, app: appIdOrName, format } = params.options;
   const { ownerId } = await Application.resolveId(appIdOrName, alias);
 
   const namespaces = await Namespaces.getNamespaces(ownerId);
 
-  Logger.println('Available namespaces: ' + namespaces.map(({ namespace }) => namespace).join(', '));
-};
+  namespaces.sort((a, b) => a.namespace.localeCompare(b.namespace));
+
+  switch (format) {
+    case 'json': {
+      Logger.printJson(namespaces);
+      break;
+    }
+    case 'human':
+    default: {
+      Logger.println('Available namespaces:');
+      namespaces.forEach(({ namespace }) => {
+        switch (namespace) {
+          case 'cleverapps':
+            Logger.println(`- ${namespace}: for redirections used with 'cleverapps.io' domain`);
+            break;
+          case 'default':
+            Logger.println(`- ${namespace}: for redirections used with custom domains`);
+            break;
+          default:
+            Logger.println(`- ${namespace}`);
+        }
+      });
+      break;
+    }
+  }
+}
 
 async function list (params) {
   const { alias, app: appIdOrName, format } = params.options;

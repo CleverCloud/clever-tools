@@ -1044,6 +1044,7 @@ function run () {
   const tcpRedirs = lazyRequirePromiseModule('../src/commands/tcp-redirs.js');
   const tcpRedirsListNamespacesCommand = cliparse.command('list-namespaces', {
     description: 'List the namespaces in which you can create new TCP redirections',
+    options: [opts.humanJsonOutputFormat],
   }, tcpRedirs('listNamespaces'));
   const tcpRedirsAddCommand = cliparse.command('add', {
     description: 'Add a new TCP redirection to the application',
