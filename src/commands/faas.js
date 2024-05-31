@@ -125,8 +125,8 @@ async function deploy (params) {
   console.log('');
   console.log('Ready on ' + deployment.url + '?trigger=http');
 
-  // fs.rmSync(outputFilepath);
-  // fs.rmSync(outputWasmFilepath);
+  fs.rmSync(outputFilepath);
+  fs.rmSync(outputWasmFilepath);
 }
 
 async function bundleAndWrap ({ inputFilepath, outputFilename }) {
