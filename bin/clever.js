@@ -1057,6 +1057,7 @@ function run () {
   const tcpRedirsCommands = cliparse.command('tcp-redirs', {
     description: 'Control the TCP redirections from reverse proxies to your application',
     options: [opts.alias, opts.appIdOrName],
+    privateOptions: [opts.humanJsonOutputFormat],
     commands: [tcpRedirsListNamespacesCommand, tcpRedirsAddCommand, tcpRedirsRemoveCommand],
   }, tcpRedirs('list'));
 

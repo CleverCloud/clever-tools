@@ -19,18 +19,27 @@ async function listNamespaces (params) {
 };
 
 async function list (params) {
-  const { alias, app: appIdOrName } = params.options;
+  const { alias, app: appIdOrName, format } = params.options;
   const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
 
   const redirs = await application.getTcpRedirs({ id: ownerId, appId }).then(sendToApi);
 
-  if (redirs.length === 0) {
-    Logger.println('No active TCP redirection for this application');
-  }
-  else {
-    Logger.println('Enabled TCP redirections:');
-    for (const { namespace, port } of redirs) {
-      Logger.println(port + ' on ' + namespace);
+  switch (format) {
+    case 'json': {
+      Logger.printJson(redirs);
+      break;
+    }
+    case 'human':
+    default: {
+      if (redirs.length === 0) {
+        Logger.println('No active TCP redirection for this application');
+      }
+      else {
+        Logger.println('Enabled TCP redirections:');
+        for (const { namespace, port } of redirs) {
+          Logger.println(port + ' on ' + namespace);
+        }
+      }
     }
   }
 }
