@@ -1,5 +1,6 @@
 'use strict';
 
+const User = require('../models/user.js');
 const path = require('path');
 const os = require('os');
 const fs = require('fs');
@@ -57,8 +58,13 @@ const WASMEDGE_MODULES = [
   'whatwg_url',
 ];
 
-async function list (params) {
-  console.log('list faas');
+async function list () {
+  const { id: OWNER_ID } = await User.getCurrent();
+  const functionsList = await getFunctionsList({
+    ownerId: OWNER_ID,
+  }).then(sendToApi);
+
+  console.table(functionsList, ['id', 'createdAt', 'updatedAt']);
 }
 
 async function deploy (params) {
@@ -234,6 +240,17 @@ function getDeploymentStatus (params) {
   return Promise.resolve({
     method: 'get',
     url: `/v4/functions/organizations/${params.ownerId}/functions/${params.functionId}/deployments/${params.deploymentId}`,
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+    },
+  });
+}
+
+function getFunctionsList (params) {
+  return Promise.resolve({
+    method: 'get',
+    url: `/v4/functions/organizations/${params.ownerId}/functions`,
     headers: {
       Accept: 'application/json',
       'Content-Type': 'application/json',
