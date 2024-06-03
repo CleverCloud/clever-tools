@@ -69,33 +69,72 @@ async function list () {
 async function deploy (params) {
 
   const config = await FaaSConfig.loadFunctionConf();
+  const { id: OWNER_ID } = await User.getCurrent();
   const { id : functionFromConfig } = FaaSConfig.findFunction(config);
   const [inputFilename, functionFromArgs] = params.args;
   const FUNCTION_ID = functionFromArgs || functionFromConfig;
-  const { id: OWNER_ID } = await User.getCurrent();
+
   const inputFilepath = path.resolve(process.cwd(), inputFilename);
+  const inputExtension = path.extname(inputFilename);
 
   Logger.info(`Deploying ${inputFilepath}`);
   Logger.info(`Deploying to function ${FUNCTION_ID} of user ${OWNER_ID}`);
 
-  const randomString = Math.random().toString(36).slice(2);
-  const outputFilename = 'clever-cloud-faas-' + inputFilename.replace(/\.js$/, `-${randomString}.js`);
-  const outputFilepath = path.resolve(os.tmpdir(), outputFilename);
-  const outputWasmFilepath = outputFilepath.replace(/\.js/, '.wasm');
+  let outputWasm, outputFilepath, outputWasmFilepath = null;
 
-  console.log('Bundling...');
-  const outputCode = await bundleAndWrap({
-    inputFilename,
-    inputFilepath,
-    outputFilename,
-  });
-  console.log('  DONE!');
+  switch (inputExtension) {
+    case '.js': {
+      checkCommand('qjsc', ['-h']);
+      const randomString = Math.random().toString(36).slice(2);
+      const outputFilename = 'clever-cloud-faas-' + inputFilename.replace(/\.js$/, `-${randomString}.js`);
+      outputFilepath = path.resolve(os.tmpdir(), outputFilename);
+      outputWasmFilepath = outputFilepath.replace(/\.js/, '.wasm');
 
-  console.log('Compiling WASM...');
-  await compileWasm({ outputFilepath, outputWasmFilepath, outputCode });
-  console.log('  DONE!');
+      console.log('Bundling...');
+      const outputCode = await bundleAndWrap({
+        inputFilename,
+        inputFilepath,
+        outputFilename,
+      });
+      console.log('  DONE!');
 
-  const outputWasm = fs.readFileSync(outputWasmFilepath);
+      console.log('Compiling WASM...');
+      await compileWasm({ outputFilepath, outputWasmFilepath, outputCode });
+      console.log('  DONE!');
+
+      outputWasm = fs.readFileSync(outputWasmFilepath);
+
+      break;
+    }
+    case '.go': {
+      checkCommand('go', ['version']);
+      const randomString = Math.random().toString(36).slice(2);
+      const outputFilename = 'clever-cloud-faas-' + inputFilename.replace(/\.go$/, `-${randomString}.go`);
+      outputFilepath = path.resolve(os.tmpdir(), outputFilename);
+      outputWasmFilepath = outputFilepath.replace(/\.go/, '.wasm');
+
+      console.log('Compiling WASM...');
+      childProcess.spawnSync('go', ['build', '-o', outputWasmFilepath, inputFilepath],{
+        env: {
+            ...process.env,
+            GOOS: 'wasip1',
+            GOARCH: 'wasm'
+        }});
+      console.log('  DONE!');
+
+      outputWasm = fs.readFileSync(outputWasmFilepath);
+
+      break;
+    }
+    case '.wasm': {
+      outputWasmFilepath = inputFilepath;
+      outputWasm = fs.readFileSync(outputWasmFilepath);
+      break;
+    }
+    default: {
+      console.error('Only .js and wasm files are supported');
+    }
+  }
 
   console.log('Deploying WASM code to Clever Cloud...');
 
@@ -136,8 +175,11 @@ async function deploy (params) {
   console.log('');
   console.log('Ready on ' + deployment.url + '?trigger=http');
 
-  fs.rmSync(outputFilepath);
-  fs.rmSync(outputWasmFilepath);
+  Logger.info('Cleaning up...');
+  Logger.info(outputFilepath);
+  Logger.info(outputWasmFilepath);
+  fs.existsSync(outputFilepath) && fs.rmSync(outputFilepath);
+  inputExtension != '.wasm' && fs.existsSync(outputWasmFilepath) && fs.rmSync(outputWasmFilepath);
 }
 
 async function bundleAndWrap ({ inputFilepath, outputFilename }) {
@@ -261,6 +303,15 @@ function getFunctionsList (params) {
       'Content-Type': 'application/json',
     },
   });
+}
+
+function checkCommand (command, args) {
+  const childProcess = require('child_process');
+  const checkGoCommand = childProcess.spawnSync(command, args, { stdio: 'ignore' });
+
+  if (checkGoCommand.error) {
+      throw new Error(`Command '${command}' not found, it's required to deploy your project as a Clever Function`);
+  }
 }
 
 module.exports = {
