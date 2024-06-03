@@ -11,9 +11,6 @@ const { rollup } = require('rollup');
 const nodeResolve = require('@rollup/plugin-node-resolve');
 const { sendToApi } = require('../models/send-to-api.js');
 
-const OWNER_ID = 'user_cd104d3c-d81f-49eb-a216-6fc4526e0412';
-const FUNCTION_ID = 'function_f708fc89-3ba0-4eb5-9cdf-c624480d8df5';
-
 const WASMEDGE_MODULES = [
   'buffer',
   'encoding',
@@ -69,8 +66,8 @@ async function list () {
 
 async function deploy (params) {
 
-  const [inputFilename] = params.args;
-
+  const [inputFilename, FUNCTION_ID] = params.args;
+  const { id: OWNER_ID } = await User.getCurrent();
   const inputFilepath = path.resolve(process.cwd(), inputFilename);
 
   const randomString = Math.random().toString(36).slice(2);

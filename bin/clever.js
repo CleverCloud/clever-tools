@@ -101,6 +101,7 @@ function run () {
       complete: Drain.listDrainTypes,
     }),
     drainUrl: cliparse.argument('drain-url', { description: 'Drain URL' }),
+    faasId: cliparse.argument('faas-id', { description: 'Function ID' }),
     fqdn: cliparse.argument('fqdn', { description: 'Domain name of the application' }),
     notificationName: cliparse.argument('name', { description: 'Notification name' }),
     notificationId: cliparse.argument('notification-id', { description: 'Notification ID' }),
@@ -870,7 +871,7 @@ function run () {
     console.info('clever database backups download');
   });
 
-  // DATABASES COMMANDS
+  // FUNCTIONS COMMANDS
   const faas = lazyRequirePromiseModule('../src/commands/faas.js');
   const faasListCommand = cliparse.command('list', {
     description: 'TODO',
@@ -883,6 +884,7 @@ function run () {
       cliparse.argument('filename', {
         description: 'TODO',
       }),
+      args.faasId
     ],
     options: [],
   }, faas('deploy'));
