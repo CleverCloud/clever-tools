@@ -1,11 +1,13 @@
 'use strict';
 
 const User = require('../models/user.js');
+const FaaSConfig = require('../models/faas_configuration.js');
 const path = require('path');
 const os = require('os');
 const fs = require('fs');
 const childProcess = require('child_process');
 const timers = require('timers/promises');
+const Logger = require('../logger.js');
 
 const { rollup } = require('rollup');
 const nodeResolve = require('@rollup/plugin-node-resolve');
@@ -66,9 +68,15 @@ async function list () {
 
 async function deploy (params) {
 
-  const [inputFilename, FUNCTION_ID] = params.args;
+  const config = await FaaSConfig.loadFunctionConf();
+  const { id : functionFromConfig } = FaaSConfig.findFunction(config);
+  const [inputFilename, functionFromArgs] = params.args;
+  const FUNCTION_ID = functionFromArgs || functionFromConfig;
   const { id: OWNER_ID } = await User.getCurrent();
   const inputFilepath = path.resolve(process.cwd(), inputFilename);
+
+  Logger.info(`Deploying ${inputFilepath}`);
+  Logger.info(`Deploying to function ${FUNCTION_ID} of user ${OWNER_ID}`);
 
   const randomString = Math.random().toString(36).slice(2);
   const outputFilename = 'clever-cloud-faas-' + inputFilename.replace(/\.js$/, `-${randomString}.js`);
