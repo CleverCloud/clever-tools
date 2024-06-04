@@ -403,6 +403,15 @@ function run () {
       description: 'Instance type',
       complete: Application('listAvailableTypes'),
     }),
+    cancelOnPush: cliparse.flag('cancel-on-push', {
+      description: 'Cancel any ongoing deployment if a new push is made',
+    }),
+    forceHttps: cliparse.flag('force-https', {
+      description: 'Any non secured HTTP request will be redirected to HTTPS with a 301 status code',
+    }),
+    stickySessions: cliparse.flag('sticky-sessions', {
+      description: 'When horizontal scalability is enabled, a user is always served by the same scaler',
+    }),
     drainUsername: cliparse.option('username', {
       aliases: ['u'],
       metavar: 'username',
@@ -694,7 +703,7 @@ function run () {
   const appCreateCommand = cliparse.command('create', {
     description: 'Create an application',
     args: [args.appNameCreation],
-    options: [opts.instanceType, opts.github, opts.taskCommand, opts.orgaIdOrName, opts.aliasCreation, opts.region, opts.flavor, opts.minFlavor, opts.maxFlavor, opts.buildFlavor, opts.instances, opts.minInstances, opts.maxInstances, opts.humanJsonOutputFormat],
+    options: [opts.instanceType, opts.github, opts.taskCommand, opts.cancelOnPush, opts.forceHttps, opts.stickySessions, opts.orgaIdOrName, opts.aliasCreation, opts.region, opts.flavor, opts.minFlavor, opts.maxFlavor, opts.buildFlavor, opts.instances, opts.minInstances, opts.maxInstances, opts.humanJsonOutputFormat],
   }, create('create'));
 
   // CURL COMMAND

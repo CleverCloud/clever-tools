@@ -7,7 +7,7 @@ const Logger = require('../logger.js');
 const Scale = require('../commands/scale.js');
 
 async function create (params) {
-  const { type: typeName } = params.options;
+  const { type: typeName, 'cancel-on-push': cancelOnPush, 'force-https': forceHttps, 'sticky-sessions': stickySessions } = params.options;
   const { minFlavor, maxFlavor, minInstances, maxInstances, buildFlavor } = Scale.validateOptions(params.options, true);
 
   const [rawName] = params.args;
@@ -25,7 +25,7 @@ async function create (params) {
   AppConfig.checkAlreadyLinked(apps, name, alias);
 
   const github = getGithubDetails(githubOwnerRepo);
-  const app = await Application.create(name, typeName, region, minFlavor, maxFlavor, minInstances, maxInstances, buildFlavor, orgaIdOrName, github, isTask, envVars);
+  const app = await Application.create(name, typeName, region, minFlavor, maxFlavor, minInstances, maxInstances, buildFlavor, orgaIdOrName, github, isTask, cancelOnPush, forceHttps, stickySessions, envVars);
   await AppConfig.addLinkedApplication(app, alias);
 
   switch (format) {
@@ -42,6 +42,9 @@ async function create (params) {
         minInstances: app.instance.minInstances,
         maxInstances: app.instance.maxInstances,
         executedAs: app.instance.lifetime,
+        cancelOnPush: app.cancelOnPush,
+        stickySessions: app.stickySessions,
+        forceHttps: app.forceHttps,
         env: app.env,
         deployUrl: app.deployUrl,
       });

@@ -56,7 +56,7 @@ async function getInstanceType (type) {
   return instanceVariant;
 };
 
-async function create (name, typeName, region, minFlavor, maxFlavor, minInstances, maxInstances, buildFlavor, orgaIdOrName, github, isTask, envVars) {
+async function create (name, typeName, region, minFlavor, maxFlavor, minInstances, maxInstances, buildFlavor, orgaIdOrName, github, isTask, cancelOnPush, forceHttps, stickySessions, envVars) {
   Logger.debug('Create the application…');
 
   const ownerId = (orgaIdOrName != null)
@@ -79,6 +79,9 @@ async function create (name, typeName, region, minFlavor, maxFlavor, minInstance
     maxInstances: maxInstances || 1,
     name: name,
     zone: region,
+    cancelOnPush: cancelOnPush,
+    stickySessions: stickySessions,
+    forceHttps: forceHttps ? 'ENABLED' : 'DISABLED',
     instanceLifetime: isTask ? 'TASK' : 'REGULAR',
     env: envVars,
   };
