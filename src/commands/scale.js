@@ -3,13 +3,15 @@
 const Application = require('../models/application.js');
 const Logger = require('../logger.js');
 
-function validateOptions (options) {
+function validateOptions (options, useDefaultValues = false) {
 
   let { flavor, 'min-flavor': minFlavor, 'max-flavor': maxFlavor } = options;
   let { instances, 'min-instances': minInstances, 'max-instances': maxInstances, 'build-flavor': buildFlavor } = options;
 
   if ([flavor, minFlavor, maxFlavor, instances, minInstances, maxInstances, buildFlavor].every((v) => v == null)) {
-    throw new Error('You should provide at least 1 option');
+    if (!useDefaultValues) {
+      throw new Error('You should provide at least 1 option');
+    }
   }
 
   if (flavor != null) {
@@ -58,4 +60,4 @@ async function scale (params) {
   Logger.println('App rescaled successfully');
 };
 
-module.exports = { scale };
+module.exports = { scale, validateOptions };

@@ -4,9 +4,12 @@ const path = require('path');
 const Application = require('../models/application.js');
 const AppConfig = require('../models/app_configuration.js');
 const Logger = require('../logger.js');
+const Scale = require('../commands/scale.js');
 
 async function create (params) {
   const { type: typeName } = params.options;
+  const { minFlavor, maxFlavor, minInstances, maxInstances, buildFlavor } = Scale.validateOptions(params.options, true);
+
   const [rawName] = params.args;
   const { org: orgaIdOrName, alias, region, github: githubOwnerRepo, format, task: taskCommand } = params.options;
   const { apps } = await AppConfig.loadApplicationConf();
@@ -22,7 +25,7 @@ async function create (params) {
   AppConfig.checkAlreadyLinked(apps, name, alias);
 
   const github = getGithubDetails(githubOwnerRepo);
-  const app = await Application.create(name, typeName, region, orgaIdOrName, github, isTask, envVars);
+  const app = await Application.create(name, typeName, region, minFlavor, maxFlavor, minInstances, maxInstances, buildFlavor, orgaIdOrName, github, isTask, envVars);
   await AppConfig.addLinkedApplication(app, alias);
 
   switch (format) {
@@ -30,6 +33,14 @@ async function create (params) {
       Logger.printJson({
         id: app.id,
         name: app.name,
+        type: app.instance.type,
+        region: app.zone,
+        separateBuild: app.separateBuild,
+        buildFlavor: app.buildFlavor.name,
+        minFlavor: app.instance.minFlavor.name,
+        maxFlavor: app.instance.maxFlavor.name,
+        minInstances: app.instance.minInstances,
+        maxInstances: app.instance.maxInstances,
         executedAs: app.instance.lifetime,
         env: app.env,
         deployUrl: app.deployUrl,

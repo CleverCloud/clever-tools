@@ -275,7 +275,7 @@ function run () {
     }),
     listAllNotifications: cliparse.flag('list-all', { description: 'List all notifications for your user or for an organisation with the \'--org\' option' }),
     maxFlavor: cliparse.option('max-flavor', {
-      metavar: 'maxflavor',
+      metavar: 'max-flavor',
       parser: Parsers.flavor,
       description: 'The maximum instance size of your application',
       complete () {
@@ -283,17 +283,17 @@ function run () {
       },
     }),
     buildFlavor: cliparse.option('build-flavor', {
-      metavar: 'buildflavor',
+      metavar: 'build-flavor',
       parser: Parsers.buildFlavor,
       description: 'The size of the build instance, or \'disabled\' if you want to disable dedicated build instances',
     }),
     maxInstances: cliparse.option('max-instances', {
-      metavar: 'maxinstances',
+      metavar: 'max-instances',
       parser: Parsers.instances,
       description: 'The maximum number of parallel instances',
     }),
     minFlavor: cliparse.option('min-flavor', {
-      metavar: 'minflavor',
+      metavar: 'min-flavor',
       parser: Parsers.flavor,
       description: 'The minimum scale size of your application',
       complete () {
@@ -301,7 +301,7 @@ function run () {
       },
     }),
     minInstances: cliparse.option('min-instances', {
-      metavar: 'mininstances',
+      metavar: 'min-instances',
       parser: Parsers.instances,
       description: 'The minimum number of parallel instances',
     }),
@@ -694,7 +694,7 @@ function run () {
   const appCreateCommand = cliparse.command('create', {
     description: 'Create an application',
     args: [args.appNameCreation],
-    options: [opts.instanceType, opts.orgaIdOrName, opts.aliasCreation, opts.region, opts.github, opts.humanJsonOutputFormat, opts.taskCommand],
+    options: [opts.instanceType, opts.github, opts.taskCommand, opts.orgaIdOrName, opts.aliasCreation, opts.region, opts.flavor, opts.minFlavor, opts.maxFlavor, opts.buildFlavor, opts.instances, opts.minInstances, opts.maxInstances, opts.humanJsonOutputFormat],
   }, create('create'));
 
   // CURL COMMAND
