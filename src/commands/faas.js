@@ -85,10 +85,8 @@ async function deploy (params) {
   switch (inputExtension) {
     case '.js': {
       checkCommand('qjsc', ['-h']);
-      const randomString = Math.random().toString(36).slice(2);
-      const outputFilename = 'clever-cloud-faas-' + inputFilename.replace(/\.js$/, `-${randomString}.js`);
-      outputFilepath = path.resolve(os.tmpdir(), outputFilename);
-      outputWasmFilepath = outputFilepath.replace(/\.js/, '.wasm');
+      const outputFilename = getRandomFilename(inputFilename, inputExtension);
+      outputWasmFilepath = getTempWasmFilename(outputFilename);
 
       console.log('Bundling...');
       const outputCode = await bundleAndWrap({
@@ -108,10 +106,8 @@ async function deploy (params) {
     }
     case '.go': {
       checkCommand('go', ['version']);
-      const randomString = Math.random().toString(36).slice(2);
-      const outputFilename = 'clever-cloud-faas-' + inputFilename.replace(/\.go$/, `-${randomString}.go`);
-      outputFilepath = path.resolve(os.tmpdir(), outputFilename);
-      outputWasmFilepath = outputFilepath.replace(/\.go/, '.wasm');
+      const outputFilename = getRandomFilename(inputFilename, inputExtension);
+      outputWasmFilepath = getTempWasmFilename(outputFilename);
 
       console.log('Compiling WASM...');
       childProcess.spawnSync('go', ['build', '-o', outputWasmFilepath, inputFilepath],{
@@ -312,6 +308,16 @@ function checkCommand (command, args) {
   if (checkGoCommand.error) {
       throw new Error(`Command '${command}' not found, it's required to deploy your project as a Clever Function`);
   }
+}
+
+function getRandomFilename (filename, extension) {
+  const randomString = Math.random().toString(36).slice(2);
+  return 'clever-cloud-faas-' + filename.replace(/(\.[^.]+)$/, `-${randomString}${extension}`);
+}
+
+function getTempWasmFilename (filename) {
+  outputFilepath = path.resolve(os.tmpdir(), filename);
+  return outputFilepath.replace(/(\.[^.]+)$/, '.wasm');
 }
 
 module.exports = {
