@@ -70,19 +70,36 @@ async function deploy (params) {
 
   const config = await FaaSConfig.loadFunctionConf();
   const { id: OWNER_ID } = await User.getCurrent();
-  const { id : functionFromConfig } = FaaSConfig.findFunction(config);
+  const { id : functionFromConfig, compile_args, compile_check_args, compile_command, compile_env, wasm_filename } = FaaSConfig.findFunction(config);
   const [inputFilename, functionFromArgs] = params.args;
   const FUNCTION_ID = functionFromArgs || functionFromConfig;
-
   const inputFilepath = path.resolve(process.cwd(), inputFilename);
-  const inputExtension = path.extname(inputFilename);
 
   Logger.info(`Deploying ${inputFilepath}`);
   Logger.info(`Deploying to function ${FUNCTION_ID} of user ${OWNER_ID}`);
 
   let outputWasm, outputFilepath, outputWasmFilepath = null;
+  let inputExtension = compile_command ? 'custom' : path.extname(inputFilename);
 
   switch (inputExtension) {
+    case 'custom': {
+      checkCommand(compile_command, compile_check_args.split(' ')),
+      inputExtension = path.extname(inputFilename);
+      const outputFilename = getRandomFilename(inputFilename, inputExtension);
+      outputWasmFilepath = wasm_filename ? wasm_filename : getTempWasmFilename(outputFilename);
+
+      console.log('Compiling WASM...');
+      childProcess.spawnSync(compile_command, compile_args.split(' '), {
+        env: {
+          ...compile_env,
+          ...process.env
+        }
+      });
+      console.log('  DONE!');
+      outputWasm = fs.readFileSync(outputWasmFilepath);
+
+      break;
+    }
     case '.js': {
       checkCommand('qjsc', ['-h']);
       const outputFilename = getRandomFilename(inputFilename, inputExtension);
