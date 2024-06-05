@@ -599,6 +599,24 @@ function run () {
       description: 'A port number',
       parser: Parsers.portNumber,
     }),
+    emailsList: cliparse.flag('list-emails', {
+      description: 'List all email addresses of your account'
+    }),
+    emailAdd: cliparse.option('add-email', {
+      metavar: 'address',
+      aliases: ['a'],
+      description: 'Email address to add to your account',
+    }),
+    emailRemove: cliparse.option('remove-email', {
+      metavar: 'address',
+      aliases: ['r'],
+      description: 'Email address to remove from your account',
+    }),
+    emailPrimary: cliparse.option('primary-email', {
+      metavar: 'address',
+      aliases: ['p'],
+      description: 'Email address to set as primary for your account',
+    }),
   };
 
   // ACCESSLOGS COMMAND
@@ -949,7 +967,8 @@ function run () {
   // PROFILE COMMAND
   const profile = lazyRequirePromiseModule('../src/commands/profile.js');
   const profileCommand = cliparse.command('profile', {
-    description: 'Display the profile of the current user',
+    description: 'Display and manage the profile of the current user',
+    options: [opts.emailsList, opts.emailAdd, opts.emailRemove, opts.emailPrimary],
   }, profile('profile'));
 
   // PUBLISHED CONFIG COMMANDS
