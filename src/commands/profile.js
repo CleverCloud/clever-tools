@@ -6,16 +6,22 @@ const Logger = require('../logger.js');
 const User = require('../models/user.js');
 
 async function profile (params) {
-  const { 'list-emails': listEmails, 'add-email': emailToAdd, 'remove-email': emailToRemove, 'primary-email': emailToPrimary } = params.options;
-  const { id, name, email, preferredMFA } = await User.getCurrent();
+  const currentUser = await User.getCurrent();
+  const { id, name, email, preferredMFA } = currentUser;
+  const { format, 'list-emails': listEmails, 'add-email': emailToAdd, 'remove-email': emailToRemove, 'primary-email': emailToPrimary, 'list-keys': listKeys } = params.options;
 
   if (listEmails) {
-    showEmails(email);
+    showEmails(email, format);
+    return;
+  }
+
+  if (listKeys) {
+    showKeys(format);
     return;
   }
 
   if (!listEmails && !emailToAdd && !emailToRemove && !emailToPrimary) {
-    showProfile(id, name, email, preferredMFA);
+    showProfile(currentUser, format);
     return;
   }
 
@@ -50,21 +56,35 @@ async function profile (params) {
   }
 };
 
-async function showProfile (id, name, email, preferredMFA) {
-  const has2FA = (preferredMFA != null && preferredMFA !== 'NONE') ? 'yes' : 'no';
+async function showProfile (user, format) {
+  const { id, name, email, preferredMFA } = user;
   const formattedName = name || colors.red.bold('[not specified]');
-  Logger.println('You\'re currently logged in as:');
-  Logger.println('User id          ' + id);
-  Logger.println('Name             ' + formattedName);
-  Logger.println('Email            ' + email);
-  Logger.println('Two factor auth  ' + has2FA);
+  const has2FA = (preferredMFA != null && preferredMFA !== 'NONE') ? 'yes' : 'no';
+
+  switch (format) {
+    case 'json':
+      Logger.printJson(user);
+      break;
+    case 'human':
+    default:
+      Logger.println(`ID: ${id}`);
+      Logger.println(`Name: ${formattedName}`);
+      Logger.println(`Email: ${email}`);
+      Logger.println(`2FA enabled: ${has2FA}`);
+  }
 }
 
-async function showEmails (email) {
+async function showEmails (email, format) {
+  const secondaryEmails = await User.getEmails();
+  const sorted = secondaryEmails.sort();
+
+  if (format === 'json') {
+    Logger.printJson({ primary: email, secondary: sorted });
+    return;
+  }
+
   Logger.println('Primary email:');
     console.log(`- ${email}`);
-
-    const secondaryEmails = await User.getEmails();
 
     if (secondaryEmails.length === 0) return;
 
@@ -77,7 +97,35 @@ async function showEmails (email) {
       Logger.println('Secondary emails:');
     }
 
-    secondaryEmails.sort().map(e => console.log(`- ${e}`));
+    sorted.map(e => console.log(`- ${e}`));
+}
+
+async function showKeys (format) {
+  const keys = await User.getKeys();
+  const sorted = keys.sort((a, b) => a.name.localeCompare(b.name));
+
+  if (format === 'json') {
+    Logger.printJson(sorted);
+    return;
+  }
+
+  if (keys.length === 0) {
+    Logger.println('No SSH keys');
+    return;
+  }
+
+  if (keys.length === 1) {
+    Logger.println('SSH key:');
+  }
+  else {
+    Logger.println('SSH keys:');
+  }
+
+  sorted.map(k => {
+    console.log(`- ${k.name} (${k.fingerprint})`);
+    console.log(`  ${k.key}`);
+  });
+
 }
 
 module.exports = { profile };

@@ -1,7 +1,7 @@
 'use strict';
 
 const { get } = require('@clevercloud/client/cjs/api/v2/organisation.js');
-const { addEmailAddress, getEmailAddresses, removeEmailAddress } = require('@clevercloud/client/cjs/api/v2/user.js');
+const { addEmailAddress, getEmailAddresses, getSshKeys, removeEmailAddress } = require('@clevercloud/client/cjs/api/v2/user.js');
 const { sendToApi } = require('../models/send-to-api.js');
 
 function getCurrent () {
@@ -29,4 +29,8 @@ function addPrimaryEmail (email) {
   return addEmailAddress({ email }, { 'make_primary': true }).then(sendToApi);
 }
 
-module.exports = { addEmail, addPrimaryEmail, getCurrent, getCurrentId, getEmails, removeEmail };
+function getKeys () {
+  return getSshKeys({}).then(sendToApi);
+}
+
+module.exports = { addEmail, addPrimaryEmail, getCurrent, getCurrentId, getEmails, getKeys, removeEmail };

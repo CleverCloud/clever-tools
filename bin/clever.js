@@ -617,6 +617,9 @@ function run () {
       aliases: ['p'],
       description: 'Email address to set as primary for your account',
     }),
+    sshKeysList: cliparse.flag('list-keys', {
+      description: 'List all SSH keys of your account'
+    }),
   };
 
   // ACCESSLOGS COMMAND
@@ -968,7 +971,7 @@ function run () {
   const profile = lazyRequirePromiseModule('../src/commands/profile.js');
   const profileCommand = cliparse.command('profile', {
     description: 'Display and manage the profile of the current user',
-    options: [opts.emailsList, opts.emailAdd, opts.emailRemove, opts.emailPrimary],
+    options: [opts.emailsList, opts.emailAdd, opts.emailRemove, opts.emailPrimary, opts.sshKeysList, opts.humanJsonOutputFormat],
   }, profile('profile'));
 
   // PUBLISHED CONFIG COMMANDS
