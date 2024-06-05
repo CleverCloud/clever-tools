@@ -703,7 +703,7 @@ function run () {
   const appCreateCommand = cliparse.command('create', {
     description: 'Create an application',
     args: [args.appNameCreation],
-    options: [opts.instanceType, opts.github, opts.taskCommand, opts.cancelOnPush, opts.forceHttps, opts.stickySessions, opts.orgaIdOrName, opts.aliasCreation, opts.region, opts.flavor, opts.minFlavor, opts.maxFlavor, opts.buildFlavor, opts.instances, opts.minInstances, opts.maxInstances, opts.humanJsonOutputFormat],
+    options: [opts.instanceType, opts.github, opts.taskCommand, opts.cancelOnPush, opts.forceHttps, opts.stickySessions, opts.orgaIdOrName, opts.aliasCreation, opts.region, opts.flavor, opts.minFlavor, opts.maxFlavor, opts.buildFlavor, opts.instances, opts.minInstances, opts.maxInstances, opts.optTags, opts.humanJsonOutputFormat],
   }, create('create'));
 
   // CURL COMMAND
