@@ -969,9 +969,13 @@ function run () {
 
   // PROFILE COMMAND
   const profile = lazyRequirePromiseModule('../src/commands/profile.js');
+  const profileOpenCommand = cliparse.command('open', {
+    description: 'Open the profile page in your browser',
+  }, profile('open'));
   const profileCommand = cliparse.command('profile', {
     description: 'Display and manage the profile of the current user',
     options: [opts.emailsList, opts.emailAdd, opts.emailRemove, opts.emailPrimary, opts.sshKeysList, opts.humanJsonOutputFormat],
+    commands: [profileOpenCommand],
   }, profile('profile'));
 
   // PUBLISHED CONFIG COMMANDS

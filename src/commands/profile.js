@@ -1,6 +1,7 @@
 'use strict';
 
 const colors = require('colors/safe');
+const openPage = require('open');
 
 const Logger = require('../logger.js');
 const User = require('../models/user.js');
@@ -128,4 +129,10 @@ async function showKeys (format) {
 
 }
 
-module.exports = { profile };
+async function open () {
+  const url = 'https://console.clever-cloud.com/users/me/information';
+  Logger.println('Opening your profile in your browser');
+  await openPage(url, { wait: false });
+}
+
+module.exports = { open, profile };
