@@ -6,6 +6,14 @@ const Application = require('./models/application.js');
 const ISO8601 = require('iso8601-duration');
 const Duration = require('duration-js');
 
+function redirs (redir) {
+  const redirs = ['tcp', 'udp'];
+  if (redirs.includes(redir)) {
+    return cliparse.parsers.success(redir);
+  }
+  return cliparse.parsers.error('Invalid value: ' + redir);
+}
+
 function flavor (flavor) {
   const flavors = Application.listAvailableFlavors();
   if (flavors.includes(flavor)) {
@@ -212,4 +220,5 @@ module.exports = {
   portNumber,
   durationInSeconds,
   nonEmptyString,
+  redirs,
 };

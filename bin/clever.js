@@ -128,6 +128,14 @@ function run () {
       description: 'Network Group ID or label',
       parser: Parsers.ngIdOrLabel,
     }),
+    redirectionType: cliparse.argument('type', {
+      description: 'Type of redirection (tcp or udp)',
+      parser: Parsers.redirs,
+    }),
+    namespace: cliparse.option('namespace', {
+      description: 'Namespace for TCP/UDP redirections (e.g.: cleverapps, default)',
+      complete: Organisation('completeNamespaces'),
+    }),
   };
 
   // OPTIONS
@@ -197,12 +205,6 @@ function run () {
     deploymentId: cliparse.option('deployment-id', {
       metavar: 'deployment_id',
       description: 'Fetch logs for a given deployment',
-    }),
-    namespace: cliparse.option('namespace', {
-      metavar: 'namespace',
-      description: 'Namespace in which the TCP redirection should be',
-      required: true,
-      complete: Organisation('completeNamespaces'),
     }),
     notificationEventType: cliparse.option('event', {
       metavar: 'type',
@@ -912,6 +914,26 @@ function run () {
     options: [opts.alias],
   }, consoleModule('openConsole'));
 
+  // PORTS COMMAND
+  const ports = lazyRequirePromiseModule('../src/commands/ports.js');
+  const portsListNamespacesCommand = cliparse.command('namespaces', {
+    description: 'List the namespaces in which you can create new TCP/UDP redirections',
+    options: [opts.humanJsonOutputFormat],
+  }, ports('listNamespaces'));
+  const portsRedirAddCommand = cliparse.command('add', {
+    description: 'Open ports through TCP/UDP redirection to the application',
+    args: [args.namespace, args.redirectionType],
+  }, ports('add'));
+  const portsRedireRemoveCommand = cliparse.command('remove', {
+    description: 'Remove a TCP/UDP redirection opening a port to the application',
+    args: [args.port, args.namespace, args.redirectionType],
+  }, ports('remove'));
+  const portsRedirCommands = cliparse.command('ports', {
+    description: 'Manage opened ports through TCP/UDP redirections to the application',
+    options: [opts.alias, opts.humanJsonOutputFormat],
+    commands: [portsListNamespacesCommand, portsRedirAddCommand, portsRedireRemoveCommand],
+  }, ports('list'));
+
   // PROFILE COMMAND
   const profile = lazyRequirePromiseModule('../src/commands/profile.js');
   const profileCommand = cliparse.command('profile', {
@@ -996,26 +1018,6 @@ function run () {
     description: 'Stop a running application',
     options: [opts.alias],
   }, stop('stop'));
-
-  // TCP-REDIRS COMMAND
-  const tcpRedirs = lazyRequirePromiseModule('../src/commands/tcp-redirs.js');
-  const tcpRedirsListNamespacesCommand = cliparse.command('list-namespaces', {
-    description: 'List the namespaces in which you can create new TCP redirections',
-  }, tcpRedirs('listNamespaces'));
-  const tcpRedirsAddCommand = cliparse.command('add', {
-    description: 'Add a new TCP redirection to the application',
-    options: [opts.namespace, opts.confirmTcpRedirCreation],
-  }, tcpRedirs('add'));
-  const tcpRedirsRemoveCommand = cliparse.command('remove', {
-    description: 'Remove a TCP redirection from the application',
-    options: [opts.namespace],
-    args: [args.port],
-  }, tcpRedirs('remove'));
-  const tcpRedirsCommands = cliparse.command('tcp-redirs', {
-    description: 'Control the TCP redirections from reverse proxies to your application',
-    options: [opts.alias],
-    commands: [tcpRedirsListNamespacesCommand, tcpRedirsAddCommand, tcpRedirsRemoveCommand],
-  }, tcpRedirs('list'));
 
   // UNLINK COMMAND
   const unlink = lazyRequirePromiseModule('../src/commands/unlink.js');
@@ -1112,7 +1114,7 @@ function run () {
     sshCommand,
     statusCommand,
     stopCommand,
-    tcpRedirsCommands,
+    portsRedirCommands,
     versionCommand,
     webhooksCommand,
   ], 'name');
