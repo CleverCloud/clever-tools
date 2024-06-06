@@ -79,11 +79,11 @@ function handleEvent (previousEvent, event) {
 }
 
 function onEvent (previousEvent, newEvent) {
-  const { event, date, data: { state, action, commit, cause } } = newEvent;
+  const { event, date, data: { uuid, state, action, commit, cause } } = newEvent;
   if (event !== 'DEPLOYMENT_ACTION_BEGIN' && event !== 'DEPLOYMENT_ACTION_END') {
     return previousEvent;
   }
-  return handleEvent(previousEvent, { date, state, action, commit, cause, isLast: true });
+  return handleEvent(previousEvent, { date, uuid, state, action, commit, cause, isLast: true });
 }
 
 async function activity (params) {
