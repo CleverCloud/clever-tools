@@ -1,7 +1,7 @@
 'use strict';
 
 const { get } = require('@clevercloud/client/cjs/api/v2/organisation.js');
-const { addEmailAddress, getEmailAddresses, getSshKeys, removeEmailAddress } = require('@clevercloud/client/cjs/api/v2/user.js');
+const { addEmailAddress, getEmailAddresses, getSshKeys, addSshKey, removeSshKey, removeEmailAddress } = require('@clevercloud/client/cjs/api/v2/user.js');
 const { sendToApi } = require('../models/send-to-api.js');
 
 function getCurrent () {
@@ -14,23 +14,36 @@ function getCurrentId () {
 };
 
 function getEmails () {
-  return getEmailAddresses({}).then(sendToApi)
+  return getEmailAddresses({}).then(sendToApi);
 }
 
 function addEmail (email) {
-  return addEmailAddress({ email }).then(sendToApi);
+  const encoded = encodeURIComponent(email);
+  return addEmailAddress({ email: encoded }).then(sendToApi);
 }
 
 function removeEmail (email) {
-  return removeEmailAddress({}, { email }).then(sendToApi);
+  const encoded = encodeURIComponent(email);
+  return removeEmailAddress({ email: encoded }).then(sendToApi);
 }
 
 function addPrimaryEmail (email) {
-  return addEmailAddress({ email }, { 'make_primary': true }).then(sendToApi);
+  const encoded = encodeURIComponent(email);
+  return addEmailAddress({ email: encoded }, { make_primary: true }).then(sendToApi);
 }
 
 function getKeys () {
   return getSshKeys({}).then(sendToApi);
 }
 
-module.exports = { addEmail, addPrimaryEmail, getCurrent, getCurrentId, getEmails, getKeys, removeEmail };
+function addKey (key, body) {
+  const encoded = encodeURIComponent(key);
+  return addSshKey({ key: encoded }, `"${body}"`).then(sendToApi);
+}
+
+function removeKey (key) {
+  const encoded = encodeURIComponent(key);
+  return removeSshKey({ key: encoded }).then(sendToApi);
+}
+
+module.exports = { addEmail, addPrimaryEmail, addKey, getCurrent, getCurrentId, getEmails, getKeys, removeEmail, removeKey };

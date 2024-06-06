@@ -599,26 +599,37 @@ function run () {
       description: 'A port number',
       parser: Parsers.portNumber,
     }),
-    emailsList: cliparse.flag('list-emails', {
-      description: 'List all email addresses of your account'
+    emailList: cliparse.flag('emails', {
+      description: 'List all email addresses of your account',
     }),
-    emailAdd: cliparse.option('add-email', {
+    emailAdd: cliparse.option('email-add', {
       metavar: 'address',
-      aliases: ['a'],
       description: 'Email address to add to your account',
     }),
-    emailRemove: cliparse.option('remove-email', {
+    emailRemove: cliparse.option('email-remove', {
       metavar: 'address',
-      aliases: ['r'],
       description: 'Email address to remove from your account',
     }),
-    emailPrimary: cliparse.option('primary-email', {
+    emailClear: cliparse.flag('emails-remove-all', {
+      description: 'Remove all secondary emails from your account',
+    }),
+    emailPrimary: cliparse.option('email-primary', {
       metavar: 'address',
-      aliases: ['p'],
       description: 'Email address to set as primary for your account',
     }),
-    sshKeysList: cliparse.flag('list-keys', {
-      description: 'List all SSH keys of your account'
+    sshKeysList: cliparse.flag('keys', {
+      description: 'List all SSH keys of your account',
+    }),
+    sshKeyAdd: cliparse.option('key-add', {
+      metavar: 'key_name',
+      description: 'SSH key to add to your account',
+    }),
+    sshKeyRemove: cliparse.option('key-remove', {
+      metavar: 'key_name',
+      description: 'SSH key to remove from your account',
+    }),
+    sshKeyClear: cliparse.flag('keys-remove-all', {
+      description: 'Remove all SSH keys from your account',
     }),
   };
 
@@ -974,7 +985,7 @@ function run () {
   }, profile('open'));
   const profileCommand = cliparse.command('profile', {
     description: 'Display and manage the profile of the current user',
-    options: [opts.emailsList, opts.emailAdd, opts.emailRemove, opts.emailPrimary, opts.sshKeysList, opts.humanJsonOutputFormat],
+    options: [opts.emailList, opts.emailAdd, opts.emailRemove, opts.emailPrimary, opts.emailClear, opts.sshKeysList, opts.sshKeyAdd, opts.sshKeyRemove, opts.sshKeyClear, opts.humanJsonOutputFormat],
     commands: [profileOpenCommand],
   }, profile('profile'));
 

@@ -120,5 +120,5 @@ async function readVariablesFromStdin (format) {
 }
 
 module.exports = {
-  readVariablesFromStdin,
+  readVariablesFromStdin, readStdin,
 };
