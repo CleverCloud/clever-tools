@@ -5,10 +5,12 @@ const colors = require('colors/safe');
 
 const Addon = require('../models/addon.js');
 const AppConfig = require('../models/app_configuration.js');
+const Backups = require('./backups.js');
 const formatTable = require('../format-table')();
 const Logger = require('../logger.js');
 const Organisation = require('../models/organisation.js');
 const User = require('../models/user.js');
+
 const { parseAddonOptions, findOwnerId } = require('../models/addon.js');
 const { getAllEnvVars } = require('@clevercloud/client/cjs/api/v2/addon.js');
 const { sendToApi } = require('../models/send-to-api.js');
@@ -250,7 +252,9 @@ module.exports = {
   list,
   create,
   delete: deleteAddon,
+  listBackups: Backups.list,
   rename,
+  downloadBackups: Backups.download,
   listProviders,
   showProvider,
   env,

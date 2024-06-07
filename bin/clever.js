@@ -153,6 +153,10 @@ function run () {
 
   // OPTIONS
   const opts = {
+    downloadBackup: cliparse.option('download', {
+      metavar: 'backup_id',
+      description: 'Download the backup',
+    }),
     sourceableEnvVarsList: cliparse.flag('add-export', { description: 'Display sourceable env variables setting' }),
     logsFormat: getOutputFormatOption(['json-stream']),
     addonEnvFormat: getOutputFormatOption(['shell']),
@@ -330,8 +334,8 @@ function run () {
       parser: Parsers.orgaIdOrName,
     }),
     output: cliparse.option('output', {
-      aliases: ['out'],
-      description: 'Redirect the output of the command in a file',
+      aliases: ['O'],
+      description: 'Write the output to a specific file, or - for stdout',
     }),
     drainPassword: cliparse.option('password', {
       aliases: ['p'],
@@ -648,11 +652,15 @@ function run () {
     description: 'List available add-ons',
     options: [opts.humanJsonOutputFormat],
   }, addon('list'));
-
+  const addonBackupListCommand = cliparse.command('backups', {
+    description: 'List backups for an add-on',
+    args: [args.databaseId],
+    options: [opts.downloadBackup, opts.output, opts.humanJsonOutputFormat],
+  }, addon('listBackups'));
   const addonCommands = cliparse.command('addon', {
     description: 'Manage add-ons',
     options: [opts.orgaIdOrName],
-    commands: [addonCreateCommand, addonDeleteCommand, addonRenameCommand, addonListCommand, addonProvidersCommand, addonEnvCommand],
+    commands: [addonCreateCommand, addonDeleteCommand, addonRenameCommand, addonListCommand, addonProvidersCommand, addonEnvCommand, addonBackupListCommand],
   }, addon('list'));
 
   // APPLICATIONS COMMAND
@@ -1082,30 +1090,6 @@ function run () {
     commands: [addWebhookCommand, removeWebhookCommand],
   }, webhooks('list'));
 
-  // DATABASES COMMANDS
-  const database = lazyRequirePromiseModule('../src/commands/database.js');
-  const downloadBackupCommand = cliparse.command('download', {
-    description: 'Download a database backup',
-    args: [args.databaseId, args.backupId],
-    options: [opts.output],
-  }, database('downloadBackups'));
-  const backupsCommand = cliparse.command('backups', {
-    description: 'List available database backups',
-    args: [args.databaseId],
-    options: [opts.orgaIdOrName, opts.humanJsonOutputFormat],
-    commands: [
-      downloadBackupCommand,
-    ],
-  }, database('listBackups'));
-  const databaseCommand = cliparse.command('database', {
-    description: 'List available databases',
-    commands: [backupsCommand],
-  }, () => {
-    console.info('This command is not available, you can try the following commands:');
-    console.info('clever database backups');
-    console.info('clever database backups download');
-  });
-
   // Patch help command description
   cliparseCommands.helpCommand.description = 'Display help about the Clever Cloud CLI';
 
@@ -1120,7 +1104,6 @@ function run () {
     cancelDeployCommand,
     configCommands,
     curlCommand,
-    databaseCommand,
     deleteCommand,
     deployCommand,
     diagCommand,
