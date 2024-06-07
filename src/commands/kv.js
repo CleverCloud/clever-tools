@@ -182,7 +182,8 @@ async function flushdb (params) {
 
 async function ping (params) {
   const client = await connect(params);
-  const value = await client.PING();
+  const [message] = params.args;
+  const value = await client.PING(message);
   console.log(value);
   await client.disconnect();
 }
