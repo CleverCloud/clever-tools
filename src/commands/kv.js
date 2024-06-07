@@ -1,11 +1,21 @@
 'use strict';
+
 const { createClient } = require('redis');
 const jsonata = require('jsonata');
 
-const MAX_RETRIES = 10;
+const { getAllEnvVars } = require('@clevercloud/client/cjs/api/v2/addon.js');
+const { resolveAddonId } = require('../models/ids-resolver.js');
+const Organisation = require('../models/organisation.js');
+const { sendToApi } = require('../models/send-to-api.js');
+const { getId } = require('../models/addon.js');
 
-async function connect () {
-  const kvToken = process.env.KV_TOKEN;
+async function connect (params) {
+  const { 'addon-id': addon, org } = params.options;
+  const orgId = await Organisation.getId(org);
+
+  const MAX_RETRIES = 10;
+  const kvToken = await getAddonKvToken(addon, orgId) || process.env.KV_TOKEN;
+
   if (!kvToken) {
     throw new Error("No 'KV_TOKEN' found in environment variables");
   }
@@ -26,6 +36,23 @@ async function connect () {
     .connect();
 
   return client;
+}
+
+async function getAddonKvToken (addon, orgId) {
+  if (addon) {
+    let addonId = null;
+    if (addon.addon_id && !addon.addon_id.startsWith('addon_')) {
+      addonId = await resolveAddonId(addon);
+    }
+    else {
+      addonId = await getId(orgId, addon);
+    }
+
+    if (addonId !== null && addonId.startsWith('addon_')) {
+      const envFromAddon = await getAllEnvVars({ id: orgId, addonId }).then(sendToApi);
+      return (envFromAddon.find((env) => env.name === 'KV_TOKEN') || {}).value;
+    }
+  }
 }
 
 async function isValidJSONAndHasName (jsonString, propertyToCheck) {
@@ -58,7 +85,7 @@ async function isValidJSONAndHasName (jsonString, propertyToCheck) {
 }
 
 async function exists (params) {
-  const client = await connect();
+  const client = await connect(params);
   const [key] = params.args;
   const value = await client.EXISTS(key);
   console.log(value);
@@ -66,7 +93,7 @@ async function exists (params) {
 }
 
 async function get (params) {
-  const client = await connect();
+  const client = await connect(params);
   const [key] = params.args;
   const value = await client.GET(key);
   console.log(value);
@@ -74,7 +101,7 @@ async function get (params) {
 }
 
 async function keys (params) {
-  const client = await connect();
+  const client = await connect(params);
   const [pattern] = params.args;
   const value = await client.KEYS(pattern);
   console.log(value);
@@ -82,7 +109,7 @@ async function keys (params) {
 }
 
 async function type (params) {
-  const client = await connect();
+  const client = await connect(params);
   const [key] = params.args;
   const value = await client.TYPE(key);
   console.log(value);
@@ -90,7 +117,7 @@ async function type (params) {
 }
 
 async function strlen (params) {
-  const client = await connect();
+  const client = await connect(params);
   const [key] = params.args;
   const value = await client.STRLEN(key);
   console.log(value);
@@ -98,7 +125,7 @@ async function strlen (params) {
 }
 
 async function getjson (params) {
-  const client = await connect();
+  const client = await connect(params);
   const [key, property] = params.args;
   const value = await client.GET(key);
   const jsonValue = await isValidJSONAndHasName(value, property);
@@ -107,7 +134,7 @@ async function getjson (params) {
 }
 
 async function set (params) {
-  const client = await connect();
+  const client = await connect(params);
   const [key, value] = params.args;
   await client.SET(key, value);
   console.log({ [key]: value });
@@ -115,7 +142,7 @@ async function set (params) {
 }
 
 async function append (params) {
-  const client = await connect();
+  const client = await connect(params);
   const [key, value] = params.args;
   await client.APPEND(key, value);
   console.log({ [key]: value });
@@ -123,7 +150,7 @@ async function append (params) {
 }
 
 async function incr (params) {
-  const client = await connect();
+  const client = await connect(params);
   const [key] = params.args;
   const value = await client.INCR(key);
   console.log(value);
@@ -131,7 +158,7 @@ async function incr (params) {
 }
 
 async function decr (params) {
-  const client = await connect();
+  const client = await connect(params);
   const [key] = params.args;
   const value = await client.DECR(key);
   console.log(value);
@@ -139,43 +166,43 @@ async function decr (params) {
 }
 
 async function del (params) {
-  const client = await connect();
+  const client = await connect(params);
   const [key] = params.args;
   const value = await client.DEL(key);
   console.log(value);
   await client.disconnect();
 }
 
-async function flushdb () {
-  const client = await connect();
+async function flushdb (params) {
+  const client = await connect(params);
   const value = await client.FLUSHDB();
   console.log(value);
   await client.disconnect();
 }
 
-async function ping () {
-  const client = await connect();
+async function ping (params) {
+  const client = await connect(params);
   const value = await client.PING();
   console.log(value);
   await client.disconnect();
 }
 
-async function scan () {
-  const client = await connect();
+async function scan (params) {
+  const client = await connect(params);
   const value = await client.SCAN(0);
   console.log(value);
   await client.disconnect();
 }
 
-async function dbsize () {
-  const client = await connect();
+async function dbsize (params) {
+  const client = await connect(params);
   const value = await client.DBSIZE();
   console.log(value);
   await client.disconnect();
 }
 
-async function commands_list () {
-  const client = await connect();
+async function commands_list (params) {
+  const client = await connect(params);
   const commands = await client.COMMAND_LIST();
   const sorted_commands = commands.sort();
   sorted_commands.forEach((c) => {
@@ -185,7 +212,7 @@ async function commands_list () {
 }
 
 async function redis_raw (params) {
-  const client = await connect();
+  const client = await connect(params);
   const [commands] = params.args;
   const commandsArray = commands.split(' ');
   const value = await client.sendCommand(commandsArray);

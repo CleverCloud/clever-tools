@@ -171,6 +171,10 @@ function run () {
       description: 'Import variables as JSON (an array of { "name": "THE_NAME", "value": "THE_VALUE" } objects)',
     }),
     addonId: cliparse.option('addon', { metavar: 'addon_id', description: 'Add-on ID' }),
+    addonIdOrName: cliparse.option('addon-id', {
+      description: 'Add-on ID (or name, if unambiguous)',
+      parser: Parsers.addonIdOrName,
+    }),
     after: cliparse.option('after', {
       metavar: 'after',
       aliases: ['since'],
@@ -1174,6 +1178,7 @@ function run () {
   const kvCommand = cliparse.command('kv', {
     description: '/!\\ This is PoC software! Manage Materia KV without a third-party client',
     args: [args.kvCommand],
+    options: [opts.orgaIdOrName, opts.addonIdOrName],
     commands: [
       kvPingCommand,
       kvCommandListCommand,
@@ -1194,7 +1199,7 @@ function run () {
       kvDbSizeCommand,
       kvRedisRawCommand,
     ],
-  }, kv('get'));
+  });
   // DATABASES COMMANDS
   const database = lazyRequirePromiseModule('../src/commands/database.js');
   const downloadBackupCommand = cliparse.command('download', {
