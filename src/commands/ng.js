@@ -9,6 +9,9 @@ const Logger = require('../logger.js');
 const NetworkGroup = require('../models/networkgroup.js');
 const TableFormatter = require('../models/format-ng-table.js');
 
+const TIMEOUT = 5000;
+const INTERVAL = 500;
+
 async function listNg (params) {
   const { org: orgaIdOrName, alias, format } = params.options;
   const ownerId = await NetworkGroup.getOwnerId(orgaIdOrName, alias);
@@ -75,16 +78,26 @@ async function createNg (params) {
   Logger.debug(`Sending body: ${JSON.stringify(body, null, 2)}`);
   const result = await ngApi.createNetworkGroup({ ownerId }, body).then(sendToApi);
 
-  switch (format) {
-    case 'json': {
-      Logger.println(JSON.stringify(result, null, 2));
-      break;
+  // We poll until NG is created to display the result
+  const polling = setInterval(async () => {
+    const ng = await ngApi.getNetworkGroup({ ownerId, networkGroupId: ngId }).then(sendToApi);
+
+    if (ng.label === label) {
+      clearInterval(polling);
+      clearTimeout(timeout);
+
+      const message = format === 'json'
+        ? JSON.stringify(ng, null, 2)
+        : `Network Group ${Formatter.formatString(label)} (${Formatter.formatId(ngId)}) has been created successfully`;
+
+      Logger.println(message);
     }
-    case 'human':
-    default: {
-      Logger.println(`Network Group ${Formatter.formatString(label)} (${Formatter.formatId(ngId)}) creation will be performed asynchronously`);
-    }
-  }
+  }, INTERVAL);
+
+  const timeout = setTimeout(() => {
+    clearInterval(polling);
+    Logger.error('Network group creation has been launched asynchronously but timed out. Check the status later with `clever ng list`.');
+  }, TIMEOUT);
 }
 
 async function deleteNg (params) {
@@ -97,16 +110,27 @@ async function deleteNg (params) {
   Logger.info(`Deleting Network Group ${Formatter.formatString(networkGroupId)} from owner ${Formatter.formatString(ownerId)}`);
   const result = await ngApi.deleteNetworkGroup({ ownerId, networkGroupId }).then(sendToApi);
 
-  switch (format) {
-    case 'json': {
-      Logger.println(JSON.stringify(result, null, 2));
-      break;
+  // We poll until NG is deleted to display the result
+  const polling = setInterval(async () => {
+    const ngList = await ngApi.listNetworkGroups({ ownerId }).then(sendToApi);
+    const ng = ngList.find((ng) => ng.id === networkGroupId);
+
+    if (!ng) {
+      clearInterval(polling);
+      clearTimeout(timeout);
+
+      const message = format === 'json'
+        ? JSON.stringify(result, null, 2)
+        : `Network Group ${Formatter.formatString(networkGroupId)} has been deleted successfully`;
+
+      Logger.println(message);
     }
-    case 'human':
-    default: {
-      Logger.println(`Network Group ${Formatter.formatString(networkGroupId)} deletion will be performed asynchronously`);
-    }
-  }
+  }, INTERVAL);
+
+  const timeout = setTimeout(() => {
+    clearInterval(polling);
+    Logger.error('Network group deletion has been launched asynchronously but timed out. Check the status later with `clever ng list`.');
+  }, TIMEOUT);
 }
 
 async function listMembers (params) {
@@ -115,6 +139,8 @@ async function listMembers (params) {
   const networkGroupId = await NetworkGroup.getId(ownerId, networkGroupIdOrLabel);
 
   Logger.info(`Listing members from Network Group '${networkGroupId}'`);
+  Logger.info(naturalName);
+
   const result = await ngApi.listNetworkGroupMembers({ ownerId, networkGroupId }).then(sendToApi);
 
   if (json) {
@@ -139,6 +165,7 @@ async function getMember (params) {
   const networkGroupId = await NetworkGroup.getId(ownerId, networkGroupIdOrLabel);
 
   Logger.info(`Getting details for member ${Formatter.formatString(memberId)} in Network Group ${Formatter.formatString(networkGroupId)}`);
+  Logger.info(naturalName);
   const result = await ngApi.getNetworkGroupMember({ ownerId, networkGroupId, memberId: memberId }).then(sendToApi);
 
   if (json) {
