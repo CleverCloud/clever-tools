@@ -58,7 +58,7 @@ async function formatMembersLine (member, showAliases = false) {
         ? Formatter.formatString(await AppConfig.getMostNaturalName(member.id), false)
         : Formatter.formatId(member.id),
       Formatter.formatString(member.type, false),
-      Formatter.formatString(member.id == member.label ? '' : member.label, false),
+      Formatter.formatString(member.id === member.label ? '' : member.label, false),
       Formatter.formatString(member.domain_name || ' ', false),
     ],
   ]);

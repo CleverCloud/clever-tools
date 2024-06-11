@@ -36,14 +36,14 @@ async function listNg (params) {
         .map((ng) => TableFormatter.formatNetworkGroupsLine(ng))
         .forEach((ng) => Logger.println(ng)); */
       // We keep only id, label, network_ip, last_allocated_ip
-      const ngList = result.map(({ id, label, network_ip, last_allocated_ip, members, peers }) => ({ id, label, network_ip, last_allocated_ip, 'members': Object.keys(members).length, 'peers': Object.keys(peers).length }));
+      const ngList = result.map(({ id, label, network_ip, last_allocated_ip, members, peers }) => ({ id, label, network_ip, last_allocated_ip, members: Object.keys(members).length, peers: Object.keys(peers).length }));
       console.table(ngList);
     }
   }
 }
 
 async function createNg (params) {
-  const { org: orgaIdOrName, alias, description, tags, format, 'members-ids' : members_ids } = params.options;
+  const { org: orgaIdOrName, alias, description, tags, format, 'members-ids': members_ids } = params.options;
   const [label] = params.args;
   const ownerId = await NetworkGroup.getOwnerId(orgaIdOrName, alias);
   const ngId = `ng_${uuidv4()}`;
@@ -67,7 +67,7 @@ async function createNg (params) {
         domain_name = `${id}.m.${ngId}.ng.clever-cloud.com`;
       }
       else {
-        throw new Error (`Member ID ${Formatter.formatString(id)} is not a valid format. It should start with 'app_', 'addon_' or 'external_'`);
+        throw new Error(`Member ID ${Formatter.formatString(id)} is not a valid format. It should start with 'app_', 'addon_' or 'external_'`);
       }
       return { id, domain_name, type };
     });
@@ -78,7 +78,7 @@ async function createNg (params) {
   Logger.info(`Creating Network Group ${Formatter.formatString(label)} (${Formatter.formatId(ngId)}) from owner ${Formatter.formatString(ownerId)}`);
   Logger.info(`${members.length} members will be added: ${members.map((m) => Formatter.formatString(m.id)).join(', ')}`);
   Logger.debug(`Sending body: ${JSON.stringify(body, null, 2)}`);
-  const result = await ngApi.createNetworkGroup({ ownerId }, body).then(sendToApi);
+  await ngApi.createNetworkGroup({ ownerId }, body).then(sendToApi);
 
   // We poll until NG is created to display the result
   const polling = setInterval(async () => {
@@ -103,14 +103,14 @@ async function createNg (params) {
 }
 
 async function deleteNg (params) {
-  const { org: orgaIdOrName, alias, format } = params.options;
   const [networkGroupIdOrLabel] = params.args;
+  const { org: orgaIdOrName, alias } = params.options;
 
   const ownerId = await NetworkGroup.getOwnerId(orgaIdOrName, alias);
   const networkGroupId = await NetworkGroup.getId(ownerId, networkGroupIdOrLabel);
 
   Logger.info(`Deleting Network Group ${Formatter.formatString(networkGroupId)} from owner ${Formatter.formatString(ownerId)}`);
-  const result = await ngApi.deleteNetworkGroup({ ownerId, networkGroupId }).then(sendToApi);
+  await ngApi.deleteNetworkGroup({ ownerId, networkGroupId }).then(sendToApi);
 
   // We poll until NG is deleted to display the result
   const polling = setInterval(async () => {
@@ -121,11 +121,7 @@ async function deleteNg (params) {
       clearInterval(polling);
       clearTimeout(timeout);
 
-      const message = format === 'json'
-        ? JSON.stringify(result, null, 2)
-        : `Network Group ${Formatter.formatString(networkGroupId)} has been deleted successfully`;
-
-      Logger.println(message);
+      Logger.println(`Network Group ${Formatter.formatString(networkGroupId)} has been deleted successfully`);
     }
   }, INTERVAL);
 
@@ -136,7 +132,9 @@ async function deleteNg (params) {
 }
 
 async function listMembers (params) {
-  const { org: orgaIdOrName, alias, ng: networkGroupIdOrLabel, 'natural-name': naturalName, json } = params.options;
+  const [networkGroupIdOrLabel] = params.args;
+  const { org: orgaIdOrName, alias, 'natural-name': naturalName, format } = params.options;
+
   const ownerId = await NetworkGroup.getOwnerId(orgaIdOrName, alias);
   const networkGroupId = await NetworkGroup.getId(ownerId, networkGroupIdOrLabel);
 
@@ -145,22 +143,27 @@ async function listMembers (params) {
 
   const result = await ngApi.listNetworkGroupMembers({ ownerId, networkGroupId }).then(sendToApi);
 
-  if (json) {
-    Logger.println(JSON.stringify(result, null, 2));
-  }
-  else {
-    if (result.length === 0) {
-      Logger.println(`No member found. You can add one with ${Formatter.formatCommand('clever networkgroups members add')}.`);
+  switch (format) {
+    case 'json': {
+      Logger.println(JSON.stringify(result, null, 2));
+      break;
     }
-    else {
-      result.forEach((member) => delete member.label);
-      console.table(result);
+    case 'human':
+    default: {
+      if (result.length === 0) {
+        Logger.println(`No member found. You can add one with ${Formatter.formatCommand('clever networkgroups members add')}.`);
+      }
+      else {
+        const domainNames = result.map((item) => ({ domain_name: item.domain_name }));
+        console.table(domainNames);
+      }
     }
   }
 }
 
 async function getMember (params) {
-  const { org: orgaIdOrName, alias, ng: networkGroupIdOrLabel, 'member-id': memberId, 'natural-name': naturalName, json } = params.options;
+  const [networkGroupIdOrLabel, memberId] = params.args;
+  const { org: orgaIdOrName, alias, 'natural-name': naturalName, format } = params.options;
   const ownerId = await NetworkGroup.getOwnerId(orgaIdOrName, alias);
   const networkGroupId = await NetworkGroup.getId(ownerId, networkGroupIdOrLabel);
 
@@ -168,19 +171,39 @@ async function getMember (params) {
   Logger.info(naturalName);
   const result = await ngApi.getNetworkGroupMember({ ownerId, networkGroupId, memberId: memberId }).then(sendToApi);
 
-  if (json) {
-    Logger.println(JSON.stringify(result, null, 2));
-  }
-  else {
-    delete result.label;
-    console.table([result]);
+  switch (format) {
+    case 'json': {
+      Logger.println(JSON.stringify(result, null, 2));
+      break;
+    }
+    case 'human':
+    default: {
+      const domainName = [result].map((item) => ({ domain_name: item.domain_name }));
+      console.table(domainName);
+    }
   }
 }
 
 async function addMember (params) {
-  const { org: orgaIdOrName, alias, ng: networkGroupIdOrLabel, 'member-id': memberId, type, 'domain-name': domainName, label } = params.options;
+  const [networkGroupIdOrLabel, memberId] = params.args;
+  const { org: orgaIdOrName, alias, label } = params.options;
   const ownerId = await NetworkGroup.getOwnerId(orgaIdOrName, alias);
   const networkGroupId = await NetworkGroup.getId(ownerId, networkGroupIdOrLabel);
+  const domainName = `${memberId}.m.${networkGroupId}.ng.clever-cloud.com`;
+
+  let type = null;
+  if (memberId.startsWith('app_')) {
+    type = 'application';
+  }
+  else if (memberId.startsWith('addon_')) {
+    type = 'addon';
+  }
+  else if (memberId.startsWith('external_')) {
+    type = 'external';
+  }
+  else {
+    throw new Error(`Member ID ${Formatter.formatString(memberId)} is not a valid format. It should start with 'app_', 'addon_' or 'external_'`);
+  }
 
   const body = { id: memberId, label, domain_name: domainName, type };
   Logger.debug('Sending body: ' + JSON.stringify(body, null, 2));
@@ -190,7 +213,8 @@ async function addMember (params) {
 }
 
 async function removeMember (params) {
-  const { org: orgaIdOrName, alias, ng: networkGroupIdOrLabel, 'member-id': memberId } = params.options;
+  const [networkGroupIdOrLabel, memberId] = params.args;
+  const { org: orgaIdOrName, alias } = params.options;
   const ownerId = await NetworkGroup.getOwnerId(orgaIdOrName, alias);
   const networkGroupId = await NetworkGroup.getId(ownerId, networkGroupIdOrLabel);
 
@@ -200,47 +224,57 @@ async function removeMember (params) {
 }
 
 async function listPeers (params) {
-  const { org: orgaIdOrName, alias, ng: networkGroupIdOrLabel, json } = params.options;
+  const [networkGroupIdOrLabel] = params.args;
+  const { org: orgaIdOrName, alias, format } = params.options;
   const ownerId = await NetworkGroup.getOwnerId(orgaIdOrName, alias);
   const networkGroupId = await NetworkGroup.getId(ownerId, networkGroupIdOrLabel);
 
   Logger.info(`Listing peers from Network Group ${Formatter.formatString(networkGroupId)}`);
   const result = await ngApi.listNetworkGroupPeers({ ownerId, networkGroupId }).then(sendToApi);
 
-  if (json) {
-    Logger.println(JSON.stringify(result, null, 2));
-  }
-  else {
-    if (result.length === 0) {
-      Logger.println(`No peer found. You can add an external one with ${Formatter.formatCommand('clever networkgroups peers add-external')}.`);
+  switch (format) {
+    case 'json': {
+      Logger.println(JSON.stringify(result, null, 2));
+      break;
     }
-    else {
-      const peersList = result.map(({ id, label, endpoint, type }) => ({ id, label, 'host:ip': `${endpoint.ngTerm.host}:${endpoint.ngTerm.port}`, 'peer.type': type, 'endpoint.type': endpoint.type }));
-      console.table(peersList);
+    case 'human':
+    default: {
+      if (result.length === 0) {
+        Logger.println(`No peer found. You can add an external one with ${Formatter.formatCommand('clever networkgroups peers add-external')}.`);
+      }
+      else {
+        const peersList = result.map(({ id, label, endpoint, type }) => ({ id, label, 'host:ip': `${endpoint.ngTerm.host}:${endpoint.ngTerm.port}`, 'peer.type': type, 'endpoint.type': endpoint.type }));
+        console.table(peersList);
 
-      /* TableFormatter.printPeersTableHeader();
-      result.forEach((peer) => {
-        Logger.println(TableFormatter.formatPeersLine(peer));
-      }); */
+        /* TableFormatter.printPeersTableHeader();
+        result.forEach((peer) => {
+          Logger.println(TableFormatter.formatPeersLine(peer));
+        }); */
+      }
     }
   }
 }
 
 async function getPeer (params) {
-  const { org: orgaIdOrName, alias, ng: networkGroupIdOrLabel, 'peer-id': peerId, json } = params.options;
+  const [networkGroupIdOrLabel, peerId] = params.args;
+  const { org: orgaIdOrName, alias, format } = params.options;
   const ownerId = await NetworkGroup.getOwnerId(orgaIdOrName, alias);
   const networkGroupId = await NetworkGroup.getId(ownerId, networkGroupIdOrLabel);
 
   Logger.info(`Getting details for peer ${Formatter.formatString(peerId)} in Network Group ${Formatter.formatString(networkGroupId)}`);
   const peer = await ngApi.getNetworkGroupPeer({ ownerId, networkGroupId, peerId }).then(sendToApi);
 
-  if (json) {
-    Logger.println(JSON.stringify(peer, null, 2));
-  }
-  else {
-    // We keep only id, label, 'host:ip': `${endpoint.ngTerm.host}:${endpoint.ngTerm.port}`, type
-    const peerList = { id: peer.id, label: peer.label, 'host:ip': `${peer.endpoint.ngTerm.host}:${peer.endpoint.ngTerm.port}`, type: peer.type };
-    console.table([peerList]);
+  switch (format) {
+    case 'json': {
+      Logger.println(JSON.stringify(peer, null, 2));
+      break;
+    }
+    case 'human':
+    default: {
+      // We keep only id, label, 'host:ip': `${endpoint.ngTerm.host}:${endpoint.ngTerm.port}`, type
+      const peerList = { id: peer.id, label: peer.label, 'host:ip': `${peer.endpoint.ngTerm.host}:${peer.endpoint.ngTerm.port}`, type: peer.type };
+      console.table([peerList]);
+    }
   }
 }
 

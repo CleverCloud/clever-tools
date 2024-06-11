@@ -145,12 +145,67 @@ async function run () {
       },
     }),
     configurationValue: cliparse.argument('configuration-value', { description: 'The new value of the configuration' }),
-    ngId: cliparse.argument('ng-id', { description: 'The Network Group ID' }),
+    ngId: cliparse.argument('ng-id', {
+      description: 'The Network Group ID',
+    }),
+    ngLabel: cliparse.argument('label', {
+      description: 'Network Group label, also used for DNS context',
+    }),
     ngIdOrLabel: cliparse.argument('ng', {
       description: 'Network Group ID or label',
       parser: Parsers.ngIdOrLabel,
+      // complete: NetworkGroup('xxx'),
     }),
-    ngLabel: cliparse.argument('label', { description: 'Network Group label, also used for DNS context' }),
+    ngDescription: cliparse.argument('description', {
+      description: 'Network Group description',
+    }),
+    ngMemberId: cliparse.argument('member-id', {
+      description: `The member ID: an app ID (e.g.: ${Formatter.formatCode('app_xxx')}), add-on ID (e.g.: ${Formatter.formatCode('addon_xxx')}) or external node category ID`,
+      // complete: NetworkGroup('xxx'),
+    }),
+    ngMembersIds: cliparse.argument('members-ids', {
+      description: "Comma separated list of Network Group members IDs ('app_xxx', 'addon_xxx', 'external_xxx')",
+      parser: Parsers.commaSeparated,
+    }),
+    ngMemberDomainName: cliparse.argument('domain-name', {
+      description: `Member name used in the ${Formatter.formatUrl('<memberName>.m.<ngID>.ng.clever-cloud.com', false)} domain name alias`,
+    }),
+    ngPeerId: cliparse.argument('peer-id', {
+      description: 'The peer ID',
+      // complete: NetworkGroup('xxx'),
+    }),
+    ngPeerRole: cliparse.argument('role', {
+      description: `The peer role, (${Formatter.formatString('client')} or ${Formatter.formatString('server')})`,
+      parser: Parsers.ngPeerRole,
+      complete: NetworkGroup('listAvailablePeerRoles'),
+    }),
+    // FIXME: Add "internal" member type
+    ngMemberType: cliparse.argument('type', {
+      description: `The member type (${Formatter.formatString('application')}, ${Formatter.formatString('addon')} or ${Formatter.formatString('external')})`,
+      parser: Parsers.ngMemberType,
+      complete: NetworkGroup('listAvailableMemberTypes'),
+    }),
+    ngNodeCategoryId: cliparse.argument('node-category-id', {
+      description: 'The external node category ID',
+      // complete: NetworkGroup('xxx'),
+    }),
+    ngPeerLabel: cliparse.argument('label', {
+      description: 'Network Group peer label',
+    }),
+    ngPeerParentMemberId: cliparse.argument('parent', {
+      description: 'Network Group peer category ID (parent member ID)',
+      // complete: NetworkGroup('xxx'),
+    }),
+    ngSearchAppId: cliparse.argument('app-id', {
+      description: 'The app ID to search',
+      // complete: NetworkGroup('xxx'),
+    }),
+    wgPublicKey: cliparse.argument('public-key', {
+      description: 'A WireGuard® public key',
+    }),
+    wgPrivateKey: cliparse.argument('private-key', {
+      description: 'A WireGuard® private key',
+    }),
   };
 
   // OPTIONS
@@ -449,130 +504,19 @@ async function run () {
       aliases: ['y'],
       description: 'Skip confirmation even if the TCP redirection is not free',
     }),
-    ngLabel: cliparse.option('label', {
-      metavar: 'label',
-      description: 'Network Group label, also used for DNS context',
-    }),
-    ngIdOrLabel: cliparse.option('ng', {
-      required: true,
-      metavar: 'ng',
-      description: 'Network Group ID or label',
-      parser: Parsers.ngIdOrLabel,
-      // complete: NetworkGroup('xxx'),
-    }),
-    ngDescription: cliparse.option('description', {
-      metavar: 'ng_description',
-      description: 'Network Group description',
-    }),
-    ngMemberId: cliparse.option('member-id', {
-      aliases: ['m'],
-      required: true,
-      metavar: 'member_id',
-      description: `The member ID: an app ID (e.g.: ${Formatter.formatCode('app_xxx')}), add-on ID (e.g.: ${Formatter.formatCode('addon_xxx')}) or external node category ID`,
-      // complete: NetworkGroup('xxx'),
-    }),
     ngMembersIds: cliparse.option('members-ids', {
       metavar: 'members_ids',
       description: "Comma separated list of Network Group members IDs ('app_xxx', 'addon_xxx', 'external_xxx')",
       parser: Parsers.commaSeparated,
     }),
-    ngMemberDomainName: cliparse.option('domain-name', {
-      required: true,
-      metavar: 'domain_name',
-      description: `Member name used in the ${Formatter.formatUrl('<memberName>.m.<ngID>.ng.clever-cloud.com', false)} domain name alias`,
-    }),
-    ngPeerId: cliparse.option('peer-id', {
-      required: true,
-      metavar: 'peer_id',
-      description: 'The peer ID',
-      // complete: NetworkGroup('xxx'),
-    }),
-    ngPeerRole: cliparse.option('role', {
-      required: true,
-      metavar: 'peer_role',
-      description: `The peer role, (${Formatter.formatString('client')} or ${Formatter.formatString('server')})`,
-      parser: Parsers.ngPeerRole,
-      complete: NetworkGroup('listAvailablePeerRoles'),
-    }),
-    // FIXME: Add "internal" member type
-    ngMemberType: cliparse.option('type', {
-      required: true,
-      metavar: 'member_type',
-      description: `The member type (${Formatter.formatString('application')}, ${Formatter.formatString('addon')} or ${Formatter.formatString('external')})`,
-      parser: Parsers.ngMemberType,
-      complete: NetworkGroup('listAvailableMemberTypes'),
+    ngDescription: cliparse.option('description', {
+      metavar: 'ng_description',
+      description: 'Network Group description',
     }),
     ngMemberLabel: cliparse.option('label', {
-      required: true,
-      metavar: 'member_label',
-      description: 'Network Group member label',
-    }),
-    ngNodeCategoryId: cliparse.option('node-category-id', {
-      required: true,
-      aliases: ['c'],
-      metavar: 'node_category_id',
-      description: 'The external node category ID',
-      // complete: NetworkGroup('xxx'),
-    }),
-    ngPeerLabel: cliparse.option('label', {
-      required: true,
-      metavar: 'peer_label',
-      description: 'Network Group peer label',
-    }),
-    ngPeerParentMemberId: cliparse.option('parent', {
-      required: true,
-      metavar: 'member_id',
-      description: 'Network Group peer category ID (parent member ID)',
-      // complete: NetworkGroup('xxx'),
-    }),
-    optNgIdOrLabel: cliparse.option('ng', {
-      required: false,
-      metavar: 'ng',
-      description: 'Network Group ID or label',
-      parser: Parsers.ngIdOrLabel,
-      // complete: NetworkGroup('xxx'),
-    }),
-    optNgMemberLabel: cliparse.option('label', {
       required: false,
       metavar: 'member_label',
       description: 'The member label',
-    }),
-    optNgNodeCategoryId: cliparse.option('node-category-id', {
-      required: false,
-      aliases: ['c'],
-      metavar: 'node_category_id',
-      description: 'The external node category ID',
-      // complete: NetworkGroup('xxx'),
-    }),
-    optNgPeerId: cliparse.option('peer-id', {
-      required: false,
-      metavar: 'peer_id',
-      description: 'The peer ID',
-      // complete: NetworkGroup('xxx'),
-    }),
-    optNgPeerRole: cliparse.option('role', {
-      required: false,
-      default: 'client',
-      metavar: 'peer_role',
-      description: `The peer role, (${Formatter.formatString('client')} or ${Formatter.formatString('server')})`,
-      parser: Parsers.ngPeerRole,
-      complete: NetworkGroup('listAvailablePeerRoles'),
-    }),
-    optNgSearchAppId: cliparse.option('app-id', {
-      required: false,
-      metavar: 'app_id',
-      description: 'The app ID to search',
-      // complete: NetworkGroup('xxx'),
-    }),
-    wgPublicKey: cliparse.option('public-key', {
-      required: true,
-      metavar: 'public_key',
-      description: 'A WireGuard® public key',
-    }),
-    optWgPrivateKey: cliparse.option('private-key', {
-      required: false,
-      metavar: 'private_key',
-      description: 'A WireGuard® private key',
     }),
     jsonFormat: cliparse.flag('json', { aliases: ['j'], description: 'Show result in JSON format' }),
     humanJsonOutputFormat: getOutputFormatOption(),
@@ -860,7 +804,7 @@ async function run () {
   }, networkgroups('createNg'));
   const networkGroupsDeleteCommand = cliparse.command('delete', {
     description: 'Delete a Network Group',
-    args: [opts.ngIdOrLabel],
+    args: [args.ngIdOrLabel],
     options: [opts.humanJsonOutputFormat],
   }, networkgroups('deleteNg'));
   const networkGroupsListCommand = cliparse.command('list', {
@@ -871,19 +815,22 @@ async function run () {
   const networkGroupsMemberListCommand = cliparse.command('list', {
     description: 'List members of a Network Group',
     // Add option opts.optNgSearchAppId ?
-    options: [opts.ngIdOrLabel, opts.naturalName, opts.jsonFormat],
+    args: [args.ngIdOrLabel],
+    options: [opts.naturalName, opts.humanJsonOutputFormat],
   }, networkgroups('listMembers'));
   const networkGroupsMemberGetCommand = cliparse.command('get', {
     description: 'Get a Network Group member\'s details',
-    options: [opts.ngIdOrLabel, opts.ngMemberId, opts.naturalName, opts.jsonFormat],
+    args: [args.ngIdOrLabel, args.ngMemberId],
+    options: [opts.naturalName, opts.humanJsonOutputFormat],
   }, networkgroups('getMember'));
   const networkGroupsMemberAddCommand = cliparse.command('add', {
     description: 'Add an app or add-on as a Network Group member',
-    options: [opts.ngIdOrLabel, opts.ngMemberId, opts.ngMemberType, opts.ngMemberDomainName, opts.optNgMemberLabel],
+    args: [args.ngIdOrLabel, args.ngMemberId],
+    options: [opts.ngMemberLabel],
   }, networkgroups('addMember'));
   const networkGroupsMemberRemoveCommand = cliparse.command('remove', {
     description: 'Remove an app or add-on from a Network Group',
-    options: [opts.ngIdOrLabel, opts.ngMemberId],
+    args: [args.ngIdOrLabel, args.ngMemberId],
   }, networkgroups('removeMember'));
   const networkGroupsMembersCategoryCommand = cliparse.command('members', {
     description: 'List commands for interacting with Network Group members',
@@ -892,30 +839,32 @@ async function run () {
 
   const networkGroupsPeerListCommand = cliparse.command('list', {
     description: 'List peers of a Network Group',
-    options: [opts.ngIdOrLabel, opts.jsonFormat],
+    args: [args.ngIdOrLabel],
+    options: [opts.humanJsonOutputFormat],
   }, networkgroups('listPeers'));
   const networkGroupsPeerGetCommand = cliparse.command('get', {
     description: 'Get a Network Group peer\'s details',
-    options: [opts.ngIdOrLabel, opts.ngPeerId, opts.jsonFormat],
+    args: [args.ngIdOrLabel, args.ngPeerId],
+    options: [opts.humanJsonOutputFormat],
   }, networkgroups('getPeer'));
-  const networkGroupsPeerAddCommand = cliparse.command('add-external', {
+  /* const networkGroupsPeerAddCommand = cliparse.command('add-external', {
     description: 'Add an external node as a Network Group peer',
     options: [opts.ngIdOrLabel, opts.ngPeerRole, opts.wgPublicKey, opts.ngPeerLabel, opts.ngPeerParentMemberId],
   }, networkgroups('addExternalPeer'));
   const networkGroupsPeerRemoveExternalCommand = cliparse.command('remove-external', {
     description: 'Remove an external node from a Network Group',
-    options: [opts.ngIdOrLabel, opts.ngPeerId],
-  }, networkgroups('removeExternalPeer'));
+    args: [args.ngIdOrLabel, args.ngPeerId],
+  }, networkgroups('removeExternalPeer')); */
   const networkGroupsPeersCategoryCommand = cliparse.command('peers', {
     description: 'List commands for interacting with Network Group peers',
-    commands: [networkGroupsPeerListCommand, networkGroupsPeerGetCommand, networkGroupsPeerAddCommand, networkGroupsPeerRemoveExternalCommand],
+    commands: [networkGroupsPeerListCommand, networkGroupsPeerGetCommand],
   });
 
   const networkGroupsCommand = cliparse.command('ng', {
     description: 'Manage Network Groups, their members and peers',
     options: [opts.orgaIdOrName, opts.alias],
     commands: [networkGroupsCreateCommand, networkGroupsDeleteCommand, networkGroupsListCommand, networkGroupsMembersCategoryCommand, networkGroupsPeersCategoryCommand],
-  });
+  }, networkgroups('listNg'));
 
   // NOTIFY-EMAIL COMMAND
   const notifyEmail = lazyRequirePromiseModule('../src/commands/notify-email.js');
