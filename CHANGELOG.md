@@ -1,6 +1,22 @@
 # clever-tools changelog
 
 
+## [3.7.0](https://github.com/CleverCloud/clever-tools/compare/3.6.1...3.7.0) (2024-06-11)
+
+
+### 🚀 Features
+
+* **activity:** add deployment id ([094ce7c](https://github.com/CleverCloud/clever-tools/commit/094ce7c93518d31884eaa0f4953c41bd8f944a8e)), closes [#430](https://github.com/CleverCloud/clever-tools/issues/430) [#193](https://github.com/CleverCloud/clever-tools/issues/193)
+* **activity:** shorten commit id ([a977360](https://github.com/CleverCloud/clever-tools/commit/a977360d34850d2a1280b5bab84f9c032455d03b))
+* **addon create:** choose the cheapest plan by default ([87376f8](https://github.com/CleverCloud/clever-tools/commit/87376f8ac3c03cdf01082e13bfbe8c637d951d2d)), closes [#653](https://github.com/CleverCloud/clever-tools/issues/653)
+* **addon:** list available addon providers when invalid provider is specified ([e7684fe](https://github.com/CleverCloud/clever-tools/commit/e7684fe6817780f726318d1d0fdbedec01c448c5))
+
+
+### 🐛 Bug Fixes
+
+* **activity:** fix activity list refresh when `--follow` options is enabled ([04e0133](https://github.com/CleverCloud/clever-tools/commit/04e0133cdabadeed70e4494d73fcbc52fee7aea8))
+* fix clever curl in packaged and node version ([0ef585f](https://github.com/CleverCloud/clever-tools/commit/0ef585f949553f4d884362a48b7691b1289887a1))
+
 ## [3.6.1](https://github.com/CleverCloud/clever-tools/compare/3.6.0...3.6.1) (2024-04-18)
 
 
