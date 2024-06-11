@@ -22,14 +22,14 @@ function getSameCommitPolicyOption () {
   const availablePolicies = ['error', 'ignore', 'restart', 'rebuild'];
   return cliparse.option('same-commit-policy', {
     aliases: ['p'],
-    metavar: 'same-commit-policy',
+    metavar: 'policy',
     parser: (policy) => {
       return availablePolicies.includes(policy)
         ? cliparse.parsers.success(policy)
-        : cliparse.parsers.error(`The output policy must be one of ${availablePolicies.join(', ')}`);
+        : cliparse.parsers.error(`the policy must be one of ${availablePolicies.join(', ')}`);
     },
     default: 'error',
-    description: `Which policy to apply when the local commit is the same as the remote one. Available policies are (${availablePolicies.join(', ')})`,
+    description: `What to do when local and remote commit are identical (${availablePolicies.join(', ')})`,
     complete () {
       return cliparse.autocomplete.words(availablePolicies);
     },
