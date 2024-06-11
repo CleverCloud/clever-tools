@@ -7,7 +7,6 @@ const { sendToApi } = require('../models/send-to-api.js');
 const Formatter = require('../models/format-string.js');
 const Logger = require('../logger.js');
 const NetworkGroup = require('../models/networkgroup.js');
-const TableFormatter = require('../models/format-ng-table.js');
 
 const TIMEOUT = 5000;
 const INTERVAL = 500;
@@ -32,10 +31,13 @@ async function listNg (params) {
     }
     case 'human':
     default: {
-      TableFormatter.printNetworkGroupsTableHeader();
+      /* TableFormatter.printNetworkGroupsTableHeader();
       result
         .map((ng) => TableFormatter.formatNetworkGroupsLine(ng))
-        .forEach((ng) => Logger.println(ng));
+        .forEach((ng) => Logger.println(ng)); */
+      // We keep only id, label, network_ip, last_allocated_ip
+      const ngList = result.map(({ id, label, network_ip, last_allocated_ip, members, peers }) => ({ id, label, network_ip, last_allocated_ip, 'members': Object.keys(members).length, 'peers': Object.keys(peers).length }));
+      console.table(ngList);
     }
   }
 }
@@ -151,10 +153,8 @@ async function listMembers (params) {
       Logger.println(`No member found. You can add one with ${Formatter.formatCommand('clever networkgroups members add')}.`);
     }
     else {
-      await TableFormatter.printMembersTableHeader(naturalName);
-      for (const ng of result) {
-        Logger.println(await TableFormatter.formatMembersLine(ng, naturalName));
-      }
+      result.forEach((member) => delete member.label);
+      console.table(result);
     }
   }
 }
@@ -172,8 +172,8 @@ async function getMember (params) {
     Logger.println(JSON.stringify(result, null, 2));
   }
   else {
-    await TableFormatter.printMembersTableHeader(naturalName);
-    Logger.println(await TableFormatter.formatMembersLine(result, naturalName));
+    delete result.label;
+    console.table([result]);
   }
 }
 
@@ -215,10 +215,13 @@ async function listPeers (params) {
       Logger.println(`No peer found. You can add an external one with ${Formatter.formatCommand('clever networkgroups peers add-external')}.`);
     }
     else {
-      TableFormatter.printPeersTableHeader();
+      const peersList = result.map(({ id, label, endpoint, type }) => ({ id, label, 'host:ip': `${endpoint.ngTerm.host}:${endpoint.ngTerm.port}`, 'peer.type': type, 'endpoint.type': endpoint.type }));
+      console.table(peersList);
+
+      /* TableFormatter.printPeersTableHeader();
       result.forEach((peer) => {
         Logger.println(TableFormatter.formatPeersLine(peer));
-      });
+      }); */
     }
   }
 }
@@ -235,8 +238,9 @@ async function getPeer (params) {
     Logger.println(JSON.stringify(peer, null, 2));
   }
   else {
-    TableFormatter.printPeersTableHeader();
-    Logger.println(TableFormatter.formatPeersLine(peer));
+    // We keep only id, label, 'host:ip': `${endpoint.ngTerm.host}:${endpoint.ngTerm.port}`, type
+    const peerList = { id: peer.id, label: peer.label, 'host:ip': `${peer.endpoint.ngTerm.host}:${peer.endpoint.ngTerm.port}`, type: peer.type };
+    console.table([peerList]);
   }
 }
 
