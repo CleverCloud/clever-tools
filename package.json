@@ -81,7 +81,8 @@
     "pretest": "npm run lint",
     "test": "grunt test",
     "lint": "eslint bin src scripts",
-    "lint:fix": "eslint --fix bin src scripts"
+    "lint:fix": "eslint --fix bin src scripts",
+    "install-local:cliparse": "(cd ../cliparse-node && npm pack) && mv ../cliparse-node/cliparse-*.tgz . && npm i -f ./cliparse-*.tgz"
   },
   "repository": {
     "type": "git",
