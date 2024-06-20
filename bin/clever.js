@@ -31,9 +31,25 @@ if (colorExplicitFalse || (!process.stdout.isTTY && !colorExplicitTrue)) {
   colors.disable();
 }
 
+// These need to be set before Logger and other stuffs
+const pkg = require('../package.json');
+const updateNotifierModule = require('update-notifier');
+const isRunThroughPackagedBinary = process.pkg != null;
+const updateNotifierExplicitFalse = hasParam('--no-update-notifier') || hasParam('--update-notifier', 'false');
+if (!updateNotifierExplicitFalse && !isRunThroughPackagedBinary) {
+  updateNotifierModule({
+    pkg,
+    tagsUrl: 'https://api.github.com/repos/CleverCloud/clever-tools/tags',
+  }).notify({
+    getDetails () {
+      const docsUrl = 'https://www.clever-cloud.com/doc/clever-tools/getting_started';
+      return `\nPlease follow this link to update your clever-tools:\n${docsUrl}`;
+    },
+  });
+}
+
 const cliparse = require('cliparse');
 const cliparseCommands = require('cliparse/src/command.js');
-const updateNotifier = require('update-notifier');
 const _sortBy = require('lodash/sortBy.js');
 
 const git = require('../src/models/git.js');
@@ -49,20 +65,6 @@ process.stdout.on('error', (error) => {
     process.exit(0);
   }
 });
-
-const pkg = require('../package.json');
-
-if (process.pkg == null) {
-  updateNotifier({
-    pkg,
-    tagsUrl: 'https://api.github.com/repos/CleverCloud/clever-tools/tags',
-  }).notify({
-    getDetails () {
-      const docsUrl = 'https://www.clever-cloud.com/doc/clever-tools/getting_started';
-      return `\nPlease follow this link to update your clever-tools:\n${docsUrl}`;
-    },
-  });
-}
 
 // Use this alias so we get less warnings in pkg build :p
 const dynamicRequire = module.require.bind(module);
@@ -303,7 +305,10 @@ function run () {
       parser: Parsers.instances,
       description: 'The minimum number of parallel instances',
     }),
-    noUpdateNotifier: cliparse.flag('no-update-notifier', { description: 'Don\'t notify available updates for clever-tools' }),
+    updateNotifier: cliparse.flag('update-notifier', {
+      description: 'Choose whether to use update notifier or not. You can also use --no-update-notifier',
+      default: true,
+    }),
     emailNotificationTarget: cliparse.option('notify', {
       metavar: '<email_address>|<user_id>|"organisation"',
       description: 'Notify a user, a specific email address or the whole organisation (multiple values allowed, comma separated)',
@@ -1145,7 +1150,7 @@ function run () {
     name: 'clever',
     description: 'CLI tool to manage Clever Cloud\'s data and products',
     version: pkg.version,
-    options: [opts.color, opts.verbose, opts.noUpdateNotifier],
+    options: [opts.color, opts.verbose, opts.updateNotifier],
     helpCommand: false,
     commands,
   });
