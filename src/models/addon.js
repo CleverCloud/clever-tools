@@ -284,6 +284,9 @@ export function parseAddonOptions (options) {
     else if (value === 'false' || value === 'disabled') {
       formattedValue = 'false';
     }
+    else if (typeof key === 'string') {
+      formattedValue = value;
+    }
     else {
       throw new Error(`Can't parse option value: ${value}. Accepted values are: enabled, disabled, true, false`);
     }
