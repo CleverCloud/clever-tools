@@ -263,6 +263,8 @@ function parseAddonOptions (options) {
   }
 
   return options.split(',').reduce((options, option) => {
+    const keysWithValidStringValue = ['locale'];
+
     const [key, value] = option.split('=');
     if (value == null) {
       throw new Error("Options are malformed. Usage is '--option name=enabled|disabled|true|false'");
@@ -274,6 +276,9 @@ function parseAddonOptions (options) {
     }
     else if (value === 'false' || value === 'disabled') {
       formattedValue = 'false';
+    }
+    else if (keysWithValidStringValue.includes(key)) {
+      formattedValue = value;
     }
     else {
       throw new Error(`Can't parse option value: ${value}. Accepted values are: enabled, disabled, true, false`);
