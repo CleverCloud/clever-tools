@@ -2,13 +2,13 @@
 
 const openPage = require('open');
 
-const AppConfig = require('../models/app_configuration.js');
+const Application = require('../models/application.js');
 const Domain = require('../models/domain.js');
 const Logger = require('../logger.js');
 
 async function open (params) {
-  const { alias } = params.options;
-  const { ownerId, appId } = await AppConfig.getAppDetails({ alias });
+  const { alias, app: appIdOrName } = params.options;
+  const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
 
   const vhost = await Domain.getBest(appId, ownerId);
   const url = 'https://' + vhost.fqdn;

@@ -2,7 +2,6 @@
 
 const colors = require('colors/safe');
 
-const AppConfig = require('../models/app_configuration.js');
 const Application = require('../models/application.js');
 const git = require('../models/git.js');
 const Log = require('../models/log-v4.js');
@@ -11,17 +10,22 @@ const Logger = require('../logger.js');
 // Once the API call to redeploy() has been triggerred successfully,
 // the rest (waiting for deployment state to evolve and displaying logs) is done with auto retry (resilient to network pb)
 async function restart (params) {
-  const { alias, quiet, commit, 'without-cache': withoutCache, follow } = params.options;
+  const { alias, app: appIdOrName, quiet, commit, 'without-cache': withoutCache, follow } = params.options;
 
-  const { ownerId, appId, name: appName } = await AppConfig.getAppDetails({ alias });
+  const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
   const fullCommitId = await git.resolveFullCommitId(commit);
   const app = await Application.get(ownerId, appId);
+
+  if (app == null) {
+    throw new Error('The application doesn\'t exist');
+  }
+
   const remoteCommitId = app.commitId;
 
   const commitId = fullCommitId || remoteCommitId;
   if (commitId != null) {
     const cacheSuffix = withoutCache ? ' without using cache' : '';
-    Logger.println(`Restarting ${appName} on commit ${colors.green(commitId)}${cacheSuffix}`);
+    Logger.println(`Restarting ${app.name} on commit ${colors.green(commitId)}${cacheSuffix}`);
   }
 
   // This should be handled by the API when a deployment ID is set but we'll do this for now

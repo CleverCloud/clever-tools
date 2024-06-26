@@ -4,6 +4,7 @@ const _ = require('lodash');
 const application = require('@clevercloud/client/cjs/api/v2/application.js');
 const autocomplete = require('cliparse').autocomplete;
 const product = require('@clevercloud/client/cjs/api/v2/product.js');
+const { getSummary } = require('@clevercloud/client/cjs/api/v2/user.js');
 
 const AppConfiguration = require('./app_configuration.js');
 const Interact = require('./interact.js');
@@ -12,6 +13,8 @@ const Organisation = require('./organisation.js');
 const User = require('./user.js');
 
 const { sendToApi } = require('../models/send-to-api.js');
+const AppConfig = require('./app_configuration.js');
+const { resolveOwnerId } = require('./ids-resolver.js');
 
 function listAvailableTypes () {
   return autocomplete.words(['docker', 'elixir', 'go', 'gradle', 'haskell', 'jar', 'maven', 'meteor', 'node', 'php', 'play1', 'play2', 'python', 'ruby', 'rust', 'sbt', 'static-apache', 'war']);
@@ -86,18 +89,18 @@ async function create (name, typeName, region, orgaIdOrName, github, isTask, env
   return application.create({ id: ownerId }, newApp).then(sendToApi);
 };
 
-async function deleteApp (addDetails, skipConfirmation) {
-  Logger.debug('Deleting app: ' + addDetails.name + ' (' + addDetails.appId + ')');
+async function deleteApp (app, skipConfirmation) {
+  Logger.debug('Deleting app: ' + app.name + ' (' + app.id + ')');
 
   if (!skipConfirmation) {
     await Interact.confirm(
-      `Deleting the application ${addDetails.name} can't be undone, please type '${addDetails.name}' to confirm: `,
+      `Deleting the application ${app.name} can't be undone, please type '${app.name}' to confirm: `,
       'No confirmation, aborting application deletion',
-      [addDetails.name],
+      [app.name],
     );
   }
 
-  return application.remove({ id: addDetails.ownerId, appId: addDetails.appId }).then(sendToApi);
+  return application.remove({ id: app.ownerId, appId: app.id }).then(sendToApi);
 };
 
 function getApplicationByName (apps, name) {
@@ -129,6 +132,62 @@ function getFromSelf (appId) {
   return application.get({ appId }).then(sendToApi);
 };
 
+/**
+ * @param {{app_id: string}|{app_name: string}} appIdOrName
+ * @param {string} alias
+ * @return {Promise<{appId: string, ownerId: string}>}
+ */
+async function resolveId (appIdOrName, alias) {
+  if (appIdOrName != null && alias != null) {
+    throw new Error('Only one of the `--app` or `--alias` options can be set at a time');
+  }
+
+  // -- resolve by linked app
+
+  if (appIdOrName == null) {
+    const appDetails = await AppConfig.getAppDetails({ alias });
+    return { appId: appDetails.appId, ownerId: appDetails.ownerId };
+  }
+
+  // -- resolve by app id
+
+  if (appIdOrName.app_id != null) {
+    const ownerId = await resolveOwnerId(appIdOrName.app_id);
+    if (ownerId != null) {
+      return {
+        appId: appIdOrName.app_id,
+        ownerId,
+      };
+    }
+
+    throw new Error('Application not found');
+  }
+
+  // -- resolve by app name
+
+  const summary = await getSummary({}).then(sendToApi);
+
+  const candidates = [summary.user, ...summary.organisations]
+    .flatMap((owner) => owner.applications.map((app) => ({ app, owner })))
+    .filter((candidate) => candidate.app.name === appIdOrName.app_name);
+
+  if (candidates.length === 0) {
+    throw new Error('Application not found');
+  }
+  if (candidates.length === 1) {
+    return {
+      appId: candidates[0].app.id,
+      ownerId: candidates[0].owner.id,
+    };
+  }
+
+  Logger.printErrorLine(`The name '${appIdOrName.app_name}' refers to multiple applications:`);
+  candidates.forEach((candidate) => {
+    Logger.printErrorLine(`- ${candidate.owner.name}: ${candidate.app.id} (${candidate.app.variantSlug})`);
+  });
+  throw new Error('Ambiguous application name, use the `--app` option with one of the IDs above');
+}
+
 async function linkRepo (app, orgaIdOrName, alias, ignoreParentConfig) {
   Logger.debug(`Linking current repository to the app: ${app.app_id || app.app_name}`);
 
@@ -145,7 +204,7 @@ async function linkRepo (app, orgaIdOrName, alias, ignoreParentConfig) {
 
 function unlinkRepo (alias) {
   Logger.debug(`Unlinking current repository from the app: ${alias}`);
-  return AppConfiguration.removeLinkedApplication(alias);
+  return AppConfiguration.removeLinkedApplication({ alias });
 };
 
 function redeploy (ownerId, appId, commit, withoutCache) {
@@ -237,6 +296,7 @@ async function unlink (ownerId, appId, dependency) {
 };
 
 module.exports = {
+  resolveId,
   create,
   deleteApp,
   get,

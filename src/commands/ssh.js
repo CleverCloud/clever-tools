@@ -2,13 +2,13 @@
 
 const { spawn } = require('child_process');
 
-const AppConfig = require('../models/app_configuration.js');
+const Application = require('../models/application.js');
 const { conf } = require('../models/configuration.js');
 
 async function ssh (params) {
-  const { alias, 'identity-file': identityFile } = params.options;
+  const { alias, app: appIdOrName, 'identity-file': identityFile } = params.options;
 
-  const { appId } = await AppConfig.getAppDetails({ alias });
+  const { appId } = await Application.resolveId(appIdOrName, alias);
   const sshParams = ['-t', conf.SSH_GATEWAY, appId];
   if (identityFile != null) {
     sshParams.push('-i', identityFile);

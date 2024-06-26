@@ -1,6 +1,5 @@
 'use strict';
 
-const AppConfig = require('../models/app_configuration.js');
 const Application = require('../models/application.js');
 const Logger = require('../logger.js');
 
@@ -45,9 +44,9 @@ function validateOptions (options) {
 }
 
 async function scale (params) {
-  const { alias } = params.options;
+  const { alias, app: appIdOrName } = params.options;
   const { minFlavor, maxFlavor, minInstances, maxInstances, buildFlavor } = validateOptions(params.options);
-  const { ownerId, appId } = await AppConfig.getAppDetails({ alias });
+  const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
 
   await Application.setScalability(appId, ownerId, {
     minFlavor,

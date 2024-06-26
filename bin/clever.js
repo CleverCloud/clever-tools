@@ -93,8 +93,8 @@ const Application = lazyRequire('../src/models/application.js');
 const ApplicationConfiguration = lazyRequire('../src/models/application_configuration.js');
 const Drain = lazyRequire('../src/models/drain.js');
 const Notification = lazyRequire('../src/models/notification.js');
-const Organisation = lazyRequire('../src/models/organisation.js');
 const NetworkGroup = lazyRequire('../src/models/networkgroup.js');
+const Namespaces = lazyRequire('../src/models/namespaces.js');
 
 function run () {
 
@@ -223,7 +223,7 @@ function run () {
       metavar: 'namespace',
       description: 'Namespace in which the TCP redirection should be',
       required: true,
-      complete: Organisation('completeNamespaces'),
+      complete: Namespaces('completeNamespaces'),
     }),
     notificationEventType: cliparse.option('event', {
       metavar: 'type',
@@ -318,9 +318,15 @@ function run () {
     onlyAddons: cliparse.flag('only-addons', { description: 'Only show add-on dependencies' }),
     onlyAliases: cliparse.flag('only-aliases', { description: 'List only application aliases' }),
     onlyApps: cliparse.flag('only-apps', { description: 'Only show app dependencies' }),
+    appIdOrName: cliparse.option('app', {
+      metavar: 'ID_OR_NAME',
+      description: 'Application to manage by its ID (or name, if unambiguous)',
+      parser: Parsers.appIdOrName,
+    }),
     orgaIdOrName: cliparse.option('org', {
+      metavar: 'ID_OR_NAME',
       aliases: ['o', 'owner'],
-      description: 'Organisation ID (or name, if unambiguous)',
+      description: 'Organisation to target by its ID (or name, if unambiguous)',
       parser: Parsers.orgaIdOrName,
     }),
     output: cliparse.option('output', {
@@ -599,14 +605,14 @@ function run () {
   const accesslogsModule = lazyRequirePromiseModule('../src/commands/accesslogs.js');
   const accesslogsCommand = cliparse.command('accesslogs', {
     description: 'Fetch access logs',
-    options: [opts.alias, opts.accesslogsFormat, opts.before, opts.after, opts.accesslogsFollow, opts.addonId],
+    options: [opts.alias, opts.appIdOrName, opts.accesslogsFormat, opts.before, opts.after, opts.accesslogsFollow, opts.addonId],
   }, accesslogsModule('accessLogs'));
 
   // ACTIVITY COMMAND
   const activity = lazyRequirePromiseModule('../src/commands/activity.js');
   const activityCommand = cliparse.command('activity', {
     description: 'Show last deployments of an application',
-    options: [opts.alias, opts.follow, opts.showAllActivity],
+    options: [opts.alias, opts.appIdOrName, opts.follow, opts.showAllActivity],
   }, activity('activity'));
 
   // ADDON COMMANDS
@@ -660,7 +666,7 @@ function run () {
   const cancelDeploy = lazyRequirePromiseModule('../src/commands/cancel-deploy.js');
   const cancelDeployCommand = cliparse.command('cancel-deploy', {
     description: 'Cancel an ongoing deployment',
-    options: [opts.alias],
+    options: [opts.alias, opts.appIdOrName],
   }, cancelDeploy('cancelDeploy'));
 
   // CONFIG COMMAND
@@ -679,7 +685,7 @@ function run () {
   }, config('update'));
   const configCommands = cliparse.command('config', {
     description: 'Display or edit the configuration of your application',
-    options: [opts.alias],
+    options: [opts.alias, opts.appIdOrName],
     commands: [configGetCommand, configSetCommand, configUpdateCommand],
   }, config('get'));
 
@@ -701,7 +707,7 @@ function run () {
   const deleteCommandModule = lazyRequirePromiseModule('../src/commands/delete.js');
   const deleteCommand = cliparse.command('delete', {
     description: 'Delete an application',
-    options: [opts.alias, opts.confirmApplicationDeletion],
+    options: [opts.alias, opts.appIdOrName, opts.confirmApplicationDeletion],
   }, deleteCommandModule('deleteApp'));
 
   // DEPLOY COMMAND
@@ -741,7 +747,7 @@ function run () {
   }, domain('getFavourite'));
   const domainCommands = cliparse.command('domain', {
     description: 'Manage domain names for an application',
-    options: [opts.alias],
+    options: [opts.alias, opts.appIdOrName],
     commands: [domainCreateCommand, domainFavouriteCommands, domainRemoveCommand],
   }, domain('list'));
 
@@ -766,7 +772,7 @@ function run () {
   }, drain('disable'));
   const drainCommands = cliparse.command('drain', {
     description: 'Manage drains',
-    options: [opts.alias, opts.addonId],
+    options: [opts.alias, opts.appIdOrName, opts.addonId],
     commands: [drainCreateCommand, drainRemoveCommand, drainEnableCommand, drainDisableCommand],
   }, drain('list'));
 
@@ -790,7 +796,7 @@ function run () {
   }, env('importVarsFromLocalEnv'));
   const envCommands = cliparse.command('env', {
     description: 'Manage environment variables of an application',
-    options: [opts.alias, opts.sourceableEnvVarsList],
+    options: [opts.alias, opts.appIdOrName, opts.sourceableEnvVarsList],
     commands: [envSetCommand, envRemoveCommand, envImportCommand, envImportVarsFromLocalEnvCommand],
   }, env('list'));
 
@@ -819,7 +825,7 @@ function run () {
   const logs = lazyRequirePromiseModule('../src/commands/logs.js');
   const logsCommand = cliparse.command('logs', {
     description: 'Fetch application logs, continuously',
-    options: [opts.alias, opts.before, opts.after, opts.search, opts.deploymentId, opts.addonId, opts.logsFormat],
+    options: [opts.alias, opts.appIdOrName, opts.before, opts.after, opts.search, opts.deploymentId, opts.addonId, opts.logsFormat],
   }, logs('appLogs'));
 
   // MAKE DEFAULT COMMAND
@@ -930,14 +936,14 @@ function run () {
   const open = lazyRequirePromiseModule('../src/commands/open.js');
   const openCommand = cliparse.command('open', {
     description: 'Open an application in your browser',
-    options: [opts.alias],
+    options: [opts.alias, opts.appIdOrName],
   }, open('open'));
 
   // CONSOLE COMMAND
   const consoleModule = lazyRequirePromiseModule('../src/commands/console.js');
   const consoleCommand = cliparse.command('console', {
     description: 'Open an application in the Console',
-    options: [opts.alias],
+    options: [opts.alias, opts.appIdOrName],
   }, consoleModule('openConsole'));
 
   // PROFILE COMMAND
@@ -962,7 +968,7 @@ function run () {
   }, publishedConfig('importEnv'));
   const publishedConfigCommands = cliparse.command('published-config', {
     description: 'Manage the configuration made available to other applications by this application',
-    options: [opts.alias],
+    options: [opts.alias, opts.appIdOrName],
     commands: [publishedConfigSetCommand, publishedConfigRemoveCommand, publishedConfigImportCommand],
   }, publishedConfig('list'));
 
@@ -970,14 +976,14 @@ function run () {
   const restart = lazyRequirePromiseModule('../src/commands/restart.js');
   const restartCommand = cliparse.command('restart', {
     description: 'Start or restart an application',
-    options: [opts.alias, opts.commit, opts.withoutCache, opts.quiet, opts.followDeployLogs],
+    options: [opts.alias, opts.appIdOrName, opts.commit, opts.withoutCache, opts.quiet, opts.followDeployLogs],
   }, restart('restart'));
 
   // SCALE COMMAND
   const scale = lazyRequirePromiseModule('../src/commands/scale.js');
   const scaleCommand = cliparse.command('scale', {
     description: 'Change scalability of an application',
-    options: [opts.alias, opts.flavor, opts.minFlavor, opts.maxFlavor, opts.instances, opts.minInstances, opts.maxInstances, opts.buildFlavor],
+    options: [opts.alias, opts.appIdOrName, opts.flavor, opts.minFlavor, opts.maxFlavor, opts.instances, opts.minInstances, opts.maxInstances, opts.buildFlavor],
   }, scale('scale'));
 
   // SERVICE COMMANDS
@@ -1000,7 +1006,7 @@ function run () {
   }, service('unlinkAddon'));
   const serviceCommands = cliparse.command('service', {
     description: 'Manage service dependencies',
-    options: [opts.alias, opts.onlyApps, opts.onlyAddons, opts.showAll],
+    options: [opts.alias, opts.appIdOrName, opts.onlyApps, opts.onlyAddons, opts.showAll],
     commands: [serviceLinkAppCommand, serviceUnlinkAppCommand, serviceLinkAddonCommand, serviceUnlinkAddonCommand],
   }, service('list'));
 
@@ -1008,21 +1014,21 @@ function run () {
   const ssh = lazyRequirePromiseModule('../src/commands/ssh.js');
   const sshCommand = cliparse.command('ssh', {
     description: 'Connect to running instances through SSH',
-    options: [opts.alias, opts.sshIdentityFile],
+    options: [opts.alias, opts.appIdOrName, opts.sshIdentityFile],
   }, ssh('ssh'));
 
   // STATUS COMMAND
   const status = lazyRequirePromiseModule('../src/commands/status.js');
   const statusCommand = cliparse.command('status', {
     description: 'See the status of an application',
-    options: [opts.alias],
+    options: [opts.alias, opts.appIdOrName],
   }, status('status'));
 
   // STOP COMMAND
   const stop = lazyRequirePromiseModule('../src/commands/stop.js');
   const stopCommand = cliparse.command('stop', {
     description: 'Stop a running application',
-    options: [opts.alias],
+    options: [opts.alias, opts.appIdOrName],
   }, stop('stop'));
 
   // TCP-REDIRS COMMAND
@@ -1041,7 +1047,7 @@ function run () {
   }, tcpRedirs('remove'));
   const tcpRedirsCommands = cliparse.command('tcp-redirs', {
     description: 'Control the TCP redirections from reverse proxies to your application',
-    options: [opts.alias],
+    options: [opts.alias, opts.appIdOrName],
     commands: [tcpRedirsListNamespacesCommand, tcpRedirsAddCommand, tcpRedirsRemoveCommand],
   }, tcpRedirs('list'));
 

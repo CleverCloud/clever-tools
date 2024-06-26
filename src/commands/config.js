@@ -2,7 +2,6 @@
 
 const application = require('@clevercloud/client/cjs/api/v2/application.js');
 
-const AppConfig = require('../models/app_configuration.js');
 const Application = require('../models/application.js');
 const ApplicationConfiguration = require('../models/application_configuration.js');
 
@@ -10,8 +9,8 @@ const { sendToApi } = require('../models/send-to-api.js');
 
 async function get (params) {
   const [configurationName] = params.args;
-  const { alias } = params.options;
-  const { ownerId, appId } = await AppConfig.getAppDetails({ alias });
+  const { alias, app: appIdOrName } = params.options;
+  const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
   const app = await Application.get(ownerId, appId);
 
   if (configurationName == null) {
@@ -24,8 +23,8 @@ async function get (params) {
 
 async function set (params) {
   const [configurationName, configurationValue] = params.args;
-  const { alias } = params.options;
-  const { ownerId, appId } = await AppConfig.getAppDetails({ alias });
+  const { alias, app: appIdOrName } = params.options;
+  const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
   const config = ApplicationConfiguration.getById(configurationName);
 
   if (config != null) {
@@ -36,8 +35,8 @@ async function set (params) {
 }
 
 async function update (params) {
-  const { alias } = params.options;
-  const { ownerId, appId } = await AppConfig.getAppDetails({ alias });
+  const { alias, app: appIdOrName } = params.options;
+  const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
   const options = ApplicationConfiguration.parseOptions(params.options);
 
   if (Object.keys(options).length === 0) {
