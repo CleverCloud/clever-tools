@@ -15,4 +15,11 @@ class Deferred {
   }
 }
 
-module.exports = { Deferred };
+function truncateWithEllipsis (length, string) {
+  if (string.length > length - 1) {
+    return string.substring(0, length - 1) + '…';
+  }
+  return string;
+}
+
+module.exports = { Deferred, truncateWithEllipsis };
