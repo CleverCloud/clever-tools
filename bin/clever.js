@@ -1120,7 +1120,7 @@ function run () {
       cliparse.argument('filename', {
         description: 'TODO',
       }),
-      args.faasId
+      args.faasId,
     ],
     options: [],
   }, faas('deploy'));

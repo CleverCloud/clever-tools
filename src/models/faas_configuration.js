@@ -4,10 +4,10 @@ const { promises: fs } = require('fs');
 const path = require('path');
 
 const _ = require('lodash');
-const slugify = require('slugify');
+// const slugify = require('slugify');
 
 const Logger = require('../logger.js');
-const User = require('./user.js');
+// const User = require('./user.js');
 const { conf } = require('./configuration.js');
 
 // TODO: Maybe use fs-utils findPath()
