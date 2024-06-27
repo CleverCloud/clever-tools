@@ -31,6 +31,7 @@ process.stdout.on('error', (error) => {
 });
 
 const pkg = require('../package.json');
+const { runGitCommand } = require('../src/commands/git.js');
 
 if (process.pkg == null) {
   updateNotifier({
@@ -1091,6 +1092,11 @@ function run () {
 // cliparse doesn't allow unknown options/arguments
 if (process.argv[2] === 'curl') {
   require('../src/commands/curl.js').curl();
+}
+else if (process.argv[2] === 'git') {
+  const params = process.argv.slice(3);
+  runGitCommand(params)
+    .catch(console.error);
 }
 else {
   run();
