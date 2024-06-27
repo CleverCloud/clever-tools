@@ -123,6 +123,7 @@ function run () {
       complete: Drain('listDrainTypes'),
     }),
     drainUrl: cliparse.argument('drain-url', { description: 'Drain URL' }),
+    faasId: cliparse.argument('faas-id', { description: 'Function ID' }),
     fqdn: cliparse.argument('fqdn', { description: 'Domain name of the application' }),
     notificationName: cliparse.argument('name', { description: 'Notification name' }),
     notificationId: cliparse.argument('notification-id', { description: 'Notification ID' }),
@@ -1106,6 +1107,30 @@ function run () {
     console.info('clever database backups download');
   });
 
+  // FUNCTIONS COMMANDS
+  const faas = lazyRequirePromiseModule('../src/commands/faas.js');
+  const faasListCommand = cliparse.command('list', {
+    description: 'TODO',
+    args: [],
+    options: [],
+  }, faas('list'));
+  const faasDeployCommand = cliparse.command('deploy', {
+    description: 'TODO',
+    args: [
+      cliparse.argument('filename', {
+        description: 'TODO',
+      }),
+      args.faasId,
+    ],
+    options: [],
+  }, faas('deploy'));
+  const faasCommand = cliparse.command('faas', {
+    description: 'TODO',
+    args: [],
+    options: [],
+    commands: [faasListCommand, faasDeployCommand],
+  });
+
   // Patch help command description
   cliparseCommands.helpCommand.description = 'Display help about the Clever Cloud CLI';
 
@@ -1128,6 +1153,7 @@ function run () {
     drainCommands,
     emailNotificationsCommand,
     envCommands,
+    faasCommand,
     cliparseCommands.helpCommand,
     loginCommand,
     logoutCommand,
