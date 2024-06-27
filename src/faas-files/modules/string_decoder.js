@@ -19,17 +19,16 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
 // USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import {Buffer} from 'buffer';
-var isBufferEncoding = Buffer.isEncoding
-  || function(encoding) {
-       switch (encoding && encoding.toLowerCase()) {
-         case 'hex': case 'utf8': case 'utf-8': case 'ascii': case 'binary': case 'base64': case 'ucs2': case 'ucs-2': case 'utf16le': case 'utf-16le': case 'raw': return true;
-         default: return false;
-       }
-     }
+import { Buffer } from 'buffer';
+const isBufferEncoding = Buffer.isEncoding
+  || function (encoding) {
+    switch (encoding && encoding.toLowerCase()) {
+      case 'hex': case 'utf8': case 'utf-8': case 'ascii': case 'binary': case 'base64': case 'ucs2': case 'ucs-2': case 'utf16le': case 'utf-16le': case 'raw': return true;
+      default: return false;
+    }
+  };
 
-
-function assertEncoding(encoding) {
+function assertEncoding (encoding) {
   if (encoding && !isBufferEncoding(encoding)) {
     throw new Error('Unknown encoding: ' + encoding);
   }
@@ -43,7 +42,7 @@ function assertEncoding(encoding) {
 // to reason about this code, so it should be split up in the future.
 // @TODO There should be a utf8-strict encoding that rejects invalid UTF-8 code
 // points as used by CESU-8.
-export function StringDecoder(encoding) {
+export function StringDecoder (encoding) {
   this.encoding = (encoding || 'utf8').toLowerCase().replace(/[-_]/, '');
   assertEncoding(encoding);
   switch (this.encoding) {
@@ -76,7 +75,6 @@ export function StringDecoder(encoding) {
   this.charLength = 0;
 };
 
-
 // write decodes the given buffer and returns it as JS string that is
 // guaranteed to not contain any partial multi-byte characters. Any partial
 // character found at the end of the buffer is buffered up, and will be
@@ -86,14 +84,14 @@ export function StringDecoder(encoding) {
 // currently works, but converting a String to a Buffer (via `new Buffer`, or
 // Buffer#write) will replace incomplete surrogates with the unicode
 // replacement character. See https://codereview.chromium.org/121173009/ .
-StringDecoder.prototype.write = function(buffer) {
-  var charStr = '';
+StringDecoder.prototype.write = function (buffer) {
+  let charStr = '';
   // if our last write ended with an incomplete multibyte character
   while (this.charLength) {
     // determine how many remaining bytes this buffer has to offer for this char
-    var available = (buffer.length >= this.charLength - this.charReceived) ?
-        this.charLength - this.charReceived :
-        buffer.length;
+    const available = (buffer.length >= this.charLength - this.charReceived)
+      ? this.charLength - this.charReceived
+      : buffer.length;
 
     // add the new bytes to the char buffer
     buffer.copy(this.charBuffer, this.charReceived, 0, available);
@@ -142,7 +140,7 @@ StringDecoder.prototype.write = function(buffer) {
   var charCode = charStr.charCodeAt(end);
   // CESU-8: lead surrogate (D800-DBFF) is also the incomplete character
   if (charCode >= 0xD800 && charCode <= 0xDBFF) {
-    var size = this.surrogateSize;
+    const size = this.surrogateSize;
     this.charLength += size;
     this.charReceived += size;
     this.charBuffer.copy(this.charBuffer, size, 0, size);
@@ -158,14 +156,14 @@ StringDecoder.prototype.write = function(buffer) {
 // the end of the given buffer. If so, it sets this.charLength to the byte
 // length that character, and sets this.charReceived to the number of bytes
 // that are available for this character.
-StringDecoder.prototype.detectIncompleteChar = function(buffer) {
+StringDecoder.prototype.detectIncompleteChar = function (buffer) {
   // determine how many bytes we have to check at the end of this buffer
-  var i = (buffer.length >= 3) ? 3 : buffer.length;
+  let i = (buffer.length >= 3) ? 3 : buffer.length;
 
   // Figure out if one of the last i bytes of our buffer announces an
   // incomplete char.
   for (; i > 0; i--) {
-    var c = buffer[buffer.length - i];
+    const c = buffer[buffer.length - i];
 
     // See http://en.wikipedia.org/wiki/UTF-8#Description
 
@@ -190,31 +188,32 @@ StringDecoder.prototype.detectIncompleteChar = function(buffer) {
   this.charReceived = i;
 };
 
-StringDecoder.prototype.end = function(buffer) {
-  var res = '';
-  if (buffer && buffer.length)
+StringDecoder.prototype.end = function (buffer) {
+  let res = '';
+  if (buffer && buffer.length) {
     res = this.write(buffer);
+  }
 
   if (this.charReceived) {
-    var cr = this.charReceived;
-    var buf = this.charBuffer;
-    var enc = this.encoding;
+    const cr = this.charReceived;
+    const buf = this.charBuffer;
+    const enc = this.encoding;
     res += buf.slice(0, cr).toString(enc);
   }
 
   return res;
 };
 
-function passThroughWrite(buffer) {
+function passThroughWrite (buffer) {
   return buffer.toString(this.encoding);
 }
 
-function utf16DetectIncompleteChar(buffer) {
+function utf16DetectIncompleteChar (buffer) {
   this.charReceived = buffer.length % 2;
   this.charLength = this.charReceived ? 2 : 0;
 }
 
-function base64DetectIncompleteChar(buffer) {
+function base64DetectIncompleteChar (buffer) {
   this.charReceived = buffer.length % 3;
   this.charLength = this.charReceived ? 3 : 0;
 }

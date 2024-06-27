@@ -70,7 +70,7 @@ async function deploy (params) {
 
   const config = await FaaSConfig.loadFunctionConf();
   const { id: OWNER_ID } = await User.getCurrent();
-  const { id : functionFromConfig, compile_args, compile_check_args, compile_command, compile_env, wasm_filename } = FaaSConfig.findFunction(config);
+  const { id: functionFromConfig, compile_args, compile_check_args, compile_command, compile_env, wasm_filename } = FaaSConfig.findFunction(config);
   const [inputFilename, functionFromArgs] = params.args;
   const FUNCTION_ID = functionFromArgs || functionFromConfig;
   const inputFilepath = path.resolve(process.cwd(), inputFilename);
@@ -78,7 +78,7 @@ async function deploy (params) {
   Logger.info(`Deploying ${inputFilepath}`);
   Logger.info(`Deploying to function ${FUNCTION_ID} of user ${OWNER_ID}`);
 
-  let outputWasm, outputFilepath, outputWasmFilepath = null;
+  let outputWasm; let outputFilepath; let outputWasmFilepath = null;
   let inputExtension = compile_command ? 'custom' : path.extname(inputFilename);
 
   switch (inputExtension) {
@@ -86,14 +86,14 @@ async function deploy (params) {
       checkCommand(compile_command, compile_check_args.split(' ')),
       inputExtension = path.extname(inputFilename);
       const outputFilename = getRandomFilename(inputFilename, inputExtension);
-      outputWasmFilepath = wasm_filename ? wasm_filename : getTempWasmFilename(outputFilename);
+      outputWasmFilepath = wasm_filename || getTempWasmFilename(outputFilename);
 
       console.log('Compiling WASM...');
       childProcess.spawnSync(compile_command, compile_args.split(' '), {
         env: {
           ...compile_env,
-          ...process.env
-        }
+          ...process.env,
+        },
       });
       console.log('  DONE!');
       outputWasm = fs.readFileSync(outputWasmFilepath);
@@ -127,12 +127,13 @@ async function deploy (params) {
       outputWasmFilepath = getTempWasmFilename(outputFilename);
 
       console.log('Compiling WASM...');
-      childProcess.spawnSync('go', ['build', '-o', outputWasmFilepath, inputFilepath],{
+      childProcess.spawnSync('go', ['build', '-o', outputWasmFilepath, inputFilepath], {
         env: {
-            ...process.env,
-            GOOS: 'wasip1',
-            GOARCH: 'wasm'
-        }});
+          ...process.env,
+          GOOS: 'wasip1',
+          GOARCH: 'wasm',
+        },
+      });
       console.log('  DONE!');
 
       outputWasm = fs.readFileSync(outputWasmFilepath);
@@ -323,7 +324,7 @@ function checkCommand (command, args) {
   const checkGoCommand = childProcess.spawnSync(command, args, { stdio: 'ignore' });
 
   if (checkGoCommand.error) {
-      throw new Error(`Command '${command}' not found, it's required to deploy your project as a Clever Function`);
+    throw new Error(`Command '${command}' not found, it's required to deploy your project as a Clever Function`);
   }
 }
 
