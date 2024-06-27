@@ -218,6 +218,11 @@ function run () {
       metavar: 'deployment_id',
       description: 'Fetch logs for a given deployment',
     }),
+    envFile: cliparse.option('env', {
+      aliases: ['e'],
+      metavar: 'file',
+      description: 'Import environment variables from a file',
+    }),
     namespace: cliparse.option('namespace', {
       metavar: 'namespace',
       description: 'Namespace in which the TCP redirection should be',
@@ -694,7 +699,7 @@ function run () {
   const appCreateCommand = cliparse.command('create', {
     description: 'Create an application',
     args: [args.appNameCreation],
-    options: [opts.instanceType, opts.orgaIdOrName, opts.aliasCreation, opts.region, opts.github, opts.humanJsonOutputFormat, opts.taskCommand],
+    options: [opts.instanceType, opts.orgaIdOrName, opts.aliasCreation, opts.envFile, opts.region, opts.github, opts.humanJsonOutputFormat, opts.taskCommand],
   }, create('create'));
 
   // CURL COMMAND
