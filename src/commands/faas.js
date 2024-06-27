@@ -270,7 +270,7 @@ async function compileWasm ({ outputFilepath, outputWasmFilepath, outputCode }) 
 function createFunctionDeployment (params, body) {
   return Promise.resolve({
     method: 'post',
-    url: `/v4/functions/organizations/${params.ownerId}/functions/${params.functionId}/deployments`,
+    url: `/v4/functions/organisations/${params.ownerId}/functions/${params.functionId}/deployments`,
     headers: {
       Accept: 'application/json',
       'Content-Type': 'application/json',
@@ -292,14 +292,14 @@ function uploadFunctionWasm (uploadUrl, wasmContent) {
 function triggerFunctionDeployment (params) {
   return Promise.resolve({
     method: 'post',
-    url: `/v4/functions/organizations/${params.ownerId}/functions/${params.functionId}/deployments/${params.deploymentId}/trigger`,
+    url: `/v4/functions/organisations/${params.ownerId}/functions/${params.functionId}/deployments/${params.deploymentId}/trigger`,
   });
 }
 
 function getDeploymentStatus (params) {
   return Promise.resolve({
     method: 'get',
-    url: `/v4/functions/organizations/${params.ownerId}/functions/${params.functionId}/deployments/${params.deploymentId}`,
+    url: `/v4/functions/organisations/${params.ownerId}/functions/${params.functionId}/deployments/${params.deploymentId}`,
     headers: {
       Accept: 'application/json',
       'Content-Type': 'application/json',
@@ -310,7 +310,7 @@ function getDeploymentStatus (params) {
 function getFunctionsList (params) {
   return Promise.resolve({
     method: 'get',
-    url: `/v4/functions/organizations/${params.ownerId}/functions`,
+    url: `/v4/functions/organisations/${params.ownerId}/functions`,
     headers: {
       Accept: 'application/json',
       'Content-Type': 'application/json',
