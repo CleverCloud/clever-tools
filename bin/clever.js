@@ -58,6 +58,7 @@ const handleCommandPromise = require('../src/command-promise-handler.js');
 const Formatter = require('../src/models/format-string.js');
 const { AVAILABLE_ZONES } = require('../src/models/application.js');
 const { getOutputFormatOption, getSameCommitPolicyOption, getExitOnOption } = require('../src/command-options.js');
+const { loadFeaturesConf } = require('../src/models/configuration.js');
 
 // Exit cleanly if the program we pipe to exits abruptly
 process.stdout.on('error', (error) => {
@@ -96,7 +97,7 @@ const Notification = lazyRequire('../src/models/notification.js');
 const NetworkGroup = lazyRequire('../src/models/networkgroup.js');
 const Namespaces = lazyRequire('../src/models/namespaces.js');
 
-function run () {
+async function run () {
 
   // ARGUMENTS
   const args = {
@@ -123,6 +124,7 @@ function run () {
       complete: Drain('listDrainTypes'),
     }),
     drainUrl: cliparse.argument('drain-url', { description: 'Drain URL' }),
+    featureName: cliparse.argument('feature-name', { description: 'Experimental feature name' }),
     fqdn: cliparse.argument('fqdn', { description: 'Domain name of the application' }),
     notificationName: cliparse.argument('name', { description: 'Notification name' }),
     notificationId: cliparse.argument('notification-id', { description: 'Notification ID' }),
@@ -1124,10 +1126,29 @@ function run () {
     console.info('clever database backups download');
   });
 
+  // FEATURES COMMANDS
+  const features = lazyRequirePromiseModule('../src/commands/features.js');
+  const listFeaturesCommand = cliparse.command('list', {
+    description: 'List available experimental features',
+    options: [opts.humanJsonOutputFormat],
+  }, features('list'));
+  const enableFeatureCommand = cliparse.command('enable', {
+    description: 'Enable an experimental feature',
+    args: [args.featureName],
+  }, features('enable'));
+  const disableFeatureCommand = cliparse.command('disable', {
+    description: 'Disable an experimental feature',
+    args: [args.featureName],
+  }, features('disable'));
+  const featuresCommands = cliparse.command('features', {
+    description: 'Manage experimental features',
+    commands: [listFeaturesCommand, enableFeatureCommand, disableFeatureCommand],
+  });
+
   // Patch help command description
   cliparseCommands.helpCommand.description = 'Display help about the Clever Cloud CLI';
 
-  const commands = _sortBy([
+  let commands = [
     accesslogsCommand,
     activityCommand,
     addonCommands,
@@ -1146,14 +1167,12 @@ function run () {
     drainCommands,
     emailNotificationsCommand,
     envCommands,
+    featuresCommands,
     cliparseCommands.helpCommand,
     loginCommand,
     logoutCommand,
     logsCommand,
     makeDefaultCommand,
-    // Not ready for stable release yet
-    // networkGroupsCommand,
-    // ngCommand,
     openCommand,
     consoleCommand,
     profileCommand,
@@ -1167,7 +1186,14 @@ function run () {
     tcpRedirsCommands,
     versionCommand,
     webhooksCommand,
-  ], 'name');
+  ];
+
+  // Add experimental features only if they are enabled through the configuration file
+  const featuresFromConf = await loadFeaturesConf();
+  featuresFromConf.ng === true && commands.push(networkGroupsCommand);
+
+  // We sort the commands by name
+  commands = _sortBy(commands, 'name');
 
   // CLI PARSER
   const cliParser = cliparse.cli({
