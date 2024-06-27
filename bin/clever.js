@@ -57,7 +57,7 @@ const Parsers = require('../src/parsers.js');
 const handleCommandPromise = require('../src/command-promise-handler.js');
 const Formatter = require('../src/models/format-string.js');
 const { AVAILABLE_ZONES } = require('../src/models/application.js');
-const { getOutputFormatOption, getSameCommitPolicyOption } = require('../src/command-options.js');
+const { getOutputFormatOption, getSameCommitPolicyOption, getExitOnOption } = require('../src/command-options.js');
 
 // Exit cleanly if the program we pipe to exits abruptly
 process.stdout.on('error', (error) => {
@@ -246,6 +246,7 @@ function run () {
       aliases: ['f'],
       description: 'Force deploy even if it\'s not fast-forwardable',
     }),
+    exitOnDeploy: getExitOnOption(),
     sameCommitPolicy: getSameCommitPolicyOption(),
     webhookFormat: cliparse.option('format', {
       metavar: 'format',
@@ -713,7 +714,7 @@ function run () {
   const deploy = lazyRequirePromiseModule('../src/commands/deploy.js');
   const deployCommand = cliparse.command('deploy', {
     description: 'Deploy an application',
-    options: [opts.alias, opts.branch, opts.gitTag, opts.quiet, opts.forceDeploy, opts.followDeployLogs, opts.sameCommitPolicy],
+    options: [opts.alias, opts.branch, opts.gitTag, opts.quiet, opts.forceDeploy, opts.followDeployLogs, opts.sameCommitPolicy, opts.exitOnDeploy],
   }, deploy('deploy'));
 
   // DIAG COMMAND
@@ -975,7 +976,7 @@ function run () {
   const restart = lazyRequirePromiseModule('../src/commands/restart.js');
   const restartCommand = cliparse.command('restart', {
     description: 'Start or restart an application',
-    options: [opts.alias, opts.appIdOrName, opts.commit, opts.withoutCache, opts.quiet, opts.followDeployLogs],
+    options: [opts.alias, opts.appIdOrName, opts.commit, opts.withoutCache, opts.quiet, opts.followDeployLogs, opts.exitOnDeploy],
   }, restart('restart'));
 
   // SCALE COMMAND

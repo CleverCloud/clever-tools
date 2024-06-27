@@ -9,6 +9,7 @@ const { getOldLogs } = require('@clevercloud/client/cjs/api/v2/log.js');
 const { LogsStream } = require('@clevercloud/client/cjs/streams/logs.node.js');
 const { sendToApi, getHostAndTokens } = require('./send-to-api.js');
 const { waitForDeploymentEnd, waitForDeploymentStart } = require('./deployments.js');
+const ExitStrategy = require('../models/exit-strategy-option.js');
 
 function isCleverMessage (line) {
   return line._source.syslog_program === '/home/bas/rubydeployer/deployer.rb';
@@ -100,11 +101,17 @@ async function displayLogs ({ appAddonId, until, since, filter, deploymentId }) 
   return deferred.promise;
 }
 
-async function watchDeploymentAndDisplayLogs ({ ownerId, appId, deploymentId, commitId, knownDeployments, quiet, follow }) {
+async function watchDeploymentAndDisplayLogs ({ ownerId, appId, deploymentId, commitId, knownDeployments, quiet, exitStrategy }) {
 
+  ExitStrategy.plotQuietWarning(exitStrategy, quiet);
+  // If in quiet mode, we only log start/finished deployment messages
   Logger.println('Waiting for deployment to start…');
   const deployment = await waitForDeploymentStart({ ownerId, appId, deploymentId, commitId, knownDeployments });
   Logger.println(colors.bold.blue(`Deployment started (${deployment.uuid})`));
+
+  if (exitStrategy === 'deploy-start') {
+    return;
+  }
 
   const deferred = new Deferred();
   let logsStream;
@@ -127,7 +134,7 @@ async function watchDeploymentAndDisplayLogs ({ ownerId, appId, deploymentId, co
     deferred.promise,
   ]);
 
-  if (!quiet && !follow) {
+  if (!quiet && exitStrategy !== 'never') {
     logsStream.close();
   }
 
