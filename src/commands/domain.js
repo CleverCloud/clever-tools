@@ -1,9 +1,7 @@
 'use strict';
 
 const Application = require('../models/application.js');
-const AppConfig = require('../models/app_configuration.js');
 const { Resolver } = require('dns/promises');
-// const dns = require('dns/promises');
 const colors = require('colors/safe');
 const Logger = require('../logger.js');
 const {
@@ -17,10 +15,12 @@ const {
 const { sendToApi } = require('../models/send-to-api.js');
 const { getSummary } = require('@clevercloud/client/cjs/api/v2/user.js');
 
-const resolver = new Resolver();
-resolver.setServers(['8.8.8.8']);
-
-// const resolver = dns;
+const RESOLVERS = {
+  dnsEu: '193.110.81.0',
+  cloudFlare: '1.1.1.1',
+  google: '8.8.8.8',
+  google2: '8.8.4.4',
+};
 
 function getFavouriteDomain ({ ownerId, appId }) {
   return getFavouriteDomainWithError({ id: ownerId, appId })
@@ -100,9 +100,11 @@ async function rm (params) {
 }
 
 async function diagApplication (params) {
+  const resolver = new Resolver();
+  resolver.setServers([RESOLVERS.dnsEu]);
 
-  const { alias } = params.options;
-  const { ownerId, appId } = await AppConfig.getAppDetails({ alias });
+  const { alias, app: appIdOrName } = params.options;
+  const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
 
   const app = await getApp({ id: ownerId, appId }).then(sendToApi);
   const expectedDnsForPublicLoadBalancer = await getDefaultLoadBalancersDnsInfo({ id: ownerId, appId }).then(sendToApi);
@@ -110,16 +112,14 @@ async function diagApplication (params) {
   const routingConfigRaw = getRoutingConfig(app.vhosts);
   const routingConfig = sortRoutingConfig(routingConfigRaw);
 
-  const expectedA = expectedDnsForPublicLoadBalancer[0].dns.a;
-  const expectedCname = expectedDnsForPublicLoadBalancer[0].dns.cname.replace(/\.$/, '');
+  const expectedARecords = expectedDnsForPublicLoadBalancer[0].dns.a;
+  const expectedCnameRecord = expectedDnsForPublicLoadBalancer[0].dns.cname.replace(/\.$/, '');
 
   for (const { hostname, pathPrefix } of routingConfig) {
 
     console.log(colors.blue(hostname) + ' ' + colors.yellow(pathPrefix));
 
-    const realARecords = await resolveA(hostname);
-
-    // console.log({ realARecords });
+    const aRecords = await resolveA(hostname);
 
     // if cleverapps
     if (hostname.endsWith('cleverapps.io')) {
@@ -128,46 +128,52 @@ async function diagApplication (params) {
 
     // if apex
     else if (hostname.split('.').length === 2) {
-      for (const aRecord of realARecords) {
-        if (expectedA.includes(aRecord)) {
-          console.log('  A     ' + aRecord.padEnd(15, ' ') + colors.green(' OK'));
-        }
-        else {
-          console.log('  A     ' + aRecord.padEnd(15, ' ') + colors.red(' this IP does not point to CC, maybe you are using a CDN'));
-        }
-      }
-      for (const aRecord of expectedA) {
-        if (!realARecords.includes(aRecord)) {
-          console.log('  A     ' + aRecord.padEnd(15, ' ') + colors.yellow(' please add this record'));
-        }
-      }
+      validateARecords(aRecords, expectedARecords);
     }
 
     // if not apex
     else {
+      const cnameRecords = await resolveCname(hostname);
 
-      const realCnameRecords = await resolveCname(hostname);
-
-      let hasCorrectCname = false;
-      for (const cnameRecord of realCnameRecords) {
-        if (cnameRecord === expectedCname || hostname.endsWith(cnameRecord)) {
-          console.log('  CNAME ' + cnameRecord + colors.green(' OK'));
-          hasCorrectCname = true;
+      for (const cnameRecord of cnameRecords) {
+        // I don't remember why we test if endsWith()
+        if (cnameRecord.data === expectedCnameRecord || hostname.endsWith(cnameRecord.data)) {
+          console.log('  CNAME ' + cnameRecord.data + colors.green(' OK'));
         }
         else {
-          console.log('  CNAME ' + cnameRecord + colors.red(' please remove this record'));
+          console.log('  CNAME ' + cnameRecord.data + colors.red(' please remove this record'));
         }
       }
-      if (!hasCorrectCname && !realCnameRecords.includes(expectedCname)) {
-        console.log('  CNAME ' + expectedCname + colors.yellow(' please add this record'));
+
+      if (cnameRecords.length === 0) {
+        const isIncomplete = validateARecords(aRecords, expectedARecords);
+        if (isIncomplete) {
+          console.log('  CNAME ' + expectedCnameRecord + '.' + colors.yellow(' please remove all A records and use this CNAME record instead'));
+        }
       }
-
-      // TODO test A records
-
-      // console.log(realARecords.length + ' A records');
     }
   }
 
+}
+
+function validateARecords (aRecords, expectedARecords) {
+  let incomplete = false;
+  for (const aRecord of aRecords) {
+    if (expectedARecords.includes(aRecord)) {
+      console.log('  A     ' + aRecord.padEnd(15, ' ') + colors.green(' OK'));
+    }
+    else {
+      console.log('  A     ' + aRecord.padEnd(15, ' ') + colors.red(' this IP does not point to CC, maybe you are using a CDN'));
+      incomplete = true;
+    }
+  }
+  for (const aRecord of expectedARecords) {
+    if (!aRecords.includes(aRecord)) {
+      console.log('  A     ' + aRecord.padEnd(15, ' ') + colors.yellow(' please add this record'));
+      incomplete = true;
+    }
+  }
+  return incomplete;
 }
 
 async function diagAll (params) {
@@ -190,7 +196,7 @@ async function diagAll (params) {
 
 }
 
-// TODO put in clever client
+// TODO: put in clever client
 function getDefaultLoadBalancersDnsInfo (params) {
   return Promise.resolve({
     method: 'get',
@@ -220,16 +226,8 @@ function sortRoutingConfig (routingConfig) {
     });
 }
 
-// async function resolveA (hostname) {
-//   return resolver.resolve(hostname, 'A')
-//     .catch((err) => {
-//       console.error(err);
-//       return [];
-//     });
-// }
-
 async function resolveA (hostname) {
-  const url = new URL('https://cloudflare-dns.com/dns-query');
+  const url = new URL('https://' + RESOLVERS.dnsEu);
   url.searchParams.set('name', hostname);
   url.searchParams.set('type', 'A');
   return fetch(url, {
@@ -241,13 +239,24 @@ async function resolveA (hostname) {
     .then((records) => {
       // filter out a records coming from CNAME
       return records.Answer
-        .filter(({ name }) => name === hostname)
-        .map(({ data }) => data);
+        ?.filter(({ name }) => name === hostname)
+        ?.map(({ data }) => data) ?? [];
     });
 }
 
 async function resolveCname (hostname) {
-  return resolver.resolve(hostname, 'CNAME')
+  const url = new URL('https://' + RESOLVERS.dnsEu);
+  url.searchParams.set('name', hostname);
+  url.searchParams.set('type', 'CNAME');
+  return fetch(url, {
+    headers: {
+      accept: 'application/dns-json',
+    },
+  })
+    .then((r) => r.json())
+    .then((records) => {
+      return records.Answer ?? [];
+    })
     .catch((err) => {
       console.error(err);
       return [];
