@@ -13,6 +13,7 @@ You can send email notifications when an event occurs. To list them, use:
 
 ```
 clever notify-email
+clever notify-email --format json
 ```
 
 To add a notification process to an application, use:
@@ -40,7 +41,7 @@ clever notify-email remove NOTIFICATION-ID
 You can trigger webhooks when an event occurs. To list them, use:
 
 ```
-clever webhooks
+clever webhooks -F json
 ```
 
 To add a webhook to an application, use:

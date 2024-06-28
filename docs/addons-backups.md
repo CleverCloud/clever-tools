@@ -28,12 +28,15 @@ You can set `plan`, `region`, `version`, `option` and directly `link` an add-on 
 ```
 [--link, -l] ALIAS                  Link the created add-on to the app with the specified alias
 [--yes, -y]                         Skip confirmation even if the add-on is not free (default: false)
-[--plan, -p] PLAN                   Add-on plan, depends on the provider (default: dev)
+[--plan, -p] PLAN                   Add-on plan, depends on the provider
 [--region, -r] REGION               Region to provision the add-on in, depends on the provider (default: par)
 [--addon-version] ADDON-VERSION     The version to use for the add-on
 [--option] OPTION                   Option to enable for the add-on. Multiple --option argument can be passed to enable multiple options
 [--format, -F] FORMAT               Output format (human, json) (default: human)
 ```
+
+> [!NOTE]
+> If no plan is set, we use the cheapest by default
 
 To rename an add-on, use:
 

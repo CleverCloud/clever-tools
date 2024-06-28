@@ -2,9 +2,17 @@
 
 On Clever Cloud, applications can expose configuration to share environment variables with other services within the same account/organization. Add-ons are preconfigured with an exposed configuration. Thus, when they're linked to an application, they automatically share credentials or important variables needed to configure and use them.
 
-Following commands help you with that. Each can target a specific application in the current folder, adding `[--alias, -a] ALIAS`.
+Following commands help you with that. Each can target a specific application, adding `--app APP_ID_OR_NAME` or a local alias (`--alias`, `-a`).
 
 ## published-config
+
+To list exposed configuration, use:
+
+```
+clever published-config
+clever published-config --F json
+clever published-config --format shell
+```
 
 To configure exposed configuration, use:
 
@@ -24,6 +32,7 @@ To list services dependencies, use:
 
 ```
 clever service
+clever service --format json
 ```
 
 You can filter results through these options.

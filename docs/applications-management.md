@@ -2,11 +2,15 @@
 
 ## create
 
-You can create a new application on Clever Cloud, linked to your local folder. Only its `type` is required, it should be one of: `docker`, `elixir`, `go`, `gradle`, `haskell`, `jar`,`maven`, `meteor`, `node`, `php`, `play1`, `play2`, `python`, `ruby`, `rust`, `sbt`, `static-apache` or `war`.
+You can create a new application on Clever Cloud, linked to your local folder. Only its `type` is required, it should be one of: `docker`, `elixir`, `go`, `gradle`, `haskell`, `jar`,`maven`, `meteor`, `node`, `php`, `play1`, `play2`, `python`, `ruby`, `rust`, `sbt`, `static-apache` or `war`. Result can be printed in `human` or `json` format.
 
 ```
-clever create -t TYPE [APP-NAME]
+clever create -t TYPE APP_NAME
+clever create -t TYPE --format json
 ```
+
+> [!NOTE]
+> Application name is optional. The current directory name is used if not specified.
 
 You can also use one of the following optional parameters:
 
@@ -39,6 +43,7 @@ You can ask to deploy your application in a specific organisation/user account, 
 [--org, -o, --owner] ID/NAME
 [--alias, -a] ALIAS
 [--region, -r] ZONE
+[--format, -F] FORMAT
 ```
 
 Default region is our Paris datacenters (`par`), but it can be:
@@ -61,10 +66,10 @@ After the application creation, you can ask for a `json` formatted report instea
 
 ## (un)link and make-default
 
-If an application already exists in your Clever Cloud account, you can link it to any local directory to control it. You can even link several applications to a single folder, each one with a different name and/or alias. This is done through the `.clever.json` file.
+If an application already exists in your Clever Cloud account, you can link it to any local directory to control it easily. You can even link several applications to a single folder, each one with a different name and/or alias. This is done through the `.clever.json` file.
 
 ```
-clever link APP_ID/NAME [--alias, -a] ALIAS [--org, -o, --owner] ID/NAME
+clever link APP_ID_OR_NAME [--alias, -a] ALIAS [--org, -o, --owner] ORG_ID_OR_NAME
 ```
 
 If multiple applications are linked, you can define one as default with it alias:
@@ -94,12 +99,23 @@ If you only need to get aliases or the result in the JSON format:
 [--json, -j]               Show result in JSON format (default: false)
 ```
 
+## list
+
+To list all applications across all organisations you have access to, you can use:
+
+```
+clever applications list -F json
+clever applications list --org ORG_ID_OR_NAME
+```
+
 ## delete
 
 To delete an application and unlink it from the current folder you only need to:
 
 ```
-clever delete [--alias, -a] ALIAS
+clever delete
+clever delete --alias ALIAS
+clever delete --app APP_ID_OR_NAME
 ```
 
 > [!TIP]
