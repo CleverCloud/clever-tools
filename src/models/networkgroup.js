@@ -26,11 +26,11 @@ async function getId (ownerId, ngIdOrLabel) {
     return null;
   }
 
-  if (ngIdOrLabel.ng_id != null) {
-    return ngIdOrLabel.ng_id;
+  if (ngIdOrLabel.ngId != null) {
+    return ngIdOrLabel.ngId;
   }
 
-  return getByLabel(ownerId, ngIdOrLabel.ng_label)
+  return getByLabel(ownerId, ngIdOrLabel.ngLabel)
     .then((ng) => ng.id);
 
 }

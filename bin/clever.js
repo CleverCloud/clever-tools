@@ -168,7 +168,7 @@ async function run () {
       parser: Parsers.commaSeparated,
     }),
     ngMemberDomainName: cliparse.argument('domain-name', {
-      description: `Member name used in the ${Formatter.formatUrl('<memberName>.m.<ngID>.ng.clever-cloud.com', false)} domain name alias`,
+      description: `Member name used in the ${Formatter.formatUrl('<memberName>.members.<ngID>.ng.clever-cloud.com', false)} domain name alias`,
     }),
     ngPeerId: cliparse.argument('peer-id', {
       description: 'The peer ID',
