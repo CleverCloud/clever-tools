@@ -28,20 +28,24 @@ function formatLines (prefixLength, lines) {
     .join('\n');
 }
 
+function consoleErrorWithoutColor (line) {
+  process.stderr.write(line + '\n');
+}
+
 const Logger = _(['debug', 'info', 'warn', 'error'])
   .map((severity) => {
     if (process.env.CLEVER_QUIET || (!process.env.CLEVER_VERBOSE && (severity === 'debug' || severity === 'info'))) {
       return [severity, _.noop];
     }
-    const consoleFn = (severity === 'error') ? console.error : console.log;
+    const consoleFn = (severity === 'error') ? consoleErrorWithoutColor : console.log;
     const { prefix, prefixLength } = getPrefix(severity);
     return [severity, (err) => {
       const message = _.get(err, 'message', err);
       const formattedMsg = formatLines(prefixLength, processApiError(message));
       if (process.env.CLEVER_VERBOSE && severity === 'error') {
-        console.error('[STACKTRACE]');
-        console.error(err);
-        console.error('[/STACKTRACE]');
+        consoleErrorWithoutColor('[STACKTRACE]');
+        consoleErrorWithoutColor(err);
+        consoleErrorWithoutColor('[/STACKTRACE]');
       }
       return consoleFn(`${prefix}${formattedMsg}`);
     }];
@@ -57,8 +61,7 @@ Logger.printJson = (obj) => {
   console.log(JSON.stringify(obj, null, 2));
 };
 
-// No decoration for Logger.printErrorLine
-Logger.printErrorLine = console.error;
+Logger.printErrorLine = consoleErrorWithoutColor;
 
 // Only exported for testing, shouldn't be used directly
 Logger.processApiError = processApiError;
