@@ -103,6 +103,44 @@ async function deleteApp (app, skipConfirmation) {
   return application.remove({ id: app.ownerId, appId: app.id }).then(sendToApi);
 };
 
+async function getAllApps (ownerId) {
+
+  const summary = await getSummary().then(sendToApi);
+
+  const orgaWithApps = await Promise.all(
+    summary.organisations
+      // If owner ID is present, only keep the matching org
+      .filter((org) => ownerId == null || org.id === ownerId)
+      .sort((a, b) => a.name.localeCompare(b.name))
+      .map(async (org) => {
+        const applications = await getApplicationsForOwner(org.id);
+        return {
+          id: org.id,
+          name: org.name,
+          applications: applications.sort((a, b) => a.name.localeCompare(b.name)),
+        };
+      }),
+  );
+
+  return orgaWithApps;
+};
+
+async function getApplicationsForOwner (ownerId) {
+  const rawApplications = await application.getAll({ id: ownerId }).then(sendToApi);
+  return rawApplications.map((app) => {
+    return {
+      app_id: app.id,
+      org_id: ownerId,
+      name: app.name,
+      zone: app.zone,
+      type: app.instance.variant.slug,
+      createdAt: new Date(app.creationDate).toISOString(),
+      deploy_url: app.deployment.httpUrl,
+      git_ssh_url: app.deployment.url,
+    };
+  });
+}
+
 function getApplicationByName (apps, name) {
   const filteredApps = apps.filter((app) => app.name === name);
   if (filteredApps.length === 1) {
@@ -300,6 +338,7 @@ module.exports = {
   create,
   deleteApp,
   get,
+  getAllApps,
   link,
   linkRepo,
   listAvailableAliases,
