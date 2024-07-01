@@ -101,6 +101,45 @@ async function create (params) {
 }
 
 function displayAddon (format, addon, providerName, message) {
+
+  const WIP_PROVIDERS = {
+    keycloak: {
+      statut: 'alpha',
+      postCreateInstructions: [
+        'Learn more about Keycloak on Clever Cloud: https://developers.clever-cloud.com/doc/addons/keycloak/',
+      ].join('\n'),
+    },
+    kv: {
+      status: 'alpha',
+      postCreateInstructions: [
+        colors.yellow('You can easily use Materia KV with \'redis-cli\', with such commands:'),
+        colors.blue(`source <(clever addon env ${addon.id} -F shell)`),
+        colors.blue('redis-cli -h $KV_HOST -p $KV_PORT --tls'),
+        'Learn more about Materia KV on Clever Cloud: https://developers.clever-cloud.com/doc/addons/materia-kv/',
+      ].join('\n'),
+    },
+    'addon-pulsar': {
+      status: 'beta',
+      postCreateInstructions: [
+        'Learn more about Pulsar on Clever Cloud: https://developers.clever-cloud.com/doc/addons/pulsar/',
+      ].join('\n'),
+    },
+  };
+
+  let providerNameToShow = '';
+  let statusMessage = '';
+  if (providerName in WIP_PROVIDERS) {
+
+    providerNameToShow = providerName === 'kv'
+      ? 'Materia KV'
+      : providerName;
+
+    statusMessage = `The ${providerNameToShow} provider is in ${WIP_PROVIDERS[providerName].status} testing phase`;
+    statusMessage += WIP_PROVIDERS[providerName].status === 'alpha'
+      ? '. Don\'t store sensitive or production grade data.'
+      : '';
+  }
+
   switch (format) {
 
     case 'json': {
@@ -109,8 +148,9 @@ function displayAddon (format, addon, providerName, message) {
         realId: addon.realId,
         name: addon.name,
       };
-      Logger.printJson((providerName === 'kv')
-        ? { ...jsonAddon, availability: 'alpha', warning: 'Don\'t store sensitive or production grade data' }
+
+      Logger.printJson((WIP_PROVIDERS[providerName] != null)
+        ? { ...jsonAddon, availability: WIP_PROVIDERS[providerName].status, message: statusMessage }
         : jsonAddon);
       break;
     }
@@ -123,15 +163,12 @@ function displayAddon (format, addon, providerName, message) {
         `Real ID: ${addon.realId}`,
         `Name: ${addon.name}`,
       ].join('\n'));
-      if (providerName === 'kv') {
-        const materiaMessage = [
-          '',
-          colors.yellow(`/!\\ The Materia ${providerName.toUpperCase()} provider is in Alpha testing phase, don't store sensitive or production grade data`),
-          'You can easily use Materia KV with \'redis-cli\', with such commands:',
-          colors.blue(`source <(clever addon env ${addon.id} -F shell)`),
-          colors.blue('redis-cli -h $KV_HOST -p $KV_PORT --tls'),
-        ].join('\n');
-        Logger.println(materiaMessage);
+
+      if (providerName in WIP_PROVIDERS) {
+
+        Logger.println();
+        Logger.println(colors.yellow(`/!\\ ${statusMessage}`));
+        Logger.println(WIP_PROVIDERS[providerName].postCreateInstructions);
       }
   }
 }
