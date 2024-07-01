@@ -660,9 +660,14 @@ function run () {
 
   // APPLICATIONS COMMAND
   const applications = lazyRequirePromiseModule('../src/commands/applications.js');
+  const applicationsListRemoteCommand = cliparse.command('list', {
+    description: 'List all applications',
+    options: [opts.orgaIdOrName, opts.humanJsonOutputFormat],
+  }, applications('listAll'));
   const applicationsCommand = cliparse.command('applications', {
     description: 'List linked applications',
-    options: [opts.onlyAliases, opts.jsonFormat],
+    privateOptions: [opts.onlyAliases, opts.jsonFormat],
+    commands: [applicationsListRemoteCommand],
   }, applications('list'));
 
   // CANCEL DEPLOY COMMAND
