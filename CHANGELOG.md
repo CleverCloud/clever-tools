@@ -1,6 +1,58 @@
 # clever-tools changelog
 
 
+## [3.8.0](https://github.com/CleverCloud/clever-tools/compare/3.7.0...3.8.0) (2024-07-01)
+
+
+### 🚀 Features
+
+* **accesslogs:** support --app argument ([d774a74](https://github.com/CleverCloud/clever-tools/commit/d774a749424dd7aaaa6be825749f4df2f3cf4857))
+* **accesslogs:** use API v4 and disable add-on support for now ([619095d](https://github.com/CleverCloud/clever-tools/commit/619095d99b10ce710e197fba31b72fcf14e3f71e))
+* **activity:** add `--format json|json-stream|human` option ([da23737](https://github.com/CleverCloud/clever-tools/commit/da23737a3ec40b1fd157f8dab6a2783ccb61383a)), closes [#589](https://github.com/CleverCloud/clever-tools/issues/589)
+* **activity:** support --app argument ([9431f31](https://github.com/CleverCloud/clever-tools/commit/9431f31bb8fea2c4d1ad2542051d357fcf170ea3))
+* add a --no-color global option ([90a4e10](https://github.com/CleverCloud/clever-tools/commit/90a4e107185b23e6761e8e64b902cb79c5c445c0)), closes [#631](https://github.com/CleverCloud/clever-tools/issues/631)
+* **addon providers show:** add `--format json|human` option ([23bfac6](https://github.com/CleverCloud/clever-tools/commit/23bfac60400f05b277fd2392e50c39bd439580e8)), closes [#589](https://github.com/CleverCloud/clever-tools/issues/589)
+* **addon providers:** add `--format json|human` option ([9b806a1](https://github.com/CleverCloud/clever-tools/commit/9b806a142f7f0e7b304daee7f56b2c736f8556a5)), closes [#589](https://github.com/CleverCloud/clever-tools/issues/589)
+* **applications:** add list subcommand to list all applications ([f654588](https://github.com/CleverCloud/clever-tools/commit/f6545889d98a585510516a7ee56b7c41dad6466d))
+* **cancel-deploy:** support --app argument ([4e9d859](https://github.com/CleverCloud/clever-tools/commit/4e9d859f61395ca74a1aaf53773af3c59515dbac))
+* **config:** support --app argument ([2614111](https://github.com/CleverCloud/clever-tools/commit/2614111316480ba62fe4c1f3b55d181f1e0b91e8))
+* **console:** open the Console even if no app is linked ([111fc51](https://github.com/CleverCloud/clever-tools/commit/111fc519a76f4bf3e69455c2a4cd196818905c50))
+* **console:** support --app argument ([7253799](https://github.com/CleverCloud/clever-tools/commit/725379950492c1b3610aee47c340125dcc7a9ae5))
+* **delete:** support --app argument ([7b4d6da](https://github.com/CleverCloud/clever-tools/commit/7b4d6da73d83d5e1fadc39e9f48de9a69703f2e0))
+* **deploy,restart:** handle exit-on option to end deployment logs ([f2e1981](https://github.com/CleverCloud/clever-tools/commit/f2e1981fe09f09de9ee68e41ec02199e6823e76d))
+* **diag:** add `--format json|human` option ([922515e](https://github.com/CleverCloud/clever-tools/commit/922515e472aa85d1f1e27126c8c25282a406fa55)), closes [#589](https://github.com/CleverCloud/clever-tools/issues/589)
+* **domain:** support --app argument ([19d3f8e](https://github.com/CleverCloud/clever-tools/commit/19d3f8e8362effb7547943d4792bc817b5502f77))
+* **drain:** add `--format json|human` option ([e0f70c2](https://github.com/CleverCloud/clever-tools/commit/e0f70c2559d5f54599ff5ad2fb8fd0ece6e7d9fa)), closes [#589](https://github.com/CleverCloud/clever-tools/issues/589)
+* **drain:** support --app argument ([a45f0bd](https://github.com/CleverCloud/clever-tools/commit/a45f0bdbd975069fad5326926aff51cf29dd848b))
+* **env:** add `--format json|shell|human` option ([fcb25ff](https://github.com/CleverCloud/clever-tools/commit/fcb25ff0afd0eb32316561457f5b48d3aa09b2df)), closes [#589](https://github.com/CleverCloud/clever-tools/issues/589)
+* **env:** support --app argument ([8b02f0b](https://github.com/CleverCloud/clever-tools/commit/8b02f0b9f4206e1a823a148fdcb327842dbd52b7))
+* **logs:** support --app argument ([4cb62bf](https://github.com/CleverCloud/clever-tools/commit/4cb62bf42b19a8eab0aceba1b0bb4d4364d6be38))
+* **notify-email:** add `--format json|human` option ([6cc4e16](https://github.com/CleverCloud/clever-tools/commit/6cc4e165413afdb0f8f8810f6057748866d8fade)), closes [#589](https://github.com/CleverCloud/clever-tools/issues/589)
+* **open:** support --app argument ([3121d0d](https://github.com/CleverCloud/clever-tools/commit/3121d0da5696d3d886608f4eae370af806fe74a3))
+* **profile:** add `--format json|human` option ([2ce27f2](https://github.com/CleverCloud/clever-tools/commit/2ce27f2e988de3ca99b630af4ae265e727f3b2b0)), closes [#589](https://github.com/CleverCloud/clever-tools/issues/589)
+* **published-config:** add `--format json|shell|human` option ([8dd42c9](https://github.com/CleverCloud/clever-tools/commit/8dd42c98a15d3f7accfd194ee659badab8258325)), closes [#589](https://github.com/CleverCloud/clever-tools/issues/589)
+* **published-config:** support --app argument ([7f68430](https://github.com/CleverCloud/clever-tools/commit/7f684305449655ade6563eadbb199dc524d797d9))
+* **restart:** support --app argument ([1ac6074](https://github.com/CleverCloud/clever-tools/commit/1ac6074b305a9ecb1a10945fe3fdcc615f209ceb))
+* **scale:** support --app argument ([5e89327](https://github.com/CleverCloud/clever-tools/commit/5e893272b0fc3d3a6211ab8c287cff14f51127dd))
+* **service:** add `--format json|human` option ([0f23885](https://github.com/CleverCloud/clever-tools/commit/0f238856d72a9355a329d742f310acf9707c8166)), closes [#589](https://github.com/CleverCloud/clever-tools/issues/589)
+* **service:** support --app argument ([0f02f78](https://github.com/CleverCloud/clever-tools/commit/0f02f78c3aaa964decf5cd865ef1a90f4761363e))
+* **ssh:** support --app argument ([c1ef739](https://github.com/CleverCloud/clever-tools/commit/c1ef739d5dd9fa4717b0ac1b782f668c3d72a81f))
+* **status:** add `--format json|human` option ([d929587](https://github.com/CleverCloud/clever-tools/commit/d9295871c970c0a6ded1b5c54627882ea7df6aac)), closes [#589](https://github.com/CleverCloud/clever-tools/issues/589)
+* **status:** support --app argument ([62428c9](https://github.com/CleverCloud/clever-tools/commit/62428c92e176fa282c608274a0ab6e54d0a5c59e))
+* **stop:** support --app argument ([7d27b0b](https://github.com/CleverCloud/clever-tools/commit/7d27b0b8debaace136d7bf7679de5861e65683cc))
+* **tcp-redirs list-namespaces:** add `--format json|human` option ([02e9a9d](https://github.com/CleverCloud/clever-tools/commit/02e9a9d09c99fad1bc5c63e9f02f9d38f70f61f6)), closes [#589](https://github.com/CleverCloud/clever-tools/issues/589)
+* **tcp-redirs:** add `--format json|human` option ([8d14c6e](https://github.com/CleverCloud/clever-tools/commit/8d14c6e5ebb38719ceec55d45e14c1ef01d08d7b)), closes [#589](https://github.com/CleverCloud/clever-tools/issues/589)
+* **tcp-redirs:** support --app argument ([dd0219c](https://github.com/CleverCloud/clever-tools/commit/dd0219c4debac88fa12330bf1f79976010d0d0ac))
+* **webhooks:** add `--format json|human` option ([4f0f9ae](https://github.com/CleverCloud/clever-tools/commit/4f0f9aee164feaea9504afff3719aefb8e32ea7f)), closes [#589](https://github.com/CleverCloud/clever-tools/issues/589)
+
+
+### 🐛 Bug Fixes
+
+* **addon:** add missing `--format FORMAT` option ([cbe6fef](https://github.com/CleverCloud/clever-tools/commit/cbe6fef57a4458af404bbac76d39185433f37a3f))
+* **drain:** wrong link between command option and its processing ([fb2bae0](https://github.com/CleverCloud/clever-tools/commit/fb2bae07fb861270fdb99b75b0e2b763d2324176))
+* remove automatic colors when console.error and console.warn are used ([f630c19](https://github.com/CleverCloud/clever-tools/commit/f630c196b259104727cc9024c43f3dee492c6d74)), closes [#768](https://github.com/CleverCloud/clever-tools/issues/768)
+* rework --no-update-notifier global option behavior ([0acab8b](https://github.com/CleverCloud/clever-tools/commit/0acab8bebcffb18aa14832c858a6f8abf2fe598e)), closes [#649](https://github.com/CleverCloud/clever-tools/issues/649)
+
 ## [3.7.0](https://github.com/CleverCloud/clever-tools/compare/3.6.1...3.7.0) (2024-06-11)
 
 
