@@ -2,13 +2,14 @@
 
 const Application = require('../models/application.js');
 const Logger = require('../logger.js');
+const colors = require('colors/safe');
 const variables = require('../models/variables.js');
 const { sendToApi } = require('../models/send-to-api.js');
 const { toNameEqualsValueString, validateName } = require('@clevercloud/client/cjs/utils/env-vars.js');
 const application = require('@clevercloud/client/cjs/api/v2/application.js');
 
 async function list (params) {
-  const { alias, app: appIdOrName, 'add-export': addExports } = params.options;
+  const { alias, app: appIdOrName, 'add-export': addExportsOption, format } = params.options;
   const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
 
   const [envFromApp, envFromAddons, envFromDeps] = await Promise.all([
@@ -17,19 +18,47 @@ async function list (params) {
     application.getAllEnvVarsForDependencies({ id: ownerId, appId }).then(sendToApi),
   ]);
 
-  Logger.println('# Manually set env variables');
-  Logger.println(toNameEqualsValueString(envFromApp, { addExports }));
+  switch (format) {
+    case 'json': {
+      Logger.printJson({
+        env: envFromApp,
+        fromAddons: envFromAddons.map((addon) => ({
+          addonId: addon.addon_id,
+          addonName: addon.addon_name,
+          env: addon.env,
+        })),
+        fromDependencies: envFromDeps.map((dep) => ({
+          addonId: dep.app_id,
+          addonName: dep.app_name,
+          env: dep.env,
+        })),
+      });
+      break;
+    }
+    case 'shell':
+    case 'human':
+    default: {
+      if (addExportsOption) {
+        Logger.println(colors.yellow('`--add-export` option is deprecated. Use `--format shell` instead.'));
+      }
 
-  envFromAddons.forEach((addon) => {
-    Logger.println('# Addon ' + addon.addon_name);
-    Logger.println(toNameEqualsValueString(addon.env, { addExports }));
-  });
+      const addExports = addExportsOption || format === 'shell';
 
-  envFromDeps.forEach((dep) => {
-    Logger.println('# Dependency ' + dep.app_name);
-    Logger.println(toNameEqualsValueString(dep.env, { addExports }));
-  });
-};
+      Logger.println('# Manually set env variables');
+      Logger.println(toNameEqualsValueString(envFromApp, { addExports }));
+
+      envFromAddons.forEach((addon) => {
+        Logger.println('# Addon ' + addon.addon_name);
+        Logger.println(toNameEqualsValueString(addon.env, { addExports }));
+      });
+
+      envFromDeps.forEach((dep) => {
+        Logger.println('# Dependency ' + dep.app_name);
+        Logger.println(toNameEqualsValueString(dep.env, { addExports }));
+      });
+    }
+  }
+}
 
 async function set (params) {
   const [envName, value] = params.args;

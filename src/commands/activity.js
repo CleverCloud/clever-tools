@@ -39,6 +39,17 @@ const formatActivityTable = formatTable([
   0,
 ]);
 
+function convertEventToJson (event) {
+  return {
+    uuid: event.uuid,
+    date: event.date,
+    state: event.state,
+    action: event.action,
+    commit: event.commit,
+    cause: event.cause,
+  };
+}
+
 function formatActivityLine (event) {
   return formatActivityTable([
     [
@@ -50,7 +61,7 @@ function formatActivityLine (event) {
       event.cause,
     ],
   ]);
-};
+}
 
 function isTemporaryEvent (ev) {
   if (ev == null) {
@@ -67,27 +78,64 @@ function clearPreviousLine () {
   }
 }
 
-function handleEvent (previousEvent, event) {
+function handleEvent (previousEvent, event, handler) {
   if (isTemporaryEvent(previousEvent)) {
-    clearPreviousLine();
+    handler.pop();
   }
 
-  const activityLine = formatActivityLine(event);
-  Logger.println(activityLine);
+  handler.print(event);
 
   return event;
 }
 
-function onEvent (previousEvent, newEvent) {
+function onEvent (previousEvent, newEvent, handler) {
   const { event, date, data: { uuid, state, action, commit, cause } } = newEvent;
   if (event !== 'DEPLOYMENT_ACTION_BEGIN' && event !== 'DEPLOYMENT_ACTION_END') {
     return previousEvent;
   }
-  return handleEvent(previousEvent, { date, uuid, state, action, commit, cause, isLast: true });
+  return handleEvent(previousEvent, { date, uuid, state, action, commit, cause, isLast: true }, handler);
+}
+
+function getEventHandler (format, follow) {
+  switch (format) {
+    case 'json': {
+      if (follow) {
+        throw new Error('The `follow` option and "json" format are not compatible. Use "json-stream" format instead.');
+      }
+      else {
+        const buf = [];
+
+        return {
+          print: (event) => buf.push(convertEventToJson(event)),
+          pop: () => buf.pop(),
+          end: () => {
+            Logger.printJson(buf);
+          },
+        };
+      }
+    }
+    case 'json-stream': {
+      return {
+        print: (event) => {
+          Logger.println(JSON.stringify(convertEventToJson(event)));
+        },
+        pop: clearPreviousLine,
+        end: () => {},
+      };
+    }
+    case 'human':
+    default: {
+      return {
+        print: (event) => Logger.println(formatActivityLine(event)),
+        pop: clearPreviousLine,
+        end: () => {},
+      };
+    }
+  }
 }
 
 async function activity (params) {
-  const { alias, app: appIdOrName, 'show-all': showAll, follow } = params.options;
+  const { alias, app: appIdOrName, 'show-all': showAll, follow, format } = params.options;
   const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
   const events = await Activity.list(ownerId, appId, showAll);
   const reversedArrayWithIndex = events
@@ -96,9 +144,13 @@ async function activity (params) {
       const isLast = index === all.length - 1;
       return ({ ...event, isLast });
     });
-  let lastEvent = reversedArrayWithIndex.reduce(handleEvent, {});
+
+  const handler = getEventHandler(format, follow);
+
+  let lastEvent = reversedArrayWithIndex.reduce((previousEvent, newEvent) => handleEvent(previousEvent, newEvent, handler), {});
 
   if (!follow) {
+    handler.end();
     return lastEvent;
   }
 
@@ -110,7 +162,7 @@ async function activity (params) {
   eventsStream
     .on('open', () => Logger.debug('WS for events (open) ' + JSON.stringify({ appId })))
     .on('event', (event) => {
-      lastEvent = onEvent(lastEvent, event);
+      lastEvent = onEvent(lastEvent, event, handler);
       return lastEvent;
     })
     .on('ping', () => Logger.debug('WS for events (ping)'))

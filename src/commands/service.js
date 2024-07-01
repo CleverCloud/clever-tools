@@ -5,23 +5,51 @@ const Application = require('../models/application.js');
 const Logger = require('../logger.js');
 
 async function list (params) {
-  const { alias, app: appIdOrName, 'show-all': showAll, 'only-apps': onlyApps, 'only-addons': onlyAddons } = params.options;
+  const { alias, app: appIdOrName, 'show-all': showAll, 'only-apps': onlyApps, 'only-addons': onlyAddons, format } = params.options;
   if (onlyApps && onlyAddons) {
     throw new Error('--only-apps and --only-addons are mutually exclusive');
   }
 
   const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
 
+  const formattedServices = {};
+
   if (!onlyAddons) {
     const apps = await Application.listDependencies(ownerId, appId, showAll);
-    Logger.println('Applications:');
-    apps.forEach(({ isLinked, name }) => Logger.println(`${isLinked ? '*' : ' '} ${name}`));
+    formattedServices.applications = apps.map((app) => ({
+      id: app.id,
+      name: app.name,
+      isLinked: app.isLinked,
+    }));
   }
 
   if (!onlyApps) {
     const addons = await Addon.list(ownerId, appId, showAll);
-    Logger.println('Addons:');
-    addons.forEach(({ isLinked, name, realId }) => Logger.println(`${isLinked ? '*' : ' '} ${name} (${realId})`));
+    formattedServices.addons = addons.map((addon) => ({
+      id: addon.id,
+      realId: addon.realId,
+      name: addon.name,
+      isLinked: addon.isLinked,
+    }));
+  }
+
+  switch (format) {
+    case 'json': {
+      Logger.printJson(formattedServices);
+      break;
+    }
+    case 'human':
+    default: {
+      if (formattedServices.applications) {
+        Logger.println('Applications:');
+        formattedServices.applications.forEach(({ isLinked, name }) => Logger.println(`${isLinked ? '*' : ' '} ${name}`));
+      }
+
+      if (formattedServices.addons) {
+        Logger.println('Addons:');
+        formattedServices.addons.forEach(({ isLinked, name, realId }) => Logger.println(`${isLinked ? '*' : ' '} ${name} (${realId})`));
+      }
+    }
   }
 }
 

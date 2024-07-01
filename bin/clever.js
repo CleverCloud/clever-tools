@@ -155,7 +155,8 @@ function run () {
   const opts = {
     sourceableEnvVarsList: cliparse.flag('add-export', { description: 'Display sourceable env variables setting' }),
     logsFormat: getOutputFormatOption(['json-stream']),
-    addonEnvFormat: getOutputFormatOption(['shell']),
+    activityFormat: getOutputFormatOption(['json-stream']),
+    envFormat: getOutputFormatOption(['shell']),
     accesslogsFollow: cliparse.flag('follow', {
       aliases: ['f'],
       description: 'Display access logs continuously (ignores before/until, after/since)',
@@ -612,7 +613,7 @@ function run () {
   const activity = lazyRequirePromiseModule('../src/commands/activity.js');
   const activityCommand = cliparse.command('activity', {
     description: 'Show last deployments of an application',
-    options: [opts.alias, opts.appIdOrName, opts.follow, opts.showAllActivity],
+    options: [opts.alias, opts.appIdOrName, opts.follow, opts.showAllActivity, opts.activityFormat],
   }, activity('activity'));
 
   // ADDON COMMANDS
@@ -638,10 +639,11 @@ function run () {
   const addonProvidersCommand = cliparse.command('providers', {
     description: 'List available add-on providers',
     commands: [addonShowProviderCommand],
+    options: [opts.humanJsonOutputFormat],
   }, addon('listProviders'));
   const addonEnvCommand = cliparse.command('env', {
     description: 'List environment variables for an add-on',
-    options: [opts.addonEnvFormat],
+    options: [opts.envFormat],
     args: [opts.addonId],
   }, addon('env'));
   const addonListCommand = cliparse.command('list', {
@@ -652,6 +654,7 @@ function run () {
   const addonCommands = cliparse.command('addon', {
     description: 'Manage add-ons',
     options: [opts.orgaIdOrName],
+    privateOptions: [opts.humanJsonOutputFormat],
     commands: [addonCreateCommand, addonDeleteCommand, addonRenameCommand, addonListCommand, addonProvidersCommand, addonEnvCommand],
   }, addon('list'));
 
@@ -722,6 +725,7 @@ function run () {
   const diagCommand = cliparse.command('diag', {
     description: 'Diagnose the current installation (prints various informations for support)',
     args: [],
+    options: [opts.humanJsonOutputFormat],
   }, diag('diag'));
 
   // DOMAIN COMMANDS
@@ -773,6 +777,7 @@ function run () {
   const drainCommands = cliparse.command('drain', {
     description: 'Manage drains',
     options: [opts.alias, opts.appIdOrName, opts.addonId],
+    privateOptions: [opts.humanJsonOutputFormat],
     commands: [drainCreateCommand, drainRemoveCommand, drainEnableCommand, drainDisableCommand],
   }, drain('list'));
 
@@ -797,6 +802,7 @@ function run () {
   const envCommands = cliparse.command('env', {
     description: 'Manage environment variables of an application',
     options: [opts.alias, opts.appIdOrName, opts.sourceableEnvVarsList],
+    privateOptions: [opts.envFormat],
     commands: [envSetCommand, envRemoveCommand, envImportCommand, envImportVarsFromLocalEnvCommand],
   }, env('list'));
 
@@ -929,6 +935,7 @@ function run () {
   const emailNotificationsCommand = cliparse.command('notify-email', {
     description: 'Manage email notifications',
     options: [opts.orgaIdOrName, opts.listAllNotifications],
+    privateOptions: [opts.humanJsonOutputFormat],
     commands: [addEmailNotificationCommand, removeEmailNotificationCommand],
   }, notifyEmail('list'));
 
@@ -950,6 +957,7 @@ function run () {
   const profile = lazyRequirePromiseModule('../src/commands/profile.js');
   const profileCommand = cliparse.command('profile', {
     description: 'Display the profile of the current user',
+    options: [opts.humanJsonOutputFormat],
   }, profile('profile'));
 
   // PUBLISHED CONFIG COMMANDS
@@ -969,6 +977,7 @@ function run () {
   const publishedConfigCommands = cliparse.command('published-config', {
     description: 'Manage the configuration made available to other applications by this application',
     options: [opts.alias, opts.appIdOrName],
+    privateOptions: [opts.envFormat],
     commands: [publishedConfigSetCommand, publishedConfigRemoveCommand, publishedConfigImportCommand],
   }, publishedConfig('list'));
 
@@ -1007,6 +1016,7 @@ function run () {
   const serviceCommands = cliparse.command('service', {
     description: 'Manage service dependencies',
     options: [opts.alias, opts.appIdOrName, opts.onlyApps, opts.onlyAddons, opts.showAll],
+    privateOptions: [opts.humanJsonOutputFormat],
     commands: [serviceLinkAppCommand, serviceUnlinkAppCommand, serviceLinkAddonCommand, serviceUnlinkAddonCommand],
   }, service('list'));
 
@@ -1021,7 +1031,7 @@ function run () {
   const status = lazyRequirePromiseModule('../src/commands/status.js');
   const statusCommand = cliparse.command('status', {
     description: 'See the status of an application',
-    options: [opts.alias, opts.appIdOrName],
+    options: [opts.alias, opts.appIdOrName, opts.humanJsonOutputFormat],
   }, status('status'));
 
   // STOP COMMAND
@@ -1035,6 +1045,7 @@ function run () {
   const tcpRedirs = lazyRequirePromiseModule('../src/commands/tcp-redirs.js');
   const tcpRedirsListNamespacesCommand = cliparse.command('list-namespaces', {
     description: 'List the namespaces in which you can create new TCP redirections',
+    options: [opts.humanJsonOutputFormat],
   }, tcpRedirs('listNamespaces'));
   const tcpRedirsAddCommand = cliparse.command('add', {
     description: 'Add a new TCP redirection to the application',
@@ -1048,6 +1059,7 @@ function run () {
   const tcpRedirsCommands = cliparse.command('tcp-redirs', {
     description: 'Control the TCP redirections from reverse proxies to your application',
     options: [opts.alias, opts.appIdOrName],
+    privateOptions: [opts.humanJsonOutputFormat],
     commands: [tcpRedirsListNamespacesCommand, tcpRedirsAddCommand, tcpRedirsRemoveCommand],
   }, tcpRedirs('list'));
 
@@ -1079,6 +1091,7 @@ function run () {
   const webhooksCommand = cliparse.command('webhooks', {
     description: 'Manage webhooks',
     options: [opts.orgaIdOrName, opts.listAllNotifications],
+    privateOptions: [opts.humanJsonOutputFormat],
     commands: [addWebhookCommand, removeWebhookCommand],
   }, webhooks('list'));
 

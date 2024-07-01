@@ -10,27 +10,60 @@ const application = require('@clevercloud/client/cjs/api/v2/application.js');
 const Application = require('../models/application.js');
 
 async function listNamespaces (params) {
-  const { alias, app: appIdOrName } = params.options;
+  const { alias, app: appIdOrName, format } = params.options;
   const { ownerId } = await Application.resolveId(appIdOrName, alias);
 
   const namespaces = await Namespaces.getNamespaces(ownerId);
 
-  Logger.println('Available namespaces: ' + namespaces.map(({ namespace }) => namespace).join(', '));
-};
+  namespaces.sort((a, b) => a.namespace.localeCompare(b.namespace));
+
+  switch (format) {
+    case 'json': {
+      Logger.printJson(namespaces);
+      break;
+    }
+    case 'human':
+    default: {
+      Logger.println('Available namespaces:');
+      namespaces.forEach(({ namespace }) => {
+        switch (namespace) {
+          case 'cleverapps':
+            Logger.println(`- ${namespace}: for redirections used with 'cleverapps.io' domain`);
+            break;
+          case 'default':
+            Logger.println(`- ${namespace}: for redirections used with custom domains`);
+            break;
+          default:
+            Logger.println(`- ${namespace}`);
+        }
+      });
+      break;
+    }
+  }
+}
 
 async function list (params) {
-  const { alias, app: appIdOrName } = params.options;
+  const { alias, app: appIdOrName, format } = params.options;
   const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
 
   const redirs = await application.getTcpRedirs({ id: ownerId, appId }).then(sendToApi);
 
-  if (redirs.length === 0) {
-    Logger.println('No active TCP redirection for this application');
-  }
-  else {
-    Logger.println('Enabled TCP redirections:');
-    for (const { namespace, port } of redirs) {
-      Logger.println(port + ' on ' + namespace);
+  switch (format) {
+    case 'json': {
+      Logger.printJson(redirs);
+      break;
+    }
+    case 'human':
+    default: {
+      if (redirs.length === 0) {
+        Logger.println('No active TCP redirection for this application');
+      }
+      else {
+        Logger.println('Enabled TCP redirections:');
+        for (const { namespace, port } of redirs) {
+          Logger.println(port + ' on ' + namespace);
+        }
+      }
     }
   }
 }
