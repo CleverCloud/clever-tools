@@ -1,6 +1,6 @@
 # Clever Tools
 
-Deploy on Clever Cloud and control you applications, add-ons, services from command line.
+Deploy on Clever Cloud and control your applications, add-ons, services from command line.
 
 - [Create a Clever Cloud account](https://console.clever-cloud.com)
 
