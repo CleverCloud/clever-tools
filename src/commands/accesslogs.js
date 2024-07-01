@@ -16,9 +16,9 @@ const CITY_MAX_LENGTH = 20;
 
 async function accessLogs (params) {
 
-  // TODO: drop when addons are supported in API
+  // TODO: drop when add-ons are supported in API
   if (params.options.addon) {
-    throw new Error('Add-on\'s access logs are not supported yet');
+    throw new Error('Access Logs are not available for add-ons yet');
   }
 
   const { apiHost, tokens } = await getHostAndTokens();
@@ -37,11 +37,11 @@ async function accessLogs (params) {
   });
 
   if (format === 'human') {
-    Logger.warn(colors.yellow('/!\\ This feature is considered in alpha'));
+    Logger.warn(colors.yellow('/!\\ Access Logs feature is in Alpha testing phase'));
   }
 
   if (format === 'json' && (!until)) {
-    throw new Error('JSON format only works with a limiting parameter such as `before`.');
+    throw new Error('JSON format only works with a limiting parameter such as `before`');
   }
 
   // used for 'json' format
