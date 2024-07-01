@@ -15,6 +15,7 @@ Clever Cloud CLI is based on Node.js. We thought it to be easily available on an
   - [Chocolatey](/docs/setup-systems.md#chocolatey)
   - [Binary (.zip)](/docs/setup-systems.md#binary-zip)
 - [Docker](/docs/setup-systems.md#docker)
+- [Nix package manager](/docs/setup-systems.md#nix-package-manager)
 
 ## GNU/Linux
 
@@ -144,3 +145,7 @@ In your `Dockerfile` copy `clever-tools` from the image itself with a simple one
 ```Dockerfile
 COPY --from=clevercloud/clever-tools /bin/clever /usr/local/bin/clever
 ```
+
+## Nix package manager
+
+If you are using Nix on NixOS or any other compatible system, the package is available in `unstable` channel. Follow [these instructions](https://search.nixos.org/packages?channel=unstable&show=clever-tools&from=0&size=50&sort=relevance&type=packages&query=clever-tools).
