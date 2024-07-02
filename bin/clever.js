@@ -169,7 +169,7 @@ function run () {
       metavar: 'after',
       aliases: ['since'],
       parser: Parsers.date,
-      description: 'Fetch logs after this date/time (ISO8601)',
+      description: 'Fetch logs after this date/time (ISO8601 date, positive number in seconds or duration, e.g.: 1h)',
     }),
     aliasCreation: cliparse.option('alias', {
       aliases: ['a'],
@@ -190,7 +190,7 @@ function run () {
       metavar: 'before',
       aliases: ['until'],
       parser: Parsers.date,
-      description: 'Fetch logs before this date/time (ISO8601 date or duration, positive number in seconds or duration Ex: 1h)',
+      description: 'Fetch logs before this date/time (ISO8601 date, positive number in seconds or duration, e.g.: 1h)',
     }),
     branch: cliparse.option('branch', {
       aliases: ['b'],
@@ -702,7 +702,7 @@ function run () {
   const appCreateCommand = cliparse.command('create', {
     description: 'Create an application',
     args: [args.appNameCreation],
-    options: [opts.instanceType, opts.orgaIdOrName, opts.aliasCreation, opts.region, opts.github, opts.humanJsonOutputFormat, opts.taskCommand],
+    options: [opts.instanceType, opts.orgaIdOrName, opts.aliasCreation, opts.region, opts.github, opts.taskCommand, opts.humanJsonOutputFormat],
   }, create('create'));
 
   // CURL COMMAND
@@ -1174,7 +1174,7 @@ function run () {
     name: 'clever',
     description: 'CLI tool to manage Clever Cloud\'s data and products',
     version: pkg.version,
-    options: [opts.color, opts.verbose, opts.updateNotifier],
+    options: [opts.color, opts.updateNotifier, opts.verbose],
     helpCommand: false,
     commands,
   });
