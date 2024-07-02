@@ -1,6 +1,6 @@
 # Clever Cloud Applications: configuration
 
-A Clever Cloud application can easily be configured once created, through following commands. Each can target a specfic application in the current folder, adding `[--alias, -a] ALIAS`.
+A Clever Cloud application can easily be configured once created, through following commands. All can target a specific application, adding `--app APP_ID_OR_NAME` or a local alias (`--alias`, `-a`).
 
 ## config
 
@@ -64,7 +64,7 @@ clever env --add-export
 
 ## domain
 
-By default, a Clever Cloud application gets an `app_id.cleverapps.io`. To see it, use:
+By default, a Clever Cloud application gets `app_id.cleverapps.io` as fully qualified domain name ([FQDN](https://fr.wikipedia.org/wiki/Fully_qualified_domain_name)). To see it, use:
 
 ```
 clever domain
@@ -79,7 +79,7 @@ rm                         Remove a domain name from a Clever Cloud application
 ```
 
 > [!TIP]
-> You can set the same domain with multiple apps thanks to [prefix routing](https://developers.clever-cloud.com/doc/administrate/domain-names/#prefix-routing), regex are also supported. For example, you can add `mydomain.com/app1` domain to an application and `mydomain.com/app2` to another
+> You can set the same domain with multiple apps thanks to [prefix routing](https://developers.clever-cloud.com/doc/administrate/domain-names/#prefix-routing). For example, you can add `mydomain.com/app1` domain to an application and `mydomain.com/app2` to another.
 
 To (un)set the favourite domain, use:
 
@@ -90,7 +90,7 @@ clever domain favourite unset FQDN
 
 ## scale and dedicated build
 
-You can easily change the number of instances and `flavor` for an application. It can also have a different `flavor` used for build phase, to get it done faster. We also provide horizontal and vertical scaling: you can set a minimal/maximal `flavor` and number of instance, then we autoscale depending on incoming load. To change this, use `clever scale` with the following options:
+You can easily change the number of instances and `flavor` for an application. It can have a different `flavor` used for build phase, to get it done faster. We also provide horizontal and vertical scaling: you can set a minimal/maximal `flavor` and number of instance, then we autoscale depending on incoming load. To change this, use `clever scale` with the following options:
 
 ```
 [--flavor] FLAVOR                  The scale of your application
@@ -120,6 +120,7 @@ To list enabled TCP redirection, use:
 
 ```
 clever tcp-redirs
+clever tcp-redirs --format json
 ```
 
 - [Learn more about TCP redirections](https://developers.clever-cloud.com/doc/administrate/tcp-redirections/)

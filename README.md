@@ -27,7 +27,7 @@ We also distribute binaries and packages for multiple systems and tools:
   * [Chocolatey](docs/setup-systems.md#chocolatey)
   * [Binary (.zip)](docs/setup-systems.md#binary-zip)
 * [Docker](docs/setup-systems.md#docker)
-* [Nix](docs/setup-systems.md#nix-package-manager)
+* [Nix package manager](docs/setup-systems.md#nix-package-manager)
 
 ## Enabling autocompletion
 
