@@ -96,7 +96,7 @@ You can also get logs from a specific timeline, deployment or add-on through opt
 
 ```
 [--before, --until] BEFORE          Fetch logs before this date/time (ISO8601 date, positive number in seconds or duration, e.g.: 1h)
-[--after, --since] AFTER            Fetch logs after this date/time (ISO8601)
+[--after, --since] AFTER            Fetch logs after this date/time (ISO8601 date, positive number in seconds or duration, e.g.: 1h)
 [--search] SEARCH                   Fetch logs matching this pattern
 [--deployment-id] DEPLOYMENT_ID     Fetch logs for a given deployment
 [--addon] ADDON_ID                  Add-on ID
@@ -118,7 +118,7 @@ You can also get access logs from a specific timeline or add-on through options,
 
 ```
 [--before, --until] BEFORE     Fetch logs before this date/time (ISO8601 date, positive number in seconds or duration, e.g.: 1h)
-[--after, --since] AFTER       Fetch logs after this date/time (ISO8601)
+[--after, --since] AFTER       Fetch logs after this date/time (ISO8601 date, positive number in seconds or duration, e.g.: 1h)
 [--format, -F] FORMAT          Output format (human, json, json-stream) (default: human)
 ```
 

@@ -1,6 +1,6 @@
 # Clever Cloud Applications: configuration
 
-A Clever Cloud application can easily be configured once created, through following commands. All can target a specific application, adding `--app APP_ID_OR_NAME` or a local alias (`--alias`, `-a`).
+A Clever Cloud application can easily be configured once created, through following commands. Each can target a specific application, adding `--app APP_ID_OR_NAME` or a local alias (`--alias`, `-a`).
 
 ## config
 

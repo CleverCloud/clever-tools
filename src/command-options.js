@@ -40,7 +40,7 @@ function getExitOnOption () {
   const availableExitOn = ['deploy-start', 'deploy-end', 'never'];
   return cliparse.option('exit-on', {
     aliases: ['e'],
-    metavar: 'exiton',
+    metavar: 'step',
     parser: (exitOnStrategy) => {
       return availableExitOn.includes(exitOnStrategy)
         ? cliparse.parsers.success(exitOnStrategy)
