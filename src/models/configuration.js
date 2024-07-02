@@ -12,6 +12,7 @@ const env = commonEnv(Logger);
 
 const CONFIG_FILES = {
   MAIN: 'clever-tools.json',
+  FEATURES: 'clever-tools-features.json',
   IDS_CACHE: 'ids-cache.json',
 };
 
@@ -61,6 +62,40 @@ async function writeOAuthConf (oauthData) {
   }
 }
 
+async function loadFeaturesConf () {
+  Logger.debug('Load features configuration from ' + conf.FEATURES_FILE);
+  try {
+    const rawFile = await fs.readFile(conf.FEATURES_FILE);
+    return JSON.parse(rawFile);
+  }
+  catch (error) {
+    Logger.info(`Cannot load experimental features configuration from ${conf.FEATURES_FILE}`);
+    return {};
+  }
+}
+
+async function getFeatures () {
+  Logger.debug('Get features configuration from ' + conf.FEATURES_FILE);
+  try {
+    const rawFile = await fs.readFile(conf.FEATURES_FILE);
+    return JSON.parse(rawFile);
+  }
+  catch (error) {
+    throw new Error(`Cannot get experimental features configuration from ${conf.FEATURES_FILE}`);
+  }
+}
+
+async function setFeature (feature, value) {
+  const currentFeatures = await getFeatures();
+  const newFeatures = { ...currentFeatures, ...{ [feature]: value } };
+  try {
+    await fs.writeFile(conf.FEATURES_FILE, JSON.stringify(newFeatures, null, 2));
+  }
+  catch (error) {
+    throw new Error(`Cannot write experimental features configuration to ${conf.FEATURES_FILE}`);
+  }
+}
+
 async function loadIdsCache () {
   const cachePath = getConfigPath(CONFIG_FILES.IDS_CACHE);
   try {
@@ -100,6 +135,7 @@ const conf = env.getOrElseAll({
   SSH_GATEWAY: 'ssh@sshgateway-clevercloud-customers.services.clever-cloud.com',
 
   CONFIGURATION_FILE: getConfigPath(CONFIG_FILES.MAIN),
+  FEATURES_FILE: getConfigPath(CONFIG_FILES.FEATURES),
   CONSOLE_TOKEN_URL: 'https://console.clever-cloud.com/cli-oauth',
   // CONSOLE_TOKEN_URL: 'https://next-console.cleverapps.io/cli-oauth',
 
@@ -107,4 +143,4 @@ const conf = env.getOrElseAll({
   APP_CONFIGURATION_FILE: path.resolve('.', '.clever.json'),
 });
 
-module.exports = { conf, loadOAuthConf, writeOAuthConf, loadIdsCache, writeIdsCache };
+module.exports = { conf, loadOAuthConf, writeOAuthConf, loadFeaturesConf, getFeatures, setFeature, loadIdsCache, writeIdsCache };
