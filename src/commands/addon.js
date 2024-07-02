@@ -103,7 +103,7 @@ function displayAddon (format, addon, providerName, message) {
 
   const WIP_PROVIDERS = {
     keycloak: {
-      statut: 'alpha',
+      status: 'alpha',
       postCreateInstructions: [
         'Learn more about Keycloak on Clever Cloud: https://developers.clever-cloud.com/doc/addons/keycloak/',
       ].join('\n'),
