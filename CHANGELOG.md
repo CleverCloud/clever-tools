@@ -1,6 +1,14 @@
 # clever-tools changelog
 
 
+## [3.8.1](https://github.com/CleverCloud/clever-tools/compare/3.8.0...3.8.1) (2024-07-02)
+
+
+### 🐛 Bug Fixes
+
+* **addon:** status of Keycloak ([fe64a91](https://github.com/CleverCloud/clever-tools/commit/fe64a911e8055a2e544de2fd313592026330c1c8))
+* **drain:** remove double --addon option ([b978024](https://github.com/CleverCloud/clever-tools/commit/b97802450d6ea8f8934346463c7a19bb9048c407)), closes [#786](https://github.com/CleverCloud/clever-tools/issues/786)
+
 ## [3.8.0](https://github.com/CleverCloud/clever-tools/compare/3.7.0...3.8.0) (2024-07-01)
 
 
