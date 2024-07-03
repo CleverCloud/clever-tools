@@ -94,3 +94,7 @@ To use our public API, you need to be authenticated for most endpoints. If you'r
 
 - [Clever Cloud public APIv2 documentation](https://developers.clever-cloud.com/api/v2/)
 - [Clever Cloud public APIv4 documentation](https://developers.clever-cloud.com/api/v4/)
+
+## git
+
+If you need to use `git` with a remote Clever Cloud repository and flags or options not supported by Clever Tools, you can use `clever git` command. It will run `git` with the right configuration and credentials, supporting all the options you need.

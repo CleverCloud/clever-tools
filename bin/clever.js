@@ -58,6 +58,7 @@ const handleCommandPromise = require('../src/command-promise-handler.js');
 const Formatter = require('../src/models/format-string.js');
 const { AVAILABLE_ZONES } = require('../src/models/application.js');
 const { getOutputFormatOption, getSameCommitPolicyOption, getExitOnOption } = require('../src/command-options.js');
+const { runGitCommand } = require('../src/commands/git.js');
 
 // Exit cleanly if the program we pipe to exits abruptly
 process.stdout.on('error', (error) => {
@@ -1189,6 +1190,10 @@ function run () {
 // cliparse doesn't allow unknown options/arguments
 if (process.argv[2] === 'curl') {
   require('../src/commands/curl.js').curl();
+}
+else if (process.argv[2] === 'git') {
+  const params = process.argv.slice(3);
+  runGitCommand(params).catch(console.error);
 }
 else {
   run();
