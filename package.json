@@ -67,7 +67,7 @@
     "grunt-http": "2.3.3",
     "grunt-mocha-test": "0.13.3",
     "mime-types": "2.1.35",
-    "mocha": "8.4.0",
+    "mocha": "10.6.0",
     "pkg": "5.8.1",
     "rollup": "4.14.1",
     "semver": "7.3.5",
