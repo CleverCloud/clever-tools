@@ -5,14 +5,18 @@ import '../src/initial-setup.js';
 
 import cliparse from 'cliparse';
 import cliparseCommands from 'cliparse/src/command.js';
+import colors from 'colors/safe.js';
 import _sortBy from 'lodash/sortBy.js';
 
 import { getPackageJson } from '../src/load-package-json.cjs';
+import * as Formatter from '../src/models/format-string.js';
 import * as git from '../src/models/git.js';
 import * as Parsers from '../src/parsers.js';
 import { handleCommandPromise } from '../src/command-promise-handler.js';
 import * as Application from '../src/models/application.js';
 import { AVAILABLE_ZONES } from '../src/models/application.js';
+import { EXPERIMENTAL_FEATURES } from '../src/experimental-features.js';
+import { loadFeaturesConf } from '../src/models/configuration.js';
 import { getOutputFormatOption, getSameCommitPolicyOption, getExitOnOption } from '../src/command-options.js';
 
 import * as Addon from '../src/models/addon.js';
@@ -20,6 +24,7 @@ import * as ApplicationConfiguration from '../src/models/application_configurati
 import * as Drain from '../src/models/drain.js';
 import * as Notification from '../src/models/notification.js';
 import * as Namespaces from '../src/models/namespaces.js';
+import * as NetworkGroup from '../src/models/ng.js';
 
 import * as accesslogsModule from '../src/commands/accesslogs.js';
 import * as activity from '../src/commands/activity.js';
@@ -40,6 +45,7 @@ import * as login from '../src/commands/login.js';
 import * as logout from '../src/commands/logout.js';
 import * as logs from '../src/commands/logs.js';
 import * as makeDefault from '../src/commands/makeDefault.js';
+import * as ng from '../src/commands/ng.js';
 import * as notifyEmail from '../src/commands/notify-email.js';
 import * as open from '../src/commands/open.js';
 import * as consoleModule from '../src/commands/console.js';
@@ -75,10 +81,73 @@ cliparse.command = function (name, options, commandFunction) {
   });
 };
 
+// Add a yellow color and status tag to the description of an experimental command
+function colorizeExperimentalCommand (command, id) {
+  const status = EXPERIMENTAL_FEATURES[id].status;
+  command.description = colors.yellow(command.description + ' [' + status.toUpperCase() + ']');
+  return command;
+}
+
 async function run () {
 
   // ARGUMENTS
   const args = {
+    // Network Groups arguments
+    ngId: cliparse.argument('ng-id', {
+      description: 'The Network Group ID',
+    }),
+    ngLabel: cliparse.argument('label', {
+      description: 'Network Group label, also used for DNS context',
+    }),
+    ngIdOrLabel: cliparse.argument('ng', {
+      description: 'Network Group ID or label',
+      parser: Parsers.ngIdOrLabel,
+      // complete: NetworkGroup('xxx'),
+    }),
+    ngDescription: cliparse.argument('description', {
+      description: 'Network Group description',
+    }),
+    ngMemberId: cliparse.argument('member-id', {
+      description: `The member ID: an app ID (e.g.: ${Formatter.formatCode('app_xxx')}), add-on ID (e.g.: ${Formatter.formatCode('addon_xxx')}) or external node category ID`,
+      // complete: NetworkGroup('xxx'),
+    }),
+    ngMembersIds: cliparse.argument('members-ids', {
+      description: "Comma separated list of Network Group members IDs ('app_xxx', 'addon_xxx', 'external_xxx')",
+      parser: Parsers.commaSeparated,
+    }),
+    ngMemberDomainName: cliparse.argument('domain-name', {
+      description: `Member name used in the ${Formatter.formatUrl('<memberName>.members.<ngID>.ng.clever-cloud.com', false)} domain name alias`,
+    }),
+    ngPeerId: cliparse.argument('peer-id', {
+      description: 'The peer ID',
+      // complete: NetworkGroup('xxx'),
+    }),
+    ngPeerRole: cliparse.argument('role', {
+      description: `The peer role, (${Formatter.formatString('client')} or ${Formatter.formatString('server')})`,
+      parser: Parsers.ngPeerRole,
+      complete: NetworkGroup.listAvailablePeerRoles,
+    }),
+    // FIXME: Add "internal" member type
+    ngMemberType: cliparse.argument('type', {
+      description: `The member type (${Formatter.formatString('application')}, ${Formatter.formatString('addon')} or ${Formatter.formatString('external')})`,
+      parser: Parsers.ngMemberType,
+      complete: NetworkGroup.listAvailableMemberTypes,
+    }),
+    ngNodeCategoryId: cliparse.argument('node-category-id', {
+      description: 'The external node category ID',
+      // complete: NetworkGroup('xxx'),
+    }),
+    ngPeerLabel: cliparse.argument('label', {
+      description: 'Network Group peer label',
+    }),
+    ngPeerParentMemberId: cliparse.argument('parent', {
+      description: 'Network Group peer category ID (parent member ID)',
+      // complete: NetworkGroup('xxx'),
+    }),
+    ngSearchAppId: cliparse.argument('app-id', {
+      description: 'The app ID to search',
+      // complete: NetworkGroup('xxx'),
+    }),
     addonIdOrName: cliparse.argument('addon-id', {
       description: 'Add-on ID (or name, if unambiguous)',
       parser: Parsers.addonIdOrName,
@@ -132,6 +201,21 @@ async function run () {
 
   // OPTIONS
   const opts = {
+    // Network Groups options
+    ngMembersIds: cliparse.option('members-ids', {
+      metavar: 'members_ids',
+      description: "Comma separated list of Network Group members IDs ('app_xxx', 'addon_xxx', 'external_xxx')",
+      parser: Parsers.commaSeparated,
+    }),
+    ngDescription: cliparse.option('description', {
+      metavar: 'ng_description',
+      description: 'Network Group description',
+    }),
+    ngMemberLabel: cliparse.option('label', {
+      required: false,
+      metavar: 'member_label',
+      description: 'The member label',
+    }),
     sourceableEnvVarsList: cliparse.flag('add-export', { description: 'Display sourceable env variables setting' }),
     logsFormat: getOutputFormatOption(['json-stream']),
     activityFormat: getOutputFormatOption(['json-stream']),
@@ -723,6 +807,76 @@ async function run () {
     args: [args.alias],
   }, makeDefault.makeDefault);
 
+  // NETWORK GROUP COMMANDS
+  const networkGroupsCreateCommand = cliparse.command('create', {
+    description: 'Create a Network Group',
+    args: [args.ngLabel],
+    options: [opts.ngMembersIds, opts.ngDescription, opts.optTags, opts.humanJsonOutputFormat],
+  }, ng.createNg);
+  const networkGroupsDeleteCommand = cliparse.command('delete', {
+    description: 'Delete a Network Group',
+    args: [args.ngIdOrLabel],
+    options: [opts.humanJsonOutputFormat],
+  }, ng.deleteNg);
+  const networkGroupsListCommand = cliparse.command('list', {
+    description: 'List available Network Groups with their labels',
+    options: [opts.humanJsonOutputFormat],
+  }, ng.listNg);
+
+  const networkGroupsMemberListCommand = cliparse.command('list', {
+    description: 'List members of a Network Group',
+    // Add option opts.optNgSearchAppId ?
+    args: [args.ngIdOrLabel],
+    options: [opts.naturalName, opts.humanJsonOutputFormat],
+  }, ng.listMembers);
+  const networkGroupsMemberGetCommand = cliparse.command('get', {
+    description: 'Get a Network Group member\'s details',
+    args: [args.ngIdOrLabel, args.ngMemberId],
+    options: [opts.naturalName, opts.humanJsonOutputFormat],
+  }, ng.getMember);
+  const networkGroupsMemberAddCommand = cliparse.command('add', {
+    description: 'Add an app or add-on as a Network Group member',
+    args: [args.ngIdOrLabel, args.ngMemberId],
+    options: [opts.ngMemberLabel],
+  }, ng.addMember);
+  const networkGroupsMemberRemoveCommand = cliparse.command('remove', {
+    description: 'Remove an app or add-on from a Network Group',
+    args: [args.ngIdOrLabel, args.ngMemberId],
+  }, ng.removeMember);
+  const networkGroupsMembersCategoryCommand = cliparse.command('members', {
+    description: 'List commands for interacting with Network Group members',
+    commands: [networkGroupsMemberListCommand, networkGroupsMemberGetCommand, networkGroupsMemberAddCommand, networkGroupsMemberRemoveCommand],
+  }, ng.listMembers);
+
+  const networkGroupsPeerListCommand = cliparse.command('list', {
+    description: 'List peers of a Network Group',
+    args: [args.ngIdOrLabel],
+    options: [opts.humanJsonOutputFormat],
+  }, ng.listPeers);
+  const networkGroupsPeerGetCommand = cliparse.command('get', {
+    description: 'Get a Network Group peer\'s details',
+    args: [args.ngIdOrLabel, args.ngPeerId],
+    options: [opts.humanJsonOutputFormat],
+  }, ng.getPeer);
+  /* const networkGroupsPeerAddCommand = cliparse.command('add-external', {
+    description: 'Add an external node as a Network Group peer',
+    options: [opts.ngIdOrLabel, opts.ngPeerRole, opts.wgPublicKey, opts.ngPeerLabel, opts.ngPeerParentMemberId],
+  }, networkgroups('addExternalPeer'));
+  const networkGroupsPeerRemoveExternalCommand = cliparse.command('remove-external', {
+    description: 'Remove an external node from a Network Group',
+    args: [args.ngIdOrLabel, args.ngPeerId],
+  }, networkgroups('removeExternalPeer')); */
+  const networkGroupsPeersCategoryCommand = cliparse.command('peers', {
+    description: 'List commands for interacting with Network Group peers',
+    commands: [networkGroupsPeerListCommand, networkGroupsPeerGetCommand],
+  }, ng.listPeers);
+
+  const networkGroupsCommand = cliparse.command('ng', {
+    description: 'Manage Network Groups, their members and peers',
+    options: [opts.orgaIdOrName, opts.alias],
+    commands: [networkGroupsCreateCommand, networkGroupsDeleteCommand, networkGroupsListCommand, networkGroupsMembersCategoryCommand, networkGroupsPeersCategoryCommand],
+  }, ng.listNg);
+
   // NOTIFY-EMAIL COMMAND
   const addEmailNotificationCommand = cliparse.command('add', {
     description: 'Add a new email notification',
@@ -947,6 +1101,10 @@ async function run () {
     versionCommand,
     webhooksCommand,
   ];
+
+  // Add experimental features only if they are enabled through the configuration file
+  const featuresFromConf = await loadFeaturesConf();
+  if (featuresFromConf.ng) commands.push(colorizeExperimentalCommand(networkGroupsCommand, 'ng'));
 
   // We sort the commands by name
   commands = _sortBy(commands, 'name');
