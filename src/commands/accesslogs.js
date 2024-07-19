@@ -1,20 +1,18 @@
-'use strict';
-
-const Application = require('../models/application.js');
-const Logger = require('../logger.js');
-const { getHostAndTokens } = require('../models/send-to-api.js');
-const { ApplicationAccessLogStream } = require('@clevercloud/client/cjs/streams/access-logs.js');
-const { JsonArray } = require('../models/json-array.js');
-const colors = require('colors/safe.js');
-const { formatTable } = require('../format-table.js');
-const { truncateWithEllipsis } = require('../models/utils.js');
+import * as Application from '../models/application.js';
+import { Logger } from '../logger.js';
+import { getHostAndTokens } from '../models/send-to-api.js';
+import { ApplicationAccessLogStream } from '@clevercloud/client/cjs/streams/access-logs.js';
+import { JsonArray } from '../models/json-array.js';
+import colors from 'colors/safe.js';
+import { formatTable } from '../format-table.js';
+import { truncateWithEllipsis } from '../models/utils.js';
 
 // 2000 logs per 100ms maximum
 const THROTTLE_ELEMENTS = 2000;
 const THROTTLE_PER_IN_MILLISECONDS = 100;
 const CITY_MAX_LENGTH = 20;
 
-async function accessLogs (params) {
+export async function accessLogs (params) {
 
   // TODO: drop when add-ons are supported in API
   if (params.options.addon) {
@@ -129,5 +127,3 @@ function colorStatusCode (code) {
   }
   return code;
 }
-
-module.exports = { accessLogs };

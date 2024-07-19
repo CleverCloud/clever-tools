@@ -1,12 +1,10 @@
-'use strict';
+import _ from 'lodash';
 
-const _ = require('lodash');
+import { Logger } from '../logger.js';
+import { getAllDomains, getFavouriteDomain } from '@clevercloud/client/cjs/api/v2/application.js';
+import { sendToApi } from '../models/send-to-api.js';
 
-const Logger = require('../logger.js');
-const { getAllDomains, getFavouriteDomain } = require('@clevercloud/client/cjs/api/v2/application.js');
-const { sendToApi } = require('../models/send-to-api.js');
-
-async function getBest (appId, orgaId) {
+export async function getBest (appId, orgaId) {
   Logger.debug('Trying to get the favourite vhost for ' + appId);
   return getFavouriteDomain({ id: orgaId, appId }).then(sendToApi)
     .catch(async (e) => {
@@ -27,7 +25,7 @@ async function getBest (appId, orgaId) {
     });
 }
 
-function selectBest (vhosts) {
+export function selectBest (vhosts) {
   const customVhost = _.find(vhosts, (vhost) => {
     return !vhost.fqdn.endsWith('.cleverapps.io');
   });
@@ -36,5 +34,3 @@ function selectBest (vhosts) {
   });
   return customVhost || withoutDefaultDomain || vhosts[0];
 }
-
-module.exports = { getBest, selectBest };

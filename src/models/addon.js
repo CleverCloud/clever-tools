@@ -1,29 +1,21 @@
-'use strict';
+import application from '@clevercloud/client/cjs/api/v2/application.js';
+import cliparse from 'cliparse';
 
-const application = require('@clevercloud/client/cjs/api/v2/application.js');
-const cliparse = require('cliparse');
+import { get as getAddon, getAll as getAllAddons, remove as removeAddon, create as createAddon, update as updateAddon } from '@clevercloud/client/cjs/api/v2/addon.js';
+import { getAllAddonProviders } from '@clevercloud/client/cjs/api/v2/product.js';
+import { getSummary } from '@clevercloud/client/cjs/api/v2/user.js';
+import { getAddonProvider } from '@clevercloud/client/cjs/api/v4/addon-providers.js';
 
-const {
-  get: getAddon,
-  getAll: getAllAddons,
-  remove: removeAddon,
-  create: createAddon,
-  update: updateAddon,
-} = require('@clevercloud/client/cjs/api/v2/addon.js');
-const { getAllAddonProviders } = require('@clevercloud/client/cjs/api/v2/product.js');
-const { getSummary } = require('@clevercloud/client/cjs/api/v2/user.js');
-const { getAddonProvider } = require('@clevercloud/client/cjs/api/v4/addon-providers.js');
+import * as Interact from './interact.js';
+import { Logger } from '../logger.js';
+import { sendToApi } from '../models/send-to-api.js';
+import { resolveOwnerId } from './ids-resolver.js';
 
-const Interact = require('./interact.js');
-const Logger = require('../logger.js');
-const { sendToApi } = require('../models/send-to-api.js');
-const { resolveOwnerId } = require('./ids-resolver.js');
-
-function listProviders () {
+export function listProviders () {
   return getAllAddonProviders({}).then(sendToApi);
 }
 
-async function getProvider (providerName) {
+export async function getProvider (providerName) {
   const providers = await listProviders();
   const provider = providers.find((p) => p.id === providerName);
   if (provider == null) {
@@ -32,7 +24,7 @@ async function getProvider (providerName) {
   return provider;
 }
 
-function getProviderInfos (providerName) {
+export function getProviderInfos (providerName) {
   return getAddonProvider({ providerId: providerName }).then(sendToApi)
     .catch(() => {
       // An error can occur because the add-on api doesn't implement this endpoint yet
@@ -42,7 +34,7 @@ function getProviderInfos (providerName) {
     });
 }
 
-async function list (ownerId, appId, showAll) {
+export async function list (ownerId, appId, showAll) {
   const allAddons = await getAllAddons({ id: ownerId }).then(sendToApi);
 
   if (appId == null) {
@@ -134,7 +126,7 @@ function validateAddonVersionAndOptions (region, version, addonOptions, provider
   }
 }
 
-async function create ({ ownerId, name, providerName, planName, region, skipConfirmation, version, addonOptions }) {
+export async function create ({ ownerId, name, providerName, planName, region, skipConfirmation, version, addonOptions }) {
 
   // TODO: We should be able to use it without {}
   const provider = await getProvider(providerName);
@@ -194,17 +186,17 @@ async function getId (ownerId, addon) {
   return addonDetails.id;
 }
 
-async function link (ownerId, appId, addon) {
+export async function link (ownerId, appId, addon) {
   const addonId = await getId(ownerId, addon);
   return application.linkAddon({ id: ownerId, appId }, JSON.stringify(addonId)).then(sendToApi);
 }
 
-async function unlink (ownerId, appId, addon) {
+export async function unlink (ownerId, appId, addon) {
   const addonId = await getId(ownerId, addon);
   return application.unlinkAddon({ id: ownerId, appId, addonId }).then(sendToApi);
 }
 
-async function deleteAddon (ownerId, addonIdOrName, skipConfirmation) {
+export async function deleteAddon (ownerId, addonIdOrName, skipConfirmation) {
   const addonId = await getId(ownerId, addonIdOrName);
 
   if (!skipConfirmation) {
@@ -214,21 +206,21 @@ async function deleteAddon (ownerId, addonIdOrName, skipConfirmation) {
   return removeAddon({ id: ownerId, addonId }).then(sendToApi);
 }
 
-async function rename (ownerId, addon, name) {
+export async function rename (ownerId, addon, name) {
   const addonId = await getId(ownerId, addon);
   return updateAddon({ id: ownerId, addonId }, { name }).then(sendToApi);
 }
 
-function completeRegion () {
+export function completeRegion () {
   return cliparse.autocomplete.words(['par', 'mtl']);
 }
 
 // TODO: We need to fix this
-function completePlan () {
+export function completePlan () {
   return cliparse.autocomplete.words(['dev', 's', 'm', 'l', 'xl', 'xxl']);
 }
 
-async function findById (addonId) {
+export async function findById (addonId) {
   const { user, organisations } = await getSummary({}).then(sendToApi);
   for (const orga of [user, ...organisations]) {
     for (const simpleAddon of orga.addons) {
@@ -244,7 +236,7 @@ async function findById (addonId) {
   throw new Error(`Could not find add-on with ID: ${addonId}`);
 }
 
-async function findOwnerId (org, addonId) {
+export async function findOwnerId (org, addonId) {
 
   if (org != null && org.orga_id != null) {
     return org.orga_id;
@@ -258,7 +250,7 @@ async function findOwnerId (org, addonId) {
   throw new Error(`Add-on ${addonId} does not exist`);
 }
 
-function parseAddonOptions (options) {
+export function parseAddonOptions (options) {
   if (options == null) {
     return {};
   }
@@ -298,20 +290,3 @@ function getPlan (planName, plans) {
   }
   return plan;
 }
-
-module.exports = {
-  completePlan,
-  completeRegion,
-  create,
-  delete: deleteAddon,
-  findById,
-  findOwnerId,
-  getProvider,
-  getProviderInfos,
-  link,
-  list,
-  listProviders,
-  parseAddonOptions,
-  rename,
-  unlink,
-};

@@ -1,36 +1,34 @@
-'use strict';
+import _ from 'lodash';
+import application from '@clevercloud/client/cjs/api/v2/application.js';
+import cliparse from 'cliparse';
+import product from '@clevercloud/client/cjs/api/v2/product.js';
+import { getSummary } from '@clevercloud/client/cjs/api/v2/user.js';
 
-const _ = require('lodash');
-const application = require('@clevercloud/client/cjs/api/v2/application.js');
-const cliparse = require('cliparse');
-const product = require('@clevercloud/client/cjs/api/v2/product.js');
-const { getSummary } = require('@clevercloud/client/cjs/api/v2/user.js');
+import * as AppConfiguration from './app_configuration.js';
+import * as Interact from './interact.js';
+import { Logger } from '../logger.js';
+import * as Organisation from './organisation.js';
+import * as User from './user.js';
 
-const AppConfiguration = require('./app_configuration.js');
-const Interact = require('./interact.js');
-const Logger = require('../logger.js');
-const Organisation = require('./organisation.js');
-const User = require('./user.js');
+import { sendToApi } from '../models/send-to-api.js';
+import * as AppConfig from './app_configuration.js';
+import { resolveOwnerId } from './ids-resolver.js';
 
-const { sendToApi } = require('../models/send-to-api.js');
-const AppConfig = require('./app_configuration.js');
-const { resolveOwnerId } = require('./ids-resolver.js');
-
-function listAvailableTypes () {
+export function listAvailableTypes () {
   return cliparse.autocomplete.words(['docker', 'elixir', 'go', 'gradle', 'haskell', 'jar', 'maven', 'meteor', 'node', 'php', 'play1', 'play2', 'python', 'ruby', 'rust', 'sbt', 'static-apache', 'war']);
 };
 
-const AVAILABLE_ZONES = ['par', 'grahds', 'rbx', 'rbxhds', 'scw', 'mtl', 'sgp', 'syd', 'wsw'];
+export const AVAILABLE_ZONES = ['par', 'grahds', 'rbx', 'rbxhds', 'scw', 'mtl', 'sgp', 'syd', 'wsw'];
 
-function listAvailableZones () {
+export function listAvailableZones () {
   return cliparse.autocomplete.words(AVAILABLE_ZONES);
 };
 
-function listAvailableAliases () {
+export function listAvailableAliases () {
   return AppConfiguration.loadApplicationConf().then(({ apps }) => cliparse.autocomplete.words(_.map(apps, 'alias')));
 };
 
-function listAvailableFlavors () {
+export function listAvailableFlavors () {
   return ['pico', 'nano', 'XS', 'S', 'M', 'L', 'XL', '2XL', '3XL'];
 };
 
@@ -56,7 +54,7 @@ async function getInstanceType (type) {
   return instanceVariant;
 };
 
-async function create (name, typeName, region, orgaIdOrName, github, isTask, envVars) {
+export async function create (name, typeName, region, orgaIdOrName, github, isTask, envVars) {
   Logger.debug('Create the application…');
 
   const ownerId = (orgaIdOrName != null)
@@ -89,7 +87,7 @@ async function create (name, typeName, region, orgaIdOrName, github, isTask, env
   return application.create({ id: ownerId }, newApp).then(sendToApi);
 };
 
-async function deleteApp (app, skipConfirmation) {
+export async function deleteApp (app, skipConfirmation) {
   Logger.debug('Deleting app: ' + app.name + ' (' + app.id + ')');
 
   if (!skipConfirmation) {
@@ -103,7 +101,7 @@ async function deleteApp (app, skipConfirmation) {
   return application.remove({ id: app.ownerId, appId: app.id }).then(sendToApi);
 };
 
-async function getAllApps (ownerId) {
+export async function getAllApps (ownerId) {
 
   const summary = await getSummary().then(sendToApi);
 
@@ -157,7 +155,7 @@ async function getByName (ownerId, name) {
   return getApplicationByName(apps, name);
 };
 
-function get (ownerId, appId) {
+export function get (ownerId, appId) {
   Logger.debug(`Get information for the app: ${appId}`);
   return application.get({ id: ownerId, appId }).then(sendToApi);
 };
@@ -175,7 +173,7 @@ function getFromSelf (appId) {
  * @param {string} alias
  * @return {Promise<{appId: string, ownerId: string}>}
  */
-async function resolveId (appIdOrName, alias) {
+export async function resolveId (appIdOrName, alias) {
   if (appIdOrName != null && alias != null) {
     throw new Error('Only one of the `--app` or `--alias` options can be set at a time');
   }
@@ -226,7 +224,7 @@ async function resolveId (appIdOrName, alias) {
   throw new Error('Ambiguous application name, use the `--app` option with one of the IDs above');
 }
 
-async function linkRepo (app, orgaIdOrName, alias, ignoreParentConfig) {
+export async function linkRepo (app, orgaIdOrName, alias, ignoreParentConfig) {
   Logger.debug(`Linking current repository to the app: ${app.app_id || app.app_name}`);
 
   const ownerId = (orgaIdOrName != null)
@@ -240,18 +238,18 @@ async function linkRepo (app, orgaIdOrName, alias, ignoreParentConfig) {
   return AppConfiguration.addLinkedApplication(appData, alias, ignoreParentConfig);
 };
 
-function unlinkRepo (alias) {
+export function unlinkRepo (alias) {
   Logger.debug(`Unlinking current repository from the app: ${alias}`);
   return AppConfiguration.removeLinkedApplication({ alias });
 };
 
-function redeploy (ownerId, appId, commit, withoutCache) {
+export function redeploy (ownerId, appId, commit, withoutCache) {
   Logger.debug(`Redeploying the app: ${appId}`);
   const useCache = (withoutCache) ? 'no' : null;
   return application.redeploy({ id: ownerId, appId, commit, useCache }).then(sendToApi);
 };
 
-function mergeScalabilityParameters (scalabilityParameters, instance) {
+export function mergeScalabilityParameters (scalabilityParameters, instance) {
   const flavors = listAvailableFlavors();
 
   if (scalabilityParameters.minFlavor) {
@@ -283,7 +281,7 @@ function mergeScalabilityParameters (scalabilityParameters, instance) {
   return instance;
 };
 
-async function setScalability (appId, ownerId, scalabilityParameters, buildFlavor) {
+export async function setScalability (appId, ownerId, scalabilityParameters, buildFlavor) {
   Logger.info('Scaling the app: ' + appId);
 
   const app = await application.get({ id: ownerId, appId }).then(sendToApi);
@@ -307,7 +305,7 @@ async function setScalability (appId, ownerId, scalabilityParameters, buildFlavo
   return application.update({ id: ownerId, appId }, newConfig).then(sendToApi);
 };
 
-async function listDependencies (ownerId, appId, showAll) {
+export async function listDependencies (ownerId, appId, showAll) {
   const applicationDeps = await application.getAllDependencies({ id: ownerId, appId }).then(sendToApi);
 
   if (!showAll) {
@@ -323,33 +321,12 @@ async function listDependencies (ownerId, appId, showAll) {
   });
 }
 
-async function link (ownerId, appId, dependency) {
+export async function link (ownerId, appId, dependency) {
   const dependencyId = await getId(ownerId, dependency);
   return application.addDependency({ id: ownerId, appId, dependencyId }).then(sendToApi);
 };
 
-async function unlink (ownerId, appId, dependency) {
+export async function unlink (ownerId, appId, dependency) {
   const dependencyId = await getId(ownerId, dependency);
   return application.removeDependency({ id: ownerId, appId, dependencyId }).then(sendToApi);
-};
-
-module.exports = {
-  resolveId,
-  create,
-  deleteApp,
-  get,
-  getAllApps,
-  link,
-  linkRepo,
-  listAvailableAliases,
-  listAvailableFlavors,
-  listAvailableTypes,
-  AVAILABLE_ZONES,
-  listAvailableZones,
-  listDependencies,
-  __mergeScalabilityParameters: mergeScalabilityParameters,
-  redeploy,
-  setScalability,
-  unlink,
-  unlinkRepo,
 };

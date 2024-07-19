@@ -1,15 +1,13 @@
-'use strict';
+import colors from 'colors/safe.js';
 
-const colors = require('colors/safe.js');
+import * as AppConfig from '../models/app_configuration.js';
+import * as Application from '../models/application.js';
+import * as Organisation from '../models/organisation.js';
+import { Logger } from '../logger.js';
+import { formatTable } from '../format-table.js';
+import { truncateWithEllipsis } from '../models/utils.js';
 
-const AppConfig = require('../models/app_configuration.js');
-const Application = require('../models/application.js');
-const Organisation = require('../models/organisation.js');
-const Logger = require('../logger.js');
-const { formatTable } = require('../format-table.js');
-const { truncateWithEllipsis } = require('../models/utils.js');
-
-async function list (params) {
+export async function list (params) {
   const { 'only-aliases': onlyAliases, json } = params.options;
 
   const { apps } = await AppConfig.loadApplicationConf();
@@ -47,7 +45,7 @@ function formatApps (apps, onlyAliases, json) {
   }
 }
 
-async function listAll (params) {
+export async function listAll (params) {
   const { org: orgaIdOrName, format } = params.options;
 
   const linkedApps = await AppConfig.loadApplicationConf().then((conf) => conf.apps);
@@ -121,8 +119,3 @@ async function listAll (params) {
 function getPropertyMaxWidth (array, propertyName) {
   return Math.max(...array.map((o) => o[propertyName].length));
 }
-
-module.exports = {
-  list,
-  listAll,
-};

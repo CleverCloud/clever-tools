@@ -24,7 +24,7 @@ if (hasParam('--autocomplete-index')) {
 }
 
 // These need to be set before other stuffs
-const colors = require('colors');
+import colors from 'colors';
 const colorExplicitFalse = hasParam('--no-color') || hasParam('--color', 'false');
 const colorExplicitTrue = hasParam('--color', 'true');
 if (colorExplicitFalse || (!process.stdout.isTTY && !colorExplicitTrue)) {
@@ -32,9 +32,9 @@ if (colorExplicitFalse || (!process.stdout.isTTY && !colorExplicitTrue)) {
 }
 
 // These need to be set before Logger and other stuffs
-const { getPackageJson } = require('../src/load-package-json.js');
+import { getPackageJson } from '../src/load-package-json.js';
 const pkg = getPackageJson();
-const updateNotifierModule = require('update-notifier');
+import updateNotifierModule from 'update-notifier';
 const isRunThroughPackagedBinary = process.pkg != null;
 const updateNotifierExplicitFalse = hasParam('--no-update-notifier') || hasParam('--update-notifier', 'false');
 if (!updateNotifierExplicitFalse && !isRunThroughPackagedBinary) {
@@ -49,15 +49,15 @@ if (!updateNotifierExplicitFalse && !isRunThroughPackagedBinary) {
   });
 }
 
-const cliparse = require('cliparse');
-const cliparseCommands = require('cliparse/src/command.js');
-const _sortBy = require('lodash/sortBy.js');
+import cliparse from 'cliparse';
+import cliparseCommands from 'cliparse/src/command.js';
+import _sortBy from 'lodash/sortBy.js';
 
-const git = require('../src/models/git.js');
-const Parsers = require('../src/parsers.js');
-const { handleCommandPromise } = require('../src/command-promise-handler.js');
-const { AVAILABLE_ZONES } = require('../src/models/application.js');
-const { getOutputFormatOption, getSameCommitPolicyOption, getExitOnOption } = require('../src/command-options.js');
+import * as git from '../src/models/git.js';
+import * as Parsers from '../src/parsers.js';
+import { handleCommandPromise } from '../src/command-promise-handler.js';
+import { AVAILABLE_ZONES } from '../src/models/application.js';
+import { getOutputFormatOption, getSameCommitPolicyOption, getExitOnOption } from '../src/command-options.js';
 
 // Exit cleanly if the program we pipe to exits abruptly
 process.stdout.on('error', (error) => {
@@ -76,48 +76,48 @@ cliparse.command = function (name, options, commandFunction) {
   });
 };
 
-const Addon = require('../src/models/addon.js');
-const Application = require('../src/models/application.js');
-const ApplicationConfiguration = require('../src/models/application_configuration.js');
-const Drain = require('../src/models/drain.js');
-const Notification = require('../src/models/notification.js');
-const Namespaces = require('../src/models/namespaces.js');
+import * as Addon from '../src/models/addon.js';
+import * as Application from '../src/models/application.js';
+import * as ApplicationConfiguration from '../src/models/application_configuration.js';
+import * as Drain from '../src/models/drain.js';
+import * as Notification from '../src/models/notification.js';
+import * as Namespaces from '../src/models/namespaces.js';
 
-const accesslogsModule = require('../src/commands/accesslogs.js');
-const activity = require('../src/commands/activity.js');
-const addon = require('../src/commands/addon.js');
-const applications = require('../src/commands/applications.js');
-const cancelDeploy = require('../src/commands/cancel-deploy.js');
-const config = require('../src/commands/config.js');
-const create = require('../src/commands/create.js');
-const deleteCommandModule = require('../src/commands/delete.js');
-const deploy = require('../src/commands/deploy.js');
-const diag = require('../src/commands/diag.js');
-const domain = require('../src/commands/domain.js');
-const drain = require('../src/commands/drain.js');
-const env = require('../src/commands/env.js');
-const link = require('../src/commands/link.js');
-const login = require('../src/commands/login.js');
-const logout = require('../src/commands/logout.js');
-const logs = require('../src/commands/logs.js');
-const makeDefault = require('../src/commands/makeDefault.js');
-const notifyEmail = require('../src/commands/notify-email.js');
-const open = require('../src/commands/open.js');
-const consoleModule = require('../src/commands/console.js');
-const profile = require('../src/commands/profile.js');
-const publishedConfig = require('../src/commands/published-config.js');
-const restart = require('../src/commands/restart.js');
-const scale = require('../src/commands/scale.js');
-const service = require('../src/commands/service.js');
-const ssh = require('../src/commands/ssh.js');
-const status = require('../src/commands/status.js');
-const stop = require('../src/commands/stop.js');
-const tcpRedirs = require('../src/commands/tcp-redirs.js');
-const unlink = require('../src/commands/unlink.js');
-const version = require('../src/commands/version.js');
-const webhooks = require('../src/commands/webhooks.js');
-const database = require('../src/commands/database.js');
-const { curl } = require('../src/commands/curl.js');
+import * as accesslogsModule from '../src/commands/accesslogs.js';
+import * as activity from '../src/commands/activity.js';
+import * as addon from '../src/commands/addon.js';
+import * as applications from '../src/commands/applications.js';
+import * as cancelDeploy from '../src/commands/cancel-deploy.js';
+import * as config from '../src/commands/config.js';
+import * as create from '../src/commands/create.js';
+import * as deleteCommandModule from '../src/commands/delete.js';
+import * as deploy from '../src/commands/deploy.js';
+import * as diag from '../src/commands/diag.js';
+import * as domain from '../src/commands/domain.js';
+import * as drain from '../src/commands/drain.js';
+import * as env from '../src/commands/env.js';
+import * as link from '../src/commands/link.js';
+import * as login from '../src/commands/login.js';
+import * as logout from '../src/commands/logout.js';
+import * as logs from '../src/commands/logs.js';
+import * as makeDefault from '../src/commands/makeDefault.js';
+import * as notifyEmail from '../src/commands/notify-email.js';
+import * as open from '../src/commands/open.js';
+import * as consoleModule from '../src/commands/console.js';
+import * as profile from '../src/commands/profile.js';
+import * as publishedConfig from '../src/commands/published-config.js';
+import * as restart from '../src/commands/restart.js';
+import * as scale from '../src/commands/scale.js';
+import * as service from '../src/commands/service.js';
+import * as ssh from '../src/commands/ssh.js';
+import * as status from '../src/commands/status.js';
+import * as stop from '../src/commands/stop.js';
+import * as tcpRedirs from '../src/commands/tcp-redirs.js';
+import * as unlink from '../src/commands/unlink.js';
+import * as version from '../src/commands/version.js';
+import * as webhooks from '../src/commands/webhooks.js';
+import * as database from '../src/commands/database.js';
+import { curl } from '../src/commands/curl.js';
 
 function run () {
 

@@ -1,6 +1,4 @@
-'use strict';
-
-const cliparse = require('cliparse');
+import cliparse from 'cliparse';
 
 const DRAIN_TYPES = [
   { id: 'TCPSyslog', structuredDataParameters: 'OPTIONAL' },
@@ -11,7 +9,7 @@ const DRAIN_TYPES = [
   { id: 'NewRelicHTTP', apiKey: 'MANDATORY' },
 ];
 
-function createDrainBody (appId, drainTargetURL, drainTargetType, drainTargetCredentials, drainTargetConfig) {
+export function createDrainBody (appId, drainTargetURL, drainTargetType, drainTargetCredentials, drainTargetConfig) {
 
   if (!authorizeDrainCreation(drainTargetType, drainTargetCredentials, drainTargetConfig)) {
     throw new Error("Credentials are: optional for HTTP, mandatory for ElasticSearch, NewRelicHTTP and TCPSyslog/UDPSyslog don't need them.");
@@ -39,7 +37,7 @@ function createDrainBody (appId, drainTargetURL, drainTargetType, drainTargetCre
   return body;
 }
 
-function authorizeDrainCreation (drainTargetType, drainTargetCredentials, drainTargetConfig) {
+export function authorizeDrainCreation (drainTargetType, drainTargetCredentials, drainTargetConfig) {
   if (drainTypeExists(drainTargetType)) {
     // retrieve field for drain type ('mandatory', 'optional', undefined)
     const credStatus = fieldStatus(drainTargetType).credentials;
@@ -129,12 +127,6 @@ function keyEmpty ({ apiKey }) {
   return apiKey == null;
 }
 
-function listDrainTypes () {
+export function listDrainTypes () {
   return cliparse.autocomplete.words(DRAIN_TYPES.map((type) => type.id));
 }
-
-module.exports = {
-  createDrainBody,
-  authorizeDrainCreation,
-  listDrainTypes,
-};

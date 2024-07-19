@@ -1,19 +1,17 @@
-'use strict';
+import colors from 'colors/safe.js';
 
-const colors = require('colors/safe.js');
-
-const AppConfig = require('../models/app_configuration.js');
-const Application = require('../models/application.js');
-const git = require('../models/git.js');
-const Log = require('../models/log-v4.js');
-const Logger = require('../logger.js');
-const { getAllDeployments } = require('@clevercloud/client/cjs/api/v2/application.js');
-const { sendToApi } = require('../models/send-to-api.js');
-const ExitStrategy = require('../models/exit-strategy-option.js');
+import * as AppConfig from '../models/app_configuration.js';
+import * as Application from '../models/application.js';
+import * as git from '../models/git.js';
+import * as Log from '../models/log-v4.js';
+import { Logger } from '../logger.js';
+import { getAllDeployments } from '@clevercloud/client/cjs/api/v2/application.js';
+import { sendToApi } from '../models/send-to-api.js';
+import * as ExitStrategy from '../models/exit-strategy-option.js';
 
 // Once the API call to redeploy() has been triggered successfully,
 // the rest (waiting for deployment state to evolve and displaying logs) is done with auto retry (resilient to network failures)
-async function deploy (params) {
+export async function deploy (params) {
   const { alias, branch: branchName, tag: tagName, quiet, force, follow, 'same-commit-policy': sameCommitPolicy, 'exit-on': exitOnDeploy } = params.options;
 
   const exitStrategy = ExitStrategy.get(follow, exitOnDeploy);
@@ -105,5 +103,3 @@ async function getBranchToDeploy (branchName, tagName) {
     return await git.getFullBranch(branchName);
   }
 }
-
-module.exports = { deploy };

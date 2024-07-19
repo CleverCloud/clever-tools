@@ -1,15 +1,11 @@
-'use strict';
+import { get } from '@clevercloud/client/cjs/api/v2/organisation.js';
+import { sendToApi } from '../models/send-to-api.js';
 
-const { get } = require('@clevercloud/client/cjs/api/v2/organisation.js');
-const { sendToApi } = require('../models/send-to-api.js');
-
-function getCurrent () {
+export function getCurrent () {
   return get({}).then(sendToApi);
 };
 
-function getCurrentId () {
+export function getCurrentId () {
   return get({}).then(sendToApi)
     .then(({ id }) => id);
 };
-
-module.exports = { getCurrent, getCurrentId };

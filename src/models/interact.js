@@ -1,6 +1,4 @@
-'use strict';
-
-const readline = require('readline');
+import readline from 'readline';
 
 function ask (question) {
 
@@ -17,12 +15,10 @@ function ask (question) {
   });
 }
 
-async function confirm (question, rejectionMessage, expectedAnswers = ['yes', 'y']) {
+export async function confirm (question, rejectionMessage, expectedAnswers = ['yes', 'y']) {
   const answer = await ask(question);
   if (!expectedAnswers.includes(answer)) {
     throw new Error(rejectionMessage);
   }
   return true;
 }
-
-module.exports = { confirm };

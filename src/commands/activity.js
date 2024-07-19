@@ -1,15 +1,13 @@
-'use strict';
+import colors from 'colors/safe.js';
+import moment from 'moment';
 
-const colors = require('colors/safe.js');
-const moment = require('moment');
-
-const Activity = require('../models/activity.js');
-const { formatTable } = require('../format-table.js');
-const Logger = require('../logger.js');
-const { Deferred } = require('../models/utils.js');
-const { EventsStream } = require('@clevercloud/client/cjs/streams/events.node.js');
-const { getHostAndTokens } = require('../models/send-to-api.js');
-const Application = require('../models/application.js');
+import * as Activity from '../models/activity.js';
+import { formatTable } from '../format-table.js';
+import { Logger } from '../logger.js';
+import { Deferred } from '../models/utils.js';
+import { EventsStream } from '@clevercloud/client/cjs/streams/events.node.js';
+import { getHostAndTokens } from '../models/send-to-api.js';
+import * as Application from '../models/application.js';
 
 function getColoredState (state, isLast) {
   if (state === 'OK') {
@@ -134,7 +132,7 @@ function getEventHandler (format, follow) {
   }
 }
 
-async function activity (params) {
+export async function activity (params) {
   const { alias, app: appIdOrName, 'show-all': showAll, follow, format } = params.options;
   const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
   const events = await Activity.list(ownerId, appId, showAll);
@@ -173,5 +171,3 @@ async function activity (params) {
 
   return deferred.promise;
 }
-
-module.exports = { activity };

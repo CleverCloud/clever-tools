@@ -1,7 +1,7 @@
 /**
  * Helper to print a real JSON array with starting `[` and ending `]`
  */
-class JsonArray {
+export class JsonArray {
   constructor () {
     this._isFirst = true;
   }
@@ -24,5 +24,3 @@ class JsonArray {
     process.stdout.write('\n]');
   }
 }
-
-module.exports = { JsonArray };
