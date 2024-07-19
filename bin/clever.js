@@ -66,18 +66,15 @@ process.stdout.on('error', (error) => {
   }
 });
 
-// Use this alias so we get less warnings in pkg build :p
-const dynamicRequire = module.require.bind(module);
+// Patch cliparse.command so we can catch errors
+const cliparseCommand = cliparse.command;
 
-function lazyRequirePromiseModule (modulePath) {
-  return function (name) {
-    return function (...args) {
-      const module = dynamicRequire(modulePath);
-      const promise = module[name](...args);
-      handleCommandPromise(promise);
-    };
-  };
-}
+cliparse.command = function (name, options, commandFunction) {
+  return cliparseCommand(name, options, (...args) => {
+    const promise = commandFunction(...args);
+    handleCommandPromise(promise);
+  });
+};
 
 const Addon = require('../src/models/addon.js');
 const Application = require('../src/models/application.js');
@@ -594,107 +591,107 @@ function run () {
   };
 
   // ACCESSLOGS COMMAND
-  const accesslogsModule = lazyRequirePromiseModule('../src/commands/accesslogs.js');
+  const accesslogsModule = require('../src/commands/accesslogs.js');
   const accesslogsCommand = cliparse.command('accesslogs', {
     description: 'Fetch access logs',
     options: [opts.alias, opts.appIdOrName, opts.logsFormat, opts.before, opts.after, opts.addonId],
-  }, accesslogsModule('accessLogs'));
+  }, accesslogsModule.accessLogs);
 
   // ACTIVITY COMMAND
-  const activity = lazyRequirePromiseModule('../src/commands/activity.js');
+  const activity = require('../src/commands/activity.js');
   const activityCommand = cliparse.command('activity', {
     description: 'Show last deployments of an application',
     options: [opts.alias, opts.appIdOrName, opts.follow, opts.showAllActivity, opts.activityFormat],
-  }, activity('activity'));
+  }, activity.activity);
 
   // ADDON COMMANDS
-  const addon = lazyRequirePromiseModule('../src/commands/addon.js');
+  const addon = require('../src/commands/addon.js');
   const addonCreateCommand = cliparse.command('create', {
     description: 'Create an add-on',
     args: [args.addonProvider, args.addonName],
     options: [opts.linkAddon, opts.confirmAddonCreation, opts.addonPlan, opts.addonRegion, opts.addonVersion, opts.addonOptions, opts.humanJsonOutputFormat],
-  }, addon('create'));
+  }, addon.create);
   const addonDeleteCommand = cliparse.command('delete', {
     description: 'Delete an add-on',
     args: [args.addonIdOrName],
     options: [opts.confirmAddonDeletion],
-  }, addon('delete'));
+  }, addon.delete);
   const addonRenameCommand = cliparse.command('rename', {
     description: 'Rename an add-on',
     args: [args.addonIdOrName, args.addonName],
-  }, addon('rename'));
+  }, addon.rename);
   const addonShowProviderCommand = cliparse.command('show', {
     description: 'Show information about an add-on provider',
     args: [args.addonProvider],
-  }, addon('showProvider'));
+  }, addon.showProvider);
   const addonProvidersCommand = cliparse.command('providers', {
     description: 'List available add-on providers',
     commands: [addonShowProviderCommand],
     options: [opts.humanJsonOutputFormat],
-  }, addon('listProviders'));
+  }, addon.listProviders);
   const addonEnvCommand = cliparse.command('env', {
     description: 'List environment variables for an add-on',
     options: [opts.envFormat],
     args: [opts.addonId],
-  }, addon('env'));
+  }, addon.env);
   const addonListCommand = cliparse.command('list', {
     description: 'List available add-ons',
     options: [opts.humanJsonOutputFormat],
-  }, addon('list'));
+  }, addon.list);
 
   const addonCommands = cliparse.command('addon', {
     description: 'Manage add-ons',
     options: [opts.orgaIdOrName],
     privateOptions: [opts.humanJsonOutputFormat],
     commands: [addonCreateCommand, addonDeleteCommand, addonRenameCommand, addonListCommand, addonProvidersCommand, addonEnvCommand],
-  }, addon('list'));
+  }, addon.list);
 
   // APPLICATIONS COMMAND
-  const applications = lazyRequirePromiseModule('../src/commands/applications.js');
+  const applications = require('../src/commands/applications.js');
   const applicationsListRemoteCommand = cliparse.command('list', {
     description: 'List all applications',
     options: [opts.orgaIdOrName, opts.humanJsonOutputFormat],
-  }, applications('listAll'));
+  }, applications.listAll);
   const applicationsCommand = cliparse.command('applications', {
     description: 'List linked applications',
     privateOptions: [opts.onlyAliases, opts.jsonFormat],
     commands: [applicationsListRemoteCommand],
-  }, applications('list'));
+  }, applications.list);
 
   // CANCEL DEPLOY COMMAND
-  const cancelDeploy = lazyRequirePromiseModule('../src/commands/cancel-deploy.js');
+  const cancelDeploy = require('../src/commands/cancel-deploy.js');
   const cancelDeployCommand = cliparse.command('cancel-deploy', {
     description: 'Cancel an ongoing deployment',
     options: [opts.alias, opts.appIdOrName],
-  }, cancelDeploy('cancelDeploy'));
+  }, cancelDeploy.cancelDeploy);
 
   // CONFIG COMMAND
-  const config = lazyRequirePromiseModule('../src/commands/config.js');
+  const config = require('../src/commands/config.js');
   const configGetCommand = cliparse.command('get', {
     description: 'Display the current configuration',
     args: [args.configurationName],
-  }, config('get'));
+  }, config.get);
   const configSetCommand = cliparse.command('set', {
     description: 'Edit one configuration setting',
     args: [args.configurationName, args.configurationValue],
-  }, config('set'));
+  }, config.set);
   const configUpdateCommand = cliparse.command('update', {
     description: 'Edit multiple configuration settings at once',
     options: ApplicationConfiguration.getUpdateOptions(),
-  }, config('update'));
+  }, config.update);
   const configCommands = cliparse.command('config', {
     description: 'Display or edit the configuration of your application',
     options: [opts.alias, opts.appIdOrName],
     commands: [configGetCommand, configSetCommand, configUpdateCommand],
-  }, config('get'));
+  }, config.get);
 
   // CREATE COMMAND
-  const create = lazyRequirePromiseModule('../src/commands/create.js');
+  const create = require('../src/commands/create.js');
   const appCreateCommand = cliparse.command('create', {
     description: 'Create an application',
     args: [args.appNameCreation],
     options: [opts.instanceType, opts.orgaIdOrName, opts.aliasCreation, opts.region, opts.github, opts.taskCommand, opts.humanJsonOutputFormat],
-  }, create('create'));
+  }, create.create);
 
   // CURL COMMAND
   // NOTE: it's just here for documentation purposes, look at the bottom of the file for the real "clever curl" command
@@ -703,156 +700,156 @@ function run () {
   }, () => null);
 
   // DELETE COMMAND
-  const deleteCommandModule = lazyRequirePromiseModule('../src/commands/delete.js');
+  const deleteCommandModule = require('../src/commands/delete.js');
   const deleteCommand = cliparse.command('delete', {
     description: 'Delete an application',
     options: [opts.alias, opts.appIdOrName, opts.confirmApplicationDeletion],
-  }, deleteCommandModule('deleteApp'));
+  }, deleteCommandModule.deleteApp);
 
   // DEPLOY COMMAND
-  const deploy = lazyRequirePromiseModule('../src/commands/deploy.js');
+  const deploy = require('../src/commands/deploy.js');
   const deployCommand = cliparse.command('deploy', {
     description: 'Deploy an application',
     options: [opts.alias, opts.branch, opts.gitTag, opts.quiet, opts.forceDeploy, opts.followDeployLogs, opts.sameCommitPolicy, opts.exitOnDeploy],
-  }, deploy('deploy'));
+  }, deploy.deploy);
 
   // DIAG COMMAND
-  const diag = lazyRequirePromiseModule('../src/commands/diag.js');
+  const diag = require('../src/commands/diag.js');
   const diagCommand = cliparse.command('diag', {
     description: 'Diagnose the current installation (prints various informations for support)',
     args: [],
     options: [opts.humanJsonOutputFormat],
-  }, diag('diag'));
+  }, diag.diag);
 
   // DOMAIN COMMANDS
-  const domain = lazyRequirePromiseModule('../src/commands/domain.js');
+  const domain = require('../src/commands/domain.js');
   const domainCreateCommand = cliparse.command('add', {
     description: 'Add a domain name to an application',
     args: [args.fqdn],
-  }, domain('add'));
+  }, domain.add);
   const domainRemoveCommand = cliparse.command('rm', {
     description: 'Remove a domain name from an application',
     args: [args.fqdn],
-  }, domain('rm'));
+  }, domain.rm);
   const domainSetFavouriteCommand = cliparse.command('set', {
     description: 'Set the favourite domain for an application',
     args: [args.fqdn],
-  }, domain('setFavourite'));
+  }, domain.setFavourite);
   const domainUnsetFavouriteCommand = cliparse.command('unset', {
     description: 'Unset the favourite domain for an application',
-  }, domain('unsetFavourite'));
+  }, domain.unsetFavourite);
   const domainFavouriteCommands = cliparse.command('favourite', {
     description: 'Manage the favourite domain name for an application',
     commands: [domainSetFavouriteCommand, domainUnsetFavouriteCommand],
-  }, domain('getFavourite'));
+  }, domain.getFavourite);
   const domainCommands = cliparse.command('domain', {
     description: 'Manage domain names for an application',
     options: [opts.alias, opts.appIdOrName],
     commands: [domainCreateCommand, domainFavouriteCommands, domainRemoveCommand],
-  }, domain('list'));
+  }, domain.list);
 
   // DRAIN COMMANDS
-  const drain = lazyRequirePromiseModule('../src/commands/drain.js');
+  const drain = require('../src/commands/drain.js');
   const drainCreateCommand = cliparse.command('create', {
     description: 'Create a drain',
     args: [args.drainType, args.drainUrl],
     options: [opts.drainUsername, opts.drainPassword, opts.drainAPIKey, opts.drainIndexPrefix, opts.drainSDParameters],
-  }, drain('create'));
+  }, drain.create);
   const drainRemoveCommand = cliparse.command('remove', {
     description: 'Remove a drain',
     args: [args.drainId],
-  }, drain('rm'));
+  }, drain.rm);
   const drainEnableCommand = cliparse.command('enable', {
     description: 'Enable a drain',
     args: [args.drainId],
-  }, drain('enable'));
+  }, drain.enable);
   const drainDisableCommand = cliparse.command('disable', {
     description: 'Disable a drain',
     args: [args.drainId],
-  }, drain('disable'));
+  }, drain.disable);
   const drainCommands = cliparse.command('drain', {
     description: 'Manage drains',
     options: [opts.alias, opts.appIdOrName, opts.addonId],
     privateOptions: [opts.humanJsonOutputFormat],
     commands: [drainCreateCommand, drainRemoveCommand, drainEnableCommand, drainDisableCommand],
-  }, drain('list'));
+  }, drain.list);
 
   // ENV COMMANDS
-  const env = lazyRequirePromiseModule('../src/commands/env.js');
+  const env = require('../src/commands/env.js');
   const envSetCommand = cliparse.command('set', {
     description: 'Add or update an environment variable named <variable-name> with the value <variable-value>',
     args: [args.envVariableName, args.envVariableValue],
-  }, env('set'));
+  }, env.set);
   const envRemoveCommand = cliparse.command('rm', {
     description: 'Remove an environment variable from an application',
     args: [args.envVariableName],
-  }, env('rm'));
+  }, env.rm);
   const envImportCommand = cliparse.command('import', {
     description: 'Load environment variables from STDIN\n(WARNING: this deletes all current variables and replace them with the new list loaded from STDIN)',
     options: [opts.importAsJson],
-  }, env('importEnv'));
+  }, env.importEnv);
   const envImportVarsFromLocalEnvCommand = cliparse.command('import-vars', {
     description: 'Add or update environment variables named <variable-names> (comma-separated), taking their values from the current environment',
     args: [args.envVariableNames],
-  }, env('importVarsFromLocalEnv'));
+  }, env.importVarsFromLocalEnv);
   const envCommands = cliparse.command('env', {
     description: 'Manage environment variables of an application',
     options: [opts.alias, opts.appIdOrName, opts.sourceableEnvVarsList],
     privateOptions: [opts.envFormat],
     commands: [envSetCommand, envRemoveCommand, envImportCommand, envImportVarsFromLocalEnvCommand],
-  }, env('list'));
+  }, env.list);
 
   // LINK COMMAND
-  const link = lazyRequirePromiseModule('../src/commands/link.js');
+  const link = require('../src/commands/link.js');
   const appLinkCommand = cliparse.command('link', {
     description: 'Link this repo to an existing application',
     args: [args.appIdOrName],
     options: [opts.aliasCreation, opts.orgaIdOrName],
-  }, link('link'));
+  }, link.link);
 
   // LOGIN COMMAND
-  const login = lazyRequirePromiseModule('../src/commands/login.js');
+  const login = require('../src/commands/login.js');
   const loginCommand = cliparse.command('login', {
     description: 'Login to Clever Cloud',
     options: [opts.loginToken, opts.loginSecret],
-  }, login('login'));
+  }, login.login);
 
   // LOGOUT COMMAND
-  const logout = lazyRequirePromiseModule('../src/commands/logout.js');
+  const logout = require('../src/commands/logout.js');
   const logoutCommand = cliparse.command('logout', {
     description: 'Logout from Clever Cloud',
-  }, logout('logout'));
+  }, logout.logout);
 
   // LOGS COMMAND
-  const logs = lazyRequirePromiseModule('../src/commands/logs.js');
+  const logs = require('../src/commands/logs.js');
   const logsCommand = cliparse.command('logs', {
     description: 'Fetch application logs, continuously',
     options: [opts.alias, opts.appIdOrName, opts.before, opts.after, opts.search, opts.deploymentId, opts.addonId, opts.logsFormat],
-  }, logs('appLogs'));
+  }, logs.appLogs);
 
   // MAKE DEFAULT COMMAND
-  const makeDefault = lazyRequirePromiseModule('../src/commands/makeDefault.js');
+  const makeDefault = require('../src/commands/makeDefault.js');
   const makeDefaultCommand = cliparse.command('make-default', {
     description: 'Make a linked application the default one',
     args: [args.alias],
-  }, makeDefault('makeDefault'));
+  }, makeDefault.makeDefault);
 
   // NETWORK GROUPS COMMANDS
-  const networkgroups = lazyRequirePromiseModule('../src/commands/networkgroups/commands.js');
+  const networkgroups = require('../src/commands/networkgroups/commands.js');
 
   // network group category - start
   const networkGroupsListCommand = cliparse.command('list', {
     description: 'List Network Groups with their labels',
     options: [opts.jsonFormat],
-  }, networkgroups('listNetworkGroups'));
+  }, networkgroups.listNetworkGroups);
   const networkGroupsCreateCommand = cliparse.command('create', {
     description: 'Create a Network Group',
     options: [opts.ngLabel, opts.ngDescription, opts.optTags, opts.jsonFormat],
-  }, networkgroups('createNg'));
+  }, networkgroups.createNg);
   const networkGroupsDeleteCommand = cliparse.command('delete', {
     description: 'Delete a Network Group',
     options: [opts.ngIdOrLabel],
-  }, networkgroups('deleteNg'));
+  }, networkgroups.deleteNg);
   // network group category - end
 
   // member category - start
@@ -860,19 +857,19 @@ function run () {
     description: 'List members of a Network Group',
     // Add option opts.optNgSearchAppId ?
     options: [opts.ngIdOrLabel, opts.naturalName, opts.jsonFormat],
-  }, networkgroups('listMembers'));
+  }, networkgroups.listMembers);
   const networkGroupsMemberGetCommand = cliparse.command('get', {
     description: 'Get a Network Group member\'s details',
     options: [opts.ngIdOrLabel, opts.ngMemberId, opts.naturalName, opts.jsonFormat],
-  }, networkgroups('getMember'));
+  }, networkgroups.getMember);
   const networkGroupsMemberAddCommand = cliparse.command('add', {
     description: 'Add an app or add-on as a Network Group member',
     options: [opts.ngIdOrLabel, opts.ngMemberId, opts.ngMemberType, opts.ngMemberDomainName, opts.optNgMemberLabel],
-  }, networkgroups('addMember'));
+  }, networkgroups.addMember);
   const networkGroupsMemberRemoveCommand = cliparse.command('remove', {
     description: 'Remove an app or add-on from a Network Group',
     options: [opts.ngIdOrLabel, opts.ngMemberId],
-  }, networkgroups('removeMember'));
+  }, networkgroups.removeMember);
 
   const networkGroupsMembersCategoryCommand = cliparse.command('members', {
     description: 'List commands for interacting with Network Group members',
@@ -884,19 +881,19 @@ function run () {
   const networkGroupsPeerListCommand = cliparse.command('list', {
     description: 'List peers of a Network Group',
     options: [opts.ngIdOrLabel, opts.jsonFormat],
-  }, networkgroups('listPeers'));
+  }, networkgroups.listPeers);
   const networkGroupsPeerGetCommand = cliparse.command('get', {
     description: 'Get a Network Group peer\'s details',
     options: [opts.ngIdOrLabel, opts.ngPeerId, opts.jsonFormat],
-  }, networkgroups('getPeer'));
+  }, networkgroups.getPeer);
   const networkGroupsPeerAddCommand = cliparse.command('add-external', {
     description: 'Add an external node as a Network Group peer',
     options: [opts.ngIdOrLabel, opts.ngPeerRole, opts.wgPublicKey, opts.ngPeerLabel, opts.ngPeerParentMemberId],
-  }, networkgroups('addExternalPeer'));
+  }, networkgroups.addExternalPeer);
   const networkGroupsPeerRemoveExternalCommand = cliparse.command('remove-external', {
     description: 'Remove an external node from a Network Group',
     options: [opts.ngIdOrLabel, opts.ngPeerId],
-  }, networkgroups('removeExternalPeer'));
+  }, networkgroups.removeExternalPeer);
 
   const networkGroupsPeersCategoryCommand = cliparse.command('peers', {
     description: 'List commands for interacting with Network Group peers',
@@ -918,186 +915,186 @@ function run () {
   });
 
   // NOTIFY-EMAIL COMMAND
-  const notifyEmail = lazyRequirePromiseModule('../src/commands/notify-email.js');
+  const notifyEmail = require('../src/commands/notify-email.js');
   const addEmailNotificationCommand = cliparse.command('add', {
     description: 'Add a new email notification',
     options: [opts.notificationEventType, opts.notificationScope, opts.emailNotificationTarget],
     args: [args.notificationName],
-  }, notifyEmail('add'));
+  }, notifyEmail.add);
   const removeEmailNotificationCommand = cliparse.command('remove', {
     description: 'Remove an existing email notification',
     args: [args.notificationId],
-  }, notifyEmail('remove'));
+  }, notifyEmail.remove);
   const emailNotificationsCommand = cliparse.command('notify-email', {
     description: 'Manage email notifications',
     options: [opts.orgaIdOrName, opts.listAllNotifications],
     privateOptions: [opts.humanJsonOutputFormat],
     commands: [addEmailNotificationCommand, removeEmailNotificationCommand],
-  }, notifyEmail('list'));
+  }, notifyEmail.list);
 
   // OPEN COMMAND
-  const open = lazyRequirePromiseModule('../src/commands/open.js');
+  const open = require('../src/commands/open.js');
   const openCommand = cliparse.command('open', {
     description: 'Open an application in your browser',
     options: [opts.alias, opts.appIdOrName],
-  }, open('open'));
+  }, open.open);
 
   // CONSOLE COMMAND
-  const consoleModule = lazyRequirePromiseModule('../src/commands/console.js');
+  const consoleModule = require('../src/commands/console.js');
   const consoleCommand = cliparse.command('console', {
     description: 'Open an application in the Console',
     options: [opts.alias, opts.appIdOrName],
-  }, consoleModule('openConsole'));
+  }, consoleModule.openConsole);
 
   // PROFILE COMMAND
-  const profile = lazyRequirePromiseModule('../src/commands/profile.js');
+  const profile = require('../src/commands/profile.js');
   const profileCommand = cliparse.command('profile', {
     description: 'Display the profile of the current user',
     options: [opts.humanJsonOutputFormat],
-  }, profile('profile'));
+  }, profile.profile);
 
   // PUBLISHED CONFIG COMMANDS
-  const publishedConfig = lazyRequirePromiseModule('../src/commands/published-config.js');
+  const publishedConfig = require('../src/commands/published-config.js');
   const publishedConfigSetCommand = cliparse.command('set', {
     description: 'Add or update a published configuration item named <variable-name> with the value <variable-value>',
     args: [args.envVariableName, args.envVariableValue],
-  }, publishedConfig('set'));
+  }, publishedConfig.set);
   const publishedConfigRemoveCommand = cliparse.command('rm', {
     description: 'Remove a published configuration variable from an application',
     args: [args.envVariableName],
-  }, publishedConfig('rm'));
+  }, publishedConfig.rm);
   const publishedConfigImportCommand = cliparse.command('import', {
     description: 'Load published configuration from STDIN\n(WARNING: this deletes all current variables and replace them with the new list loaded from STDIN)',
     options: [opts.importAsJson],
-  }, publishedConfig('importEnv'));
+  }, publishedConfig.importEnv);
   const publishedConfigCommands = cliparse.command('published-config', {
     description: 'Manage the configuration made available to other applications by this application',
     options: [opts.alias, opts.appIdOrName],
     privateOptions: [opts.envFormat],
     commands: [publishedConfigSetCommand, publishedConfigRemoveCommand, publishedConfigImportCommand],
-  }, publishedConfig('list'));
+  }, publishedConfig.list);
 
   // RESTART COMMAND
-  const restart = lazyRequirePromiseModule('../src/commands/restart.js');
+  const restart = require('../src/commands/restart.js');
   const restartCommand = cliparse.command('restart', {
     description: 'Start or restart an application',
     options: [opts.alias, opts.appIdOrName, opts.commit, opts.withoutCache, opts.quiet, opts.followDeployLogs, opts.exitOnDeploy],
-  }, restart('restart'));
+  }, restart.restart);
 
   // SCALE COMMAND
-  const scale = lazyRequirePromiseModule('../src/commands/scale.js');
+  const scale = require('../src/commands/scale.js');
   const scaleCommand = cliparse.command('scale', {
     description: 'Change scalability of an application',
     options: [opts.alias, opts.appIdOrName, opts.flavor, opts.minFlavor, opts.maxFlavor, opts.instances, opts.minInstances, opts.maxInstances, opts.buildFlavor],
-  }, scale('scale'));
+  }, scale.scale);
 
   // SERVICE COMMANDS
-  const service = lazyRequirePromiseModule('../src/commands/service.js');
+  const service = require('../src/commands/service.js');
   const serviceLinkAppCommand = cliparse.command('link-app', {
     description: 'Add an existing app as a dependency',
     args: [args.appIdOrName],
-  }, service('linkApp'));
+  }, service.linkApp);
   const serviceUnlinkAppCommand = cliparse.command('unlink-app', {
     description: 'Remove an app from the dependencies',
     args: [args.appIdOrName],
-  }, service('unlinkApp'));
+  }, service.unlinkApp);
   const serviceLinkAddonCommand = cliparse.command('link-addon', {
     description: 'Link an existing add-on to this application',
     args: [args.addonIdOrName],
-  }, service('linkAddon'));
+  }, service.linkAddon);
   const serviceUnlinkAddonCommand = cliparse.command('unlink-addon', {
     description: 'Unlink an add-on from this application',
     args: [args.addonIdOrName],
-  }, service('unlinkAddon'));
+  }, service.unlinkAddon);
   const serviceCommands = cliparse.command('service', {
     description: 'Manage service dependencies',
     options: [opts.alias, opts.appIdOrName, opts.onlyApps, opts.onlyAddons, opts.showAll],
     privateOptions: [opts.humanJsonOutputFormat],
     commands: [serviceLinkAppCommand, serviceUnlinkAppCommand, serviceLinkAddonCommand, serviceUnlinkAddonCommand],
-  }, service('list'));
+  }, service.list);
 
   // SSH COMMAND
-  const ssh = lazyRequirePromiseModule('../src/commands/ssh.js');
+  const ssh = require('../src/commands/ssh.js');
   const sshCommand = cliparse.command('ssh', {
     description: 'Connect to running instances through SSH',
     options: [opts.alias, opts.appIdOrName, opts.sshIdentityFile],
-  }, ssh('ssh'));
+  }, ssh.ssh);
 
   // STATUS COMMAND
-  const status = lazyRequirePromiseModule('../src/commands/status.js');
+  const status = require('../src/commands/status.js');
   const statusCommand = cliparse.command('status', {
     description: 'See the status of an application',
     options: [opts.alias, opts.appIdOrName, opts.humanJsonOutputFormat],
-  }, status('status'));
+  }, status.status);
 
   // STOP COMMAND
-  const stop = lazyRequirePromiseModule('../src/commands/stop.js');
+  const stop = require('../src/commands/stop.js');
   const stopCommand = cliparse.command('stop', {
     description: 'Stop a running application',
     options: [opts.alias, opts.appIdOrName],
-  }, stop('stop'));
+  }, stop.stop);
 
   // TCP-REDIRS COMMAND
-  const tcpRedirs = lazyRequirePromiseModule('../src/commands/tcp-redirs.js');
+  const tcpRedirs = require('../src/commands/tcp-redirs.js');
   const tcpRedirsListNamespacesCommand = cliparse.command('list-namespaces', {
     description: 'List the namespaces in which you can create new TCP redirections',
     options: [opts.humanJsonOutputFormat],
-  }, tcpRedirs('listNamespaces'));
+  }, tcpRedirs.listNamespaces);
   const tcpRedirsAddCommand = cliparse.command('add', {
     description: 'Add a new TCP redirection to the application',
     options: [opts.namespace, opts.confirmTcpRedirCreation],
-  }, tcpRedirs('add'));
+  }, tcpRedirs.add);
   const tcpRedirsRemoveCommand = cliparse.command('remove', {
     description: 'Remove a TCP redirection from the application',
     options: [opts.namespace],
     args: [args.port],
-  }, tcpRedirs('remove'));
+  }, tcpRedirs.remove);
   const tcpRedirsCommands = cliparse.command('tcp-redirs', {
     description: 'Control the TCP redirections from reverse proxies to your application',
     options: [opts.alias, opts.appIdOrName],
     privateOptions: [opts.humanJsonOutputFormat],
     commands: [tcpRedirsListNamespacesCommand, tcpRedirsAddCommand, tcpRedirsRemoveCommand],
-  }, tcpRedirs('list'));
+  }, tcpRedirs.list);
 
   // UNLINK COMMAND
-  const unlink = lazyRequirePromiseModule('../src/commands/unlink.js');
+  const unlink = require('../src/commands/unlink.js');
   const appUnlinkCommand = cliparse.command('unlink', {
     description: 'Unlink this repo from an existing application',
     args: [args.alias],
-  }, unlink('unlink'));
+  }, unlink.unlink);
 
   // VERSION COMMAND
-  const version = lazyRequirePromiseModule('../src/commands/version.js');
+  const version = require('../src/commands/version.js');
   const versionCommand = cliparse.command('version', {
     description: 'Display the clever-tools version',
     args: [],
-  }, version('version'));
+  }, version.version);
 
   // WEBHOOKS COMMAND
-  const webhooks = lazyRequirePromiseModule('../src/commands/webhooks.js');
+  const webhooks = require('../src/commands/webhooks.js');
   const addWebhookCommand = cliparse.command('add', {
     description: 'Register webhook to be called when events happen',
     options: [opts.webhookFormat, opts.notificationEventType, opts.notificationScope],
     args: [args.notificationName, args.webhookUrl],
-  }, webhooks('add'));
+  }, webhooks.add);
   const removeWebhookCommand = cliparse.command('remove', {
     description: 'Remove an existing webhook',
     args: [args.notificationId],
-  }, webhooks('remove'));
+  }, webhooks.remove);
   const webhooksCommand = cliparse.command('webhooks', {
     description: 'Manage webhooks',
     options: [opts.orgaIdOrName, opts.listAllNotifications],
     privateOptions: [opts.humanJsonOutputFormat],
     commands: [addWebhookCommand, removeWebhookCommand],
-  }, webhooks('list'));
+  }, webhooks.list);
 
   // DATABASES COMMANDS
-  const database = lazyRequirePromiseModule('../src/commands/database.js');
+  const database = require('../src/commands/database.js');
   const downloadBackupCommand = cliparse.command('download', {
     description: 'Download a database backup',
     args: [args.databaseId, args.backupId],
     options: [opts.output],
-  }, database('downloadBackups'));
+  }, database.downloadBackups);
   const backupsCommand = cliparse.command('backups', {
     description: 'List available database backups',
     args: [args.databaseId],
@@ -1105,7 +1102,7 @@ function run () {
     commands: [
       downloadBackupCommand,
     ],
-  }, database('listBackups'));
+  }, database.listBackups);
   const databaseCommand = cliparse.command('database', {
     description: 'List available databases',
     commands: [backupsCommand],
