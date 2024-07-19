@@ -1,18 +1,16 @@
-'use strict';
+import os from 'os';
 
-const os = require('os');
+import { releaseInfo as getLinuxInfos } from 'linux-release-info';
+import colors from 'colors/safe.js';
 
-const { releaseInfo: getLinuxInfos } = require('linux-release-info');
-const colors = require('colors/safe.js');
-
-const Logger = require('../logger.js');
-const { getPackageJson } = require('../load-package-json.js');
-const User = require('../models/user.js');
-const { conf, loadOAuthConf } = require('../models/configuration.js');
+import { Logger } from '../logger.js';
+import { getPackageJson } from '../load-package-json.js';
+import * as User from '../models/user.js';
+import { conf, loadOAuthConf } from '../models/configuration.js';
 
 const pkg = getPackageJson();
 
-async function diag (params) {
+export async function diag (params) {
   const { format } = params.options;
 
   /** @type {string} */
@@ -95,5 +93,3 @@ async function diag (params) {
     }
   }
 }
-
-module.exports = { diag };

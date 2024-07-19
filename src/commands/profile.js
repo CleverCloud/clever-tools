@@ -1,11 +1,9 @@
-'use strict';
+import colors from 'colors/safe.js';
 
-const colors = require('colors/safe.js');
+import { Logger } from '../logger.js';
+import * as User from '../models/user.js';
 
-const Logger = require('../logger.js');
-const User = require('../models/user.js');
-
-async function profile (params) {
+export async function profile (params) {
   const { format } = params.options;
 
   const user = await User.getCurrent();
@@ -35,5 +33,3 @@ async function profile (params) {
     }
   }
 };
-
-module.exports = { profile };

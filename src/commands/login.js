@@ -1,19 +1,17 @@
-'use strict';
-
-const crypto = require('crypto');
-const util = require('util');
+import crypto from 'crypto';
+import util from 'util';
 
 const delay = util.promisify(setTimeout);
 
-const colors = require('colors/safe.js');
-const open = require('open');
-const superagent = require('superagent');
+import colors from 'colors/safe.js';
+import open from 'open';
+import superagent from 'superagent';
 
-const Logger = require('../logger.js');
-const User = require('../models/user.js');
-const { conf, writeOAuthConf } = require('../models/configuration.js');
+import { Logger } from '../logger.js';
+import * as User from '../models/user.js';
+import { conf, writeOAuthConf } from '../models/configuration.js';
 
-const { getPackageJson } = require('../load-package-json.js');
+import { getPackageJson } from '../load-package-json.js';
 const pkg = getPackageJson();
 
 // 20 random bytes as Base64URL
@@ -65,7 +63,7 @@ async function loginViaConsole () {
   return pollOauthData(cliPollUrl.toString());
 }
 
-async function login (params) {
+export async function login (params) {
   const { token, secret } = params.options;
   const isLoginWithArgs = (token != null && secret != null);
   const isInteractiveLogin = (token == null && secret == null);
@@ -84,5 +82,3 @@ async function login (params) {
 
   throw new Error('Both `--token` and `--secret` have to be defined');
 }
-
-module.exports = { login };

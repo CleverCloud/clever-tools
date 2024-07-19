@@ -1,15 +1,13 @@
-'use strict';
+import _ from 'lodash';
+import colors from 'colors/safe.js';
 
-const _ = require('lodash');
-const colors = require('colors/safe.js');
+import * as Application from '../models/application.js';
+import { Logger } from '../logger.js';
 
-const Application = require('../models/application.js');
-const Logger = require('../logger.js');
+import { get as getApplication, getAllInstances } from '@clevercloud/client/cjs/api/v2/application.js';
+import { sendToApi } from '../models/send-to-api.js';
 
-const { get: getApplication, getAllInstances } = require('@clevercloud/client/cjs/api/v2/application.js');
-const { sendToApi } = require('../models/send-to-api.js');
-
-async function status (params) {
+export async function status (params) {
   const { alias, app: appIdOrName, format } = params.options;
   const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
 
@@ -101,5 +99,3 @@ function groupInstances (instances) {
     }))
     .value();
 }
-
-module.exports = { status };

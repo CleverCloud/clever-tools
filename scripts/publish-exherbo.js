@@ -1,8 +1,6 @@
-'use strict';
-
-const cfg = require('./config');
-const del = require('del');
-const { cloneGitProject, applyOneTemplate, commitAndPush } = require('./utils');
+import * as cfg from './config';
+import del from 'del';
+import { cloneGitProject, applyOneTemplate, commitAndPush } from './utils';
 
 module.exports = async function publishExherbo (version) {
 

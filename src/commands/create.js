@@ -1,11 +1,9 @@
-'use strict';
+import path from 'path';
+import * as Application from '../models/application.js';
+import * as AppConfig from '../models/app_configuration.js';
+import { Logger } from '../logger.js';
 
-const path = require('path');
-const Application = require('../models/application.js');
-const AppConfig = require('../models/app_configuration.js');
-const Logger = require('../logger.js');
-
-async function create (params) {
+export async function create (params) {
   const { type: typeName } = params.options;
   const [rawName] = params.args;
   const { org: orgaIdOrName, alias, region, github: githubOwnerRepo, format, task: taskCommand } = params.options;
@@ -61,5 +59,3 @@ function getGithubDetails (githubOwnerRepo) {
 function getCurrentDirectoryName () {
   return path.basename(process.cwd());
 }
-
-module.exports = { create };

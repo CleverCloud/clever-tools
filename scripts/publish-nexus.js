@@ -1,10 +1,8 @@
-'use strict';
-
-const cfg = require('./config');
-const { promises: fs } = require('fs');
-const path = require('path');
-const superagent = require('superagent');
-const { getBundleFilepath } = require('./paths.js');
+import * as cfg from './config';
+import { promises as fs } from 'fs';
+import path from 'path';
+import superagent from 'superagent';
+import { getBundleFilepath } from './paths.js';
 
 const NEXUS_DEB = 'https://nexus.clever-cloud.com/repository/deb/';
 const NEXUS_NUPKG = 'https://nexus.clever-cloud.com/repository/nupkg/';

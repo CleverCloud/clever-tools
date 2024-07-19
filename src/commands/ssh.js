@@ -1,11 +1,9 @@
-'use strict';
+import { spawn } from 'child_process';
 
-const { spawn } = require('child_process');
+import * as Application from '../models/application.js';
+import { conf } from '../models/configuration.js';
 
-const Application = require('../models/application.js');
-const { conf } = require('../models/configuration.js');
-
-async function ssh (params) {
+export async function ssh (params) {
   const { alias, app: appIdOrName, 'identity-file': identityFile } = params.options;
 
   const { appId } = await Application.resolveId(appIdOrName, alias);
@@ -21,5 +19,3 @@ async function ssh (params) {
     sshProcess.on('error', reject);
   });
 }
-
-module.exports = { ssh };

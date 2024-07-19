@@ -1,12 +1,10 @@
-'use strict';
-
-const Logger = require('./logger.js');
-const { getPackageJson } = require('./load-package-json.js');
-const semver = require('semver');
+import { Logger } from './logger.js';
+import { getPackageJson } from './load-package-json.js';
+import semver from 'semver';
 
 const pkg = getPackageJson();
 
-function handleCommandPromise (promise) {
+export function handleCommandPromise (promise) {
   promise.catch((error) => {
     Logger.error(error);
     const semverIsOk = semver.satisfies(process.version, pkg.engines.node);
@@ -16,5 +14,3 @@ function handleCommandPromise (promise) {
     process.exit(1);
   });
 }
-
-module.exports = { handleCommandPromise };

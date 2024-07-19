@@ -1,9 +1,7 @@
-'use strict';
+import cliparse from 'cliparse';
+import colors from 'colors/safe.js';
 
-const cliparse = require('cliparse');
-const colors = require('colors/safe.js');
-
-const Logger = require('../logger.js');
+import { Logger } from '../logger.js';
 
 const CONFIG_KEYS = [
   { id: 'name', name: 'name', displayName: 'Name', kind: 'string' },
@@ -14,11 +12,11 @@ const CONFIG_KEYS = [
   { id: 'force-https', name: 'forceHttps', displayName: 'Force redirection of HTTP to HTTPS', kind: 'force-https' },
 ];
 
-function listAvailableIds () {
+export function listAvailableIds () {
   return CONFIG_KEYS.map((config) => config.id);
 }
 
-function getById (id) {
+export function getById (id) {
   const config = CONFIG_KEYS.find((config) => config.id === id);
   if (config == null) {
     Logger.error(`Invalid configuration name: ${id}.`);
@@ -44,7 +42,7 @@ function display (config, value) {
   }
 }
 
-function parse (config, value) {
+export function parse (config, value) {
   switch (config.kind) {
     case 'bool': {
       return (value !== 'false');
@@ -61,7 +59,7 @@ function parse (config, value) {
   }
 }
 
-function getUpdateOptions () {
+export function getUpdateOptions () {
   return CONFIG_KEYS
     .map((config) => getConfigOptions(config))
     .reduce((a, b) => [...a, ...b], []);
@@ -85,7 +83,7 @@ function getConfigOptions (config) {
   }
 }
 
-function parseOptions (options) {
+export function parseOptions (options) {
   const newOptions = CONFIG_KEYS
     .map((config) => parseConfigOption(config, options))
     .filter((a) => a != null);
@@ -143,22 +141,20 @@ function printConfig (app, config) {
   }
 }
 
-function printById (app, id) {
+export function printById (app, id) {
   const config = getById(id);
   if (config != null) {
     printConfig(app, config);
   }
 }
 
-function printByName (app, name) {
+export function printByName (app, name) {
   const config = CONFIG_KEYS.find((config) => config.name === name);
   printConfig(app, config);
 }
 
-function print (app) {
+export function print (app) {
   for (const config of CONFIG_KEYS) {
     printConfig(app, config);
   }
 }
-
-module.exports = { listAvailableIds, getById, getUpdateOptions, parse, parseOptions, printById, printByName, print };

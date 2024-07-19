@@ -1,11 +1,9 @@
-'use strict';
-
-const { spawn } = require('child_process');
-const { loadOAuthConf, conf } = require('../models/configuration.js');
-const { addOauthHeader } = require('@clevercloud/client/cjs/oauth.js');
-const Logger = require('../logger.js');
-const colors = require('colors/safe.js');
-const curlconverter = require('curlconverter');
+import { spawn } from 'child_process';
+import { loadOAuthConf, conf } from '../models/configuration.js';
+import { addOauthHeader } from '@clevercloud/client/cjs/oauth.js';
+import { Logger } from '../logger.js';
+import colors from 'colors/safe.js';
+import curlconverter from 'curlconverter';
 
 async function loadTokens () {
   const tokens = await loadOAuthConf();
@@ -36,7 +34,7 @@ Our API documentation is available here :
   ${apiDocUrlv4}`);
 }
 
-async function curl () {
+export async function curl () {
 
   // We remove the first three args: "node", "clever" and "curl"
   const curlArgs = process.argv.slice(3);
@@ -93,5 +91,3 @@ async function parseCurlCommand (curlCommand) {
     queryParams: curlRequestParams.queries,
   };
 }
-
-module.exports = { curl };

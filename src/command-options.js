@@ -1,6 +1,6 @@
-const cliparse = require('cliparse');
+import cliparse from 'cliparse';
 
-function getOutputFormatOption (formats = []) {
+export function getOutputFormatOption (formats = []) {
   const availableFormats = ['human', 'json', ...formats];
   return cliparse.option('format', {
     aliases: ['F'],
@@ -18,7 +18,7 @@ function getOutputFormatOption (formats = []) {
   });
 }
 
-function getSameCommitPolicyOption () {
+export function getSameCommitPolicyOption () {
   const availablePolicies = ['error', 'ignore', 'restart', 'rebuild'];
   return cliparse.option('same-commit-policy', {
     aliases: ['p'],
@@ -36,7 +36,7 @@ function getSameCommitPolicyOption () {
   });
 }
 
-function getExitOnOption () {
+export function getExitOnOption () {
   const availableExitOn = ['deploy-start', 'deploy-end', 'never'];
   return cliparse.option('exit-on', {
     aliases: ['e'],
@@ -53,9 +53,3 @@ function getExitOnOption () {
     },
   });
 }
-
-module.exports = {
-  getOutputFormatOption,
-  getSameCommitPolicyOption,
-  getExitOnOption,
-};

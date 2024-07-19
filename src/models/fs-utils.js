@@ -1,9 +1,7 @@
-'use strict';
+import { join } from 'path';
+import { promises as fs } from 'fs';
 
-const { join } = require('path');
-const { promises: fs } = require('fs');
-
-function findPath (dir, name) {
+export function findPath (dir, name) {
   const fullPath = join(dir, name);
   return fs.stat(fullPath)
     .then(() => dir)
@@ -15,5 +13,3 @@ function findPath (dir, name) {
       throw e;
     });
 }
-
-module.exports = { findPath };

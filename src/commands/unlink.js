@@ -1,15 +1,11 @@
-'use strict';
+import * as AppConfig from '../models/app_configuration.js';
+import * as Application from '../models/application.js';
+import { Logger } from '../logger.js';
 
-const AppConfig = require('../models/app_configuration.js');
-const Application = require('../models/application.js');
-const Logger = require('../logger.js');
-
-async function unlink (params) {
+export async function unlink (params) {
   const [alias] = params.args;
   const app = await AppConfig.getAppDetails({ alias });
 
   await Application.unlinkRepo(app.alias);
   Logger.println('Your application has been successfully unlinked!');
 };
-
-module.exports = { unlink };
