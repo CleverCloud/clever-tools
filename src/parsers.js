@@ -73,15 +73,6 @@ function addonIdOrName (string) {
   return cliparse.parsers.success({ addon_name: string });
 }
 
-const ngIdRegex = /^ng_[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-
-function ngIdOrLabel (string) {
-  if (string.match(ngIdRegex)) {
-    return cliparse.parsers.success({ ng_id: string });
-  }
-  return cliparse.parsers.success({ ng_label: string });
-}
-
 function commaSeparated (string) {
   return cliparse.parsers.success(string.split(','));
 }
@@ -122,22 +113,6 @@ function tags (string) {
     }
   }
   return cliparse.parsers.success(tags);
-}
-
-function ngMemberType (string) {
-  const possible = ['application', 'addon', 'external'];
-  if (possible.includes(string)) {
-    return cliparse.parsers.success(string);
-  }
-  return cliparse.parsers.error(`Invalid member type '${string}'. Should be in ${JSON.stringify(possible)}`);
-}
-
-function ngPeerRole (string) {
-  const possible = ['client', 'server'];
-  if (possible.includes(string)) {
-    return cliparse.parsers.success(string);
-  }
-  return cliparse.parsers.error(`Invalid peer role '${string}'. Should be in ${JSON.stringify(possible)}`);
 }
 
 const ipAddressRegex = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9]?[0-9])\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9]?[0-9])$/;
@@ -199,13 +174,10 @@ module.exports = {
   appIdOrName,
   orgaIdOrName,
   addonIdOrName,
-  ngIdOrLabel,
   commaSeparated,
   integer,
   tag,
   tags,
-  ngMemberType,
-  ngPeerRole,
   ipAddressRegex,
   ipAddress,
   portNumberRegex,
