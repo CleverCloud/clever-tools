@@ -6,7 +6,7 @@ const { getHostAndTokens } = require('../models/send-to-api.js');
 const { ApplicationAccessLogStream } = require('@clevercloud/client/cjs/streams/access-logs.js');
 const { JsonArray } = require('../models/json-array.js');
 const colors = require('colors/safe');
-const formatTable = require('../format-table.js');
+const { formatTable } = require('../format-table.js');
 const { truncateWithEllipsis } = require('../models/utils.js');
 
 // 2000 logs per 100ms maximum

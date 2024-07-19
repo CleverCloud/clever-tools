@@ -6,8 +6,7 @@ const path = require('path');
 const _ = require('lodash');
 const git = require('isomorphic-git');
 const http = require('./isomorphic-http-with-agent.js');
-const { autocomplete } = require('cliparse');
-
+const cliparse = require('cliparse');
 const slugify = require('slugify');
 const { findPath } = require('./fs-utils.js');
 const { loadOAuthConf } = require('./configuration.js');
@@ -120,7 +119,7 @@ async function push (remoteUrl, branchRefspec, force) {
 function completeBranches () {
   return getRepo()
     .then((repo) => git.listBranches(repo))
-    .then(autocomplete.words);
+    .then(cliparse.autocomplete.words);
 }
 
 async function isShallow () {

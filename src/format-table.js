@@ -21,4 +21,4 @@ function formatTable (columnWidth = []) {
   };
 }
 
-module.exports = formatTable;
+module.exports = { formatTable };

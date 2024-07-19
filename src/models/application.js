@@ -2,7 +2,7 @@
 
 const _ = require('lodash');
 const application = require('@clevercloud/client/cjs/api/v2/application.js');
-const autocomplete = require('cliparse').autocomplete;
+const cliparse = require('cliparse');
 const product = require('@clevercloud/client/cjs/api/v2/product.js');
 const { getSummary } = require('@clevercloud/client/cjs/api/v2/user.js');
 
@@ -17,17 +17,17 @@ const AppConfig = require('./app_configuration.js');
 const { resolveOwnerId } = require('./ids-resolver.js');
 
 function listAvailableTypes () {
-  return autocomplete.words(['docker', 'elixir', 'go', 'gradle', 'haskell', 'jar', 'maven', 'meteor', 'node', 'php', 'play1', 'play2', 'python', 'ruby', 'rust', 'sbt', 'static-apache', 'war']);
+  return cliparse.autocomplete.words(['docker', 'elixir', 'go', 'gradle', 'haskell', 'jar', 'maven', 'meteor', 'node', 'php', 'play1', 'play2', 'python', 'ruby', 'rust', 'sbt', 'static-apache', 'war']);
 };
 
 const AVAILABLE_ZONES = ['par', 'grahds', 'rbx', 'rbxhds', 'scw', 'mtl', 'sgp', 'syd', 'wsw'];
 
 function listAvailableZones () {
-  return autocomplete.words(AVAILABLE_ZONES);
+  return cliparse.autocomplete.words(AVAILABLE_ZONES);
 };
 
 function listAvailableAliases () {
-  return AppConfiguration.loadApplicationConf().then(({ apps }) => autocomplete.words(_.map(apps, 'alias')));
+  return AppConfiguration.loadApplicationConf().then(({ apps }) => cliparse.autocomplete.words(_.map(apps, 'alias')));
 };
 
 function listAvailableFlavors () {

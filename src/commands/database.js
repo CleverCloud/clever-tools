@@ -3,12 +3,14 @@
 const { sendToApi } = require('../models/send-to-api.js');
 const { getBackups } = require('@clevercloud/client/cjs/api/v2/backups.js');
 const { println } = require('../logger.js');
-const formatTable = require('../format-table')();
+const { formatTable: initFormatTable } = require('../format-table.js');
 const superagent = require('superagent');
 const fs = require('fs');
 const { findOwnerId } = require('../models/addon.js');
 const { resolveRealId, resolveAddonId } = require('../models/ids-resolver.js');
 const Logger = require('../logger.js');
+
+const formatTable = initFormatTable();
 
 async function listBackups (params) {
 

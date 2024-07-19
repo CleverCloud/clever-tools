@@ -6,7 +6,7 @@ const AppConfig = require('../models/app_configuration.js');
 const Application = require('../models/application.js');
 const Organisation = require('../models/organisation.js');
 const Logger = require('../logger.js');
-const formatTable = require('../format-table.js');
+const { formatTable } = require('../format-table.js');
 const { truncateWithEllipsis } = require('../models/utils.js');
 
 async function list (params) {

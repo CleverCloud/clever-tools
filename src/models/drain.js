@@ -1,6 +1,6 @@
 'use strict';
 
-const autocomplete = require('cliparse').autocomplete;
+const cliparse = require('cliparse');
 
 const DRAIN_TYPES = [
   { id: 'TCPSyslog', structuredDataParameters: 'OPTIONAL' },
@@ -130,7 +130,7 @@ function keyEmpty ({ apiKey }) {
 }
 
 function listDrainTypes () {
-  return autocomplete.words(DRAIN_TYPES.map((type) => type.id));
+  return cliparse.autocomplete.words(DRAIN_TYPES.map((type) => type.id));
 }
 
 module.exports = {
