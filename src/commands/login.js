@@ -1,8 +1,6 @@
 import crypto from 'crypto';
 import util from 'util';
 
-const delay = util.promisify(setTimeout);
-
 import colors from 'colors/safe.js';
 import open from 'open';
 import superagent from 'superagent';
@@ -12,6 +10,8 @@ import * as User from '../models/user.js';
 import { conf, writeOAuthConf } from '../models/configuration.js';
 
 import { getPackageJson } from '../load-package-json.js';
+
+const delay = util.promisify(setTimeout);
 const pkg = getPackageJson();
 
 // 20 random bytes as Base64URL

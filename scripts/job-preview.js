@@ -4,13 +4,14 @@ import fs from 'fs-extra';
 import colors from 'colors/safe.js';
 import textTable from 'text-table';
 import * as cfg from './config.js';
-const { archList } = cfg;
 import * as build from './build.js';
 import * as archive from './archive.js';
 import { getArchiveFilename, getWorkingDirectory, getArchiveFilepath, getShaFilepath } from './paths.js';
 import { getCurrentBranch, cleanupDirectory, getCurrentAuthor, getCurrentCommit } from './utils.js';
 import { getCellarClient } from './cellar-client.js';
 import { archEmoji } from './config.js';
+
+const { archList } = cfg;
 
 const REMOTE_PREVIEW_DIR = 'previews';
 
