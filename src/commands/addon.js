@@ -4,7 +4,7 @@ const colors = require('colors/safe');
 
 const Addon = require('../models/addon.js');
 const AppConfig = require('../models/app_configuration.js');
-const formatTable = require('../format-table')();
+const { formatTable: initFormatTable } = require('../format-table.js');
 const Logger = require('../logger.js');
 const Organisation = require('../models/organisation.js');
 const User = require('../models/user.js');
@@ -13,6 +13,8 @@ const { getAllEnvVars } = require('@clevercloud/client/cjs/api/v2/addon.js');
 const { sendToApi } = require('../models/send-to-api.js');
 const { toNameEqualsValueString } = require('@clevercloud/client/cjs/utils/env-vars.js');
 const { resolveAddonId } = require('../models/ids-resolver.js');
+
+const formatTable = initFormatTable();
 
 async function list (params) {
   const { org: orgaIdOrName, format } = params.options;

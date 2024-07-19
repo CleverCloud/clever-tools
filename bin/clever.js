@@ -54,7 +54,7 @@ const _sortBy = require('lodash/sortBy.js');
 
 const git = require('../src/models/git.js');
 const Parsers = require('../src/parsers.js');
-const handleCommandPromise = require('../src/command-promise-handler.js');
+const { handleCommandPromise } = require('../src/command-promise-handler.js');
 const { AVAILABLE_ZONES } = require('../src/models/application.js');
 const { getOutputFormatOption, getSameCommitPolicyOption, getExitOnOption } = require('../src/command-options.js');
 

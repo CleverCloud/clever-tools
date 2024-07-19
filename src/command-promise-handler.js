@@ -15,4 +15,4 @@ function handleCommandPromise (promise) {
   });
 }
 
-module.exports = handleCommandPromise;
+module.exports = { handleCommandPromise };

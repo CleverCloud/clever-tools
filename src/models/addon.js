@@ -1,7 +1,8 @@
 'use strict';
 
 const application = require('@clevercloud/client/cjs/api/v2/application.js');
-const autocomplete = require('cliparse').autocomplete;
+const cliparse = require('cliparse');
+
 const {
   get: getAddon,
   getAll: getAllAddons,
@@ -219,12 +220,12 @@ async function rename (ownerId, addon, name) {
 }
 
 function completeRegion () {
-  return autocomplete.words(['par', 'mtl']);
+  return cliparse.autocomplete.words(['par', 'mtl']);
 }
 
 // TODO: We need to fix this
 function completePlan () {
-  return autocomplete.words(['dev', 's', 'm', 'l', 'xl', 'xxl']);
+  return cliparse.autocomplete.words(['dev', 's', 'm', 'l', 'xl', 'xxl']);
 }
 
 async function findById (addonId) {

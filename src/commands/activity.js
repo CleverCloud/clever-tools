@@ -4,7 +4,7 @@ const colors = require('colors/safe');
 const moment = require('moment');
 
 const Activity = require('../models/activity.js');
-const formatTable = require('../format-table');
+const { formatTable } = require('../format-table');
 const Logger = require('../logger.js');
 const { Deferred } = require('../models/utils.js');
 const { EventsStream } = require('@clevercloud/client/cjs/streams/events.node.js');

@@ -1,13 +1,12 @@
 'use strict';
 
-const autocomplete = require('cliparse').autocomplete;
-
+const cliparse = require('cliparse');
 const AppConfig = require('../models/app_configuration.js');
 const Organisation = require('../models/organisation.js');
 const User = require('../models/user.js');
 
 function listMetaEvents () {
-  return autocomplete.words([
+  return cliparse.autocomplete.words([
     'META_SERVICE_LIFECYCLE',
     'META_DEPLOYMENT_RESULT',
     'META_SERVICE_MANAGEMENT',
