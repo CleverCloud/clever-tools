@@ -80,22 +80,13 @@ function lazyRequirePromiseModule (modulePath) {
   };
 }
 
-function lazyRequire (modulePath) {
-  return function (name) {
-    return function (...args) {
-      const module = dynamicRequire(modulePath);
-      return module[name].apply(this, args);
-    };
-  };
-}
-
-const Addon = lazyRequire('../src/models/addon.js');
-const Application = lazyRequire('../src/models/application.js');
-const ApplicationConfiguration = lazyRequire('../src/models/application_configuration.js');
-const Drain = lazyRequire('../src/models/drain.js');
-const Notification = lazyRequire('../src/models/notification.js');
-const NetworkGroup = lazyRequire('../src/models/networkgroup.js');
-const Namespaces = lazyRequire('../src/models/namespaces.js');
+const Addon = require('../src/models/addon.js');
+const Application = require('../src/models/application.js');
+const ApplicationConfiguration = require('../src/models/application_configuration.js');
+const Drain = require('../src/models/drain.js');
+const Notification = require('../src/models/notification.js');
+const NetworkGroup = require('../src/models/networkgroup.js');
+const Namespaces = require('../src/models/namespaces.js');
 
 function run () {
 
@@ -121,7 +112,7 @@ function run () {
     drainId: cliparse.argument('drain-id', { description: 'Drain ID' }),
     drainType: cliparse.argument('drain-type', {
       description: 'Drain type',
-      complete: Drain('listDrainTypes'),
+      complete: Drain.listDrainTypes,
     }),
     drainUrl: cliparse.argument('drain-url', { description: 'Drain URL' }),
     fqdn: cliparse.argument('fqdn', { description: 'Domain name of the application' }),
@@ -141,7 +132,7 @@ function run () {
     configurationName: cliparse.argument('configuration-name', {
       description: 'The name of the configuration to manage',
       complete () {
-        return cliparse.autocomplete.words(ApplicationConfiguration('listAvailableIds')());
+        return cliparse.autocomplete.words(ApplicationConfiguration.listAvailableIds());
       },
     }),
     configurationValue: cliparse.argument('configuration-value', { description: 'The new value of the configuration' }),
@@ -181,7 +172,7 @@ function run () {
       aliases: ['a'],
       metavar: 'alias',
       description: 'Short name for the application',
-      complete: Application('listAvailableAliases'),
+      complete: Application.listAvailableAliases,
     }),
     naturalName: cliparse.flag('natural-name', {
       aliases: ['n'],
@@ -224,12 +215,12 @@ function run () {
       metavar: 'namespace',
       description: 'Namespace in which the TCP redirection should be',
       required: true,
-      complete: Namespaces('completeNamespaces'),
+      complete: Namespaces.completeNamespaces,
     }),
     notificationEventType: cliparse.option('event', {
       metavar: 'type',
       description: 'Restrict notifications to specific event types',
-      complete: Notification('listMetaEvents'),
+      complete: Notification.listMetaEvents,
       parser: Parsers.commaSeparated,
     }),
     flavor: cliparse.option('flavor', {
@@ -237,7 +228,7 @@ function run () {
       parser: Parsers.flavor,
       description: 'The instance size of your application',
       complete () {
-        return cliparse.autocomplete.words(Application('listAvailableFlavors')());
+        return cliparse.autocomplete.words(Application.listAvailableFlavors());
       },
     }),
     follow: cliparse.flag('follow', {
@@ -273,7 +264,7 @@ function run () {
       aliases: ['l'],
       metavar: 'alias',
       description: 'Link the created add-on to the app with the specified alias',
-      complete: Application('listAvailableAliases'),
+      complete: Application.listAvailableAliases,
     }),
     listAllNotifications: cliparse.flag('list-all', { description: 'List all notifications for your user or for an organisation with the \'--org\' option' }),
     maxFlavor: cliparse.option('max-flavor', {
@@ -281,7 +272,7 @@ function run () {
       parser: Parsers.flavor,
       description: 'The maximum instance size of your application',
       complete () {
-        return cliparse.autocomplete.words(Application('listAvailableFlavors')());
+        return cliparse.autocomplete.words(Application.listAvailableFlavors());
       },
     }),
     buildFlavor: cliparse.option('build-flavor', {
@@ -299,7 +290,7 @@ function run () {
       parser: Parsers.flavor,
       description: 'The minimum scale size of your application',
       complete () {
-        return cliparse.autocomplete.words(Application('listAvailableFlavors')());
+        return cliparse.autocomplete.words(Application.listAvailableFlavors());
       },
     }),
     minInstances: cliparse.option('min-instances', {
@@ -345,7 +336,7 @@ function run () {
       default: '',
       metavar: 'plan',
       description: 'Add-on plan, depends on the provider',
-      complete: Addon('completePlan'),
+      complete: Addon.completePlan,
     }),
     quiet: cliparse.flag('quiet', { aliases: ['q'], description: 'Don\'t show logs during deployment' }),
     followDeployLogs: cliparse.flag('follow', {
@@ -356,7 +347,7 @@ function run () {
       default: 'par',
       metavar: 'region',
       description: 'Region to provision the add-on in, depends on the provider',
-      complete: Addon('completeRegion'),
+      complete: Addon.completeRegion,
     }),
     addonVersion: cliparse.option('addon-version', {
       metavar: 'addon-version',
@@ -371,7 +362,7 @@ function run () {
       default: 'par',
       metavar: 'zone',
       description: `Region, can be ${AVAILABLE_ZONES.map((name) => `'${name}'`).join(', ')}`,
-      complete: Application('listAvailableZones'),
+      complete: Application.listAvailableZones,
     }),
     search: cliparse.option('search', {
       metavar: 'search',
@@ -403,7 +394,7 @@ function run () {
       required: true,
       metavar: 'type',
       description: 'Instance type',
-      complete: Application('listAvailableTypes'),
+      complete: Application.listAvailableTypes,
     }),
     drainUsername: cliparse.option('username', {
       aliases: ['u'],
@@ -457,7 +448,7 @@ function run () {
       metavar: 'ng',
       description: 'Network Group ID or label',
       parser: Parsers.ngIdOrLabel,
-      // complete: NetworkGroup('xxx'),
+      // complete: NetworkGroup.xxx,
     }),
     ngDescription: cliparse.option('description', {
       required: true,
@@ -469,7 +460,7 @@ function run () {
       required: true,
       metavar: 'member_id',
       description: `The member ID: an app ID (e.g.: ${Formatter.formatCode('app_xxx')}), add-on ID (e.g.: ${Formatter.formatCode('addon_xxx')}) or external node category ID`,
-      // complete: NetworkGroup('xxx'),
+      // complete: NetworkGroup.xxx,
     }),
     ngMemberDomainName: cliparse.option('domain-name', {
       required: true,
@@ -480,14 +471,14 @@ function run () {
       required: true,
       metavar: 'peer_id',
       description: 'The peer ID',
-      // complete: NetworkGroup('xxx'),
+      // complete: NetworkGroup.xxx,
     }),
     ngPeerRole: cliparse.option('role', {
       required: true,
       metavar: 'peer_role',
       description: `The peer role, (${Formatter.formatString('client')} or ${Formatter.formatString('server')})`,
       parser: Parsers.ngPeerRole,
-      complete: NetworkGroup('listAvailablePeerRoles'),
+      complete: NetworkGroup.listAvailablePeerRoles,
     }),
     // FIXME: Add "internal" member type
     ngMemberType: cliparse.option('type', {
@@ -495,7 +486,7 @@ function run () {
       metavar: 'member_type',
       description: `The member type (${Formatter.formatString('application')}, ${Formatter.formatString('addon')} or ${Formatter.formatString('external')})`,
       parser: Parsers.ngMemberType,
-      complete: NetworkGroup('listAvailableMemberTypes'),
+      complete: NetworkGroup.listAvailableMemberTypes,
     }),
     ngMemberLabel: cliparse.option('label', {
       required: true,
@@ -507,7 +498,7 @@ function run () {
       aliases: ['c'],
       metavar: 'node_category_id',
       description: 'The external node category ID',
-      // complete: NetworkGroup('xxx'),
+      // complete: NetworkGroup.xxx,
     }),
     ngPeerLabel: cliparse.option('label', {
       required: true,
@@ -518,14 +509,14 @@ function run () {
       required: true,
       metavar: 'member_id',
       description: 'Network Group peer category ID (parent member ID)',
-      // complete: NetworkGroup('xxx'),
+      // complete: NetworkGroup.xxx,
     }),
     optNgIdOrLabel: cliparse.option('ng', {
       required: false,
       metavar: 'ng',
       description: 'Network Group ID or label',
       parser: Parsers.ngIdOrLabel,
-      // complete: NetworkGroup('xxx'),
+      // complete: NetworkGroup.xxx,
     }),
     optNgMemberLabel: cliparse.option('label', {
       required: false,
@@ -537,13 +528,13 @@ function run () {
       aliases: ['c'],
       metavar: 'node_category_id',
       description: 'The external node category ID',
-      // complete: NetworkGroup('xxx'),
+      // complete: NetworkGroup.xxx,
     }),
     optNgPeerId: cliparse.option('peer-id', {
       required: false,
       metavar: 'peer_id',
       description: 'The peer ID',
-      // complete: NetworkGroup('xxx'),
+      // complete: NetworkGroup.xxx,
     }),
     optNgPeerRole: cliparse.option('role', {
       required: false,
@@ -551,13 +542,13 @@ function run () {
       metavar: 'peer_role',
       description: `The peer role, (${Formatter.formatString('client')} or ${Formatter.formatString('server')})`,
       parser: Parsers.ngPeerRole,
-      complete: NetworkGroup('listAvailablePeerRoles'),
+      complete: NetworkGroup.listAvailablePeerRoles,
     }),
     optNgSearchAppId: cliparse.option('app-id', {
       required: false,
       metavar: 'app_id',
       description: 'The app ID to search',
-      // complete: NetworkGroup('xxx'),
+      // complete: NetworkGroup.xxx,
     }),
     wgPublicKey: cliparse.option('public-key', {
       required: true,
@@ -689,7 +680,7 @@ function run () {
   }, config('set'));
   const configUpdateCommand = cliparse.command('update', {
     description: 'Edit multiple configuration settings at once',
-    options: ApplicationConfiguration('getUpdateOptions')(),
+    options: ApplicationConfiguration.getUpdateOptions(),
   }, config('update'));
   const configCommands = cliparse.command('config', {
     description: 'Display or edit the configuration of your application',
