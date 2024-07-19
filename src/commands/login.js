@@ -5,7 +5,7 @@ const util = require('util');
 
 const delay = util.promisify(setTimeout);
 
-const colors = require('colors/safe');
+const colors = require('colors/safe.js');
 const open = require('open');
 const superagent = require('superagent');
 

@@ -1,7 +1,7 @@
 'use strict';
 
 const _ = require('lodash');
-const colors = require('colors/safe');
+const colors = require('colors/safe.js');
 
 function getPrefix (severity) {
   const prefix = `[${severity.toUpperCase()}] `;

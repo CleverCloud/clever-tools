@@ -1,7 +1,7 @@
 'use strict';
 
 const _ = require('lodash');
-const colors = require('colors/safe');
+const colors = require('colors/safe.js');
 
 const Logger = require('../logger.js');
 const { Deferred } = require('./utils.js');

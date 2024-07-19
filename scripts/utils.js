@@ -1,6 +1,6 @@
 'use strict';
 
-const colors = require('colors/safe');
+const colors = require('colors/safe.js');
 const _ = require('lodash');
 const childProcess = require('child_process');
 const fs = require('fs-extra');

@@ -1,6 +1,6 @@
 'use strict';
 
-const colors = require('colors/safe');
+const colors = require('colors/safe.js');
 
 const Namespaces = require('../models/namespaces.js');
 const { sendToApi } = require('../models/send-to-api.js');

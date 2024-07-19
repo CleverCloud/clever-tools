@@ -1,6 +1,6 @@
 'use strict';
 
-const colors = require('colors/safe');
+const colors = require('colors/safe.js');
 
 const Logger = require('../logger.js');
 const User = require('../models/user.js');

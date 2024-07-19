@@ -5,7 +5,7 @@ const LogV2 = require('../models/log.js');
 const Log = require('../models/log-v4.js');
 const Logger = require('../logger.js');
 const { Deferred } = require('../models/utils.js');
-const colors = require('colors/safe');
+const colors = require('colors/safe.js');
 const { resolveAddonId } = require('../models/ids-resolver.js');
 
 async function appLogs (params) {

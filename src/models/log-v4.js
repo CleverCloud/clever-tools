@@ -1,5 +1,5 @@
 const { getHostAndTokens, processError } = require('./send-to-api.js');
-const colors = require('colors/safe');
+const colors = require('colors/safe.js');
 const { Deferred } = require('./utils.js');
 const Logger = require('../logger.js');
 const { waitForDeploymentEnd, waitForDeploymentStart } = require('./deployments.js');
