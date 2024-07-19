@@ -50,6 +50,7 @@
     "xdg": "0.1.1"
   },
   "devDependencies": {
+    "@babel/core": "7.22.20",
     "@commitlint/cli": "18.4.3",
     "@commitlint/config-conventional": "18.4.3",
     "aws-sdk": "2.919.0",
@@ -61,12 +62,15 @@
     "eslint-plugin-node": "11.1.0",
     "eslint-plugin-promise": "5.1.0",
     "eslint-plugin-standard": "5.0.0",
+    "estree-walker": "3.0.3",
     "fs-extra": "10.0.0",
     "glob": "7.1.7",
+    "globby": "13.2.2",
     "grunt": "1.4.1",
     "grunt-cli": "1.4.3",
     "grunt-http": "2.3.3",
     "grunt-mocha-test": "0.13.3",
+    "magic-string": "0.30.3",
     "mime-types": "2.1.35",
     "mocha": "8.4.0",
     "pkg": "5.8.1",
