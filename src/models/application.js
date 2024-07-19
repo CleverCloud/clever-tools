@@ -11,7 +11,6 @@ import * as Organisation from './organisation.js';
 import * as User from './user.js';
 
 import { sendToApi } from '../models/send-to-api.js';
-import * as AppConfig from './app_configuration.js';
 import { resolveOwnerId } from './ids-resolver.js';
 
 export function listAvailableTypes () {
@@ -181,7 +180,7 @@ export async function resolveId (appIdOrName, alias) {
   // -- resolve by linked app
 
   if (appIdOrName == null) {
-    const appDetails = await AppConfig.getAppDetails({ alias });
+    const appDetails = await AppConfiguration.getAppDetails({ alias });
     return { appId: appDetails.appId, ownerId: appDetails.ownerId };
   }
 
