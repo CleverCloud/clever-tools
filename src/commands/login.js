@@ -12,7 +12,9 @@ const superagent = require('superagent');
 const Logger = require('../logger.js');
 const User = require('../models/user.js');
 const { conf, writeOAuthConf } = require('../models/configuration.js');
-const { version } = require('../../package');
+
+const { getPackageJson } = require('../load-package-json.js');
+const pkg = getPackageJson();
 
 // 20 random bytes as Base64URL
 function randomToken () {
@@ -49,7 +51,7 @@ async function loginViaConsole () {
   const cliToken = randomToken();
 
   const consoleUrl = new URL(conf.CONSOLE_TOKEN_URL);
-  consoleUrl.searchParams.set('cli_version', version);
+  consoleUrl.searchParams.set('cli_version', pkg.version);
   consoleUrl.searchParams.set('cli_token', cliToken);
 
   const cliPollUrl = new URL(conf.API_HOST);

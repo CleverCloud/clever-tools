@@ -1,8 +1,10 @@
 'use strict';
 
 const Logger = require('./logger.js');
-const pkg = require('../package.json');
+const { getPackageJson } = require('./load-package-json.js');
 const semver = require('semver');
+
+const pkg = getPackageJson();
 
 function handleCommandPromise (promise) {
   promise.catch((error) => {

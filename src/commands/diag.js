@@ -6,9 +6,11 @@ const { releaseInfo: getLinuxInfos } = require('linux-release-info');
 const colors = require('colors/safe');
 
 const Logger = require('../logger.js');
-const pkg = require('../../package.json');
+const { getPackageJson } = require('../load-package-json.js');
 const User = require('../models/user.js');
 const { conf, loadOAuthConf } = require('../models/configuration.js');
+
+const pkg = getPackageJson();
 
 async function diag (params) {
   const { format } = params.options;

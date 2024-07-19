@@ -32,7 +32,8 @@ if (colorExplicitFalse || (!process.stdout.isTTY && !colorExplicitTrue)) {
 }
 
 // These need to be set before Logger and other stuffs
-const pkg = require('../package.json');
+const { getPackageJson } = require('../src/load-package-json.js');
+const pkg = getPackageJson();
 const updateNotifierModule = require('update-notifier');
 const isRunThroughPackagedBinary = process.pkg != null;
 const updateNotifierExplicitFalse = hasParam('--no-update-notifier') || hasParam('--update-notifier', 'false');
