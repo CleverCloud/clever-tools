@@ -2,7 +2,7 @@
 
 const Application = require('../models/application.js');
 const Logger = require('../logger.js');
-const colors = require('colors/safe');
+const colors = require('colors/safe.js');
 const variables = require('../models/variables.js');
 const { sendToApi } = require('../models/send-to-api.js');
 const { toNameEqualsValueString, validateName } = require('@clevercloud/client/cjs/utils/env-vars.js');

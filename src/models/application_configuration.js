@@ -1,7 +1,7 @@
 'use strict';
 
 const cliparse = require('cliparse');
-const colors = require('colors/safe');
+const colors = require('colors/safe.js');
 
 const Logger = require('../logger.js');
 

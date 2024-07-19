@@ -4,7 +4,7 @@ const { spawn } = require('child_process');
 const { loadOAuthConf, conf } = require('../models/configuration.js');
 const { addOauthHeader } = require('@clevercloud/client/cjs/oauth.js');
 const Logger = require('../logger.js');
-const colors = require('colors/safe');
+const colors = require('colors/safe.js');
 const curlconverter = require('curlconverter');
 
 async function loadTokens () {

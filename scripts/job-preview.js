@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 const fs = require('fs-extra');
-const colors = require('colors/safe');
+const colors = require('colors/safe.js');
 const textTable = require('text-table');
 const cfg = require('./config.js');
 const { archList } = cfg;
