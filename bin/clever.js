@@ -1,81 +1,18 @@
 #! /usr/bin/env node
-'use strict';
 
-function hasParam (param, paramValue) {
-  const index = process.argv.indexOf(param);
-  if (index === -1) {
-    return false;
-  }
-  if (paramValue != null) {
-    return process.argv[index + 1] === paramValue;
-  }
-  return true;
-}
-
-// These need to be set before Logger and other stuffs
-if (hasParam('-v') || hasParam('--verbose')) {
-  process.env.CLEVER_VERBOSE = '1';
-}
-
-// These need to be set before Logger and other stuffs
-// Don't log anything in autocomplete mode
-if (hasParam('--autocomplete-index')) {
-  process.env.CLEVER_QUIET = '1';
-}
-
-// These need to be set before other stuffs
-import colors from 'colors';
-const colorExplicitFalse = hasParam('--no-color') || hasParam('--color', 'false');
-const colorExplicitTrue = hasParam('--color', 'true');
-if (colorExplicitFalse || (!process.stdout.isTTY && !colorExplicitTrue)) {
-  colors.disable();
-}
-
-// These need to be set before Logger and other stuffs
-import { getPackageJson } from '../src/load-package-json.js';
-const pkg = getPackageJson();
-import updateNotifierModule from 'update-notifier';
-const isRunThroughPackagedBinary = process.pkg != null;
-const updateNotifierExplicitFalse = hasParam('--no-update-notifier') || hasParam('--update-notifier', 'false');
-if (!updateNotifierExplicitFalse && !isRunThroughPackagedBinary) {
-  updateNotifierModule({
-    pkg,
-    tagsUrl: 'https://api.github.com/repos/CleverCloud/clever-tools/tags',
-  }).notify({
-    isGlobal: true,
-    getDetails () {
-      const docsUrl = 'https://github.com/CleverCloud/clever-tools/tree/master/docs#how-to-use-clever-tools';
-      return `\nPlease follow this link to update your clever-tools:\n${docsUrl}`;
-    },
-  });
-}
+// WARNING: this needs to run before other imports
+import '../src/initial-setup.js';
 
 import cliparse from 'cliparse';
 import cliparseCommands from 'cliparse/src/command.js';
 import _sortBy from 'lodash/sortBy.js';
 
+import { getPackageJson } from '../src/load-package-json.js';
 import * as git from '../src/models/git.js';
 import * as Parsers from '../src/parsers.js';
 import { handleCommandPromise } from '../src/command-promise-handler.js';
 import { AVAILABLE_ZONES } from '../src/models/application.js';
 import { getOutputFormatOption, getSameCommitPolicyOption, getExitOnOption } from '../src/command-options.js';
-
-// Exit cleanly if the program we pipe to exits abruptly
-process.stdout.on('error', (error) => {
-  if (error.code === 'EPIPE') {
-    process.exit(0);
-  }
-});
-
-// Patch cliparse.command so we can catch errors
-const cliparseCommand = cliparse.command;
-
-cliparse.command = function (name, options, commandFunction) {
-  return cliparseCommand(name, options, (...args) => {
-    const promise = commandFunction(...args);
-    handleCommandPromise(promise);
-  });
-};
 
 import * as Addon from '../src/models/addon.js';
 import * as Application from '../src/models/application.js';
@@ -119,6 +56,23 @@ import * as version from '../src/commands/version.js';
 import * as webhooks from '../src/commands/webhooks.js';
 import * as database from '../src/commands/database.js';
 import { curl } from '../src/commands/curl.js';
+
+// Exit cleanly if the program we pipe to exits abruptly
+process.stdout.on('error', (error) => {
+  if (error.code === 'EPIPE') {
+    process.exit(0);
+  }
+});
+
+// Patch cliparse.command so we can catch errors
+const cliparseCommand = cliparse.command;
+
+cliparse.command = function (name, options, commandFunction) {
+  return cliparseCommand(name, options, (...args) => {
+    const promise = commandFunction(...args);
+    handleCommandPromise(promise);
+  });
+};
 
 function run () {
 
@@ -952,7 +906,7 @@ function run () {
   const cliParser = cliparse.cli({
     name: 'clever',
     description: 'CLI tool to manage Clever Cloud\'s data and products',
-    version: pkg.version,
+    version: getPackageJson().version,
     options: [opts.color, opts.updateNotifier, opts.verbose],
     helpCommand: false,
     commands,

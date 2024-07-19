@@ -1,9 +1,9 @@
 import { promisify } from 'util';
-const delay = promisify(setTimeout);
-
 import { Logger } from '../logger.js';
 import { getDeployment, getAllDeployments } from '@clevercloud/client/cjs/api/v2/application.js';
 import { sendToApi } from './send-to-api.js';
+
+const delay = promisify(setTimeout);
 
 const DEPLOYMENT_POLLING_DELAY = 5000;
 const BACKOFF_FACTOR = 1.25;
