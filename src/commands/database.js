@@ -2,13 +2,12 @@
 
 const { sendToApi } = require('../models/send-to-api.js');
 const { getBackups } = require('@clevercloud/client/cjs/api/v2/backups.js');
-const { println } = require('../logger.js');
+const Logger = require('../logger.js');
 const { formatTable: initFormatTable } = require('../format-table.js');
 const superagent = require('superagent');
 const fs = require('fs');
 const { findOwnerId } = require('../models/addon.js');
 const { resolveRealId, resolveAddonId } = require('../models/ids-resolver.js');
-const Logger = require('../logger.js');
 
 const formatTable = initFormatTable();
 
@@ -24,7 +23,7 @@ async function listBackups (params) {
   const backups = await getBackups({ ownerId, ref: realId }).then(sendToApi);
 
   if (backups.length === 0 && format === 'human') {
-    println('There are no backups yet');
+    Logger.println('There are no backups yet');
     return;
   }
 
@@ -60,7 +59,7 @@ async function listBackups (params) {
         'STATUS',
       ];
 
-      println(formatTable([
+      Logger.println(formatTable([
         head,
         ...formattedLines,
       ]));
