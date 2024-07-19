@@ -1,7 +1,8 @@
 'use strict';
 
 const os = require('os');
-const pkgJson = require('../package.json');
+const { getPackageJson } = require('../src/load-package-json.js');
+const pkg = getPackageJson();
 
 const archList = ['linux', 'macos', 'win'];
 const archEmoji = {
@@ -9,19 +10,19 @@ const archEmoji = {
   macos: '🍏',
   win: '🪟',
 };
-const nodeVersion = pkgJson['pkg-node-version'];
+const nodeVersion = pkg['pkg-node-version'];
 const git = {
   email: 'ci@clever-cloud.com',
   name: 'Clever Cloud CI',
 };
 const appInfos = {
-  name: pkgJson.name,
+  name: pkg.name,
   vendor: 'Clever Cloud',
-  url: pkgJson.homepage,
-  description: pkgJson.description,
-  license: pkgJson.license,
+  url: pkg.homepage,
+  description: pkg.description,
+  license: pkg.license,
   maintainer: `${git.name} <${git.email}>`,
-  keywords: pkgJson.keywords.join(' '),
+  keywords: pkg.keywords.join(' '),
 };
 
 function getNexusAuth () {
