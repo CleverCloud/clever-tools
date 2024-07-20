@@ -177,7 +177,7 @@ export async function deleteAddon (params) {
   const [addon] = params.args;
 
   const ownerId = await Organisation.getId(orgaIdOrName);
-  await Addon.delete(ownerId, addon, skipConfirmation);
+  await Addon.deleteAddon(ownerId, addon, skipConfirmation);
 
   Logger.println(`Addon ${addon.addon_id || addon.addon_name} successfully deleted`);
 }
