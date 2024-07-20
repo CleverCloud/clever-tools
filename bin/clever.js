@@ -474,7 +474,7 @@ function run () {
     description: 'Delete an add-on',
     args: [args.addonIdOrName],
     options: [opts.confirmAddonDeletion],
-  }, addon.delete);
+  }, addon.deleteAddon);
   const addonRenameCommand = cliparse.command('rename', {
     description: 'Rename an add-on',
     args: [args.addonIdOrName, args.addonName],
