@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { getPackageJson } from '../src/load-package-json.js';
+import { getPackageJson } from '../src/load-package-json.cjs';
 import * as publishArch from './publish-arch.js';
 import * as publishBrew from './publish-brew.js';
 import { publishCellar, assertRemoteFilesAreOnCellar } from './publish-cellar.js';

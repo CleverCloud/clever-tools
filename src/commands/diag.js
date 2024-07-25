@@ -4,7 +4,7 @@ import { releaseInfo as getLinuxInfos } from 'linux-release-info';
 import colors from 'colors/safe.js';
 
 import { Logger } from '../logger.js';
-import { getPackageJson } from '../load-package-json.js';
+import { getPackageJson } from '../load-package-json.cjs';
 import * as User from '../models/user.js';
 import { conf, loadOAuthConf } from '../models/configuration.js';
 
