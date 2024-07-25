@@ -1,9 +1,9 @@
-import * as cfg from './config';
+import { cfg } from './config';
 import fs from 'fs-extra';
 import { cloneGitProject, applyTemplates, commitAndPush } from './utils';
 import { getArchiveFilepath, getShaFilepath } from './paths.js';
 
-module.exports = async function publishArch (version) {
+export async function publishArch (version) {
 
   const templatesPath = './templates/arch';
   const gitPath = './git-arch';

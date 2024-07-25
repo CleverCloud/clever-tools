@@ -1,8 +1,8 @@
-import * as cfg from './config';
+import { cfg } from './config';
 import { cloneGitProject, applyTemplates, tagAndPush, commitAndPush, execSync } from './utils';
 import childProcess from 'child_process';
 
-module.exports = async function publishDockerhub (version) {
+export async function publishDockerhub (version) {
 
   const dockerHubConf = cfg.getDockerHubConf();
   const templateFilepath = './templates/dockerhub';
