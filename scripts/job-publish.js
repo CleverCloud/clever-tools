@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 
 import { getPackageJson } from '../src/load-package-json.cjs';
-import * as publishArch from './publish-arch.js';
-import * as publishBrew from './publish-brew.js';
+import { publishArch } from './publish-arch.js';
+import { publishBrew } from './publish-brew.js';
 import { publishCellar, assertRemoteFilesAreOnCellar } from './publish-cellar.js';
-import * as publishDockerhub from './publish-dockerhub.js';
-import * as publishExherbo from './publish-exherbo.js';
-import * as publishNexus from './publish-nexus.js';
-import * as publishNpm from './publish-npm.js';
+import { publishDockerhub } from './publish-dockerhub.js';
+import { publishExherbo } from './publish-exherbo.js';
+import { publishNexus } from './publish-nexus.js';
+import { publishNpm } from './publish-npm.js';
 
 const pkgJson = getPackageJson();
 

@@ -1,4 +1,4 @@
-import * as cfg from './config';
+import { cfg } from './config';
 import { promises as fs } from 'fs';
 import path from 'path';
 import superagent from 'superagent';
@@ -8,7 +8,7 @@ const NEXUS_DEB = 'https://nexus.clever-cloud.com/repository/deb/';
 const NEXUS_NUPKG = 'https://nexus.clever-cloud.com/repository/nupkg/';
 const NEXUS_RPM = 'https://nexus.clever-cloud.com/repository/rpm/';
 
-module.exports = async function publishNexus (version) {
+export async function publishNexus (version) {
 
   const nexusAuth = cfg.getNexusAuth();
 

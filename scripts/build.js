@@ -3,7 +3,7 @@ import * as cfg from './config.js';
 import { getBinaryFilepath, getBinaryDirectory } from './paths.js';
 import { startTask, endTask, cleanupDirectory } from './utils.js';
 
-module.exports = async function build (version) {
+export async function build (version) {
   await cleanupDirectory(getBinaryDirectory(version));
 
   for (const arch of cfg.archList) {

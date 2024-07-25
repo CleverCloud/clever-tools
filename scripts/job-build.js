@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
-import * as build from './build.js';
-import * as archive from './archive.js';
-import * as bundle from './bundle.js';
+import { build } from './build.js';
+import { archive } from './archive.js';
+import { bundle } from './bundle.js';
 import { cleanupDirectory } from './utils.js';
 import { getWorkingDirectory } from './paths.js';
 
