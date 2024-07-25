@@ -27,7 +27,7 @@
   ],
   "dependencies": {
     "@clevercloud/client": "8.3.0",
-    "cliparse": "0.4.0",
+    "cliparse": "0.5.0",
     "colors": "1.4.0",
     "common-env": "6.4.0",
     "curlconverter": "3.21.0",
