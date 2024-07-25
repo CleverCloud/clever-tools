@@ -4,7 +4,7 @@ import * as cfg from './config.js';
 import { startTask, writeStringToFile, applyTemplates, exec, endTask, generateChecksumFile, assertFileExists, cleanupDirectory } from './utils.js';
 import { getBinaryFilepath, getArchiveFilepath, getShaFilepath, getBundleDirectory, getBundleFilepath } from './paths.js';
 
-module.exports = async function bundle (version) {
+export async function bundle (version) {
   await cleanupDirectory(getBundleDirectory(version));
 
   for (const arch of cfg.archList) {

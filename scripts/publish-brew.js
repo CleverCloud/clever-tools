@@ -1,9 +1,9 @@
-import * as cfg from './config';
+import { cfg } from './config';
 import fs from 'fs-extra';
 import { cloneGitProject, applyTemplates, commitAndPush } from './utils';
 import { getShaFilepath, getArchiveFilepath } from './paths.js';
 
-module.exports = async function publishBrew (version) {
+export async function publishBrew (version) {
 
   const templatesPath = './templates/brew';
   const gitPath = './git-brew';
