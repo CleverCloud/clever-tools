@@ -1,7 +1,5 @@
-'use strict';
-
-const cfg = require('./config');
-const { exec } = require('./utils');
+import * as cfg from './config';
+import { exec } from './utils';
 
 module.exports = async function publishNpm () {
 

@@ -1,12 +1,8 @@
-'use strict';
+import { Logger } from '../logger.js';
+import { conf, writeOAuthConf } from '../models/configuration.js';
 
-const Logger = require('../logger.js');
-const { conf, writeOAuthConf } = require('../models/configuration.js');
-
-async function logout () {
+export async function logout () {
   // write empty object
   await writeOAuthConf({});
   Logger.println(`${conf.CONFIGURATION_FILE} has been updated.`);
 }
-
-module.exports = { logout };

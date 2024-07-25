@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 
-const build = require('./build.js');
-const archive = require('./archive.js');
-const bundle = require('./bundle.js');
-const { cleanupDirectory } = require('./utils.js');
-const { getWorkingDirectory } = require('./paths.js');
+import * as build from './build.js';
+import * as archive from './archive.js';
+import * as bundle from './bundle.js';
+import { cleanupDirectory } from './utils.js';
+import { getWorkingDirectory } from './paths.js';
 
 async function run () {
   const [versionArg, ...optionsArgs] = process.argv.slice(2);

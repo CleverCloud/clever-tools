@@ -1,13 +1,11 @@
-'use strict';
+import { promises as fs } from 'fs';
+import path from 'path';
 
-const { promises: fs } = require('fs');
-const path = require('path');
+import commonEnv from 'common-env';
+import mkdirp from 'mkdirp';
+import xdg from 'xdg';
 
-const commonEnv = require('common-env');
-const mkdirp = require('mkdirp');
-const xdg = require('xdg');
-
-const Logger = require('../logger.js');
+import { Logger } from '../logger.js';
 const env = commonEnv(Logger);
 
 const CONFIG_FILES = {
@@ -22,7 +20,7 @@ function getConfigPath (configFile) {
   return path.resolve(configDir, configFile);
 }
 
-async function loadOAuthConf () {
+export async function loadOAuthConf () {
   Logger.debug('Load configuration from environment variables');
   if (process.env.CLEVER_TOKEN != null && process.env.CLEVER_SECRET != null) {
     return {
@@ -49,7 +47,7 @@ async function loadOAuthConf () {
   }
 }
 
-async function writeOAuthConf (oauthData) {
+export async function writeOAuthConf (oauthData) {
   Logger.debug('Write the tokens in the configuration file…');
   const configDir = path.dirname(conf.CONFIGURATION_FILE);
   try {
@@ -61,7 +59,7 @@ async function writeOAuthConf (oauthData) {
   }
 }
 
-async function loadIdsCache () {
+export async function loadIdsCache () {
   const cachePath = getConfigPath(CONFIG_FILES.IDS_CACHE);
   try {
     const rawFile = await fs.readFile(cachePath);
@@ -76,7 +74,7 @@ async function loadIdsCache () {
   }
 }
 
-async function writeIdsCache (ids) {
+export async function writeIdsCache (ids) {
   const cachePath = getConfigPath(CONFIG_FILES.IDS_CACHE);
   const idsJson = JSON.stringify(ids);
   try {
@@ -87,7 +85,7 @@ async function writeIdsCache (ids) {
   }
 }
 
-const conf = env.getOrElseAll({
+export const conf = env.getOrElseAll({
   API_HOST: 'https://api.clever-cloud.com',
   // API_HOST: 'https://ccapi-preprod.cleverapps.io',
   LOG_WS_URL: 'wss://api.clever-cloud.com/v2/logs/logs-socket/<%- appId %>?since=<%- timestamp %>',
@@ -106,5 +104,3 @@ const conf = env.getOrElseAll({
   CLEVER_CONFIGURATION_DIR: path.resolve('.', 'clevercloud'),
   APP_CONFIGURATION_FILE: path.resolve('.', '.clever.json'),
 });
-
-module.exports = { conf, loadOAuthConf, writeOAuthConf, loadIdsCache, writeIdsCache };

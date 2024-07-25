@@ -1,19 +1,8 @@
-const fs = require('fs-extra');
-const path = require('path');
-const cfg = require('./config.js');
-const {
-  getArchiveFilepath,
-  getArchiveDirectory,
-  getBinaryFilepath, getArchiveLatestFilepath, getBinaryLatestFilepath,
-} = require('./paths.js');
-const {
-  generateChecksumFile,
-  startTask,
-  endTask,
-  exec,
-  cleanupDirectory,
-  assertFileExists,
-} = require('./utils.js');
+import fs from 'fs-extra';
+import path from 'path';
+import * as cfg from './config.js';
+import { getArchiveFilepath, getArchiveDirectory, getBinaryFilepath, getArchiveLatestFilepath, getBinaryLatestFilepath } from './paths.js';
+import { generateChecksumFile, startTask, endTask, exec, cleanupDirectory, assertFileExists } from './utils.js';
 
 module.exports = async function build (version, latest) {
   await cleanupDirectory(getArchiveDirectory(version));

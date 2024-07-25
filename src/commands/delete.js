@@ -1,10 +1,8 @@
-'use strict';
+import * as AppConfig from '../models/app_configuration.js';
+import * as Application from '../models/application.js';
+import { Logger } from '../logger.js';
 
-const AppConfig = require('../models/app_configuration.js');
-const Application = require('../models/application.js');
-const Logger = require('../logger.js');
-
-async function deleteApp (params) {
+export async function deleteApp (params) {
   const { alias, app: appIdOrName, yes: skipConfirmation } = params.options;
   const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
 
@@ -23,5 +21,3 @@ async function deleteApp (params) {
     }
   }
 };
-
-module.exports = { deleteApp };

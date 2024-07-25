@@ -1,20 +1,12 @@
-'use strict';
-
-const path = require('path');
-const cfg = require('./config');
-const { getCellarClient } = require('./cellar-client.js');
-const {
-  getArchiveFilepath,
-  getShaFilepath,
-  getArchiveLatestFilepath,
-  getBundleFilepath,
-  getBundleFilename,
-} = require('./paths.js');
+import path from 'path';
+import * as cfg from './config';
+import { getCellarClient } from './cellar-client.js';
+import { getArchiveFilepath, getShaFilepath, getArchiveLatestFilepath, getBundleFilepath, getBundleFilename } from './paths.js';
 
 const { archList } = cfg;
 const bundlesList = ['rpm', 'deb', 'nupkg'];
 
-async function publishCellar (version) {
+export async function publishCellar (version) {
   const cellarClient = getCellarClient('releases');
 
   for (const file of getFilesToCopy(version)) {
@@ -69,7 +61,7 @@ function getRemote (filename, version) {
   return `releases/${version}/${filename}`;
 }
 
-async function assertRemoteFilesAreOnCellar (version) {
+export async function assertRemoteFilesAreOnCellar (version) {
   const cellarClient = getCellarClient('releases');
 
   for (const file of getFilesToCopy(version)) {
@@ -78,8 +70,3 @@ async function assertRemoteFilesAreOnCellar (version) {
     }
   }
 }
-
-module.exports = {
-  publishCellar,
-  assertRemoteFilesAreOnCellar,
-};

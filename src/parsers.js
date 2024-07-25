@@ -1,12 +1,10 @@
-'use strict';
+import cliparse from 'cliparse';
 
-const cliparse = require('cliparse');
+import * as Application from './models/application.js';
+import ISO8601 from 'iso8601-duration';
+import Duration from 'duration-js';
 
-const Application = require('./models/application.js');
-const ISO8601 = require('iso8601-duration');
-const Duration = require('duration-js');
-
-function flavor (flavor) {
+export function flavor (flavor) {
   const flavors = Application.listAvailableFlavors();
   if (flavors.includes(flavor)) {
     return cliparse.parsers.success(flavor);
@@ -14,14 +12,14 @@ function flavor (flavor) {
   return cliparse.parsers.error('Invalid value: ' + flavor);
 }
 
-function buildFlavor (flavorOrDisabled) {
+export function buildFlavor (flavorOrDisabled) {
   if (flavorOrDisabled === 'disabled') {
     return cliparse.parsers.success(flavorOrDisabled);
   }
   return flavor(flavorOrDisabled);
 }
 
-function instances (instances) {
+export function instances (instances) {
   const parsedInstances = parseInt(instances, 10);
   if (isNaN(parsedInstances)) {
     return cliparse.parsers.error('Invalid number: ' + instances);
@@ -32,7 +30,7 @@ function instances (instances) {
   return cliparse.parsers.success(parsedInstances);
 }
 
-function date (dateString) {
+export function date (dateString) {
   const date = new Date(dateString);
   if (isNaN(dateString) && !isNaN(date.getTime())) {
     return cliparse.parsers.success(date);
@@ -48,7 +46,7 @@ function date (dateString) {
 
 const appIdRegex = /^app_[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
-function appIdOrName (string) {
+export function appIdOrName (string) {
   if (string.match(appIdRegex)) {
     return cliparse.parsers.success({ app_id: string });
   }
@@ -57,7 +55,7 @@ function appIdOrName (string) {
 
 const orgaIdRegex = /^(user_|orga_)[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
-function orgaIdOrName (string) {
+export function orgaIdOrName (string) {
   if (string.match(orgaIdRegex)) {
     return cliparse.parsers.success({ orga_id: string });
   }
@@ -66,18 +64,18 @@ function orgaIdOrName (string) {
 
 const addonIdRegex = /^addon_[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
-function addonIdOrName (string) {
+export function addonIdOrName (string) {
   if (string.match(addonIdRegex)) {
     return cliparse.parsers.success({ addon_id: string });
   }
   return cliparse.parsers.success({ addon_name: string });
 }
 
-function commaSeparated (string) {
+export function commaSeparated (string) {
   return cliparse.parsers.success(string.split(','));
 }
 
-function integer (string) {
+export function integer (string) {
   const integer = parseInt(string);
   if (isNaN(integer)) {
     return cliparse.parsers.error('Invalid number: ' + string);
@@ -85,7 +83,7 @@ function integer (string) {
   return cliparse.parsers.success(integer);
 }
 
-function nonEmptyString (string) {
+export function nonEmptyString (string) {
   if (typeof string !== 'string' || string === '') {
     return cliparse.parsers.error('Invalid string, it should not be empty');
   }
@@ -95,14 +93,14 @@ function nonEmptyString (string) {
 // /^[a-z0-9](?:[a-z0-9_-]*[a-z0-9])?$/i;
 const tagRegex = /^[^,\s]+$/;
 
-function tag (string) {
+export function tag (string) {
   if (string.match(tagRegex)) {
     return cliparse.parsers.success(string);
   }
   return cliparse.parsers.error(`Invalid tag '${string}'. Should match ${tagRegex}`);
 }
 
-function tags (string) {
+export function tags (string) {
   if (String(string).length === 0) {
     return cliparse.parsers.success([]);
   }
@@ -115,18 +113,18 @@ function tags (string) {
   return cliparse.parsers.success(tags);
 }
 
-const ipAddressRegex = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9]?[0-9])\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9]?[0-9])$/;
+export const ipAddressRegex = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9]?[0-9])\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9]?[0-9])$/;
 
-function ipAddress (string) {
+export function ipAddress (string) {
   if (string.match(ipAddressRegex)) {
     return cliparse.parsers.success(string);
   }
   return cliparse.parsers.error(`Invalid IP address '${string}'. Should match ${ipAddressRegex}`);
 }
 
-const portNumberRegex = /^\d{1,5}$/;
+export const portNumberRegex = /^\d{1,5}$/;
 
-function portNumber (number) {
+export function portNumber (number) {
   if (String(number).match(portNumberRegex)) {
     return cliparse.parsers.success(number);
   }
@@ -139,7 +137,7 @@ function portNumber (number) {
  * @param {string} durationStr an ISO8601, 1h or a positive number
  * @returns {number} number of seconds
  */
-function durationInSeconds (durationStr = '') {
+export function durationInSeconds (durationStr = '') {
   const failed = cliparse.parsers.error(`Invalid duration: "${durationStr}", expect (IS0 8601 duration / a "1h, 1m, 30s" like duration / a positive number in seconds)`);
 
   if (durationStr.startsWith('P')) {
@@ -165,23 +163,3 @@ function durationInSeconds (durationStr = '') {
     return cliparse.parsers.success(n);
   }
 }
-
-module.exports = {
-  buildFlavor,
-  flavor,
-  instances,
-  date,
-  appIdOrName,
-  orgaIdOrName,
-  addonIdOrName,
-  commaSeparated,
-  integer,
-  tag,
-  tags,
-  ipAddressRegex,
-  ipAddress,
-  portNumberRegex,
-  portNumber,
-  durationInSeconds,
-  nonEmptyString,
-};

@@ -1,62 +1,61 @@
 #! /usr/bin/env node
-'use strict';
 
-function hasParam (param, paramValue) {
-  const index = process.argv.indexOf(param);
-  if (index === -1) {
-    return false;
-  }
-  if (paramValue != null) {
-    return process.argv[index + 1] === paramValue;
-  }
-  return true;
-}
+// WARNING: this needs to run before other imports
+import '../src/initial-setup.js';
 
-// These need to be set before Logger and other stuffs
-if (hasParam('-v') || hasParam('--verbose')) {
-  process.env.CLEVER_VERBOSE = '1';
-}
+import cliparse from 'cliparse';
+import cliparseCommands from 'cliparse/src/command.js';
+import _sortBy from 'lodash/sortBy.js';
 
-// These need to be set before Logger and other stuffs
-// Don't log anything in autocomplete mode
-if (hasParam('--autocomplete-index')) {
-  process.env.CLEVER_QUIET = '1';
-}
+import { getPackageJson } from '../src/load-package-json.js';
+import * as git from '../src/models/git.js';
+import * as Parsers from '../src/parsers.js';
+import { handleCommandPromise } from '../src/command-promise-handler.js';
+import { AVAILABLE_ZONES } from '../src/models/application.js';
+import { getOutputFormatOption, getSameCommitPolicyOption, getExitOnOption } from '../src/command-options.js';
 
-// These need to be set before other stuffs
-const colors = require('colors');
-const colorExplicitFalse = hasParam('--no-color') || hasParam('--color', 'false');
-const colorExplicitTrue = hasParam('--color', 'true');
-if (colorExplicitFalse || (!process.stdout.isTTY && !colorExplicitTrue)) {
-  colors.disable();
-}
+import * as Addon from '../src/models/addon.js';
+import * as Application from '../src/models/application.js';
+import * as ApplicationConfiguration from '../src/models/application_configuration.js';
+import * as Drain from '../src/models/drain.js';
+import * as Notification from '../src/models/notification.js';
+import * as Namespaces from '../src/models/namespaces.js';
 
-// These need to be set before Logger and other stuffs
-const pkg = require('../package.json');
-const updateNotifierModule = require('update-notifier');
-const isRunThroughPackagedBinary = process.pkg != null;
-const updateNotifierExplicitFalse = hasParam('--no-update-notifier') || hasParam('--update-notifier', 'false');
-if (!updateNotifierExplicitFalse && !isRunThroughPackagedBinary) {
-  updateNotifierModule({
-    pkg,
-    tagsUrl: 'https://api.github.com/repos/CleverCloud/clever-tools/tags',
-  }).notify({
-    getDetails () {
-      const docsUrl = 'https://www.clever-cloud.com/doc/clever-tools/getting_started';
-      return `\nPlease follow this link to update your clever-tools:\n${docsUrl}`;
-    },
-  });
-}
-
-const cliparse = require('cliparse');
-const cliparseCommands = require('cliparse/src/command.js');
-const _sortBy = require('lodash/sortBy.js');
-
-const git = require('../src/models/git.js');
-const Parsers = require('../src/parsers.js');
-const handleCommandPromise = require('../src/command-promise-handler.js');
-const { AVAILABLE_ZONES } = require('../src/models/application.js');
-const { getOutputFormatOption, getSameCommitPolicyOption, getExitOnOption } = require('../src/command-options.js');
+import * as accesslogsModule from '../src/commands/accesslogs.js';
+import * as activity from '../src/commands/activity.js';
+import * as addon from '../src/commands/addon.js';
+import * as applications from '../src/commands/applications.js';
+import * as cancelDeploy from '../src/commands/cancel-deploy.js';
+import * as config from '../src/commands/config.js';
+import * as create from '../src/commands/create.js';
+import * as deleteCommandModule from '../src/commands/delete.js';
+import * as deploy from '../src/commands/deploy.js';
+import * as diag from '../src/commands/diag.js';
+import * as domain from '../src/commands/domain.js';
+import * as drain from '../src/commands/drain.js';
+import * as env from '../src/commands/env.js';
+import * as link from '../src/commands/link.js';
+import * as login from '../src/commands/login.js';
+import * as logout from '../src/commands/logout.js';
+import * as logs from '../src/commands/logs.js';
+import * as makeDefault from '../src/commands/makeDefault.js';
+import * as notifyEmail from '../src/commands/notify-email.js';
+import * as open from '../src/commands/open.js';
+import * as consoleModule from '../src/commands/console.js';
+import * as profile from '../src/commands/profile.js';
+import * as publishedConfig from '../src/commands/published-config.js';
+import * as restart from '../src/commands/restart.js';
+import * as scale from '../src/commands/scale.js';
+import * as service from '../src/commands/service.js';
+import * as ssh from '../src/commands/ssh.js';
+import * as status from '../src/commands/status.js';
+import * as stop from '../src/commands/stop.js';
+import * as tcpRedirs from '../src/commands/tcp-redirs.js';
+import * as unlink from '../src/commands/unlink.js';
+import * as version from '../src/commands/version.js';
+import * as webhooks from '../src/commands/webhooks.js';
+import * as database from '../src/commands/database.js';
+import { curl } from '../src/commands/curl.js';
 
 // Exit cleanly if the program we pipe to exits abruptly
 process.stdout.on('error', (error) => {
@@ -74,13 +73,6 @@ cliparse.command = function (name, options, commandFunction) {
     handleCommandPromise(promise);
   });
 };
-
-const Addon = require('../src/models/addon.js');
-const Application = require('../src/models/application.js');
-const ApplicationConfiguration = require('../src/models/application_configuration.js');
-const Drain = require('../src/models/drain.js');
-const Notification = require('../src/models/notification.js');
-const Namespaces = require('../src/models/namespaces.js');
 
 function run () {
 
@@ -462,21 +454,18 @@ function run () {
   };
 
   // ACCESSLOGS COMMAND
-  const accesslogsModule = require('../src/commands/accesslogs.js');
   const accesslogsCommand = cliparse.command('accesslogs', {
     description: 'Fetch access logs',
     options: [opts.alias, opts.appIdOrName, opts.logsFormat, opts.before, opts.after, opts.addonId],
   }, accesslogsModule.accessLogs);
 
   // ACTIVITY COMMAND
-  const activity = require('../src/commands/activity.js');
   const activityCommand = cliparse.command('activity', {
     description: 'Show last deployments of an application',
     options: [opts.alias, opts.appIdOrName, opts.follow, opts.showAllActivity, opts.activityFormat],
   }, activity.activity);
 
   // ADDON COMMANDS
-  const addon = require('../src/commands/addon.js');
   const addonCreateCommand = cliparse.command('create', {
     description: 'Create an add-on',
     args: [args.addonProvider, args.addonName],
@@ -486,7 +475,7 @@ function run () {
     description: 'Delete an add-on',
     args: [args.addonIdOrName],
     options: [opts.confirmAddonDeletion],
-  }, addon.delete);
+  }, addon.deleteAddon);
   const addonRenameCommand = cliparse.command('rename', {
     description: 'Rename an add-on',
     args: [args.addonIdOrName, args.addonName],
@@ -518,7 +507,6 @@ function run () {
   }, addon.list);
 
   // APPLICATIONS COMMAND
-  const applications = require('../src/commands/applications.js');
   const applicationsListRemoteCommand = cliparse.command('list', {
     description: 'List all applications',
     options: [opts.orgaIdOrName, opts.humanJsonOutputFormat],
@@ -530,14 +518,12 @@ function run () {
   }, applications.list);
 
   // CANCEL DEPLOY COMMAND
-  const cancelDeploy = require('../src/commands/cancel-deploy.js');
   const cancelDeployCommand = cliparse.command('cancel-deploy', {
     description: 'Cancel an ongoing deployment',
     options: [opts.alias, opts.appIdOrName],
   }, cancelDeploy.cancelDeploy);
 
   // CONFIG COMMAND
-  const config = require('../src/commands/config.js');
   const configGetCommand = cliparse.command('get', {
     description: 'Display the current configuration',
     args: [args.configurationName],
@@ -557,7 +543,6 @@ function run () {
   }, config.get);
 
   // CREATE COMMAND
-  const create = require('../src/commands/create.js');
   const appCreateCommand = cliparse.command('create', {
     description: 'Create an application',
     args: [args.appNameCreation],
@@ -571,21 +556,18 @@ function run () {
   }, () => null);
 
   // DELETE COMMAND
-  const deleteCommandModule = require('../src/commands/delete.js');
   const deleteCommand = cliparse.command('delete', {
     description: 'Delete an application',
     options: [opts.alias, opts.appIdOrName, opts.confirmApplicationDeletion],
   }, deleteCommandModule.deleteApp);
 
   // DEPLOY COMMAND
-  const deploy = require('../src/commands/deploy.js');
   const deployCommand = cliparse.command('deploy', {
     description: 'Deploy an application',
     options: [opts.alias, opts.branch, opts.gitTag, opts.quiet, opts.forceDeploy, opts.followDeployLogs, opts.sameCommitPolicy, opts.exitOnDeploy],
   }, deploy.deploy);
 
   // DIAG COMMAND
-  const diag = require('../src/commands/diag.js');
   const diagCommand = cliparse.command('diag', {
     description: 'Diagnose the current installation (prints various informations for support)',
     args: [],
@@ -593,7 +575,6 @@ function run () {
   }, diag.diag);
 
   // DOMAIN COMMANDS
-  const domain = require('../src/commands/domain.js');
   const domainCreateCommand = cliparse.command('add', {
     description: 'Add a domain name to an application',
     args: [args.fqdn],
@@ -620,7 +601,6 @@ function run () {
   }, domain.list);
 
   // DRAIN COMMANDS
-  const drain = require('../src/commands/drain.js');
   const drainCreateCommand = cliparse.command('create', {
     description: 'Create a drain',
     args: [args.drainType, args.drainUrl],
@@ -646,7 +626,6 @@ function run () {
   }, drain.list);
 
   // ENV COMMANDS
-  const env = require('../src/commands/env.js');
   const envSetCommand = cliparse.command('set', {
     description: 'Add or update an environment variable named <variable-name> with the value <variable-value>',
     args: [args.envVariableName, args.envVariableValue],
@@ -671,7 +650,6 @@ function run () {
   }, env.list);
 
   // LINK COMMAND
-  const link = require('../src/commands/link.js');
   const appLinkCommand = cliparse.command('link', {
     description: 'Link this repo to an existing application',
     args: [args.appIdOrName],
@@ -679,34 +657,29 @@ function run () {
   }, link.link);
 
   // LOGIN COMMAND
-  const login = require('../src/commands/login.js');
   const loginCommand = cliparse.command('login', {
     description: 'Login to Clever Cloud',
     options: [opts.loginToken, opts.loginSecret],
   }, login.login);
 
   // LOGOUT COMMAND
-  const logout = require('../src/commands/logout.js');
   const logoutCommand = cliparse.command('logout', {
     description: 'Logout from Clever Cloud',
   }, logout.logout);
 
   // LOGS COMMAND
-  const logs = require('../src/commands/logs.js');
   const logsCommand = cliparse.command('logs', {
     description: 'Fetch application logs, continuously',
     options: [opts.alias, opts.appIdOrName, opts.before, opts.after, opts.search, opts.deploymentId, opts.addonId, opts.logsFormat],
   }, logs.appLogs);
 
   // MAKE DEFAULT COMMAND
-  const makeDefault = require('../src/commands/makeDefault.js');
   const makeDefaultCommand = cliparse.command('make-default', {
     description: 'Make a linked application the default one',
     args: [args.alias],
   }, makeDefault.makeDefault);
 
   // NOTIFY-EMAIL COMMAND
-  const notifyEmail = require('../src/commands/notify-email.js');
   const addEmailNotificationCommand = cliparse.command('add', {
     description: 'Add a new email notification',
     options: [opts.notificationEventType, opts.notificationScope, opts.emailNotificationTarget],
@@ -724,28 +697,24 @@ function run () {
   }, notifyEmail.list);
 
   // OPEN COMMAND
-  const open = require('../src/commands/open.js');
   const openCommand = cliparse.command('open', {
     description: 'Open an application in your browser',
     options: [opts.alias, opts.appIdOrName],
   }, open.open);
 
   // CONSOLE COMMAND
-  const consoleModule = require('../src/commands/console.js');
   const consoleCommand = cliparse.command('console', {
     description: 'Open an application in the Console',
     options: [opts.alias, opts.appIdOrName],
   }, consoleModule.openConsole);
 
   // PROFILE COMMAND
-  const profile = require('../src/commands/profile.js');
   const profileCommand = cliparse.command('profile', {
     description: 'Display the profile of the current user',
     options: [opts.humanJsonOutputFormat],
   }, profile.profile);
 
   // PUBLISHED CONFIG COMMANDS
-  const publishedConfig = require('../src/commands/published-config.js');
   const publishedConfigSetCommand = cliparse.command('set', {
     description: 'Add or update a published configuration item named <variable-name> with the value <variable-value>',
     args: [args.envVariableName, args.envVariableValue],
@@ -766,21 +735,18 @@ function run () {
   }, publishedConfig.list);
 
   // RESTART COMMAND
-  const restart = require('../src/commands/restart.js');
   const restartCommand = cliparse.command('restart', {
     description: 'Start or restart an application',
     options: [opts.alias, opts.appIdOrName, opts.commit, opts.withoutCache, opts.quiet, opts.followDeployLogs, opts.exitOnDeploy],
   }, restart.restart);
 
   // SCALE COMMAND
-  const scale = require('../src/commands/scale.js');
   const scaleCommand = cliparse.command('scale', {
     description: 'Change scalability of an application',
     options: [opts.alias, opts.appIdOrName, opts.flavor, opts.minFlavor, opts.maxFlavor, opts.instances, opts.minInstances, opts.maxInstances, opts.buildFlavor],
   }, scale.scale);
 
   // SERVICE COMMANDS
-  const service = require('../src/commands/service.js');
   const serviceLinkAppCommand = cliparse.command('link-app', {
     description: 'Add an existing app as a dependency',
     args: [args.appIdOrName],
@@ -805,28 +771,24 @@ function run () {
   }, service.list);
 
   // SSH COMMAND
-  const ssh = require('../src/commands/ssh.js');
   const sshCommand = cliparse.command('ssh', {
     description: 'Connect to running instances through SSH',
     options: [opts.alias, opts.appIdOrName, opts.sshIdentityFile],
   }, ssh.ssh);
 
   // STATUS COMMAND
-  const status = require('../src/commands/status.js');
   const statusCommand = cliparse.command('status', {
     description: 'See the status of an application',
     options: [opts.alias, opts.appIdOrName, opts.humanJsonOutputFormat],
   }, status.status);
 
   // STOP COMMAND
-  const stop = require('../src/commands/stop.js');
   const stopCommand = cliparse.command('stop', {
     description: 'Stop a running application',
     options: [opts.alias, opts.appIdOrName],
   }, stop.stop);
 
   // TCP-REDIRS COMMAND
-  const tcpRedirs = require('../src/commands/tcp-redirs.js');
   const tcpRedirsListNamespacesCommand = cliparse.command('list-namespaces', {
     description: 'List the namespaces in which you can create new TCP redirections',
     options: [opts.humanJsonOutputFormat],
@@ -848,21 +810,18 @@ function run () {
   }, tcpRedirs.list);
 
   // UNLINK COMMAND
-  const unlink = require('../src/commands/unlink.js');
   const appUnlinkCommand = cliparse.command('unlink', {
     description: 'Unlink this repo from an existing application',
     args: [args.alias],
   }, unlink.unlink);
 
   // VERSION COMMAND
-  const version = require('../src/commands/version.js');
   const versionCommand = cliparse.command('version', {
     description: 'Display the clever-tools version',
     args: [],
   }, version.version);
 
   // WEBHOOKS COMMAND
-  const webhooks = require('../src/commands/webhooks.js');
   const addWebhookCommand = cliparse.command('add', {
     description: 'Register webhook to be called when events happen',
     options: [opts.webhookFormat, opts.notificationEventType, opts.notificationScope],
@@ -880,7 +839,6 @@ function run () {
   }, webhooks.list);
 
   // DATABASES COMMANDS
-  const database = require('../src/commands/database.js');
   const downloadBackupCommand = cliparse.command('download', {
     description: 'Download a database backup',
     args: [args.databaseId, args.backupId],
@@ -949,7 +907,7 @@ function run () {
   const cliParser = cliparse.cli({
     name: 'clever',
     description: 'CLI tool to manage Clever Cloud\'s data and products',
-    version: pkg.version,
+    version: getPackageJson().version,
     options: [opts.color, opts.updateNotifier, opts.verbose],
     helpCommand: false,
     commands,
@@ -964,7 +922,7 @@ function run () {
 // Right now, this is the only way to do this properly
 // cliparse doesn't allow unknown options/arguments
 if (process.argv[2] === 'curl') {
-  require('../src/commands/curl.js').curl();
+  curl();
 }
 else {
   run();

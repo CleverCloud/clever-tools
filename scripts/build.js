@@ -1,14 +1,7 @@
-const { exec: pkg } = require('pkg');
-const cfg = require('./config.js');
-const {
-  getBinaryFilepath,
-  getBinaryDirectory,
-} = require('./paths.js');
-const {
-  startTask,
-  endTask,
-  cleanupDirectory,
-} = require('./utils.js');
+import { exec as pkg } from 'pkg';
+import * as cfg from './config.js';
+import { getBinaryFilepath, getBinaryDirectory } from './paths.js';
+import { startTask, endTask, cleanupDirectory } from './utils.js';
 
 module.exports = async function build (version) {
   await cleanupDirectory(getBinaryDirectory(version));
