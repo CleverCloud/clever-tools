@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import colors from 'colors/safe.js';
+import { format } from 'util';
 
 function getPrefix (severity) {
   const prefix = `[${severity.toUpperCase()}] `;
@@ -27,7 +28,7 @@ function formatLines (prefixLength, lines) {
 }
 
 function consoleErrorWithoutColor (line) {
-  process.stderr.write(line + '\n');
+  process.stderr.write(format(line) + '\n');
 }
 
 export const Logger = _(['debug', 'info', 'warn', 'error'])
