@@ -9,7 +9,7 @@ import { Logger } from '../logger.js';
 import * as User from '../models/user.js';
 import { conf, writeOAuthConf } from '../models/configuration.js';
 
-import { getPackageJson } from '../load-package-json.js';
+import { getPackageJson } from '../load-package-json.cjs';
 
 const delay = util.promisify(setTimeout);
 const pkg = getPackageJson();
