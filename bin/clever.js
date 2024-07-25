@@ -7,7 +7,7 @@ import cliparse from 'cliparse';
 import cliparseCommands from 'cliparse/src/command.js';
 import _sortBy from 'lodash/sortBy.js';
 
-import { getPackageJson } from '../src/load-package-json.js';
+import { getPackageJson } from '../src/load-package-json.cjs';
 import * as git from '../src/models/git.js';
 import * as Parsers from '../src/parsers.js';
 import { handleCommandPromise } from '../src/command-promise-handler.js';

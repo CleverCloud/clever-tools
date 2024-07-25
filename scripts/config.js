@@ -1,5 +1,5 @@
 import os from 'os';
-import { getPackageJson } from '../src/load-package-json.js';
+import { getPackageJson } from '../src/load-package-json.cjs';
 const pkg = getPackageJson();
 
 export const archList = ['linux', 'macos', 'win'];

@@ -1,5 +1,5 @@
 import { Logger } from './logger.js';
-import { getPackageJson } from './load-package-json.js';
+import { getPackageJson } from './load-package-json.cjs';
 import semver from 'semver';
 
 const pkg = getPackageJson();

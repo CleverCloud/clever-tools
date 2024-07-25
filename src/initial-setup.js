@@ -1,5 +1,5 @@
-import colors from 'colors';
-import { getPackageJson } from './load-package-json.js';
+import colors from 'colors/safe.js';
+import { getPackageJson } from './load-package-json.cjs';
 import updateNotifierModule from 'update-notifier';
 
 function hasParam (param, paramValue) {
