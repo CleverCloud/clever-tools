@@ -34,6 +34,7 @@ import * as diag from '../src/commands/diag.js';
 import * as domain from '../src/commands/domain.js';
 import * as drain from '../src/commands/drain.js';
 import * as env from '../src/commands/env.js';
+import * as kv from '../src/commands/kv.js';
 import * as link from '../src/commands/link.js';
 import * as login from '../src/commands/login.js';
 import * as logout from '../src/commands/logout.js';
@@ -78,6 +79,9 @@ function run () {
 
   // ARGUMENTS
   const args = {
+    kvRawCommand: cliparse.argument('command', { description: 'The raw Redis protocol command to send to MateriaDB KV' }),
+    kvKey: cliparse.argument('key', { description: 'MateriaDB KV key' }),
+    kvJsonKey: cliparse.argument('json-property', { description: 'JSON property of a MateriaDB KV value' }),
     addonIdOrName: cliparse.argument('addon-id', {
       description: 'Add-on ID (or name, if unambiguous)',
       parser: Parsers.addonIdOrName,
@@ -126,6 +130,10 @@ function run () {
 
   // OPTIONS
   const opts = {
+    addonIdOrName: cliparse.option('addon-id', {
+      description: 'Add-on ID (or name, if unambiguous)',
+      parser: Parsers.addonIdOrName,
+    }),
     sourceableEnvVarsList: cliparse.flag('add-export', { description: 'Display sourceable env variables setting' }),
     logsFormat: getOutputFormatOption(['json-stream']),
     activityFormat: getOutputFormatOption(['json-stream']),
@@ -658,6 +666,18 @@ function run () {
     commands: [envSetCommand, envRemoveCommand, envImportCommand, envImportVarsFromLocalEnvCommand],
   }, env.list);
 
+  // KV COMMANDS
+  const kvGetJSONCommand = cliparse.command('getjson', {
+    description: 'Get value from a JSON stored in MateriaDB KV',
+    args: [args.kvKey, args.kvJsonKey],
+  }, kv.getjson);
+  const kvRedisRawCommand = cliparse.command('kv', {
+    description: 'Send a raw Redis protocol command to MateriaDB KV',
+    args: [args.kvRawCommand],
+    options: [opts.orgaIdOrName, opts.addonIdOrName],
+    commands: [kvGetJSONCommand],
+  }, kv.redis_raw);
+
   // LINK COMMAND
   const appLinkCommand = cliparse.command('link', {
     description: 'Link this repo to an existing application',
@@ -893,6 +913,7 @@ function run () {
     emailNotificationsCommand,
     envCommands,
     cliparseCommands.helpCommand,
+    kvRedisRawCommand,
     loginCommand,
     logoutCommand,
     logsCommand,
