@@ -5,6 +5,7 @@ import '../src/initial-setup.js';
 
 import cliparse from 'cliparse';
 import cliparseCommands from 'cliparse/src/command.js';
+import colors from 'colors/safe.js';
 import _sortBy from 'lodash/sortBy.js';
 
 import { getPackageJson } from '../src/load-package-json.cjs';
@@ -37,6 +38,7 @@ import * as domain from '../src/commands/domain.js';
 import * as drain from '../src/commands/drain.js';
 import * as env from '../src/commands/env.js';
 import * as features from '../src/commands/features.js';
+import * as kv from '../src/commands/kv.js';
 import * as link from '../src/commands/link.js';
 import * as login from '../src/commands/login.js';
 import * as logout from '../src/commands/logout.js';
@@ -77,10 +79,20 @@ cliparse.command = function (name, options, commandFunction) {
   });
 };
 
+// Add a yellow color and status tag to the description of an experimental command
+function colorizeExperimentalCommand (command, id) {
+  const status = EXPERIMENTAL_FEATURES[id].status;
+  command.description = colors.yellow(command.description + ' [' + status.toUpperCase() + ']');
+  return command;
+}
+
 async function run () {
 
   // ARGUMENTS
   const args = {
+    kvRawCommand: cliparse.argument('command', { description: 'The raw Redis protocol command to send to MateriaDB KV' }),
+    kvKey: cliparse.argument('key', { description: 'MateriaDB KV key' }),
+    kvJsonKey: cliparse.argument('json-property', { description: 'JSON property of a MateriaDB KV value' }),
     addonIdOrName: cliparse.argument('addon-id', {
       description: 'Add-on ID (or name, if unambiguous)',
       parser: Parsers.addonIdOrName,
@@ -134,6 +146,10 @@ async function run () {
 
   // OPTIONS
   const opts = {
+    addonIdOrName: cliparse.option('addon-id', {
+      description: 'Add-on ID (or name, if unambiguous)',
+      parser: Parsers.addonIdOrName,
+    }),
     sourceableEnvVarsList: cliparse.flag('add-export', { description: 'Display sourceable env variables setting' }),
     logsFormat: getOutputFormatOption(['json-stream']),
     activityFormat: getOutputFormatOption(['json-stream']),
@@ -695,6 +711,18 @@ async function run () {
     commands: [enableFeatureCommand, disableFeatureCommand, listFeaturesCommand, helpFeaturesCommand],
   }, features.list);
 
+  // KV COMMANDS
+  const kvGetJSONCommand = cliparse.command('getjson', {
+    description: 'Get value from a JSON stored in MateriaDB KV',
+    args: [args.kvKey, args.kvJsonKey],
+  }, kv.getjson);
+  const kvRedisRawCommand = cliparse.command('kv', {
+    description: 'Send a raw Redis protocol command to MateriaDB KV',
+    args: [args.kvRawCommand],
+    options: [opts.orgaIdOrName, opts.addonIdOrName],
+    commands: [kvGetJSONCommand],
+  }, kv.redis_raw);
+
   // LINK COMMAND
   const appLinkCommand = cliparse.command('link', {
     description: 'Link this repo to an existing application',
@@ -949,6 +977,10 @@ async function run () {
     versionCommand,
     webhooksCommand,
   ];
+
+  // Add experimental features only if they are enabled through the configuration file
+  const featuresFromConf = await loadFeaturesConf();
+  if (featuresFromConf.kv) commands.push(colorizeExperimentalCommand(kvRedisRawCommand, 'kv'));
 
   // We sort the commands by name
   commands = _sortBy(commands, 'name');

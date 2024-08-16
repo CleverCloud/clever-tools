@@ -181,7 +181,7 @@ async function getByName (ownerId, addonNameOrRealId) {
   throw new Error('Ambiguous addon name');
 }
 
-async function getId (ownerId, addon) {
+export async function getId (ownerId, addon) {
   if (addon.addon_id) {
     return addon.addon_id;
   }
