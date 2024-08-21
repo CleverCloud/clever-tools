@@ -417,8 +417,7 @@ function run () {
     drainIndexPrefix: cliparse.option('index-prefix', {
       aliases: ['i'],
       metavar: 'index_prefix',
-      description: '(ElasticSearch drains) Index prefix',
-      default: 'logstash-<YYYY-MM-DD>',
+      description: '(ElasticSearch drains) optional index prefix. `logstash` value is used if not set',
     }),
     drainSDParameters: cliparse.option('sd-params', {
       aliases: ['s'],
