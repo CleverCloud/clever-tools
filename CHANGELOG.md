@@ -1,6 +1,13 @@
 # clever-tools changelog
 
 
+## [3.8.2](https://github.com/CleverCloud/clever-tools/compare/3.8.1...3.8.2) (2024-08-22)
+
+
+### 🐛 Bug Fixes
+
+* **drain:** default index-prefix for elasticsearch drain should be null ([d38d0ae](https://github.com/CleverCloud/clever-tools/commit/d38d0aeadfe67d3548550eba14d4debc3029e73d))
+
 ## [3.8.1](https://github.com/CleverCloud/clever-tools/compare/3.8.0...3.8.1) (2024-07-02)
 
 
