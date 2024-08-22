@@ -43,7 +43,7 @@ async function list (params) {
 
         let drainView = `${id} -> ${state} for ${url} as ${drainType}`;
         if (indexPrefix != null) {
-          drainView += `, index: '${indexPrefix}-<YYYY-MM-DD>'`;
+          drainView += `, custom index: '${indexPrefix}-YYYY-MM-DD'`;
         }
         if (structuredDataParameters != null) {
           drainView += `, sd-params: '${structuredDataParameters}'`;
