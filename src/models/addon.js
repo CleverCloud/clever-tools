@@ -305,6 +305,7 @@ module.exports = {
   delete: deleteAddon,
   findById,
   findOwnerId,
+  getId,
   getProvider,
   getProviderInfos,
   link,

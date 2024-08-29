@@ -313,13 +313,19 @@ async function showProvider (params) {
 
 async function env (params) {
 
-  const { org, format } = params.options;
+  const { org, vars: envVars } = params.options;
+  const format = params.options.export ? 'shell' : params.options.format;
+
   const [addonIdOrRealId] = params.args;
 
   const addonId = await resolveAddonId(addonIdOrRealId);
   const ownerId = await findOwnerId(org, addonId);
 
-  const envFromAddon = await getAllEnvVars({ id: ownerId, addonId }).then(sendToApi);
+  let envFromAddon = await getAllEnvVars({ id: ownerId, addonId }).then(sendToApi);
+
+  if (envVars != null) {
+    envFromAddon = envFromAddon.filter(({ name }) => envVars.includes(name));
+  }
 
   switch (format) {
 
