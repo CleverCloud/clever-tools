@@ -70,8 +70,7 @@
     "mocha": "8.4.0",
     "pkg": "5.8.1",
     "rollup": "4.14.1",
-    "semver": "7.3.5",
-    "text-table": "0.2.0"
+    "semver": "7.3.5"
   },
   "overrides": {
     "pkg-fetch": "3.5.2"
