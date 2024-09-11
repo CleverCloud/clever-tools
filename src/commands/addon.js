@@ -117,6 +117,12 @@ function displayAddon (format, addon, providerName, message) {
         'Learn more about Materia KV on Clever Cloud: https://developers.clever-cloud.com/doc/addons/materia-kv/',
       ].join('\n'),
     },
+    metabase: {
+      status: 'tech preview',
+      postCreateInstructions: [
+        'Learn more about Metabase on Clever Cloud: https://developers.clever-cloud.com/doc/addons/metabase/',
+      ].join('\n'),
+    },
     'addon-pulsar': {
       status: 'beta',
       postCreateInstructions: [
