@@ -10,9 +10,8 @@
     "clever cloud"
   ],
   "engines": {
-    "node": ">=18"
+    "node": ">=22"
   },
-  "pkg-node-version": "18",
   "author": "Clever Cloud <ci@clever-cloud.com>",
   "license": "Apache-2.0",
   "bin": {
@@ -52,6 +51,7 @@
   "devDependencies": {
     "@commitlint/cli": "18.4.3",
     "@commitlint/config-conventional": "18.4.3",
+    "@liudonghua123/node-sea": "0.1.8",
     "@rollup/plugin-commonjs": "26.0.1",
     "@rollup/plugin-json": "6.1.0",
     "@rollup/plugin-node-resolve": "15.2.3",
@@ -73,13 +73,9 @@
     "magic-string": "0.30.11",
     "mime-types": "2.1.35",
     "mocha": "8.4.0",
-    "pkg": "5.8.1",
     "rollup": "4.14.1",
     "semver": "7.3.5",
     "text-table": "0.2.0"
-  },
-  "overrides": {
-    "pkg-fetch": "3.5.2"
   },
   "scripts": {
     "build": "rollup -c rollup.config.js",
@@ -97,12 +93,7 @@
     "url": "https://github.com/CleverCloud/clever-tools/issues"
   },
   "homepage": "https://github.com/CleverCloud/clever-tools",
-  "pkg": {
-    "scripts": [
-      "src/**/*.js"
-    ]
-  },
   "volta": {
-    "node": "18.15.0"
+    "node": "22.0.0"
   }
 }

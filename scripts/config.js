@@ -8,7 +8,7 @@ export const archEmoji = {
   macos: '🍏',
   win: '🪟',
 };
-export const nodeVersion = pkg['pkg-node-version'];
+export const nodeVersion = pkg.volta.node;
 export const git = {
   email: 'ci@clever-cloud.com',
   name: 'Clever Cloud CI',
