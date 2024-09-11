@@ -41,8 +41,9 @@ if (!updateNotifierExplicitFalse && !isRunThroughPackagedBinary) {
     pkg,
     tagsUrl: 'https://api.github.com/repos/CleverCloud/clever-tools/tags',
   }).notify({
+    isGlobal: true,
     getDetails () {
-      const docsUrl = 'https://www.clever-cloud.com/doc/clever-tools/getting_started';
+      const docsUrl = 'https://github.com/CleverCloud/clever-tools/tree/master/docs#how-to-use-clever-tools';
       return `\nPlease follow this link to update your clever-tools:\n${docsUrl}`;
     },
   });
