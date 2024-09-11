@@ -46,6 +46,25 @@ export default defineConfig({
             map: ms.generateMap(),
           };
         }
+
+        // for ws peer deps
+        if (id.includes('/node_modules/ws/')) {
+          const ms = new MagicString(code);
+          ms
+            .replaceAll(
+              'require(\'bufferutil\')',
+              'null',
+            )
+            .replaceAll(
+              'require(\'utf-8-validate\')',
+              '{}',
+            );
+
+          return {
+            code: ms.toString(),
+            map: ms.generateMap(),
+          };
+        }
       },
     },
     commonjs(),
