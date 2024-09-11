@@ -243,6 +243,22 @@ async function findById (addonId) {
   throw new Error(`Could not find add-on with ID: ${addonId}`);
 }
 
+async function findByName (addonName) {
+  const { user, organisations } = await getSummary({}).then(sendToApi);
+  for (const orga of [user, ...organisations]) {
+    for (const simpleAddon of orga.addons) {
+      if (simpleAddon.name === addonName) {
+        const addon = await getAddon({ id: orga.id, addonId: simpleAddon.id }).then(sendToApi);
+        return {
+          ...addon,
+          orgaId: orga.id,
+        };
+      }
+    }
+  }
+  throw new Error(`Could not find add-on with name ${addonName}`);
+}
+
 async function findOwnerId (org, addonId) {
 
   if (org != null && org.orga_id != null) {
@@ -305,6 +321,7 @@ module.exports = {
   delete: deleteAddon,
   findById,
   findOwnerId,
+  findByName,
   getProvider,
   getProviderInfos,
   link,
