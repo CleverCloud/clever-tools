@@ -1,6 +1,16 @@
 # clever-tools changelog
 
 
+## [3.8.3](https://github.com/CleverCloud/clever-tools/compare/3.8.2...3.8.3) (2024-09-11)
+
+
+### 🐛 Bug Fixes
+
+* addon delete without org parameter ([24cfd5a](https://github.com/CleverCloud/clever-tools/commit/24cfd5ae8826c71107d7b381d40a77d3511c8c85)), closes [#811](https://github.com/CleverCloud/clever-tools/issues/811)
+* **dependencies:** remove `text-table` from `devDependencies` ([bf020bf](https://github.com/CleverCloud/clever-tools/commit/bf020bf3b7666376d37973bd32999231e4d094df)), closes [#819](https://github.com/CleverCloud/clever-tools/issues/819)
+* **update-notifier:** change the docs URL within the update message ([1803dce](https://github.com/CleverCloud/clever-tools/commit/1803dce27d756833d30ce01674eccf73457b9570))
+* **update-notifier:** set `isGlobal` to `true` ([1987408](https://github.com/CleverCloud/clever-tools/commit/198740805450c3e5399db88be5c545e6136c1afd)), closes [#812](https://github.com/CleverCloud/clever-tools/issues/812)
+
 ## [3.8.2](https://github.com/CleverCloud/clever-tools/compare/3.8.1...3.8.2) (2024-08-22)
 
 
