@@ -26,16 +26,17 @@ async function getId (ownerId, ngIdOrLabel) {
     return null;
   }
 
-  if (ngIdOrLabel.ng_id != null) {
-    return ngIdOrLabel.ng_id;
+  if (ngIdOrLabel.ngId != null) {
+    return ngIdOrLabel.ngId;
   }
 
-  return getByLabel(ownerId, ngIdOrLabel.ng_label)
+  return getByLabel(ownerId, ngIdOrLabel.ngLabel)
     .then((ng) => ng.id);
+
 }
 
-async function getByLabel (owner_id, label) {
-  const networkGroups = await ngApi.listNetworkGroups({ owner_id }).then(sendToApi);
+async function getByLabel (ownerId, label) {
+  const networkGroups = await ngApi.listNetworkGroups({ ownerId }).then(sendToApi);
   const filteredNgs = networkGroups.filter((ng) => ng.label === label);
 
   if (filteredNgs.length === 0) {
