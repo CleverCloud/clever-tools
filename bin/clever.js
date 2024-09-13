@@ -250,6 +250,9 @@ function run () {
     }),
     exitOnDeploy: getExitOnOption(),
     sameCommitPolicy: getSameCommitPolicyOption(),
+    stopAll: cliparse.flag('all', {
+      description: 'Stop application and any ongoing deployment',
+    }),
     webhookFormat: cliparse.option('format', {
       metavar: 'format',
       default: 'raw',
@@ -1043,7 +1046,7 @@ function run () {
   const stop = lazyRequirePromiseModule('../src/commands/stop.js');
   const stopCommand = cliparse.command('stop', {
     description: 'Stop a running application',
-    options: [opts.alias, opts.appIdOrName],
+    options: [opts.alias, opts.appIdOrName, opts.stopAll],
   }, stop('stop'));
 
   // TCP-REDIRS COMMAND
