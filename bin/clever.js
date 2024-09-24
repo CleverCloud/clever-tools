@@ -20,6 +20,7 @@ import * as ApplicationConfiguration from '../src/models/application_configurati
 import * as Drain from '../src/models/drain.js';
 import * as Notification from '../src/models/notification.js';
 import * as Namespaces from '../src/models/namespaces.js';
+import * as User from '../src/models/user.js';
 
 import * as accesslogsModule from '../src/commands/accesslogs.js';
 import * as activity from '../src/commands/activity.js';
@@ -74,7 +75,7 @@ cliparse.command = function (name, options, commandFunction) {
   });
 };
 
-function run () {
+async function run () {
 
   // ARGUMENTS
   const args = {
@@ -864,7 +865,14 @@ function run () {
   // Patch help command description
   cliparseCommands.helpCommand.description = 'Display help about the Clever Cloud CLI';
 
-  const commands = _sortBy([
+  const anonymousCommands = [
+    cliparseCommands.helpCommand,
+    diagCommand,
+    loginCommand,
+    versionCommand,
+  ];
+
+  const userCommands = [
     accesslogsCommand,
     activityCommand,
     addonCommands,
@@ -878,13 +886,10 @@ function run () {
     databaseCommand,
     deleteCommand,
     deployCommand,
-    diagCommand,
     domainCommands,
     drainCommands,
     emailNotificationsCommand,
     envCommands,
-    cliparseCommands.helpCommand,
-    loginCommand,
     logoutCommand,
     logsCommand,
     makeDefaultCommand,
@@ -899,9 +904,13 @@ function run () {
     statusCommand,
     stopCommand,
     tcpRedirsCommands,
-    versionCommand,
     webhooksCommand,
-  ], 'name');
+  ];
+
+  const userId = await User.getCurrentId().catch(() => null);
+  const commands = userId
+    ? _sortBy([...anonymousCommands, ...userCommands], 'name')
+    : _sortBy([...anonymousCommands], 'name');
 
   // CLI PARSER
   const cliParser = cliparse.cli({
