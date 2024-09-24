@@ -8,11 +8,17 @@ import { Logger } from '../logger.js';
 import { getAllDeployments } from '@clevercloud/client/cjs/api/v2/application.js';
 import { sendToApi } from '../models/send-to-api.js';
 import * as ExitStrategy from '../models/exit-strategy-option.js';
+import * as TmuxManager from '../models/tmux.js';
 
 // Once the API call to redeploy() has been triggered successfully,
 // the rest (waiting for deployment state to evolve and displaying logs) is done with auto retry (resilient to network failures)
 export async function deploy (params) {
-  const { alias, branch: branchName, tag: tagName, quiet, force, follow, 'same-commit-policy': sameCommitPolicy, 'exit-on': exitOnDeploy } = params.options;
+  const { alias, branch: branchName, tag: tagName, quiet, force, follow, 'same-commit-policy': sameCommitPolicy, 'exit-on': exitOnDeploy, 'with-tmux': appsToTmux } = params.options;
+
+  if (appsToTmux) {
+    await deployAppsWithTmux(appsToTmux);
+    process.exit(0);
+  }
 
   const exitStrategy = ExitStrategy.get(follow, exitOnDeploy);
 
@@ -103,3 +109,57 @@ async function getBranchToDeploy (branchName, tagName) {
     return await git.getFullBranch(branchName);
   }
 }
+
+async function deployAppsWithTmux (appsList) {
+  let appsToDeploy = appsList.split(',');
+
+  if (!appsToDeploy || appsToDeploy.length < 1) {
+    Logger.error("You must specify at least one application to deploy with '--with-tmux' option");
+    process.exit(1);
+  }
+
+  const uniqueApps = Array.from(new Set(appsToDeploy));
+  if (uniqueApps.length !== appsToDeploy.length) {
+    Logger.error('You have duplicated applications in your list, each will be deployed only once');
+    appsToDeploy = uniqueApps;
+  }
+
+  Logger.debug(`Applications to deploy: ${appsToDeploy.join(', ')}`);
+
+  const tmux = new TmuxManager.Tmux('clever-tools-multi-deploy');
+
+  if (!tmux.isInstalled) {
+    Logger.error("tmux not found, install it to use '--with-tmux' option");
+    process.exit(1);
+  }
+
+  Logger.println(`${tmux.version} will be used to deploy ${appsToDeploy.join(', ')}`);
+
+  if (tmux.sessionExists()) {
+    tmux.killSession();
+    Logger.debug('Killed existing tmux session');
+  }
+  else {
+    Logger.debug('No existing tmux session found');
+  }
+
+  tmux.createSession();
+  Logger.debug(`Created a new tmux session: ${tmux.managedSession}`);
+
+  // We deploy the first app in the first pane and then iterate over the rest of the apps
+  deployAppToPane(appsToDeploy[0], 0, tmux);
+  for (let i = 1; i < appsToDeploy.length; i++) {
+    tmux.createPane();
+    deployAppToPane(appsToDeploy[i], i, tmux);
+    tmux.setLayout('tiled');
+  }
+
+  await tmux.attachSession();
+};
+
+function deployAppToPane (app, paneIndex, tmux) {
+  const command = `clever deploy -a=${app} || clever restart -a=${app}`;
+  tmux.sendCommandToPane(`${paneIndex}`, command);
+  Logger.debug(`Created tmux pane ${paneIndex} for ${app}`);
+  Logger.debug(`Command sent to pane ${paneIndex}: ${command}`);
+};

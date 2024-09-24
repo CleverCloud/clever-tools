@@ -126,6 +126,7 @@ function run () {
 
   // OPTIONS
   const opts = {
+    tmux: cliparse.option('with-tmux', { description: 'Deploy comma-separated list of applications in panes using tmux' }),
     sourceableEnvVarsList: cliparse.flag('add-export', { description: 'Display sourceable env variables setting' }),
     logsFormat: getOutputFormatOption(['json-stream']),
     activityFormat: getOutputFormatOption(['json-stream']),
@@ -564,7 +565,7 @@ function run () {
   // DEPLOY COMMAND
   const deployCommand = cliparse.command('deploy', {
     description: 'Deploy an application',
-    options: [opts.alias, opts.branch, opts.gitTag, opts.quiet, opts.forceDeploy, opts.followDeployLogs, opts.sameCommitPolicy, opts.exitOnDeploy],
+    options: [opts.alias, opts.tmux, opts.branch, opts.gitTag, opts.quiet, opts.forceDeploy, opts.followDeployLogs, opts.sameCommitPolicy, opts.exitOnDeploy],
   }, deploy.deploy);
 
   // DIAG COMMAND
