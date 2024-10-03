@@ -1,4 +1,4 @@
-import path from 'path';
+import path from 'node:path';
 import * as Application from '../models/application.js';
 import * as AppConfig from '../models/app_configuration.js';
 import { Logger } from '../logger.js';

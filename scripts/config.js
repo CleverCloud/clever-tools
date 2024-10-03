@@ -1,4 +1,4 @@
-import os from 'os';
+import os from 'node:os';
 import { getPackageJson } from '../src/load-package-json.js';
 const pkg = getPackageJson();
 

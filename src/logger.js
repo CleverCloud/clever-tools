@@ -5,7 +5,7 @@ function getPrefix (severity) {
   const prefix = `[${severity.toUpperCase()}] `;
   const prefixLength = prefix.length;
   if (severity === 'error') {
-    return { prefix: colors.bold.red(prefix), prefixLength };
+    return { prefix, prefixLength };
   }
   return { prefix, prefixLength };
 }

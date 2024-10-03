@@ -915,7 +915,7 @@ function run () {
 
   // Make sure argv[0] is always "node"
   const cliArgs = process.argv;
-  cliArgs[0] = 'node';
+  //cliArgs[0] = 'node';
   cliparse.parse(cliParser, cliArgs);
 }
 
