@@ -1,25 +1,10 @@
-const path = require('path');
-const { readFile } = require('fs/promises');
-const cfg = require('./config.js');
-const {
-  startTask,
-  writeStringToFile,
-  applyTemplates,
-  exec,
-  endTask,
-  generateChecksumFile,
-  assertFileExists,
-  cleanupDirectory,
-} = require('./utils.js');
-const {
-  getBinaryFilepath,
-  getArchiveFilepath,
-  getShaFilepath,
-  getBundleDirectory,
-  getBundleFilepath,
-} = require('./paths.js');
+import path from 'node:path';
+import { readFile } from 'fs/promises';
+import * as cfg from './config.js';
+import { startTask, writeStringToFile, applyTemplates, exec, endTask, generateChecksumFile, assertFileExists, cleanupDirectory } from './utils.js';
+import { getBinaryFilepath, getArchiveFilepath, getShaFilepath, getBundleDirectory, getBundleFilepath } from './paths.js';
 
-module.exports = async function bundle (version) {
+export async function bundle (version) {
   await cleanupDirectory(getBundleDirectory(version));
 
   for (const arch of cfg.archList) {

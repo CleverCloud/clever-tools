@@ -1,12 +1,10 @@
-'use strict';
+import openPage from 'open';
 
-const openPage = require('open');
+import * as Application from '../models/application.js';
+import * as Domain from '../models/domain.js';
+import { Logger } from '../logger.js';
 
-const Application = require('../models/application.js');
-const Domain = require('../models/domain.js');
-const Logger = require('../logger.js');
-
-async function open (params) {
+export async function open (params) {
   const { alias, app: appIdOrName } = params.options;
   const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
 
@@ -16,5 +14,3 @@ async function open (params) {
   Logger.println('Opening the application in your browser');
   await openPage(url, { wait: false });
 }
-
-module.exports = { open };

@@ -1,7 +1,5 @@
-'use strict';
-
-const isomotphicHttp = require('isomorphic-git/http/node');
-const https = require('https');
+import isomotphicHttp from 'isomorphic-git/http/node/index.js';
+import https from 'node:https';
 
 // We use our own HTTP plugin, so we can customize the agent used for requests and configure a long timeout (default is 5 seconds).
 
@@ -10,10 +8,6 @@ const agent = new https.Agent({
   timeout: 10 * 60 * 1000,
 });
 
-function request (params) {
+export function request (params) {
   return isomotphicHttp.request({ ...params, agent });
 }
-
-module.exports = {
-  request,
-};

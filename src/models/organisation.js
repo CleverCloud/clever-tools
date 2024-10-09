@@ -1,11 +1,9 @@
-'use strict';
+import _ from 'lodash';
 
-const _ = require('lodash');
+import { getSummary } from '@clevercloud/client/esm/api/v2/user.js';
+import { sendToApi } from '../models/send-to-api.js';
 
-const { getSummary } = require('@clevercloud/client/cjs/api/v2/user.js');
-const { sendToApi } = require('../models/send-to-api.js');
-
-async function getId (orgaIdOrName) {
+export async function getId (orgaIdOrName) {
   if (orgaIdOrName == null) {
     return null;
   }
@@ -32,7 +30,3 @@ async function getByName (name) {
 
   return filteredOrgs[0];
 }
-
-module.exports = {
-  getId,
-};
