@@ -1,6 +1,6 @@
 import { promisify } from 'util';
 import { Logger } from '../logger.js';
-import { getDeployment, getAllDeployments } from '@clevercloud/client/cjs/api/v2/application.js';
+import { getDeployment, getAllDeployments } from '@clevercloud/client/esm/api/v2/application.js';
 import { sendToApi } from './send-to-api.js';
 
 const delay = promisify(setTimeout);

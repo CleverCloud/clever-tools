@@ -1,5 +1,5 @@
 import { sendToApi } from '../models/send-to-api.js';
-import { getBackups } from '@clevercloud/client/cjs/api/v2/backups.js';
+import { getBackups } from '@clevercloud/client/esm/api/v2/backups.js';
 import { Logger } from '../logger.js';
 import { formatTable as initFormatTable } from '../format-table.js';
 import superagent from 'superagent';

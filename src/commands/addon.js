@@ -7,9 +7,9 @@ import { Logger } from '../logger.js';
 import * as Organisation from '../models/organisation.js';
 import * as User from '../models/user.js';
 import { parseAddonOptions, findOwnerId } from '../models/addon.js';
-import { getAllEnvVars } from '@clevercloud/client/cjs/api/v2/addon.js';
+import { getAllEnvVars } from '@clevercloud/client/esm/api/v2/addon.js';
 import { sendToApi } from '../models/send-to-api.js';
-import { toNameEqualsValueString } from '@clevercloud/client/cjs/utils/env-vars.js';
+import { toNameEqualsValueString } from '@clevercloud/client/esm/utils/env-vars.js';
 import { resolveAddonId } from '../models/ids-resolver.js';
 
 const formatTable = initFormatTable();

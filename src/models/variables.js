@@ -1,6 +1,6 @@
 import _countBy from 'lodash/countBy.js';
 import readline from 'readline';
-import { ERROR_TYPES, parseRaw, toNameValueObject, validateName } from '@clevercloud/client/cjs/utils/env-vars.js';
+import { ERROR_TYPES, parseRaw, toNameValueObject, validateName } from '@clevercloud/client/esm/utils/env-vars.js';
 
 function readStdin () {
 

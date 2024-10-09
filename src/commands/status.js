@@ -4,7 +4,7 @@ import colors from 'colors/safe.js';
 import * as Application from '../models/application.js';
 import { Logger } from '../logger.js';
 
-import { get as getApplication, getAllInstances } from '@clevercloud/client/cjs/api/v2/application.js';
+import { get as getApplication, getAllInstances } from '@clevercloud/client/esm/api/v2/application.js';
 import { sendToApi } from '../models/send-to-api.js';
 
 export async function status (params) {

@@ -2,7 +2,7 @@ import * as Application from '../models/application.js';
 import { createDrainBody } from '../models/drain.js';
 import { Logger } from '../logger.js';
 
-import { getDrains, createDrain, deleteDrain, updateDrainState } from '@clevercloud/client/cjs/api/v2/log.js';
+import { getDrains, createDrain, deleteDrain, updateDrainState } from '@clevercloud/client/esm/api/v2/log.js';
 import { sendToApi } from '../models/send-to-api.js';
 
 // TODO: This could be useful in other commands

@@ -3,7 +3,7 @@ import colors from 'colors/safe.js';
 import { Deferred } from './utils.js';
 import { Logger } from '../logger.js';
 import { waitForDeploymentEnd, waitForDeploymentStart } from './deployments.js';
-import { ApplicationLogStream } from '@clevercloud/client/cjs/streams/application-logs.js';
+import { ApplicationLogStream } from '@clevercloud/client/esm/streams/application-logs.js';
 import { JsonArray } from './json-array.js';
 import * as ExitStrategy from '../models/exit-strategy-option.js';
 

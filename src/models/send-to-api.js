@@ -1,9 +1,9 @@
 import { Logger } from '../logger.js';
-import { addOauthHeader } from '@clevercloud/client/cjs/oauth.js';
+import { addOauthHeader } from '@clevercloud/client/esm/oauth.js';
 import { conf, loadOAuthConf } from '../models/configuration.js';
-import { execWarpscript } from '@clevercloud/client/cjs/request-warp10.superagent.js';
-import { prefixUrl } from '@clevercloud/client/cjs/prefix-url.js';
-import { request } from '@clevercloud/client/cjs/request.fetch.js';
+import { execWarpscript } from '@clevercloud/client/esm/request-warp10.superagent.js';
+import { prefixUrl } from '@clevercloud/client/esm/prefix-url.js';
+import { request } from '@clevercloud/client/esm/request.fetch.js';
 import { subtle as cryptoSuble } from 'node:crypto';
 
 // Required for @clevercloud/client with "old" Node.js

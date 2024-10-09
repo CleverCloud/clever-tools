@@ -1,6 +1,6 @@
 import * as Application from '../models/application.js';
 import { Logger } from '../logger.js';
-import { getAllDeployments, cancelDeployment } from '@clevercloud/client/cjs/api/v2/application.js';
+import { getAllDeployments, cancelDeployment } from '@clevercloud/client/esm/api/v2/application.js';
 import { sendToApi } from '../models/send-to-api.js';
 
 export async function cancelDeploy (params) {

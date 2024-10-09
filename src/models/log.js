@@ -3,8 +3,8 @@ import colors from 'colors/safe.js';
 
 import { Logger } from '../logger.js';
 import { Deferred } from './utils.js';
-import { getOldLogs } from '@clevercloud/client/cjs/api/v2/log.js';
-import { LogsStream } from '@clevercloud/client/cjs/streams/logs.node.js';
+import { getOldLogs } from '@clevercloud/client/esm/api/v2/log.js';
+import { LogsStream } from '@clevercloud/client/esm/streams/logs.node.js';
 import { sendToApi, getHostAndTokens } from './send-to-api.js';
 import { waitForDeploymentEnd, waitForDeploymentStart } from './deployments.js';
 import * as ExitStrategy from '../models/exit-strategy-option.js';

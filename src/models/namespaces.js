@@ -1,5 +1,5 @@
 import * as Application from './application.js';
-import organisation from '@clevercloud/client/cjs/api/v2/organisation.js';
+import * as organisation from '@clevercloud/client/esm/api/v2/organisation.js';
 import { sendToApi } from './send-to-api.js';
 import cliparse from 'cliparse';
 export async function getNamespaces (ownerId) {
