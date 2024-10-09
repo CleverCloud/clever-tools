@@ -1,10 +1,8 @@
-'use strict';
+import { cfg } from './config';
+import { cloneGitProject, applyTemplates, tagAndPush, commitAndPush, execSync } from './utils';
+import childProcess from 'node:child_process';
 
-const cfg = require('./config');
-const { cloneGitProject, applyTemplates, tagAndPush, commitAndPush, execSync } = require('./utils');
-const childProcess = require('child_process');
-
-module.exports = async function publishDockerhub (version) {
+export async function publishDockerhub (version) {
 
   const dockerHubConf = cfg.getDockerHubConf();
   const templateFilepath = './templates/dockerhub';

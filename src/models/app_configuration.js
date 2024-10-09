@@ -1,17 +1,15 @@
-'use strict';
+import { promises as fs } from 'node:fs';
+import path from 'node:path';
 
-const { promises: fs } = require('fs');
-const path = require('path');
+import _ from 'lodash';
+import slugify from 'slugify';
 
-const _ = require('lodash');
-const slugify = require('slugify');
-
-const Logger = require('../logger.js');
-const User = require('./user.js');
-const { conf } = require('./configuration.js');
+import { Logger } from '../logger.js';
+import * as User from './user.js';
+import { conf } from './configuration.js';
 
 // TODO: Maybe use fs-utils findPath()
-async function loadApplicationConf (ignoreParentConfig = false, pathToFolder) {
+export async function loadApplicationConf (ignoreParentConfig = false, pathToFolder) {
   if (pathToFolder == null) {
     pathToFolder = path.dirname(conf.APP_CONFIGURATION_FILE);
   }
@@ -31,7 +29,7 @@ async function loadApplicationConf (ignoreParentConfig = false, pathToFolder) {
   }
 };
 
-async function addLinkedApplication (appData, alias, ignoreParentConfig) {
+export async function addLinkedApplication (appData, alias, ignoreParentConfig) {
   const currentConfig = await loadApplicationConf(ignoreParentConfig);
 
   const appEntry = {
@@ -54,7 +52,7 @@ async function addLinkedApplication (appData, alias, ignoreParentConfig) {
   return persistConfig(currentConfig);
 };
 
-async function removeLinkedApplication ({ appId, alias }) {
+export async function removeLinkedApplication ({ appId, alias }) {
   const currentConfig = await loadApplicationConf();
   const newConfig = {
     ...currentConfig,
@@ -71,7 +69,7 @@ async function removeLinkedApplication ({ appId, alias }) {
   return false;
 };
 
-function findApp (config, alias) {
+export function findApp (config, alias) {
   if (_.isEmpty(config.apps)) {
     throw new Error('There are no applications linked. You can add one with `clever link`');
   }
@@ -90,7 +88,7 @@ function findApp (config, alias) {
   return findDefaultApp(config);
 }
 
-function checkAlreadyLinked (apps, name, alias) {
+export function checkAlreadyLinked (apps, name, alias) {
   const appAliasExists = apps.some((app) => app.alias != null && app.alias === alias);
   if (appAliasExists) {
     throw new Error(`An application is already linked with the alias '${alias}'`);
@@ -142,7 +140,7 @@ async function getAppDetailsForId (appId) {
   return appById;
 }
 
-async function getAppDetails ({ alias }) {
+export async function getAppDetails ({ alias }) {
   const config = await loadApplicationConf();
   const app = findApp(config, alias);
   const ownerId = (app.org_id != null)
@@ -157,7 +155,7 @@ async function getAppDetails ({ alias }) {
   };
 };
 
-async function getMostNaturalName (appId) {
+export async function getMostNaturalName (appId) {
   try {
     const details = await getAppDetailsForId(appId);
     return details.alias || details.name || appId;
@@ -172,20 +170,9 @@ function persistConfig (modifiedConfig) {
   return fs.writeFile(conf.APP_CONFIGURATION_FILE, jsonContents);
 };
 
-async function setDefault (alias) {
+export async function setDefault (alias) {
   const config = await loadApplicationConf();
   const app = findApp(config, alias);
   const newConfig = { ...config, default: app.app_id };
   return persistConfig(newConfig);
 }
-
-module.exports = {
-  loadApplicationConf,
-  addLinkedApplication,
-  removeLinkedApplication,
-  checkAlreadyLinked,
-  findApp,
-  getAppDetails,
-  getMostNaturalName,
-  setDefault,
-};

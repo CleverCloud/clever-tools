@@ -1,15 +1,13 @@
-'use strict';
+import colors from 'colors/safe.js';
 
-const colors = require('colors/safe');
+import * as Namespaces from '../models/namespaces.js';
+import { sendToApi } from '../models/send-to-api.js';
+import * as Interact from '../models/interact.js';
+import { Logger } from '../logger.js';
+import * as application from '@clevercloud/client/esm/api/v2/application.js';
+import * as Application from '../models/application.js';
 
-const Namespaces = require('../models/namespaces.js');
-const { sendToApi } = require('../models/send-to-api.js');
-const Interact = require('../models/interact.js');
-const Logger = require('../logger.js');
-const application = require('@clevercloud/client/cjs/api/v2/application.js');
-const Application = require('../models/application.js');
-
-async function listNamespaces (params) {
+export async function listNamespaces (params) {
   const { alias, app: appIdOrName, format } = params.options;
   const { ownerId } = await Application.resolveId(appIdOrName, alias);
 
@@ -42,7 +40,7 @@ async function listNamespaces (params) {
   }
 }
 
-async function list (params) {
+export async function list (params) {
   const { alias, app: appIdOrName, format } = params.options;
   const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
 
@@ -81,7 +79,7 @@ async function acceptPayment (result, skipConfirmation) {
   }
 }
 
-async function add (params) {
+export async function add (params) {
   const { alias, app: appIdOrName, namespace, yes: skipConfirmation } = params.options;
   const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
 
@@ -99,7 +97,7 @@ async function add (params) {
   Logger.println('Successfully added tcp redirection on port: ' + port);
 };
 
-async function remove (params) {
+export async function remove (params) {
   const [port] = params.args;
   const { alias, app: appIdOrName, namespace } = params.options;
   const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
@@ -108,5 +106,3 @@ async function remove (params) {
 
   Logger.println('Successfully removed tcp redirection.');
 };
-
-module.exports = { listNamespaces, list, add, remove };
