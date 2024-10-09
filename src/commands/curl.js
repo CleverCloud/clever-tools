@@ -1,4 +1,4 @@
-import { spawn } from 'child_process';
+import { spawn } from 'node:child_process';
 import { loadOAuthConf, conf } from '../models/configuration.js';
 import { addOauthHeader } from '@clevercloud/client/esm/oauth.js';
 import { Logger } from '../logger.js';

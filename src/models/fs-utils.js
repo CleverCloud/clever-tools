@@ -1,5 +1,5 @@
-import { join } from 'path';
-import { promises as fs } from 'fs';
+import { join } from 'node:path';
+import { promises as fs } from 'node:fs';
 
 export function findPath (dir, name) {
   const fullPath = join(dir, name);

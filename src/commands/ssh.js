@@ -1,4 +1,4 @@
-import { spawn } from 'child_process';
+import { spawn } from 'node:child_process';
 
 import * as Application from '../models/application.js';
 import { conf } from '../models/configuration.js';

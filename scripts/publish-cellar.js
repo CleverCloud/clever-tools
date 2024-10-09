@@ -1,4 +1,4 @@
-import path from 'path';
+import path from 'node:path';
 import { cfg } from './config';
 import { getCellarClient } from './cellar-client.js';
 import { getArchiveFilepath, getShaFilepath, getArchiveLatestFilepath, getBundleFilepath, getBundleFilename } from './paths.js';

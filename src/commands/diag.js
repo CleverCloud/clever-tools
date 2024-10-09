@@ -1,4 +1,4 @@
-import os from 'os';
+import os from 'node:os';
 
 import { releaseInfo as getLinuxInfos } from 'linux-release-info';
 import colors from 'colors/safe.js';

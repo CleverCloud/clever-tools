@@ -1,5 +1,5 @@
 import isomotphicHttp from 'isomorphic-git/http/node/index.js';
-import https from 'https';
+import https from 'node:https';
 
 // We use our own HTTP plugin, so we can customize the agent used for requests and configure a long timeout (default is 5 seconds).
 

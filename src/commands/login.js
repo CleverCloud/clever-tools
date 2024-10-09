@@ -1,5 +1,5 @@
-import crypto from 'crypto';
-import util from 'util';
+import crypto from 'node:crypto';
+import util from 'node:util';
 
 import colors from 'colors/safe.js';
 import open from 'open';

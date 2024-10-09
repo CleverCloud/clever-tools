@@ -1,5 +1,5 @@
 import fs from 'fs-extra';
-import path from 'path';
+import path from 'node:path';
 import * as cfg from './config.js';
 import { getArchiveFilepath, getArchiveDirectory, getBinaryFilepath, getArchiveLatestFilepath, getBinaryLatestFilepath } from './paths.js';
 import { generateChecksumFile, startTask, endTask, exec, cleanupDirectory, assertFileExists } from './utils.js';
