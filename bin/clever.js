@@ -130,6 +130,7 @@ function run () {
     logsFormat: getOutputFormatOption(['json-stream']),
     activityFormat: getOutputFormatOption(['json-stream']),
     envFormat: getOutputFormatOption(['shell']),
+    domainListFormat: getOutputFormatOption(),
     accesslogsFollow: cliparse.flag('follow', {
       aliases: ['f'],
       description: 'Display access logs continuously (ignores before/until, after/since)',
@@ -348,6 +349,10 @@ function run () {
     search: cliparse.option('search', {
       metavar: 'search',
       description: 'Fetch logs matching this pattern',
+    }),
+    domainFilter: cliparse.option('filter', {
+      metavar: 'domain',
+      description: 'Filter domain overview',
     }),
     loginSecret: cliparse.option('secret', {
       metavar: 'secret',
@@ -593,10 +598,14 @@ function run () {
     description: 'Manage the favourite domain name for an application',
     commands: [domainSetFavouriteCommand, domainUnsetFavouriteCommand],
   }, domain.getFavourite);
+  const domainOverviewCommand = cliparse.command('overview', {
+    description: 'Get an overview of all your domains (all orgas, all apps)',
+    options: [opts.domainListFormat, opts.domainFilter],
+  }, domain.overview);
   const domainCommands = cliparse.command('domain', {
     description: 'Manage domain names for an application',
     options: [opts.alias, opts.appIdOrName],
-    commands: [domainCreateCommand, domainFavouriteCommands, domainRemoveCommand],
+    commands: [domainCreateCommand, domainFavouriteCommands, domainRemoveCommand, domainOverviewCommand],
   }, domain.list);
 
   // DRAIN COMMANDS
