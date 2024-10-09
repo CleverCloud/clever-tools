@@ -5,7 +5,7 @@ import * as Activity from '../models/activity.js';
 import { formatTable } from '../format-table.js';
 import { Logger } from '../logger.js';
 import { Deferred } from '../models/utils.js';
-import { EventsStream } from '@clevercloud/client/cjs/streams/events.node.js';
+import { EventsStream } from '@clevercloud/client/esm/streams/events.node.js';
 import { getHostAndTokens } from '../models/send-to-api.js';
 import * as Application from '../models/application.js';
 

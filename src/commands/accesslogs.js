@@ -1,7 +1,7 @@
 import * as Application from '../models/application.js';
 import { Logger } from '../logger.js';
 import { getHostAndTokens } from '../models/send-to-api.js';
-import { ApplicationAccessLogStream } from '@clevercloud/client/cjs/streams/access-logs.js';
+import { ApplicationAccessLogStream } from '@clevercloud/client/esm/streams/access-logs.js';
 import { JsonArray } from '../models/json-array.js';
 import colors from 'colors/safe.js';
 import { formatTable } from '../format-table.js';

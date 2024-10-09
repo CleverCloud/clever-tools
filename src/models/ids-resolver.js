@@ -1,4 +1,4 @@
-import { getSummary } from '@clevercloud/client/cjs/api/v2/user.js';
+import { getSummary } from '@clevercloud/client/esm/api/v2/user.js';
 import { sendToApi } from './send-to-api.js';
 import { loadIdsCache, writeIdsCache } from './configuration.js';
 

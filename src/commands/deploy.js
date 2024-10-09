@@ -5,7 +5,7 @@ import * as Application from '../models/application.js';
 import * as git from '../models/git.js';
 import * as Log from '../models/log-v4.js';
 import { Logger } from '../logger.js';
-import { getAllDeployments } from '@clevercloud/client/cjs/api/v2/application.js';
+import { getAllDeployments } from '@clevercloud/client/esm/api/v2/application.js';
 import { sendToApi } from '../models/send-to-api.js';
 import * as ExitStrategy from '../models/exit-strategy-option.js';
 

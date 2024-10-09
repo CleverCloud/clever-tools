@@ -1,7 +1,7 @@
 import _ from 'lodash';
 
 import { Logger } from '../logger.js';
-import { getAllDomains, getFavouriteDomain } from '@clevercloud/client/cjs/api/v2/application.js';
+import { getAllDomains, getFavouriteDomain } from '@clevercloud/client/esm/api/v2/application.js';
 import { sendToApi } from '../models/send-to-api.js';
 
 export async function getBest (appId, orgaId) {

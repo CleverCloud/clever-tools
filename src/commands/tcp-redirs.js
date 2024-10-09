@@ -4,7 +4,7 @@ import * as Namespaces from '../models/namespaces.js';
 import { sendToApi } from '../models/send-to-api.js';
 import * as Interact from '../models/interact.js';
 import { Logger } from '../logger.js';
-import application from '@clevercloud/client/cjs/api/v2/application.js';
+import * as application from '@clevercloud/client/esm/api/v2/application.js';
 import * as Application from '../models/application.js';
 
 export async function listNamespaces (params) {

@@ -1,10 +1,10 @@
-import application from '@clevercloud/client/cjs/api/v2/application.js';
+import * as application from '@clevercloud/client/esm/api/v2/application.js';
 import cliparse from 'cliparse';
 
-import { get as getAddon, getAll as getAllAddons, remove as removeAddon, create as createAddon, update as updateAddon } from '@clevercloud/client/cjs/api/v2/addon.js';
-import { getAllAddonProviders } from '@clevercloud/client/cjs/api/v2/product.js';
-import { getSummary } from '@clevercloud/client/cjs/api/v2/user.js';
-import { getAddonProvider } from '@clevercloud/client/cjs/api/v4/addon-providers.js';
+import { get as getAddon, getAll as getAllAddons, remove as removeAddon, create as createAddon, update as updateAddon } from '@clevercloud/client/esm/api/v2/addon.js';
+import { getAllAddonProviders } from '@clevercloud/client/esm/api/v2/product.js';
+import { getSummary } from '@clevercloud/client/esm/api/v2/user.js';
+import { getAddonProvider } from '@clevercloud/client/esm/api/v4/addon-providers.js';
 
 import * as Interact from './interact.js';
 import { Logger } from '../logger.js';

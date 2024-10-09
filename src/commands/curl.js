@@ -1,6 +1,6 @@
 import { spawn } from 'child_process';
 import { loadOAuthConf, conf } from '../models/configuration.js';
-import { addOauthHeader } from '@clevercloud/client/cjs/oauth.js';
+import { addOauthHeader } from '@clevercloud/client/esm/oauth.js';
 import { Logger } from '../logger.js';
 import colors from 'colors/safe.js';
 import curlconverter from 'curlconverter';

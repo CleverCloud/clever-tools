@@ -3,8 +3,8 @@ import { Logger } from '../logger.js';
 import colors from 'colors/safe.js';
 import * as variables from '../models/variables.js';
 import { sendToApi } from '../models/send-to-api.js';
-import { toNameEqualsValueString, validateName } from '@clevercloud/client/cjs/utils/env-vars.js';
-import application from '@clevercloud/client/cjs/api/v2/application.js';
+import { toNameEqualsValueString, validateName } from '@clevercloud/client/esm/utils/env-vars.js';
+import * as application from '@clevercloud/client/esm/api/v2/application.js';
 
 export async function list (params) {
   const { alias, app: appIdOrName, 'add-export': addExportsOption, format } = params.options;

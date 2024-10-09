@@ -3,7 +3,7 @@ import colors from 'colors/safe.js';
 import { Logger } from '../logger.js';
 import { getOwnerAndApp, getOrgaIdOrUserId } from '../models/notification.js';
 
-import { getEmailhooks, createEmailhook, deleteEmailhook } from '@clevercloud/client/cjs/api/v2/notification.js';
+import { getEmailhooks, createEmailhook, deleteEmailhook } from '@clevercloud/client/esm/api/v2/notification.js';
 import { sendToApi } from '../models/send-to-api.js';
 
 export async function list (params) {

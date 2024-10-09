@@ -1,4 +1,4 @@
-import application from '@clevercloud/client/cjs/api/v2/application.js';
+import * as application from '@clevercloud/client/esm/api/v2/application.js';
 
 import * as Application from '../models/application.js';
 import * as ApplicationConfiguration from '../models/application_configuration.js';

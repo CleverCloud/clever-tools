@@ -1,8 +1,8 @@
 import _ from 'lodash';
-import application from '@clevercloud/client/cjs/api/v2/application.js';
+import * as application from '@clevercloud/client/esm/api/v2/application.js';
 import cliparse from 'cliparse';
-import product from '@clevercloud/client/cjs/api/v2/product.js';
-import { getSummary } from '@clevercloud/client/cjs/api/v2/user.js';
+import * as product from '@clevercloud/client/esm/api/v2/product.js';
+import { getSummary } from '@clevercloud/client/esm/api/v2/user.js';
 
 import * as AppConfiguration from './app_configuration.js';
 import * as Interact from './interact.js';
