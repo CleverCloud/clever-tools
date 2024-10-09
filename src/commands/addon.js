@@ -182,7 +182,15 @@ export async function deleteAddon (params) {
   const { yes: skipConfirmation, org: orgaIdOrName } = params.options;
   const [addon] = params.args;
 
-  const ownerId = await Organisation.getId(orgaIdOrName);
+  let ownerId = await Organisation.getId(orgaIdOrName);
+  if (ownerId == null && addon.addon_id != null) {
+    ownerId = await Addon.findOwnerId(ownerId, addon.addon_id);
+  }
+  if (ownerId == null && addon.addon_name != null) {
+    const foundAddon = await Addon.findByName(addon.addon_name);
+    ownerId = foundAddon.orgaId;
+  }
+
   await Addon.deleteAddon(ownerId, addon, skipConfirmation);
 
   Logger.println(`Addon ${addon.addon_id || addon.addon_name} successfully deleted`);
