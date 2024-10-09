@@ -155,6 +155,11 @@ function run () {
       description: 'Short name for the application',
       complete: Application.listAvailableAliases,
     }),
+    domain: cliparse.option('domain', {
+      aliases: ['d'],
+      default: '',
+      description: 'A domain name',
+    }),
     naturalName: cliparse.flag('natural-name', {
       aliases: ['n'],
       description: 'Show the application names or aliases if possible',
@@ -593,10 +598,14 @@ function run () {
     description: 'Manage the favourite domain name for an application',
     commands: [domainSetFavouriteCommand, domainUnsetFavouriteCommand],
   }, domain.getFavourite);
+  const domainDiagApplicationCommand = cliparse.command('diag', {
+    description: 'Check if domains associated to a specific app are properly configured',
+    options: [opts.humanJsonOutputFormat, opts.domain],
+  }, domain.diagApplication);
   const domainCommands = cliparse.command('domain', {
     description: 'Manage domain names for an application',
     options: [opts.alias, opts.appIdOrName],
-    commands: [domainCreateCommand, domainFavouriteCommands, domainRemoveCommand],
+    commands: [domainCreateCommand, domainFavouriteCommands, domainRemoveCommand, domainDiagApplicationCommand],
   }, domain.list);
 
   // DRAIN COMMANDS
