@@ -1,14 +1,14 @@
-const AWS = require('aws-sdk');
-const fs = require('fs-extra');
-const mime = require('mime-types');
-const { getCellarConf } = require('./config.js');
+import AWS from 'aws-sdk';
+import fs from 'fs-extra';
+import mime from 'mime-types';
+import { getCellarConf } from './config.js';
 
 // Forces the *.sha256 files to be uploaded with a text/plain mime type.
 mime.types.sha256 = 'text/plain';
 
 const CELLAR_CLIENTS = {};
 
-function getCellarClient (scope) {
+export function getCellarClient (scope) {
   if (CELLAR_CLIENTS[scope] == null) {
     const conf = getCellarConf(scope);
     if (!conf.accessKeyId || !conf.secretAccessKey) {
@@ -85,7 +85,3 @@ function cellar ({ accessKeyId, secretAccessKey, host, bucket }) {
 
   return client;
 }
-
-module.exports = {
-  getCellarClient,
-};

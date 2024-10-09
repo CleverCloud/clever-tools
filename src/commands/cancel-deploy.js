@@ -1,11 +1,9 @@
-'use strict';
+import * as Application from '../models/application.js';
+import { Logger } from '../logger.js';
+import { getAllDeployments, cancelDeployment } from '@clevercloud/client/esm/api/v2/application.js';
+import { sendToApi } from '../models/send-to-api.js';
 
-const Application = require('../models/application.js');
-const Logger = require('../logger.js');
-const { getAllDeployments, cancelDeployment } = require('@clevercloud/client/cjs/api/v2/application.js');
-const { sendToApi } = require('../models/send-to-api.js');
-
-async function cancelDeploy (params) {
+export async function cancelDeploy (params) {
   const { alias, app: appIdOrName } = params.options;
   const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
 
@@ -20,5 +18,3 @@ async function cancelDeploy (params) {
 
   Logger.println('Deployment cancelled!');
 };
-
-module.exports = { cancelDeploy };

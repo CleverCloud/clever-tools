@@ -1,13 +1,11 @@
-'use strict';
+import * as Application from '../models/application.js';
+import { Logger } from '../logger.js';
+import * as variables from '../models/variables.js';
+import { sendToApi } from '../models/send-to-api.js';
+import { toNameEqualsValueString, validateName } from '@clevercloud/client/esm/utils/env-vars.js';
+import * as application from '@clevercloud/client/esm/api/v2/application.js';
 
-const Application = require('../models/application.js');
-const Logger = require('../logger.js');
-const variables = require('../models/variables.js');
-const { sendToApi } = require('../models/send-to-api.js');
-const { toNameEqualsValueString, validateName } = require('@clevercloud/client/cjs/utils/env-vars.js');
-const application = require('@clevercloud/client/cjs/api/v2/application.js');
-
-async function list (params) {
+export async function list (params) {
   const { alias, app: appIdOrName, format } = params.options;
   const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
 
@@ -30,7 +28,7 @@ async function list (params) {
   }
 }
 
-async function set (params) {
+export async function set (params) {
   const [varName, varValue] = params.args;
   const { alias, app: appIdOrName } = params.options;
 
@@ -48,7 +46,7 @@ async function set (params) {
   Logger.println('Your published config item has been successfully saved');
 };
 
-async function rm (params) {
+export async function rm (params) {
   const [varName] = params.args;
   const { alias, app: appIdOrName } = params.options;
   const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
@@ -60,7 +58,7 @@ async function rm (params) {
   Logger.println('Your published config item has been successfully removed');
 };
 
-async function importEnv (params) {
+export async function importEnv (params) {
   const { alias, app: appIdOrName, json } = params.options;
   const format = json ? 'json' : 'name-equals-value';
   const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
@@ -70,5 +68,3 @@ async function importEnv (params) {
 
   Logger.println('Your published configs have been set');
 };
-
-module.exports = { list, set, rm, importEnv };

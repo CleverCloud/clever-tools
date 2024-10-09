@@ -1,16 +1,7 @@
-'use strict';
-
-const Application = require('../models/application.js');
-const Logger = require('../logger.js');
-const {
-  get: getApp,
-  addDomain,
-  getFavouriteDomain: getFavouriteDomainWithError,
-  markFavouriteDomain,
-  unmarkFavouriteDomain,
-  removeDomain,
-} = require('@clevercloud/client/cjs/api/v2/application.js');
-const { sendToApi } = require('../models/send-to-api.js');
+import * as Application from '../models/application.js';
+import { Logger } from '../logger.js';
+import { get as getApp, addDomain, getFavouriteDomain as getFavouriteDomainWithError, markFavouriteDomain, unmarkFavouriteDomain, removeDomain } from '@clevercloud/client/esm/api/v2/application.js';
+import { sendToApi } from '../models/send-to-api.js';
 
 function getFavouriteDomain ({ ownerId, appId }) {
   return getFavouriteDomainWithError({ id: ownerId, appId })
@@ -25,7 +16,7 @@ function getFavouriteDomain ({ ownerId, appId }) {
     });
 }
 
-async function list (params) {
+export async function list (params) {
   const { alias, app: appIdOrName } = params.options;
   const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
 
@@ -39,7 +30,7 @@ async function list (params) {
   });
 }
 
-async function add (params) {
+export async function add (params) {
   const [fqdn] = params.args;
   const { alias, app: appIdOrName } = params.options;
   const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
@@ -49,7 +40,7 @@ async function add (params) {
   Logger.println('Your domain has been successfully saved');
 }
 
-async function getFavourite (params) {
+export async function getFavourite (params) {
   const { alias, app: appIdOrName } = params.options;
   const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
 
@@ -62,7 +53,7 @@ async function getFavourite (params) {
   return Logger.println(favouriteDomain);
 }
 
-async function setFavourite (params) {
+export async function setFavourite (params) {
   const [fqdn] = params.args;
   const { alias, app: appIdOrName } = params.options;
   const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
@@ -71,7 +62,7 @@ async function setFavourite (params) {
   Logger.println('Your favourite domain has been successfully set');
 }
 
-async function unsetFavourite (params) {
+export async function unsetFavourite (params) {
   const { alias, app: appIdOrName } = params.options;
   const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
 
@@ -79,7 +70,7 @@ async function unsetFavourite (params) {
   Logger.println('Favourite domain has been successfully unset');
 }
 
-async function rm (params) {
+export async function rm (params) {
   const [fqdn] = params.args;
   const { alias, app: appIdOrName } = params.options;
   const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
@@ -88,5 +79,3 @@ async function rm (params) {
   await removeDomain({ id: ownerId, appId, domain: encodedFqdn }).then(sendToApi);
   Logger.println('Your domain has been successfully removed');
 }
-
-module.exports = { list, add, getFavourite, setFavourite, unsetFavourite, rm };

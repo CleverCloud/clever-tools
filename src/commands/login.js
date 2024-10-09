@@ -1,18 +1,18 @@
-'use strict';
+import crypto from 'node:crypto';
+import util from 'node:util';
 
-const crypto = require('crypto');
-const util = require('util');
+import colors from 'colors/safe.js';
+import open from 'open';
+import superagent from 'superagent';
+
+import { Logger } from '../logger.js';
+import * as User from '../models/user.js';
+import { conf, writeOAuthConf } from '../models/configuration.js';
+
+import { getPackageJson } from '../load-package-json.cjs';
 
 const delay = util.promisify(setTimeout);
-
-const colors = require('colors/safe');
-const open = require('open');
-const superagent = require('superagent');
-
-const Logger = require('../logger.js');
-const User = require('../models/user.js');
-const { conf, writeOAuthConf } = require('../models/configuration.js');
-const { version } = require('../../package');
+const pkg = getPackageJson();
 
 // 20 random bytes as Base64URL
 function randomToken () {
@@ -49,7 +49,7 @@ async function loginViaConsole () {
   const cliToken = randomToken();
 
   const consoleUrl = new URL(conf.CONSOLE_TOKEN_URL);
-  consoleUrl.searchParams.set('cli_version', version);
+  consoleUrl.searchParams.set('cli_version', pkg.version);
   consoleUrl.searchParams.set('cli_token', cliToken);
 
   const cliPollUrl = new URL(conf.API_HOST);
@@ -63,7 +63,7 @@ async function loginViaConsole () {
   return pollOauthData(cliPollUrl.toString());
 }
 
-async function login (params) {
+export async function login (params) {
   const { token, secret } = params.options;
   const isLoginWithArgs = (token != null && secret != null);
   const isInteractiveLogin = (token == null && secret == null);
@@ -82,5 +82,3 @@ async function login (params) {
 
   throw new Error('Both `--token` and `--secret` have to be defined');
 }
-
-module.exports = { login };

@@ -1,6 +1,6 @@
-const { getSummary } = require('@clevercloud/client/cjs/api/v2/user.js');
-const { sendToApi } = require('./send-to-api.js');
-const { loadIdsCache, writeIdsCache } = require('./configuration.js');
+import { getSummary } from '@clevercloud/client/esm/api/v2/user.js';
+import { sendToApi } from './send-to-api.js';
+import { loadIdsCache, writeIdsCache } from './configuration.js';
 
 /*
 This system uses a simplified representation of the summary to expose IDs links:
@@ -24,11 +24,11 @@ This system uses a simplified representation of the summary to expose IDs links:
 }
  */
 
-async function resolveOwnerId (id) {
+export async function resolveOwnerId (id) {
   return getIdFromCacheOrSummary((ids) => ids.owners[id]);
 }
 
-async function resolveAddonId (id) {
+export async function resolveAddonId (id) {
 
   const addonId = await getIdFromCacheOrSummary((ids) => {
     return (ids.addons[id] != null) ? ids.addons[id].addonId : null;
@@ -41,7 +41,7 @@ async function resolveAddonId (id) {
   throw new Error(`Add-on ${id} does not exist`);
 }
 
-async function resolveRealId (id) {
+export async function resolveRealId (id) {
 
   const realId = await getIdFromCacheOrSummary((ids) => {
     return (ids.addons[id] != null) ? ids.addons[id].realId : null;
@@ -102,9 +102,3 @@ async function getIdsFromSummary () {
 
   return ids;
 }
-
-module.exports = {
-  resolveOwnerId,
-  resolveAddonId,
-  resolveRealId,
-};
