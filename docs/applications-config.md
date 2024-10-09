@@ -88,6 +88,24 @@ clever domain favourite set FQDN
 clever domain favourite unset FQDN
 ```
 
+To check if the domains of an application are properly configured, use:
+
+```
+clever domain diag
+clever domain diag --format json
+clever domain diag --app APP_ID_OR_NAME
+```
+
+You can only diagnose some domains of the application using a text filter:
+
+```
+clever domain diag --filter .tld
+clever domain diag --filter mydomain.tld
+```
+
+> [!NOTE]
+> Domain diagnosis is not made for applications using a 3rd party CDN or a dedicated load balancer.
+
 ## scale and dedicated build
 
 You can easily change the number of instances and `flavor` for an application. It can have a different `flavor` used for build phase, to get it done faster. We also provide horizontal and vertical scaling: you can set a minimal/maximal `flavor` and number of instance, then we autoscale depending on incoming load. To change this, use `clever scale` with the following options:

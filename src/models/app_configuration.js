@@ -71,7 +71,7 @@ export async function removeLinkedApplication ({ appId, alias }) {
 
 export function findApp (config, alias) {
   if (_.isEmpty(config.apps)) {
-    throw new Error('There are no applications linked. You can add one with `clever link`');
+    throw new Error('There is no linked or targeted application. Use `--app` option or `clever link` command');
   }
 
   if (alias != null) {
@@ -102,7 +102,7 @@ export function checkAlreadyLinked (apps, name, alias) {
 
 function findDefaultApp (config) {
   if (_.isEmpty(config.apps)) {
-    throw new Error('There are no applications linked. You can add one with `clever link`');
+    throw new Error('There is no linked or targeted application. Use `--app` option or `clever link` command');
   }
 
   if (config.default != null) {
@@ -125,7 +125,7 @@ async function getAppDetailsForId (appId) {
   const config = await loadApplicationConf();
 
   if (_.isEmpty(config.apps)) {
-    throw new Error('There are no applications linked. You can add one with `clever link`');
+    throw new Error('There is no linked or targeted application. Use `--app` option or `clever link` command');
   }
 
   const [appById, secondAppById] = _.filter(config.apps, { app_id: appId });
