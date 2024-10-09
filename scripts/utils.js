@@ -1,10 +1,10 @@
 import colors from 'colors/safe.js';
 import _ from 'lodash';
-import childProcess from 'child_process';
+import childProcess from 'node:child_process';
 import fs from 'fs-extra';
 import glob from 'glob';
-import { URL } from 'url';
-import crypto from 'crypto';
+import { URL } from 'node:url';
+import crypto from 'node:crypto';
 import { getShaFilepath } from './paths.js';
 import del from 'del';
 

@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import colors from 'colors/safe.js';
-import { format } from 'util';
+import { format } from 'node:util';
 
 function getPrefix (severity) {
   const prefix = `[${severity.toUpperCase()}] `;

@@ -1,6 +1,6 @@
 import { cfg } from './config';
 import { cloneGitProject, applyTemplates, tagAndPush, commitAndPush, execSync } from './utils';
-import childProcess from 'child_process';
+import childProcess from 'node:child_process';
 
 export async function publishDockerhub (version) {
 

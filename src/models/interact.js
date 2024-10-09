@@ -1,4 +1,4 @@
-import readline from 'readline';
+import readline from 'node:readline';
 
 function ask (question) {
 

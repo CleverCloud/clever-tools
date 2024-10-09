@@ -1,4 +1,4 @@
-import path from 'path';
+import path from 'node:path';
 import { readFile } from 'fs/promises';
 import * as cfg from './config.js';
 import { startTask, writeStringToFile, applyTemplates, exec, endTask, generateChecksumFile, assertFileExists, cleanupDirectory } from './utils.js';
