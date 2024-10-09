@@ -4,6 +4,12 @@ import { conf, loadOAuthConf } from '../models/configuration.js';
 import { execWarpscript } from '@clevercloud/client/cjs/request-warp10.superagent.js';
 import { prefixUrl } from '@clevercloud/client/cjs/prefix-url.js';
 import { request } from '@clevercloud/client/cjs/request.fetch.js';
+import { subtle as cryptoSuble } from 'node:crypto';
+
+// Required for @clevercloud/client with "old" Node.js
+globalThis.crypto = {
+  subtle: cryptoSuble,
+};
 
 async function loadTokens () {
   const tokens = await loadOAuthConf();
