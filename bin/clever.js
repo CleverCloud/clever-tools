@@ -351,8 +351,9 @@ function run () {
       description: 'Fetch logs matching this pattern',
     }),
     domainFilter: cliparse.option('filter', {
-      metavar: 'domain',
-      description: 'Filter domain overview',
+      aliases: ['f'],
+      metavar: 'TEXT',
+      description: 'Get only domains containing the provided text',
     }),
     loginSecret: cliparse.option('secret', {
       metavar: 'secret',
