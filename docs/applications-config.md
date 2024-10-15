@@ -70,11 +70,18 @@ By default, a Clever Cloud application gets `app_id.cleverapps.io` as fully qual
 clever domain
 ```
 
-To add/remove domains through these commands, use:
+To get an overview of domains linked to any of your applications and organizations, use:
+
+```
+clever domain overview
+clever domain -f domain.tld
+clever domain --filter .tld -format json
+```
+
+To add/remove a domain to an application, use:
 
 ```
 add                        Add a domain name to a Clever Cloud application
-favourite                  Manage Clever Cloud application favourite domain name
 rm                         Remove a domain name from a Clever Cloud application
 ```
 
