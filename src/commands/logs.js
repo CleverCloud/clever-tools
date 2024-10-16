@@ -1,14 +1,12 @@
-'use strict';
+import * as Application from '../models/application.js';
+import * as LogV2 from '../models/log.js';
+import * as Log from '../models/log-v4.js';
+import { Logger } from '../logger.js';
+import { Deferred } from '../models/utils.js';
+import colors from 'colors/safe.js';
+import { resolveAddonId } from '../models/ids-resolver.js';
 
-const Application = require('../models/application.js');
-const LogV2 = require('../models/log.js');
-const Log = require('../models/log-v4.js');
-const Logger = require('../logger.js');
-const { Deferred } = require('../models/utils.js');
-const colors = require('colors/safe');
-const { resolveAddonId } = require('../models/ids-resolver.js');
-
-async function appLogs (params) {
+export async function appLogs (params) {
   const { alias, app: appIdOrName, addon: addonIdOrRealId, after: since, before: until, search, 'deployment-id': deploymentId, format } = params.options;
 
   // ignore --search ""
@@ -37,5 +35,3 @@ async function appLogs (params) {
   await Log.displayLogs({ ownerId, appId, since, until, filter, deploymentId, format, deferred });
   return deferred.promise;
 }
-
-module.exports = { appLogs };

@@ -1,9 +1,7 @@
-'use strict';
+import * as Application from '../models/application.js';
+import { Logger } from '../logger.js';
 
-const Application = require('../models/application.js');
-const Logger = require('../logger.js');
-
-async function link (params) {
+export async function link (params) {
   const [app] = params.args;
   const { org: orgaIdOrName, alias } = params.options;
 
@@ -15,5 +13,3 @@ async function link (params) {
 
   Logger.println('Your application has been successfully linked!');
 }
-
-module.exports = { link };

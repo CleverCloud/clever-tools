@@ -1,10 +1,8 @@
-'use strict';
+import { Logger } from '../logger.js';
+import { getPackageJson } from '../load-package-json.cjs';
 
-const Logger = require('../logger.js');
-const pkg = require('../../package.json');
+const pkg = getPackageJson();
 
-async function version () {
+export async function version () {
   Logger.println(pkg.version);
 }
-
-module.exports = { version };

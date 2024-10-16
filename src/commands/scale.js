@@ -1,7 +1,5 @@
-'use strict';
-
-const Application = require('../models/application.js');
-const Logger = require('../logger.js');
+import * as Application from '../models/application.js';
+import { Logger } from '../logger.js';
 
 function validateOptions (options) {
 
@@ -43,7 +41,7 @@ function validateOptions (options) {
   return { minFlavor, maxFlavor, minInstances, maxInstances, buildFlavor };
 }
 
-async function scale (params) {
+export async function scale (params) {
   const { alias, app: appIdOrName } = params.options;
   const { minFlavor, maxFlavor, minInstances, maxInstances, buildFlavor } = validateOptions(params.options);
   const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
@@ -57,5 +55,3 @@ async function scale (params) {
 
   Logger.println('App rescaled successfully');
 };
-
-module.exports = { scale };

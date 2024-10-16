@@ -1,11 +1,9 @@
-'use strict';
+import { cfg } from './config';
+import fs from 'fs-extra';
+import { cloneGitProject, applyTemplates, commitAndPush } from './utils';
+import { getShaFilepath, getArchiveFilepath } from './paths.js';
 
-const cfg = require('./config');
-const fs = require('fs-extra');
-const { cloneGitProject, applyTemplates, commitAndPush } = require('./utils');
-const { getShaFilepath, getArchiveFilepath } = require('./paths.js');
-
-module.exports = async function publishBrew (version) {
+export async function publishBrew (version) {
 
   const templatesPath = './templates/brew';
   const gitPath = './git-brew';

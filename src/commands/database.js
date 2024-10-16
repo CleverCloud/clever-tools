@@ -1,16 +1,15 @@
-'use strict';
+import { sendToApi } from '../models/send-to-api.js';
+import { getBackups } from '@clevercloud/client/esm/api/v2/backups.js';
+import { Logger } from '../logger.js';
+import { formatTable as initFormatTable } from '../format-table.js';
+import superagent from 'superagent';
+import fs from 'node:fs';
+import { findOwnerId } from '../models/addon.js';
+import { resolveRealId, resolveAddonId } from '../models/ids-resolver.js';
 
-const { sendToApi } = require('../models/send-to-api.js');
-const { getBackups } = require('@clevercloud/client/cjs/api/v2/backups.js');
-const { println } = require('../logger.js');
-const formatTable = require('../format-table')();
-const superagent = require('superagent');
-const fs = require('fs');
-const { findOwnerId } = require('../models/addon.js');
-const { resolveRealId, resolveAddonId } = require('../models/ids-resolver.js');
-const Logger = require('../logger.js');
+const formatTable = initFormatTable();
 
-async function listBackups (params) {
+export async function listBackups (params) {
 
   const { org, format } = params.options;
   const [addonIdOrRealId] = params.args;
@@ -22,7 +21,7 @@ async function listBackups (params) {
   const backups = await getBackups({ ownerId, ref: realId }).then(sendToApi);
 
   if (backups.length === 0 && format === 'human') {
-    println('There are no backups yet');
+    Logger.println('There are no backups yet');
     return;
   }
 
@@ -58,7 +57,7 @@ async function listBackups (params) {
         'STATUS',
       ];
 
-      println(formatTable([
+      Logger.println(formatTable([
         head,
         ...formattedLines,
       ]));
@@ -66,7 +65,7 @@ async function listBackups (params) {
   }
 }
 
-async function downloadBackups (params) {
+export async function downloadBackups (params) {
 
   const { org, output } = params.options;
   const [addonIdOrRealId, backupId] = params.args;
@@ -92,5 +91,3 @@ async function downloadBackups (params) {
 
   process.stdout.write(res.body);
 }
-
-module.exports = { listBackups, downloadBackups };

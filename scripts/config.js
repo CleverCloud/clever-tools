@@ -1,30 +1,29 @@
-'use strict';
+import os from 'node:os';
+import { getPackageJson } from '../src/load-package-json.cjs';
+const pkg = getPackageJson();
 
-const os = require('os');
-const pkgJson = require('../package.json');
-
-const archList = ['linux', 'macos', 'win'];
-const archEmoji = {
+export const archList = ['linux', 'macos', 'win'];
+export const archEmoji = {
   linux: '🐧',
   macos: '🍏',
   win: '🪟',
 };
-const nodeVersion = pkgJson['pkg-node-version'];
-const git = {
+export const nodeVersion = pkg['pkg-node-version'];
+export const git = {
   email: 'ci@clever-cloud.com',
   name: 'Clever Cloud CI',
 };
-const appInfos = {
-  name: pkgJson.name,
+export const appInfos = {
+  name: pkg.name,
   vendor: 'Clever Cloud',
-  url: pkgJson.homepage,
-  description: pkgJson.description,
-  license: pkgJson.license,
+  url: pkg.homepage,
+  description: pkg.description,
+  license: pkg.license,
   maintainer: `${git.name} <${git.email}>`,
-  keywords: pkgJson.keywords.join(' '),
+  keywords: pkg.keywords.join(' '),
 };
 
-function getNexusAuth () {
+export function getNexusAuth () {
   const user = process.env.NEXUS_USER || 'ci';
   const password = process.env.NEXUS_PASSWORD;
   const nugetApiKey = process.env.NUGET_API_KEY;
@@ -37,7 +36,7 @@ function getNexusAuth () {
   return { user, password, nugetApiKey };
 }
 
-function getNpmToken () {
+export function getNpmToken () {
   const token = process.env.NPM_TOKEN;
   if (!token) {
     throw new Error('Could not read NPM token!');
@@ -45,7 +44,7 @@ function getNpmToken () {
   return token;
 }
 
-function getDockerHubConf () {
+export function getDockerHubConf () {
   const username = process.env.DOCKERHUB_USERNAME;
   const token = process.env.DOCKERHUB_TOKEN;
   if (username == null || token == null) {
@@ -54,7 +53,7 @@ function getDockerHubConf () {
   return { username, token, imageName: 'clevercloud/clever-tools' };
 }
 
-function getGpgConf () {
+export function getGpgConf () {
   const gpgPrivateKey = process.env.RPM_GPG_PRIVATE_KEY;
   const gpgPath = process.env.RPM_GPG_PATH || os.homedir();
   const gpgName = process.env.RPM_GPG_NAME;
@@ -62,7 +61,7 @@ function getGpgConf () {
   return { gpgPrivateKey, gpgPath, gpgName, gpgPass };
 }
 
-function getCellarConf (scope) {
+export function getCellarConf (scope) {
   if (scope === 'previews') {
     return {
       host: 'cellar-c2.services.clever-cloud.com',
@@ -81,16 +80,3 @@ function getCellarConf (scope) {
   }
   throw new Error(`Unsupported cellar scope "${scope}". Supported scopes: "previews", "releases".`);
 }
-
-module.exports = {
-  archList,
-  archEmoji,
-  nodeVersion,
-  git,
-  appInfos,
-  getNexusAuth,
-  getNpmToken,
-  getDockerHubConf,
-  getGpgConf,
-  getCellarConf,
-};

@@ -1,13 +1,15 @@
 #!/usr/bin/env node
 
-const pkgJson = require('../package.json');
-const publishArch = require('./publish-arch.js');
-const publishBrew = require('./publish-brew.js');
-const { publishCellar, assertRemoteFilesAreOnCellar } = require('./publish-cellar.js');
-const publishDockerhub = require('./publish-dockerhub.js');
-const publishExherbo = require('./publish-exherbo.js');
-const publishNexus = require('./publish-nexus.js');
-const publishNpm = require('./publish-npm.js');
+import { getPackageJson } from '../src/load-package-json.cjs';
+import { publishArch } from './publish-arch.js';
+import { publishBrew } from './publish-brew.js';
+import { publishCellar, assertRemoteFilesAreOnCellar } from './publish-cellar.js';
+import { publishDockerhub } from './publish-dockerhub.js';
+import { publishExherbo } from './publish-exherbo.js';
+import { publishNexus } from './publish-nexus.js';
+import { publishNpm } from './publish-npm.js';
+
+const pkgJson = getPackageJson();
 
 const PUBLISHERS = {
   arch: publishArch,

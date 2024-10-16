@@ -1,7 +1,6 @@
-'use strict';
-
-const _ = require('lodash');
-const colors = require('colors/safe');
+import _ from 'lodash';
+import colors from 'colors/safe.js';
+import { format } from 'node:util';
 
 function getPrefix (severity) {
   const prefix = `[${severity.toUpperCase()}] `;
@@ -29,10 +28,10 @@ function formatLines (prefixLength, lines) {
 }
 
 function consoleErrorWithoutColor (line) {
-  process.stderr.write(line + '\n');
+  process.stderr.write(format(line) + '\n');
 }
 
-const Logger = _(['debug', 'info', 'warn', 'error'])
+export const Logger = _(['debug', 'info', 'warn', 'error'])
   .map((severity) => {
     if (process.env.CLEVER_QUIET || (!process.env.CLEVER_VERBOSE && (severity === 'debug' || severity === 'info'))) {
       return [severity, _.noop];
@@ -65,5 +64,3 @@ Logger.printErrorLine = consoleErrorWithoutColor;
 
 // Only exported for testing, shouldn't be used directly
 Logger.processApiError = processApiError;
-
-module.exports = Logger;

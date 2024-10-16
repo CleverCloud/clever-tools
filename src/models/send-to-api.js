@@ -1,11 +1,15 @@
-'use strict';
+import { Logger } from '../logger.js';
+import { addOauthHeader } from '@clevercloud/client/esm/oauth.js';
+import { conf, loadOAuthConf } from '../models/configuration.js';
+import { execWarpscript } from '@clevercloud/client/esm/request-warp10.superagent.js';
+import { prefixUrl } from '@clevercloud/client/esm/prefix-url.js';
+import { request } from '@clevercloud/client/esm/request.fetch.js';
+import { subtle as cryptoSuble } from 'node:crypto';
 
-const Logger = require('../logger.js');
-const { addOauthHeader } = require('@clevercloud/client/cjs/oauth.js');
-const { conf, loadOAuthConf } = require('../models/configuration.js');
-const { execWarpscript } = require('@clevercloud/client/cjs/request-warp10.superagent.js');
-const { prefixUrl } = require('@clevercloud/client/cjs/prefix-url.js');
-const { request } = require('@clevercloud/client/cjs/request.fetch.js');
+// Required for @clevercloud/client with "old" Node.js
+globalThis.crypto = {
+  subtle: cryptoSuble,
+};
 
 async function loadTokens () {
   const tokens = await loadOAuthConf();
@@ -17,7 +21,7 @@ async function loadTokens () {
   };
 }
 
-async function sendToApi (requestParams) {
+export async function sendToApi (requestParams) {
   const tokens = await loadTokens();
   return Promise.resolve(requestParams)
     .then(prefixUrl(conf.API_HOST))
@@ -30,7 +34,7 @@ async function sendToApi (requestParams) {
     .catch(processError);
 }
 
-function processError (error) {
+export function processError (error) {
   const code = error.code ?? error?.cause?.code;
   if (code === 'EAI_AGAIN') {
     throw new Error('Cannot reach the Clever Cloud API, please check your internet connection.', { cause: error });
@@ -41,18 +45,16 @@ function processError (error) {
   throw error;
 }
 
-function sendToWarp10 (requestParams) {
+export function sendToWarp10 (requestParams) {
   return Promise.resolve(requestParams)
     .then(prefixUrl(conf.WARP_10_EXEC_URL))
     .then((requestParams) => execWarpscript(requestParams, { retry: 1 }));
 }
 
-async function getHostAndTokens () {
+export async function getHostAndTokens () {
   const tokens = await loadTokens();
   return {
     apiHost: conf.API_HOST,
     tokens,
   };
 }
-
-module.exports = { sendToApi, sendToWarp10, getHostAndTokens, processError };

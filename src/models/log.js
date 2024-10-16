@@ -1,15 +1,13 @@
-'use strict';
+import _ from 'lodash';
+import colors from 'colors/safe.js';
 
-const _ = require('lodash');
-const colors = require('colors/safe');
-
-const Logger = require('../logger.js');
-const { Deferred } = require('./utils.js');
-const { getOldLogs } = require('@clevercloud/client/cjs/api/v2/log.js');
-const { LogsStream } = require('@clevercloud/client/cjs/streams/logs.node.js');
-const { sendToApi, getHostAndTokens } = require('./send-to-api.js');
-const { waitForDeploymentEnd, waitForDeploymentStart } = require('./deployments.js');
-const ExitStrategy = require('../models/exit-strategy-option.js');
+import { Logger } from '../logger.js';
+import { Deferred } from './utils.js';
+import { getOldLogs } from '@clevercloud/client/esm/api/v2/log.js';
+import { LogsStream } from '@clevercloud/client/esm/streams/logs.node.js';
+import { sendToApi, getHostAndTokens } from './send-to-api.js';
+import { waitForDeploymentEnd, waitForDeploymentStart } from './deployments.js';
+import * as ExitStrategy from '../models/exit-strategy-option.js';
 
 function isCleverMessage (line) {
   return line._source.syslog_program === '/home/bas/rubydeployer/deployer.rb';
@@ -69,7 +67,7 @@ async function displayLiveLogs ({ appId, filter, until, deploymentId }, deferred
   return logsStream;
 }
 
-async function displayLogs ({ appAddonId, until, since, filter, deploymentId }) {
+export async function displayLogs ({ appAddonId, until, since, filter, deploymentId }) {
 
   const now = new Date();
 
@@ -101,7 +99,7 @@ async function displayLogs ({ appAddonId, until, since, filter, deploymentId }) 
   return deferred.promise;
 }
 
-async function watchDeploymentAndDisplayLogs ({ ownerId, appId, deploymentId, commitId, knownDeployments, quiet, exitStrategy }) {
+export async function watchDeploymentAndDisplayLogs ({ ownerId, appId, deploymentId, commitId, knownDeployments, quiet, exitStrategy }) {
 
   ExitStrategy.plotQuietWarning(exitStrategy, quiet);
   // If in quiet mode, we only log start/finished deployment messages
@@ -148,5 +146,3 @@ async function watchDeploymentAndDisplayLogs ({ ownerId, appId, deploymentId, co
     throw new Error('Deployment failed. Please check the logs');
   }
 }
-
-module.exports = { displayLogs, watchDeploymentAndDisplayLogs };

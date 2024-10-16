@@ -1,18 +1,16 @@
-'use strict';
+import { promisify } from 'node:util';
+import { Logger } from '../logger.js';
+import { getDeployment, getAllDeployments } from '@clevercloud/client/esm/api/v2/application.js';
+import { sendToApi } from './send-to-api.js';
 
-const { promisify } = require('util');
 const delay = promisify(setTimeout);
-
-const Logger = require('../logger.js');
-const { getDeployment, getAllDeployments } = require('@clevercloud/client/cjs/api/v2/application.js');
-const { sendToApi } = require('./send-to-api.js');
 
 const DEPLOYMENT_POLLING_DELAY = 5000;
 const BACKOFF_FACTOR = 1.25;
 const INIT_RETRY_TIMEOUT = 1500;
 const MAX_RETRY_COUNT = 5;
 
-async function waitForDeploymentStart ({ ownerId, appId, deploymentId, commitId, knownDeployments }) {
+export async function waitForDeploymentStart ({ ownerId, appId, deploymentId, commitId, knownDeployments }) {
 
   return waitFor(async () => {
     try {
@@ -45,7 +43,7 @@ async function waitForDeploymentStart ({ ownerId, appId, deploymentId, commitId,
   });
 }
 
-async function waitForDeploymentEnd ({ ownerId, appId, deploymentId }) {
+export async function waitForDeploymentEnd ({ ownerId, appId, deploymentId }) {
   return waitFor(async () => {
     try {
       const deployment = await getDeployment({ id: ownerId, appId, deploymentId }).then(sendToApi);
@@ -103,5 +101,3 @@ async function waitFor (fetchResult) {
     }
   }
 }
-
-module.exports = { waitForDeploymentStart, waitForDeploymentEnd };

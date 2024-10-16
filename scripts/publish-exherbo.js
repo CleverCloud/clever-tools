@@ -1,10 +1,8 @@
-'use strict';
+import { cfg } from './config';
+import del from 'del';
+import { cloneGitProject, applyOneTemplate, commitAndPush } from './utils';
 
-const cfg = require('./config');
-const del = require('del');
-const { cloneGitProject, applyOneTemplate, commitAndPush } = require('./utils');
-
-module.exports = async function publishExherbo (version) {
+export async function publishExherbo (version) {
 
   const templateFilepath = 'templates/exherbo/clever-tools-bin.exheres-0';
   const gitPath = './git-exherbo';

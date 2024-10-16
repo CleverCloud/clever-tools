@@ -1,16 +1,17 @@
 #!/usr/bin/env node
 
-const fs = require('fs-extra');
-const colors = require('colors/safe');
-const textTable = require('text-table');
-const cfg = require('./config.js');
+import fs from 'fs-extra';
+import colors from 'colors/safe.js';
+import textTable from 'text-table';
+import * as cfg from './config.js';
+import { build } from './build.js';
+import { archive } from './archive.js';
+import { getArchiveFilename, getWorkingDirectory, getArchiveFilepath, getShaFilepath } from './paths.js';
+import { getCurrentBranch, cleanupDirectory, getCurrentAuthor, getCurrentCommit } from './utils.js';
+import { getCellarClient } from './cellar-client.js';
+import { archEmoji } from './config.js';
+
 const { archList } = cfg;
-const build = require('./build.js');
-const archive = require('./archive.js');
-const { getArchiveFilename, getWorkingDirectory, getArchiveFilepath, getShaFilepath } = require('./paths.js');
-const { getCurrentBranch, cleanupDirectory, getCurrentAuthor, getCurrentCommit } = require('./utils.js');
-const { getCellarClient } = require('./cellar-client.js');
-const { archEmoji } = require('./config.js');
 
 const REMOTE_PREVIEW_DIR = 'previews';
 

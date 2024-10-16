@@ -1,11 +1,11 @@
-const { getHostAndTokens, processError } = require('./send-to-api.js');
-const colors = require('colors/safe');
-const { Deferred } = require('./utils.js');
-const Logger = require('../logger.js');
-const { waitForDeploymentEnd, waitForDeploymentStart } = require('./deployments.js');
-const { ApplicationLogStream } = require('@clevercloud/client/cjs/streams/application-logs.js');
-const { JsonArray } = require('./json-array.js');
-const ExitStrategy = require('../models/exit-strategy-option.js');
+import { getHostAndTokens, processError } from './send-to-api.js';
+import colors from 'colors/safe.js';
+import { Deferred } from './utils.js';
+import { Logger } from '../logger.js';
+import { waitForDeploymentEnd, waitForDeploymentStart } from './deployments.js';
+import { ApplicationLogStream } from '@clevercloud/client/esm/streams/application-logs.js';
+import { JsonArray } from './json-array.js';
+import * as ExitStrategy from '../models/exit-strategy-option.js';
 
 // 2000 logs per 100ms maximum
 const THROTTLE_ELEMENTS = 2000;
@@ -16,7 +16,7 @@ const retryConfiguration = {
   maxRetryCount: 6,
 };
 
-async function displayLogs (params) {
+export async function displayLogs (params) {
 
   const deferred = params.deferred || new Deferred();
   const { apiHost, tokens } = await getHostAndTokens();
@@ -83,7 +83,7 @@ async function displayLogs (params) {
   return logStream;
 }
 
-async function watchDeploymentAndDisplayLogs (options) {
+export async function watchDeploymentAndDisplayLogs (options) {
 
   const {
     ownerId,
@@ -171,5 +171,3 @@ function isDeploymentFailedMessage (log) {
 function isBuildSucessMessage (log) {
   return isCleverMessage(log) && log.message.toLowerCase().startsWith('build succeeded in');
 };
-
-module.exports = { displayLogs, watchDeploymentAndDisplayLogs };

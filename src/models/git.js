@@ -1,16 +1,13 @@
-'use strict';
+import fs from 'node:fs';
+import path from 'node:path';
 
-const fs = require('fs');
-const path = require('path');
-
-const _ = require('lodash');
-const git = require('isomorphic-git');
-const http = require('./isomorphic-http-with-agent.js');
-const { autocomplete } = require('cliparse');
-
-const slugify = require('slugify');
-const { findPath } = require('./fs-utils.js');
-const { loadOAuthConf } = require('./configuration.js');
+import _ from 'lodash';
+import git from 'isomorphic-git';
+import * as http from './isomorphic-http-with-agent.js';
+import cliparse from 'cliparse';
+import slugify from 'slugify';
+import { findPath } from './fs-utils.js';
+import { loadOAuthConf } from './configuration.js';
 
 async function getRepo () {
   try {
@@ -30,7 +27,7 @@ async function onAuth () {
   };
 }
 
-async function addRemote (remoteName, url) {
+export async function addRemote (remoteName, url) {
   const repo = await getRepo();
   const safeRemoteName = slugify(remoteName);
   const allRemotes = await git.listRemotes({ ...repo });
@@ -41,7 +38,7 @@ async function addRemote (remoteName, url) {
   }
 }
 
-async function resolveFullCommitId (commitId) {
+export async function resolveFullCommitId (commitId) {
   if (commitId == null) {
     return null;
   }
@@ -57,7 +54,7 @@ async function resolveFullCommitId (commitId) {
   }
 }
 
-async function getRemoteCommit (remoteUrl) {
+export async function getRemoteCommit (remoteUrl) {
   const repo = await getRepo();
   const remoteInfos = await git.getRemoteInfo({
     ...repo,
@@ -67,7 +64,7 @@ async function getRemoteCommit (remoteUrl) {
   return _.get(remoteInfos, 'refs.heads.master');
 }
 
-async function getFullBranch (branchName) {
+export async function getFullBranch (branchName) {
   const repo = await getRepo();
   if (branchName === '') {
     const currentBranch = await git.currentBranch({ ...repo, fullname: true });
@@ -76,7 +73,7 @@ async function getFullBranch (branchName) {
   return git.expandRef({ ...repo, ref: branchName });
 };
 
-async function getBranchCommit (refspec) {
+export async function getBranchCommit (refspec) {
   const repo = await getRepo();
   const oid = await git.resolveRef({ ...repo, ref: refspec });
   // When a refspec refers to an annotated tag, the OID ref represents the annotation and not the commit directly,
@@ -85,7 +82,7 @@ async function getBranchCommit (refspec) {
   return res.oid;
 }
 
-async function isExistingTag (tag) {
+export async function isExistingTag (tag) {
   const repo = await getRepo();
   const tags = await git.listTags({
     ...repo,
@@ -93,7 +90,7 @@ async function isExistingTag (tag) {
   return tags.includes(tag);
 }
 
-async function push (remoteUrl, branchRefspec, force) {
+export async function push (remoteUrl, branchRefspec, force) {
   const repo = await getRepo();
   try {
     const push = await git.push({
@@ -117,13 +114,13 @@ async function push (remoteUrl, branchRefspec, force) {
   }
 }
 
-function completeBranches () {
+export function completeBranches () {
   return getRepo()
     .then((repo) => git.listBranches(repo))
-    .then(autocomplete.words);
+    .then(cliparse.autocomplete.words);
 }
 
-async function isShallow () {
+export async function isShallow () {
   const { dir } = await getRepo();
   try {
     await fs.promises.access(path.join(dir, '.git', 'shallow'));
@@ -133,15 +130,3 @@ async function isShallow () {
     return false;
   }
 }
-
-module.exports = {
-  addRemote,
-  resolveFullCommitId,
-  getRemoteCommit,
-  getFullBranch,
-  getBranchCommit,
-  push,
-  completeBranches,
-  isShallow,
-  isExistingTag,
-};

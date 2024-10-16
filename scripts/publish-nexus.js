@@ -1,16 +1,14 @@
-'use strict';
-
-const cfg = require('./config');
-const { promises: fs } = require('fs');
-const path = require('path');
-const superagent = require('superagent');
-const { getBundleFilepath } = require('./paths.js');
+import { cfg } from './config';
+import { promises as fs } from 'node:fs';
+import path from 'node:path';
+import superagent from 'superagent';
+import { getBundleFilepath } from './paths.js';
 
 const NEXUS_DEB = 'https://nexus.clever-cloud.com/repository/deb/';
 const NEXUS_NUPKG = 'https://nexus.clever-cloud.com/repository/nupkg/';
 const NEXUS_RPM = 'https://nexus.clever-cloud.com/repository/rpm/';
 
-module.exports = async function publishNexus (version) {
+export async function publishNexus (version) {
 
   const nexusAuth = cfg.getNexusAuth();
 

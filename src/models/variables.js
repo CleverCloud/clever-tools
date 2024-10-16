@@ -1,8 +1,6 @@
-'use strict';
-
-const _countBy = require('lodash/countBy.js');
-const readline = require('readline');
-const { ERROR_TYPES, parseRaw, toNameValueObject, validateName } = require('@clevercloud/client/cjs/utils/env-vars.js');
+import _countBy from 'lodash/countBy.js';
+import readline from 'node:readline';
+import { ERROR_TYPES, parseRaw, toNameValueObject, validateName } from '@clevercloud/client/esm/utils/env-vars.js';
 
 function readStdin () {
 
@@ -105,7 +103,7 @@ function parseFromNameEqualsValue (rawStdin) {
   return toNameValueObject(variables);
 }
 
-async function readVariablesFromStdin (format) {
+export async function readVariablesFromStdin (format) {
 
   const rawStdin = await readStdin();
 
@@ -118,7 +116,3 @@ async function readVariablesFromStdin (format) {
       throw new Error('Unrecognized environment input format. Available formats are \'name-equals-value\' and \'json\'');
   }
 }
-
-module.exports = {
-  readVariablesFromStdin,
-};

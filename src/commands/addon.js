@@ -1,20 +1,20 @@
-'use strict';
+import colors from 'colors/safe.js';
 
-const colors = require('colors/safe');
+import * as Addon from '../models/addon.js';
+import * as AppConfig from '../models/app_configuration.js';
+import { formatTable as initFormatTable } from '../format-table.js';
+import { Logger } from '../logger.js';
+import * as Organisation from '../models/organisation.js';
+import * as User from '../models/user.js';
+import { parseAddonOptions, findOwnerId } from '../models/addon.js';
+import { getAllEnvVars } from '@clevercloud/client/esm/api/v2/addon.js';
+import { sendToApi } from '../models/send-to-api.js';
+import { toNameEqualsValueString } from '@clevercloud/client/esm/utils/env-vars.js';
+import { resolveAddonId } from '../models/ids-resolver.js';
 
-const Addon = require('../models/addon.js');
-const AppConfig = require('../models/app_configuration.js');
-const formatTable = require('../format-table')();
-const Logger = require('../logger.js');
-const Organisation = require('../models/organisation.js');
-const User = require('../models/user.js');
-const { parseAddonOptions, findOwnerId } = require('../models/addon.js');
-const { getAllEnvVars } = require('@clevercloud/client/cjs/api/v2/addon.js');
-const { sendToApi } = require('../models/send-to-api.js');
-const { toNameEqualsValueString } = require('@clevercloud/client/cjs/utils/env-vars.js');
-const { resolveAddonId } = require('../models/ids-resolver.js');
+const formatTable = initFormatTable();
 
-async function list (params) {
+export async function list (params) {
   const { org: orgaIdOrName, format } = params.options;
 
   const ownerId = await Organisation.getId(orgaIdOrName);
@@ -53,7 +53,7 @@ async function list (params) {
   }
 }
 
-async function create (params) {
+export async function create (params) {
   const [providerName, name] = params.args;
   const {
     link: linkedAppAlias,
@@ -178,27 +178,25 @@ function displayAddon (format, addon, providerName, message) {
   }
 }
 
-async function deleteAddon (params) {
+export async function deleteAddon (params) {
   const { yes: skipConfirmation, org: orgaIdOrName } = params.options;
   const [addon] = params.args;
 
   let ownerId = await Organisation.getId(orgaIdOrName);
-
   if (ownerId == null && addon.addon_id != null) {
     ownerId = await Addon.findOwnerId(ownerId, addon.addon_id);
   }
-
   if (ownerId == null && addon.addon_name != null) {
     const foundAddon = await Addon.findByName(addon.addon_name);
     ownerId = foundAddon.orgaId;
   }
 
-  await Addon.delete(ownerId, addon, skipConfirmation);
+  await Addon.deleteAddon(ownerId, addon, skipConfirmation);
 
   Logger.println(`Addon ${addon.addon_id || addon.addon_name} successfully deleted`);
 }
 
-async function rename (params) {
+export async function rename (params) {
   const [addon, newName] = params.args;
   const { org: orgaIdOrName } = params.options;
 
@@ -208,7 +206,7 @@ async function rename (params) {
   Logger.println(`Addon ${addon.addon_id || addon.addon_name} successfully renamed to ${newName}`);
 }
 
-async function listProviders (params) {
+export async function listProviders (params) {
   const { format } = params.options;
 
   const providers = await Addon.listProviders();
@@ -243,7 +241,7 @@ async function listProviders (params) {
   }
 }
 
-async function showProvider (params) {
+export async function showProvider (params) {
   const [providerName] = params.args;
   const { format } = params.options;
 
@@ -327,7 +325,7 @@ async function showProvider (params) {
   }
 }
 
-async function env (params) {
+export async function env (params) {
 
   const { org, format } = params.options;
   const [addonIdOrRealId] = params.args;
@@ -356,13 +354,3 @@ async function env (params) {
       Logger.println(toNameEqualsValueString(envFromAddon, { addExports: false }));
   }
 }
-
-module.exports = {
-  list,
-  create,
-  delete: deleteAddon,
-  rename,
-  listProviders,
-  showProvider,
-  env,
-};
