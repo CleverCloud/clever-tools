@@ -101,6 +101,21 @@ export async function create (params) {
 
 function displayAddon (format, addon, providerName, message) {
 
+  const PROVIDERS_WITH_URL = {
+    keycloak: {
+      name: 'Keycloak',
+      urlEnv: 'CC_KEYCLOAK_URL',
+    },
+    'addon-matomo': {
+      name: 'Matomo',
+      urlEnv: 'MATOMO_URL',
+    },
+    metabase: {
+      name: 'Metabase',
+      urlEnv: 'METABASE_URL',
+    },
+  };
+
   const WIP_PROVIDERS = {
     keycloak: {
       status: 'beta',
@@ -158,6 +173,7 @@ function displayAddon (format, addon, providerName, message) {
         id: addon.id,
         realId: addon.realId,
         name: addon.name,
+        env: addon.env,
       };
 
       Logger.printJson((WIP_PROVIDERS[providerName] != null)
@@ -174,6 +190,19 @@ function displayAddon (format, addon, providerName, message) {
         `Real ID: ${addon.realId}`,
         `Name: ${addon.name}`,
       ].join('\n'));
+
+      if (providerName in PROVIDERS_WITH_URL) {
+        const provider = PROVIDERS_WITH_URL[providerName];
+        const urlEnv = addon.env.find((entry) => entry.name === provider.urlEnv);
+        const urlToShow = urlEnv.value;
+
+        if (urlEnv) {
+          Logger.println();
+          Logger.println(`Your ${provider.name} is starting:`);
+          Logger.println(` - Access it: ${urlToShow.startsWith('http') ? urlToShow : `https://${urlToShow}`}`);
+          Logger.println(` - Manage it: https://console.clever-cloud.com/${addon.id}`);
+        }
+      }
 
       if (providerName in WIP_PROVIDERS) {
 

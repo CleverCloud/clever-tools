@@ -1,7 +1,7 @@
 import * as application from '@clevercloud/client/esm/api/v2/application.js';
 import cliparse from 'cliparse';
 
-import { get as getAddon, getAll as getAllAddons, remove as removeAddon, create as createAddon, update as updateAddon } from '@clevercloud/client/esm/api/v2/addon.js';
+import { get as getAddon, getAll as getAllAddons, getAllEnvVars, remove as removeAddon, create as createAddon, update as updateAddon } from '@clevercloud/client/esm/api/v2/addon.js';
 import { getAllAddonProviders } from '@clevercloud/client/esm/api/v2/product.js';
 import { getSummary } from '@clevercloud/client/esm/api/v2/user.js';
 import { getAddonProvider } from '@clevercloud/client/esm/api/v4/addon-providers.js';
@@ -161,7 +161,10 @@ export async function create ({ ownerId, name, providerName, planName, region, s
     options: createOptions,
   };
 
-  return createAddon({ id: ownerId }, addonToCreate).then(sendToApi);
+  const createdAddon = await createAddon({ id: ownerId }, addonToCreate).then(sendToApi);
+  createdAddon.env = await getAllEnvVars({ id: ownerId, addonId: createdAddon.id }).then(sendToApi);
+
+  return createdAddon;
 }
 
 async function getByName (ownerId, addonNameOrRealId) {
