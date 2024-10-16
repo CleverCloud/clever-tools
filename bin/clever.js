@@ -161,6 +161,12 @@ function run () {
       metavar: 'TEXT',
       description: 'Check only domains containing the provided text',
     }),
+    domainOverviewFilter: cliparse.option('filter', {
+      aliases: ['f'],
+      default: '',
+      metavar: 'TEXT',
+      description: 'Get only domains containing the provided text',
+    }),
     naturalName: cliparse.flag('natural-name', {
       aliases: ['n'],
       description: 'Show the application names or aliases if possible',
@@ -583,10 +589,12 @@ function run () {
   const domainCreateCommand = cliparse.command('add', {
     description: 'Add a domain name to an application',
     args: [args.fqdn],
+    options: [opts.alias, opts.appIdOrName],
   }, domain.add);
   const domainRemoveCommand = cliparse.command('rm', {
     description: 'Remove a domain name from an application',
     args: [args.fqdn],
+    options: [opts.alias, opts.appIdOrName],
   }, domain.rm);
   const domainSetFavouriteCommand = cliparse.command('set', {
     description: 'Set the favourite domain for an application',
@@ -597,16 +605,21 @@ function run () {
   }, domain.unsetFavourite);
   const domainFavouriteCommands = cliparse.command('favourite', {
     description: 'Manage the favourite domain name for an application',
+    options: [opts.alias, opts.appIdOrName],
     commands: [domainSetFavouriteCommand, domainUnsetFavouriteCommand],
   }, domain.getFavourite);
   const domainDiagApplicationCommand = cliparse.command('diag', {
     description: 'Check if domains associated to a specific app are properly configured',
-    options: [opts.humanJsonOutputFormat, opts.domain],
+    options: [opts.alias, opts.appIdOrName, opts.humanJsonOutputFormat, opts.domain],
   }, domain.diagApplication);
+  const domainOverviewCommand = cliparse.command('overview', {
+    description: 'Get an overview of all your domains (all orgas, all apps)',
+    options: [opts.humanJsonOutputFormat, opts.domainOverviewFilter],
+  }, domain.overview);
   const domainCommands = cliparse.command('domain', {
     description: 'Manage domain names for an application',
-    options: [opts.alias, opts.appIdOrName],
-    commands: [domainCreateCommand, domainFavouriteCommands, domainRemoveCommand, domainDiagApplicationCommand],
+    privateOptions: [opts.alias, opts.appIdOrName],
+    commands: [domainCreateCommand, domainFavouriteCommands, domainRemoveCommand, domainDiagApplicationCommand, domainOverviewCommand],
   }, domain.list);
 
   // DRAIN COMMANDS
