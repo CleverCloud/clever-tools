@@ -103,7 +103,7 @@ function displayAddon (format, addon, providerName, message) {
 
   const WIP_PROVIDERS = {
     keycloak: {
-      status: 'alpha',
+      status: 'beta',
       postCreateInstructions: [
         'Learn more about Keycloak on Clever Cloud: https://developers.clever-cloud.com/doc/addons/keycloak/',
       ].join('\n'),
@@ -117,8 +117,14 @@ function displayAddon (format, addon, providerName, message) {
         'Learn more about Materia KV on Clever Cloud: https://developers.clever-cloud.com/doc/addons/materia-kv/',
       ].join('\n'),
     },
+    'addon-matomo': {
+      status: 'beta',
+      postCreateInstructions: [
+        'Learn more about Matomo on Clever Cloud: https://developers.clever-cloud.com/doc/addons/matomo/',
+      ].join('\n'),
+    },
     metabase: {
-      status: 'tech preview',
+      status: 'beta',
       postCreateInstructions: [
         'Learn more about Metabase on Clever Cloud: https://developers.clever-cloud.com/doc/addons/metabase/',
       ].join('\n'),
