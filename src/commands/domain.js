@@ -5,6 +5,7 @@ import { sendToApi } from '../models/send-to-api.js';
 import colors from 'colors/safe.js';
 import { parse as parseDomain } from 'tldts';
 import { diagDomainConfig } from '@clevercloud/client/esm/utils/diag-domain-config.js';
+import { sortDomains } from '@clevercloud/client/esm/utils/domains.js';
 import { DnsResolver } from '../models/node-dns-resolver.js';
 
 /**
@@ -108,7 +109,7 @@ export async function diagApplication (params) {
 
   const filteredDomains = app.vhosts.filter(({ fqdn }) => fqdn.includes(filter));
   const domains = getParsedDomains(filteredDomains);
-  const sortedDomains = sortDomains(domains);
+  const sortedDomains = domains.sort(sortDomains);
 
   for (const { hostname, pathPrefix, isApex } of sortedDomains) {
     const resolvedDnsConfig = {
@@ -275,22 +276,6 @@ function getParsedDomains (vhosts) {
 
     return { hostname, pathPrefix: pathname, isApex: subdomain === '' };
   });
-}
-
-/**
- * Sorts an array of parsed domain by hostname (alphabetical order)
- *
- * @param {Array<Partial<DomainInfo>>} parsedDomains - Array of parsed domains to sort
- * @returns {Array<Partial<DomainInfo>>} Sorted array of parsed domains
- */
-function sortDomains (parsedDomains) {
-  return parsedDomains
-    .slice()
-    .sort((a, b) => {
-      const reverseA = a.hostname.split('.').reverse().join('.');
-      const reverseB = b.hostname.split('.').reverse().join('.');
-      return reverseA.localeCompare(reverseB);
-    });
 }
 
 /**
