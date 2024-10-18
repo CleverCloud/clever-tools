@@ -200,6 +200,11 @@ function run () {
       metavar: 'member_label',
       description: 'The member label',
     }),
+    wgPublicKey: cliparse.option('public-key', {
+      required: false,
+      metavar: 'public_key',
+      description: 'The public key of the peer',
+    }),
     sourceableEnvVarsList: cliparse.flag('add-export', { description: 'Display sourceable env variables setting' }),
     logsFormat: getOutputFormatOption(['json-stream']),
     activityFormat: getOutputFormatOption(['json-stream']),
@@ -804,17 +809,18 @@ function run () {
     args: [args.ngIdOrLabel, args.ngPeerId],
     options: [opts.humanJsonOutputFormat],
   }, ng.getPeer);
-  /* const networkGroupsPeerAddCommand = cliparse.command('add-external', {
+  const networkGroupsPeerAddCommand = cliparse.command('add-external', {
     description: 'Add an external node as a Network Group peer',
-    options: [opts.ngIdOrLabel, opts.ngPeerRole, opts.wgPublicKey, opts.ngPeerLabel, opts.ngPeerParentMemberId],
-  }, networkgroups('addExternalPeer'));
+    args: [args.ngIdOrLabel, args.ngPeerLabel, args.ngPeerRole, args.ngPeerParentMemberId],
+    options: [opts.wgPublicKey],
+  }, ng.addExternalPeer);
   const networkGroupsPeerRemoveExternalCommand = cliparse.command('remove-external', {
     description: 'Remove an external node from a Network Group',
     args: [args.ngIdOrLabel, args.ngPeerId],
-  }, networkgroups('removeExternalPeer')); */
+  }, ng.removeExternalPeer);
   const networkGroupsPeersCategoryCommand = cliparse.command('peers', {
     description: 'List commands for interacting with Network Group peers',
-    commands: [networkGroupsPeerListCommand, networkGroupsPeerGetCommand],
+    commands: [networkGroupsPeerListCommand, networkGroupsPeerGetCommand, networkGroupsPeerAddCommand, networkGroupsPeerRemoveExternalCommand],
   }, ng.listPeers);
 
   const networkGroupsCommand = cliparse.command('ng', {

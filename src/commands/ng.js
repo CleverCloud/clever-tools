@@ -295,12 +295,13 @@ export async function getPeer (params) {
 }
 
 export async function addExternalPeer (params) {
-  const { org: orgaIdOrName, alias, ng: networkGroupIdOrLabel, role, 'public-key': publicKey, label, parent, ip, port } = params.options;
-
+  const { org: orgaIdOrName, alias, format, 'public-key': publicKey, ip, port } = params.options;
+  const [networkGroupIdOrLabel, label, role, parent] = params.args;
+  console.log(params.args);
   const ownerId = await NetworkGroup.getOwnerId(orgaIdOrName, alias);
   const networkGroupId = await NetworkGroup.getId(ownerId, networkGroupIdOrLabel);
 
-  const body = { peerRole: role, publicKey: publicKey, label, parentMember: parent, ip, port };
+  const body = { peerRole: role, publicKey: publicKey, label, parentMember: parent };
   Logger.info(`Adding external peer to Network Group ${Formatter.formatString(networkGroupId)}`);
   Logger.debug('Sending body: ' + JSON.stringify(body, null, 2));
   const { id: peerId } = await ngApi.createNetworkGroupExternalPeer({ ownerId, networkGroupId }, body).then(sendToApi);
