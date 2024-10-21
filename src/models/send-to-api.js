@@ -7,9 +7,11 @@ import { request } from '@clevercloud/client/esm/request.fetch.js';
 import { subtle as cryptoSuble } from 'node:crypto';
 
 // Required for @clevercloud/client with "old" Node.js
-globalThis.crypto = {
-  subtle: cryptoSuble,
-};
+if (globalThis.crypto == null) {
+  globalThis.crypto = {
+    subtle: cryptoSuble,
+  };
+}
 
 async function loadTokens () {
   const tokens = await loadOAuthConf();
