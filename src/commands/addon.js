@@ -202,6 +202,13 @@ function displayAddon (format, addon, providerName, message) {
           Logger.println(` - Access it: ${urlToShow.startsWith('http') ? urlToShow : `https://${urlToShow}`}`);
           Logger.println(` - Manage it: https://console.clever-cloud.com/${addon.id}`);
         }
+
+        if (providerName === 'keycloak') {
+          Logger.println();
+          Logger.println("An initial account has been created, you'll be invited to change the password at first login:");
+          Logger.println(` - Admin user name: ${addon.env.find((e) => e.name === 'CC_KEYCLOAK_ADMIN').value}`);
+          Logger.println(` - Temporary password: ${addon.env.find((e) => e.name === 'CC_KEYCLOAK_ADMIN_DEFAULT_PASSWORD').value}`);
+        }
       }
 
       if (providerName in WIP_PROVIDERS) {
