@@ -11,9 +11,10 @@ export async function list (params) {
   const { format } = params.options;
 
   const features_conf = await getFeatures();
-  const features = EXPERIMENTAL_FEATURES.map((feature) => {
-    const enabled = features_conf[feature.id] === true;
-    return { ...feature, enabled };
+  // Add status from configuration file and remove instructions
+  const features = Object.entries(EXPERIMENTAL_FEATURES).map(([id, feature]) => {
+    const enabled = features_conf[id] === true;
+    return { ...feature, id, enabled, instructions: undefined };
   });
 
   // For each feature, print the object with the id, status, description and enabled
@@ -48,30 +49,50 @@ export async function list (params) {
   }
 }
 
+export async function help (params) {
+  const { feature } = params.namedArgs;
+  const availableFeatures = Object.keys(EXPERIMENTAL_FEATURES);
+
+  if (!availableFeatures.includes(feature)) {
+    Logger.printErrorLine(`Feature '${feature}' is not available`);
+  }
+  else {
+    Logger.println(EXPERIMENTAL_FEATURES[feature].instructions);
+  }
+}
+
 export async function enable (params) {
   const { features } = params.namedArgs;
-  const availableFeatures = EXPERIMENTAL_FEATURES.map((feature) => feature.id);
+  const availableFeatures = Object.keys(EXPERIMENTAL_FEATURES);
+  const canEnableFeatures = features.filter((feature) => availableFeatures.includes(feature));
 
   for (const featureName of features) {
     if (!availableFeatures.includes(featureName)) {
-      Logger.printErrorLine(`- Feature '${featureName}' is not available`);
+      Logger.printErrorLine(`Feature '${featureName}' is not available`);
       continue;
     }
     await setFeature(featureName, true);
-    Logger.println(`- Experimental feature '${featureName}' enabled`);
+    Logger.println(`Experimental feature '${featureName}' enabled`);
+
+    if (canEnableFeatures.length === 1) Logger.println(EXPERIMENTAL_FEATURES[featureName].instructions);
+  }
+
+  if (canEnableFeatures.length > 1) {
+    Logger.println();
+    Logger.println("To learn more about these experimental features, use 'clever features help FEATURE_NAME'");
   }
 }
 
 export async function disable (params) {
   const { features } = params.namedArgs;
-  const availableFeatures = EXPERIMENTAL_FEATURES.map((feature) => feature.id);
+  const availableFeatures = Object.keys(EXPERIMENTAL_FEATURES);
 
   for (const featureName of features) {
     if (!availableFeatures.includes(featureName)) {
-      Logger.printErrorLine(`- Feature '${featureName}' is not available`);
+      Logger.printErrorLine(`Feature '${featureName}' is not available`);
       continue;
     }
     await setFeature(featureName, false);
-    Logger.println(`- Experimental feature '${featureName}' disabled`);
+    Logger.println(`Experimental feature '${featureName}' disabled`);
   }
 }
