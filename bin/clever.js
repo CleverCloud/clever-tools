@@ -5,7 +5,6 @@ import '../src/initial-setup.js';
 
 import cliparse from 'cliparse';
 import cliparseCommands from 'cliparse/src/command.js';
-import colors from 'colors/safe.js';
 import _sortBy from 'lodash/sortBy.js';
 
 import { getPackageJson } from '../src/load-package-json.cjs';
@@ -110,6 +109,7 @@ async function run () {
       description: 'Comma-separated list of experimental features to manage',
       parser: Parsers.commaSeparated,
     }),
+    featureId: cliparse.argument('feature', { description: 'Experimental feature to manage' }),
     notificationName: cliparse.argument('name', { description: 'Notification name' }),
     notificationId: cliparse.argument('notification-id', { description: 'Notification ID' }),
     webhookUrl: cliparse.argument('url', { description: 'Webhook URL' }),
@@ -678,6 +678,10 @@ async function run () {
     description: 'List available experimental features',
     options: [opts.humanJsonOutputFormat],
   }, features.list);
+  const helpFeaturesCommand = cliparse.command('help', {
+    description: 'Display help about an experimental feature',
+    args: [args.featureId],
+  }, features.help);
   const enableFeatureCommand = cliparse.command('enable', {
     description: 'Enable an experimental feature',
     args: [args.features],
@@ -688,7 +692,7 @@ async function run () {
   }, features.disable);
   const featuresCommands = cliparse.command('features', {
     description: 'Manage Clever Tools experimental features',
-    commands: [listFeaturesCommand, enableFeatureCommand, disableFeatureCommand],
+    commands: [enableFeatureCommand, disableFeatureCommand, listFeaturesCommand, helpFeaturesCommand],
   }, features.list);
 
   // LINK COMMAND
@@ -945,16 +949,6 @@ async function run () {
     versionCommand,
     webhooksCommand,
   ];
-
-  // Add experimental features only if they are enabled through the configuration file
-  const featuresFromConf = await loadFeaturesConf();
-  // Here we add the commands for the enabled features
-  // if (featuresFromConf.kv) {
-  //   commands.push(kvCommand);
-  // }
-  // if (featuresFromConf.ng) {
-  //   commands.push(ngCommand);
-  // }
 
   // We sort the commands by name
   commands = _sortBy(commands, 'name');
