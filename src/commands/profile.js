@@ -1,5 +1,5 @@
 import colors from 'colors/safe.js';
-
+import openPage from 'open';
 import { Logger } from '../logger.js';
 import * as User from '../models/user.js';
 
@@ -46,3 +46,9 @@ export async function profile (params) {
     }
   }
 };
+
+export async function openProfile () {
+  const URL = 'https://console.clever-cloud.com/users/me/information';
+  Logger.debug('Opening the profile page in your browser');
+  await openPage(URL, { wait: false });
+}
