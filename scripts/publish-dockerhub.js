@@ -1,5 +1,5 @@
 import * as cfg from './config.js';
-import { cloneGitProject, applyTemplates, tagAndPush, commitAndPush, execSync } from './utils';
+import { cloneGitProject, applyTemplates, tagAndPush, commitAndPush, execSync } from './utils.js';
 import childProcess from 'node:child_process';
 
 export async function publishDockerhub (version) {

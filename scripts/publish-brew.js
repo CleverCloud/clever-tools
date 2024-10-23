@@ -1,6 +1,6 @@
 import * as cfg from './config.js';
 import fs from 'fs-extra';
-import { cloneGitProject, applyTemplates, commitAndPush } from './utils';
+import { cloneGitProject, applyTemplates, commitAndPush } from './utils.js';
 import { getShaFilepath, getArchiveFilepath } from './paths.js';
 
 export async function publishBrew (version) {

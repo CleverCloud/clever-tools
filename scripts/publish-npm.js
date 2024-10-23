@@ -1,5 +1,5 @@
 import * as cfg from './config.js';
-import { exec } from './utils';
+import { exec } from './utils.js';
 
 export async function publishNpm () {
 
