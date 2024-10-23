@@ -5,6 +5,7 @@ import '../src/initial-setup.js';
 
 import cliparse from 'cliparse';
 import cliparseCommands from 'cliparse/src/command.js';
+import colors from 'colors/safe.js';
 import _sortBy from 'lodash/sortBy.js';
 
 import { getPackageJson } from '../src/load-package-json.cjs';
@@ -13,7 +14,9 @@ import * as Parsers from '../src/parsers.js';
 import { handleCommandPromise } from '../src/command-promise-handler.js';
 import * as Application from '../src/models/application.js';
 import { AVAILABLE_ZONES } from '../src/models/application.js';
+import { EXPERIMENTAL_FEATURES } from '../src/experimental-features.js';
 import { getExitOnOption, getOutputFormatOption, getSameCommitPolicyOption } from '../src/command-options.js';
+import { loadFeaturesConf } from '../src/models/configuration.js';
 
 import * as Addon from '../src/models/addon.js';
 import * as ApplicationConfiguration from '../src/models/application_configuration.js';
@@ -34,6 +37,8 @@ import * as diag from '../src/commands/diag.js';
 import * as domain from '../src/commands/domain.js';
 import * as drain from '../src/commands/drain.js';
 import * as env from '../src/commands/env.js';
+import * as features from '../src/commands/features.js';
+import * as kv from '../src/commands/kv.js';
 import * as link from '../src/commands/link.js';
 import * as login from '../src/commands/login.js';
 import * as logout from '../src/commands/logout.js';
@@ -74,10 +79,20 @@ cliparse.command = function (name, options, commandFunction) {
   });
 };
 
-function run () {
+// Add a yellow color and status tag to the description of an experimental command
+function colorizeExperimentalCommand (command, id) {
+  const status = EXPERIMENTAL_FEATURES[id].status;
+  command.description = colors.yellow(command.description + ' [' + status.toUpperCase() + ']');
+  return command;
+}
+
+async function run () {
 
   // ARGUMENTS
   const args = {
+    kvRawCommand: cliparse.argument('command', { description: 'The raw Redis protocol command to send to MateriaDB KV' }),
+    kvKey: cliparse.argument('key', { description: 'MateriaDB KV key' }),
+    kvJsonKey: cliparse.argument('json-property', { description: 'JSON property of a MateriaDB KV value' }),
     addonIdOrName: cliparse.argument('addon-id', {
       description: 'Add-on ID (or name, if unambiguous)',
       parser: Parsers.addonIdOrName,
@@ -102,6 +117,11 @@ function run () {
     }),
     drainUrl: cliparse.argument('drain-url', { description: 'Drain URL' }),
     fqdn: cliparse.argument('fqdn', { description: 'Domain name of the application' }),
+    features: cliparse.argument('features', {
+      description: 'Comma-separated list of experimental features to manage',
+      parser: Parsers.commaSeparated,
+    }),
+    featureId: cliparse.argument('feature', { description: 'Experimental feature to manage' }),
     notificationName: cliparse.argument('name', { description: 'Notification name' }),
     notificationId: cliparse.argument('notification-id', { description: 'Notification ID' }),
     webhookUrl: cliparse.argument('url', { description: 'Webhook URL' }),
@@ -126,6 +146,10 @@ function run () {
 
   // OPTIONS
   const opts = {
+    addonIdOrName: cliparse.option('addon-id', {
+      description: 'Add-on ID (or name, if unambiguous)',
+      parser: Parsers.addonIdOrName,
+    }),
     sourceableEnvVarsList: cliparse.flag('add-export', { description: 'Display sourceable env variables setting' }),
     logsFormat: getOutputFormatOption(['json-stream']),
     activityFormat: getOutputFormatOption(['json-stream']),
@@ -665,6 +689,40 @@ function run () {
     commands: [envSetCommand, envRemoveCommand, envImportCommand, envImportVarsFromLocalEnvCommand],
   }, env.list);
 
+  // EXPERIMENTAL FEATURES COMMAND
+  const listFeaturesCommand = cliparse.command('list', {
+    description: 'List available experimental features',
+    options: [opts.humanJsonOutputFormat],
+  }, features.list);
+  const helpFeaturesCommand = cliparse.command('help', {
+    description: 'Display help about an experimental feature',
+    args: [args.featureId],
+  }, features.help);
+  const enableFeatureCommand = cliparse.command('enable', {
+    description: 'Enable an experimental feature',
+    args: [args.features],
+  }, features.enable);
+  const disableFeatureCommand = cliparse.command('disable', {
+    description: 'Disable an experimental feature',
+    args: [args.features],
+  }, features.disable);
+  const featuresCommands = cliparse.command('features', {
+    description: 'Manage Clever Tools experimental features',
+    commands: [enableFeatureCommand, disableFeatureCommand, listFeaturesCommand, helpFeaturesCommand],
+  }, features.list);
+
+  // KV COMMANDS
+  const kvGetJSONCommand = cliparse.command('getjson', {
+    description: 'Get value from a JSON stored in MateriaDB KV',
+    args: [args.kvKey, args.kvJsonKey],
+  }, kv.getjson);
+  const kvRedisRawCommand = cliparse.command('kv', {
+    description: 'Send a raw Redis protocol command to MateriaDB KV',
+    args: [args.kvRawCommand],
+    options: [opts.orgaIdOrName, opts.addonIdOrName],
+    commands: [kvGetJSONCommand],
+  }, kv.redis_raw);
+
   // LINK COMMAND
   const appLinkCommand = cliparse.command('link', {
     description: 'Link this repo to an existing application',
@@ -880,7 +938,7 @@ function run () {
   // Patch help command description
   cliparseCommands.helpCommand.description = 'Display help about the Clever Cloud CLI';
 
-  const commands = _sortBy([
+  let commands = [
     accesslogsCommand,
     activityCommand,
     addonCommands,
@@ -899,6 +957,7 @@ function run () {
     drainCommands,
     emailNotificationsCommand,
     envCommands,
+    featuresCommands,
     cliparseCommands.helpCommand,
     loginCommand,
     logoutCommand,
@@ -917,7 +976,14 @@ function run () {
     tcpRedirsCommands,
     versionCommand,
     webhooksCommand,
-  ], 'name');
+  ];
+
+  // Add experimental features only if they are enabled through the configuration file
+  const featuresFromConf = await loadFeaturesConf();
+  if (featuresFromConf.kv) commands.push(colorizeExperimentalCommand(kvRedisRawCommand, 'kv'));
+
+  // We sort the commands by name
+  commands = _sortBy(commands, 'name');
 
   // CLI PARSER
   const cliParser = cliparse.cli({
