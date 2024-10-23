@@ -1,4 +1,4 @@
-import { cfg } from './config';
+import * as cfg from './config.js';
 import del from 'del';
 import { cloneGitProject, applyOneTemplate, commitAndPush } from './utils';
 

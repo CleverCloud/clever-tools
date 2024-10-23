@@ -1,4 +1,4 @@
-import { cfg } from './config';
+import * as cfg from './config.js';
 import fs from 'fs-extra';
 import { cloneGitProject, applyTemplates, commitAndPush } from './utils';
 import { getArchiveFilepath, getShaFilepath } from './paths.js';

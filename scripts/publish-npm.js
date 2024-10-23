@@ -1,4 +1,4 @@
-import { cfg } from './config';
+import * as cfg from './config.js';
 import { exec } from './utils';
 
 export async function publishNpm () {
