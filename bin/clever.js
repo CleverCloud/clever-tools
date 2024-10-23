@@ -130,10 +130,6 @@ function run () {
     logsFormat: getOutputFormatOption(['json-stream']),
     activityFormat: getOutputFormatOption(['json-stream']),
     envFormat: getOutputFormatOption(['shell']),
-    accesslogsFollow: cliparse.flag('follow', {
-      aliases: ['f'],
-      description: 'Display access logs continuously (ignores before/until, after/since)',
-    }),
     importAsJson: cliparse.flag('json', {
       description: 'Import variables as JSON (an array of { "name": "THE_NAME", "value": "THE_VALUE" } objects)',
     }),
