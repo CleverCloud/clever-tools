@@ -1,4 +1,4 @@
-import { cfg } from './config';
+import * as cfg from './config.js';
 import { cloneGitProject, applyTemplates, tagAndPush, commitAndPush, execSync } from './utils';
 import childProcess from 'node:child_process';
 

@@ -1,4 +1,4 @@
-import { cfg } from './config';
+import * as cfg from './config.js';
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import superagent from 'superagent';
