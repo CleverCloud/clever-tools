@@ -1,6 +1,24 @@
 # clever-tools changelog
 
 
+## [3.9.0](https://github.com/CleverCloud/clever-tools/compare/3.8.3...3.9.0) (2024-10-23)
+
+
+### 🚀 Features
+
+* **addon:** add Keycloak temporary password instructions ([cc66497](https://github.com/CleverCloud/clever-tools/commit/cc664977ba565c267bf0c37bc761a12b654784cb))
+* **addon:** add URL to use/manage add-on at creation ([36226c5](https://github.com/CleverCloud/clever-tools/commit/36226c566e2b7468f38297f57a80c198e90c1f9c))
+* **addon:** enable string value for option keys ([9f36289](https://github.com/CleverCloud/clever-tools/commit/9f36289f49389aafb7fe4d01920bcef7c81a0519))
+* **domain:** init `diag` command ([d0ce64c](https://github.com/CleverCloud/clever-tools/commit/d0ce64cbbd8ebfefff9560712e2fd4366978c31b))
+* **domain:** init `overview` command ([32e4294](https://github.com/CleverCloud/clever-tools/commit/32e4294855e306fe3e139b4590ad366d3807801a))
+* **profile**: add token expiry to clever profile ([8b6be6e](https://github.com/CleverCloud/clever-tools/commit/8b6be6e6d05af7e679f35598268cc7ba888eee37))
+
+
+### 🐛 Bug Fixes
+
+* **addon:** update Beta providers list ([83fd0b9](https://github.com/CleverCloud/clever-tools/commit/83fd0b91456d7da42147578808704854ecf91762))
+* display stacktraces in verbose mode (again) ([a5f46d6](https://github.com/CleverCloud/clever-tools/commit/a5f46d6b519147e34dd0d78db42b2c804ac6d4a1))
+
 ## [3.8.3](https://github.com/CleverCloud/clever-tools/compare/3.8.2...3.8.3) (2024-09-11)
 
 
