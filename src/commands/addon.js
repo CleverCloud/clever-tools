@@ -200,7 +200,7 @@ function displayAddon (format, addon, providerName, message) {
           Logger.println();
           Logger.println(`Your ${provider.name} is starting:`);
           Logger.println(` - Access it: ${urlToShow.startsWith('http') ? urlToShow : `https://${urlToShow}`}`);
-          Logger.println(` - Manage it: https://console.clever-cloud.com/${addon.id}`);
+          Logger.println(` - Manage it: https://console.clever-cloud.com/goto/${addon.id}`);
         }
 
         if (providerName === 'keycloak') {
