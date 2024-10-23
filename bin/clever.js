@@ -11,11 +11,11 @@ import { getPackageJson } from '../src/load-package-json.cjs';
 import * as git from '../src/models/git.js';
 import * as Parsers from '../src/parsers.js';
 import { handleCommandPromise } from '../src/command-promise-handler.js';
+import * as Application from '../src/models/application.js';
 import { AVAILABLE_ZONES } from '../src/models/application.js';
-import { getOutputFormatOption, getSameCommitPolicyOption, getExitOnOption } from '../src/command-options.js';
+import { getExitOnOption, getOutputFormatOption, getSameCommitPolicyOption } from '../src/command-options.js';
 
 import * as Addon from '../src/models/addon.js';
-import * as Application from '../src/models/application.js';
 import * as ApplicationConfiguration from '../src/models/application_configuration.js';
 import * as Drain from '../src/models/drain.js';
 import * as Notification from '../src/models/notification.js';
@@ -130,10 +130,6 @@ function run () {
     logsFormat: getOutputFormatOption(['json-stream']),
     activityFormat: getOutputFormatOption(['json-stream']),
     envFormat: getOutputFormatOption(['shell']),
-    accesslogsFollow: cliparse.flag('follow', {
-      aliases: ['f'],
-      description: 'Display access logs continuously (ignores before/until, after/since)',
-    }),
     importAsJson: cliparse.flag('json', {
       description: 'Import variables as JSON (an array of { "name": "THE_NAME", "value": "THE_VALUE" } objects)',
     }),
@@ -156,10 +152,14 @@ function run () {
       complete: Application.listAvailableAliases,
     }),
     domain: cliparse.option('filter', {
-      aliases: ['f'],
       default: '',
       metavar: 'TEXT',
       description: 'Check only domains containing the provided text',
+    }),
+    domainOverviewFilter: cliparse.option('filter', {
+      default: '',
+      metavar: 'TEXT',
+      description: 'Get only domains containing the provided text',
     }),
     naturalName: cliparse.flag('natural-name', {
       aliases: ['n'],
@@ -583,10 +583,12 @@ function run () {
   const domainCreateCommand = cliparse.command('add', {
     description: 'Add a domain name to an application',
     args: [args.fqdn],
+    options: [opts.alias, opts.appIdOrName],
   }, domain.add);
   const domainRemoveCommand = cliparse.command('rm', {
     description: 'Remove a domain name from an application',
     args: [args.fqdn],
+    options: [opts.alias, opts.appIdOrName],
   }, domain.rm);
   const domainSetFavouriteCommand = cliparse.command('set', {
     description: 'Set the favourite domain for an application',
@@ -597,16 +599,21 @@ function run () {
   }, domain.unsetFavourite);
   const domainFavouriteCommands = cliparse.command('favourite', {
     description: 'Manage the favourite domain name for an application',
+    options: [opts.alias, opts.appIdOrName],
     commands: [domainSetFavouriteCommand, domainUnsetFavouriteCommand],
   }, domain.getFavourite);
   const domainDiagApplicationCommand = cliparse.command('diag', {
     description: 'Check if domains associated to a specific app are properly configured',
-    options: [opts.humanJsonOutputFormat, opts.domain],
+    options: [opts.alias, opts.appIdOrName, opts.humanJsonOutputFormat, opts.domain],
   }, domain.diagApplication);
+  const domainOverviewCommand = cliparse.command('overview', {
+    description: 'Get an overview of all your domains (all orgas, all apps)',
+    options: [opts.humanJsonOutputFormat, opts.domainOverviewFilter],
+  }, domain.overview);
   const domainCommands = cliparse.command('domain', {
     description: 'Manage domain names for an application',
-    options: [opts.alias, opts.appIdOrName],
-    commands: [domainCreateCommand, domainFavouriteCommands, domainRemoveCommand, domainDiagApplicationCommand],
+    privateOptions: [opts.alias, opts.appIdOrName],
+    commands: [domainCreateCommand, domainFavouriteCommands, domainRemoveCommand, domainDiagApplicationCommand, domainOverviewCommand],
   }, domain.list);
 
   // DRAIN COMMANDS
