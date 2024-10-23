@@ -4,6 +4,7 @@ import { addOauthHeader } from '@clevercloud/client/esm/oauth.js';
 import { Logger } from '../logger.js';
 import colors from 'colors/safe.js';
 import curlconverter from 'curlconverter';
+import { CLEVER_URLS } from '../urls.js';
 
 async function loadTokens () {
   const tokens = await loadOAuthConf();
@@ -16,19 +17,19 @@ async function loadTokens () {
 }
 
 function printCleverCurlHelp () {
-  const apiDocUrlv2 = 'https://developers.clever-cloud.com/api/v2/';
-  const apiDocUrlv4 = 'https://developers.clever-cloud.com/api/v4/';
+  const apiDocUrlv2 = `${CLEVER_URLS.API_DOC}/v2/`;
+  const apiDocUrlv4 = `${CLEVER_URLS.API_DOC}/v4/`;
 
   Logger.println(`Usage: clever curl
-Query Clever Cloud's API using Clever Tools credentials. For example: 
+Query Clever Cloud's API using Clever Tools credentials. For example:
 
-  clever curl ${conf.API_HOST}/v2/self
-  clever curl ${conf.API_HOST}/v2/summary
-  clever curl ${conf.API_HOST}/v4/products/zones
-  clever curl ${conf.API_HOST}/v2/organisations/<ORGANISATION_ID>/applications | jq '.[].id'
-  clever curl ${conf.API_HOST}/v4/billing/organisations/<ORGANISATION_ID>/<INVOICE_NUMBER>.pdf > invoice.pdf
+  clever curl ${CLEVER_URLS.API}/v2/self
+  clever curl ${CLEVER_URLS.API}/v2/summary
+  clever curl ${CLEVER_URLS.API}/v4/products/zones
+  clever curl ${CLEVER_URLS.API}/v2/organisations/<ORGANISATION_ID>/applications | jq '.[].id'
+  clever curl ${CLEVER_URLS.API}/v4/billing/organisations/<ORGANISATION_ID>/<INVOICE_NUMBER>.pdf > invoice.pdf
 
-Our API documentation is available here : 
+Our API documentation is available here :
 
   ${apiDocUrlv2}
   ${apiDocUrlv4}`);
@@ -55,8 +56,8 @@ export async function curl () {
   const requestParams = await parseCurlCommand(curlCommand);
 
   // We only allow request to the respective API_HOST
-  if (!requestParams.url.startsWith(conf.API_HOST)) {
-    Logger.error('"clever curl" command must be used with ' + colors.blue(conf.API_HOST));
+  if (!requestParams.url.startsWith(CLEVER_URLS.API)) {
+    Logger.error('"clever curl" command must be used with ' + colors.blue(CLEVER_URLS.API));
     process.exit(1);
   }
 
