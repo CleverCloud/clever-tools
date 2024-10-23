@@ -156,7 +156,6 @@ function run () {
       complete: Application.listAvailableAliases,
     }),
     domain: cliparse.option('filter', {
-      aliases: ['f'],
       default: '',
       metavar: 'TEXT',
       description: 'Check only domains containing the provided text',
