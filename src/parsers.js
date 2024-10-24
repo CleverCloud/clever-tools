@@ -163,3 +163,29 @@ export function durationInSeconds (durationStr = '') {
     return cliparse.parsers.success(n);
   }
 }
+
+// Network groups parsers
+const ngIdRegex = /^ng_[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+export function ngIdOrLabel (string) {
+  if (string.match(ngIdRegex)) {
+    return cliparse.parsers.success({ ngId: string });
+  }
+  return cliparse.parsers.success({ ngLabel: string });
+}
+
+export function ngMemberType (string) {
+  const possible = ['application', 'addon', 'external'];
+  if (possible.includes(string)) {
+    return cliparse.parsers.success(string);
+  }
+  return cliparse.parsers.error(`Invalid member type '${string}'. Should be in ${JSON.stringify(possible)}`);
+}
+
+export function ngPeerRole (string) {
+  const possible = ['client', 'server'];
+  if (possible.includes(string)) {
+    return cliparse.parsers.success(string);
+  }
+  return cliparse.parsers.error(`Invalid peer role '${string}'. Should be in ${JSON.stringify(possible)}`);
+}
