@@ -62,7 +62,7 @@ export async function getNg (params) {
         id: result.id,
         label: result.label,
         description: result.description,
-        network: `${result.lastAllocatedIp} (${result.networkIp})`,
+        network: `${result.networkIp}`,
         'members/peers': `${Object.keys(result.members).length}/${Object.keys(result.peers).length}`,
       };
 
@@ -74,7 +74,7 @@ export async function getNg (params) {
       console.table(members);
 
       Logger.println('Peers:');
-      const peers = Object.entries(result.peers).map(([id, peer]) => ({ parent: peer.parentMember, id: peer.id, label: peer.label, IP: peer.endpoint.ngIp, publicKey: peer.publicKey }));
+      const peers = Object.entries(result.peers).map(([id, peer]) => ({ parent: peer.parentMember, id: peer.id, label: peer.label, IP: peer.endpoint.ngTerm.host, publicKey: peer.publicKey }));
       console.table(peers);
     }
   }
@@ -396,6 +396,7 @@ export async function getExternalPeerConfig (params) {
   Logger.debug(`Received from API: ${JSON.stringify(result, null, 2)}`);
 
   const peerToPrint = result.peers.find((peer) => peer.peer_id === peerId);
+  result.configuration = Buffer.from(result.configuration, 'base64').toString().replace(/\n+/g, '\n');
 
   switch (format) {
     case 'json': {
@@ -408,8 +409,7 @@ export async function getExternalPeerConfig (params) {
       Logger.println(` - ${peerToPrint.peer_id} (${peerToPrint.peer_ip})`);
       Logger.println(` - ${peerToPrint.peer_hostname}`);
       Logger.println();
-      Logger.println('Configuration:');
-      Logger.println(result.configuration);
+      Logger.println(`Configuration: ${result.configuration}`);
     }
   }
 }
