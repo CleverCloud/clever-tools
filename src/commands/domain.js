@@ -337,7 +337,7 @@ function reportDomainDiagnostics ({ hostname, pathPrefix, resolvedDnsConfig, dia
 
     unknownDiags.forEach((diag) => {
       const source = hasCnameRecord ? `(from CNAME ${resolvedDnsConfig.cnameRecords[0]}.)` : '';
-      printlnWithIndent(diag.record.value + source, 6);
+      printlnWithIndent(`${diag.record.value} ${source}`, 6);
     });
   }
 
