@@ -192,7 +192,8 @@ export async function overview (params) {
         .filter((domain) => filter == null || domain.fqdn.includes(filter))
         .map((domain) => {
 
-          const parsedDomain = parseDomain(domain.fqdn);
+          // `validateHostname` is set to `false` so that wildcard domains may be parsed correctly
+          const parsedDomain = parseDomain(domain.fqdn, { validateHostname: false });
           const pathname = new URL('https://' + domain.fqdn).pathname;
           const subdomains = parsedDomain.subdomain !== '' ? parsedDomain.subdomain.split('.') : [];
 
@@ -395,7 +396,12 @@ function recursiveSort (obj) {
   }
 
   const sortedObj = {};
-  Object.keys(obj).sort((a, b) => a.localeCompare(b)).forEach((key) => {
+  Object.keys(obj).sort((a, b) => {
+    // if the domain contains a wildcard, we want it to be the first of subdomains
+    const aWithReplacedWildcard = a.replace(/^\*/, 'a');
+    const bWithReplacedWildcard = b.replace(/^\*/, 'a');
+    return aWithReplacedWildcard.localeCompare(bWithReplacedWildcard);
+  }).forEach((key) => {
     sortedObj[key] = recursiveSort(obj[key]);
   });
 
