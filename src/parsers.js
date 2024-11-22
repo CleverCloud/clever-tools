@@ -69,6 +69,17 @@ export function futureDateOrDuration (dateString) {
   return duration;
 }
 
+// Could be:
+// /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+const emailRegex = /^[^@]+@[^@]+\.[^@]+$/;
+
+export function email (string) {
+  if (string.match(emailRegex)) {
+    return cliparse.parsers.success(string);
+  }
+  return cliparse.parsers.error('Invalid email');
+}
+
 const appIdRegex = /^app_[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 export function appIdOrName (string) {
