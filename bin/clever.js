@@ -49,6 +49,7 @@ import * as restart from '../src/commands/restart.js';
 import * as scale from '../src/commands/scale.js';
 import * as service from '../src/commands/service.js';
 import * as ssh from '../src/commands/ssh.js';
+import * as sshKeys from '../src/commands/ssh-keys.js';
 import * as status from '../src/commands/status.js';
 import * as stop from '../src/commands/stop.js';
 import * as tcpRedirs from '../src/commands/tcp-redirs.js';
@@ -83,6 +84,8 @@ function run () {
       description: 'Email',
       parser: Parsers.email,
     }),
+    sshKeyName: cliparse.argument('ssh-key-name', { description: 'SSH key name' }),
+    sshKeyPath: cliparse.argument('ssh-key-path', { description: 'SSH key path' }),
     addonIdOrName: cliparse.argument('addon-id', {
       description: 'Add-on ID (or name, if unambiguous)',
       parser: Parsers.addonIdOrName,
@@ -801,6 +804,31 @@ function run () {
     commands: [emailsListCommand, emailsAddCommand, emailsPrimaryCommand, emailsRemoveCommand, emailsClearCommand, emailsOpenConsoleCommand],
   }, emails.list);
 
+  // SSH KEYS COMMANDS
+  const sshKeysListCommand = cliparse.command('list', {
+    description: 'List SSH keys of the current user',
+    options: [opts.humanJsonOutputFormat],
+  }, sshKeys.list);
+  const sshKeysAddCommand = cliparse.command('add', {
+    description: 'Add a new SSH key to the current user',
+    args: [args.sshKeyName, args.sshKeyPath],
+  }, sshKeys.add);
+  const sshKeysRemoveCommand = cliparse.command('remove', {
+    description: 'Remove a SSH key from the current user',
+    args: [args.sshKeyName],
+  }, sshKeys.remove);
+  const sshKeysClearCommand = cliparse.command('clear', {
+    description: 'Remove all SSH keys from the current user',
+    options: [opts.yes],
+  }, sshKeys.clear);
+  const sshKeysOpenConsoleCommand = cliparse.command('open', {
+    description: 'Open the SSH keys management page in the Console',
+  }, sshKeys.openConsole);
+  const sshKeysCommands = cliparse.command('ssh-keys', {
+    description: 'Manage SSH keys of the current user',
+    commands: [sshKeysListCommand, sshKeysAddCommand, sshKeysRemoveCommand, sshKeysClearCommand, sshKeysOpenConsoleCommand],
+  }, sshKeys.list);
+
   // PUBLISHED CONFIG COMMANDS
   const publishedConfigSetCommand = cliparse.command('set', {
     description: 'Add or update a published configuration item named <variable-name> with the value <variable-value>',
@@ -984,6 +1012,7 @@ function run () {
     scaleCommand,
     serviceCommands,
     sshCommand,
+    sshKeysCommands,
     statusCommand,
     stopCommand,
     tcpRedirsCommands,
