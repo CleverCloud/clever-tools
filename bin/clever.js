@@ -342,6 +342,7 @@ function run () {
     }),
     addonOptions: cliparse.option('option', {
       metavar: 'option',
+      parser: Parsers.addonOptions,
       description: 'Option to enable for the add-on. Multiple --option argument can be passed to enable multiple options',
     }),
     region: cliparse.option('region', {
