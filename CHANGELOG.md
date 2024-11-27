@@ -1,6 +1,19 @@
 # clever-tools changelog
 
 
+## [3.10.0](https://github.com/CleverCloud/clever-tools/compare/3.9.0...3.10.0) (2024-11-27)
+
+
+### 🚀 Features
+
+* **addon:** elastic plugins option support ([2ec8651](https://github.com/CleverCloud/clever-tools/commit/2ec865153b602b8fdcbb1304d4ca171e5acd2341))
+
+
+### 🐛 Bug Fixes
+
+* **domain:** add missing spacing within diag report ([7b0c739](https://github.com/CleverCloud/clever-tools/commit/7b0c739617ca13f62fcca2ca4c71d9beb48433b3))
+* **domains/overview:** handle wildcard domains properly ([5d503fe](https://github.com/CleverCloud/clever-tools/commit/5d503feccd7f251b7940473809afc8b779e06ace)), closes [#847](https://github.com/CleverCloud/clever-tools/issues/847)
+
 ## [3.9.0](https://github.com/CleverCloud/clever-tools/compare/3.8.3...3.9.0) (2024-10-23)
 
 
