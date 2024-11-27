@@ -274,10 +274,14 @@ export function parseAddonOptions (options) {
     return {};
   }
 
-  return options.split(',').reduce((options, option) => {
-    const [key, value] = option.split('=');
+  const pairs = options.split(/,(?=\w+=)/) || [];
+
+  return pairs.reduce((options, pair) => {
+    const [key, ...valueParts] = pair.split('=');
+    const value = valueParts.join('=');
+
     if (value == null) {
-      throw new Error("Options are malformed. Usage is '--option name=enabled|disabled|true|false'");
+      throw new Error("Options are malformed. Usage is '--option name=enabled|disabled|true|false|plugin1,plugin2'");
     }
 
     let formattedValue = value;
