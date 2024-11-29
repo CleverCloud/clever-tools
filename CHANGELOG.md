@@ -1,6 +1,13 @@
 # clever-tools changelog
 
 
+## [3.10.1](https://github.com/CleverCloud/clever-tools/compare/3.10.0...3.10.1) (2024-11-29)
+
+
+### 🐛 Bug Fixes
+
+* **addon:** better handle options parsing ([7005bbf](https://github.com/CleverCloud/clever-tools/commit/7005bbf4a12bd31c0b1949418f35f2476d032240)), closes [#856](https://github.com/CleverCloud/clever-tools/issues/856)
+
 ## [3.10.0](https://github.com/CleverCloud/clever-tools/compare/3.9.0...3.10.0) (2024-11-27)
 
 
