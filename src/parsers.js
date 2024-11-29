@@ -4,15 +4,16 @@ import * as Application from './models/application.js';
 import ISO8601 from 'iso8601-duration';
 import Duration from 'duration-js';
 
-const addonOptionsRegex = /^\w+=.+$/;
+const addonOptionsRegex = /^[\w-]+=.+$/;
 
 export function addonOptions (options) {
-  for (const option of options) {
+  const optionsArray = typeof options === 'string' ? [options] : options;
+  for (const option of optionsArray) {
     if (!option.match(addonOptionsRegex)) {
       return cliparse.parsers.error('Invalid option: ' + option);
     }
   }
-  return cliparse.parsers.success(options.join(','));
+  return cliparse.parsers.success(optionsArray.join(','));
 }
 
 export function flavor (flavor) {
