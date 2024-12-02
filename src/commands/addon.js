@@ -114,6 +114,10 @@ function displayAddon (format, addon, providerName, message) {
       name: 'Metabase',
       urlEnv: 'METABASE_URL',
     },
+    otoroshi: {
+      name: 'Otoroshi with LLM',
+      urlEnv: 'CC_OTOROSHI_URL',
+    },
   };
 
   const WIP_PROVIDERS = {
@@ -142,6 +146,12 @@ function displayAddon (format, addon, providerName, message) {
       status: 'beta',
       postCreateInstructions: [
         'Learn more about Metabase on Clever Cloud: https://developers.clever-cloud.com/doc/addons/metabase/',
+      ].join('\n'),
+    },
+    otoroshi: {
+      status: 'beta',
+      postCreateInstructions: [
+        'Learn more about Otoroshi with LLM on Clever Cloud: https://developers.clever-cloud.com/doc/addons/otoroshi/',
       ].join('\n'),
     },
     'addon-pulsar': {
@@ -208,6 +218,13 @@ function displayAddon (format, addon, providerName, message) {
           Logger.println("An initial account has been created, you'll be invited to change the password at first login:");
           Logger.println(` - Admin user name: ${addon.env.find((e) => e.name === 'CC_KEYCLOAK_ADMIN').value}`);
           Logger.println(` - Temporary password: ${addon.env.find((e) => e.name === 'CC_KEYCLOAK_ADMIN_DEFAULT_PASSWORD').value}`);
+        }
+
+        if (providerName === 'otoroshi') {
+          Logger.println();
+          Logger.println('An initial account has been created, change the password at first login (Security -> Administrators -> Edit user):');
+          Logger.println(` - Admin user name: ${addon.env.find((e) => e.name === 'CC_OTOROSHI_INITIAL_ADMIN_LOGIN').value}`);
+          Logger.println(` - Initial password: ${addon.env.find((e) => e.name === 'CC_OTOROSHI_INITIAL_ADMIN_PASSWORD').value}`);
         }
       }
 
