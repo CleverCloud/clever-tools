@@ -1,6 +1,13 @@
 # clever-tools changelog
 
 
+## [3.11.0](https://github.com/CleverCloud/clever-tools/compare/3.10.1...3.11.0) (2024-12-02)
+
+
+### 🚀 Features
+
+* **features:** introduce `features` command ([5c370b3](https://github.com/CleverCloud/clever-tools/commit/5c370b3bdb0ad99509004491f9360f20c0a36632))
+
 ## [3.10.1](https://github.com/CleverCloud/clever-tools/compare/3.10.0...3.10.1) (2024-11-29)
 
 
