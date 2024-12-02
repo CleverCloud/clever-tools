@@ -34,6 +34,7 @@ import * as diag from '../src/commands/diag.js';
 import * as domain from '../src/commands/domain.js';
 import * as drain from '../src/commands/drain.js';
 import * as env from '../src/commands/env.js';
+import * as features from '../src/commands/features.js';
 import * as link from '../src/commands/link.js';
 import * as login from '../src/commands/login.js';
 import * as logout from '../src/commands/logout.js';
@@ -102,6 +103,11 @@ function run () {
     }),
     drainUrl: cliparse.argument('drain-url', { description: 'Drain URL' }),
     fqdn: cliparse.argument('fqdn', { description: 'Domain name of the application' }),
+    features: cliparse.argument('features', {
+      description: 'Comma-separated list of experimental features to manage',
+      parser: Parsers.commaSeparated,
+    }),
+    featureId: cliparse.argument('feature', { description: 'Experimental feature to manage' }),
     notificationName: cliparse.argument('name', { description: 'Notification name' }),
     notificationId: cliparse.argument('notification-id', { description: 'Notification ID' }),
     webhookUrl: cliparse.argument('url', { description: 'Webhook URL' }),
@@ -666,6 +672,28 @@ function run () {
     commands: [envSetCommand, envRemoveCommand, envImportCommand, envImportVarsFromLocalEnvCommand],
   }, env.list);
 
+  // EXPERIMENTAL FEATURES COMMAND
+  const listFeaturesCommand = cliparse.command('list', {
+    description: 'List available experimental features',
+    options: [opts.humanJsonOutputFormat],
+  }, features.list);
+  const infoFeaturesCommand = cliparse.command('info', {
+    description: 'Display info about an experimental feature',
+    args: [args.featureId],
+  }, features.info);
+  const enableFeatureCommand = cliparse.command('enable', {
+    description: 'Enable experimental features',
+    args: [args.features],
+  }, features.enable);
+  const disableFeatureCommand = cliparse.command('disable', {
+    description: 'Disable experimental features',
+    args: [args.features],
+  }, features.disable);
+  const featuresCommands = cliparse.command('features', {
+    description: 'Manage Clever Tools experimental features',
+    commands: [enableFeatureCommand, disableFeatureCommand, listFeaturesCommand, infoFeaturesCommand],
+  }, features.list);
+
   // LINK COMMAND
   const appLinkCommand = cliparse.command('link', {
     description: 'Link this repo to an existing application',
@@ -881,7 +909,7 @@ function run () {
   // Patch help command description
   cliparseCommands.helpCommand.description = 'Display help about the Clever Cloud CLI';
 
-  const commands = _sortBy([
+  const commands = [
     accesslogsCommand,
     activityCommand,
     addonCommands,
@@ -900,6 +928,7 @@ function run () {
     drainCommands,
     emailNotificationsCommand,
     envCommands,
+    featuresCommands,
     cliparseCommands.helpCommand,
     loginCommand,
     logoutCommand,
@@ -918,7 +947,7 @@ function run () {
     tcpRedirsCommands,
     versionCommand,
     webhooksCommand,
-  ], 'name');
+  ];
 
   // CLI PARSER
   const cliParser = cliparse.cli({
@@ -927,7 +956,7 @@ function run () {
     version: getPackageJson().version,
     options: [opts.color, opts.updateNotifier, opts.verbose],
     helpCommand: false,
-    commands,
+    commands: _sortBy(commands, 'name'),
   });
 
   // Make sure argv[0] is always "node"

@@ -11,6 +11,7 @@ const env = commonEnv(Logger);
 const CONFIG_FILES = {
   MAIN: 'clever-tools.json',
   IDS_CACHE: 'ids-cache.json',
+  EXPERIMENTAL_FEATURES_FILE: 'clever-tools-experimental-features.json',
 };
 
 function getConfigPath (configFile) {
@@ -85,6 +86,32 @@ export async function writeIdsCache (ids) {
   }
 }
 
+export async function getFeatures () {
+  Logger.debug('Get features configuration from ' + conf.EXPERIMENTAL_FEATURES_FILE);
+  try {
+    const rawFile = await fs.readFile(conf.EXPERIMENTAL_FEATURES_FILE);
+    return JSON.parse(rawFile);
+  }
+  catch (error) {
+    if (error.code !== 'ENOENT') {
+      throw new Error(`Cannot get experimental features configuration from ${conf.EXPERIMENTAL_FEATURES_FILE}`);
+    }
+    return {};
+  }
+}
+
+export async function setFeature (feature, value) {
+  const currentFeatures = await getFeatures();
+  const newFeatures = { ...currentFeatures, ...{ [feature]: value } };
+
+  try {
+    await fs.writeFile(conf.EXPERIMENTAL_FEATURES_FILE, JSON.stringify(newFeatures, null, 2));
+  }
+  catch (error) {
+    throw new Error(`Cannot write experimental features configuration to ${conf.EXPERIMENTAL_FEATURES_FILE}`);
+  }
+}
+
 export const conf = env.getOrElseAll({
   API_HOST: 'https://api.clever-cloud.com',
   // API_HOST: 'https://ccapi-preprod.cleverapps.io',
@@ -98,6 +125,7 @@ export const conf = env.getOrElseAll({
   SSH_GATEWAY: 'ssh@sshgateway-clevercloud-customers.services.clever-cloud.com',
 
   CONFIGURATION_FILE: getConfigPath(CONFIG_FILES.MAIN),
+  EXPERIMENTAL_FEATURES_FILE: getConfigPath(CONFIG_FILES.EXPERIMENTAL_FEATURES_FILE),
   CONSOLE_TOKEN_URL: 'https://console.clever-cloud.com/cli-oauth',
   // CONSOLE_TOKEN_URL: 'https://next-console.cleverapps.io/cli-oauth',
 
