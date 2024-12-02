@@ -1,5 +1,7 @@
-import { getSummary } from '@clevercloud/client/esm/api/v2/user.js';
+import colors from 'colors/safe.js';
+import { Logger } from '../logger.js';
 import { sendToApi } from './send-to-api.js';
+import { getSummary } from '@clevercloud/client/esm/api/v2/user.js';
 import { loadIdsCache, writeIdsCache } from './configuration.js';
 
 /*
@@ -101,4 +103,46 @@ async function getIdsFromSummary () {
   }
 
   return ids;
+}
+
+/**
+ * Get the IDs and owners of found add-ons from a name, ID or real ID
+ * @param {string} AddonIdOrRealIdOrName
+ * @throws {Error} if no add-on is found
+ * @throws {Error} if several add-ons are found
+ * @returns {Object} The ID and owner ID of the add-on { addonId, ownerId }
+ */
+export async function findAddonsByNameOrId (AddonIdOrRealIdOrName) {
+  const summary = await getSummary().then(sendToApi);
+
+  Logger.debug(`Searching for add-on '${AddonIdOrRealIdOrName}' in ${summary.user.id} and ${summary.organisations.map((org) => org.id).join(', ')}`);
+  const candidates = [summary.user, ...summary.organisations]
+    .flatMap((owner) => owner.addons.map((addon) => ({ addon, owner })))
+    .filter(({ addon }) => (
+      addon.name === AddonIdOrRealIdOrName
+      || addon.realId === AddonIdOrRealIdOrName
+      || addon.id === AddonIdOrRealIdOrName
+    ))
+    .map(({ addon, owner }) => ({
+      addonId: addon.id,
+      ownerId: owner.id,
+    }));
+
+  Logger.debug(`Found ${candidates.length} candidate(s):`);
+  for (const candidate of candidates) {
+    Logger.debug(`  - ${candidate.addonId} (${candidate.ownerId})`);
+  }
+
+  if (candidates.length === 0) {
+    throw new Error(`Add-on ${AddonIdOrRealIdOrName} not found`);
+  }
+
+  if (candidates.length === 1) {
+    return candidates;
+  }
+
+  const addonList = candidates
+    .map(({ addonId, ownerId }) => `${addonId} (${ownerId})`)
+    .join('\n- ');
+  throw new Error(`Several add-ons found for '${AddonIdOrRealIdOrName}', use ID instead:\n${colors.grey(`- ${addonList}`)}`);
 }
