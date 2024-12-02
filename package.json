@@ -33,6 +33,7 @@
     "curlconverter": "3.21.0",
     "duration-js": "4.0.0",
     "eventsource": "1.1.0",
+    "ioredis": "5.4.1",
     "iso8601-duration": "2.1.2",
     "isomorphic-git": "1.25.3",
     "linux-release-info": "3.0.0",
