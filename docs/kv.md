@@ -1,6 +1,6 @@
-# Clever Cloud Materia KV
+# Clever KV
 
-If you're testing [Materia KV](https://developers.clever-cloud.com/doc/addons/materia-kv/), our next generation of key-value databases, serverless, distributed, synchronously-replicated, compatible with the Redis protocol (and later DynamoDB, GraphQL), you can easily create an add-on with Clever Tools:
+If you're using [Materia KV](https://developers.clever-cloud.com/doc/addons/materia-kv/), our next generation of key-value databases, serverless, distributed, synchronously-replicated, compatible with the Redis® protocol (and later DynamoDB, GraphQL), you can easily create an add-on with Clever Tools:
 
 ```
 clever addon create kv ADDON_NAME
@@ -9,48 +9,39 @@ clever addon create kv ADDON_NAME
 And immediately use it after sourcing its environment variables with `clever kv` command:
 
 ```bash
-# With Bash and Zsh
-source <(clever addon env ADDON_ID --export)
-# With Fish
-clever addon env ADDON_ID --export | source
-
-clever kv PING          # It will answer PONG
-clever kv PING Hello    # It will answer Hello
+clever kv ADDON_NAME_OR_ID PING          # It will answer PONG
+clever kv ADDON_NAME_OR_ID PING Hello    # It will answer Hello
 ```
 
-It helps you to inspect and interact with your Materia KV add-ons. Each is provided with environment variables about its host, port, and [Biscuit-based](https://biscuitsec.org) tokens, in multiple forms (to ensure compatibility with tools such those made for Redis).
+It helps you to inspect and interact with your Materia KV. Each is provided with environment variables about its host, port, and [Biscuit-based](https://biscuitsec.org) tokens, in multiple forms (to ensure compatibility with tools such those made for Redis).
 
-`clever kv` only needs `KV_TOKEN` environment variable to be set. Alternatively, you can target a specific add-on with the following options:
-
-```
-[--org, -o, --owner]       Organisation ID (or name, if unambiguous)
-[--addon-id]               Add-on ID (or name, if unambiguous)
-```
+[!Tip]
+> Clever KV command is also compatible with Redis® on Clever Cloud add-ons.
 
 ## Commands
 
-As `clever kv` is still at a proof of concept stage, for demonstration purposes, we only support some commands from the Redis protocol.
-
->[!Tip]
->You can get a list of all the Materia KV supported commands with `clever kv commands`
-
-
-Here are some examples:
+You can use `clever kv` to send any command supported by your add-on. Here are some examples:
 
 ```bash
-clever kv hset key field1 value1 field2 value2 field3 value3    # It will respond 3
-clever kv hget key field2                                       # It will respond value2
-clever kv hgetall key                                           # It will respond with the full hash
+clever kv ADDON_NAME_OR_ID INCR myCounter             # It will respond (integer) the incremented value
+clever kv ADDON_NAME_OR_ID SET myKey myValue          # It will respond OK
+clever kv ADDON_NAME_OR_ID GET myKey                  # It will respond myValue
+clever kv ADDON_NAME_OR_ID SET myKey myValue EX 120   # It will respond OK
+clever kv ADDON_NAME_OR_ID TTL myKey                  # It will respond (integer) the remaining time to live of the key in seconds
 ```
 
-## JSON support
+>[!Tip]
+>You can get a list of all supported commands with `clever kv ADDON_NAME_OR_ID COMMANDS`
 
-For now, if you want to use JSON with Materia KV from Clever Tools, you can use the `getjson` command:
+You can pass the result of JSON stringified values to tools like `jq` to query them, for example:
 
 ```bash
-clever kv set simpleJson '{"key": "value"}'                                 # It will respond the set data
-clever kv getjson simpleJson key                                            # It will respond value
-clever kv set jsonKey '[{"key": "value"}, {"bigKey": {"subKey1": "subValue1","subKey2": "subValue2"}}]'
-clever kv getjson jsonKey bigKey.subKey2                                    # It will respond subValue2
-clever kv getjson jsonKey ''                                                # It will respond the full JSON
+clever kv ADDON_NAME_OR_ID SET myJsonFormatedKey {"key": "value"}
+clever kv ADDON_NAME_OR_ID GET myJsonFormatedKey | jq .key
+```
+
+You can also use the `-F/--format` option to print a result in JSON format and query it with `jq`:
+
+```bash
+clever kv ADDON_NAME_OR_ID scan 0 -F json | jq '.[1][0]'
 ```
