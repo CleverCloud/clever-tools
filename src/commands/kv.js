@@ -1,98 +1,87 @@
-import jsonata from 'jsonata';
-import { createClient } from 'redis';
-
+import Redis from 'ioredis';
+import colors from 'colors/safe.js';
+import { Logger } from '../logger.js';
 import { sendToApi } from '../models/send-to-api.js';
-import { getId as getAddonId } from '../models/addon.js';
-import { resolveAddonId } from '../models/ids-resolver.js';
-import { getId as getOrgId } from '../models/organisation.js';
 import { getAllEnvVars } from '@clevercloud/client/cjs/api/v2/addon.js';
+import { findAddonsByNameOrId } from '../models/ids-resolver.js';
 
-async function connect (params) {
-  const { 'addon-id': addon, org } = params.options;
-  const orgId = await getOrgId(org);
+const URL_ENV_KEY = 'REDIS_URL';
+const MAX_RETRIES_PER_REQUEST = 1;
 
-  const MAX_RETRIES = 10;
-  const kvToken = await getAddonKvToken(addon, orgId) || process.env.KV_TOKEN;
+/**
+ * Send a raw command to a compatible KV database
+ * @param {Object} params
+ * @param {Array<string>} params.args
+ * @param {Object} params.options
+ * @param {string} params.options.format
+ * @returns {Promise<void>}
+ */
+export async function sendRawCommand (params) {
+  const [addonIdOrRealId] = params.args;
+  const { format } = params.options;
 
-  if (!kvToken) {
-    throw new Error("No 'KV_TOKEN' found in environment variables");
-  }
+  const url = await getAddonUrl(addonIdOrRealId);
+  const command = extractCommand(params.args);
+  const result = await sendCommand(url, command);
 
-  const kvHost = 'materiakv.eu-fr-1.services.clever-cloud.com';
-  const kvPort = '6379';
-  const kvURI = `rediss://:${kvToken}@${kvHost}:${kvPort}`;
-
-  let count = 0;
-  const client = await createClient({ url: kvURI })
-    .on('error', (err) => {
-      if (count > MAX_RETRIES) {
-        throw new Error(`Server connexion error: ${MAX_RETRIES} attempts failed. Exiting.`);
-      }
-      console.log('Server connexion error: ', err);
-      count++;
-    })
-    .connect();
-
-  return client;
-}
-
-async function getAddonKvToken (addon, orgId) {
-  if (addon) {
-    let addonId = null;
-    if (addon.addon_id && !addon.addon_id.startsWith('addon_')) {
-      addonId = await resolveAddonId(addon);
+  switch (format) {
+    case 'json': {
+      Logger.printJson(result);
+      break;
     }
-    else {
-      addonId = await getAddonId(orgId, addon);
-    }
-
-    if (addonId !== null && addonId.startsWith('addon_')) {
-      const envFromAddon = await getAllEnvVars({ id: orgId, addonId }).then(sendToApi);
-      return (envFromAddon.find((env) => env.name === 'KV_TOKEN') || {}).value;
+    case 'human':
+    default: {
+      Logger.println(result);
     }
   }
 }
 
-async function isValidJSONAndHasName (jsonString, propertyToCheck) {
-  const jsonObject = JSON.parse(jsonString);
-  if (!jsonObject || typeof jsonObject !== 'object') {
-    throw new Error('JSON object is not valid');
-  }
-  if (propertyToCheck === '') {
-    return jsonObject;
-  }
-  if (!isNaN(propertyToCheck)) {
-    propertyToCheck = `$[${propertyToCheck}]`;
+/**
+ * Get the URL of the compatible KV database
+* @param {string} addonIdOrRealId
+ * @returns {Promise<string>} the URL of the compatible KV database
+ */
+async function getAddonUrl (addonIdOrRealId) {
+  const foundAddons = await findAddonsByNameOrId(addonIdOrRealId);
+  const { addonId, ownerId } = foundAddons[0];
+
+  const envVars = await getAllEnvVars({ id: ownerId, addonId }).then(sendToApi);
+  const redisUrl = envVars.find((env) => env.name === URL_ENV_KEY)?.value;
+
+  if (!redisUrl) {
+    throw new Error(`Environment variable ${colors.red(URL_ENV_KEY)} not found, is it a Materia KV or Redis® add-on?`);
   }
 
-  const regex = /^\[(\d+)\]$/;
-  const match = propertyToCheck.match(regex);
-  if (match) {
-    propertyToCheck = `$[${match[1]}]`;
-  }
-
-  const doesPropertyExist = await jsonata(`$exists(${propertyToCheck})`).evaluate(jsonObject);
-  if (!doesPropertyExist) {
-    throw new Error(`JSON object does not have property '${propertyToCheck}'`);
-  }
-
-  const result = jsonata(propertyToCheck).evaluate(jsonObject);
-  return result;
-
+  return redisUrl;
 }
 
-export async function redis_raw (params) {
-  const client = await connect(params);
-  const value = await client.sendCommand(params.args);
-  console.log(value);
-  await client.disconnect();
+/**
+ * Extract the command from the arguments
+ * @param {Array<string>} args
+ * @returns {Array<string>} the command
+ */
+function extractCommand (args) {
+  args.shift();
+  Logger.debug(`Extracted command: ${args.join(' ')}`);
+  return [...args];
 }
 
-export async function getjson (params) {
-  const client = await connect(params);
-  const [key, property] = params.args;
-  const value = await client.GET(key);
-  const jsonValue = await isValidJSONAndHasName(value, property);
-  console.log(jsonValue);
-  await client.disconnect();
+/**
+ * Send a command to a compatible KV database
+ * @param {string} url
+ * @param {Array<string>} command
+ * @returns {Promise<string>} the command result
+ */
+async function sendCommand (url, command) {
+  Logger.debug(`Sending command '${command.join(' ')}' to ${url}`);
+  const client = new Redis(url, { maxRetriesPerRequest: MAX_RETRIES_PER_REQUEST });
+  try {
+    const result = await client.call(...command);
+    Logger.debug(`Command result: ${result}`);
+    return result;
+  }
+  finally {
+    await client.disconnect();
+    Logger.debug('Disconnected from server');
+  }
 }

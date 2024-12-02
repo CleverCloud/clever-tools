@@ -36,7 +36,7 @@ clever kv ADDON_NAME_OR_ID TTL myKey                  # It will respond (integer
 You can pass the result of JSON stringified values to tools like `jq` to query them, for example:
 
 ```bash
-clever kv ADDON_NAME_OR_ID SET myJsonFormatedKey {"key": "value"}
+clever kv ADDON_NAME_OR_ID SET myJsonFormatedKey '{"key": "value"}'
 clever kv ADDON_NAME_OR_ID GET myJsonFormatedKey | jq .key
 ```
 
