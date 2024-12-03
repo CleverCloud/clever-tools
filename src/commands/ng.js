@@ -1,41 +1,173 @@
-import { randomBytes } from 'crypto';
+import colors from 'colors/safe.js';
 import { Logger } from '../logger.js';
-import * as NetworkGroup from '../models/ng.js';
-import * as Formatter from '../models/format-string.js';
-import * as ngApi from '@clevercloud/client/cjs/api/v4/network-group.js';
+import * as NG from '../models/ng.js';
+import * as NGRessources from '../models/ng-ressources.js';
 
-import { v4 as uuidv4 } from 'uuid';
-import { sendToApi } from '../models/send-to-api.js';
+/** Create a Network Group
+ * @param {Object} params
+ * @param {string} params.args[0] Network Group label
+ * @param {string} params.options.org Organisation ID or name
+ * @param {string} params.options.description Network Group description
+ * @param {string} params.options.tags Comma-separated list of tags
+ * @param {string} params.options.members-ids Comma-separated list of members IDs
+ */
+export async function createNg (params) {
+  const [ngLabel] = params.args;
+  const { org, description, 'members-ids': membersIds, tags } = params.options;
 
-const TIMEOUT = 5000;
-const INTERVAL = 500;
+  await NG.create(org, ngLabel, description, tags, membersIds);
 
+  const membersIdsMessage = membersIds ? ` with member(s):\n${colors.grey(` - ${membersIds.join('\n - ')}`)}` : '';
+  Logger.println(`${colors.bold.green('✓')} Network Group ${colors.green(ngLabel)} successfully created${membersIdsMessage}!`);
+}
+
+/** Delete a Network Group
+ * @param {Object} params
+ * @param {string} params.args[0] Network Group ID or label
+ * @param {string} params.options.org Organisation ID or name
+ */
+export async function deleteNg (params) {
+  const [ngIdOrLabel] = params.args;
+  const { org } = params.options;
+
+  await NG.destroy(ngIdOrLabel, org);
+  Logger.println(`${colors.bold.green('✓')} Network Group ${colors.green(ngIdOrLabel.ngLabel || ngIdOrLabel.ngId)} successfully deleted!`);
+}
+
+/** Create an external peer in a Network Group
+ * @param {Object} params
+ * @param {string} params.args[0] External peer ID or label
+ * @param {string} params.args[1] Wireguard® public key
+ * @param {string} params.args[2] Network Group ID or label
+ * @param {string} params.options.org Organisation ID or name
+ */
+export async function createExternalPeer (params) {
+  const [idOrLabel, publicKey, ngIdOrLabel] = params.args;
+  const { org } = params.options;
+
+  if (!idOrLabel.ngRessourceLabel) {
+    throw new Error('A valid external peer label is required');
+  }
+
+  if (!publicKey) {
+    throw new Error('A Wireguard® public key is required');
+  }
+  await NGRessources.createExternalPeerWithParent(ngIdOrLabel, idOrLabel.ngRessourceLabel, publicKey, org);
+  Logger.println(`${colors.bold.green('✓')} External peer ${colors.green(idOrLabel.ngRessourceLabel)} successfully created in Network Group ${colors.green(ngIdOrLabel.ngLabel || ngIdOrLabel.ngId)}`);
+}
+
+/** Delete an external peer from a Network Group
+ * @param {Object} params
+ * @param {string} params.args[0] External peer ID or label
+ * @param {string} params.args[1] Network Group ID or label
+ * @param {string} params.options.org Organisation ID or name
+ */
+export async function deleteExternalPeer (params) {
+  const [ressourceId, ngIdOrLabel] = params.args;
+  const { org } = params.options;
+
+  await NGRessources.deleteExternalPeerWithParent(ngIdOrLabel, ressourceId.ngRessourceLabel || ressourceId.externalPeerId, org);
+  Logger.println(`${colors.bold.green('✓')} External peer ${colors.green(ressourceId.ngRessourceLabel || ressourceId.externalPeerId)} successfully deleted from Network Group ${colors.green(ngIdOrLabel.ngLabel || ngIdOrLabel.ngId)}`);
+}
+
+/** Link a member or an external peer to a Network Group
+ * @param {Object} params
+ * @param {string} params.args[0] Member or external peer ID or label
+ * @param {string} params.args[1] Network Group ID or label
+ * @param {string} params.options.org Organisation ID or name
+ * @param {string} params.options['member-label'] Member label
+ * @throws {Error} If the ressource ID is not a valid member or external peer ID
+ */
+export async function linkToNg (params) {
+  const [ressourceId, ngIdOrLabel] = params.args;
+  const { org, 'member-label': memberLabel } = params.options;
+
+  if (!ressourceId.memberId && !ressourceId.externalPeerId) {
+    throw new Error(`Ressource ID ${ressourceId} is not a valid member or external peer ID`);
+  }
+
+  await NGRessources.linkMember(ngIdOrLabel, ressourceId.memberId, org, memberLabel);
+  Logger.println(`${colors.bold.green('✓')} Member ${colors.green(ressourceId.memberId)} successfully linked to Network Group ${colors.green(ngIdOrLabel.ngLabel || ngIdOrLabel.ngId)}`);
+}
+
+/** Unlink a member or an external peer from a Network Group
+ * @param {Object} params
+ * @param {string} params.args[0] Member or external peer ID or label
+ * @param {string} params.args[1] Network Group ID or label
+ * @param {string} params.options.org Organisation ID or name
+ * @throws {Error} If the ressource ID is not a valid member or external peer ID
+ */
+export async function unlinkFromNg (params) {
+  const [ressourceId, ngIdOrLabel] = params.args;
+  const { org } = params.options;
+
+  if (!ressourceId.memberId) {
+    throw new Error(`Ressource ID ${ressourceId} is not a valid member or external peer ID`);
+  }
+
+  await NGRessources.unlinkMember(ngIdOrLabel, ressourceId.memberId, org);
+  Logger.println(`${colors.bold.green('✓')} Member ${colors.green(ressourceId.memberId)} successfully unlinked from Network Group ${colors.green(ngIdOrLabel.ngLabel || ngIdOrLabel.ngId)}`);
+}
+
+/** Print the configuration of a Network Group's peer
+ * @param {Object} params
+ * @param {string} params.args[0] Network Group ID or label
+ * @param {string} params.options.org Organisation ID or name
+ * @param {string} params.options.format Output format
+ */
+export async function printConfig (params) {
+  const [peerIdOrLabel] = params.args;
+  const { org, format } = params.options;
+
+  const config = await NG.getConfig(peerIdOrLabel, org);
+
+  switch (format) {
+    case 'json': {
+      Logger.printJson(config);
+      break;
+    }
+    case 'human':
+    default: {
+      const decodedConfiguration = Buffer.from(config.configuration, 'base64').toString('utf8');
+      Logger.println(decodedConfiguration);
+    }
+  }
+}
+
+/** List Network Groups, their members and peers
+ * @param {Object} params
+ * @param {string} params.options.orgaIdOrName Organisation ID or name
+ * @param {string} params.options.format Output format
+ */
 export async function listNg (params) {
-  const { org: orgaIdOrName, format } = params.options;
-  const ownerId = await NetworkGroup.getOwnerId(orgaIdOrName);
+  const { org, format } = params.options;
 
-  Logger.info(`Listing Network Groups from owner ${Formatter.formatString(ownerId)}`);
-  const result = await ngApi.listNetworkGroups({ ownerId }).then(sendToApi);
-  Logger.debug(`Received from API: ${JSON.stringify(result, null, 2)}`);
+  const ngs = await NG.getNGs(org);
 
-  if (result.length === 0) {
-    Logger.println(`No Network Group found for ${ownerId}`);
-    Logger.println(`You can create one with ${Formatter.formatCommand('clever networkgroups create')} command`);
+  if (!ngs.length) {
+    Logger.println(`${colors.blue('!')} No Network Group found, create one with ${colors.blue('clever ng create')} command`);
     return;
   }
 
   switch (format) {
     case 'json': {
-      Logger.println(JSON.stringify(result, null, 2));
+      Logger.printJson(ngs);
       break;
     }
     case 'human':
     default: {
-      // We keep only id, label, networkIp, lastAllocatedIp
-      const ngList = result.map(({
-        id, label, networkIp, lastAllocatedIp, members, peers,
+      const ngList = ngs.map(({
+        id,
+        label,
+        networkIp,
+        members,
+        peers,
       }) => ({
-        id, label, networkIp, lastAllocatedIp, members: Object.keys(members).length, peers: Object.keys(peers).length,
+        ID: id,
+        Label: label,
+        'Network CIDR': networkIp,
+        members: Object.keys(members).length,
+        peers: Object.keys(peers).length,
       }));
 
       console.table(ngList);
@@ -43,293 +175,117 @@ export async function listNg (params) {
   }
 }
 
-export async function getNg (params) {
-  const [networkGroupIdOrLabel] = params.args;
-  const { org: orgaIdOrName, format } = params.options;
-  const ownerId = await NetworkGroup.getOwnerId(orgaIdOrName);
-  const networkGroupId = await NetworkGroup.getId(ownerId, networkGroupIdOrLabel);
-  const result = await ngApi.getNetworkGroup({ ownerId, networkGroupId }).then(sendToApi);
-  Logger.debug(`Received from API: ${JSON.stringify(result, null, 2)}`);
+/** Print a Network Group, a member or a peer
+ * @param {Object} params
+ * @param {string} params.args[0] ID or label of the Network Group, a member or a peer
+ * @param {string} params.options.org Organisation ID or name
+ * @param {string} params.options.format Output format
+ */
+export async function printNgOrRessource (params) {
+  const [IdOrLabel] = params.args;
+  const { org, format } = params.options;
+
+  const found = await NG.getNgOrRessource(IdOrLabel, org);
+
+  switch (found.type) {
+    case 'ng': {
+      printNG(found.item, format);
+      break;
+    }
+    case 'member': {
+      printMember(found.item, format);
+      break;
+    }
+    case 'peer': {
+      printPeer(found.item, format);
+      break;
+    }
+  }
+}
+
+/** Print a Network Group
+ * @param {Object} ng
+ * @param {string} format Output format
+ * @private
+ */
+function printNG (ng, format) {
 
   switch (format) {
     case 'json': {
-      Logger.println(JSON.stringify(result, null, 2));
+      Logger.printJson(ng);
       break;
     }
     case 'human':
     default: {
       const ngData = {
-        id: result.id,
-        label: result.label,
-        description: result.description,
-        network: `${result.networkIp}`,
-        'members/peers': `${Object.keys(result.members).length}/${Object.keys(result.peers).length}`,
+        id: ng.id,
+        label: ng.label,
+        description: ng.description,
+        network: `${ng.networkIp}`,
+        'members/peers': `${Object.keys(ng.members).length}/${Object.keys(ng.peers).length}`,
       };
 
       console.table(ngData);
-      Logger.println();
 
-      Logger.println('Members:');
-      const members = Object.entries(result.members).map(([id, member]) => ({ domainName: member.domainName }));
-      console.table(members);
-
-      Logger.println('Peers:');
-      const peers = Object.entries(result.peers).map(([id, peer]) => ({ parent: peer.parentMember, id: peer.id, label: peer.label, IP: peer.endpoint.ngTerm.host, publicKey: peer.publicKey }));
-      console.table(peers);
-    }
-  }
-}
-
-export async function createNg (params) {
-  const [label] = params.args;
-  const { org: orgaIdOrName, description, tags, format, 'members-ids': members_ids } = params.options;
-
-  // We generate and set a unique ID to know it before the API call and reuse it later
-  const ngId = `ng_${uuidv4()}`;
-  const ownerId = await NetworkGroup.getOwnerId(orgaIdOrName);
-
-  let members = [];
-  if (members_ids) {
-    // For each member ID, we add a type depending on the ID format and a domain name
-    members = members_ids.map((id) => {
-
-      const domainName = `${id}.m.${ngId}.ng.clever-cloud.com`;
-      const prefixToType = {
-        app_: 'application',
-        addon_: 'addon',
-        external_: 'external',
-      };
-
-      const prefix = Object.keys(prefixToType)
-        .find((p) => id.startsWith(p));
-
-      let type = prefixToType[prefix];
-      if (!type) {
-        // throw new Error(`Member ID ${Formatter.formatString(id)} is not a valid format. It should start with 'app_', 'addon_' or 'external_'`);
-        type = 'addon';
+      const members = Object.entries(ng.members)
+        .sort((a, b) => a[1].domainName.localeCompare(b[1].domainName))
+        .map(([id, member]) => ({
+          'Domain name': member.domainName,
+          Peers: member.peers.length,
+        }));
+      if (members.length) {
+        Logger.println(`${colors.bold(' • Members:')}`);
+        console.table(members);
       }
-      return { id, domainName, type };
-    });
+
+      const peers = Object.entries(ng.peers)
+        .sort((a, b) => a[1].parentMember.localeCompare(b[1].parentMember))
+        .map(([id, peer]) => peerToPrint(peer));
+      if (peers.length) {
+        Logger.println(`${colors.bold(' • Peers:')}`);
+        console.table(peers);
+      }
+    }
   }
-
-  const body = { ownerId: ownerId, id: ngId, label, description, tags, members };
-  Logger.info(`Creating Network Group ${Formatter.formatString(label)} (${Formatter.formatId(ngId)}) from owner ${Formatter.formatString(ownerId)}`);
-  Logger.info(`${members.length} members will be added: ${members.map((m) => Formatter.formatString(m.id)).join(', ')}`);
-  Logger.debug(`Sending body: ${JSON.stringify(body, null, 2)}`);
-  await ngApi.createNetworkGroup({ ownerId }, body).then(sendToApi);
-
-  // We poll until NG is created to display the result
-  const polling = setInterval(async () => {
-    const ng = await ngApi.getNetworkGroup({ ownerId, networkGroupId: ngId }).then(sendToApi).catch(() => {
-      Logger.error(`Error while fetching Network Group ${Formatter.formatString(ngId)}`);
-      process.exit(1);
-    });
-
-    Logger.debug(`Received from API during polling: ${JSON.stringify(ng, null, 2)}`);
-
-    if (ng.label === label) {
-      clearInterval(polling);
-      clearTimeout(timeout);
-
-      const message = format === 'json'
-        ? JSON.stringify(ng, null, 2)
-        : `Network Group ${Formatter.formatString(label)} (${Formatter.formatId(ngId)}) has been created successfully`;
-
-      Logger.println(message);
-    }
-  }, INTERVAL);
-
-  const timeout = setTimeout(() => {
-    clearInterval(polling);
-    Logger.error('Network group creation has been launched asynchronously but timed out. Check the status later with `clever ng list`.');
-  }, TIMEOUT);
 }
 
-export async function deleteNg (params) {
-  const [networkGroupIdOrLabel] = params.args;
-  const { org: orgaIdOrName } = params.options;
-
-  const ownerId = await NetworkGroup.getOwnerId(orgaIdOrName);
-  const networkGroupId = await NetworkGroup.getId(ownerId, networkGroupIdOrLabel);
-
-  Logger.info(`Deleting Network Group ${Formatter.formatString(networkGroupId)} from owner ${Formatter.formatString(ownerId)}`);
-  await ngApi.deleteNetworkGroup({ ownerId, networkGroupId }).then(sendToApi);
-
-  // We poll until NG is deleted to display the result
-  const polling = setInterval(async () => {
-    const ngList = await ngApi.listNetworkGroups({ ownerId }).then(sendToApi);
-    const ng = ngList.find((ng) => ng.id === networkGroupId);
-
-    Logger.debug(`Received from API during polling: ${JSON.stringify(ng, null, 2)}`);
-
-    if (!ng) {
-      clearInterval(polling);
-      clearTimeout(timeout);
-
-      Logger.println(`Network Group ${Formatter.formatString(networkGroupId)} has been deleted successfully`);
-    }
-  }, INTERVAL);
-
-  const timeout = setTimeout(() => {
-    clearInterval(polling);
-    Logger.error('Network group deletion has been launched asynchronously but timed out. Check the status later with `clever ng list`.');
-  }, TIMEOUT);
-}
-
-export async function listMembers (params) {
-  const [networkGroupIdOrLabel] = params.args;
-  const { org: orgaIdOrName, 'natural-name': naturalName, format } = params.options;
-
-  const ownerId = await NetworkGroup.getOwnerId(orgaIdOrName);
-  const networkGroupId = await NetworkGroup.getId(ownerId, networkGroupIdOrLabel);
-
-  Logger.info(`Listing members from Network Group '${networkGroupId}'`);
-  Logger.info(naturalName);
-
-  const result = await ngApi.listNetworkGroupMembers({ ownerId, networkGroupId }).then(sendToApi);
-  Logger.debug(`Received from API: ${JSON.stringify(result, null, 2)}`);
-
+/** Print a Network Group member
+ * @param {Object} member
+ * @param {string} format Output format
+ */
+function printMember (member, format) {
   switch (format) {
     case 'json': {
-      Logger.println(JSON.stringify(result, null, 2));
+      Logger.println(JSON.stringify(member, null, 2));
       break;
     }
     case 'human':
     default: {
-      if (result.length === 0) {
-        Logger.println(`No member found. You can add one with ${Formatter.formatCommand('clever networkgroups members add')}.`);
-      }
-      else {
-        const domainNames = result.map((item) => ({ domainName: item.domainName }));
-        console.table(domainNames);
-      }
-    }
-  }
-}
+      const itemsToPrint = [member]
+        .map((item) => ({
+          'Domain name': item.domainName,
+          Peers: item.peers.length,
+        }));
+      console.table(itemsToPrint);
 
-export async function getMember (params) {
-  const [networkGroupIdOrLabel, memberId] = params.args;
-  const { org: orgaIdOrName, 'natural-name': naturalName, format } = params.options;
-
-  const ownerId = await NetworkGroup.getOwnerId(orgaIdOrName);
-  const networkGroupId = await NetworkGroup.getId(ownerId, networkGroupIdOrLabel);
-
-  Logger.info(`Getting details for member ${Formatter.formatString(memberId)} in Network Group ${Formatter.formatString(networkGroupId)}`);
-  Logger.info(`Natural name: ${naturalName}`);
-  const result = await ngApi.getNetworkGroupMember({ ownerId, networkGroupId, memberId: memberId }).then(sendToApi);
-  Logger.debug(`Received from API: ${JSON.stringify(result, null, 2)}`);
-
-  switch (format) {
-    case 'json': {
-      Logger.println(JSON.stringify(result, null, 2));
-      break;
-    }
-    case 'human':
-    default: {
-      const domainName = [result].map((item) => ({ domainName: item.domainName }));
-      console.table(domainName);
-    }
-  }
-}
-
-export async function addMember (params) {
-  const [networkGroupIdOrLabel, memberId] = params.args;
-  const { org: orgaIdOrName, label } = params.options;
-
-  const ownerId = await NetworkGroup.getOwnerId(orgaIdOrName);
-  const networkGroupId = await NetworkGroup.getId(ownerId, networkGroupIdOrLabel);
-  const domainName = `${memberId}.m.${networkGroupId}.ng.clever-cloud.com`;
-
-  let type = null;
-  if (memberId.startsWith('app_')) {
-    type = 'application';
-  }
-  else if (memberId.startsWith('addon_')) {
-    type = 'addon';
-  }
-  else if (memberId.startsWith('external_')) {
-    type = 'external';
-  }
-  else {
-    // throw new Error(`Member ID ${Formatter.formatString(memberId)} is not a valid format. It should start with 'app_', 'addon_' or 'external_'`);
-    type = 'addon';
-  }
-
-  const body = { id: memberId, label, domainName: domainName, type };
-  Logger.debug('Sending body: ' + JSON.stringify(body, null, 2));
-  await ngApi.createNetworkGroupMember({ ownerId, networkGroupId }, body).then(sendToApi);
-
-  Logger.println(`Successfully added member ${Formatter.formatString(memberId)} to Network Group ${Formatter.formatString(networkGroupId)}.`);
-}
-
-export async function removeMember (params) {
-  const [networkGroupIdOrLabel, memberId] = params.args;
-  const { org: orgaIdOrName } = params.options;
-
-  const ownerId = await NetworkGroup.getOwnerId(orgaIdOrName);
-  const networkGroupId = await NetworkGroup.getId(ownerId, networkGroupIdOrLabel);
-
-  await ngApi.deleteNetworkGroupMember({ ownerId, networkGroupId, memberId }).then(sendToApi);
-
-  Logger.println(`Successfully removed member ${Formatter.formatString(memberId)} from Network Group ${Formatter.formatString(networkGroupId)}.`);
-}
-
-export async function listPeers (params) {
-  const [networkGroupIdOrLabel] = params.args;
-  const { org: orgaIdOrName, format } = params.options;
-
-  const ownerId = await NetworkGroup.getOwnerId(orgaIdOrName);
-  const networkGroupId = await NetworkGroup.getId(ownerId, networkGroupIdOrLabel);
-
-  Logger.info(`Listing peers from Network Group ${Formatter.formatString(networkGroupId)}`);
-  const result = await ngApi.listNetworkGroupPeers({ ownerId, networkGroupId }).then(sendToApi);
-  Logger.debug(`Received from API: ${JSON.stringify(result, null, 2)}`);
-
-  switch (format) {
-    case 'json': {
-      Logger.println(JSON.stringify(result, null, 2));
-      break;
-    }
-    case 'human':
-    default: {
-      if (result.length === 0) {
-        Logger.println(`No peer found. You can add an external one with ${Formatter.formatCommand('clever networkgroups peers add-external')}.`);
-      }
-      else {
-        for (const peer of result) {
-          if (peer.endpoint.ngTerm && peer.endpoint.publicTerm) {
-            peer.ngTerm = `${peer.endpoint.ngTerm.host}:${peer.endpoint.ngTerm.port}`;
-            peer.publicTerm = `${peer.endpoint.publicTerm.host}:${peer.endpoint.publicTerm.port}`;
-            delete peer.endpoint;
-          }
-          else {
-            peer.ngIp = peer.endpoint.ngIp;
-            peer.type = peer.endpoint.type;
-            delete peer.endpoint;
-          }
-
-          Logger.println();
-          Logger.println(`Peer ${Formatter.formatString(peer.id)}:`);
-          delete peer.id;
-
-          console.table(peer);
-        }
+      const peers = member.peers
+        .sort((a, b) => a.parentMember.localeCompare(b.parentMember))
+        .map((peer) => peerToPrint(peer));
+      if (peers.length) {
+        Logger.println('Peers:');
+        console.table(peers);
       }
     }
   }
 }
 
-export async function getPeer (params) {
-  const [networkGroupIdOrLabel, peerId] = params.args;
-  const { org: orgaIdOrName, format } = params.options;
-
-  const ownerId = await NetworkGroup.getOwnerId(orgaIdOrName);
-  const networkGroupId = await NetworkGroup.getId(ownerId, networkGroupIdOrLabel);
-
-  Logger.info(`Getting details for peer ${Formatter.formatString(peerId)} in Network Group ${Formatter.formatString(networkGroupId)}`);
-  const peer = await ngApi.getNetworkGroupPeer({ ownerId, networkGroupId, peerId }).then(sendToApi);
-  Logger.debug(`Received from API: ${JSON.stringify(peer, null, 2)}`);
-
+/** Print a Network Group peer
+ * @param {Object} peer
+ * @param {string} format Output format
+ * @param {boolean} full Print full peer details
+ * @private
+ */
+function printPeer (peer, format, full = false) {
   switch (format) {
     case 'json': {
       Logger.println(JSON.stringify(peer, null, 2));
@@ -337,79 +293,35 @@ export async function getPeer (params) {
     }
     case 'human':
     default: {
-      // We keep only id, label, 'host:ip': `${endpoint.ngTerm.host}:${endpoint.ngTerm.port}`, type
-      const peerList = { id: peer.id, label: peer.label, 'host:ip': `${peer.endpoint.ngTerm.host}:${peer.endpoint.ngTerm.port}`, type: peer.type };
-      console.table([peerList]);
+      console.table(peerToPrint(peer, full));
     }
   }
 }
 
-export async function addExternalPeer (params) {
-  const { org: orgaIdOrName, format, 'public-key': publicKey } = params.options;
-  const [networkGroupIdOrLabel, label, role, parent] = params.args;
+/** Print a Network Group peer
+ * @param {Object} peer
+ * @param {boolean} full Print more peer details
+ * @private
+ */
+function peerToPrint (peer, full = false) {
+  let peerToPrint = {
+    'Parent Member': peer.parentMember,
+    ID: peer.id,
+    Label: peer.label,
+    Type: peer.type,
+  };
 
-  const ownerId = await NetworkGroup.getOwnerId(orgaIdOrName);
-  const networkGroupId = await NetworkGroup.getId(ownerId, networkGroupIdOrLabel);
-
-  const pk = publicKey || randomBytes(31).toString('base64').replace(/\//g, '-').replace(/\+/g, '_').replace(/=/g, '');
-  const body = { peerRole: role, publicKey: pk, label, parentMember: parent };
-  // Optional parameters: ip, port, hostname, parentEvent
-  Logger.info(`Adding external peer to Network Group ${Formatter.formatString(networkGroupId)}`);
-  Logger.debug('Sending body: ' + JSON.stringify(body, null, 2));
-  const result = await ngApi.createNetworkGroupExternalPeer({ ownerId, networkGroupId }, body).then(sendToApi);
-  Logger.debug(`Received from API: ${JSON.stringify(result, null, 2)}`);
-
-  switch (format) {
-    case 'json': {
-      Logger.println(JSON.stringify(result, null, 2));
-      break;
-    }
-    case 'human':
-    default: {
-      Logger.println(`External peer ${Formatter.formatString(result.peerId)} have been added to Network Group ${Formatter.formatString(networkGroupId)}`);
-    }
+  if (full) {
+    peerToPrint = {
+      ...peerToPrint,
+      [peer.endpoint.ngTerm ? 'Host:IP' : 'Host']: peer.endpoint.ngTerm
+        ? `${peer.endpoint.ngTerm.host}:${peer.endpoint.ngTerm.port}`
+        : peer.endpoint.ngIp,
+      ...(peer.endpoint.publicTerm && {
+        'Public Term': `${peer.endpoint.publicTerm.host}:${peer.endpoint.publicTerm.port}`,
+      }),
+      'Public Key': peer.publicKey,
+    };
   }
-}
-
-export async function removeExternalPeer (params) {
-  const { org: orgaIdOrName } = params.options;
-  const [networkGroupIdOrLabel, peerId] = params.args;
-
-  const ownerId = await NetworkGroup.getOwnerId(orgaIdOrName);
-  const networkGroupId = await NetworkGroup.getId(ownerId, networkGroupIdOrLabel);
-
-  Logger.info(`Removing external peer ${Formatter.formatString(peerId)} from Network Group ${Formatter.formatString(networkGroupId)}`);
-  await ngApi.deleteNetworkGroupExternalPeer({ ownerId, networkGroupId, peerId }).then(sendToApi);
-
-  Logger.println(`External peer ${Formatter.formatString(peerId)} have been removed from Network Group ${Formatter.formatString(networkGroupId)}`);
-}
-
-export async function getExternalPeerConfig (params) {
-  const { org: orgaIdOrName, format } = params.options;
-  const [networkGroupIdOrLabel, peerId] = params.args;
-
-  const ownerId = await NetworkGroup.getOwnerId(orgaIdOrName);
-  const networkGroupId = await NetworkGroup.getId(ownerId, networkGroupIdOrLabel);
-
-  Logger.info(`Getting external peer config ${Formatter.formatString(peerId)} from Network Group ${Formatter.formatString(networkGroupId)}`);
-  const result = await ngApi.getNetworkGroupWireGuardConfiguration({ ownerId, networkGroupId, peerId }).then(sendToApi);
-  Logger.debug(`Received from API: ${JSON.stringify(result, null, 2)}`);
-
-  const peerToPrint = result.peers.find((peer) => peer.peer_id === peerId);
-  result.configuration = Buffer.from(result.configuration, 'base64').toString().replace(/\n+/g, '\n');
-
-  switch (format) {
-    case 'json': {
-      Logger.println(JSON.stringify(result, null, 2));
-      break;
-    }
-    case 'human':
-    default: {
-      Logger.println(`Peer ${Formatter.formatString(peerId)}:`);
-      Logger.println(` - ${peerToPrint.peer_id} (${peerToPrint.peer_ip})`);
-      Logger.println(` - ${peerToPrint.peer_hostname}`);
-      Logger.println();
-      Logger.println(`Configuration: ${result.configuration}`);
-    }
-  }
+  return peerToPrint;
 }
