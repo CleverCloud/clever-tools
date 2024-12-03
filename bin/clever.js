@@ -743,7 +743,7 @@ function run () {
 
   // OPEN COMMAND
   const openCommand = cliparse.command('open', {
-    description: 'Open an application in your browser',
+    description: 'Open an application in the Console',
     options: [opts.alias, opts.appIdOrName],
   }, open.open);
 
@@ -754,9 +754,13 @@ function run () {
   }, consoleModule.openConsole);
 
   // PROFILE COMMAND
+  const profileOpenCommand = cliparse.command('open', {
+    description: 'Open your profile in the Console',
+  }, profile.openProfile);
   const profileCommand = cliparse.command('profile', {
     description: 'Display the profile of the current user',
     options: [opts.humanJsonOutputFormat],
+    commands: [profileOpenCommand],
   }, profile.profile);
 
   // PUBLISHED CONFIG COMMANDS
