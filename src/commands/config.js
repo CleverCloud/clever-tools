@@ -25,10 +25,21 @@ export async function set (params) {
   const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
   const config = ApplicationConfiguration.getById(configurationName);
 
+  let result = null;
   if (config != null) {
-    const app = await application.update({ id: ownerId, appId }, { [config.name]: ApplicationConfiguration.parse(config, configurationValue) }).then(sendToApi);
-
-    ApplicationConfiguration.printById(app, configurationName);
+    if (configurationName === 'task') {
+      const upperValue = configurationValue.toUpperCase();
+      if (upperValue === 'TASK' || upperValue === 'REGULAR') {
+        result = await application.update({ id: ownerId, appId }, { instanceLifetime: upperValue }).then(sendToApi);
+      }
+      else {
+        throw new Error('Invalid value for task configuration: must be TASK or REGULAR');
+      }
+    }
+    else {
+      result = await application.update({ id: ownerId, appId }, { [config.name]: ApplicationConfiguration.parse(config, configurationValue) }).then(sendToApi);
+    }
+    ApplicationConfiguration.printById(result, configurationName);
   }
 }
 
@@ -39,6 +50,15 @@ export async function update (params) {
 
   if (Object.keys(options).length === 0) {
     throw new Error('No configuration to update');
+  }
+
+  const { task } = options;
+  if (task != null) {
+    const result = await application.update({ id: ownerId, appId }, { instanceLifetime: task }).then(sendToApi);
+
+    // We delete the task key to avoid conflicts
+    delete options.task;
+    ApplicationConfiguration.printById(result, 'task');
   }
 
   const app = await application.update({ id: ownerId, appId }, options).then(sendToApi);
