@@ -1,5 +1,4 @@
 import cliparse from 'cliparse';
-
 import * as Application from './models/application.js';
 import ISO8601 from 'iso8601-duration';
 import Duration from 'duration-js';
@@ -177,27 +176,24 @@ export function durationInSeconds (durationStr = '') {
 }
 
 // Network groups parsers
-const ngIdRegex = /^ng_[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-
 export function ngIdOrLabel (string) {
-  if (string.match(ngIdRegex)) {
+  if (string.startsWith('ng_')) {
     return cliparse.parsers.success({ ngId: string });
   }
   return cliparse.parsers.success({ ngLabel: string });
 }
 
-export function ngMemberType (string) {
-  const possible = ['application', 'addon', 'external'];
-  if (possible.includes(string)) {
-    return cliparse.parsers.success(string);
-  }
-  return cliparse.parsers.error(`Invalid member type '${string}'. Should be in ${JSON.stringify(possible)}`);
-}
+const externalIdRegex = /^external_[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
-export function ngPeerRole (string) {
-  const possible = ['client', 'server'];
-  if (possible.includes(string)) {
-    return cliparse.parsers.success(string);
+export function ngRessourceType (string) {
+  if (string.startsWith('ng_')) {
+    return cliparse.parsers.success({ ngId: string });
   }
-  return cliparse.parsers.error(`Invalid peer role '${string}'. Should be in ${JSON.stringify(possible)}`);
+  if (string.startsWith('app_') || string.startsWith('addon_') || string.startsWith('external_')) {
+    return cliparse.parsers.success({ memberId: string });
+  }
+  if (string.match(externalIdRegex)) {
+    return cliparse.parsers.success({ peerId: string });
+  }
+  return cliparse.parsers.success({ ngRessourceLabel: string });
 }
