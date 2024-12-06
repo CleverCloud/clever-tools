@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import childProcess from 'node:child_process';
 
 import _ from 'lodash';
 import git from 'isomorphic-git';
@@ -125,6 +126,42 @@ export async function isShallow () {
   try {
     await fs.promises.access(path.join(dir, '.git', 'shallow'));
     return true;
+  }
+  catch (e) {
+    return false;
+  }
+}
+
+/**
+ * Check if the current directory is a git repository
+ * @returns {boolean}
+ * @public
+ */
+export function isGitRepo () {
+  try {
+    childProcess.execSync('git rev-parse --is-inside-work-tree', {
+      stdio: 'ignore',
+      stderr: 'ignore',
+    });
+    return true;
+  }
+  catch (e) {
+    return false;
+  }
+}
+
+/**
+ * Check if the current git working directory is clean
+ * @returns {boolean}
+ * @public
+ */
+export function isGitWorkingDirectoryClean () {
+  try {
+    const status = childProcess.execSync('git status --porcelain=v1', {
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'ignore'],
+    });
+    return status.trim() === '';
   }
   catch (e) {
     return false;
