@@ -1,6 +1,6 @@
 import * as Application from '../models/application.js';
 import { Logger } from '../logger.js';
-
+import colors from 'colors/safe.js';
 export async function link (params) {
   const [app] = params.args;
   const { org: orgaIdOrName, alias } = params.options;
@@ -11,5 +11,6 @@ export async function link (params) {
 
   await Application.linkRepo(app, orgaIdOrName, alias);
 
-  Logger.println('Your application has been successfully linked!');
+  const linkedMessage = alias ? ` to local alias ${colors.green(alias)}` : '';
+  Logger.println(colors.bold.green('✓'), `Application ${colors.green(app.app_name || app.app_id)} has been successfully linked${linkedMessage}!`);
 }
