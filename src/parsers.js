@@ -1,5 +1,4 @@
 import cliparse from 'cliparse';
-
 import * as Application from './models/application.js';
 import ISO8601 from 'iso8601-duration';
 import Duration from 'duration-js';
@@ -174,4 +173,27 @@ export function durationInSeconds (durationStr = '') {
 
     return cliparse.parsers.success(n);
   }
+}
+
+// Network groups parsers
+export function ngIdOrLabel (string) {
+  if (string.startsWith('ng_')) {
+    return cliparse.parsers.success({ ngId: string });
+  }
+  return cliparse.parsers.success({ ngLabel: string });
+}
+
+const externalIdRegex = /^external_[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+export function ngRessourceType (string) {
+  if (string.startsWith('ng_')) {
+    return cliparse.parsers.success({ ngId: string });
+  }
+  if (string.startsWith('app_') || string.startsWith('addon_') || string.startsWith('external_')) {
+    return cliparse.parsers.success({ memberId: string });
+  }
+  if (string.match(externalIdRegex)) {
+    return cliparse.parsers.success({ peerId: string });
+  }
+  return cliparse.parsers.success({ ngRessourceLabel: string });
 }
