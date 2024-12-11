@@ -11,6 +11,10 @@ export default defineConfig({
     format: 'cjs',
     sourcemap: 'inline',
   },
+  // This dependency is only pulled in when building on MacOS (see https://github.com/CleverCloud/clever-tools/issues/864)
+  // It's a binary file and it shouldn't be parsed by rollup, only copied.
+  // We exclude it from the bundle because it's a dependency that is pulled by `curlconverter` but we don't actually need it.
+  external: ['fsevents'],
   plugins: [
     {
       transform (code, id) {
