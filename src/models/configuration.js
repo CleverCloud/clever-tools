@@ -133,5 +133,9 @@ export const conf = env.getOrElseAll({
   CONFIGURATION_FILE: getConfigPath(CONFIG_FILES.MAIN),
   EXPERIMENTAL_FEATURES_FILE: getConfigPath(CONFIG_FILES.EXPERIMENTAL_FEATURES_FILE),
 
+  API_DOC_URL: 'https://developers.clever-cloud.com/api',
+  DOC_URL: 'https://developers.clever-cloud.com/doc',
+  CONSOLE_URL: 'https://console.clever-cloud.com',
   CONSOLE_TOKEN_URL: 'https://console.clever-cloud.com/cli-oauth',
+  GOTO_URL: 'https://console.clever-cloud.com/goto',
 });

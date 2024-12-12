@@ -16,11 +16,11 @@ async function loadTokens () {
 }
 
 function printCleverCurlHelp () {
-  const apiDocUrlv2 = 'https://developers.clever-cloud.com/api/v2/';
-  const apiDocUrlv4 = 'https://developers.clever-cloud.com/api/v4/';
+  const apiDocUrlv2 = `${conf.API_DOC_URL}/v2/`;
+  const apiDocUrlv4 = `${conf.API_DOC_URL}/v4/`;
 
   Logger.println(`Usage: clever curl
-Query Clever Cloud's API using Clever Tools credentials. For example: 
+Query Clever Cloud's API using Clever Tools credentials. For example:
 
   clever curl ${conf.API_HOST}/v2/self
   clever curl ${conf.API_HOST}/v2/summary
@@ -28,7 +28,7 @@ Query Clever Cloud's API using Clever Tools credentials. For example:
   clever curl ${conf.API_HOST}/v2/organisations/<ORGANISATION_ID>/applications | jq '.[].id'
   clever curl ${conf.API_HOST}/v4/billing/organisations/<ORGANISATION_ID>/<INVOICE_NUMBER>.pdf > invoice.pdf
 
-Our API documentation is available here : 
+Our API documentation is available here :
 
   ${apiDocUrlv2}
   ${apiDocUrlv4}`);
