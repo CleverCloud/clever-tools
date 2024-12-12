@@ -1,7 +1,6 @@
 import { Logger } from '../logger.js';
 import { addOauthHeader } from '@clevercloud/client/esm/oauth.js';
-import { conf, loadOAuthConf } from '../models/configuration.js';
-import { execWarpscript } from '@clevercloud/client/esm/request-warp10.superagent.js';
+import { conf, loadOAuthConf } from './configuration.js';
 import { prefixUrl } from '@clevercloud/client/esm/prefix-url.js';
 import { request } from '@clevercloud/client/esm/request.fetch.js';
 import { subtle as cryptoSuble } from 'node:crypto';
@@ -45,12 +44,6 @@ export function processError (error) {
     throw new Error('The connection to the Clever Cloud API was closed abruptly, please try again.', { cause: error });
   }
   throw error;
-}
-
-export function sendToWarp10 (requestParams) {
-  return Promise.resolve(requestParams)
-    .then(prefixUrl(conf.WARP_10_EXEC_URL))
-    .then((requestParams) => execWarpscript(requestParams, { retry: 1 }));
 }
 
 export async function getHostAndTokens () {

@@ -123,11 +123,6 @@ export async function setFeature (feature, value) {
 
 export const conf = env.getOrElseAll({
   API_HOST: 'https://api.clever-cloud.com',
-  // API_HOST: 'https://ccapi-preprod.cleverapps.io',
-  LOG_WS_URL: 'wss://api.clever-cloud.com/v2/logs/logs-socket/<%- appId %>?since=<%- timestamp %>',
-  LOG_HTTP_URL: 'https://api.clever-cloud.com/v2/logs/<%- appId %>',
-  EVENT_URL: 'wss://api.clever-cloud.com/v2/events/event-socket',
-  WARP_10_EXEC_URL: 'https://c1-warp10-clevercloud-customers.services.clever-cloud.com/api/v0/exec',
   // the disclosure of these tokens is not considered as a vulnerability. Do not report this to our security service.
   OAUTH_CONSUMER_KEY: 'T5nFjKeHH4AIlEveuGhB5S3xg8T19e',
   OAUTH_CONSUMER_SECRET: 'MgVMqTr6fWlf2M0tkC2MXOnhfqBWDT',
@@ -136,8 +131,6 @@ export const conf = env.getOrElseAll({
   CONFIGURATION_FILE: getConfigPath(CONFIG_FILES.MAIN),
   EXPERIMENTAL_FEATURES_FILE: getConfigPath(CONFIG_FILES.EXPERIMENTAL_FEATURES_FILE),
   CONSOLE_TOKEN_URL: 'https://console.clever-cloud.com/cli-oauth',
-  // CONSOLE_TOKEN_URL: 'https://next-console.cleverapps.io/cli-oauth',
 
-  CLEVER_CONFIGURATION_DIR: path.resolve('.', 'clevercloud'),
   APP_CONFIGURATION_FILE: path.resolve('.', '.clever.json'),
 });
