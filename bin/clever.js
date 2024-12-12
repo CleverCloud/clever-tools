@@ -47,6 +47,7 @@ import * as ng from '../src/commands/ng.js';
 import * as notifyEmail from '../src/commands/notify-email.js';
 import * as open from '../src/commands/open.js';
 import * as consoleModule from '../src/commands/console.js';
+import * as otoroshi from '../src/commands/otoroshi.js';
 import * as profile from '../src/commands/profile.js';
 import * as publishedConfig from '../src/commands/published-config.js';
 import * as restart from '../src/commands/restart.js';
@@ -860,6 +861,27 @@ async function run () {
     options: [opts.alias, opts.appIdOrName],
   }, open.open);
 
+  // OTOROSHI COMMAND
+  const otoroshiLinkCommand = cliparse.command('link', {
+    description: 'Link an application to an Otoroshi service',
+    args: [args.appIdOrName],
+  }, otoroshi.link);
+  const otoroshiGetCommand = cliparse.command('get', {
+    description: 'Get information about an Otoroshi services',
+    args: [args.addonIdOrName],
+    options: [opts.humanJsonOutputFormat],
+  }, otoroshi.get);
+  const otoroshiGetRoutesCommand = cliparse.command('get-routes', {
+    description: 'Get routes from an Otoroshi service',
+    args: [args.addonIdOrName],
+    options: [opts.humanJsonOutputFormat],
+  }, otoroshi.getRoutes);
+  const otoroshiCommand = cliparse.command('otoroshi', {
+    description: 'Manage Clever Otoroshi services',
+    privateOptions: [opts.humanJsonOutputFormat],
+    commands: [otoroshiGetCommand, otoroshiGetRoutesCommand, otoroshiLinkCommand],
+  }, otoroshi.list);
+
   // CONSOLE COMMAND
   const consoleCommand = cliparse.command('console', {
     description: 'Open an application in the Console',
@@ -1048,6 +1070,7 @@ async function run () {
     logsCommand,
     makeDefaultCommand,
     openCommand,
+    otoroshiCommand,
     consoleCommand,
     profileCommand,
     publishedConfigCommands,
