@@ -123,14 +123,15 @@ export async function setFeature (feature, value) {
 
 export const conf = env.getOrElseAll({
   API_HOST: 'https://api.clever-cloud.com',
+  SSH_GATEWAY: 'ssh@sshgateway-clevercloud-customers.services.clever-cloud.com',
+
   // the disclosure of these tokens is not considered as a vulnerability. Do not report this to our security service.
   OAUTH_CONSUMER_KEY: 'T5nFjKeHH4AIlEveuGhB5S3xg8T19e',
   OAUTH_CONSUMER_SECRET: 'MgVMqTr6fWlf2M0tkC2MXOnhfqBWDT',
-  SSH_GATEWAY: 'ssh@sshgateway-clevercloud-customers.services.clever-cloud.com',
-
-  CONFIGURATION_FILE: getConfigPath(CONFIG_FILES.MAIN),
-  EXPERIMENTAL_FEATURES_FILE: getConfigPath(CONFIG_FILES.EXPERIMENTAL_FEATURES_FILE),
-  CONSOLE_TOKEN_URL: 'https://console.clever-cloud.com/cli-oauth',
 
   APP_CONFIGURATION_FILE: path.resolve('.', '.clever.json'),
+  CONFIGURATION_FILE: getConfigPath(CONFIG_FILES.MAIN),
+  EXPERIMENTAL_FEATURES_FILE: getConfigPath(CONFIG_FILES.EXPERIMENTAL_FEATURES_FILE),
+
+  CONSOLE_TOKEN_URL: 'https://console.clever-cloud.com/cli-oauth',
 });
