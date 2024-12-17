@@ -14,11 +14,19 @@ const CONFIG_FILES = {
   EXPERIMENTAL_FEATURES_FILE: 'clever-tools-experimental-features.json',
 };
 
-function getConfigPath (configFile) {
-  const configDir = (process.platform === 'win32')
+function getConfigDir () {
+  return (process.platform === 'win32')
     ? path.resolve(process.env.APPDATA, 'clever-cloud')
     : xdg.basedir.configPath('clever-cloud');
-  return path.resolve(configDir, configFile);
+}
+
+function getConfigPath (configFile) {
+  return path.resolve(getConfigDir(), configFile);
+}
+
+// Every function which need 'clever-cloud' directory, need to call it before
+async function ensureConfigDirExists () {
+  await mkdirp(getConfigDir(), { mode: 0o700 });
 }
 
 export async function loadOAuthConf () {
@@ -50,9 +58,8 @@ export async function loadOAuthConf () {
 
 export async function writeOAuthConf (oauthData) {
   Logger.debug('Write the tokens in the configuration file…');
-  const configDir = path.dirname(conf.CONFIGURATION_FILE);
   try {
-    await mkdirp(configDir, { mode: 0o700 });
+    await ensureConfigDirExists();
     await fs.writeFile(conf.CONFIGURATION_FILE, JSON.stringify(oauthData));
   }
   catch (error) {
@@ -79,6 +86,7 @@ export async function writeIdsCache (ids) {
   const cachePath = getConfigPath(CONFIG_FILES.IDS_CACHE);
   const idsJson = JSON.stringify(ids);
   try {
+    await ensureConfigDirExists();
     await fs.writeFile(cachePath, idsJson);
   }
   catch (error) {
@@ -105,6 +113,7 @@ export async function setFeature (feature, value) {
   const newFeatures = { ...currentFeatures, ...{ [feature]: value } };
 
   try {
+    await ensureConfigDirExists();
     await fs.writeFile(conf.EXPERIMENTAL_FEATURES_FILE, JSON.stringify(newFeatures, null, 2));
   }
   catch (error) {
