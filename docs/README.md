@@ -86,6 +86,7 @@ To get information about the current logged-in user (ID, name, email, 2FA activa
 
 ```
 clever profile
+clever profile open
 clever profile -F json
 ```
 
