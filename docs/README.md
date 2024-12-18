@@ -11,6 +11,7 @@ to ask for new features, enhancements or help us to provide them to our communit
 
 You'll find below the first commands to know to connect Clever Tools to your account, get its information and manage some options. Others are developed in dedicated pages:
 
+- [Materia KV](/docs/kv.md)
 - [Applications: configuration](/docs/applications-config.md)
 - [Applications: management](/docs/applications-management.md)
 - [Applications: deployment and lifecycle](/docs/applications-deployment-lifecycle.md)
@@ -92,5 +93,5 @@ clever profile -F json
 
 To use our public API, you need to be authenticated for most endpoints. If you're logged in through Clever Tools, there is a simple way to make any request you want: `clever curl`. It's `curl`, but in an authenticated context for Clever Cloud API.
 
-- [Clever Cloud public APIv2 documentation](https://developers.clever-cloud.com/api/v2/)
-- [Clever Cloud public APIv4 documentation](https://developers.clever-cloud.com/api/v4/)
+- [Clever Cloud public APIv2 documentation](https://www.clever-cloud.com/developers/api/v2/)
+- [Clever Cloud public APIv4 documentation](https://www.clever-cloud.com/developers/api/v4/)

@@ -56,7 +56,7 @@ Discover how to use Clever Tools through [our documentation](docs/).
 
 ## Examples
 
-Discover how to deploy many applications on Clever Cloud within [our guides](https://developers.clever-cloud.com/guides/).
+Discover how to deploy many applications on Clever Cloud within [our guides](https://www.clever-cloud.com/developers/guides/).
 
 ## How to send feedback?
 
