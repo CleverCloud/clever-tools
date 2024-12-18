@@ -1,6 +1,21 @@
 # clever-tools changelog
 
 
+## [3.11.0](https://github.com/CleverCloud/clever-tools/compare/3.10.1...3.11.0) (2024-12-18)
+
+
+### 🚀 Features
+
+* **features:** introduce `features` command ([5c370b3](https://github.com/CleverCloud/clever-tools/commit/5c370b3bdb0ad99509004491f9360f20c0a36632))
+* **kv:** introduce `kv` command ([70f8aba](https://github.com/CleverCloud/clever-tools/commit/70f8abafb4539c9587335ced87d5c414a012159e))
+* **profile:** open in the Console ([4ee9730](https://github.com/CleverCloud/clever-tools/commit/4ee97300db24de8d4c93acb79f2f92ef9066f5e2))
+
+
+### 🐛 Bug Fixes
+
+* **config:** directory creation on write ([05b97d6](https://github.com/CleverCloud/clever-tools/commit/05b97d6f9198c74e3c21ea9a632d52ff884e9799))
+* **rollup:** prevent build failure on MacOS ([8a6871f](https://github.com/CleverCloud/clever-tools/commit/8a6871ff4738f2442aa9f4c880a9a61abc7e78c9)), closes [#864](https://github.com/CleverCloud/clever-tools/issues/864)
+
 ## [3.10.1](https://github.com/CleverCloud/clever-tools/compare/3.10.0...3.10.1) (2024-11-29)
 
 
@@ -149,7 +164,7 @@
 
 ### 🐛 Bug Fixes
 
-* **addon:** add TLS param to MateriaDB KV connect info ([dcd01c1](https://github.com/CleverCloud/clever-tools/commit/dcd01c1ab2b0eb93a9ec9063d21f393216d95b4c))
+* **addon:** add TLS param to Materia KV connect info ([dcd01c1](https://github.com/CleverCloud/clever-tools/commit/dcd01c1ab2b0eb93a9ec9063d21f393216d95b4c))
 * **addon:** allow json format in new list subcommand ([cec0e85](https://github.com/CleverCloud/clever-tools/commit/cec0e8567286e1b56459fbc5e53da91b8ad7765b))
 * **logs:** add details about configuration for specific drains ([55054d4](https://github.com/CleverCloud/clever-tools/commit/55054d430c4b2bcec73cbfbd20fe9e63706c82fe))
 
@@ -172,7 +187,7 @@
 
 ### 🚀 Features
 
-* **addon:** enable materia kv ([341a3fa](https://github.com/CleverCloud/clever-tools/commit/341a3fa9b4d74d422750b6755c59dadeb5a584b1))
+* **addon:** enable Materia KV ([341a3fa](https://github.com/CleverCloud/clever-tools/commit/341a3fa9b4d74d422750b6755c59dadeb5a584b1))
 * **addon:** support JSON format when plotting an add-on list ([d01b3e0](https://github.com/CleverCloud/clever-tools/commit/d01b3e01db9097dad2e77347525a273732c7ffe9))
 * **backups:** support JSON format when plotting a backup list ([c51c028](https://github.com/CleverCloud/clever-tools/commit/c51c028b8d25fd25d2bac91e408c63ae3acdfea9))
 * **create:** add the ability to create an app as a task ([c217772](https://github.com/CleverCloud/clever-tools/commit/c217772638035cab0c6f26a75c250759ab5d0cdc))
