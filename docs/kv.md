@@ -1,6 +1,6 @@
 # Clever KV
 
-If you're using [Materia KV](https://developers.clever-cloud.com/doc/addons/materia-kv/), our next generation of key-value databases, serverless, distributed, synchronously-replicated, compatible with the Redis® protocol (and later DynamoDB, GraphQL), you can easily create an add-on with Clever Tools:
+If you're using [Materia KV](https://www.clever-cloud.com/developers/doc/addons/materia-kv/), our next generation of key-value databases, serverless, distributed, synchronously-replicated, compatible with the Redis® protocol (and later DynamoDB, GraphQL), you can easily create an add-on with Clever Tools:
 
 ```
 clever addon create kv ADDON_NAME

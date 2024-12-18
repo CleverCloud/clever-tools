@@ -11,7 +11,7 @@ export const EXPERIMENTAL_FEATURES = {
           clever kv myMateriaKV -o myOrg TTL myTempKey
           clever kv redis_xxxxx --org org_xxxxx PING
 
-      Learn more about Materia KV: https://developers.clever-cloud.com/doc/addons/materia-kv/
+      Learn more about Materia KV: https://www.clever-cloud.com/developers/doc/addons/materia-kv/
       `,
   },
 };

@@ -152,7 +152,7 @@ function displayAddon (format, addon, providerName, message) {
     otoroshi: {
       status: 'beta',
       postCreateInstructions: [
-        'Learn more about Otoroshi with LLM on Clever Cloud: https://developers.clever-cloud.com/doc/addons/otoroshi/',
+        `Learn more about Otoroshi with LLM on Clever Cloud: ${conf.DOC_URL}/addons/otoroshi/`,
       ].join('\n'),
     },
     'addon-pulsar': {
