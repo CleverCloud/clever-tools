@@ -9,13 +9,14 @@ clever addon create kv ADDON_NAME
 And immediately use it with `clever kv` command:
 
 ```bash
+clever features enable kv                # KV command is in testing stage
 clever kv ADDON_NAME_OR_ID PING          # It will answer PONG
 clever kv ADDON_NAME_OR_ID PING Hello    # It will answer Hello
 ```
 
 It helps you to inspect and interact with your Materia KV. Each is provided with environment variables about its host, port, and [Biscuit-based](https://biscuitsec.org) tokens, in multiple forms (to ensure compatibility with tools such those made for Redis®).
 
-[!Tip]
+> [!Tip]
 > Clever KV command is also compatible with Redis® on Clever Cloud add-ons.
 
 ## Commands
@@ -30,8 +31,8 @@ clever kv ADDON_NAME_OR_ID SET myKey myValue EX 120   # It will respond OK
 clever kv ADDON_NAME_OR_ID TTL myKey                  # It will respond (integer) the remaining time to live of the key in seconds
 ```
 
->[!Tip]
->You can get a list of all supported commands with `clever kv ADDON_NAME_OR_ID COMMANDS`
+> [!Tip]
+> You can get a list of all supported commands with `clever kv ADDON_NAME_OR_ID COMMANDS`
 
 You can pass the result of JSON stringified values to tools like `jq` to query them, for example:
 
