@@ -4,6 +4,7 @@
 import '../src/initial-setup.js';
 
 import cliparse from 'cliparse';
+import colors from 'colors/safe.js';
 import cliparseCommands from 'cliparse/src/command.js';
 import _sortBy from 'lodash/sortBy.js';
 
@@ -13,7 +14,9 @@ import * as Parsers from '../src/parsers.js';
 import { handleCommandPromise } from '../src/command-promise-handler.js';
 import * as Application from '../src/models/application.js';
 import { AVAILABLE_ZONES } from '../src/models/application.js';
+import { EXPERIMENTAL_FEATURES } from '../src/experimental-features.js';
 import { getExitOnOption, getOutputFormatOption, getSameCommitPolicyOption } from '../src/command-options.js';
+import { getFeatures } from '../src/models/configuration.js';
 
 import * as Addon from '../src/models/addon.js';
 import * as ApplicationConfiguration from '../src/models/application_configuration.js';
@@ -35,6 +38,7 @@ import * as domain from '../src/commands/domain.js';
 import * as drain from '../src/commands/drain.js';
 import * as env from '../src/commands/env.js';
 import * as features from '../src/commands/features.js';
+import * as kv from '../src/commands/kv.js';
 import * as link from '../src/commands/link.js';
 import * as login from '../src/commands/login.js';
 import * as logout from '../src/commands/logout.js';
@@ -75,10 +79,21 @@ cliparse.command = function (name, options, commandFunction) {
   });
 };
 
-function run () {
+// Add a yellow color and status tag to the description of an experimental command
+function colorizeExperimentalCommand (command, id) {
+  const status = EXPERIMENTAL_FEATURES[id].status;
+  command.description = colors.yellow(command.description + ' [' + status.toUpperCase() + ']');
+  return command;
+}
+
+async function run () {
 
   // ARGUMENTS
   const args = {
+    kvRawCommand: cliparse.argument('command', { description: 'The raw command to send to the Materia KV or Redis® add-on' }),
+    kvIdOrName: cliparse.argument('kv-id', {
+      description: 'Add-on/Real ID (or name, if unambiguous) of a Materia KV or Redis® add-on',
+    }),
     addonIdOrName: cliparse.argument('addon-id', {
       description: 'Add-on ID (or name, if unambiguous)',
       parser: Parsers.addonIdOrName,
@@ -694,6 +709,13 @@ function run () {
     commands: [enableFeatureCommand, disableFeatureCommand, listFeaturesCommand, infoFeaturesCommand],
   }, features.list);
 
+  // KV COMMAND
+  const kvRawCommand = cliparse.command('kv', {
+    description: 'Send a raw command to a Materia KV or Redis® add-on',
+    args: [args.kvIdOrName, args.kvRawCommand],
+    options: [opts.orgaIdOrName, opts.humanJsonOutputFormat],
+  }, kv.sendRawCommand);
+
   // LINK COMMAND
   const appLinkCommand = cliparse.command('link', {
     description: 'Link this repo to an existing application',
@@ -948,6 +970,13 @@ function run () {
     versionCommand,
     webhooksCommand,
   ];
+
+  // Add experimental features only if they are enabled through the configuration file
+  const featuresFromConf = await getFeatures();
+
+  if (featuresFromConf.kv) {
+    commands.push(colorizeExperimentalCommand(kvRawCommand, 'kv'));
+  }
 
   // CLI PARSER
   const cliParser = cliparse.cli({
