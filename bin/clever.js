@@ -44,6 +44,7 @@ import * as login from '../src/commands/login.js';
 import * as logout from '../src/commands/logout.js';
 import * as logs from '../src/commands/logs.js';
 import * as makeDefault from '../src/commands/makeDefault.js';
+import * as ng from '../src/commands/ng.js';
 import * as notifyEmail from '../src/commands/notify-email.js';
 import * as open from '../src/commands/open.js';
 import * as consoleModule from '../src/commands/console.js';
@@ -90,9 +91,33 @@ async function run () {
 
   // ARGUMENTS
   const args = {
-    kvRawCommand: cliparse.argument('command', { description: 'The raw command to send to the Materia KV or Redis® add-on' }),
+    kvRawCommand: cliparse.argument('command', {
+      description: 'The raw command to send to the Materia KV or Redis® add-on',
+    }),
     kvIdOrName: cliparse.argument('kv-id', {
       description: 'Add-on/Real ID (or name, if unambiguous) of a Materia KV or Redis® add-on',
+    }),
+    ngId: cliparse.argument('ng-id', {
+      description: 'The Network Group ID',
+    }),
+    ngLabel: cliparse.argument('ng-label', {
+      description: 'Network Group label, also used for DNS context',
+    }),
+    ngIdOrLabel: cliparse.argument('id-or-label', {
+      description: 'Network Group ID or label',
+      parser: Parsers.ngIdOrLabel,
+    }),
+    ngDescription: cliparse.argument('ng-description', {
+      description: 'Network Group description',
+    }),
+    ngAnyIdOrLabel: cliparse.argument('id-or-label', {
+
+      description: 'ID or Label of a Network group, a member or an (external) peer',
+      parser: Parsers.ngRessourceType,
+    }),
+    ngRessourceIdOrLabel: cliparse.argument('id-or-label', {
+      description: 'ID or Label of Network groups\'s member or (external) peer',
+      parser: Parsers.ngRessourceType,
     }),
     addonIdOrName: cliparse.argument('addon-id', {
       description: 'Add-on ID (or name, if unambiguous)',
@@ -147,6 +172,35 @@ async function run () {
 
   // OPTIONS
   const opts = {
+    // Network Groups options
+    ngIdOrLabel: cliparse.option('ng', {
+      metavar: 'ng_id_or_label',
+      description: 'Network Group ID or label',
+      parser: Parsers.ngIdOrLabel,
+      // complete: NetworkGroup('xxx'),
+    }),
+    ngMembersIds: cliparse.option('members-ids', {
+      metavar: 'members_ids',
+      description: "Comma separated list of Network Group members IDs ('app_xxx', 'addon_xxx', 'external_xxx')",
+      parser: Parsers.commaSeparated,
+    }),
+    ngDescription: cliparse.option('description', {
+      metavar: 'ng_description',
+      description: 'Network Group description',
+    }),
+    ngMemberLabel: cliparse.option('label', {
+      required: false,
+      metavar: 'member_label',
+      description: 'The member label',
+    }),
+    ngPeerGetConfig: cliparse.flag('config', {
+      description: 'Get the Wireguard configuration of an external node',
+    }),
+    wgPublicKey: cliparse.option('public-key', {
+      required: false,
+      metavar: 'public_key',
+      description: 'The public key of the peer',
+    }),
     sourceableEnvVarsList: cliparse.flag('add-export', { description: 'Display sourceable env variables setting' }),
     logsFormat: getOutputFormatOption(['json-stream']),
     activityFormat: getOutputFormatOption(['json-stream']),
@@ -746,6 +800,56 @@ async function run () {
     args: [args.alias],
   }, makeDefault.makeDefault);
 
+  // NETWORK GROUP COMMANDS
+  const ngCreateExternalPeerCommand = cliparse.command('external-peer', {
+    description: 'Create an external peer in a Network Group',
+    args: [args.ngRessourceIdOrLabel, args.publicKey, args.ngIdOrLabel],
+  }, ng.createExternalPeer);
+  const ngDeleteExternalPeerCommand = cliparse.command('external-peer', {
+    description: 'Delete an external peer from a Network Group',
+    args: [args.ngRessourceIdOrLabel, args.ngIdOrLabel],
+  }, ng.deleteExternalPeer);
+  const ngCreateCommand = cliparse.command('create', {
+    description: 'Create a Network Group',
+    args: [args.ngLabel],
+    privateOptions: [opts.ngMembersIds, opts.ngDescription, opts.optTags],
+    commands: [ngCreateExternalPeerCommand],
+  }, ng.createNg);
+  const ngDeleteCommand = cliparse.command('delete', {
+    description: 'Delete a Network Group',
+    args: [args.ngIdOrLabel],
+    commands: [ngDeleteExternalPeerCommand],
+  }, ng.deleteNg);
+  const ngLinkCommand = cliparse.command('link', {
+    description: 'Link a member or an external peer to a Network Group',
+    args: [args.ngRessourceIdOrLabel, args.ngIdOrLabel],
+    options: [opts.ngMemberLabel],
+  }, ng.linkToNg);
+  const ngUnlinkCommand = cliparse.command('unlink', {
+    description: 'Unlink a member or an external peer from a Network Group',
+    args: [args.ngRessourceIdOrLabel, args.ngIdOrLabel],
+  }, ng.unlinkFromNg);
+  const ngGetCommand = cliparse.command('get', {
+    description: 'Get details about a Network Group, a member or a peer',
+    args: [args.ngAnyIdOrLabel],
+    options: [opts.humanJsonOutputFormat],
+  }, ng.printNgOrRessource);
+  const ngGetConfigCommand = cliparse.command('get-config', {
+    description: 'Get the Wireguard configuration of a peer',
+    args: [args.ngRessourceIdOrLabel],
+    options: [opts.humanJsonOutputFormat],
+  }, ng.printConfig);
+  /*   const ngJoinCommand = cliparse.command('join', {
+    description: 'Join a Network Group',
+    args: [args.ngIdOrLabel],
+  }, ng.joinNg); */
+  const networkGroupsCommand = cliparse.command('ng', {
+    description: 'List Network Groups',
+    options: [opts.orgaIdOrName],
+    privateOptions: [opts.humanJsonOutputFormat],
+    commands: [ngCreateCommand, ngDeleteCommand, ngLinkCommand, ngUnlinkCommand, ngGetCommand, ngGetConfigCommand],
+  }, ng.listNg);
+
   // NOTIFY-EMAIL COMMAND
   const addEmailNotificationCommand = cliparse.command('add', {
     description: 'Add a new email notification',
@@ -980,6 +1084,10 @@ async function run () {
 
   if (featuresFromConf.kv) {
     commands.push(colorizeExperimentalCommand(kvRawCommand, 'kv'));
+  }
+
+  if (featuresFromConf.ng) {
+    commands.push(colorizeExperimentalCommand(networkGroupsCommand, 'ng'));
   }
 
   // CLI PARSER
