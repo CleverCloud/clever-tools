@@ -27,10 +27,6 @@ export async function deploy (params) {
 
   await git.addRemote(appData.alias, appData.deployUrl);
 
-  Logger.println(colors.bold.blue(`Remote application is app_id=${appId}, alias=${appData.alias}, name=${appData.name}`));
-
-  Logger.println(colors.bold.blue(`Remote application belongs to ${ownerId}`));
-
   if (commitIdToPush === remoteHeadCommitId) {
     switch (sameCommitPolicy) {
       case 'ignore':
@@ -53,32 +49,18 @@ export async function deploy (params) {
   }
 
   if (remoteHeadCommitId == null || deployedCommitId == null) {
-    Logger.println('App is brand new, no commits on remote yet');
+    Logger.println(`${colors.yellow('!')} App is brand new, commit your changes first:`);
+    Logger.println(`${colors.gray('$')} ${colors.bold('git add .')}`);
+    Logger.println(`${colors.gray('$')} ${colors.bold('git commit -m "Initial commit"')}`);
+    Logger.println(`${colors.gray('$')} ${colors.bold('clever deploy')} ${colors.gray(branchRefspec)}`);
   }
-  else {
-    Logger.println(`Remote git head commit   is ${colors.green(remoteHeadCommitId)}`);
-    Logger.println(`Current deployed commit  is ${colors.green(deployedCommitId)}`);
-  }
-  Logger.println(`New local commit to push is ${colors.green(commitIdToPush)} (from ${colors.green(branchRefspec)})`);
 
   // It's sometimes tricky to figure out the deployment ID for the current git push.
   // We on have the commit ID but there in a situation where the last deployment was cancelled, it may have the same commit ID.
   // So before pushing, we get the last deployments so we can after the push figure out which deployment is new…
   const knownDeployments = await getAllDeployments({ id: ownerId, appId, limit: 5 }).then(sendToApi);
 
-  Logger.println('Pushing source code to Clever Cloud…');
-
-  await git.push(appData.deployUrl, commitIdToPush, force)
-    .catch(async (e) => {
-      const isShallow = await git.isShallow();
-      if (isShallow) {
-        throw new Error('Failed to push your source code because your repository is shallow and therefore cannot be pushed to the Clever Cloud remote.');
-      }
-      else {
-        throw e;
-      }
-    });
-  Logger.println(colors.bold.green('Your source code has been pushed to Clever Cloud.'));
+  await pushAndDisplay(appData.name, appData.deployUrl, ownerId, appId, remoteHeadCommitId, deployedCommitId, commitIdToPush, branchRefspec, force);
 
   return Log.watchDeploymentAndDisplayLogs({ ownerId, appId, commitId: commitIdToPush, knownDeployments, quiet, exitStrategy });
 }
@@ -102,4 +84,35 @@ async function getBranchToDeploy (branchName, tagName) {
   else {
     return await git.getFullBranch(branchName);
   }
+}
+
+async function pushAndDisplay (name, deployUrl, ownerId, appId, remoteHeadCommitId, deployedCommitId, commitIdToPush, branchRefspec, force) {
+
+  Logger.println(`${colors.blue('')}${colors.bold(`🚀 Deploying ${colors.green(name)}`)}`);
+  Logger.println(`   Application ID  ${colors.gray(`${appId}`)}`);
+  Logger.println(`   Organization ID ${colors.gray(`${ownerId}`)}`);
+  Logger.println('');
+
+  Logger.println(colors.bold('🔀 Git information'));
+  Logger.println(`   Remote head     ${colors.yellow(remoteHeadCommitId)} (${branchRefspec})`);
+  Logger.println(`   Deployed commit ${colors.yellow(deployedCommitId)}`);
+  Logger.println(`   Local commit    ${colors.yellow(commitIdToPush)} ${colors.blue('[will be deployed]')}`);
+  Logger.println('');
+
+  // Deploy Progress
+  Logger.println(colors.bold('🔄 Deployment progress'));
+  Logger.println(`   ${colors.blue('→ Pushing source code to Clever Cloud…')}`);
+
+  await git.push(deployUrl, commitIdToPush, force)
+    .catch(async (e) => {
+      const isShallow = await git.isShallow();
+      if (isShallow) {
+        throw new Error('Failed to push your source code because your repository is shallow and therefore cannot be pushed to the Clever Cloud remote.');
+      }
+      else {
+        throw e;
+      }
+    });
+
+  Logger.println(`   ${colors.green('✓ Code pushed to Clever Cloud')}`);
 }
