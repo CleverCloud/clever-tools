@@ -78,7 +78,7 @@ async function getAddonUrl (ownerId, addonId) {
  * @param {Array<string>} command
  * @returns {Promise<string>} the command result
  */
-async function sendCommand (url, command) {
+export async function sendCommand (url, command) {
   Logger.debug(`Sending command '${command.join(' ')}' to ${url}`);
   const client = new Redis(url, { maxRetriesPerRequest: MAX_RETRIES_PER_REQUEST });
   try {

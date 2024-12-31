@@ -35,6 +35,7 @@ import * as deleteCommandModule from '../src/commands/delete.js';
 import * as deploy from '../src/commands/deploy.js';
 import * as diag from '../src/commands/diag.js';
 import * as domain from '../src/commands/domain.js';
+import * as dotfiles from '../src/commands/dotfiles.js';
 import * as drain from '../src/commands/drain.js';
 import * as env from '../src/commands/env.js';
 import * as features from '../src/commands/features.js';
@@ -90,6 +91,7 @@ async function run () {
 
   // ARGUMENTS
   const args = {
+    dotFile: cliparse.argument('dotfile', { description: 'The dotfile to manage' }),
     kvRawCommand: cliparse.argument('command', { description: 'The raw command to send to the Materia KV or Redis® add-on' }),
     kvIdOrName: cliparse.argument('kv-id', {
       description: 'Add-on/Real ID (or name, if unambiguous) of a Materia KV or Redis® add-on',
@@ -638,6 +640,28 @@ async function run () {
     commands: [domainCreateCommand, domainFavouriteCommands, domainRemoveCommand, domainDiagApplicationCommand, domainOverviewCommand],
   }, domain.list);
 
+  // DOTFILES COMMAND
+  const dotfilesInitCommand = cliparse.command('init', {
+    description: 'Initialize Clever Cloud dotfiles service',
+  }, dotfiles.init);
+  const dotFilesAddCommand = cliparse.command('add', {
+    description: 'Add a dotfile to the list of managed dotfiles',
+    args: [args.dotFile],
+  }, dotfiles.add);
+  const dotFilesRemoveCommand = cliparse.command('remove', {
+    description: 'Remove a dotfile from the list of managed dotfiles',
+    aliases: ['rm'],
+    args: [args.dotFile],
+  }, dotfiles.remove);
+  const dotfilesSyncCommand = cliparse.command('sync', {
+    description: 'Synchronize Clever Cloud dotfiles',
+  }, dotfiles.sync);
+  const dotfilesCommands = cliparse.command('dotfiles', {
+    description: 'Manage Clever Cloud dotfiles',
+    options: [opts.alias, opts.appIdOrName],
+    commands: [dotfilesInitCommand, dotFilesAddCommand, dotFilesRemoveCommand, dotfilesSyncCommand],
+  }, dotfiles.list);
+
   // DRAIN COMMANDS
   const drainCreateCommand = cliparse.command('create', {
     description: 'Create a drain',
@@ -951,6 +975,7 @@ async function run () {
     deployCommand,
     diagCommand,
     domainCommands,
+    dotfilesCommands,
     drainCommands,
     emailNotificationsCommand,
     envCommands,

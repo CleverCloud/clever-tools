@@ -110,7 +110,7 @@ async function getIdsFromSummary () {
  * @param {{ orga_name?: string, orga_id?: string }} ownerNameOrId
  * @throws {Error} if no add-on is found
  * @throws {Error} if several add-ons are found
- * @returns {Object} The ID and owner ID of the add-on { addonId, ownerId }
+ * @returns {array} The ID and owner ID of the add-on { addonId, ownerId }
  */
 export async function findAddonsByNameOrId (addonIdOrRealIdOrName, ownerNameOrId) {
   const summary = await getSummary().then(sendToApi);
