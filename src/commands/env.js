@@ -8,8 +8,8 @@ import * as application from '@clevercloud/client/esm/api/v2/application.js';
 
 export async function list (params) {
   const { alias, app: appIdOrName, 'add-export': addExportsOption, format } = params.options;
+  console.log(params.options);
   const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
-
   const [envFromApp, envFromAddons, envFromDeps] = await Promise.all([
     application.getAllEnvVars({ id: ownerId, appId }).then(sendToApi),
     application.getAllEnvVarsForAddons({ id: ownerId, appId }).then(sendToApi),
