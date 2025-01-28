@@ -12,6 +12,7 @@ to ask for new features, enhancements or help us to provide them to our communit
 You'll find below the first commands to know to connect Clever Tools to your account, get its information and manage some options. Others are developed in dedicated pages:
 
 - [Materia KV](/docs/kv.md)
+- [Network Groups](/docs/ng.md)
 - [Applications: configuration](/docs/applications-config.md)
 - [Applications: management](/docs/applications-management.md)
 - [Applications: deployment and lifecycle](/docs/applications-deployment-lifecycle.md)
