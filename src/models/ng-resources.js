@@ -222,7 +222,10 @@ export async function checkMembersToLink (members) {
 
     const foundRessource = source.find((r) => r.id === memberId);
 
-    if (foundRessource && !VALID_ADDON_PROVIDERS.includes(foundRessource.providerId)) {
+    if (foundRessource && memberId.startsWith('addon_') && !VALID_ADDON_PROVIDERS.includes(foundRessource.providerId)) {
+      membersNotOK.push(memberId);
+    }
+    else if (!foundRessource) {
       membersNotOK.push(memberId);
     }
   };
