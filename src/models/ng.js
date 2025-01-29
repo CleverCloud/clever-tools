@@ -91,7 +91,7 @@ export async function getPeerConfig (peerIdOrLabel, ngIdOrLabel, orgaIdOrName) {
     throw new Error(`Network Group ${colors.red(ngIdOrLabel.ngId || ngIdOrLabel.ngResourceLabel)} not found`);
   }
 
-  if (!parentNg.peers[peer.id]) {
+  if (!parentNg.peers.find((p) => p.id === peer.id)) {
     throw new Error(`Peer ${colors.red(peer.id)} is not in Network Group ${colors.red(parentNg.id)}`);
   }
 
