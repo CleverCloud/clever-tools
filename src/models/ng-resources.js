@@ -225,7 +225,7 @@ export async function checkMembersToLink (members) {
     if (foundRessource && memberId.startsWith('addon_') && !VALID_ADDON_PROVIDERS.includes(foundRessource.providerId)) {
       membersNotOK.push(memberId);
     }
-    else if (!foundRessource) {
+    else if (!foundRessource && !memberId.startsWith('external_')) {
       membersNotOK.push(memberId);
     }
   };
