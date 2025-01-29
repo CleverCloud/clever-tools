@@ -32,7 +32,9 @@ export async function create (label, description, tags, membersIds, orgaIdOrName
     throw new Error('A valid Network Group label is required');
   }
 
-  await checkMembersToLink(membersIds);
+  if (membersIds && membersIds.length > 0) {
+    await checkMembersToLink(membersIds);
+  }
 
   const id = `ng_${uuidv4()}`;
   const ownerId = await getOwnerIdFromOrgaIdOrName(orgaIdOrName);
