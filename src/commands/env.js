@@ -15,7 +15,6 @@ import {
 
 export async function list (params) {
   const { alias, app: appIdOrName, 'add-export': addExportsOption, format } = params.options;
-  console.log(params.options);
   const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
   const [envFromApp, envFromAddons, envFromDeps] = await Promise.all([
     getAllEnvVars({ id: ownerId, appId }).then(sendToApi),

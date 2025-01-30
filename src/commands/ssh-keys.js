@@ -35,8 +35,7 @@ export async function add (params) {
   const { 'ssh-key-name': keyName, 'ssh-key-path': filePath } = params.namedArgs;
 
   if (!existsSync(filePath)) {
-    Logger.error(`File ${filePath} does not exist`);
-    return;
+    throw new Error(`File ${filePath} does not exist`);
   }
 
   const fileContent = readFileSync(filePath, 'utf8').trim();
@@ -50,7 +49,13 @@ export async function add (params) {
  */
 export async function remove (params) {
   const { 'ssh-key-name': keyName } = params.namedArgs;
-  executeCommand(removeKey, [keyName]);
+
+  const keys = await getKeys();
+  if (!keys.find((k) => k.name === keyName)) {
+    throw new Error(`SSH key ${colors.red(keyName)} not found`);
+  }
+
+  await executeCommand(removeKey, [keyName]);
 }
 
 /**
@@ -95,13 +100,13 @@ function printKeysHuman (keys) {
   }
 
   if (keys.length === 1) {
-    Logger.println(`🔐 Current user have 1 SSH key: ${keys[0].name} (${keys[0].fingerprint})`);
+    Logger.println(`🔐 Current user has 1 SSH key: ${keys[0].name} (${keys[0].fingerprint})`);
     return;
   }
 
-  Logger.println(`🔐 Current user have ${keys.length} SSH keys:`);
+  Logger.println(`🔐 Current user has ${keys.length} SSH keys:`);
   keys.forEach((k) => {
-    Logger.println(` ▶ ${colors.blue(k.name)}`, colors.grey(`(${k.fingerprint})`));
+    Logger.println(` • ${colors.blue(k.name)}`, colors.grey(`(${k.fingerprint})`));
   });
 }
 
@@ -109,6 +114,6 @@ function printKeysHuman (keys) {
  * Open the SSH keys management page of the Console in your browser
  * @returns {Promise<void>} A promise that resolves when the page is opened
  */
-export async function openConsole () {
-  openBrowser('https://console.clever-cloud.com/users/me/ssh-keys', 'Opening the SSH keys management page in your browser');
+export function openConsole () {
+  return openBrowser('https://console.clever-cloud.com/users/me/ssh-keys', 'Opening the SSH keys management page in your browser');
 }

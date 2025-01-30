@@ -24,13 +24,8 @@ export class Deferred {
  * @throws {Error} If the command execution fails
  */
 export async function executeCommand (fn, params) {
-  try {
-    const result = await fn(...params);
-    Logger.println(result.message);
-  }
-  catch (e) {
-    Logger.error(e.message);
-  }
+  const result = await fn(...params);
+  Logger.println(result.message);
 }
 
 /**
