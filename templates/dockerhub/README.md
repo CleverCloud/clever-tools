@@ -1,6 +1,6 @@
 # Clever Tools Docker Image
 
-This is a lightweight Docker image intended to be used mostly in CI environment. 
+This is a lightweight Docker image intended to be used mostly in CI environment.
 
 ## How to use
 
