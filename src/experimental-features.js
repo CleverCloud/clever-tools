@@ -29,7 +29,7 @@ Learn more about Materia KV: https://www.clever-cloud.com/developers/doc/addons/
     clever ng link app_xxx myNG
     clever ng unlink addon_xxx myNG
 - Get the Wireguard configuration of a peer:
-    clever ng get-config peerIdOrLabel
+    clever ng get-config peerIdOrLabel myNG
 - Get details about a Network Group, a member or a peer:
     clever ng get myNg
     clever ng get app_xxx
