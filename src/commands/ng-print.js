@@ -7,7 +7,7 @@ import * as NG from '../models/ng.js';
  * @param {string} format Output format
  * @param {boolean} full If true, get more details about the Network Group (default: false)
  */
-export function ng (ng, format, full = false) {
+function printNg (ng, format, full = false) {
 
   switch (format) {
     case 'json': {
@@ -53,7 +53,7 @@ export function ng (ng, format, full = false) {
  * @param {Object} member The Network Group member to print
  * @param {string} format Output format
  */
-export function member (member, format) {
+function printMember (member, format) {
 
   switch (format) {
     case 'json': {
@@ -75,7 +75,7 @@ export function member (member, format) {
  * @param {string} format Output format
  * @param {boolean} full If true, get more details about the peer (default: false)
  */
-export function peer (peer, format, full = false) {
+function printPeer (peer, format, full = false) {
   switch (format) {
     case 'json': {
       Logger.println(JSON.stringify(peer, null, 2));
@@ -92,7 +92,7 @@ export function peer (peer, format, full = false) {
  * @param {Object} peer
  * @param {boolean} full If true, get more details about the peer (default: false)
  */
-export function formatPeer (peer, full = false) {
+function formatPeer (peer, full = false) {
   let peerToPrint = {
     'Parent Member': peer.parentMember,
     ID: peer.id,
@@ -122,7 +122,7 @@ export function formatPeer (peer, full = false) {
  * @param {string} action Action to perform (search or get)
  * @param {string} type Type of item to search (NetworkGroup, Member, Peer)
  */
-export async function results (idOrLabel, org, format, action, type) {
+export async function printResults (idOrLabel, org, format, action, type) {
 
   const exactMatch = action === 'get';
   type = type ?? (action === 'search' ? 'all' : 'single');
@@ -140,12 +140,12 @@ export async function results (idOrLabel, org, format, action, type) {
   if (found.length === 1) {
     switch (found[0].type) {
       case 'NetworkGroup':
-        return ng(found[0], format, true);
+        return printNg(found[0], format, true);
       case 'Member':
-        return member(found[0], format);
+        return printMember(found[0], format);
       case 'CleverPeer':
       case 'ExternalPeer':
-        return peer(found[0], format, true);
+        return printPeer(found[0], format, true);
       default:
         throw new Error(`Unknown item type: ${found[0].type}`);
     }
@@ -170,18 +170,18 @@ export async function results (idOrLabel, org, format, action, type) {
       default: {
         if (grouped.NetworkGroup) {
           Logger.println(`${colors.bold(` • Found ${grouped.NetworkGroup.length} Network Group(s):`)}`);
-          grouped.NetworkGroup?.forEach((item) => ng(item, format));
+          grouped.NetworkGroup?.forEach((item) => printNg(item, format));
         }
 
         if (grouped.Member) {
           Logger.println(`${colors.bold(` • Found ${grouped.Member.length} Member(s):`)}`);
-          grouped.Member?.forEach((item) => member(item, format));
+          grouped.Member?.forEach((item) => printMember(item, format));
         }
 
         if (grouped.ExternalPeer || grouped.CleverPeer) {
           Logger.println(`${colors.bold(` • Found ${grouped.ExternalPeer.length + grouped.CleverPeer.length} Peer(s):`)}`);
-          grouped.CleverPeer?.forEach((item) => peer(item, format));
-          grouped.ExternalPeer?.forEach((item) => peer(item, format));
+          grouped.CleverPeer?.forEach((item) => printPeer(item, format));
+          grouped.ExternalPeer?.forEach((item) => printPeer(item, format));
         }
       }
     }

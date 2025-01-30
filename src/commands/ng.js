@@ -1,7 +1,7 @@
 import colors from 'colors/safe.js';
 import { Logger } from '../logger.js';
 import * as NG from '../models/ng.js';
-import * as NGPrint from './ng-print.js';
+import { printResults } from './ng-print.js';
 import * as NGResources from '../models/ng-resources.js';
 
 /** Create a Network Group
@@ -168,11 +168,9 @@ export async function listNg (params) {
 export async function get (params) {
   const [idOrLabel] = params.args;
   const { org, format } = params.options;
-  let type = params.options.type;
+  const type = params.options.type ?? 'single';
 
-  if (!type) type = 'single';
-
-  NGPrint.results(idOrLabel, org, format, 'get', type);
+  printResults(idOrLabel, org, format, 'get', type);
 }
 
 /** Show information about a Network Group, a member or a peer
@@ -186,5 +184,5 @@ export async function search (params) {
   const { org, format } = params.options;
   const type = params.options.type;
 
-  NGPrint.results(idOrLabel, org, format, 'search', type);
+  printResults(idOrLabel, org, format, 'search', type);
 }

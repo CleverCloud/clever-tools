@@ -27,7 +27,7 @@ export async function createExternalPeerWithParent (ngIdOrLabel, peerLabel, publ
   const [ng] = await NG.searchNgOrResource(ngIdOrLabel, org, 'NetworkGroup');
 
   if (!ng) {
-    throw new Error(`Network Group ${colors.red(ngIdOrLabel.ngId || ngIdOrLabel.ngLabel)} not found`);
+    throw new Error(`Network Group ${colors.red(ngIdOrLabel.ngId || ngIdOrLabel.ngResourceLabel)} not found`);
   }
 
   // We define a parent member for the external peer
@@ -84,7 +84,7 @@ export async function deleteExternalPeerWithParent (ngIdOrLabel, peerIdOrLabel, 
   const [ng] = await NG.searchNgOrResource(ngIdOrLabel, org, 'NetworkGroup');
 
   if (!ng) {
-    throw new Error(`Network Group ${colors.red(ngIdOrLabel.ngId || ngIdOrLabel.ngLabel)} not found`);
+    throw new Error(`Network Group ${colors.red(ngIdOrLabel.ngId || ngIdOrLabel.ngResourceLabel)} not found`);
   }
 
   const externalPeer = peerIdOrLabel.startsWith('external_')
@@ -125,16 +125,16 @@ export async function deleteExternalPeerWithParent (ngIdOrLabel, peerIdOrLabel, 
  */
 export async function linkMember (ngIdOrLabel, memberId, org, label) {
   if (!memberId) {
-    throw new Error('A valid member ID is required');
+    throw new Error('A valid member ID is required (addon_xxx, app_xxx, external_xxx)');
   }
-
-  checkMembersToLink([memberId]);
 
   const [ng] = await NG.searchNgOrResource(ngIdOrLabel, org, 'NetworkGroup');
 
   if (!ng) {
     throw new Error(`Network Group ${colors.red(ngIdOrLabel.ngId || ngIdOrLabel.ngResourceLabel)} not found`);
   }
+
+  await checkMembersToLink([memberId]);
 
   const alreadyMember = ng.members.find((m) => m.id === memberId);
   if (alreadyMember) {
@@ -174,7 +174,7 @@ export async function linkMember (ngIdOrLabel, memberId, org, label) {
  */
 export async function unlinkMember (ngIdOrLabel, memberId, org) {
   if (!memberId) {
-    throw new Error('A valid member ID is required');
+    throw new Error('A valid member ID is required (addon_xxx, app_xxx, external_xxx)');
   }
 
   const [ng] = await NG.searchNgOrResource(ngIdOrLabel, org, 'NetworkGroup');
@@ -228,7 +228,7 @@ export async function checkMembersToLink (members) {
     else if (!foundRessource && !memberId.startsWith('external_')) {
       membersNotOK.push(memberId);
     }
-  };
+  }
 
   if (membersNotOK.length > 0) {
     Logger.error(`Member(s) ${colors.red(membersNotOK.join(', '))} can't be linked to a Network Group`);
@@ -242,8 +242,8 @@ export async function checkMembersToLink (members) {
  * @param {object} org Organisation ID or name
  * @param {string} resource Resource ID or label
  * @param {boolean} shouldBePresent Expected presence of the resource
- * @param {string} resourceType Resource type (member or peer), default is member
- * @param {string} searchBy Search by 'id' or 'label', default is 'id'
+ * @param {string} [resourceType] Resource type (member or peer), default is member
+ * @param {string} [searchBy] Search by 'id' or 'label', default is 'id'
  * @returns {Promise<boolean>} True if the resource is present, false otherwise
  */
 async function checkResource (ngId, org, resource, shouldBePresent, resourceType = 'member', searchBy = 'id') {

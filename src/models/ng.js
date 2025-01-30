@@ -32,7 +32,7 @@ export async function create (label, description, tags, membersIds, orgaIdOrName
     throw new Error('A valid Network Group label is required');
   }
 
-  if (membersIds && membersIds.length > 0) {
+  if (membersIds?.length > 0) {
     await checkMembersToLink(membersIds);
   }
 
@@ -81,16 +81,16 @@ export async function destroy (ngIdOrLabel, orgaIdOrName) {
  * @throws {Error} If the Peer is not in the Network Group
  */
 export async function getPeerConfig (peerIdOrLabel, ngIdOrLabel, orgaIdOrName) {
-  const [peer] = await searchNgOrResource(peerIdOrLabel, orgaIdOrName, 'Peer');
-
-  if (!peer || (peerIdOrLabel.ngResourceLabel && peer.label !== peerIdOrLabel.ngResourceLabel)) {
-    throw new Error(`Peer ${colors.red(peerIdOrLabel.ngResourceLabel || peerIdOrLabel.member)} not found`);
-  }
-
   const [parentNg] = await searchNgOrResource(ngIdOrLabel, orgaIdOrName, 'NetworkGroup');
 
   if (!parentNg) {
     throw new Error(`Network Group ${colors.red(ngIdOrLabel.ngId || ngIdOrLabel.ngResourceLabel)} not found`);
+  }
+
+  const [peer] = await searchNgOrResource(peerIdOrLabel, orgaIdOrName, 'Peer');
+
+  if (!peer || (peerIdOrLabel.ngResourceLabel && peer.label !== peerIdOrLabel.ngResourceLabel)) {
+    throw new Error(`Peer ${colors.red(peerIdOrLabel.ngResourceLabel || peerIdOrLabel.member)} not found`);
   }
 
   if (!parentNg.peers.find((p) => p.id === peer.id)) {
@@ -110,7 +110,7 @@ export async function getPeerConfig (peerIdOrLabel, ngIdOrLabel, orgaIdOrName) {
 
 /**
  * Get a Network group from an owner with members and peers
- * @param {object} ngIdOrLabel The Network Group ID or Label
+ * @param {string} networkGroupId The Network Group ID
  * @param {string} orgaIdOrName The owner ID or name
  * @returns {Promise<Array<Object>>} The Network Groups
  */
@@ -142,7 +142,7 @@ export async function getAllNGs (orgaIdOrName) {
  * Search a Network Group or a resource (member/peer)
  * @param {string|Object} idOrLabel The ID or label to look for
  * @param {Object} orgaIdOrName The owner ID or name
- * @param {boolean} type Look only for a specific type (NetworkGroup, Member, CleverPeer, ExternalPeer, Peer), can be 'single', default to 'all'
+ * @param {string} [type] Look only for a specific type (NetworkGroup, Member, CleverPeer, ExternalPeer, Peer), can be 'single', default to 'all'
  * @param {boolean} exactMatch Look for exact match, default to true
  * @throws {Error} If multiple Network Groups or member/peer are found in single_result mode
  * @returns {Promise<Object>} Found results
@@ -183,9 +183,9 @@ export async function searchNgOrResource (idOrLabel, orgaIdOrName, type = 'all',
     filtered = filtered.filter((f) => f.id === query || f.label === query);
   }
 
-  if (filtered.length > 1 && !type === 'all') {
+  if (filtered.length > 1 && type !== 'all') {
     throw new Error(`Multiple resources found for ${colors.red(query)}, use ID instead:
-${filtered.map((f) => ` - ${f.id} ${colors.grey(`(${f.label} - ${f.type})`)}`).join('\n')}`);
+${filtered.map((f) => ` • ${f.id} ${colors.grey(`(${f.label} - ${f.type})`)}`).join('\n')}`);
   }
 
   // Deduplicate results
@@ -195,7 +195,7 @@ ${filtered.map((f) => ` - ${f.id} ${colors.grey(`(${f.label} - ${f.type})`)}`).j
 /**
  * Construct members from members_ids
  * @param {string} ngId The Network Group ID
- * @param {Array<string>} members_ids The members IDs
+ * @param {Array<string>} membersIds The members IDs
  * @returns {Array<Object>} Array of members with id, domainName and kind
  */
 export function constructMembers (ngId, membersIds) {
@@ -225,39 +225,45 @@ export function constructMembers (ngId, membersIds) {
 async function pollNetworkGroup (ownerId, ngId, { waitForMembers = null, waitForDeletion = false } = {}) {
   return new Promise((resolve, reject) => {
     Logger.info(`Polling Network Groups from owner ${ownerId}`);
+    const timeoutTime = Date.now() + (TIMEOUT * 1000);
 
-    const poll = setInterval(async () => {
-      // We don't use ngApi.getNetworkGroup(), it will lead to an error before creation
-      const ngs = await ngApi.listNetworkGroups({ ownerId }).then(sendToApi);
-      const ng = ngs.find((ng) => ng.id === ngId);
-
-      if (waitForDeletion && !ng) {
-        cleanup(true);
+    async function pollOnce () {
+      if (Date.now() > timeoutTime) {
+        const action = waitForDeletion ? 'deletion of' : 'creation of';
+        reject(new Error(`Timeout while checking ${action} Network Group ${ngId}`));
         return;
       }
 
-      if (!waitForDeletion && ng) {
-        if (waitForMembers?.length) {
-          const members = ng.members.filter((member) => waitForMembers.includes(member.id));
-          if (members.length !== waitForMembers.length) {
-            Logger.debug(`Waiting for members: ${waitForMembers.join(', ')}`);
-            return;
-          }
+      try {
+        const ngs = await ngApi.listNetworkGroups({ ownerId }).then(sendToApi);
+        const ng = ngs.find((ng) => ng.id === ngId);
+
+        if (waitForDeletion && !ng) {
+          resolve();
+          return;
         }
-        cleanup(true);
+
+        if (!waitForDeletion && ng) {
+          if (waitForMembers?.length) {
+            const members = ng.members.filter((member) => waitForMembers.includes(member.id));
+            if (members.length !== waitForMembers.length) {
+              Logger.debug(`Waiting for members: ${waitForMembers.join(', ')}`);
+              setTimeout(pollOnce, INTERVAL);
+              return;
+            }
+          }
+          resolve();
+          return;
+        }
+
+        setTimeout(pollOnce, INTERVAL);
       }
-    }, INTERVAL);
-
-    const timer = setTimeout(() => {
-      const action = waitForDeletion ? 'deletion of' : 'creation of';
-      cleanup(false, new Error(`Timeout while checking ${action} Network Group ${ngId}`));
-    }, TIMEOUT * 1000);
-
-    function cleanup (success, error = null) {
-      clearInterval(poll);
-      clearTimeout(timer);
-      success ? resolve() : reject(error);
+      catch (error) {
+        reject(error);
+      }
     }
+
+    pollOnce();
   });
 }
 

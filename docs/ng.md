@@ -106,15 +106,19 @@ clever ng get resourceIdOrName
 You can also search for network groups, members or peers:
 
 ```
-clever ng search query
+clever ng search text_to_search -F json
 ```
+
+> [!NOTE]
+> The search command is case-insensitive and will return all resources containing the search string
+> The get command look for an exact match and will return an error if multiple resources are found
 
 ## Get the Wireguard configuration of a Peer
 
 To get the Wireguard configuration of a peer (a `json` formatted output is available):
 
 ```
-clever ng get-config peerIdOrLabel
+clever ng get-config peerIdOrLabel myNG
 ```
 
 ## Demos & examples
