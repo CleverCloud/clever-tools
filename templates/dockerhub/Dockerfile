@@ -12,7 +12,7 @@ RUN curl --output clever-tools_linux.tar.gz https://clever-tools.clever-cloud.co
 # Only grep the clever-tools binary and his libraries for the release stage
 # We use ldd to find the shared object dependencies.
 RUN \
-	mkdir -p /tmp/fakeroot/lib  && \
+	mkdir -p /tmp/fakeroot/lib && \
 	cp $(ldd /usr/local/bin/clever | grep -o '/.\+\.so[^ ]*' | sort | uniq) /tmp/fakeroot/lib && \
 	for lib in /tmp/fakeroot/lib/*; do strip --strip-all $lib; done && \
 	mkdir -p /tmp/fakeroot/bin/ && \
@@ -28,9 +28,14 @@ LABEL version="<%= version %>" \
 VOLUME ["/actions"]
 WORKDIR /actions
 
-COPY --from=build /tmp/fakeroot/ /
+RUN \
+    ## The loader search ld-linux-x86-64.so.2 in /lib64 but the folder does not exist
+    ln -s lib lib64 && \
+    mkdir -p /etc/ssl/certs
 
-## The loader search ld-linux-x86-64.so.2 in /lib64 but the folder does not exist
-RUN ln -s lib lib64
+COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
+COPY --from=build /tmp/fakeroot/ /
+COPY --from=ghcr.io/tarampampam/curl:8.11.1 /bin/curl /usr/bin/curl
+COPY --from=ghcr.io/jqlang/jq /jq /usr/bin/jq
 
 ENTRYPOINT ["clever"]
