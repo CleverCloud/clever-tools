@@ -39,4 +39,20 @@ Learn more about Materia KV: https://www.clever-cloud.com/developers/doc/addons/
     clever ng search myQuery
 Learn more about Network Groups: https://github.com/CleverCloud/clever-tools/blob/davlgd-new-ng/docs/ng.md`,
   },
+  operators: {
+    status: 'beta',
+    description: 'Manage operators with dedicated features such as Keycloak, Metabase, Otoroshi',
+    instructions: `
+clever keycloak
+clever keycloak get keycloak_xxx
+clever keycloak ng enable myKeycloak
+
+clever metabase open myMetabase
+clever metabase version check myMetabase
+clever metabase version update myMetabase 0.53.0
+
+clever otoroshi get-routes
+clever otoroshi open logs myOtoroshi
+clever otoroshi link app_xxx myOtoroshi`,
+  },
 };
