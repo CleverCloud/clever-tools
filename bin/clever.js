@@ -50,6 +50,7 @@ import * as ng from '../src/commands/ng.js';
 import * as notifyEmail from '../src/commands/notify-email.js';
 import * as open from '../src/commands/open.js';
 import * as consoleModule from '../src/commands/console.js';
+import * as otoroshi from '../src/commands/otoroshi.js';
 import * as profile from '../src/commands/profile.js';
 import * as publishedConfig from '../src/commands/published-config.js';
 import * as restart from '../src/commands/restart.js';
@@ -93,6 +94,12 @@ async function run () {
 
   // ARGUMENTS
   const args = {
+    otoroshiDestination: cliparse.argument('destination', {
+      description: 'A destination path for a protected route (e.g. /api)',
+    }),
+    otoroshiRoute: cliparse.argument('route', {
+      description: 'A route to manage with Otoroshi add-on',
+    }),
     kvRawCommand: cliparse.argument('command', {
       description: 'The raw command to send to the Materia KV or Redis® add-on',
     }),
@@ -981,9 +988,57 @@ async function run () {
     options: [opts.alias, opts.appIdOrName],
   }, open.open);
 
+  // OTOROSHI COMMAND
+  const otoroshiGetCommand = cliparse.command('get', {
+    description: 'Get information about the Otoroshi operator',
+    args: [args.addonIdOrName],
+    options: [opts.humanJsonOutputFormat],
+  }, otoroshi.get);
+  const otoroshiGetRoutesCommand = cliparse.command('get-routes', {
+    description: 'Get routes from the Otoroshi operator',
+    args: [args.addonIdOrName],
+    options: [opts.humanJsonOutputFormat],
+  }, otoroshi.getRoutes);
+  const otoroshiLinkCommand = cliparse.command('link', {
+    description: 'Link an application to the Otoroshi operator through a Network Group',
+    args: [args.appIdOrName],
+  }, otoroshi.link);
+  const otoroshiLogsCommand = cliparse.command('logs', {
+    description: 'Open the Otoroshi application logs in Clever Cloud Console',
+    args: [args.addonIdOrName],
+  }, otoroshi.openLogs);
+  const otoroshiOpenCommand = cliparse.command('open', {
+    description: 'Open the Otoroshi admin console in your browser',
+    args: [args.addonIdOrName],
+    commands: [otoroshiLogsCommand],
+  }, otoroshi.open);
+  const otoroshiRebootCommand = cliparse.command('reboot', {
+    description: 'Reboot your Otoroshi operator',
+    args: [args.addonIdOrName],
+  }, otoroshi.reboot);
+  const otoroshiRebuildCommand = cliparse.command('rebuild', {
+    description: 'Rebuild your Otoroshi operator',
+    args: [args.addonIdOrName],
+  }, otoroshi.rebuild);
+  const otoroshiVersionsCheckCommand = cliparse.command('check', {
+    description: 'Check the Otoroshi operator\'s deployed version',
     args: [args.addonIdOrName],
     options: [opts.humanJsonOutputFormat],
   }, otoroshi.checkVersion);
+  const otoroshiUpdateCommand = cliparse.command('update', {
+    description: 'Update the Otoroshi operator\'s version and rebuild it',
+    args: [args.addonIdOrName],
+  }, otoroshi.updateVersion);
+  const otoroshiVersionsCommands = cliparse.command('version', {
+    description: 'Manage the deployed version of an Otoroshi operator',
+    commands: [otoroshiVersionsCheckCommand, otoroshiUpdateCommand],
+  }, otoroshi.checkVersion);
+  const otoroshiCommand = cliparse.command('otoroshi', {
+    description: 'Manage Clever Cloud Otoroshi services',
+    privateOptions: [opts.humanJsonOutputFormat],
+    commands: [otoroshiGetCommand, otoroshiGetRoutesCommand, otoroshiLinkCommand, otoroshiOpenCommand, otoroshiRebootCommand, otoroshiRebuildCommand, otoroshiVersionsCommands],
+  }, otoroshi.list);
+
   // CONSOLE COMMAND
   const consoleCommand = cliparse.command('console', {
     description: 'Open an application in the Console',
@@ -1196,6 +1251,7 @@ async function run () {
   if (featuresFromConf.operators) {
     commands.push(colorizeExperimentalCommand(keycloakCommand, 'operators'));
     commands.push(colorizeExperimentalCommand(metabaseCommand, 'operators'));
+    commands.push(colorizeExperimentalCommand(otoroshiCommand, 'operators'));
   }
 
   if (featuresFromConf.kv) {
