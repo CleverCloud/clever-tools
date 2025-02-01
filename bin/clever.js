@@ -28,6 +28,7 @@ import * as accesslogsModule from '../src/commands/accesslogs.js';
 import * as activity from '../src/commands/activity.js';
 import * as addon from '../src/commands/addon.js';
 import * as applications from '../src/commands/applications.js';
+import * as biscuits from '../src/commands/biscuits.js';
 import * as cancelDeploy from '../src/commands/cancel-deploy.js';
 import * as config from '../src/commands/config.js';
 import * as create from '../src/commands/create.js';
@@ -62,6 +63,7 @@ import * as stop from '../src/commands/stop.js';
 import * as tcpRedirs from '../src/commands/tcp-redirs.js';
 import * as unlink from '../src/commands/unlink.js';
 import * as version from '../src/commands/version.js';
+import * as waf from '../src/commands/waf.js';
 import * as webhooks from '../src/commands/webhooks.js';
 import * as database from '../src/commands/database.js';
 import { curl } from '../src/commands/curl.js';
@@ -94,11 +96,14 @@ async function run () {
 
   // ARGUMENTS
   const args = {
+    otoroshiKeypairId: cliparse.argument('keypair-id', {
+      description: 'A Biscuit keypair ID from an Otoroshi operator',
+    }),
     otoroshiDestination: cliparse.argument('destination', {
-      description: 'A destination path for a protected route (e.g. /api)',
+      description: 'A destination/backend a protected route sends traffic to (e.g. example.com/api)',
     }),
     otoroshiRoute: cliparse.argument('route', {
-      description: 'A route to manage with Otoroshi add-on',
+      description: 'A protected route to manage with Otoroshi operator (e.g. /api)',
     }),
     kvRawCommand: cliparse.argument('command', {
       description: 'The raw command to send to the Materia KV or Redis® add-on',
@@ -190,6 +195,12 @@ async function run () {
 
   // OPTIONS
   const opts = {
+    otoroshiTtl: cliparse.option('ttl', {
+      description: 'A Time-To-Live to check for (e.g. 1d, 1w, 1m), if used, the token will be a Biscuit',
+    }),
+    otoroshiUser: cliparse.option('user', {
+      description: 'A user to check for, if used, the token will be a Biscuit',
+    }),
     otoroshiPort: cliparse.option('port', {
       aliases: ['p'],
       default: '4242',
@@ -614,7 +625,7 @@ async function run () {
   const applicationsExposeCommand = cliparse.command('expose', {
     description: 'Application is linked to an Otoroshi operator in a Network Group to expose a protected custom port (default: 4242)',
     args: [args.addonIdOrName],
-    options: [opts.alias, opts.appIdOrName, opts.otoroshiPort],
+    options: [opts.alias, opts.appIdOrName, opts.otoroshiPort, opts.otoroshiTtl, opts.otoroshiUser],
   }, otoroshi.expose);
   const applicationsUnexposeCommand = cliparse.command('unexpose', {
     description: 'Application is unexposed from an Otoroshi operator and linked ressources are deleted',
@@ -626,6 +637,38 @@ async function run () {
     privateOptions: [opts.onlyAliases, opts.jsonFormat],
     commands: [applicationsListRemoteCommand, applicationsExposeCommand, applicationsUnexposeCommand],
   }, applications.list);
+
+  // BISCUITS COMMANDS
+  const biscuitsGenKeypairCommand = cliparse.command('gen-keypair', {
+    description: 'Generate and store a new Biscuit key pair to an Otoroshi operator',
+    args: [args.addonIdOrName],
+    options: [opts.humanJsonOutputFormat],
+  }, biscuits.keypairGen);
+  const biscuitsGenTokenCommand = cliparse.command('gen-token', {
+    description: 'Generate a new Biscuit token from a key pair',
+    args: [args.addonIdOrName],
+    options: [opts.otoroshiUser, opts.otoroshiTtl, opts.humanJsonOutputFormat],
+  }, biscuits.tokenGen);
+  const biscuitsDeleteCommand = cliparse.command('delete', {
+    description: 'Delete a Biscuit key pair from an Otoroshi operator',
+    args: [args.otoroshiKeypairId, args.addonIdOrName],
+  }, biscuits.destroy);
+  const biscuitsGetCommand = cliparse.command('get', {
+    description: 'Get a Biscuit key pair from an Otoroshi operator',
+    args: [args.otoroshiKeypairId, args.addonIdOrName],
+    options: [opts.humanJsonOutputFormat],
+  }, biscuits.get);
+  const biscuitsListCommand = cliparse.command('list', {
+    description: 'List Biscuit key pair from an Otoroshi operator',
+    args: [args.addonIdOrName],
+    options: [opts.humanJsonOutputFormat],
+  }, biscuits.list);
+  const biscuitsCommand = cliparse.command('biscuits', {
+    description: 'List all biscuits',
+    args: [args.addonIdOrName],
+    privateOptions: [opts.humanJsonOutputFormat],
+    commands: [biscuitsGenKeypairCommand, biscuitsGenTokenCommand, biscuitsDeleteCommand, biscuitsGetCommand, biscuitsListCommand],
+  }, biscuits.list);
 
   // CANCEL DEPLOY COMMAND
   const cancelDeployCommand = cliparse.command('cancel-deploy', {
@@ -1180,6 +1223,24 @@ async function run () {
     args: [],
   }, version.version);
 
+  const wafEnableCommand = cliparse.command('enable', {
+    description: 'Enable WAF services for a route on an Otoroshi add-on',
+    args: [args.addonIdOrName, args.otoroshiRoute, args.otoroshiDestination],
+  }, waf.enable);
+  const wafDisableCommand = cliparse.command('disable', {
+    description: 'Disable WAF services for a route on an Otoroshi add-on',
+    args: [args.ngIdOrLabel],
+  }, waf.disable);
+  const wafGetCommand = cliparse.command('get', {
+    description: 'Get information about the WAF services for an Otoroshi add-on',
+    args: [args.addonIdOrName],
+    options: [opts.humanJsonOutputFormat],
+  }, waf.get);
+  const wafCommand = cliparse.command('waf', {
+    description: 'Manage the Web Application Service for Clever Cloud applications',
+    commands: [wafEnableCommand, wafDisableCommand, wafGetCommand],
+  }, waf.get);
+
   // WEBHOOKS COMMAND
   const addWebhookCommand = cliparse.command('add', {
     description: 'Register webhook to be called when events happen',
@@ -1267,9 +1328,11 @@ async function run () {
   const featuresFromConf = await getFeatures();
 
   if (featuresFromConf.operators) {
+    commands.push(colorizeExperimentalCommand(biscuitsCommand, 'operators'));
     commands.push(colorizeExperimentalCommand(keycloakCommand, 'operators'));
     commands.push(colorizeExperimentalCommand(metabaseCommand, 'operators'));
     commands.push(colorizeExperimentalCommand(otoroshiCommand, 'operators'));
+    commands.push(colorizeExperimentalCommand(wafCommand, 'operators'));
   }
 
   if (featuresFromConf.kv) {

@@ -135,7 +135,7 @@ export async function ngEnable (params) {
   }
 
   await ngEnableKeycloak({ keycloakId: keycloak.addonId }).then(sendToApi);
-  await Applications.update({ id: keycloak.ownerId, appId: keycloak.applications[0].javaId }, { minInstances: 1, maxInstances: 2 }).then(sendToApi);
+  await Applications.update({ id: keycloak.ownerId, appId: keycloak.applications[0].javaId }, { minInstances, maxInstances }).then(sendToApi);
   Logger.println(`Enabling Network Group on Keycloak operator ${colors.blue(keycloak.addonId)}…`);
 
   get(params);

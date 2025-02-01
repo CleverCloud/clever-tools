@@ -1,5 +1,6 @@
 import openPage from 'open';
 import colors from 'colors/safe.js';
+import Duration from 'duration-js';
 
 import * as NG from '../models/ng.js';
 import * as Otoroshi from '../models/otoroshi.js';
@@ -9,7 +10,8 @@ import { Logger } from '../logger.js';
 import { select } from '@inquirer/prompts';
 import { resolveId } from '../models/application.js';
 import { sendToOtoroshi } from '../models/otoroshi.js';
-import { createApiKey, createRoute, deleteApiKey, deleteRoute, getApiKeys, getApiKeyTemplate, getRoutes } from '../models/otoroshi-instances-api.js';
+import { createApiKey, createRoute, deleteApiKey, deleteBiscuitVerifier, deleteRoute, getApiKeys, getApiKeyTemplate, getBiscuitVerifiers, getRoutes } from '../models/otoroshi-instances-api.js';
+import { createBiscuitsVerifier, genBiscuitsToken, getBiscuitsVerifierTemplate, selectKeypair } from '../models/otoroshi-biscuits.js';
 
 /** Check the version of an Otoroshi operator
  * @param {object} params The command's parameters
@@ -76,16 +78,20 @@ export async function get (params) {
  * Expose an application through an Otoroshi operator and a Network Group
  * @param {object} params The command's parameters
  * @param {object} params.args[0] The operator's name or ID
- * @param {object} params.options.alias The alias of the application
- * @param {object} params.options.app The application's name or ID
- * @param {object} params.options.port The port on which the application is exposed in the Network Group (default: 4242)
+ * @param {object} [params.options.alias] The alias of the application
+ * @param {object} [params.options.app] The application's name or ID
+ * @param {object} [params.options.port] The port on which the application is exposed in the Network Group (default: 4242)
+ * @param {object} [params.options.ttl] The duration to use to restrict Biscuit token validity (eg. 1d, 1w, 1m)
+ * @param {object} [params.options.user] The user name to inject as fact and to check for Bisctuit token validity
  * @returns {Promise<void>}
  * @throws {Error} If the Otoroshi operator does not belong to the same organisation as the application
  */
 export async function expose (params) {
   const [operatorIdOrName] = params.args;
-  const { alias, app: appIdOrName, port } = params.options;
+  const { alias, app: appIdOrName, port, user, ttl } = params.options;
   const { ownerId, appId } = await resolveId(appIdOrName, alias);
+
+  const biscuitProtected = user || ttl;
 
   const otoroshi = await Operator.getDetails('otoroshi', operatorIdOrName);
   const auth = await Otoroshi.getOtoroshiApiParams(operatorIdOrName);
@@ -124,19 +130,80 @@ export async function expose (params) {
     ],
   };
 
-  const route = await createRoute(auth, routeTemplate).then(sendToOtoroshi);
+  let route = {};
 
-  const apiKeyTemplate = await getApiKeyTemplate(auth).then(sendToOtoroshi);
-  apiKeyTemplate.clientName = ng.label;
-  apiKeyTemplate.authorizedEntities = [`route_${route.id}`];
+  let token = '';
+  if (!biscuitProtected) {
+    route = await createRoute(auth, routeTemplate).then(sendToOtoroshi);
+    const apiKeyTemplate = await getApiKeyTemplate(auth).then(sendToOtoroshi);
+    apiKeyTemplate.clientName = ng.label;
+    apiKeyTemplate.authorizedEntities = [`route_${route.id}`];
 
-  const apiKey = await createApiKey(auth, apiKeyTemplate).then(sendToOtoroshi);
+    const apiKey = await createApiKey(auth, apiKeyTemplate).then(sendToOtoroshi);
+    token = apiKey.bearer;
+  }
+  else {
+    const keypair = await selectKeypair(operatorIdOrName);
+    const verifier = await getBiscuitsVerifierTemplate(operatorIdOrName);
+
+    const now = new Date();
+    const durationMs = new Duration(ttl).milliseconds();
+    const delay = new Date(now.getTime() + durationMs);
+    const timeCheck = `check if time($time), $time <= ${delay.toISOString()};`;
+
+    verifier.name = ng.label;
+    verifier.keypair_ref = keypair.id;
+    verifier.config.checks = [timeCheck];
+    verifier.config.policies = [`allow if user("${user}");`];
+
+    const createdVerifier = await createBiscuitsVerifier(operatorIdOrName, verifier);
+
+    const verifierPlugin = {
+      enabled: true,
+      debug: false,
+      plugin: 'cp:otoroshi_plugins.com.cloud.apim.otoroshi.extensions.biscuit.plugins.BiscuitTokenValidator',
+      config: {
+        verifier_ref: createdVerifier.id,
+        extractor_type: 'header',
+        extractor_name: 'Authorization',
+      },
+    };
+
+    routeTemplate.plugins[0] = verifierPlugin;
+
+    const payload = {
+      keypair_ref: keypair.id,
+      config: {
+        checks: [],
+        facts: [],
+      },
+    };
+
+    if (user) {
+      payload.config.facts.push(`user("${user}");`);
+    }
+
+    if (ttl) {
+      payload.config.checks.push(timeCheck);
+    }
+
+    route = await createRoute(auth, routeTemplate).then(sendToOtoroshi);
+    const biscuitToken = await genBiscuitsToken(operatorIdOrName, payload);
+    token = biscuitToken.token;
+  }
 
   Logger.println(`${colors.green('✔')} Your application is now exposed through a Network Group and an Otoroshi reverse proxy`);
   Logger.println(`    ├─ Port: ${colors.green(route.backend.targets[0].port)}`);
-  Logger.println(`    └─ Try it: ${colors.green(`curl https://${route.frontend.domains[0]}${route.backend.root} -H 'Authorization: Bearer ${apiKey.bearer}'`)}`);
+  Logger.println(`    └─ Try it: ${colors.green(`curl https://${route.frontend.domains[0]}${route.backend.root} -H 'Authorization: Bearer ${token}'`)}`);
 }
 
+/**
+ * Unexpose an application through an Otoroshi operator and a Network Group
+ * @param {object} params.args[0] The operator's name or ID
+ * @param {object} params.options.alias The alias of the application
+ * @param {object} params.options.app The application's name or ID
+ * @returns {Promise<void>}
+ */
 export async function unexpose (params) {
   const [operatorIdOrName] = params.args;
   const { alias, app: appIdOrName } = params.options;
@@ -157,6 +224,14 @@ export async function unexpose (params) {
     const apiKey = apiKeys.find((k) => k.clientName === toClean);
     await deleteApiKey(auth, apiKey.clientId).then(sendToOtoroshi);
     Logger.println(`${colors.green('✔')} API Key for ${colors.green(toClean)} has been deleted`);
+  }
+  catch {}
+
+  try {
+    const verifiers = await getBiscuitVerifiers(auth).then(sendToOtoroshi);
+    const verifier = verifiers.find((v) => v.name === toClean);
+    await deleteBiscuitVerifier(auth, verifier.id).then(sendToOtoroshi);
+    Logger.println(`${colors.green('✔')} Biscuit Verifier for ${colors.green(toClean)} has been deleted`);
   }
   catch {}
 

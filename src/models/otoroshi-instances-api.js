@@ -1,4 +1,42 @@
 /**
+ * POST /apis/biscuit.extensions.cloud-apim.com/v1/biscuit-keypairs/
+ * @param {string} auth.apiId
+ * @param {string} auth.apiSecret
+ * @param {Object} body
+ */
+export function genBiscuitKeypair (auth, body) {
+  return Promise.resolve({
+    method: 'post',
+    url: `${auth.apiUrl}/apis/biscuit.extensions.cloud-apim.com/v1/biscuit-keypairs`,
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Basic ${Buffer.from(`${auth.apiId}:${auth.apiSecret}`).toString('base64')}`,
+    },
+    // no queryParams
+    body,
+  });
+}
+
+/**
+ * DELETE /apis/biscuit.extensions.cloud-apim.com/v1/biscuit-keypairs/${keypairId}
+ * @param {string} auth.apiId
+ * @param {string} auth.apiSecret
+ * @param {string} keypairId
+ */
+export function deleteBiscuitKeypair (auth, keypairId) {
+  return Promise.resolve({
+    method: 'delete',
+    url: `${auth.apiUrl}/apis/biscuit.extensions.cloud-apim.com/v1/biscuit-keypairs/${keypairId}`,
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Basic ${Buffer.from(`${auth.apiId}:${auth.apiSecret}`).toString('base64')}`,
+    },
+    // no queryParams
+    // no body
+  });
+}
+
+/**
  * GET /apis/biscuit.extensions.cloud-apim.com/v1/biscuit-keypairs
  * @param {string} auth.apiId
  * @param {string} auth.apiSecret
@@ -15,6 +53,26 @@ export function getBiscuitKeypairs (auth) {
     // no body
   });
 }
+
+/**
+ * GET /apis/biscuit.extensions.cloud-apim.com/v1/biscuit-keypairs/${keypairId}
+ * @param {string} auth.apiId
+ * @param {string} auth.apiSecret
+ * @param {string} keypairId
+ */
+export function getBiscuitKeypair (auth, keypairId) {
+  return Promise.resolve({
+    method: 'get',
+    url: `${auth.apiUrl}/apis/biscuit.extensions.cloud-apim.com/v1/biscuit-keypairs/${keypairId}`,
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Basic ${Buffer.from(`${auth.apiId}:${auth.apiSecret}`).toString('base64')}`,
+    },
+    // no queryParams
+    // no body
+  });
+}
+
 /**
  * GET /apis/biscuit.extensions.cloud-apim.com/v1/biscuit-keypairs/_template
  * @param {string} auth.apiId
@@ -34,15 +92,15 @@ export function getBiscuitKeypairsTemplate (auth) {
 }
 
 /**
- * POST /apis/biscuit.extensions.cloud-apim.com/v1/biscuit-keypairs/
+ * POST /api/extensions/biscuit/tokens/_generate
  * @param {string} auth.apiId
  * @param {string} auth.apiSecret
  * @param {Object} body
  */
-export function genBiscuitKeypair (auth, body) {
+export function genBiscuitToken (auth, body) {
   return Promise.resolve({
     method: 'post',
-    url: `${auth.apiUrl}/apis/biscuit.extensions.cloud-apim.com/v1/biscuit-keypairs`,
+    url: `${auth.apiUrl}/api/extensions/biscuit/tokens/_generate`,
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Basic ${Buffer.from(`${auth.apiId}:${auth.apiSecret}`).toString('base64')}`,
@@ -80,6 +138,24 @@ export function getBiscuitVerifierTemplate (auth) {
   return Promise.resolve({
     method: 'get',
     url: `${auth.apiUrl}/apis/biscuit.extensions.cloud-apim.com/v1/biscuit-verifiers/_template`,
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Basic ${Buffer.from(`${auth.apiId}:${auth.apiSecret}`).toString('base64')}`,
+    },
+    // no queryParams
+    // no body
+  });
+}
+
+/**
+ * GET /apis/biscuit.extensions.cloud-apim.com/v1/biscuit-verifiers
+ * @param {string} auth.apiId
+ * @param {string} auth.apiSecret
+ */
+export function getBiscuitVerifiers (auth) {
+  return Promise.resolve({
+    method: 'get',
+    url: `${auth.apiUrl}/apis/biscuit.extensions.cloud-apim.com/v1/biscuit-verifiers`,
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Basic ${Buffer.from(`${auth.apiId}:${auth.apiSecret}`).toString('base64')}`,

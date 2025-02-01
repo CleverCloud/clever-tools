@@ -212,15 +212,7 @@ export async function updateVersion (provider, operatorIdOrName, version) {
       }
 
       const newVersion = { version: version.split('_')[0], llm_version: version.split('_')[1] };
-      const versionExists = OTOROSHI_VERSIONS.some((v) =>
-        v.version === newVersion.version && v.llm_version === newVersion.llm_version,
-      );
-
-      if (!newVersion.version || !newVersion.llm_version || !versionExists) {
-        throw new Error(`Version ${colors.red(version)} is not supported.`);
-      }
-
-      await setEnvVar(operator.ownerId, operator.javaId, 'CC_OTOROSHI_VERSION', `v${newVersion.version}`);
+      await setEnvVar(operator.ownerId, operator.javaId, 'CC_OTOROSHI_VERSION', `${newVersion.version}`);
       await setEnvVar(operator.ownerId, operator.javaId, 'CC_OTOROSHI_APIM_VERSION', newVersion.llm_version);
       break;
     }
