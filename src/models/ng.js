@@ -45,6 +45,8 @@ export async function create (label, description, tags, membersIds, orgaIdOrName
 
   await pollNetworkGroup(ownerId, id, { waitForMembers: membersIds });
   Logger.info(`Network Group ${label} (${id}) created from owner ${ownerId}`);
+
+  return { id, label, ownerId };
 }
 
 /**
