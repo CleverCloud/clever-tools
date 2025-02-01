@@ -183,6 +183,25 @@ export function getRoute (auth, id) {
 }
 
 /**
+ * DELETE /apis/proxy.otoroshi.io/v1/routes/{id}
+ * @param {string} auth.apiId
+ * @param {string} auth.apiSecret
+ * @param {string} id
+ */
+export function deleteRoute (auth, id) {
+  return Promise.resolve({
+    method: 'delete',
+    url: `${auth.apiUrl}/apis/proxy.otoroshi.io/v1/routes/${id}`,
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Basic ${Buffer.from(`${auth.apiId}:${auth.apiSecret}`).toString('base64')}`,
+    },
+    // no queryParams
+    // no body
+  });
+}
+
+/**
  * GET /apis/coraza-waf.extensions.otoroshi.io/v1/coraza-configs/_template
  * @param {string} auth.apiId
  * @param {string} auth.apiSecret
@@ -253,5 +272,97 @@ export function createWaf (auth, body) {
     },
     // no queryParams
     body,
+  });
+}
+
+/**
+ * GET /apis/apim.otoroshi.io/v1/apikeys/_template
+ * @param {string} auth.apiId
+ * @param {string} auth.apiSecret
+ */
+export function getApiKeyTemplate (auth) {
+  return Promise.resolve({
+    method: 'get',
+    url: `${auth.apiUrl}/apis/apim.otoroshi.io/v1/apikeys/_template`,
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Basic ${Buffer.from(`${auth.apiId}:${auth.apiSecret}`).toString('base64')}`,
+    },
+    // no queryParams
+    // no body
+  });
+}
+
+/**
+ * POST /apis/apim.otoroshi.io/v1/apikeys
+ * @param {string} auth.apiId
+ * @param {string} auth.apiSecret
+ */
+export function createApiKey (auth, body) {
+  return Promise.resolve({
+    method: 'post',
+    url: `${auth.apiUrl}/apis/apim.otoroshi.io/v1/apikeys`,
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Basic ${Buffer.from(`${auth.apiId}:${auth.apiSecret}`).toString('base64')}`,
+    },
+    // no queryParams
+    body,
+  });
+}
+
+/**
+ * GET /apis/apim.otoroshi.io/v1/apikeys
+ * @param {string} auth.apiId
+ * @param {string} auth.apiSecret
+ */
+export function getApiKeys (auth) {
+  return Promise.resolve({
+    method: 'get',
+    url: `${auth.apiUrl}/apis/apim.otoroshi.io/v1/apikeys`,
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Basic ${Buffer.from(`${auth.apiId}:${auth.apiSecret}`).toString('base64')}`,
+    },
+    // no queryParams
+    // no body
+  });
+}
+
+/**
+ * GET /apis/apim.otoroshi.io/v1/apikeys/{id}
+ * @param {string} auth.apiId
+ * @param {string} auth.apiSecret
+ * @param {string} id
+ */
+export function getApiKey (auth, id) {
+  return Promise.resolve({
+    method: 'get',
+    url: `${auth.apiUrl}/apis/apim.otoroshi.io/v1/apikeys/${id}`,
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Basic ${Buffer.from(`${auth.apiId}:${auth.apiSecret}`).toString('base64')}`,
+    },
+    // no queryParams
+    // no body
+  });
+}
+
+/**
+ * DELETE /apis/apim.otoroshi.io/v1/apikeys/{id}
+ * @param {string} auth.apiId
+ * @param {string} auth.apiSecret
+ * @param {string} id
+ */
+export function deleteApiKey (auth, id) {
+  return Promise.resolve({
+    method: 'delete',
+    url: `${auth.apiUrl}/apis/apim.otoroshi.io/v1/apikeys/${id}`,
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Basic ${Buffer.from(`${auth.apiId}:${auth.apiSecret}`).toString('base64')}`,
+    },
+    // no queryParams
+    // no body
   });
 }

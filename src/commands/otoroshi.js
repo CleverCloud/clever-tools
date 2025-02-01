@@ -8,6 +8,8 @@ import * as Operator from '../models/operators.js';
 import { Logger } from '../logger.js';
 import { select } from '@inquirer/prompts';
 import { resolveId } from '../models/application.js';
+import { sendToOtoroshi } from '../models/otoroshi.js';
+import { createApiKey, createRoute, deleteApiKey, deleteRoute, getApiKeys, getApiKeyTemplate, getRoutes } from '../models/otoroshi-instances-api.js';
 
 /** Check the version of an Otoroshi operator
  * @param {object} params The command's parameters
@@ -70,38 +72,102 @@ export async function get (params) {
   printOtoroshi(otoroshi, format);
 }
 
-export async function link (params) {
-  const [appIdOrName, addonIdOrName] = params.args;
-  const otoroshi = await get(null, addonIdOrName);
-  const otoroshiApp = await get(otoroshi);
+/**
+ * Expose an application through an Otoroshi operator and a Network Group
+ * @param {object} params The command's parameters
+ * @param {object} params.args[0] The operator's name or ID
+ * @param {object} params.options.alias The alias of the application
+ * @param {object} params.options.app The application's name or ID
+ * @param {object} params.options.port The port on which the application is exposed in the Network Group (default: 4242)
+ * @returns {Promise<void>}
+ * @throws {Error} If the Otoroshi operator does not belong to the same organisation as the application
+ */
+export async function expose (params) {
+  const [operatorIdOrName] = params.args;
+  const { alias, app: appIdOrName, port } = params.options;
+  const { ownerId, appId } = await resolveId(appIdOrName, alias);
 
-  const { appId } = await resolveId(appIdOrName);
+  const otoroshi = await Operator.getDetails('otoroshi', operatorIdOrName);
+  const auth = await Otoroshi.getOtoroshiApiParams(operatorIdOrName);
 
-  // Create a network group
-  const { id: ngId } = await NG.create(null, `${otoroshi.realId}.${appId}`, null, null, [appId, otoroshiApp.appId]);
+  if (otoroshi.ownerId !== ownerId) {
+    throw new Error(`The Otoroshi operator ${colors.red(otoroshi.addonId)} does not belong to the same organisation as ${colors.red(appId)}`);
+  }
 
-  // Get the application's member domain
-  const memberDomain = `${appId}.m.${ngId}.ng.${NG.DOMAIN}`;
+  const ngInfo = await NG.create(`${otoroshi.addonId.split('-')[0]}-${appId.split('-')[0]}`, null, null, [appId, otoroshi.javaId], null);
+  const ng = await NG.getNG(ngInfo.id);
 
-  // Create a route to the application, without TLS, on port 4242
-  await Otoroshi.createOtoroshiRoute(otoroshi, otoroshiApp, {
-    name: otoroshi.name,
+  const member = Object.values(ng.members).find((m) => m.id === appId);
+  const memberDomain = member.domainName;
+
+  const routeTemplate = {
+    name: ng.label,
     enabled: true,
     frontend: {
-      domains: [memberDomain],
+      domains: [auth.routeBaseDomain],
     },
     backend: {
       targets: [{
+        hostname: memberDomain,
+        port: parseInt(port),
         id: appId,
         tls: false,
       }],
       root: '/',
     },
-    plugins: [],
-  });
-  // Add basic auth to the route
+    plugins: [
+      {
+        enabled: true,
+        debug: false,
+        plugin: 'cp:otoroshi.next.plugins.ApikeyCalls',
+      },
+    ],
+  };
 
-  Logger.println(`${colors.green('✔')} Application ${colors.green(appIdOrName.app_id || appIdOrName.app_name)} linked to Otoroshi service ${colors.green(otoroshi.name)}`);
+  const route = await createRoute(auth, routeTemplate).then(sendToOtoroshi);
+
+  const apiKeyTemplate = await getApiKeyTemplate(auth).then(sendToOtoroshi);
+  apiKeyTemplate.clientName = ng.label;
+  apiKeyTemplate.authorizedEntities = [`route_${route.id}`];
+
+  const apiKey = await createApiKey(auth, apiKeyTemplate).then(sendToOtoroshi);
+
+  Logger.println(`${colors.green('✔')} Your application is now exposed through a Network Group and an Otoroshi reverse proxy`);
+  Logger.println(`    ├─ Port: ${colors.green(route.backend.targets[0].port)}`);
+  Logger.println(`    └─ Try it: ${colors.green(`curl https://${route.frontend.domains[0]}${route.backend.root} -H 'Authorization: Bearer ${apiKey.bearer}'`)}`);
+}
+
+export async function unexpose (params) {
+  const [operatorIdOrName] = params.args;
+  const { alias, app: appIdOrName } = params.options;
+  const { appId } = await resolveId(appIdOrName, alias);
+
+  const otoroshi = await Operator.getDetails('otoroshi', operatorIdOrName);
+  const auth = await Otoroshi.getOtoroshiApiParams(operatorIdOrName);
+  const toClean = `${otoroshi.addonId.split('-')[0].replace('_', ('-'))}-${appId.split('-')[0].replace('_', ('-'))}`;
+
+  try {
+    await NG.destroy(toClean);
+    Logger.println(`${colors.green('✔')} Network Group ${colors.green(toClean)} has been deleted`);
+  }
+  catch {}
+
+  try {
+    const apiKeys = await getApiKeys(auth).then(sendToOtoroshi);
+    const apiKey = apiKeys.find((k) => k.clientName === toClean);
+    await deleteApiKey(auth, apiKey.clientId).then(sendToOtoroshi);
+    Logger.println(`${colors.green('✔')} API Key for ${colors.green(toClean)} has been deleted`);
+  }
+  catch {}
+
+  try {
+    const routes = await getRoutes(auth).then(sendToOtoroshi);
+    const route = routes.find((r) => r.name === toClean);
+    await deleteRoute(auth, route.id).then(sendToOtoroshi);
+    Logger.println(`${colors.green('✔')} Route for ${colors.green(toClean)} has been deleted`);
+  }
+  catch {}
+  Logger.println(`${colors.green('✔')} Application ${colors.green(appId)} is no longer exposed through a Network Group and an Otoroshi reverse proxy`);
 }
 
 /**
@@ -120,7 +186,7 @@ export async function list () {
   Logger.println(deployed.map((otoroshi) => colors.grey(` • ${otoroshi.name} (${otoroshi.realId})`)).join('\n'));
 }
 
-export async function getRoutes (params) {
+export async function listRoutes (params) {
   const [addonIdOrName] = params.args;
   const { format } = params.options;
 

@@ -190,6 +190,12 @@ async function run () {
 
   // OPTIONS
   const opts = {
+    otoroshiPort: cliparse.option('port', {
+      aliases: ['p'],
+      default: '4242',
+      metavar: 'port',
+      description: 'Port of the application exposed through the Network Group to Otoroshi',
+    }),
     // Network Groups options
     ngDescription: cliparse.option('description', {
       metavar: 'description',
@@ -605,10 +611,20 @@ async function run () {
     description: 'List all applications',
     options: [opts.orgaIdOrName, opts.humanJsonOutputFormat],
   }, applications.listAll);
+  const applicationsExposeCommand = cliparse.command('expose', {
+    description: 'Application is linked to an Otoroshi operator in a Network Group to expose a protected custom port (default: 4242)',
+    args: [args.addonIdOrName],
+    options: [opts.alias, opts.appIdOrName, opts.otoroshiPort],
+  }, otoroshi.expose);
+  const applicationsUnexposeCommand = cliparse.command('unexpose', {
+    description: 'Application is unexposed from an Otoroshi operator and linked ressources are deleted',
+    args: [args.addonIdOrName],
+    options: [opts.alias, opts.appIdOrName, opts.otoroshiPort],
+  }, otoroshi.unexpose);
   const applicationsCommand = cliparse.command('applications', {
     description: 'List linked applications',
     privateOptions: [opts.onlyAliases, opts.jsonFormat],
-    commands: [applicationsListRemoteCommand],
+    commands: [applicationsListRemoteCommand, applicationsExposeCommand, applicationsUnexposeCommand],
   }, applications.list);
 
   // CANCEL DEPLOY COMMAND
@@ -998,11 +1014,12 @@ async function run () {
     description: 'Get routes from the Otoroshi operator',
     args: [args.addonIdOrName],
     options: [opts.humanJsonOutputFormat],
-  }, otoroshi.getRoutes);
+  }, otoroshi.listRoutes);
   const otoroshiLinkCommand = cliparse.command('link', {
     description: 'Link an application to the Otoroshi operator through a Network Group',
-    args: [args.appIdOrName],
-  }, otoroshi.link);
+    args: [args.addonIdOrName],
+    options: [opts.alias, opts.appIdOrName],
+  }, otoroshi.expose);
   const otoroshiLogsCommand = cliparse.command('logs', {
     description: 'Open the Otoroshi application logs in Clever Cloud Console',
     args: [args.addonIdOrName],
