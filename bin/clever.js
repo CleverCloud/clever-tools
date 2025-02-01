@@ -801,6 +801,7 @@ async function run () {
   const keycloakEnableNgCommand = cliparse.command('enable', {
     description: 'Link the Keycloak operator to a Network Group, used for multi-instances secure communication',
     args: [args.addonIdOrName],
+    options: [opts.minInstances, opts.maxInstances],
   }, keycloak.ngEnable);
   const keycloakDisableNgCommand = cliparse.command('disable', {
     description: 'Unlink the keycloak operator from its Network Group',
