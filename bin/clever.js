@@ -881,6 +881,9 @@ async function run () {
     options: [opts.alias, opts.appIdOrName],
   }, open.open);
 
+    args: [args.addonIdOrName],
+    options: [opts.humanJsonOutputFormat],
+  }, otoroshi.checkVersion);
   // CONSOLE COMMAND
   const consoleCommand = cliparse.command('console', {
     description: 'Open an application in the Console',
