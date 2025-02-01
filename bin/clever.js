@@ -44,6 +44,7 @@ import * as link from '../src/commands/link.js';
 import * as login from '../src/commands/login.js';
 import * as logout from '../src/commands/logout.js';
 import * as logs from '../src/commands/logs.js';
+import * as metabase from '../src/commands/metabase.js';
 import * as makeDefault from '../src/commands/makeDefault.js';
 import * as ng from '../src/commands/ng.js';
 import * as notifyEmail from '../src/commands/notify-email.js';
@@ -861,6 +862,48 @@ async function run () {
     args: [args.alias],
   }, makeDefault.makeDefault);
 
+  // METABASE COMMAND
+  const metabaseGetCommand = cliparse.command('get', {
+    description: 'Get information about the Metabase operator',
+    args: [args.addonIdOrName],
+    options: [opts.humanJsonOutputFormat],
+  }, metabase.get);
+  const metabaseLogsCommand = cliparse.command('logs', {
+    description: 'Open the Metabase application logs in Clever Cloud Console',
+    args: [args.addonIdOrName],
+  }, metabase.openLogs);
+  const metabaseOpenCommand = cliparse.command('open', {
+    description: 'Open the Metabase admin console in your browser',
+    args: [args.addonIdOrName],
+    commands: [metabaseLogsCommand],
+  }, metabase.open);
+  const metabaseRebootCommand = cliparse.command('reboot', {
+    description: 'Reboot the Metabase operator',
+    args: [args.addonIdOrName],
+  }, metabase.reboot);
+  const metabaseRebuildCommand = cliparse.command('rebuild', {
+    description: 'Rebuild the Metabase operator',
+    args: [args.addonIdOrName],
+  }, metabase.rebuild);
+  const metabaseVersionsGetCommand = cliparse.command('check', {
+    description: 'Check the Metabase operator\'s deployed version',
+    args: [args.addonIdOrName],
+    options: [opts.humanJsonOutputFormat],
+  }, metabase.checkVersion);
+  const metabaseVersionsSetCommand = cliparse.command('update', {
+    description: 'Update the Metabase operator\'s version and rebuild it',
+    args: [args.addonIdOrName],
+  }, metabase.updateVersion);
+  const metabaseVersionsCommands = cliparse.command('version', {
+    description: 'Manage the deployed version of a Metabase operator',
+    commands: [metabaseVersionsGetCommand, metabaseVersionsSetCommand],
+  }, metabase.checkVersion);
+  const metabaseCommand = cliparse.command('metabase', {
+    description: 'Manage Clever Cloud Metabase services',
+    privateOptions: [opts.humanJsonOutputFormat],
+    commands: [metabaseGetCommand, metabaseOpenCommand, metabaseRebootCommand, metabaseRebuildCommand, metabaseVersionsCommands],
+  }, metabase.list);
+
   // NETWORK GROUP COMMANDS
   const ngCreateExternalPeerCommand = cliparse.command('external', {
     description: 'Create an external peer in a Network Group',
@@ -1152,6 +1195,7 @@ async function run () {
 
   if (featuresFromConf.operators) {
     commands.push(colorizeExperimentalCommand(keycloakCommand, 'operators'));
+    commands.push(colorizeExperimentalCommand(metabaseCommand, 'operators'));
   }
 
   if (featuresFromConf.kv) {
