@@ -1,7 +1,6 @@
 
 /**
 * GET /self/emails
-* @param {Object} params
 */
 export function getEmailAddresses () {
   // no multipath for /self or /organisations/{id}

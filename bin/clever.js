@@ -96,7 +96,7 @@ async function run () {
       description: 'Add-on/Real ID (or name, if unambiguous) of a Materia KV or Redis® add-on',
     }),
     email: cliparse.argument('email', {
-      description: 'Email',
+      description: 'Email address',
       parser: Parsers.email,
     }),
     addonIdOrName: cliparse.argument('addon-id', {
@@ -505,20 +505,6 @@ async function run () {
       metavar: 'address',
       description: 'Email address to set as primary for your account',
     }),
-    sshKeysList: cliparse.flag('keys', {
-      description: 'List all SSH keys of your account',
-    }),
-    sshKeyAdd: cliparse.option('key-add', {
-      metavar: 'key_name',
-      description: 'SSH key to add to your account',
-    }),
-    sshKeyRemove: cliparse.option('key-remove', {
-      metavar: 'key_name',
-      description: 'SSH key to remove from your account',
-    }),
-    sshKeyClear: cliparse.flag('keys-remove-all', {
-      description: 'Remove all SSH keys from your account',
-    }),
   };
 
   // ACCESSLOGS COMMAND
@@ -706,30 +692,30 @@ async function run () {
 
   // EMAILS COMMANDS
   const emailsListCommand = cliparse.command('list', {
-    description: 'List primary and secondary emails of the current user',
+    description: 'List primary and secondary email addresses of the current user',
     options: [opts.humanJsonOutputFormat],
   }, emails.list);
   const emailsAddCommand = cliparse.command('add', {
-    description: 'Add a new email secondary email to the current user',
+    description: 'Add a new secondary email address to the current user',
     args: [args.email],
   }, emails.addSecondary);
   const emailsPrimaryCommand = cliparse.command('primary', {
-    description: 'Set the primary email of the current user',
+    description: 'Set the primary email address of the current user',
     args: [args.email],
   }, emails.setPrimary);
   const emailsRemoveCommand = cliparse.command('remove', {
-    description: 'Remove a secondary email from the current user',
+    description: 'Remove a secondary email address from the current user',
     args: [args.email],
   }, emails.removeSecondary);
   const emailsClearCommand = cliparse.command('clear', {
-    description: 'Remove all secondary emails from the current user',
+    description: 'Remove all secondary emails addresses from the current user',
     options: [opts.yes],
   }, emails.removeAllSecondary);
   const emailsOpenConsoleCommand = cliparse.command('open', {
-    description: 'Open the emails management page in the Console',
+    description: 'Open the email addresses management page in the Console',
   }, emails.openConsole);
   const emailsCommands = cliparse.command('emails', {
-    description: 'Manage emails of the current user',
+    description: 'Manage email addresses of the current user',
     commands: [emailsListCommand, emailsAddCommand, emailsPrimaryCommand, emailsRemoveCommand, emailsClearCommand, emailsOpenConsoleCommand],
   }, emails.list);
 
