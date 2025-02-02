@@ -104,6 +104,24 @@ export function getAiEndpointApiKey (params) {
 }
 
 /**
+ * POST /addon-providers/addon-ai/addons/{aiId}/ai/endpoints/{endpointId}/apikeys/{apiKeyId}/_status
+ * @param {Object} params
+ * @param {String} params.undefined
+ * @param {String} params.undefined
+ * @param {String} params.undefined
+ */
+export function getAiEndpointApiKeyStatus (params) {
+  // no multipath for /self or /organisations/{id}
+  return Promise.resolve({
+    method: 'post',
+    url: `/v4/addon-providers/addon-ai/addons/${params.aiId}/ai/endpoints/${params.endpointId}/apikeys/${params.apiKeyId}/_status`,
+    headers: { Accept: 'application/json' },
+    // no query params
+    // no body
+  });
+}
+
+/**
  * PATCH /addon-providers/addon-ai/addons/{aiId}/ai/endpoints/{endpointId}/apikeys/{apiKeyId}
  * @param {Object} params
  * @param {String} params.undefined

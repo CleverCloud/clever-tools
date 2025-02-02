@@ -637,6 +637,14 @@ async function run () {
   }, addon.list);
 
   // AI APIKEYS COMMANDS
+  const aiApikeysDeployCommand = cliparse.command('deploy', {
+    description: 'Deploy a Clever AI Service API key to a Chat service',
+    args: [args.apiKeyId, args.chatNameOrUid],
+  }, apikeys.deploy);
+  const aiApikeysGetCommand = cliparse.command('get', {
+    description: 'Get a Clever AI Service API key in JSON format',
+    args: [args.apiKeyId, args.chatNameOrUid],
+  }, apikeys.get);
   const aiApikeysListCommand = cliparse.command('list', {
     description: 'List available Clever AI Service API keys',
     args: [args.chatNameOrUid],
@@ -646,7 +654,7 @@ async function run () {
     description: 'Manage Clever AI Service API keys',
     args: [args.chatNameOrUid],
     privateOptions: [opts.humanJsonOutputFormat],
-    commands: [aiApikeysListCommand],
+    commands: [aiApikeysDeployCommand, aiApikeysGetCommand, aiApikeysListCommand],
   }, apikeys.list);
 
   // AI ASSISTANTS COMMANDS

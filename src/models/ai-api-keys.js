@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 import { Logger } from '../logger.js';
 import { sendToApi } from '../models/send-to-api.js';
-import { createAiEndpointApiKey, deleteAiEndpointApiKey, deployAiEndpointApiKey, getAiEndpointApiKey, getAiEndpointApiKeyTemplate, listAiEndpointApiKeys, patchAiEndpointApiKey, searchAiEndpointApiKeys, undeployAiEndpointApiKey } from '../models/ai-api-keys-api.js';
+import { createAiEndpointApiKey, deleteAiEndpointApiKey, deployAiEndpointApiKey, getAiEndpointApiKey, getAiEndpointApiKeyStatus, getAiEndpointApiKeyTemplate, listAiEndpointApiKeys, patchAiEndpointApiKey, searchAiEndpointApiKeys, undeployAiEndpointApiKey } from '../models/ai-api-keys-api.js';
 
 const AI_REAL_ID = process.env.AI_REAL_ID;
 
@@ -67,6 +67,19 @@ export async function undeploy (endpointUid, apiKeyUid) {
 export async function get (endpointUid, apiKeyUid) {
   validateParams({ endpointUid, apiKeyUid }, ['endpointUid', 'apiKeyUid']);
   return await getAiEndpointApiKey({ aiId: AI_REAL_ID, endpointId: endpointUid, apiKeyId: apiKeyUid }).then(sendToApi);
+}
+
+/**
+ * Get the status of an API key for an Clever AI End by its ID
+ * @param {string} endpointUid - The Clever AI End ID
+ * @param {string} apiKeyUid - The API Key ID
+ * @throws {Error} When endpointUid or apiKeyUid is not provided
+ * @returns {Promise<Object>} The API key details
+ * @public
+ */
+export async function getStatus (endpointUid, apiKeyUid) {
+  validateParams({ endpointUid, apiKeyUid }, ['endpointUid', 'apiKeyUid']);
+  return await getAiEndpointApiKeyStatus({ aiId: AI_REAL_ID, endpointId: endpointUid, apiKeyId: apiKeyUid }).then(sendToApi);
 }
 
 /**
