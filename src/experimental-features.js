@@ -2,6 +2,23 @@ import dedent from 'dedent';
 import { conf } from './models/configuration.js';
 
 export const EXPERIMENTAL_FEATURES = {
+  functions: {
+    status: 'alpha',
+    description: 'Deploy and manage serverless Functions on Clever Cloud',
+    instructions: `
+Manage a function:
+    clever functions create
+    clever functions deploy function_xxx
+    clever functions delete function_xxx
+
+List functions and deployments:
+
+    clever functions
+    clever functions list-deployments function_xxx
+
+Learn more about functions: https://github.com/CleverCloud/clever-tools/blob/davlgd-new-functions/docs/functions.md
+`,
+  },
   kv: {
     status: 'alpha',
     description: 'Send commands to databases such as Materia KV or Redis® directly from Clever Tools, without other dependencies',
