@@ -27,8 +27,7 @@ export async function create ({ withChat = true, name = null, description = null
     name: name || endpointUid,
     origin: 'Clever Tools',
     description: description || '',
-    frontend_completions: `${endpointBaseUrl}/v1/chat/completions`,
-    frontend_models: `${endpointBaseUrl}/v1/models`,
+    frontend_base: `${endpointBaseUrl}/v1`,
     default_configuration,
     llm_configurations,
   };

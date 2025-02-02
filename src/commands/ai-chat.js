@@ -79,7 +79,7 @@ export async function getCurlInstructions (params) {
 
   Logger.println(`
 curl -XPOST \\
---url https://${endpoint.frontend_completions} \\
+--url https://${endpoint.frontend_base}/chat/completions \\
 --header 'Authorization: Bearer ${apiKeys[0].token}' \\
 --header 'Content-Type: application/json' \\
 --data '{
@@ -134,8 +134,8 @@ export async function showServiceInfo (params) {
         Name: endpoint.name,
         UID: endpoint.uid,
         Description: endpoint.description,
-        'API URL': `https://${endpoint.frontend_completions}`,
-        'Models URL': `https://${endpoint.frontend_models}`,
+        'API URL': `https://${endpoint.frontend_base}/chat/completions`,
+        'Models URL': `https://${endpoint.frontend_base}/models`,
         'Default provider': endpoint.default_configuration,
         'Deployed?': status.deployed,
         'Chat Enabled?': endpoint.web_ui_settings.enabled,

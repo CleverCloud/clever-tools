@@ -121,8 +121,7 @@ export function prepareEndpointForHumanOutput (endpoint) {
   if (endpoint.length === 0
     || !endpoint.uid
     || !endpoint.name
-    || !endpoint.frontend_completions
-    || !endpoint.frontend_models
+    || !endpoint.frontend_base
     || !endpoint.llm_configurations
     || !endpoint.web_ui_settings
     || !endpoint.web_ui_settings.enabled
@@ -137,8 +136,7 @@ export function prepareEndpointForHumanOutput (endpoint) {
     uid: endpoint.uid,
     name: endpoint.name,
     description: endpoint.description,
-    frontend_completions: `https://${endpoint.frontend_completions}`,
-    frontend_models: `https://${endpoint.frontend_models}`,
+    frontend_base: `https://${endpoint.frontend_base}`,
     provider: endpoint.llm_configurations.find((c) => c.name === endpoint.default_configuration).provider,
     web_ui: endpoint.web_ui_settings.enabled ? `https://${endpoint.web_ui_settings.frontend}` : false,
   };

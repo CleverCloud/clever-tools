@@ -67,7 +67,7 @@ export async function list (params) {
   }
 
   const data = endpoints
-    .map(({ name, uid, frontend_completions, web_ui_settings }) => ({ Name: name, UID: uid, 'Chat Service Access': web_ui_settings.enabled ? `https://${web_ui_settings.frontend}` : `https://${frontend_completions}` }));
+    .map(({ name, uid, frontend_base, web_ui_settings }) => ({ Name: name, UID: uid, 'Chat Service Access': web_ui_settings.enabled ? `https://${web_ui_settings.frontend}` : `https://${frontend_base}/chat/completions` }));
 
   switch (format) {
     case 'json':

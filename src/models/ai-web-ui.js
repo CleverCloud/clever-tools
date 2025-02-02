@@ -13,7 +13,7 @@ export async function activate (endpointUid, enabled, frontend = null) {
     web_ui_settings: {
       enabled,
       frontend: enabled
-        ? (frontend || `${new URL(`https://${endpoint.frontend_completions}`).origin}/`)
+        ? (frontend || `${new URL(`https://${endpoint.frontend_base}`).origin}/`)
         : '',
     },
   });
