@@ -38,8 +38,9 @@ export function createAiEndpointApiKey (params, body) {
  * @param {Object} params
  * @param {String} params.undefined
  * @param {String} params.undefined
+ * @param {String} params.undefined
  */
-export function deployAiEndpointApiKey (params, body) {
+export function deployAiEndpointApiKey (params) {
   // no multipath for /self or /organisations/{id}
   return Promise.resolve({
     method: 'post',

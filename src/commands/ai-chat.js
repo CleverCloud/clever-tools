@@ -26,7 +26,8 @@ export async function createChatService (params) {
     logoUrl,
   });
 
-  await AiApiKeys.create(endpoint.uid);
+  const apikey = await AiApiKeys.create(endpoint.uid);
+  await AiApiKeys.deploy(endpoint.uid, apikey.uid);
 
   params.namedArgs['chat-name-or-uid'] = endpoint.uid;
   checkAndOpenWebUI(endpoint, open);
