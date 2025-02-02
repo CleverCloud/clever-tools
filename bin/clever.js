@@ -38,6 +38,7 @@ import * as domain from '../src/commands/domain.js';
 import * as drain from '../src/commands/drain.js';
 import * as env from '../src/commands/env.js';
 import * as features from '../src/commands/features.js';
+import * as functions from '../src/commands/functions.js';
 import * as kv from '../src/commands/kv.js';
 import * as link from '../src/commands/link.js';
 import * as login from '../src/commands/login.js';
@@ -91,6 +92,12 @@ async function run () {
 
   // ARGUMENTS
   const args = {
+    faasId: cliparse.argument('faas-id', {
+      description: 'Function ID',
+    }),
+    faasFile: cliparse.argument('filename', {
+      description: 'Path to the function code',
+    }),
     kvRawCommand: cliparse.argument('command', {
       description: 'The raw command to send to the Materia KV or Redis® add-on',
     }),
@@ -766,6 +773,29 @@ async function run () {
     description: 'Manage Clever Tools experimental features',
     commands: [enableFeatureCommand, disableFeatureCommand, listFeaturesCommand, infoFeaturesCommand],
   }, features.list);
+
+  // FUNCTIONS COMMANDS
+  const functionsCreateCommand = cliparse.command('create', {
+    description: 'Create a Clever Cloud Function',
+  }, functions.create);
+  const functionsDeleteCommand = cliparse.command('delete', {
+    description: 'Delete a Clever Cloud Function',
+    args: [args.faasId],
+  }, functions.destroy);
+  const functionsDeployCommand = cliparse.command('deploy', {
+    description: 'Deploy a Clever Cloud Function from compatible source code',
+    args: [args.faasFile, args.faasId],
+  }, functions.deploy);
+  const functionsListDeploymentsCommand = cliparse.command('list-deployments', {
+    description: 'List deployments of a Clever Cloud Function',
+    args: [args.faasId],
+    options: [opts.humanJsonOutputFormat],
+  }, functions.listDeployments);
+  const functionsCommand = cliparse.command('functions', {
+    description: 'Manage Clever Cloud Functions',
+    options: [opts.orgaIdOrName],
+    commands: [functionsCreateCommand, functionsDeleteCommand, functionsDeployCommand, functionsListDeploymentsCommand],
+  }, functions.list);
 
   // KV COMMAND
   const kvRawCommand = cliparse.command('kv', {
