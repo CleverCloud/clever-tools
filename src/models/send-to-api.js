@@ -24,8 +24,9 @@ async function loadTokens () {
 
 export async function sendToApi (requestParams) {
   const tokens = await loadTokens();
+  const host = requestParams.url.startsWith('/v4/functions') ? 'https://functions-staging.cleverapps.io' : conf.API_HOST;
   return Promise.resolve(requestParams)
-    .then(prefixUrl(conf.API_HOST))
+    .then(prefixUrl(host))
     .then(addOauthHeader(tokens))
     .then((requestParams) => {
       Logger.debug(`${requestParams.method.toUpperCase()} ${requestParams.url} ? ${JSON.stringify(requestParams.queryParams)}`);
