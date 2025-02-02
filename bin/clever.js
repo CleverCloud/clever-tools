@@ -1093,9 +1093,11 @@ async function run () {
   if (featuresFromConf.kv) {
     commands.push(colorizeExperimentalCommand(kvRawCommand, 'kv'));
   }
-
   if (featuresFromConf.ng) {
     commands.push(colorizeExperimentalCommand(networkGroupsCommand, 'ng'));
+  }
+  if (featuresFromConf.functions) {
+    commands.push(colorizeExperimentalCommand(functionsCommand, 'functions'));
   }
 
   // CLI PARSER
