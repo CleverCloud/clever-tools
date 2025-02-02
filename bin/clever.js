@@ -32,6 +32,7 @@ import * as aiAssistants from '../src/commands/ai-assistant.js';
 import * as aiEndpoints from '../src/commands/ai-endpoints.js';
 import * as aiProviders from '../src/commands/ai-providers.js';
 import * as aiWebUI from '../src/commands/ai-web-ui.js';
+import * as apikeys from '../src/commands/apikeys.js';
 import * as applications from '../src/commands/applications.js';
 import * as cancelDeploy from '../src/commands/cancel-deploy.js';
 import * as config from '../src/commands/config.js';
@@ -635,6 +636,19 @@ async function run () {
     commands: [addonCreateCommand, addonDeleteCommand, addonRenameCommand, addonListCommand, addonProvidersCommand, addonEnvCommand],
   }, addon.list);
 
+  // AI APIKEYS COMMANDS
+  const aiApikeysListCommand = cliparse.command('list', {
+    description: 'List available Clever AI Service API keys',
+    args: [args.chatNameOrUid],
+    options: [opts.humanJsonOutputFormat],
+  }, apikeys.list);
+  const aiApikeysCommands = cliparse.command('apikeys', {
+    description: 'Manage Clever AI Service API keys',
+    args: [args.chatNameOrUid],
+    privateOptions: [opts.humanJsonOutputFormat],
+    commands: [aiApikeysListCommand],
+  }, apikeys.list);
+
   // AI ASSISTANTS COMMANDS
   const aiAssistantsListCommand = cliparse.command('list', {
     description: 'List available Clever AI Chat assistants',
@@ -733,7 +747,7 @@ async function run () {
     description: 'Manage Clever AI Chat service and its assistants, endpoints, providers',
     args: [args.chatNameOrUid],
     privateOptions: [opts.humanJsonOutputFormat],
-    commands: [aiServiceCreateCommand, aiServiceRestartCommand, aiServiceDeleteCommand, aiGetCommands, aiListServicesCommand, chatWebUICommands, aiAssistantsCommands],
+    commands: [aiServiceCreateCommand, aiServiceRestartCommand, aiServiceDeleteCommand, aiGetCommands, aiListServicesCommand, aiApikeysCommands, chatWebUICommands, aiAssistantsCommands],
   }, aiChat.showServiceInfo);
 
   // APPLICATIONS COMMAND
