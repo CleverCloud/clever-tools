@@ -27,6 +27,11 @@ import * as Namespaces from '../src/models/namespaces.js';
 import * as accesslogsModule from '../src/commands/accesslogs.js';
 import * as activity from '../src/commands/activity.js';
 import * as addon from '../src/commands/addon.js';
+import * as aiChat from '../src/commands/ai-chat.js';
+import * as aiAssistants from '../src/commands/ai-assistant.js';
+import * as aiEndpoints from '../src/commands/ai-endpoints.js';
+import * as aiProviders from '../src/commands/ai-providers.js';
+import * as aiWebUI from '../src/commands/ai-web-ui.js';
 import * as applications from '../src/commands/applications.js';
 import * as cancelDeploy from '../src/commands/cancel-deploy.js';
 import * as config from '../src/commands/config.js';
@@ -91,6 +96,15 @@ async function run () {
 
   // ARGUMENTS
   const args = {
+    assistantId: cliparse.argument('assistant-id', {
+      description: 'Clever AI Assistant ID, get list with `clever ai assistants`',
+    }),
+    apiKeyId: cliparse.argument('api-key', {
+      description: 'Clever AI Endpoint API Key UID',
+    }),
+    chatNameOrUid: cliparse.argument('chat-name-or-uid', {
+      description: 'Clever AI Chat service name or endpoint UID',
+    }),
     kvRawCommand: cliparse.argument('command', {
       description: 'The raw command to send to the Materia KV or Redis® add-on',
     }),
@@ -181,6 +195,36 @@ async function run () {
 
   // OPTIONS
   const opts = {
+    apiKeyId: cliparse.option('api-key', {
+      description: 'LLM Endpoint API Key ID',
+    }),
+    chatServiceLogoUrl: cliparse.option('logo-url', {
+      aliases: ['l'],
+      description: 'The URL of the logo to use for Clever AI Chat service Web UI',
+      metavar: 'logo-url',
+    }),
+    chatServiceIconUrl: cliparse.option('icon-url', {
+      aliases: ['i'],
+      description: 'The URL of the icon to use for Clever AI Chat service Web UI',
+      metavar: 'icon-url',
+    }),
+    chatServiceConfigFile: cliparse.option('conf', {
+      aliases: ['c'],
+      description: 'Path to a JSON file containing the providers configuration for the Clever AI Chat service',
+      metavar: 'path_to_conf_file',
+    }),
+    chatServiceInteractiveConfig: cliparse.flag('interactive', {
+      description: 'Ask for providers configuration without using any configuration file',
+    }),
+    deleteAllChatServices: cliparse.flag('all', { description: 'Delete all Clever AI Chat services' }),
+    openWebUI: cliparse.flag('open', {
+      description: 'Open the Clever AI Chat Web UI',
+    }),
+    provider: cliparse.option('provider', {
+      aliases: ['p'],
+      description: 'AI provider, get list with `clever ai list providers`',
+      metavar: 'provider',
+    }),
     // Network Groups options
     ngDescription: cliparse.option('description', {
       metavar: 'description',
@@ -590,6 +634,107 @@ async function run () {
     privateOptions: [opts.humanJsonOutputFormat],
     commands: [addonCreateCommand, addonDeleteCommand, addonRenameCommand, addonListCommand, addonProvidersCommand, addonEnvCommand],
   }, addon.list);
+
+  // AI ASSISTANTS COMMANDS
+  const aiAssistantsListCommand = cliparse.command('list', {
+    description: 'List available Clever AI Chat assistants',
+    options: [opts.humanJsonOutputFormat],
+  }, aiAssistants.listAssistants);
+  const aiAssistantsGetCommand = cliparse.command('get', {
+    description: 'Get a Clever AI Chat assistant in JSON format',
+    args: [args.assistantId],
+  }, aiAssistants.getAssistant);
+  const aiAssistantsApplyCommand = cliparse.command('apply', {
+    description: 'Apply an Clever AI Chat assistant to a Chat service',
+    args: [args.assistantId, args.chatNameOrUid],
+  }, aiAssistants.applyAssistantToChatService);
+  const aiAssistantsCommands = cliparse.command('assistants', {
+    description: 'Manage Clever AI Chat assistants',
+    privateOptions: [opts.humanJsonOutputFormat],
+    commands: [aiAssistantsListCommand, aiAssistantsGetCommand, aiAssistantsApplyCommand],
+  }, aiAssistants.listAssistants);
+
+  // AI GET COMMANDS
+  const aiGetCurlInstructionsCommand = cliparse.command('curl-instructions', {
+    description: 'Get the cURL command to send a message to a Clever AI endpoint',
+    args: [args.chatNameOrUid],
+  }, aiChat.getCurlInstructions);
+  const aiGetEndpointsCommand = cliparse.command('endpoint', {
+    description: 'Get information about a Clever AI endpoint',
+    args: [args.chatNameOrUid],
+    options: [opts.humanJsonOutputFormat],
+  }, aiEndpoints.llmGet);
+  const aiGetCommands = cliparse.command('get', {
+    description: 'Get information about a Clever AI Chat service',
+    args: [args.chatNameOrUid],
+    privateOptions: [opts.humanJsonOutputFormat],
+    commands: [aiGetCurlInstructionsCommand, aiGetEndpointsCommand],
+  }, aiChat.showServiceInfo);
+
+  // AI LIST COMMANDS
+  const aiListModelsCommand = cliparse.command('models', {
+    description: 'List available models for a provider',
+    options: [opts.provider, opts.humanJsonOutputFormat],
+  }, aiProviders.listModels);
+  const aiListProvidersCommand = cliparse.command('providers', {
+    description: 'List available AI providers',
+  }, aiProviders.list);
+  const aiListServicesCommand = cliparse.command('list', {
+    description: 'List Clever AI services, models, providers',
+    privateOptions: [opts.humanJsonOutputFormat],
+    commands: [aiListModelsCommand, aiListProvidersCommand],
+  }, aiEndpoints.list);
+
+  // AI CHAT WEB UI COMMANDS
+  const chatDisableWebUICommand = cliparse.command('disable', {
+    description: 'Disable the Clever AI Chat Web UI',
+    args: [args.chatNameOrUid],
+  }, aiWebUI.disableWebUI);
+  const chatEnableWebUICommand = cliparse.command('enable', {
+    description: 'Enable the Clever AI Chat Web UI',
+    args: [args.chatNameOrUid],
+    options: [opts.openWebUI],
+  }, aiWebUI.enableWebUI);
+  const chatOpenWebUICommand = cliparse.command('open', {
+    description: 'Open the Clever AI Chat Web UI',
+    args: [args.chatNameOrUid],
+  }, aiWebUI.openWebUI);
+  const chatWebUIStatusCommand = cliparse.command('status', {
+    description: 'Get the Clever AI Chat Web UI status',
+    args: [args.chatNameOrUid],
+  }, aiWebUI.showWebUIStatus);
+  const chatWebUICommands = cliparse.command('webui', {
+    description: 'Manage Clever AI Chat Web UI',
+    args: [args.chatNameOrUid],
+    privateOptions: [opts.humanJsonOutputFormat],
+    commands: [chatDisableWebUICommand, chatEnableWebUICommand, chatOpenWebUICommand, chatWebUIStatusCommand],
+  }, aiWebUI.showWebUIStatus);
+
+  // AI SERVICE COMMANDS
+  const aiServiceCreateCommand = cliparse.command('create', {
+    description: 'Create a Clever AI service with Web UI',
+    args: [args.chatNameOrUid],
+    options: [opts.chatServiceConfigFile, opts.chatServiceInteractiveConfig, opts.openWebUI, opts.chatServiceLogoUrl, opts.chatServiceIconUrl],
+  }, aiChat.createChatService);
+  const aiServiceDeleteAllCommand = cliparse.command('all', {
+    description: 'Delete all Clever AI services',
+  }, aiChat.deleteAllChatServices);
+  const aiServiceDeleteCommand = cliparse.command('delete', {
+    description: 'Delete a Clever AI service',
+    args: [args.chatNameOrUid],
+    commands: [aiServiceDeleteAllCommand],
+  }, aiChat.deleteChatService);
+  const aiServiceRestartCommand = cliparse.command('restart', {
+    description: 'Restart a Clever AI service',
+    args: [args.chatNameOrUid],
+  }, aiChat.restart);
+
+  const aiCommands = cliparse.command('ai', {
+    description: 'Manage Clever AI Chat service and its assistants, endpoints, providers',
+    args: [args.chatNameOrUid],
+    privateOptions: [opts.humanJsonOutputFormat],
+    commands: [aiServiceCreateCommand, aiServiceRestartCommand, aiServiceDeleteCommand, aiGetCommands, aiListServicesCommand, chatWebUICommands, aiAssistantsCommands],
+  }, aiChat.showServiceInfo);
 
   // APPLICATIONS COMMAND
   const applicationsListRemoteCommand = cliparse.command('list', {
