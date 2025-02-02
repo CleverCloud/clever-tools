@@ -1090,6 +1090,10 @@ async function run () {
   // Add experimental features only if they are enabled through the configuration file
   const featuresFromConf = await getFeatures();
 
+  if (featuresFromConf.ai) {
+    commands.push(colorizeExperimentalCommand(aiCommands, 'ai'));
+  }
+
   if (featuresFromConf.kv) {
     commands.push(colorizeExperimentalCommand(kvRawCommand, 'kv'));
   }

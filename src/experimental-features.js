@@ -1,4 +1,22 @@
 export const EXPERIMENTAL_FEATURES = {
+  ai: {
+    status: 'alpha',
+    description: 'Manage Clever AI Chat services',
+    instructions: `
+- Create a Clever AI Chat service with Web UI enabled:
+    clever ai create myChatService --conf ./path/to/config.json
+- Access the Web UI:
+    clever ai webui open myChatService
+- Get cURL instructions:
+    clever ai get curl-instructions myChatService
+- List Clever AI Chat services:
+    clever ai list
+- List supported providers:
+    clever ai providers list
+
+Learn more about Clever AI Chat services: https://developers.clever-cloud.com/doc/addons/ai-chat/
+`,
+  },
   kv: {
     status: 'alpha',
     description: 'Send commands to databases such as Materia KV or Redis® directly from Clever Tools, without other dependencies',
