@@ -1,5 +1,4 @@
 import colors from 'colors/safe.js';
-
 import { Logger } from '../logger.js';
 import { confirm } from '../models/interact.js';
 import { executeCommand, openBrowser } from '../models/utils.js';
@@ -51,7 +50,7 @@ export function setPrimary (params) {
  * @param {string} params.namedArgs.email The email to remove
  * @returns {Promise<object>} The response's message of the API call
  */
-export function removeSecondary (params) {
+export async function removeSecondary (params) {
   return executeCommand(removeSecondaryEmail, [params.namedArgs.email]);
 }
 
@@ -63,20 +62,20 @@ export function removeSecondary (params) {
 export async function removeAllSecondary (params) {
   const emails = await getUserEmails();
 
-  if (!emails.length) {
-    Logger.println('No secondary emails to remove');
+  if (emails.secondary.length === 0) {
+    Logger.println('No secondary email address to remove');
     return;
   }
 
   if (!params.options.yes) {
     await confirm(
-      'Are you sure you want to remove all your secondary emails? (y/n) ',
-      'No secondary emails removed',
+      'Are you sure you want to remove all your secondary email addresses? (y/n) ',
+      'No secondary email address removed',
     );
   }
 
-  await Promise.all(emails.map(removeSecondaryEmail));
-  Logger.println('All secondary emails removed');
+  await Promise.all(emails.secondary.map(removeSecondaryEmail));
+  Logger.println('All secondary email addresses removed');
 }
 
 /**
@@ -86,14 +85,14 @@ export async function removeAllSecondary (params) {
  * @param {string[]} emails.secondary The secondary emails of the current user
  */
 function printEmails (emails) {
-  Logger.println('📧 User Primary email:');
-  Logger.println(` ▶ ${colors.green(emails.primary)}`);
+  Logger.println('📧 User Primary email address:');
+  Logger.println(` • ${colors.green(emails.primary)}`);
 
   if (emails.secondary.length > 0) {
     Logger.println();
-    Logger.println(`📧 User have ${emails.secondary.length} secondary email(s):`);
+    Logger.println(`📧 ${emails.secondary.length} secondary email address(es):`);
     emails.secondary.forEach((email) =>
-      Logger.println(` ▷ ${colors.blue(email)}`),
+      Logger.println(` • ${colors.blue(email)}`),
     );
   }
 }
@@ -102,6 +101,6 @@ function printEmails (emails) {
  * Open the emails management page of the Console in your browser
  * @returns {Promise<void>} A promise that resolves when the page is opened
  */
-export async function openConsole () {
-  openBrowser('https://console.clever-cloud.com/users/me/emails', 'Opening the emails management page in your browser');
+export function openConsole () {
+  return openBrowser('https://console.clever-cloud.com/users/me/emails', 'Opening the email addresses management page in your browser');
 }
