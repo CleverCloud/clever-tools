@@ -1,22 +1,42 @@
 export const PROVIDERS = [
   {
-    value: 'Ollama',
-    name: 'Ollama',
-    base_url: null,
-  },
-  {
     value: 'Anthropic',
     name: 'Anthropic',
     base_url: 'https://api.anthropic.com',
   },
   {
-    value: 'OpenAI',
-    name: 'OpenAI',
-    base_url: 'https://api.openai.com',
+    value: 'AzureOpenAi',
+    name: 'Azure OpenAI',
+    base_url: 'https://resourceName.openai.azure.com/openai/deployments/deploymentId',
+  },
+  {
+    value: 'Cloudflare',
+    name: 'Cloudflare',
+    base_url: 'https://api.cloudflare.com/client/v4/accounts/accountId/ai/run/modelName',
+  },
+  {
+    value: 'Cohere',
+    name: 'Cohere',
+    base_url: 'https://api.cohere.com',
+  },
+  {
+    value: 'Deepseek',
+    name: 'Deepseek',
+    base_url: 'https://api.deepseek.com',
+  },
+  {
+    value: 'Gemini',
+    name: 'Gemini',
+    base_url: 'https://generativelanguage.googleapis.com/v1beta',
+  },
+  {
+    value: 'Groq',
+    name: 'Groq',
+    base_url: 'https://api.groq.com',
   },
   {
     value: 'HuggingFace',
-    name: 'Hugging Face',
+    name: 'Huggingface',
     base_url: 'https://api-inference.huggingface.co',
   },
   {
@@ -25,43 +45,28 @@ export const PROVIDERS = [
     base_url: 'https://api.mistral.ai',
   },
   {
+    value: 'Ollama',
+    name: 'Ollama',
+    base_url: null,
+  },
+  {
+    value: 'OpenAI',
+    name: 'OpenAI',
+    base_url: 'https://api.openai.com',
+  },
+  {
     value: 'OvhAiEndpoints',
-    name: 'OVHcloud AI Endpoints',
+    name: 'Ovh AI Endpoints',
     base_url: 'https://model_name.endpoints.kepler.ai.cloud.ovh.net',
   },
   {
     value: 'Scaleway',
-    name: 'Scaleway Generative APIs',
+    name: 'Scaleway AI',
     base_url: 'https://api.scaleway.ai',
   },
   {
-    value: 'AzureOpenAi',
-    name: 'Azure OpenAI',
-    base_url: null,
-  },
-  {
-    value: 'Groq',
-    name: 'GroqCloud',
-    base_url: 'https://api.groq.com',
-  },
-  {
-    value: 'Cloudflare',
-    name: 'Cloudflare Workers AI',
-    base_url: null,
-  },
-  {
-    value: 'Cohere',
-    name: 'Cohere',
-    base_url: 'https://api.cohere.com',
-  },
-  {
-    value: 'Gemini',
-    name: 'Google Gemini',
-    base_url: 'https://generativelanguage.googleapis.com/v1beta',
-  },
-  {
     value: 'XAi',
-    name: 'xAI',
+    name: 'X.AI',
     base_url: 'https://api.x.ai',
   },
 ];
