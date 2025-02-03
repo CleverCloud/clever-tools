@@ -11,7 +11,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 export const TIMEOUT = 30;
 export const INTERVAL = 1000;
-export const DOMAIN = 'ng-cc.cloud';
+export const DOMAIN = 'cc-ng.cloud';
 export const TYPE_PREFIXES = {
   app_: 'APPLICATION',
   addon_: 'ADDON',

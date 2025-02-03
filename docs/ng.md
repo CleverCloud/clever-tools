@@ -20,7 +20,7 @@ When you create a Network Group, a Wireguard configuration is generated with a c
 When an application connects to a Network Group, you can reach it on any port inside a NG through its domain name. Any instance of this application is a peer, you can reach independently through an IP (from the attributed CIDR). It works the same way for add-ons and external resources. During alpha testing phase, only applications are supported.
 
 > [!TIP]
-> A Network Group member domain name is composed this way: `<memberID>.m.<ngID>.ng-cc.cloud`
+> A Network Group member domain name is composed this way: `<memberID>.m.<ngID>cc-ng.cloud`
 
 ## Prerequisites
 
