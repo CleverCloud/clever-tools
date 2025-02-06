@@ -100,7 +100,8 @@ export async function expose (params) {
     throw new Error(`The Otoroshi operator ${colors.red(otoroshi.addonId)} does not belong to the same organisation as ${colors.red(appId)}`);
   }
 
-  const ngInfo = await NG.create(`${otoroshi.addonId.split('-')[0]}-${appId.split('-')[0]}`, null, null, [appId, otoroshi.javaId], { orga_id: ownerId });
+  const ngLabel = `${otoroshi.addonId.split('-')[0]}${appId.split('-')[0]}`.replaceAll('_', '');
+  const ngInfo = await NG.create(ngLabel, null, null, [appId, otoroshi.javaId], { orga_id: ownerId });
   const ng = await NG.getNG(ngInfo.id, { orga_id: ownerId });
 
   const member = Object.values(ng.members).find((m) => m.id === appId);
@@ -212,7 +213,7 @@ export async function unexpose (params) {
   const otoroshi = await Operator.getDetails('otoroshi', operatorIdOrName);
 
   const auth = await Otoroshi.getOtoroshiApiParams(operatorIdOrName);
-  const toClean = `${otoroshi.addonId.split('-')[0].replace('_', ('-'))}-${appId.split('-')[0].replace('_', ('-'))}`;
+  const toClean = `${otoroshi.addonId.split('-')[0]}${appId.split('-')[0]}`.replaceAll('_', '');
 
   try {
     await NG.destroy(toClean, { orga_id: otoroshi.ownerId });
