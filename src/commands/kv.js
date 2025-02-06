@@ -2,7 +2,7 @@ import Redis from 'ioredis';
 import colors from 'colors/safe.js';
 import { Logger } from '../logger.js';
 import { sendToApi } from '../models/send-to-api.js';
-import { getAllEnvVars } from '@clevercloud/client/cjs/api/v2/addon.js';
+import { getAllEnvVars } from '@clevercloud/client/esm/api/v2/addon.js';
 import { findAddonsByNameOrId } from '../models/ids-resolver.js';
 
 const URL_ENV_KEY = 'REDIS_URL';

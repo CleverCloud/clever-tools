@@ -1,8 +1,7 @@
-import * as application from '@clevercloud/client/esm/api/v2/application.js';
-
 import { sendToApi } from './send-to-api.js';
+import { getAllDeployments } from '@clevercloud/client/esm/api/v2/application.js';
 
 export function list (ownerId, appId, showAll) {
   const limit = showAll ? null : 10;
-  return application.getAllDeployments({ id: ownerId, appId, limit }).then(sendToApi);
+  return getAllDeployments({ id: ownerId, appId, limit }).then(sendToApi);
 };
