@@ -38,6 +38,7 @@ import * as domain from '../src/commands/domain.js';
 import * as drain from '../src/commands/drain.js';
 import * as env from '../src/commands/env.js';
 import * as features from '../src/commands/features.js';
+import * as kms from '../src/commands/kms.js';
 import * as kv from '../src/commands/kv.js';
 import * as link from '../src/commands/link.js';
 import * as login from '../src/commands/login.js';
@@ -92,6 +93,8 @@ async function run () {
 
   // ARGUMENTS
   const args = {
+    kmsKeyValue: cliparse.argument('key-value', { description: 'A key/value to store in a Clever KMS secret (e.g. secretKey=secretValue), can be used multiple times' }),
+    kmsSecret: cliparse.argument('secret', { description: 'The secret to get from Clever KMS' }),
     kvRawCommand: cliparse.argument('command', { description: 'The raw command to send to the Materia KV or Redis® add-on' }),
     kvIdOrName: cliparse.argument('kv-id', {
       description: 'Add-on/Real ID (or name, if unambiguous) of a Materia KV or Redis® add-on',
@@ -773,6 +776,21 @@ async function run () {
     description: 'Manage Clever Tools experimental features',
     commands: [enableFeatureCommand, disableFeatureCommand, listFeaturesCommand, infoFeaturesCommand],
   }, features.list);
+
+  // KMS COMMANDS
+  const kmsGetCommand = cliparse.command('get', {
+    description: 'Get the value of a secret',
+    args: [args.kmsSecret],
+  }, kms.get);
+  const kmsPutCommand = cliparse.command('put', {
+    description: 'Set the value of a secret',
+    args: [args.kmsSecret, args.kmsKeyValue],
+  }, kms.put);
+  const kmsCommands = cliparse.command('kms', {
+    description: 'Manage secrets',
+    options: [opts.humanJsonOutputFormat],
+    commands: [kmsGetCommand, kmsPutCommand],
+  }, kms.get);
 
   // KV COMMAND
   const kvRawCommand = cliparse.command('kv', {
