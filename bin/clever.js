@@ -1109,16 +1109,20 @@ async function run () {
   // Add experimental features only if they are enabled through the configuration file
   const featuresFromConf = await getFeatures();
 
+  if (featuresFromConf.kms) {
+    commands.push(colorizeExperimentalCommand(kmsCommands, 'kms'));
+  }
+
   if (featuresFromConf.kv) {
     commands.push(colorizeExperimentalCommand(kvRawCommand, 'kv'));
   }
 
-  if (featuresFromConf.tokens) {
-    commands.push(colorizeExperimentalCommand(tokensCommands, 'tokens'));
-  }
-
   if (featuresFromConf.ng) {
     commands.push(colorizeExperimentalCommand(networkGroupsCommand, 'ng'));
+  }
+
+  if (featuresFromConf.tokens) {
+    commands.push(colorizeExperimentalCommand(tokensCommands, 'tokens'));
   }
 
   // CLI PARSER

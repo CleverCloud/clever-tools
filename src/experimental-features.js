@@ -2,6 +2,20 @@ import dedent from 'dedent';
 import { conf } from './models/configuration.js';
 
 export const EXPERIMENTAL_FEATURES = {
+  kms: {
+    status: 'alpha',
+    description: 'Manage your secrets in Clever KMS',
+    instructions: `
+GET and PUT secret in Clever KMS directly from Clever Tools, without other dependencies
+
+  clever kms put mySecret mySecretKey=mySecretValue
+  clever kms put myOtherSecret mySecretKey=mySecretValue myOtherSecretKey="$MY_ENV_VAR_SECRET_VALUE"
+  clever kms get mySecret
+  clever kms get myOtherSecret -F json
+
+Learn more about Materia KV: https://www.clever-cloud.com/developers/doc/addons/kms
+    `,
+  },
   kv: {
     status: 'alpha',
     description: 'Send commands to databases such as Materia KV or Redis® directly from Clever Tools, without other dependencies',
