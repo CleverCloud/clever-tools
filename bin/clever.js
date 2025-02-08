@@ -982,6 +982,10 @@ async function run () {
     commands.push(colorizeExperimentalCommand(kvRawCommand, 'kv'));
   }
 
+  if (featuresFromConf.kms) {
+    commands.push(colorizeExperimentalCommand(kmsCommands, 'kms'));
+  }
+
   // CLI PARSER
   const cliParser = cliparse.cli({
     name: 'clever',
