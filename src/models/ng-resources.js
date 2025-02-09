@@ -134,7 +134,7 @@ export async function linkMember (ngIdOrLabel, memberId, org, label) {
     throw new Error(`Network Group ${colors.red(ngIdOrLabel.ngId || ngIdOrLabel.ngResourceLabel)} not found`);
   }
 
-  await checkMembersToLink([memberId]);
+  await checkMembersToLink([memberId], ng.ownerId);
 
   const alreadyMember = ng.members.find((m) => m.id === memberId);
   if (alreadyMember) {
@@ -204,7 +204,7 @@ export async function unlinkMember (ngIdOrLabel, memberId, org) {
  * @param {Array<string>} members Members to check
  * @throws {Error} If members can't be linked to a Network Group
  */
-export async function checkMembersToLink (members) {
+export async function checkMembersToLink (members, ownerId) {
   const VALID_ADDON_PROVIDERS = [
     'es-addon',
     'mongodb-addon',
@@ -214,11 +214,17 @@ export async function checkMembersToLink (members) {
   ];
 
   const summary = await getSummary().then(sendToApi);
-  const membersNotOK = [];
-  for (const memberId of members) {
 
-    let source = summary.user.applications;
-    if (memberId.startsWith('addon_')) source = summary.user.addons;
+  let data = summary.user;
+  if (summary.user.id !== ownerId) {
+    data = summary.organisations.find((o) => o.id === ownerId);
+  }
+
+  const membersNotOK = [];
+  let source = data.applications;
+
+  for (const memberId of members) {
+    if (memberId.startsWith('addon_')) source = data.addons;
 
     const foundRessource = source.find((r) => r.id === memberId);
 
@@ -231,8 +237,7 @@ export async function checkMembersToLink (members) {
   }
 
   if (membersNotOK.length > 0) {
-    Logger.error(`Member(s) ${colors.red(membersNotOK.join(', '))} can't be linked to a Network Group`);
-    process.exit(1);
+    throw new Error(`Member(s) ${colors.red(membersNotOK.join(', '))} can't be linked to the Network Group, check Organisation ID or name`);
   }
 }
 
