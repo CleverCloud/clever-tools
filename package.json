@@ -74,7 +74,7 @@
     "grunt-mocha-test": "0.13.3",
     "magic-string": "0.30.11",
     "mime-types": "2.1.35",
-    "mocha": "8.4.0",
+    "mocha": "11.1.0",
     "pkg": "5.8.1",
     "rollup": "4.14.1",
     "semver": "7.3.5"
