@@ -4,6 +4,7 @@ import { conf, loadOAuthConf } from './configuration.js';
 import { prefixUrl } from '@clevercloud/client/esm/prefix-url.js';
 import { request } from '@clevercloud/client/esm/request.fetch.js';
 import { subtle as cryptoSuble } from 'node:crypto';
+import { addOauthHeaderPlaintext } from '../clever-client/auth-bridge.js';
 
 // Required for @clevercloud/client with "old" Node.js
 if (globalThis.crypto == null) {
@@ -27,6 +28,19 @@ export async function sendToApi (requestParams) {
   return Promise.resolve(requestParams)
     .then(prefixUrl(conf.API_HOST))
     .then(addOauthHeader(tokens))
+    .then((requestParams) => {
+      Logger.debug(`${requestParams.method.toUpperCase()} ${requestParams.url} ? ${JSON.stringify(requestParams.queryParams)}`);
+      return requestParams;
+    })
+    .then(request)
+    .catch(processError);
+}
+
+export async function sendToAuthBridge (requestParams) {
+  const tokens = await loadTokens();
+  return Promise.resolve(requestParams)
+    .then(prefixUrl(conf.AUTH_BRIDGE_HOST))
+    .then(addOauthHeaderPlaintext(tokens))
     .then((requestParams) => {
       Logger.debug(`${requestParams.method.toUpperCase()} ${requestParams.url} ? ${JSON.stringify(requestParams.queryParams)}`);
       return requestParams;
