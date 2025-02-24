@@ -119,3 +119,34 @@ To use our public API, you need to be authenticated for most endpoints. If you'r
 
 - [Clever Cloud public APIv2 documentation](https://www.clever-cloud.com/developers/api/v2/)
 - [Clever Cloud public APIv4 documentation](https://www.clever-cloud.com/developers/api/v4/)
+
+## tokens
+
+You can query Clever Cloud public API with a bearer token thanks to the Auth Bridge. To get a token, use:
+
+```
+clever tokens create myTokenName
+```
+
+Once created, you can use it replacing the API endpoint with https://auth-bridge.clever-cloud.com. For example:
+
+```
+curl  https://auth-bridge.clever-cloud.com/v2/self -H "Authorization: Bearer myToken"
+```
+
+To list all your tokens, use:
+
+```
+clever tokens
+clever tokens list
+clever tokens list -F json
+```
+
+To revoke a token, use:
+
+```
+clever tokens revoke myTokenId
+```
+
+>> [!INFO]
+>> The `clever tokens` command is an experimental feature, activate it with `clever features enable tokens` command
