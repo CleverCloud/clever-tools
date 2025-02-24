@@ -16,4 +16,17 @@ export const EXPERIMENTAL_FEATURES = {
       Learn more about Materia KV: https://www.clever-cloud.com/developers/doc/addons/materia-kv/
       `),
   },
+  tokens: {
+    status: 'beta',
+    description: 'Manage API tokens to query Clever Cloud API from https://auth-bridge.clever-cloud.com',
+    instructions: dedent(`
+      Target any compatible add-on by its name or ID (with an org ID if needed) and send commands to it:
+
+          clever tokens create myTokenName
+          clever tokens list
+          clever tokens revoke myTokenId
+
+      Learn more about Clever Cloud API: https://www.clever-cloud.com/developers/api
+      `),
+  },
 };
