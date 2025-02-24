@@ -42,6 +42,29 @@ For each of them, you can add these parameters:
 > [!TIP]
 > For commands returning a list of items, you can use `--format json` or `-F json` to get a JSON output.
 
+## features
+
+Some features are available as experimental, before they're completely ready for prime time. They usually work well, but this testing phase allows us to get feedbacks, refine some details, documentation, and break things between two releases.
+
+Experimental features can be (de)activated on-demand. To list them, use:
+
+```
+clever features
+```
+
+To (de)activate an experimental feature, use:
+
+```
+clever features enable theFeature
+clever features disable theFeature
+```
+
+To get information about how to use an experimental feature, use:
+
+```
+clever features info theFeature
+```
+
 ## diag | version
 
 To check the current version or get information about your setup, use:
