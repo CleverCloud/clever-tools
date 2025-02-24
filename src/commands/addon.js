@@ -12,6 +12,7 @@ import { sendToApi } from '../models/send-to-api.js';
 import { toNameEqualsValueString } from '@clevercloud/client/esm/utils/env-vars.js';
 import { resolveAddonId } from '../models/ids-resolver.js';
 import { conf } from '../models/configuration.js';
+import dedent from 'dedent';
 
 const formatTable = initFormatTable();
 
@@ -124,42 +125,42 @@ function displayAddon (format, addon, providerName, message) {
   const WIP_PROVIDERS = {
     keycloak: {
       status: 'beta',
-      postCreateInstructions: [
-        `Learn more about Keycloak on Clever Cloud: ${conf.DOC_URL}/addons/keycloak/`,
-      ].join('\n'),
+      postCreateInstructions: dedent`
+        Learn more about Keycloak on Clever Cloud: ${conf.DOC_URL}/addons/keycloak/,
+      `,
     },
     kv: {
       status: 'alpha',
-      postCreateInstructions: [
-        colors.yellow('You can easily use Materia KV with \'redis-cli\', with such commands:'),
-        colors.blue(`source <(clever addon env ${addon.id} -F shell)`),
-        colors.blue('redis-cli -h $KV_HOST -p $KV_PORT --tls'),
-        `Learn more about Materia KV on Clever Cloud: ${conf.DOC_URL}/addons/materia-kv/`,
-      ].join('\n'),
+      postCreateInstructions: dedent`
+        ${colors.yellow('You can easily use Materia KV with \'redis-cli\', with such commands:')}
+        ${colors.blue(`source <(clever addon env ${addon.id} -F shell)`)}
+        ${colors.blue('redis-cli -h $KV_HOST -p $KV_PORT --tls')}
+        Learn more about Materia KV on Clever Cloud: ${conf.DOC_URL}/addons/materia-kv/
+      `,
     },
     'addon-matomo': {
       status: 'beta',
-      postCreateInstructions: [
-        `Learn more about Matomo on Clever Cloud: ${conf.DOC_URL}/addons/matomo/`,
-      ].join('\n'),
+      postCreateInstructions: dedent`
+        Learn more about Matomo on Clever Cloud: ${conf.DOC_URL}/addons/matomo/
+      `,
     },
     metabase: {
       status: 'beta',
-      postCreateInstructions: [
-        `Learn more about Metabase on Clever Cloud: ${conf.DOC_URL}/addons/metabase/`,
-      ].join('\n'),
+      postCreateInstructions: dedent`
+        Learn more about Metabase on Clever Cloud: ${conf.DOC_URL}/addons/metabase/
+      `,
     },
     otoroshi: {
       status: 'beta',
-      postCreateInstructions: [
-        `Learn more about Otoroshi with LLM on Clever Cloud: ${conf.DOC_URL}/addons/otoroshi/`,
-      ].join('\n'),
+      postCreateInstructions: dedent`
+        Learn more about Otoroshi with LLM on Clever Cloud: ${conf.DOC_URL}/addons/otoroshi/
+      `,
     },
     'addon-pulsar': {
       status: 'beta',
-      postCreateInstructions: [
-        `Learn more about Pulsar on Clever Cloud: ${conf.DOC_URL}/addons/pulsar/`,
-      ].join('\n'),
+      postCreateInstructions: dedent`
+        Learn more about Pulsar on Clever Cloud: ${conf.DOC_URL}/addons/pulsar/
+      `,
     },
   };
 
