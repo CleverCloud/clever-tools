@@ -2,6 +2,7 @@ import colors from 'colors/safe.js';
 import openPage from 'open';
 import { Logger } from '../logger.js';
 import * as User from '../models/user.js';
+import dedent from 'dedent';
 
 export async function profile (params) {
   const { format } = params.options;
@@ -37,12 +38,14 @@ export async function profile (params) {
     }
     case 'human':
     default: {
-      Logger.println('You\'re currently logged in as:');
-      Logger.println(`User id           ${formattedUser.id}`);
-      Logger.println(`Name              ${formattedUser.name ?? colors.red.bold('[not specified]')}`);
-      Logger.println(`Email             ${formattedUser.email}`);
-      Logger.println(`Token expiration  ${tokenExpiration}`);
-      Logger.println(`Two factor auth   ${formattedUser.has2FA ? 'yes' : 'no'}`);
+      Logger.println(dedent`
+        You're currently logged in as:
+        User id           ${formattedUser.id}
+        Name              ${formattedUser.name ?? colors.red.bold('[not specified]')}
+        Email             ${formattedUser.email}
+        Token expiration  ${tokenExpiration}
+        Two factor auth   ${formattedUser.has2FA ? 'yes' : 'no'}
+      `);
     }
   }
 };
