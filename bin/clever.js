@@ -56,6 +56,7 @@ import * as ssh from '../src/commands/ssh.js';
 import * as status from '../src/commands/status.js';
 import * as stop from '../src/commands/stop.js';
 import * as tcpRedirs from '../src/commands/tcp-redirs.js';
+import * as tokens from '../src/commands/tokens.js';
 import * as unlink from '../src/commands/unlink.js';
 import * as version from '../src/commands/version.js';
 import * as webhooks from '../src/commands/webhooks.js';
@@ -94,6 +95,8 @@ async function run () {
     kvIdOrName: cliparse.argument('kv-id', {
       description: 'Add-on/Real ID (or name, if unambiguous) of a Materia KV or Redis® add-on',
     }),
+    apiTokenId: cliparse.argument('api-token-id', { description: 'API token ID' }),
+    apiTokenName: cliparse.argument('api-token-name', { description: 'API token name' }),
     addonIdOrName: cliparse.argument('addon-id', {
       description: 'Add-on ID (or name, if unambiguous)',
       parser: Parsers.addonIdOrName,
@@ -880,6 +883,25 @@ async function run () {
     commands: [tcpRedirsListNamespacesCommand, tcpRedirsAddCommand, tcpRedirsRemoveCommand],
   }, tcpRedirs.list);
 
+  // TOKENS COMMANDS
+  const apiTokenCreateCommand = cliparse.command('create', {
+    description: 'Create an API token',
+    args: [args.apiTokenName],
+    options: [opts.humanJsonOutputFormat],
+  }, tokens.create);
+  const apiTokenRevokeCommand = cliparse.command('revoke', {
+    description: 'Revoke an API token',
+    args: [args.apiTokenId],
+  }, tokens.revoke);
+  const apiTokenGetCommand = cliparse.command('list', {
+    description: 'List API tokens',
+    options: [opts.humanJsonOutputFormat],
+  }, tokens.list);
+  const tokensCommands = cliparse.command('tokens', {
+    description: 'Manage API tokens to query Clever Cloud API from https://auth-bridge.clever-cloud.com',
+    commands: [apiTokenGetCommand, apiTokenCreateCommand, apiTokenRevokeCommand],
+  }, tokens.list);
+
   // UNLINK COMMAND
   const appUnlinkCommand = cliparse.command('unlink', {
     description: 'Unlink this repo from an existing application',
@@ -971,6 +993,7 @@ async function run () {
     statusCommand,
     stopCommand,
     tcpRedirsCommands,
+    tokensCommands,
     versionCommand,
     webhooksCommand,
   ];

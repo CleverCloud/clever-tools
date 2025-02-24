@@ -123,6 +123,7 @@ export async function setFeature (feature, value) {
 
 export const conf = env.getOrElseAll({
   API_HOST: 'https://api.clever-cloud.com',
+  AUTH_BRIDGE_HOST: 'https://auth-bridge.clever-cloud.com',
   SSH_GATEWAY: 'ssh@sshgateway-clevercloud-customers.services.clever-cloud.com',
 
   // the disclosure of these tokens is not considered as a vulnerability. Do not report this to our security service.
