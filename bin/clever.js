@@ -150,6 +150,12 @@ async function run () {
 
   // OPTIONS
   const opts = {
+    tokenDuration: cliparse.option('duration', {
+      aliases: ['d'],
+      metavar: 'duration',
+      default: '1y',
+      description: 'Duration until API token expiration (e.g.: 1h, 4d, 2w, 6m), default 1y',
+    }),
     sourceableEnvVarsList: cliparse.flag('add-export', { description: 'Display sourceable env variables setting' }),
     logsFormat: getOutputFormatOption(['json-stream']),
     activityFormat: getOutputFormatOption(['json-stream']),
@@ -887,7 +893,7 @@ async function run () {
   const apiTokenCreateCommand = cliparse.command('create', {
     description: 'Create an API token',
     args: [args.apiTokenName],
-    options: [opts.humanJsonOutputFormat],
+    options: [opts.tokenDuration, opts.humanJsonOutputFormat],
   }, tokens.create);
   const apiTokenRevokeCommand = cliparse.command('revoke', {
     description: 'Revoke an API token',

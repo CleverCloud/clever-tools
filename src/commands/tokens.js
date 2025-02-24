@@ -1,10 +1,12 @@
+import dedent from 'dedent';
+import Duration from 'duration-js';
 import colors from 'colors/safe.js';
+
 import { Logger } from '../logger.js';
 import { createApiToken, deleteApiToken, listApiTokens } from '../clever-client/auth-bridge.js';
 import { sendToAuthBridge } from '../models/send-to-api.js';
 import { getCurrent as getCurrentUser } from '../models/user.js';
 import { conf } from '../models/configuration.js';
-import dedent from 'dedent';
 import { promptPassword } from '../prompt-password.js';
 
 /**
@@ -16,7 +18,32 @@ import { promptPassword } from '../prompt-password.js';
  */
 export async function create (params) {
   const [apiTokenName] = params.args;
-  const { format } = params.options;
+  const { duration, format } = params.options;
+
+  const dateObject = new Date();
+  const moreThanOneYearErrorMessage = 'You cannot set an expiration date greater than 1 year';
+
+  // Duration can be weeks, days, hours, minutes, seconds, milliseconds
+  // If it's months or years, we use setMonth or setFullYear
+  const durationUnit = duration.slice(-1);
+  if (durationUnit === 'm' || durationUnit === 'y') {
+    const durationValue = parseInt(duration.slice(0, -1), 10);
+    if ((durationUnit === 'm' && durationValue > 12) || (durationUnit === 'y' && durationValue > 1)) {
+      throw new Error(moreThanOneYearErrorMessage);
+    }
+    durationUnit === 'm'
+      ? dateObject.setMonth(dateObject.getMonth() + durationValue)
+      : dateObject.setFullYear(dateObject.getFullYear() + durationValue);
+  }
+  else {
+    const secondsToAdd = new Duration(duration).seconds();
+    if (secondsToAdd > 31622400) {
+      throw new Error(moreThanOneYearErrorMessage);
+    }
+    dateObject.setSeconds(dateObject.getSeconds() + secondsToAdd);
+  }
+
+  const expirationDate = dateObject.toISOString();
 
   const user = await getCurrentUser();
 
@@ -26,11 +53,6 @@ export async function create (params) {
   if (user.preferredMFA === 'TOTP') {
     mfaCode = await promptPassword('Enter your 2FA code:');
   }
-
-  // Expire in 1 year
-  const dateObject = new Date();
-  dateObject.setFullYear(dateObject.getFullYear() + 1);
-  const expirationDate = dateObject.toISOString();
 
   const tokenData = {
     email: user.email,
@@ -53,12 +75,12 @@ export async function create (params) {
           - API token ID : ${colors.grey(createdToken.apiTokenId)}
           - API token    : ${colors.grey(createdToken.apiToken)}
           - Expiration   : ${colors.grey(new Date(createdToken.expirationDate).toLocaleString())}
-        
+
         Export this token and use it to make authenticated requests to the Clever Cloud API through the Auth Bridge:
-        
+
         export CC_API_TOKEN=${createdToken.apiToken}
         curl -H "Authorization: Bearer $CC_API_TOKEN" ${conf.AUTH_BRIDGE_HOST}/v2/self
-        
+
         Then, to revoke this token, run:
         clever tokens revoke ${createdToken.apiTokenId}
       `);
