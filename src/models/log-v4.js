@@ -1,11 +1,12 @@
 import { getHostAndTokens, processError } from './send-to-api.js';
-import colors from 'colors/safe.js';
 import { Deferred } from './utils.js';
 import { Logger } from '../logger.js';
 import { waitForDeploymentEnd, waitForDeploymentStart } from './deployments.js';
 import { ApplicationLogStream } from '@clevercloud/client/esm/streams/application-logs.js';
 import { JsonArray } from './json-array.js';
+import { ResourceLogStream } from '@clevercloud/client/esm/streams/resource-log.js'
 import * as ExitStrategy from '../models/exit-strategy-option.js';
+import colors from 'colors/safe.js';
 
 // 2000 logs per 100ms maximum
 const THROTTLE_ELEMENTS = 2000;
@@ -66,6 +67,72 @@ export async function displayLogs (params) {
         case 'human':
         default:
           Logger.println(formatLogLine(log));
+      }
+    });
+
+  // start() is blocking until end of stream
+  logStream.start()
+    .then((reason) => {
+      if (format === 'json') {
+        jsonArray.close();
+      }
+      return deferred.resolve();
+    })
+    .catch(processError)
+    .catch((error) => deferred.reject(error));
+
+  return logStream;
+}
+
+export async function displayAddonLogs (params) {
+  const deferred = params.deferred || new Deferred();
+  const { apiHost, tokens } = await getHostAndTokens();
+  const { ownerId, addonId, deploymentId, filter, since, until, format } = params;
+
+  if (format === 'json' && until == null) {
+    throw new Error('"json" format is only applicable with a limiting parameter such as `--until`');
+  }
+
+  const logStream = new ResourceLogStream({
+    apiHost,
+    tokens,
+    ownerId,
+    addonId,
+    connectionTimeout: 10_000,
+    retryConfiguration,
+    since,
+    until,
+    filter,
+    throttleElements: THROTTLE_ELEMENTS,
+    throttlePerInMilliseconds: THROTTLE_PER_IN_MILLISECONDS,
+  });
+
+  // Properly close the stream
+  process.once('SIGINT', (signal) => logStream.close(signal));
+  const jsonArray = new JsonArray();
+
+  logStream
+    .on('open', (event) => {
+      Logger.debug(colors.blue(`Logs stream (open) ${JSON.stringify({ addonId, filter })}`));
+      if (format === 'json') {
+        jsonArray.open();
+      }
+    })
+    .on('error', (event) => {
+      console.log(event.error)
+      Logger.debug(colors.red(`Logs stream (error) ${event.error.message}`));
+    })
+    .onLog((log) => {
+      switch (format) {
+        case 'json':
+          jsonArray.push(log);
+          return;
+        case 'json-stream':
+          Logger.printJson(log);
+          return;
+        case 'human':
+        default:
+          Logger.println(formatResourceLogLine(log));
       }
     });
 
@@ -154,6 +221,11 @@ function formatLogLine (log) {
     return `${date.toISOString()}: ${colors.bold.blue(message)}`;
   }
   return `${date.toISOString()}: ${message}`;
+}
+
+function formatResourceLogLine (log) {
+  const { date, message, service } = log;
+  return `${date.toISOString()} [${service}]: ${message}`;
 }
 
 function isCleverMessage (log) {

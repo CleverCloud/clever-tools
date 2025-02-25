@@ -58,4 +58,11 @@ export const EXPERIMENTAL_FEATURES = {
       Learn more about Network Groups: https://www.clever-cloud.com/developers/doc/develop/network-groups/
     `,
   },
+  addonLogsV4: {
+    status: 'alpah',
+    description: 'read addon logs on the new API',
+    instructions: dedent`
+      Replace existing 'clever logs --addon postgresql_xxx' command
+    `,
+  },
 };

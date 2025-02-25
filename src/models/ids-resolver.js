@@ -52,7 +52,7 @@ export async function resolveRealId (id) {
     return realId;
   }
 
-  throw new Error(`Add-on ${id} does not exist foo`);
+  throw new Error(`Add-on ${id} does not exist`);
 }
 
 async function getIdFromCacheOrSummary (callback) {
