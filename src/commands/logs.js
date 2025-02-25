@@ -6,7 +6,7 @@ const Log = require('../models/log-v4.js');
 const Logger = require('../logger.js');
 const { Deferred } = require('../models/utils.js');
 const colors = require('colors/safe');
-const { resolveAddonId } = require('../models/ids-resolver.js');
+const { resolveRealId } = require('../models/ids-resolver.js');
 
 async function appLogs (params) {
   const { alias, app: appIdOrName, addon: addonIdOrRealId, after: since, before: until, search, 'deployment-id': deploymentId, format } = params.options;
@@ -17,14 +17,18 @@ async function appLogs (params) {
 
   // TODO: drop when addons are migrated to the v4 API
   if (addonIdOrRealId != null) {
-    const addonId = await resolveAddonId(addonIdOrRealId);
+    const addonId = await resolveRealId(addonIdOrRealId);
     if (isForHuman) {
       Logger.println(colors.blue('Waiting for addon logs…'));
     }
     else {
       throw new Error(`"${format}" format is not yet available for add-on logs`);
     }
-    return LogV2.displayLogs({ appAddonId: addonId, since, until, filter, deploymentId });
+    //return LogV2.displayLogs({ appAddonId: addonId, since, until, filter, deploymentId });
+    const ownerId = "TODO"
+    const deferred = new Deferred();
+    await Log.displayAddonLogs({ ownerId, addonId, since, until, filter, format, deferred });
+    return deferred.promise;
   }
 
   const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);

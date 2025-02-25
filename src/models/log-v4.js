@@ -3,7 +3,7 @@ const colors = require('colors/safe');
 const { Deferred } = require('./utils.js');
 const Logger = require('../logger.js');
 const { waitForDeploymentEnd, waitForDeploymentStart } = require('./deployments.js');
-const { ApplicationLogStream } = require('@clevercloud/client/cjs/streams/application-logs.js');
+const { ApplicationAddonLogStream } = require('./AddonLogs.js');
 const { JsonArray } = require('./json-array.js');
 const ExitStrategy = require('../models/exit-strategy-option.js');
 
@@ -66,6 +66,71 @@ async function displayLogs (params) {
         case 'human':
         default:
           Logger.println(formatLogLine(log));
+      }
+    });
+
+  // start() is blocking until end of stream
+  logStream.start()
+    .then((reason) => {
+      if (format === 'json') {
+        jsonArray.close();
+      }
+      return deferred.resolve();
+    })
+    .catch(processError)
+    .catch((error) => deferred.reject(error));
+
+  return logStream;
+}
+
+async function displayAddonLogs (params) {
+  const deferred = params.deferred || new Deferred();
+  const { apiHost, tokens } = await getHostAndTokens();
+  const { ownerId, addonId, filter, since, until, format } = params;
+
+  if (format === 'json' && until == null) {
+    throw new Error('"json" format is only applicable with a limiting parameter such as `--until`');
+  }
+
+  const logStream = new ApplicationAddonLogStream({
+    apiHost,
+    tokens,
+    ownerId,
+    addonId,
+    connectionTimeout: 10_000,
+    retryConfiguration,
+    since,
+    until,
+    filter,
+    throttleElements: THROTTLE_ELEMENTS,
+    throttlePerInMilliseconds: THROTTLE_PER_IN_MILLISECONDS,
+  });
+
+  // Properly close the stream
+  process.once('SIGINT', (signal) => logStream.close(signal));
+  const jsonArray = new JsonArray();
+
+  logStream
+    .on('open', (event) => {
+      Logger.debug(colors.blue(`Logs stream (open) ${JSON.stringify({ addonId, filter })}`));
+      if (format === 'json') {
+        jsonArray.open();
+      }
+    })
+    .on('error', (event) => {
+      Logger.debug(colors.red(`Logs stream (error) ${event.error.message}`));
+    })
+    .onLog((log) => {
+      switch (format) {
+        case 'json':
+          jsonArray.push(log);
+          return;
+        case 'json-stream':
+          Logger.printJson(log);
+          return;
+        case 'human':
+        default:
+          Logger.println(formatResourceLogLine(log));
       }
     });
 
@@ -156,6 +221,11 @@ function formatLogLine (log) {
   return `${date.toISOString()}: ${message}`;
 }
 
+function formatResourceLogLine (log) {
+  const { date, message, service } = log;
+  return `${date.toISOString()} [${service}]: ${message}`;
+}
+
 function isCleverMessage (log) {
   return log.service !== 'bas-deploy.service';
 };
@@ -172,4 +242,4 @@ function isBuildSucessMessage (log) {
   return isCleverMessage(log) && log.message.toLowerCase().startsWith('build succeeded in');
 };
 
-module.exports = { displayLogs, watchDeploymentAndDisplayLogs };
+module.exports = { displayLogs, watchDeploymentAndDisplayLogs, displayAddonLogs };
