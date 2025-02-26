@@ -82,7 +82,7 @@ export async function list (params) {
   }
   else {
     if (tokens.length === 0) {
-      Logger.println(`Your account does not contain any API tokens. To create one, use the ${colors.blue('clever tokens create')} command.`);
+      Logger.println(`ℹ️ No API token found, create one with ${colors.blue('clever tokens create')} command`);
     }
     else {
       console.table(tokens.map((token) => {
