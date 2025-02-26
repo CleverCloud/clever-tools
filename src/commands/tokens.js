@@ -109,7 +109,7 @@ export async function revoke (params) {
 
   await deleteApiToken(apiTokenId).then(sendToAuthBridge);
 
-  Logger.println(colors.green('✔'), 'API token revoked successfully!');
+  Logger.println(colors.green('✔'), 'API token successfully revoked!');
 }
 
 function formatDate (dateInput) {
