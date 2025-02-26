@@ -1,11 +1,11 @@
 import colors from 'colors/safe.js';
 import { Logger } from '../logger.js';
-import { password as promptPassword } from '@inquirer/prompts';
 import { createApiToken, deleteApiToken, listApiTokens } from '../clever-client/auth-bridge.js';
 import { sendToAuthBridge } from '../models/send-to-api.js';
 import { getCurrent as getCurrentUser } from '../models/user.js';
 import { conf } from '../models/configuration.js';
 import dedent from 'dedent';
+import { promptPassword } from '../prompt-password.js';
 
 /**
  * Create a new API token
@@ -20,11 +20,11 @@ export async function create (params) {
 
   const user = await getCurrentUser();
 
-  const password = await promptPassword({ message: 'Enter your password:', mask: true });
+  const password = await promptPassword('Enter your password:');
 
   let mfaCode;
   if (user.preferredMFA === 'TOTP') {
-    mfaCode = await promptPassword({ message: 'Enter your 2FA code:', mask: true });
+    mfaCode = await promptPassword('Enter your 2FA code:');
   }
 
   // Expire in 1 year
