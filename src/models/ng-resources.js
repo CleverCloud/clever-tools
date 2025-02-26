@@ -1,6 +1,6 @@
 import colors from 'colors/safe.js';
-import * as NG from './ng.js';
-import * as ngApi from '@clevercloud/client/cjs/api/v4/network-group.js';
+import * as networkGroup from './ng.js';
+import * as networkGroupApi from '@clevercloud/client/cjs/api/v4/network-group.js';
 
 import { v4 as uuidv4 } from 'uuid';
 import { Logger } from '../logger.js';
@@ -24,7 +24,7 @@ export async function createExternalPeerWithParent (ngIdOrLabel, peerLabel, publ
     throw new Error('A valid peer label is required');
   }
 
-  const [ng] = await NG.searchNgOrResource(ngIdOrLabel, org, 'NetworkGroup');
+  const [ng] = await networkGroup.searchNgOrResource(ngIdOrLabel, org, 'NetworkGroup');
 
   if (!ng) {
     throw new Error(`Network Group ${colors.red(ngIdOrLabel.ngId || ngIdOrLabel.ngResourceLabel)} not found`);
@@ -35,7 +35,7 @@ export async function createExternalPeerWithParent (ngIdOrLabel, peerLabel, publ
   const parentMember = {
     id,
     label: `Parent of ${peerLabel}`,
-    domainName: `${id}.m.${ng.id}.${NG.DOMAIN}`,
+    domainName: `${id}.m.${ng.id}.${networkGroup.DOMAIN}`,
     kind: 'EXTERNAL',
   };
 
@@ -59,7 +59,7 @@ export async function createExternalPeerWithParent (ngIdOrLabel, peerLabel, publ
 
   Logger.info(`Adding external peer to Member ${parentMember.id} of Network Group ${ng.id}`);
   Logger.debug('Sending body: ' + JSON.stringify(body, null, 2));
-  await ngApi.createNetworkGroupExternalPeer({ ownerId: ng.ownerId, networkGroupId: ng.id }, body).then(sendToApi);
+  await networkGroupApi.createNetworkGroupExternalPeer({ ownerId: ng.ownerId, networkGroupId: ng.id }, body).then(sendToApi);
 
   const checkExternalPeer = await checkResource(ng.id, org, peerLabel, true, 'peer', 'label');
   if (!checkExternalPeer) {
@@ -81,7 +81,7 @@ export async function createExternalPeerWithParent (ngIdOrLabel, peerLabel, publ
  */
 export async function deleteExternalPeerWithParent (ngIdOrLabel, peerIdOrLabel, org) {
 
-  const [ng] = await NG.searchNgOrResource(ngIdOrLabel, org, 'NetworkGroup');
+  const [ng] = await networkGroup.searchNgOrResource(ngIdOrLabel, org, 'NetworkGroup');
 
   if (!ng) {
     throw new Error(`Network Group ${colors.red(ngIdOrLabel.ngId || ngIdOrLabel.ngResourceLabel)} not found`);
@@ -96,7 +96,7 @@ export async function deleteExternalPeerWithParent (ngIdOrLabel, peerIdOrLabel, 
   }
 
   Logger.info(`Deleting external peer ${externalPeer.id} from Network Group ${ng.id}`);
-  await ngApi.deleteNetworkGroupExternalPeer({ ownerId: ng.ownerId, networkGroupId: ng.id, peerId: externalPeer.id }).then(sendToApi);
+  await networkGroupApi.deleteNetworkGroupExternalPeer({ ownerId: ng.ownerId, networkGroupId: ng.id, peerId: externalPeer.id }).then(sendToApi);
 
   const checkPeer = await checkResource(ng.id, org, externalPeer.id, false, 'peer');
   if (!checkPeer) {
@@ -128,7 +128,7 @@ export async function linkMember (ngIdOrLabel, memberId, org, label) {
     throw new Error('A valid member ID is required (addon_xxx, app_xxx, external_xxx)');
   }
 
-  const [ng] = await NG.searchNgOrResource(ngIdOrLabel, org, 'NetworkGroup');
+  const [ng] = await networkGroup.searchNgOrResource(ngIdOrLabel, org, 'NetworkGroup');
 
   if (!ng) {
     throw new Error(`Network Group ${colors.red(ngIdOrLabel.ngId || ngIdOrLabel.ngResourceLabel)} not found`);
@@ -141,7 +141,7 @@ export async function linkMember (ngIdOrLabel, memberId, org, label) {
     throw new Error(`Member ${colors.red(memberId)} is already linked to Network Group ${colors.red(ng.id)}`);
   }
 
-  const [member] = NG.constructMembers(ng.id, [memberId]);
+  const [member] = networkGroup.constructMembers(ng.id, [memberId]);
 
   const body = {
     id: member.id,
@@ -152,7 +152,7 @@ export async function linkMember (ngIdOrLabel, memberId, org, label) {
 
   Logger.info(`Linking member ${member.id} to Network Group ${ng.id}`);
   Logger.debug('Sending body: ' + JSON.stringify(body, null, 2));
-  await ngApi.createNetworkGroupMember({ ownerId: ng.ownerId, networkGroupId: ng.id }, body).then(sendToApi);
+  await networkGroupApi.createNetworkGroupMember({ ownerId: ng.ownerId, networkGroupId: ng.id }, body).then(sendToApi);
 
   const check = await checkResource(ng.id, org, member.id, true);
   if (!check) {
@@ -177,7 +177,7 @@ export async function unlinkMember (ngIdOrLabel, memberId, org) {
     throw new Error('A valid member ID is required (addon_xxx, app_xxx, external_xxx)');
   }
 
-  const [ng] = await NG.searchNgOrResource(ngIdOrLabel, org, 'NetworkGroup');
+  const [ng] = await networkGroup.searchNgOrResource(ngIdOrLabel, org, 'NetworkGroup');
 
   if (!ng) {
     throw new Error(`Network Group ${colors.red(ngIdOrLabel.ngId || ngIdOrLabel.ngLabel)} not found`);
@@ -189,7 +189,7 @@ export async function unlinkMember (ngIdOrLabel, memberId, org) {
   }
 
   Logger.info(`Unlinking member ${memberId} from Network Group ${ng.id}`);
-  await ngApi.deleteNetworkGroupMember({ ownerId: ng.ownerId, networkGroupId: ng.id, memberId }).then(sendToApi);
+  await networkGroupApi.deleteNetworkGroupMember({ ownerId: ng.ownerId, networkGroupId: ng.id, memberId }).then(sendToApi);
 
   const check = await checkResource(ng.id, org, memberId, false);
   if (!check) {
@@ -252,16 +252,16 @@ export async function checkMembersToLink (members, ownerId) {
  * @returns {Promise<boolean>} True if the resource is present, false otherwise
  */
 async function checkResource (ngId, org, resource, shouldBePresent, resourceType = 'member', searchBy = 'id') {
-  const endTime = Date.now() + NG.TIMEOUT * 1000;
+  const endTime = Date.now() + networkGroup.POLLING_TIMEOUT_MS;
 
   while (Date.now() < endTime) {
-    const ng = await NG.getNG(ngId, org);
+    const ng = await networkGroup.getNG(ngId, org);
     const items = resourceType === 'member' ? ng.members : ng.peers;
     const isPresent = items.some((item) => item[searchBy] === resource);
 
     if (isPresent === shouldBePresent) return true;
 
-    await new Promise((resolve) => setTimeout(resolve, NG.INTERVAL));
+    await new Promise((resolve) => setTimeout(resolve, networkGroup.POLLING_INTERVAL_MS));
   }
   return false;
 }

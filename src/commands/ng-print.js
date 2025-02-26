@@ -1,6 +1,7 @@
 import colors from 'colors/safe.js';
+import * as networkGroup from '../models/ng.js';
+
 import { Logger } from '../logger.js';
-import * as NG from '../models/ng.js';
 
 /** Print a Network Group
  * @param {Object} ng The Network Group to print
@@ -57,7 +58,7 @@ function printMember (member, format) {
 
   switch (format) {
     case 'json': {
-      Logger.println(JSON.stringify(member, null, 2));
+      Logger.printJson(member);
       break;
     }
     case 'human':
@@ -78,7 +79,7 @@ function printMember (member, format) {
 function printPeer (peer, format, full = false) {
   switch (format) {
     case 'json': {
-      Logger.println(JSON.stringify(peer, null, 2));
+      Logger.printJson(peer);
       break;
     }
     case 'human':
@@ -125,9 +126,9 @@ function formatPeer (peer, full = false) {
 export async function printResults (idOrLabel, org, format, action, type) {
 
   const exactMatch = action === 'get';
-  type = type ?? (action === 'search' ? 'all' : 'single');
+  const toLookFor = type ?? (action === 'search' ? 'all' : 'single');
 
-  const found = await NG.searchNgOrResource(idOrLabel, org, type, exactMatch);
+  const found = await networkGroup.searchNgOrResource(idOrLabel, org, toLookFor, exactMatch);
 
   if (!found.length) {
     const searchString = idOrLabel.ngId

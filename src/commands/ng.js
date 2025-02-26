@@ -1,8 +1,9 @@
 import colors from 'colors/safe.js';
+import * as networkGroup from '../models/ng.js';
+import * as networkGroupResources from '../models/ng-resources.js';
+
 import { Logger } from '../logger.js';
-import * as NG from '../models/ng.js';
 import { printResults } from './ng-print.js';
-import * as NGResources from '../models/ng-resources.js';
 
 /** Create a Network Group
  * @param {Object} params
@@ -16,7 +17,7 @@ export async function createNg (params) {
   const label = params.args[0].ngResourceLabel;
   const { description, link: membersIds, org, tags } = params.options;
 
-  await NG.create(label, description, tags, membersIds, org);
+  await networkGroup.create(label, description, tags, membersIds, org);
 
   const membersIdsMessage = membersIds ? ` with member(s):\n${colors.grey(` - ${membersIds.join('\n - ')}`)}` : '';
   Logger.println(`${colors.bold.green('✓')} Network Group ${colors.green(label)} successfully created${membersIdsMessage}!`);
@@ -31,7 +32,7 @@ export async function deleteNg (params) {
   const [ngIdOrLabel] = params.args;
   const { org } = params.options;
 
-  await NG.destroy(ngIdOrLabel, org);
+  await networkGroup.destroy(ngIdOrLabel, org);
   Logger.println(`${colors.bold.green('✓')} Network Group ${colors.green(ngIdOrLabel.ngResourceLabel || ngIdOrLabel.ngId)} successfully deleted!`);
 }
 
@@ -46,7 +47,7 @@ export async function createExternalPeer (params) {
   const [idOrLabel, ngIdOrLabel, publicKey] = params.args;
   const { org } = params.options;
 
-  await NGResources.createExternalPeerWithParent(ngIdOrLabel, idOrLabel.ngResourceLabel, publicKey, org);
+  await networkGroupResources.createExternalPeerWithParent(ngIdOrLabel, idOrLabel.ngResourceLabel, publicKey, org);
   Logger.println(`${colors.bold.green('✓')} External peer ${colors.green(idOrLabel.ngResourceLabel)} successfully created in Network Group ${colors.green(ngIdOrLabel.ngResourceLabel || ngIdOrLabel.ngId)}`);
 }
 
@@ -60,7 +61,7 @@ export async function deleteExternalPeer (params) {
   const [idOrLabel, ngIdOrLabel] = params.args;
   const { org } = params.options;
 
-  await NGResources.deleteExternalPeerWithParent(ngIdOrLabel, idOrLabel.ngResourceLabel || idOrLabel.memberId, org);
+  await networkGroupResources.deleteExternalPeerWithParent(ngIdOrLabel, idOrLabel.ngResourceLabel || idOrLabel.memberId, org);
   Logger.println(`${colors.bold.green('✓')} External peer ${colors.green(idOrLabel.ngResourceLabel || idOrLabel.memberId)} successfully deleted from Network Group ${colors.green(ngIdOrLabel.ngResourceLabel || ngIdOrLabel.ngId)}`);
 }
 
@@ -74,7 +75,7 @@ export async function linkToNg (params) {
   const [resourceId, ngIdOrLabel] = params.args;
   const { org } = params.options;
 
-  await NGResources.linkMember(ngIdOrLabel, resourceId.memberId, org);
+  await networkGroupResources.linkMember(ngIdOrLabel, resourceId.memberId, org);
   Logger.println(`${colors.bold.green('✓')} Member ${colors.green(resourceId.memberId)} successfully linked to Network Group ${colors.green(ngIdOrLabel.ngResourceLabel || ngIdOrLabel.ngId)}`);
 }
 
@@ -88,7 +89,7 @@ export async function unlinkFromNg (params) {
   const [resourceId, ngIdOrLabel] = params.args;
   const { org } = params.options;
 
-  await NGResources.unlinkMember(ngIdOrLabel, resourceId.memberId, org);
+  await networkGroupResources.unlinkMember(ngIdOrLabel, resourceId.memberId, org);
   Logger.println(`${colors.bold.green('✓')} Member ${colors.green(resourceId.memberId)} successfully unlinked from Network Group ${colors.green(ngIdOrLabel.ngResourceLabel || ngIdOrLabel.ngId)}`);
 }
 
@@ -103,7 +104,7 @@ export async function getPeerConfig (params) {
   const [peerIdOrLabel, ngIdOrLabel] = params.args;
   const { org, format } = params.options;
 
-  const config = await NG.getPeerConfig(peerIdOrLabel, ngIdOrLabel, org);
+  const config = await networkGroup.getPeerConfig(peerIdOrLabel, ngIdOrLabel, org);
 
   switch (format) {
     case 'json': {
@@ -126,7 +127,7 @@ export async function getPeerConfig (params) {
 export async function listNg (params) {
   const { org, format } = params.options;
 
-  const ngs = await NG.getAllNGs(org);
+  const ngs = await networkGroup.getAllNGs(org);
 
   if (!ngs.length) {
     Logger.println(`ℹ️ No Network Group found, create one with ${colors.blue('clever ng create')} command`);

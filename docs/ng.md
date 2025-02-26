@@ -90,8 +90,8 @@ A `json` formatted output is available with the `--format/-F json` option.
 To (un)link an application, add-on or external peer to a Network Group:
 
 ```
-clever ng members link app_xxx ngIdOrLabel
-clever ng members unlink addon_xxx ngIdorLabel
+clever ng link app_xxx ngIdOrLabel
+clever ng unlink addon_xxx ngIdorLabel
 ```
 
 ## Get information of a Network Group, a member or a peer

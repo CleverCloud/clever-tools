@@ -1,18 +1,18 @@
 import colors from 'colors/safe.js';
 import * as User from '../models/user.js';
 import * as Organisation from '../models/organisation.js';
-import * as ngApi from '@clevercloud/client/cjs/api/v4/network-group.js';
 
-import { searchNetworkGroupOrResource } from './ng-api.js';
-import { checkMembersToLink } from './ng-resources.js';
-import { sendToApi } from './send-to-api.js';
-import { Logger } from '../logger.js';
 import { v4 as uuidv4 } from 'uuid';
+import { Logger } from '../logger.js';
+import { sendToApi } from './send-to-api.js';
+import { checkMembersToLink } from './ng-resources.js';
+import { searchNetworkGroupOrResource } from './ng-api.js';
+import { createNetworkGroup, deleteNetworkGroup, getNetworkGroup, getNetworkGroupWireGuardConfiguration, listNetworkGroups } from '@clevercloud/client/cjs/api/v4/network-group.js';
 
-export const TIMEOUT = 30;
-export const INTERVAL = 1000;
+export const POLLING_TIMEOUT_MS = 30_000;
+export const POLLING_INTERVAL_MS = 1000;
 export const DOMAIN = 'cc-ng.cloud';
-export const TYPE_PREFIXES = {
+const TYPE_PREFIXES = {
   app_: 'APPLICATION',
   addon_: 'ADDON',
   external_: 'EXTERNAL',
@@ -28,10 +28,6 @@ export const TYPE_PREFIXES = {
  * @throws {Error} If the Network Group label is missing
  */
 export async function create (label, description, tags, membersIds, orgaIdOrName) {
-  if (!label) {
-    throw new Error('A valid Network Group label is required');
-  }
-
   const id = `ng_${uuidv4()}`;
   const ownerId = await getOwnerIdFromOrgaIdOrName(orgaIdOrName);
 
@@ -45,7 +41,7 @@ export async function create (label, description, tags, membersIds, orgaIdOrName
   Logger.info(`Creating Network Group ${label} (${id}) from owner ${ownerId}`);
   Logger.info(`${members.length} members will be added: ${members.map((m) => m.id).join(', ')}`);
   Logger.debug(`Sending body: ${JSON.stringify(body, null, 2)}`);
-  await ngApi.createNetworkGroup({ ownerId }, body).then(sendToApi);
+  await createNetworkGroup({ ownerId }, body).then(sendToApi);
 
   await pollNetworkGroup(ownerId, id, { waitForMembers: membersIds });
   Logger.info(`Network Group ${label} (${id}) created from owner ${ownerId}`);
@@ -64,7 +60,7 @@ export async function destroy (ngIdOrLabel, orgaIdOrName) {
     throw new Error(`Network Group ${colors.red(ngIdOrLabel.ngId || ngIdOrLabel.ngResourceLabel)} not found`);
   }
 
-  await ngApi.deleteNetworkGroup({ ownerId: found.ownerId, networkGroupId: found.id }).then(sendToApi);
+  await deleteNetworkGroup({ ownerId: found.ownerId, networkGroupId: found.id }).then(sendToApi);
   Logger.info(`Deleting Network Group ${found.id} from owner ${found.ownerId}`);
   await pollNetworkGroup(found.ownerId, found.id, { waitForDeletion: true });
   Logger.info(`Network Group ${found.id} deleted from owner ${found.ownerId}`);
@@ -98,7 +94,7 @@ export async function getPeerConfig (peerIdOrLabel, ngIdOrLabel, orgaIdOrName) {
   }
 
   Logger.debug(`Getting configuration for Peer ${peer.id}`);
-  const result = await ngApi.getNetworkGroupWireGuardConfiguration({
+  const result = await getNetworkGroupWireGuardConfiguration({
     ownerId: parentNg.ownerId,
     networkGroupId: parentNg.id,
     peerId: peer.id,
@@ -118,7 +114,7 @@ export async function getNG (networkGroupId, orgaIdOrName) {
   const ownerId = await getOwnerIdFromOrgaIdOrName(orgaIdOrName);
 
   Logger.info(`Get Network Group ${networkGroupId} for owner ${ownerId}`);
-  const result = await ngApi.getNetworkGroup({ networkGroupId, ownerId }).then(sendToApi);
+  const result = await getNetworkGroup({ networkGroupId, ownerId }).then(sendToApi);
   Logger.debug(`Received from API:\n${JSON.stringify(result, null, 2)}`);
 
   return result;
@@ -133,7 +129,7 @@ export async function getAllNGs (orgaIdOrName) {
   const ownerId = await getOwnerIdFromOrgaIdOrName(orgaIdOrName);
 
   Logger.info(`Listing Network Groups from owner ${ownerId}`);
-  const result = await ngApi.listNetworkGroups({ ownerId }).then(sendToApi);
+  const result = await listNetworkGroups({ ownerId }).then(sendToApi);
   Logger.debug(`Received from API:\n${JSON.stringify(result, null, 2)}`);
   return result;
 }
@@ -225,7 +221,7 @@ export function constructMembers (ngId, membersIds) {
 async function pollNetworkGroup (ownerId, ngId, { waitForMembers = null, waitForDeletion = false } = {}) {
   return new Promise((resolve, reject) => {
     Logger.info(`Polling Network Groups from owner ${ownerId}`);
-    const timeoutTime = Date.now() + (TIMEOUT * 1000);
+    const timeoutTime = Date.now() + (POLLING_TIMEOUT_MS);
 
     async function pollOnce () {
       if (Date.now() > timeoutTime) {
@@ -235,7 +231,7 @@ async function pollNetworkGroup (ownerId, ngId, { waitForMembers = null, waitFor
       }
 
       try {
-        const ngs = await ngApi.listNetworkGroups({ ownerId }).then(sendToApi);
+        const ngs = await listNetworkGroups({ ownerId }).then(sendToApi);
         const ng = ngs.find((ng) => ng.id === ngId);
 
         if (waitForDeletion && !ng) {
@@ -248,7 +244,7 @@ async function pollNetworkGroup (ownerId, ngId, { waitForMembers = null, waitFor
             const members = ng.members.filter((member) => waitForMembers.includes(member.id));
             if (members.length !== waitForMembers.length) {
               Logger.debug(`Waiting for members: ${waitForMembers.join(', ')}`);
-              setTimeout(pollOnce, INTERVAL);
+              setTimeout(pollOnce, POLLING_INTERVAL_MS);
               return;
             }
           }
@@ -256,7 +252,7 @@ async function pollNetworkGroup (ownerId, ngId, { waitForMembers = null, waitFor
           return;
         }
 
-        setTimeout(pollOnce, INTERVAL);
+        setTimeout(pollOnce, POLLING_INTERVAL_MS);
       }
       catch (error) {
         reject(error);
