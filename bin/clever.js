@@ -16,7 +16,7 @@ import * as Application from '../src/models/application.js';
 import { AVAILABLE_ZONES } from '../src/models/application.js';
 import { EXPERIMENTAL_FEATURES } from '../src/experimental-features.js';
 import { getExitOnOption, getOutputFormatOption, getSameCommitPolicyOption } from '../src/command-options.js';
-import { getFeatures } from '../src/models/configuration.js';
+import { getFeatures, conf } from '../src/models/configuration.js';
 
 import * as Addon from '../src/models/addon.js';
 import * as ApplicationConfiguration from '../src/models/application_configuration.js';
@@ -898,7 +898,7 @@ async function run () {
     options: [opts.humanJsonOutputFormat],
   }, tokens.list);
   const tokensCommands = cliparse.command('tokens', {
-    description: 'Manage API tokens to query Clever Cloud API from https://auth-bridge.clever-cloud.com',
+    description: `Manage API tokens to query Clever Cloud API from ${conf.AUTH_BRIDGE_HOST}`,
     commands: [apiTokenGetCommand, apiTokenCreateCommand, apiTokenRevokeCommand],
   }, tokens.list);
 
