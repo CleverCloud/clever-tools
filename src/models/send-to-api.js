@@ -57,6 +57,9 @@ export function processError (error) {
   if (code === 'ECONNRESET') {
     throw new Error('The connection to the Clever Cloud API was closed abruptly, please try again.', { cause: error });
   }
+  if (error?.response?.status === 401) {
+    throw new Error('Not connected, use clever login or the env var to authenticate to the clever-token', { cause: error });
+  }
   throw error;
 }
 
