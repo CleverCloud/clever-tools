@@ -4,6 +4,7 @@ import { conf, loadOAuthConf } from './configuration.js';
 import { prefixUrl } from '@clevercloud/client/esm/prefix-url.js';
 import { request } from '@clevercloud/client/esm/request.fetch.js';
 import { subtle as cryptoSuble } from 'node:crypto';
+import { addOauthHeaderPlaintext } from '../clever-client/auth-bridge.js';
 
 // Required for @clevercloud/client with "old" Node.js
 if (globalThis.crypto == null) {
@@ -35,6 +36,19 @@ export async function sendToApi (requestParams) {
     .catch(processError);
 }
 
+export async function sendToAuthBridge (requestParams) {
+  const tokens = await loadTokens();
+  return Promise.resolve(requestParams)
+    .then(prefixUrl(conf.AUTH_BRIDGE_HOST))
+    .then(addOauthHeaderPlaintext(tokens))
+    .then((requestParams) => {
+      Logger.debug(`${requestParams.method.toUpperCase()} ${requestParams.url} ? ${JSON.stringify(requestParams.queryParams)}`);
+      return requestParams;
+    })
+    .then(request)
+    .catch(processError);
+}
+
 export function processError (error) {
   const code = error.code ?? error?.cause?.code;
   if (code === 'EAI_AGAIN') {
@@ -42,6 +56,9 @@ export function processError (error) {
   }
   if (code === 'ECONNRESET') {
     throw new Error('The connection to the Clever Cloud API was closed abruptly, please try again.', { cause: error });
+  }
+  if (error?.response?.status === 401) {
+    throw new Error('Not connected, use clever login or the env var to authenticate to the clever-token', { cause: error });
   }
   throw error;
 }

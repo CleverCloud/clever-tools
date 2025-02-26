@@ -16,7 +16,7 @@ import * as Application from '../src/models/application.js';
 import { AVAILABLE_ZONES } from '../src/models/application.js';
 import { EXPERIMENTAL_FEATURES } from '../src/experimental-features.js';
 import { getExitOnOption, getOutputFormatOption, getSameCommitPolicyOption } from '../src/command-options.js';
-import { getFeatures } from '../src/models/configuration.js';
+import { getFeatures, conf } from '../src/models/configuration.js';
 
 import * as Addon from '../src/models/addon.js';
 import * as ApplicationConfiguration from '../src/models/application_configuration.js';
@@ -56,6 +56,7 @@ import * as ssh from '../src/commands/ssh.js';
 import * as status from '../src/commands/status.js';
 import * as stop from '../src/commands/stop.js';
 import * as tcpRedirs from '../src/commands/tcp-redirs.js';
+import * as tokens from '../src/commands/tokens.js';
 import * as unlink from '../src/commands/unlink.js';
 import * as version from '../src/commands/version.js';
 import * as webhooks from '../src/commands/webhooks.js';
@@ -94,6 +95,8 @@ async function run () {
     kvIdOrName: cliparse.argument('kv-id', {
       description: 'Add-on/Real ID (or name, if unambiguous) of a Materia KV or Redis® add-on',
     }),
+    apiTokenId: cliparse.argument('api-token-id', { description: 'API token ID' }),
+    apiTokenName: cliparse.argument('api-token-name', { description: 'API token name' }),
     addonIdOrName: cliparse.argument('addon-id', {
       description: 'Add-on ID (or name, if unambiguous)',
       parser: Parsers.addonIdOrName,
@@ -880,6 +883,25 @@ async function run () {
     commands: [tcpRedirsListNamespacesCommand, tcpRedirsAddCommand, tcpRedirsRemoveCommand],
   }, tcpRedirs.list);
 
+  // TOKENS COMMANDS
+  const apiTokenCreateCommand = cliparse.command('create', {
+    description: 'Create an API token',
+    args: [args.apiTokenName],
+    options: [opts.humanJsonOutputFormat],
+  }, tokens.create);
+  const apiTokenRevokeCommand = cliparse.command('revoke', {
+    description: 'Revoke an API token',
+    args: [args.apiTokenId],
+  }, tokens.revoke);
+  const apiTokenGetCommand = cliparse.command('list', {
+    description: 'List API tokens',
+    options: [opts.humanJsonOutputFormat],
+  }, tokens.list);
+  const tokensCommands = cliparse.command('tokens', {
+    description: `Manage API tokens to query Clever Cloud API from ${conf.AUTH_BRIDGE_HOST}`,
+    commands: [apiTokenGetCommand, apiTokenCreateCommand, apiTokenRevokeCommand],
+  }, tokens.list);
+
   // UNLINK COMMAND
   const appUnlinkCommand = cliparse.command('unlink', {
     description: 'Unlink this repo from an existing application',
@@ -980,6 +1002,10 @@ async function run () {
 
   if (featuresFromConf.kv) {
     commands.push(colorizeExperimentalCommand(kvRawCommand, 'kv'));
+  }
+
+  if (featuresFromConf.tokens) {
+    commands.push(colorizeExperimentalCommand(tokensCommands, 'tokens'));
   }
 
   // CLI PARSER
