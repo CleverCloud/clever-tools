@@ -48,7 +48,7 @@ export async function create (params) {
     case 'human':
     default:
       Logger.println(dedent`
-        ${colors.green('✔')} API token created successfully!
+        ${colors.green('✔')} API token successfully created!
 
           - API token ID : ${colors.grey(createdToken.apiTokenId)}
           - API token    : ${colors.grey(createdToken.apiToken)}
