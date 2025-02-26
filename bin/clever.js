@@ -27,6 +27,12 @@ import * as Namespaces from '../src/models/namespaces.js';
 import * as accesslogsModule from '../src/commands/accesslogs.js';
 import * as activity from '../src/commands/activity.js';
 import * as addon from '../src/commands/addon.js';
+import * as aiChat from '../src/commands/ai-chat.js';
+import * as aiAssistants from '../src/commands/ai-assistant.js';
+import * as aiEndpoints from '../src/commands/ai-endpoints.js';
+import * as aiProviders from '../src/commands/ai-providers.js';
+import * as aiWebUI from '../src/commands/ai-web-ui.js';
+import * as apikeys from '../src/commands/apikeys.js';
 import * as applications from '../src/commands/applications.js';
 import * as cancelDeploy from '../src/commands/cancel-deploy.js';
 import * as config from '../src/commands/config.js';
@@ -44,6 +50,7 @@ import * as login from '../src/commands/login.js';
 import * as logout from '../src/commands/logout.js';
 import * as logs from '../src/commands/logs.js';
 import * as makeDefault from '../src/commands/makeDefault.js';
+import * as ng from '../src/commands/ng.js';
 import * as notifyEmail from '../src/commands/notify-email.js';
 import * as open from '../src/commands/open.js';
 import * as consoleModule from '../src/commands/console.js';
@@ -90,9 +97,51 @@ async function run () {
 
   // ARGUMENTS
   const args = {
-    kvRawCommand: cliparse.argument('command', { description: 'The raw command to send to the Materia KV or Redis® add-on' }),
+    assistantId: cliparse.argument('assistant-id', {
+      description: 'Clever AI Assistant ID, get list with `clever ai assistants`',
+    }),
+    apiKeyId: cliparse.argument('api-key', {
+      description: 'Clever AI Endpoint API Key UID',
+    }),
+    chatNameOrUid: cliparse.argument('chat-name-or-uid', {
+      description: 'Clever AI Chat service name or endpoint UID',
+    }),
+    kvRawCommand: cliparse.argument('command', {
+      description: 'The raw command to send to the Materia KV or Redis® add-on',
+    }),
     kvIdOrName: cliparse.argument('kv-id', {
       description: 'Add-on/Real ID (or name, if unambiguous) of a Materia KV or Redis® add-on',
+    }),
+    ngId: cliparse.argument('id', {
+      description: 'Network Group ID',
+      parser: Parsers.ngResourceType,
+    }),
+    ngLabel: cliparse.argument('ng-label', {
+      description: 'Network Group label',
+      parser: Parsers.ngResourceType,
+    }),
+    ngIdOrLabel: cliparse.argument('ng-id-or-label', {
+      description: 'Network Group ID or label',
+      parser: Parsers.ngResourceType,
+    }),
+    ngDescription: cliparse.argument('ng-description', {
+      description: 'Network Group description',
+    }),
+    ngExternalPeerLabel: cliparse.argument('external-peer-label', {
+      description: 'External peer label',
+      parser: Parsers.ngResourceType,
+    }),
+    ngExternalIdOrLabel: cliparse.argument('external-peer-id-or-label', {
+      description: 'External peer ID or label',
+      parser: Parsers.ngResourceType,
+    }),
+    ngAnyIdOrLabel: cliparse.argument('id-or-label', {
+      description: 'ID or Label of a Network group, a member or an (external) peer',
+      parser: Parsers.ngResourceType,
+    }),
+    wgPublicKey: cliparse.argument('public-key', {
+      metavar: 'public_key',
+      description: 'Wireguard public key of the external peer to link to a Network Group',
     }),
     addonIdOrName: cliparse.argument('addon-id', {
       description: 'Add-on ID (or name, if unambiguous)',
@@ -147,6 +196,60 @@ async function run () {
 
   // OPTIONS
   const opts = {
+    apiKeyId: cliparse.option('api-key', {
+      description: 'LLM Endpoint API Key ID',
+    }),
+    chatServiceLogoUrl: cliparse.option('logo-url', {
+      aliases: ['l'],
+      description: 'The URL of the logo to use for Clever AI Chat service Web UI',
+      metavar: 'logo-url',
+    }),
+    chatServiceIconUrl: cliparse.option('icon-url', {
+      aliases: ['i'],
+      description: 'The URL of the icon to use for Clever AI Chat service Web UI',
+      metavar: 'icon-url',
+    }),
+    chatServiceConfigFile: cliparse.option('conf', {
+      aliases: ['c'],
+      description: 'Path to a JSON file containing the providers configuration for the Clever AI Chat service',
+      metavar: 'path_to_conf_file',
+    }),
+    chatServiceInteractiveConfig: cliparse.flag('interactive', {
+      description: 'Ask for providers configuration without using any configuration file',
+    }),
+    deleteAllChatServices: cliparse.flag('all', { description: 'Delete all Clever AI Chat services' }),
+    openWebUI: cliparse.flag('open', {
+      description: 'Open the Clever AI Chat Web UI',
+    }),
+    provider: cliparse.option('provider', {
+      aliases: ['p'],
+      description: 'AI provider, get list with `clever ai list providers`',
+      metavar: 'provider',
+    }),
+    // Network Groups options
+    ngDescription: cliparse.option('description', {
+      metavar: 'description',
+      description: 'Network Group description',
+    }),
+    ngMembersIdsToLink: cliparse.option('link', {
+      metavar: 'members_ids',
+      description: "Comma separated list of members IDs to link to a Network Group ('app_xxx', 'addon_xxx', 'external_xxx')",
+      parser: Parsers.commaSeparated,
+    }),
+    ngMemberLabel: cliparse.option('label', {
+      required: false,
+      metavar: 'member_label',
+      description: 'The member label',
+      parser: Parsers.ngResourceType,
+    }),
+    ngPeerGetConfig: cliparse.flag('config', {
+      description: 'Get the Wireguard configuration of an external peer',
+    }),
+    ngResourceType: cliparse.option('type', {
+      metavar: 'type',
+      description: 'Type of resource to look for (NetworkGroup, Member, CleverPeer, ExternalPeer)',
+      parser: Parsers.ngValidType,
+    }),
     sourceableEnvVarsList: cliparse.flag('add-export', { description: 'Display sourceable env variables setting' }),
     logsFormat: getOutputFormatOption(['json-stream']),
     activityFormat: getOutputFormatOption(['json-stream']),
@@ -533,6 +636,128 @@ async function run () {
     commands: [addonCreateCommand, addonDeleteCommand, addonRenameCommand, addonListCommand, addonProvidersCommand, addonEnvCommand],
   }, addon.list);
 
+  // AI APIKEYS COMMANDS
+  const aiApikeysDeployCommand = cliparse.command('deploy', {
+    description: 'Deploy a Clever AI Service API key to a Chat service',
+    args: [args.apiKeyId, args.chatNameOrUid],
+  }, apikeys.deploy);
+  const aiApikeysGetCommand = cliparse.command('get', {
+    description: 'Get a Clever AI Service API key in JSON format',
+    args: [args.apiKeyId, args.chatNameOrUid],
+  }, apikeys.get);
+  const aiApikeysListCommand = cliparse.command('list', {
+    description: 'List available Clever AI Service API keys',
+    args: [args.chatNameOrUid],
+    options: [opts.humanJsonOutputFormat],
+  }, apikeys.list);
+  const aiApikeysCommands = cliparse.command('apikeys', {
+    description: 'Manage Clever AI Service API keys',
+    args: [args.chatNameOrUid],
+    privateOptions: [opts.humanJsonOutputFormat],
+    commands: [aiApikeysDeployCommand, aiApikeysGetCommand, aiApikeysListCommand],
+  }, apikeys.list);
+
+  // AI ASSISTANTS COMMANDS
+  const aiAssistantsListCommand = cliparse.command('list', {
+    description: 'List available Clever AI Chat assistants',
+    options: [opts.humanJsonOutputFormat],
+  }, aiAssistants.listAssistants);
+  const aiAssistantsGetCommand = cliparse.command('get', {
+    description: 'Get a Clever AI Chat assistant in JSON format',
+    args: [args.assistantId],
+  }, aiAssistants.getAssistant);
+  const aiAssistantsApplyCommand = cliparse.command('apply', {
+    description: 'Apply an Clever AI Chat assistant to a Chat service',
+    args: [args.assistantId, args.chatNameOrUid],
+  }, aiAssistants.applyAssistantToChatService);
+  const aiAssistantsCommands = cliparse.command('assistants', {
+    description: 'Manage Clever AI Chat assistants',
+    privateOptions: [opts.humanJsonOutputFormat],
+    commands: [aiAssistantsListCommand, aiAssistantsGetCommand, aiAssistantsApplyCommand],
+  }, aiAssistants.listAssistants);
+
+  // AI GET COMMANDS
+  const aiGetCurlInstructionsCommand = cliparse.command('curl-instructions', {
+    description: 'Get the cURL command to send a message to a Clever AI endpoint',
+    args: [args.chatNameOrUid],
+  }, aiChat.getCurlInstructions);
+  const aiGetEndpointsCommand = cliparse.command('endpoint', {
+    description: 'Get information about a Clever AI endpoint',
+    args: [args.chatNameOrUid],
+    options: [opts.humanJsonOutputFormat],
+  }, aiEndpoints.llmGet);
+  const aiGetCommands = cliparse.command('get', {
+    description: 'Get information about a Clever AI Chat service',
+    args: [args.chatNameOrUid],
+    privateOptions: [opts.humanJsonOutputFormat],
+    commands: [aiGetCurlInstructionsCommand, aiGetEndpointsCommand],
+  }, aiChat.showServiceInfo);
+
+  // AI LIST COMMANDS
+  const aiListModelsCommand = cliparse.command('models', {
+    description: 'List available models for a provider',
+    options: [opts.provider, opts.humanJsonOutputFormat],
+  }, aiProviders.listModels);
+  const aiListProvidersCommand = cliparse.command('providers', {
+    description: 'List available AI providers',
+  }, aiProviders.list);
+  const aiListServicesCommand = cliparse.command('list', {
+    description: 'List Clever AI services, models, providers',
+    privateOptions: [opts.humanJsonOutputFormat],
+    commands: [aiListModelsCommand, aiListProvidersCommand],
+  }, aiEndpoints.list);
+
+  // AI CHAT WEB UI COMMANDS
+  const chatDisableWebUICommand = cliparse.command('disable', {
+    description: 'Disable the Clever AI Chat Web UI',
+    args: [args.chatNameOrUid],
+  }, aiWebUI.disableWebUI);
+  const chatEnableWebUICommand = cliparse.command('enable', {
+    description: 'Enable the Clever AI Chat Web UI',
+    args: [args.chatNameOrUid],
+    options: [opts.openWebUI],
+  }, aiWebUI.enableWebUI);
+  const chatOpenWebUICommand = cliparse.command('open', {
+    description: 'Open the Clever AI Chat Web UI',
+    args: [args.chatNameOrUid],
+  }, aiWebUI.openWebUI);
+  const chatWebUIStatusCommand = cliparse.command('status', {
+    description: 'Get the Clever AI Chat Web UI status',
+    args: [args.chatNameOrUid],
+  }, aiWebUI.showWebUIStatus);
+  const chatWebUICommands = cliparse.command('webui', {
+    description: 'Manage Clever AI Chat Web UI',
+    args: [args.chatNameOrUid],
+    privateOptions: [opts.humanJsonOutputFormat],
+    commands: [chatDisableWebUICommand, chatEnableWebUICommand, chatOpenWebUICommand, chatWebUIStatusCommand],
+  }, aiWebUI.showWebUIStatus);
+
+  // AI SERVICE COMMANDS
+  const aiServiceCreateCommand = cliparse.command('create', {
+    description: 'Create a Clever AI service with Web UI',
+    args: [args.chatNameOrUid],
+    options: [opts.chatServiceConfigFile, opts.chatServiceInteractiveConfig, opts.openWebUI, opts.chatServiceLogoUrl, opts.chatServiceIconUrl],
+  }, aiChat.createChatService);
+  const aiServiceDeleteAllCommand = cliparse.command('all', {
+    description: 'Delete all Clever AI services',
+  }, aiChat.deleteAllChatServices);
+  const aiServiceDeleteCommand = cliparse.command('delete', {
+    description: 'Delete a Clever AI service',
+    args: [args.chatNameOrUid],
+    commands: [aiServiceDeleteAllCommand],
+  }, aiChat.deleteChatService);
+  const aiServiceRestartCommand = cliparse.command('restart', {
+    description: 'Restart a Clever AI service',
+    args: [args.chatNameOrUid],
+  }, aiChat.restart);
+
+  const aiCommands = cliparse.command('ai', {
+    description: 'Manage Clever AI Chat service and its assistants, endpoints, providers',
+    args: [args.chatNameOrUid],
+    privateOptions: [opts.humanJsonOutputFormat],
+    commands: [aiServiceCreateCommand, aiServiceRestartCommand, aiServiceDeleteCommand, aiGetCommands, aiListServicesCommand, aiApikeysCommands, chatWebUICommands, aiAssistantsCommands],
+  }, aiChat.showServiceInfo);
+
   // APPLICATIONS COMMAND
   const applicationsListRemoteCommand = cliparse.command('list', {
     description: 'List all applications',
@@ -745,6 +970,60 @@ async function run () {
     description: 'Make a linked application the default one',
     args: [args.alias],
   }, makeDefault.makeDefault);
+
+  // NETWORK GROUP COMMANDS
+  const ngCreateExternalPeerCommand = cliparse.command('external', {
+    description: 'Create an external peer in a Network Group',
+    args: [args.ngExternalPeerLabel, args.ngIdOrLabel, args.wgPublicKey],
+  }, ng.createExternalPeer);
+  const ngDeleteExternalPeerCommand = cliparse.command('external', {
+    description: 'Delete an external peer from a Network Group',
+    args: [args.ngExternalIdOrLabel, args.ngIdOrLabel],
+  }, ng.deleteExternalPeer);
+  const ngCreateCommand = cliparse.command('create', {
+    description: 'Create a Network Group',
+    args: [args.ngLabel],
+    privateOptions: [opts.ngMembersIdsToLink, opts.ngDescription, opts.optTags],
+    commands: [ngCreateExternalPeerCommand],
+  }, ng.createNg);
+  const ngDeleteCommand = cliparse.command('delete', {
+    description: 'Delete a Network Group',
+    args: [args.ngIdOrLabel],
+    commands: [ngDeleteExternalPeerCommand],
+  }, ng.deleteNg);
+  const ngLinkCommand = cliparse.command('link', {
+    description: 'Link an application or a database add-on by its ID to a Network Group',
+    args: [args.ngAnyIdOrLabel, args.ngIdOrLabel],
+  }, ng.linkToNg);
+  const ngUnlinkCommand = cliparse.command('unlink', {
+    description: 'Unlink an application or a database add-on by its ID from a Network Group',
+    args: [args.ngAnyIdOrLabel, args.ngIdOrLabel],
+  }, ng.unlinkFromNg);
+  const ngGetCommand = cliparse.command('get', {
+    description: 'Get details about a Network Group, a member or a peer',
+    args: [args.ngAnyIdOrLabel],
+    options: [opts.ngResourceType, opts.humanJsonOutputFormat],
+  }, ng.get);
+  const ngGetConfigCommand = cliparse.command('get-config', {
+    description: 'Get the Wireguard configuration of a peer in a Network Group',
+    args: [args.ngExternalIdOrLabel, args.ngIdOrLabel],
+    options: [opts.humanJsonOutputFormat],
+  }, ng.getPeerConfig);
+  const ngSearchCommand = cliparse.command('search', {
+    description: 'Search Network Groups, members or peers and get their details',
+    args: [args.ngAnyIdOrLabel],
+    options: [opts.ngResourceType, opts.humanJsonOutputFormat],
+  }, ng.search);
+  /* const ngJoinCommand = cliparse.command('join', {
+    description: 'Join a Network Group',
+    args: [args.ngIdOrLabel],
+  }, ng.joinNg); */
+  const networkGroupsCommand = cliparse.command('ng', {
+    description: 'List Network Groups',
+    options: [opts.orgaIdOrName],
+    privateOptions: [opts.humanJsonOutputFormat],
+    commands: [ngCreateCommand, ngDeleteCommand, ngLinkCommand, ngUnlinkCommand, ngGetCommand, ngGetConfigCommand, ngSearchCommand],
+  }, ng.listNg);
 
   // NOTIFY-EMAIL COMMAND
   const addEmailNotificationCommand = cliparse.command('add', {
@@ -978,8 +1257,16 @@ async function run () {
   // Add experimental features only if they are enabled through the configuration file
   const featuresFromConf = await getFeatures();
 
+  if (featuresFromConf.ai) {
+    commands.push(colorizeExperimentalCommand(aiCommands, 'ai'));
+  }
+
   if (featuresFromConf.kv) {
     commands.push(colorizeExperimentalCommand(kvRawCommand, 'kv'));
+  }
+
+  if (featuresFromConf.ng) {
+    commands.push(colorizeExperimentalCommand(networkGroupsCommand, 'ng'));
   }
 
   // CLI PARSER
