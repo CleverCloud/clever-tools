@@ -72,7 +72,7 @@ clever login --secret SECRET --token TOKEN
 ```
 
 > [!TIP]
-> If environment variables `CC_SECRET` and `CC_TOKEN` are set, Clever Tools will use them, `login` is not needed.
+> If environment variables `CLEVER_SECRET` and `CLEVER_TOKEN` are set, Clever Tools will use them, `login` is not needed.
 
 To log out, delete this file or use:
 
