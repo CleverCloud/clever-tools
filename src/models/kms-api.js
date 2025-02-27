@@ -21,7 +21,7 @@ export function getSecret (params) {
  */
 export function putSecret (params, body) {
   return Promise.resolve({
-    method: 'put',
+    method: 'post',
     url: `/v1/secret/data/${params.secret}`,
     headers: { 'Content-Type': 'application/json' },
     body,
