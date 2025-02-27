@@ -4,6 +4,7 @@ import { Logger } from '../logger.js';
 import { formatTable as initFormatTable } from '../format-table.js';
 import superagent from 'superagent';
 import fs from 'node:fs';
+import { Writable } from 'node:stream';
 import { findOwnerId } from '../models/addon.js';
 import { resolveRealId, resolveAddonId } from '../models/ids-resolver.js';
 
@@ -80,14 +81,14 @@ export async function downloadBackups (params) {
     throw new Error('no backup with this ID');
   }
 
-  const res = await superagent
-    .get(backup.download_url)
-    .responseType('blob');
-
-  if (output) {
-    fs.writeFileSync(output, res.body);
-    return;
+  const response = await fetch(backup.download_url);
+  if (!response.ok) {
+    throw new Error('Failed to download backup');
   }
 
-  process.stdout.write(res.body);
+  await response
+    .body
+    .pipeTo(
+      Writable.toWeb(output ? fs.createWriteStream(output) : process.stdout),
+    );
 }
