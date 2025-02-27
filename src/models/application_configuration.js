@@ -10,6 +10,7 @@ const CONFIG_KEYS = [
   { id: 'sticky-sessions', name: 'stickySessions', displayName: 'Sticky sessions', kind: 'bool' },
   { id: 'cancel-on-push', name: 'cancelOnPush', displayName: 'Cancel current deployment on push', kind: 'bool' },
   { id: 'force-https', name: 'forceHttps', displayName: 'Force redirection of HTTP to HTTPS', kind: 'force-https' },
+  { id: 'task', name: 'task', displayName: 'Deploy an application as a Clever Task', kind: 'task' },
 ];
 
 export function listAvailableIds () {
@@ -35,6 +36,9 @@ function display (config, value) {
     }
     case 'force-https': {
       return value.toLowerCase();
+    }
+    case 'task': {
+      return (value === 'TASK') ? 'enabled' : 'disabled';
     }
     default: {
       return String(value);
@@ -69,7 +73,8 @@ function getConfigOptions (config) {
   switch (config.kind) {
     case 'bool':
     case 'inverted-bool':
-    case 'force-https': {
+    case 'force-https':
+    case 'task': {
       return [
         cliparse.flag(`enable-${config.id}`, { description: `Enable ${config.id}` }),
         cliparse.flag(`disable-${config.id}`, { description: `Disable ${config.id}` }),
@@ -126,6 +131,18 @@ function parseConfigOption (config, options) {
       }
       return null;
     }
+    case 'task': {
+      const enable = options[`enable-${config.id}`];
+      const disable = options[`disable-${config.id}`];
+      if (enable && disable) {
+        Logger.warn(`${config.id} is both enabled and disabled, ignoring`);
+      }
+      else if (enable || disable) {
+        const value = (enable) ? 'TASK' : 'REGULAR';
+        return [config.name, value];
+      }
+      return null;
+    }
     default: {
       if (options[config.id] !== null) {
         return [config.name, options[config.id]];
@@ -136,7 +153,10 @@ function parseConfigOption (config, options) {
 }
 
 function printConfig (app, config) {
-  if (app[config.name] != null) {
+  if (config.name === 'task') {
+    Logger.println(`${config.displayName}: ${colors.bold(display(config, app.instance.lifetime))}`);
+  }
+  else if (app[config.name] != null) {
     Logger.println(`${config.displayName}: ${colors.bold(display(config, app[config.name]))}`);
   }
 }
@@ -144,7 +164,12 @@ function printConfig (app, config) {
 export function printById (app, id) {
   const config = getById(id);
   if (config != null) {
-    printConfig(app, config);
+    if (config.name === 'task') {
+      Logger.println(`${config.displayName}: ${colors.bold(display(config, app.instance.lifetime))}`);
+    }
+    else {
+      printConfig(app, config);
+    }
   }
 }
 
