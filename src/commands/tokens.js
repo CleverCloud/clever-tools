@@ -18,25 +18,25 @@ import { promptPassword } from '../prompt-password.js';
  */
 export async function create (params) {
   const [apiTokenName] = params.args;
-  const { duration, format } = params.options;
+  const { expiration, format } = params.options;
 
   const dateObject = new Date();
   const moreThanOneYearErrorMessage = 'You cannot set an expiration date greater than 1 year';
 
   // Duration can be weeks, days, hours, minutes, seconds, milliseconds
   // If it's months or years, we use setMonth or setFullYear
-  const durationUnit = duration.slice(-1);
-  if (durationUnit === 'm' || durationUnit === 'y') {
-    const durationValue = parseInt(duration.slice(0, -1), 10);
-    if ((durationUnit === 'm' && durationValue > 12) || (durationUnit === 'y' && durationValue > 1)) {
+  const expirationUnit = expiration.slice(-1);
+  if (expirationUnit === 'M' || expirationUnit === 'y') {
+    const durationValue = parseInt(expiration.slice(0, -1), 10);
+    if ((expirationUnit === 'M' && durationValue > 12) || (expirationUnit === 'y' && durationValue > 1)) {
       throw new Error(moreThanOneYearErrorMessage);
     }
-    durationUnit === 'm'
+    expirationUnit === 'M'
       ? dateObject.setMonth(dateObject.getMonth() + durationValue)
       : dateObject.setFullYear(dateObject.getFullYear() + durationValue);
   }
   else {
-    const secondsToAdd = new Duration(duration).seconds();
+    const secondsToAdd = new Duration(expiration).seconds();
     if (secondsToAdd > 31622400) {
       throw new Error(moreThanOneYearErrorMessage);
     }
