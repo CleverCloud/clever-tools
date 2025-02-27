@@ -9,9 +9,11 @@ import * as Operator from '../models/operators.js';
 import { Logger } from '../logger.js';
 import { select } from '@inquirer/prompts';
 import { resolveId } from '../models/application.js';
+import { sendToApi } from '../models/send-to-api.js';
 import { sendToOtoroshi } from '../models/otoroshi.js';
-import { createApiKey, createRoute, deleteApiKey, deleteBiscuitVerifier, deleteRoute, getApiKeys, getApiKeyTemplate, getBiscuitVerifiers, getRoutes } from '../models/otoroshi-instances-api.js';
 import { createBiscuitsVerifier, genBiscuitsToken, getBiscuitsVerifierTemplate, selectKeypair } from '../models/otoroshi-biscuits.js';
+import { createApiKey, createRoute, deleteApiKey, deleteBiscuitVerifier, deleteRoute, getApiKeys, getApiKeyTemplate, getBiscuitVerifiers, getRoutes } from '../models/otoroshi-instances-api.js';
+import { ngDisableOperator, ngEnableOperator } from '../models/operators-api.js';
 
 /** Check the version of an Otoroshi operator
  * @param {object} params The command's parameters
@@ -71,7 +73,7 @@ export async function get (params) {
   const { format } = params.options;
 
   const otoroshi = await Operator.getDetails('otoroshi', addonIdOrName);
-  printOtoroshi(otoroshi, format);
+  await printOtoroshi(otoroshi, format);
 }
 
 /**
@@ -292,6 +294,46 @@ export async function listRoutes (params) {
   }
 }
 
+/** Unlink a Operator from a Network Group
+ * @param {object} params The command's parameters
+ * @param {string} params.args[0] The operator's name or ID
+ * @returns {Promise<void>}
+ * @throws {Error} If the Network Group feature is already disabled
+ */
+export async function ngDisable (params) {
+  const [addonIdOrName] = params.args;
+
+  const otoroshi = await Operator.getDetails('otoroshi', addonIdOrName);
+  if (!otoroshi.features.ng) {
+    throw new Error(`Network Group is already disabled on Otoroshi operator ${colors.red(otoroshi.name)}`);
+  }
+
+  await ngDisableOperator({ provider: 'otoroshi', realId: otoroshi.resourceId }).then(sendToApi);
+  Logger.println(`Disabling Network Group on Otoroshi operator ${colors.blue(otoroshi.name)}…`);
+
+  get(params);
+}
+
+/** Link a Operator to a Network Group
+ * @param {object} params The command's parameters
+ * @param {string} params.args[0] The operator's name or ID
+ * @returns {Promise<void>}
+ * @throws {Error} If the Network Group feature is already enabled
+ */
+export async function ngEnable (params) {
+  const [addonIdOrName] = params.args;
+  const otoroshi = await Operator.getDetails('otoroshi', addonIdOrName);
+
+  if (otoroshi.features.ng) {
+    throw new Error(`Network Group is already enabled on Otoroshi operator ${colors.red(addonIdOrName)}`);
+  }
+
+  await ngEnableOperator({ provider: 'otoroshi', realId: otoroshi.resourceId }).then(sendToApi);
+  Logger.println(`Enabling Network Group on Otoroshi operator ${colors.blue(addonIdOrName)}…`);
+
+  get(params);
+}
+
 /** Open an Otoroshi operator in the browser
  * @param {object} params The command's parameters
  * @param {string} params.args[0] The operator's name or ID
@@ -302,7 +344,7 @@ export async function open (params) {
   const otoroshi = await Operator.getDetails('otoroshi', addonIdOrName);
 
   Logger.println(`Opening Otoroshi operator ${colors.blue(otoroshi.addonId)} in the browser…`);
-  await openPage(`https://${otoroshi.adminTargethost}`, { wait: false });
+  await openPage(`https://${otoroshi.accessUrl}`, { wait: false });
 }
 
 /** Open the Logs section of an Otoroshi Operator application in the Clever Cloud Console
@@ -315,7 +357,7 @@ export async function openLogs (params) {
   const otoroshi = await Operator.getDetails('otoroshi', addonIdOrName);
 
   Logger.println(`Opening Otoroshi operator logs ${colors.blue(otoroshi.addonId)} in the Clever Cloud Console…`);
-  await openPage(`https://console.clever-cloud.com/organisations/${otoroshi.ownerId}/applications/${otoroshi.applications[0].javaId}/logs`, { wait: false });
+  await openPage(`https://console.clever-cloud.com/organisations/${otoroshi.ownerId}/applications/${otoroshi.resources.entrypoint}/logs`, { wait: false });
 }
 
 /** Reboot an Otoroshi operator
@@ -348,7 +390,7 @@ export async function rebuild (params) {
  * @param {string} [format] The output format
  * @returns {void}
  */
-function printOtoroshi (otoroshi, format = 'human') {
+async function printOtoroshi (otoroshi, format = 'human') {
   switch (format) {
     case 'json':
       Logger.println(JSON.stringify(otoroshi, null, 2));
@@ -357,9 +399,10 @@ function printOtoroshi (otoroshi, format = 'human') {
     default:
       console.table({
         // Name: otoroshi.name,
-        ID: otoroshi.addonId,
-        'Admin URL': `https://${otoroshi.adminTargethost}`,
-        'API URL': `https://${otoroshi.apiHost}`,
+        ID: otoroshi.resourceId,
+        'Admin URL': otoroshi.accessUrl,
+        'API URL': otoroshi.api.url,
+        'Network Group': otoroshi.features.ng ? otoroshi.features.ng : false,
       });
       break;
   }

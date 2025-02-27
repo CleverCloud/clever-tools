@@ -844,7 +844,6 @@ async function run () {
   const keycloakEnableNgCommand = cliparse.command('enable', {
     description: 'Link the Keycloak operator to a Network Group, used for multi-instances secure communication',
     args: [args.addonIdOrName],
-    options: [opts.minInstances, opts.maxInstances],
   }, keycloak.ngEnable);
   const keycloakDisableNgCommand = cliparse.command('disable', {
     description: 'Unlink the keycloak operator from its Network Group',
@@ -1068,6 +1067,20 @@ async function run () {
     description: 'Open the Otoroshi application logs in Clever Cloud Console',
     args: [args.addonIdOrName],
   }, otoroshi.openLogs);
+  const otoroshiEnableNgCommand = cliparse.command('enable', {
+    description: 'Link the Keycloak operator to a Network Group, used for multi-instances secure communication',
+    args: [args.addonIdOrName],
+  }, otoroshi.ngEnable);
+  const otoroshiDisableNgCommand = cliparse.command('disable', {
+    description: 'Unlink the keycloak operator from its Network Group',
+    args: [args.addonIdOrName],
+  }, otoroshi.ngDisable);
+  const otoroshiNgCommands = cliparse.command('ng', {
+    description: 'Manage the Network Group of a Keycloak operator',
+    args: [args.addonIdOrName],
+    options: [opts.humanJsonOutputFormat],
+    commands: [otoroshiEnableNgCommand, otoroshiDisableNgCommand],
+  }, otoroshi.get);
   const otoroshiOpenCommand = cliparse.command('open', {
     description: 'Open the Otoroshi admin console in your browser',
     args: [args.addonIdOrName],
@@ -1097,7 +1110,7 @@ async function run () {
   const otoroshiCommand = cliparse.command('otoroshi', {
     description: 'Manage Clever Cloud Otoroshi services',
     privateOptions: [opts.humanJsonOutputFormat],
-    commands: [otoroshiGetCommand, otoroshiGetRoutesCommand, otoroshiLinkCommand, otoroshiOpenCommand, otoroshiRebootCommand, otoroshiRebuildCommand, otoroshiVersionsCommands],
+    commands: [otoroshiGetCommand, otoroshiGetRoutesCommand, otoroshiLinkCommand, otoroshiNgCommands, otoroshiOpenCommand, otoroshiRebootCommand, otoroshiRebuildCommand, otoroshiVersionsCommands],
   }, otoroshi.list);
 
   // CONSOLE COMMAND
