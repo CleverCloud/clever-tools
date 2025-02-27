@@ -4,16 +4,23 @@ import colors from 'colors/safe.js';
 import * as variables from '../models/variables.js';
 import { sendToApi } from '../models/send-to-api.js';
 import { toNameEqualsValueString, validateName } from '@clevercloud/client/esm/utils/env-vars.js';
-import * as application from '@clevercloud/client/esm/api/v2/application.js';
+import {
+  getAllEnvVars,
+  getAllEnvVarsForAddons,
+  getAllEnvVarsForDependencies,
+  updateEnvVar,
+  updateAllEnvVars,
+  removeEnvVar,
+} from '@clevercloud/client/esm/api/v2/application.js';
 
 export async function list (params) {
   const { alias, app: appIdOrName, 'add-export': addExportsOption, format } = params.options;
   const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
 
   const [envFromApp, envFromAddons, envFromDeps] = await Promise.all([
-    application.getAllEnvVars({ id: ownerId, appId }).then(sendToApi),
-    application.getAllEnvVarsForAddons({ id: ownerId, appId }).then(sendToApi),
-    application.getAllEnvVarsForDependencies({ id: ownerId, appId }).then(sendToApi),
+    getAllEnvVars({ id: ownerId, appId }).then(sendToApi),
+    getAllEnvVarsForAddons({ id: ownerId, appId }).then(sendToApi),
+    getAllEnvVarsForDependencies({ id: ownerId, appId }).then(sendToApi),
   ]);
 
   switch (format) {
@@ -69,7 +76,7 @@ export async function set (params) {
 
   const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
 
-  await application.updateEnvVar({ id: ownerId, appId, envName }, { value }).then(sendToApi);
+  await updateEnvVar({ id: ownerId, appId, envName }, { value }).then(sendToApi);
 
   Logger.println('Your environment variable has been successfully saved');
 };
@@ -79,7 +86,7 @@ export async function rm (params) {
   const { alias, app: appIdOrName } = params.options;
   const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
 
-  await application.removeEnvVar({ id: ownerId, appId, envName }).then(sendToApi);
+  await removeEnvVar({ id: ownerId, appId, envName }).then(sendToApi);
 
   Logger.println('Your environment variable has been successfully removed');
 };
@@ -90,7 +97,7 @@ export async function importEnv (params) {
   const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
 
   const envVars = await variables.readVariablesFromStdin(format);
-  await application.updateAllEnvVars({ id: ownerId, appId }, envVars).then(sendToApi);
+  await updateAllEnvVars({ id: ownerId, appId }, envVars).then(sendToApi);
 
   Logger.println('Environment variables have been set');
 };
@@ -110,7 +117,7 @@ export async function importVarsFromLocalEnv (params) {
 
   for (const envName of envNames) {
     const value = process.env[envName] || '';
-    await application.updateEnvVar({ id: ownerId, appId, envName }, { value }).then(sendToApi);
+    await updateEnvVar({ id: ownerId, appId, envName }, { value }).then(sendToApi);
   }
 
   Logger.println('Your environment variables have been successfully saved');

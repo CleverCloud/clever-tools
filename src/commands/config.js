@@ -1,4 +1,4 @@
-import * as application from '@clevercloud/client/esm/api/v2/application.js';
+import { update as updateApplication } from '@clevercloud/client/esm/api/v2/application.js';
 
 import * as Application from '../models/application.js';
 import * as ApplicationConfiguration from '../models/application_configuration.js';
@@ -26,7 +26,7 @@ export async function set (params) {
   const config = ApplicationConfiguration.getById(configurationName);
 
   if (config != null) {
-    const app = await application.update({ id: ownerId, appId }, { [config.name]: ApplicationConfiguration.parse(config, configurationValue) }).then(sendToApi);
+    const app = await updateApplication({ id: ownerId, appId }, { [config.name]: ApplicationConfiguration.parse(config, configurationValue) }).then(sendToApi);
 
     ApplicationConfiguration.printById(app, configurationName);
   }
@@ -41,7 +41,7 @@ export async function update (params) {
     throw new Error('No configuration to update');
   }
 
-  const app = await application.update({ id: ownerId, appId }, options).then(sendToApi);
+  const app = await updateApplication({ id: ownerId, appId }, options).then(sendToApi);
 
   for (const configName of Object.keys(options)) {
     ApplicationConfiguration.printByName(app, configName);

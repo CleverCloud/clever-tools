@@ -1,9 +1,10 @@
 import * as Application from './application.js';
-import * as organisation from '@clevercloud/client/esm/api/v2/organisation.js';
+import { getNamespaces as getTcpRedirNamespaces } from '@clevercloud/client/esm/api/v2/organisation.js';
 import { sendToApi } from './send-to-api.js';
 import cliparse from 'cliparse';
+
 export async function getNamespaces (ownerId) {
-  return organisation.getNamespaces({ id: ownerId }).then(sendToApi);
+  return getTcpRedirNamespaces({ id: ownerId }).then(sendToApi);
 }
 
 export async function completeNamespaces () {
