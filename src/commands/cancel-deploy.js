@@ -2,6 +2,7 @@ import * as Application from '../models/application.js';
 import { Logger } from '../logger.js';
 import { getAllDeployments, cancelDeployment } from '@clevercloud/client/esm/api/v2/application.js';
 import { sendToApi } from '../models/send-to-api.js';
+import colors from 'colors/safe.js';
 
 export async function cancelDeploy (params) {
   const { alias, app: appIdOrName } = params.options;
@@ -16,5 +17,5 @@ export async function cancelDeploy (params) {
   const deploymentId = deployments[0].id;
   await cancelDeployment({ id: ownerId, appId, deploymentId }).then(sendToApi);
 
-  Logger.println('Deployment cancelled!');
+  Logger.println(colors.bold.green('✓'), 'Deployment successfully cancelled!');
 };
