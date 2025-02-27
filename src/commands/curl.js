@@ -1,9 +1,10 @@
 import { spawn } from 'node:child_process';
-import { loadOAuthConf, conf } from '../models/configuration.js';
+import { conf, loadOAuthConf } from '../models/configuration.js';
 import { addOauthHeader } from '@clevercloud/client/esm/oauth.js';
 import { Logger } from '../logger.js';
 import colors from 'colors/safe.js';
 import curlconverter from 'curlconverter';
+import dedent from 'dedent';
 
 async function loadTokens () {
   const tokens = await loadOAuthConf();
@@ -16,22 +17,21 @@ async function loadTokens () {
 }
 
 function printCleverCurlHelp () {
-  const apiDocUrlv2 = `${conf.API_DOC_URL}/v2/`;
-  const apiDocUrlv4 = `${conf.API_DOC_URL}/v4/`;
-
-  Logger.println(`Usage: clever curl
-Query Clever Cloud's API using Clever Tools credentials. For example:
-
-  clever curl ${conf.API_HOST}/v2/self
-  clever curl ${conf.API_HOST}/v2/summary
-  clever curl ${conf.API_HOST}/v4/products/zones
-  clever curl ${conf.API_HOST}/v2/organisations/<ORGANISATION_ID>/applications | jq '.[].id'
-  clever curl ${conf.API_HOST}/v4/billing/organisations/<ORGANISATION_ID>/<INVOICE_NUMBER>.pdf > invoice.pdf
-
-Our API documentation is available here :
-
-  ${apiDocUrlv2}
-  ${apiDocUrlv4}`);
+  Logger.println(dedent`
+    Usage: clever curl
+    Query Clever Cloud's API using Clever Tools credentials. For example:
+    
+      clever curl ${conf.API_HOST}/v2/self
+      clever curl ${conf.API_HOST}/v2/summary
+      clever curl ${conf.API_HOST}/v4/products/zones
+      clever curl ${conf.API_HOST}/v2/organisations/<ORGANISATION_ID>/applications | jq '.[].id'
+      clever curl ${conf.API_HOST}/v4/billing/organisations/<ORGANISATION_ID>/<INVOICE_NUMBER>.pdf > invoice.pdf
+    
+    Our API documentation is available here :
+    
+      ${conf.API_DOC_URL}/v2/
+      ${conf.API_DOC_URL}/v4/
+  `);
 }
 
 export async function curl () {
