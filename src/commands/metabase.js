@@ -1,6 +1,5 @@
 import openPage from 'open';
 import colors from 'colors/safe.js';
-
 import * as Operator from '../models/operators.js';
 
 import { Logger } from '../logger.js';
@@ -91,8 +90,8 @@ export async function open (params) {
   const [addonIdOrName] = params.args;
   const metabase = await Operator.getDetails('metabase', addonIdOrName);
 
-  Logger.println(`Opening Metabase operator ${colors.blue(metabase.addonId)} in the browser…`);
-  await openPage(`https://${metabase.host}`, { wait: false });
+  Logger.println(`Opening Metabase operator ${colors.blue(metabase.name)} in the browser…`);
+  await openPage(`https://${metabase.accessUrl}`, { wait: false });
 }
 
 /** Open the Logs section of a Metabase Operator application in the Clever Cloud Console
@@ -105,7 +104,7 @@ export async function openLogs (params) {
   const metabase = await Operator.getDetails('metabase', addonIdOrName);
 
   Logger.println(`Opening Metabase operator logs ${colors.blue(metabase.addonId)} in the Clever Cloud Console…`);
-  await openPage(`https://console.clever-cloud.com/organisations/${metabase.ownerId}/applications/${metabase.javaId}/logs`, { wait: false });
+  await openPage(`https://console.clever-cloud.com/organisations/${metabase.ownerId}/applications/${metabase.resources.entrypoint}/logs`, { wait: false });
 }
 
 /** Reboot a Metabase operator
@@ -147,8 +146,8 @@ function printMetabase (metabase, format = 'human') {
     default:
       console.table({
         // Name: metabase.name,
-        ID: metabase.addonId,
-        'Admin URL': `https://${metabase.host}`,
+        ID: metabase.resourceId,
+        'Admin URL': metabase.accessUrl,
       });
       break;
   }
