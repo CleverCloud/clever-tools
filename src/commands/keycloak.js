@@ -7,7 +7,7 @@ import * as Applications from '@clevercloud/client/esm/api/v2/application.js';
 import { Logger } from '../logger.js';
 import { select } from '@inquirer/prompts';
 import { sendToApi } from '../models/send-to-api.js';
-import { ngDisableKeycloak, ngEnableKeycloak } from '../models/keycloak-api.js';
+import { ngDisableOperator, ngEnableOperator } from '../models/operators-api.js';
 
 /** Check the version of a Keycloak operator
  * @param {object} params The command's parameters
@@ -95,13 +95,13 @@ export async function ngDisable (params) {
   const [addonIdOrName] = params.args;
 
   const keycloak = await Operator.getDetails('keycloak', addonIdOrName);
-  if (!keycloak.networkgroupId) {
-    throw new Error(`Network Group is already disabled on Keycloak operator ${colors.red(keycloak.addonId)}`);
+  if (!keycloak.features.ng) {
+    throw new Error(`Network Group is already disabled on Keycloak operator ${colors.red(keycloak.name)}`);
   }
 
-  await ngDisableKeycloak({ keycloakId: keycloak.addonId }).then(sendToApi);
-  await Applications.update({ id: keycloak.ownerId, appId: keycloak.applications[0].javaId }, { minInstances: 1, maxInstances: 1 }).then(sendToApi);
-  Logger.println(`Disabling Network Group on Keycloak operator ${colors.blue(keycloak.addonId)}…`);
+  await ngDisableOperator({ provider: 'keycloak', realId: keycloak.resourceId }).then(sendToApi);
+  await Applications.update({ id: keycloak.ownerId, appId: keycloak.resources.entrypoint }, { minInstances: 1, maxInstances: 1 }).then(sendToApi);
+  Logger.println(`Disabling Network Group on Keycloak operator ${colors.blue(keycloak.name)}…`);
 
   get(params);
 }
@@ -114,29 +114,15 @@ export async function ngDisable (params) {
  */
 export async function ngEnable (params) {
   const [addonIdOrName] = params.args;
-  const { 'min-instances': minInstances, 'max-instances': maxInstances } = params.options;
-
-  if ((!minInstances && !maxInstances) || (minInstances < 2 && maxInstances < 2)) {
-    throw new Error(`Enabling Network Group is for Keycloak clusters only, use ${colors.red('--min-instances')} and/or ${colors.red('--max-instances')} to set the cluster size`);
-  }
-
-  if (minInstances && maxInstances && (minInstances > maxInstances)) {
-    throw new Error(`Minimum instances (${colors.red(minInstances)}) must be less than or equal to maximum instances (${colors.red(maxInstances)})`);
-  }
-
-  if (minInstances > 5 || maxInstances > 5) {
-    throw new Error('Keycloak clusters can\'t have more than 5 instances');
-  }
-
   const keycloak = await Operator.getDetails('keycloak', addonIdOrName);
 
-  if (keycloak.networkgroupId) {
-    throw new Error(`Network Group is already enabled on Keycloak operator ${colors.red(keycloak.addonId)}`);
+  if (keycloak.features.ng) {
+    throw new Error(`Network Group is already enabled on Keycloak operator ${colors.red(addonIdOrName)}`);
   }
 
-  await ngEnableKeycloak({ keycloakId: keycloak.addonId }).then(sendToApi);
-  await Applications.update({ id: keycloak.ownerId, appId: keycloak.applications[0].javaId }, { minInstances, maxInstances }).then(sendToApi);
-  Logger.println(`Enabling Network Group on Keycloak operator ${colors.blue(keycloak.addonId)}…`);
+  await ngEnableOperator({ provider: 'keycloak', realId: keycloak.resourceId }).then(sendToApi);
+  await Applications.update({ id: keycloak.ownerId, appId: keycloak.resources.entrypoint }, { minInstances: 2, maxInstances: 2 }).then(sendToApi);
+  Logger.println(`Enabling Network Group on Keycloak operator ${colors.blue(addonIdOrName)}…`);
 
   get(params);
 }
@@ -151,7 +137,7 @@ export async function open (params) {
   const keycloak = await Operator.getDetails('keycloak', addonIdOrName);
 
   Logger.println(`Opening Keycloak operator ${colors.blue(keycloak.addonId)} in the browser…`);
-  await openPage(`https://${keycloak.applications[0].host}`, { wait: false });
+  await openPage(`https://${keycloak.accessUrl}`, { wait: false });
 }
 
 /** Open the Logs section of a Keycloak Operator application in the Clever Cloud Console
@@ -164,7 +150,7 @@ export async function openLogs (params) {
   const keycloak = await Operator.getDetails('keycloak', addonIdOrName);
 
   Logger.println(`Opening Keycloak operator logs ${colors.blue(keycloak.addonId)} in the Clever Cloud Console…`);
-  await openPage(`https://console.clever-cloud.com/organisations/${keycloak.ownerId}/applications/${keycloak.applications[0].javaId}/logs`, { wait: false });
+  await openPage(`https://console.clever-cloud.com/organisations/${keycloak.ownerId}/applications/${keycloak.resources.entrypoint}/logs`, { wait: false });
 }
 
 /** Reboot a Keycloak operator
@@ -198,7 +184,7 @@ export async function rebuild (params) {
  * @returns {void}
  */
 async function printKeycloak (keycloak, format = 'human') {
-  const instances = await Applications.get({ id: keycloak.ownerId, appId: keycloak.applications[0].javaId }).then(sendToApi);
+  const app = await Applications.get({ id: keycloak.ownerId, appId: keycloak.resources.entrypoint }).then(sendToApi);
 
   switch (format) {
     case 'json':
@@ -208,9 +194,10 @@ async function printKeycloak (keycloak, format = 'human') {
     default:
       console.table({
         // Name: keycloak.name,
-        ID: keycloak.addonId,
-        'Network Group': keycloak.networkgroupId ? keycloak.networkgroupId : false,
-        'Min/Max Instances': `${instances.instance.minInstances}/${instances.instance.maxInstances}`,
+        ID: keycloak.resourceId,
+        'Admin URL': keycloak.accessUrl,
+        'Network Group': keycloak.features.ng ? keycloak.features.ng : false,
+        'Min/Max Instances': `${app.instance.minInstances}/${app.instance.maxInstances}`,
       });
       break;
   }
