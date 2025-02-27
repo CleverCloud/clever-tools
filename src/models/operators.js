@@ -1,31 +1,11 @@
-import { getAll as getAllAddons } from '@clevercloud/client/esm/api/v2/addon.js';
+import colors from 'colors/safe.js';
 import * as application from '@clevercloud/client/esm/api/v2/application.js';
-import { validateName } from '@clevercloud/client/esm/utils/env-vars.js';
+
 import { sendToApi } from './send-to-api.js';
 import { findAddonsByNameOrId } from './ids-resolver.js';
-import colors from 'colors/safe.js';
+import { validateName } from '@clevercloud/client/esm/utils/env-vars.js';
+import { getAll as getAllAddons } from '@clevercloud/client/esm/api/v2/addon.js';
 import { getOperator, rebootOperator, rebuildOperator } from './operators-api.js';
-
-const KC_VERSIONS = [
-  '26.0.8',
-  '26.1.0',
-];
-
-const METABASE_VERSIONS = [
-  'community-latest',
-  'v0.51',
-  'v0.51.12',
-  'v0.52',
-  'v0.52.8',
-];
-
-const OTOROSHI_VERSIONS = [
-  'v16.22.0_1737449369',
-  'v16.22.0_1737793936',
-  'v16.22.0_1738182959',
-  'v16.23.0_1738251867',
-  'v16.23.1_1738331619',
-];
 
 /** Get the version information of an operator
  * @param {string} provider The operator's provider
@@ -34,27 +14,10 @@ const OTOROSHI_VERSIONS = [
  */
 export async function checkVersion (provider, operatorIdOrName) {
 
-  const operator = await getWithEnv(provider, operatorIdOrName);
+  const operator = await getDetails(provider, operatorIdOrName);
 
-  let available = [];
-  let installed = '';
-  switch (provider) {
-    case 'keycloak':
-      installed = operator.env.find((env) => env.name === 'CC_KEYCLOAK_VERSION').value;
-      available = KC_VERSIONS;
-      break;
-    case 'metabase':
-      installed = operator.env.find((env) => env.name === 'CC_METABASE_VERSION').value;
-      available = METABASE_VERSIONS;
-      break;
-    case 'otoroshi': {
-      const otoVersion = operator.env.find((env) => env.name === 'CC_OTOROSHI_VERSION').value;
-      const apimVersion = operator.env.find((env) => env.name === 'CC_OTOROSHI_APIM_VERSION').value;
-      installed = `${otoVersion}_${apimVersion}`;
-      available = OTOROSHI_VERSIONS;
-      break;
-    }
-  }
+  const available = operator.availableVersions;
+  const installed = operator.version;
 
   return {
     installed,
@@ -103,31 +66,6 @@ ${colors.grey(otoroshi.map((otoroshi) => `- ${otoroshi.name} (${otoroshi.realId}
   }
 
   return operatorId;
-}
-
-/** Get the details of an operator from its name or ID, with its environment variables
- * @param {string} provider The operator's provider
- * @param {object|string} operatorIdOrName The operator's ID or name
- * @returns {Promise<object>} The operator's details with its environment variables
- * @throws {Error} If the operator provider is unknown
- */
-export async function getWithEnv (provider, operatorIdOrName) {
-  const operator = await getDetails(provider, operatorIdOrName);
-
-  switch (provider) {
-    case 'keycloak':
-      operator.appId = operator.applications[0].javaId;
-      break;
-    case 'metabase':
-    case 'otoroshi':
-      operator.appId = operator.javaId;
-      break;
-    default:
-      throw new Error(`Unknown provider ${provider}`);
-  }
-
-  operator.env = await application.getAllEnvVars({ id: operator.ownerId, appId: operator.appId }).then(sendToApi);
-  return operator;
 }
 
 /** List all deployed operators for a given provider
@@ -189,31 +127,22 @@ export async function setEnvVar (ownerId, appId, envName, value) {
  * @throws {Error} If the version is not supported
  */
 export async function updateVersion (provider, operatorIdOrName, version) {
-  const operator = await getWithEnv(provider, operatorIdOrName);
+  const operator = await getDetails(provider, operatorIdOrName);
+
+  if (!operator.availableVersions.includes(version)) {
+    throw new Error(`Version ${colors.red(version)} is not supported.`);
+  }
 
   switch (provider) {
     case 'keycloak':
-      if (!KC_VERSIONS.includes(version)) {
-        throw new Error(`Version ${colors.red(version)} is not supported.`);
-      }
 
-      await setEnvVar(operator.ownerId, operator.appId, 'CC_KEYCLOAK_VERSION', version);
+      await setEnvVar(operator.ownerId, operator.resources.entrypoint, 'CC_KEYCLOAK_VERSION', version);
       break;
     case 'metabase':
-      if (!METABASE_VERSIONS.includes(version)) {
-        throw new Error(`Version ${colors.red(version)} is not supported.`);
-      }
-
-      await setEnvVar(operator.ownerId, operator.appId, 'CC_METABASE_VERSION', version);
+      await setEnvVar(operator.ownerId, operator.resources.entrypoint, 'CC_METABASE_VERSION', version);
       break;
     case 'otoroshi': {
-      if (!OTOROSHI_VERSIONS.includes(version)) {
-        throw new Error(`Version ${colors.red(version)} is not supported.`);
-      }
-
-      const newVersion = { version: version.split('_')[0], llm_version: version.split('_')[1] };
-      await setEnvVar(operator.ownerId, operator.javaId, 'CC_OTOROSHI_VERSION', `${newVersion.version}`);
-      await setEnvVar(operator.ownerId, operator.javaId, 'CC_OTOROSHI_APIM_VERSION', newVersion.llm_version);
+      await setEnvVar(operator.ownerId, operator.resources.entrypoint, 'CC_OTOROSHI_VERSION', version);
       break;
     }
     default:
