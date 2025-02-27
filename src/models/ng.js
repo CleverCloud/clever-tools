@@ -85,7 +85,8 @@ export async function getPeerConfig (peerIdOrLabel, ngIdOrLabel, orgaIdOrName) {
 
   const [peer] = await searchNgOrResource(peerIdOrLabel, orgaIdOrName, 'Peer');
 
-  if (!peer || (peerIdOrLabel.ngResourceLabel && peer.label !== peerIdOrLabel.ngResourceLabel)) {
+  // peer.id is catched as a ngResourceLabel as it's a string with no distinctive prefix for now, it will change from API
+  if (!peer || (peerIdOrLabel.ngResourceLabel && (peerIdOrLabel.ngResourceLabel !== peer.label && peerIdOrLabel.ngResourceLabel !== peer.id))) {
     throw new Error(`Peer ${colors.red(peerIdOrLabel.ngResourceLabel || peerIdOrLabel.member)} not found`);
   }
 
