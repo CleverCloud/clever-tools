@@ -44,4 +44,10 @@ export const EXPERIMENTAL_FEATURES = {
       Learn more about Network Groups: https://www.clever-cloud.com/developers/doc/develop/network-groups/
     `,
   },
+  operators: {
+    status: 'beta',
+    description: 'Manage operators with dedicated features such as Keycloak, Matomo, Metabase, Otoroshi',
+    instructions: `
+`,
+  },
 };

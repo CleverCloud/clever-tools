@@ -1174,6 +1174,9 @@ async function run () {
   // Add experimental features only if they are enabled through the configuration file
   const featuresFromConf = await getFeatures();
 
+  if (featuresFromConf.operators) {
+  }
+
   if (featuresFromConf.kv) {
     commands.push(colorizeExperimentalCommand(kvRawCommand, 'kv'));
   }
