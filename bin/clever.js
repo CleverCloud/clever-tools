@@ -44,6 +44,7 @@ import * as link from '../src/commands/link.js';
 import * as login from '../src/commands/login.js';
 import * as logout from '../src/commands/logout.js';
 import * as logs from '../src/commands/logs.js';
+import * as matomo from '../src/commands/matomo.js';
 import * as metabase from '../src/commands/metabase.js';
 import * as makeDefault from '../src/commands/makeDefault.js';
 import * as ng from '../src/commands/ng.js';
@@ -863,6 +864,35 @@ async function run () {
     args: [args.alias],
   }, makeDefault.makeDefault);
 
+  // MATOMO COMMAND
+  const matomoGetCommand = cliparse.command('get', {
+    description: 'Get information about the matomo operator',
+    args: [args.addonIdOrName],
+    options: [opts.humanJsonOutputFormat],
+  }, matomo.get);
+  const matomoLogsCommand = cliparse.command('logs', {
+    description: 'Open the matomo application logs in Clever Cloud Console',
+    args: [args.addonIdOrName],
+  }, matomo.openLogs);
+  const matomoOpenCommand = cliparse.command('open', {
+    description: 'Open the matomo admin console in your browser',
+    args: [args.addonIdOrName],
+    commands: [matomoLogsCommand],
+  }, matomo.open);
+  const matomoRebootCommand = cliparse.command('reboot', {
+    description: 'Reboot the matomo operator',
+    args: [args.addonIdOrName],
+  }, matomo.reboot);
+  const matomoRebuildCommand = cliparse.command('rebuild', {
+    description: 'Rebuild the matomo operator',
+    args: [args.addonIdOrName],
+  }, matomo.rebuild);
+  const matomoCommand = cliparse.command('matomo', {
+    description: 'Manage Clever Cloud matomo services',
+    privateOptions: [opts.humanJsonOutputFormat],
+    commands: [matomoGetCommand, matomoOpenCommand, matomoRebootCommand, matomoRebuildCommand],
+  }, matomo.list);
+
   // METABASE COMMAND
   const metabaseGetCommand = cliparse.command('get', {
     description: 'Get information about the Metabase operator',
@@ -1249,6 +1279,7 @@ async function run () {
 
   if (featuresFromConf.operators) {
     commands.push(colorizeExperimentalCommand(keycloakCommand, 'operators'));
+    commands.push(colorizeExperimentalCommand(matomoCommand, 'operators'));
     commands.push(colorizeExperimentalCommand(metabaseCommand, 'operators'));
     commands.push(colorizeExperimentalCommand(otoroshiCommand, 'operators'));
   }

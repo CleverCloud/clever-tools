@@ -50,6 +50,7 @@ clever keycloak ng enable myKeycloak
 clever metabase version check myMetabase
 clever metabase version update myMetabase 0.53
 
+clever matomo open myMatomo
 clever otoroshi open logs myOtoroshi`,
   },
 };
