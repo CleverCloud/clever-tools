@@ -53,5 +53,8 @@ clever keycloak
 clever keycloak get keycloak_xxx
 clever keycloak ng enable myKeycloak
 
+clever metabase version check myMetabase
+clever metabase version update myMetabase 0.53
+
   },
 };
