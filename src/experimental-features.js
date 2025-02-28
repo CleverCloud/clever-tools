@@ -49,5 +49,9 @@ export const EXPERIMENTAL_FEATURES = {
     description: 'Manage operators with dedicated features such as Keycloak, Matomo, Metabase, Otoroshi',
     instructions: `
 `,
+clever keycloak
+clever keycloak get keycloak_xxx
+clever keycloak ng enable myKeycloak
+
   },
 };
