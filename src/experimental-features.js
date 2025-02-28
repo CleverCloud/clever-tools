@@ -44,5 +44,9 @@ Learn more about Network Groups: https://github.com/CleverCloud/clever-tools/blo
     description: 'Manage operators with dedicated features such as Keycloak, Matomo, Metabase, Otoroshi',
     instructions: `
 `,
+clever keycloak
+clever keycloak get keycloak_xxx
+clever keycloak ng enable myKeycloak
+
   },
 };
