@@ -38,6 +38,7 @@ import * as domain from '../src/commands/domain.js';
 import * as drain from '../src/commands/drain.js';
 import * as env from '../src/commands/env.js';
 import * as features from '../src/commands/features.js';
+import * as keycloak from '../src/commands/keycloak.js';
 import * as kv from '../src/commands/kv.js';
 import * as link from '../src/commands/link.js';
 import * as login from '../src/commands/login.js';
@@ -774,6 +775,62 @@ async function run () {
     commands: [enableFeatureCommand, disableFeatureCommand, listFeaturesCommand, infoFeaturesCommand],
   }, features.list);
 
+  // KEYCLOAK COMMAND
+  const keycloakGetCommand = cliparse.command('get', {
+    description: 'Get information about the Keycloak operator',
+    args: [args.addonIdOrName],
+    options: [opts.humanJsonOutputFormat],
+  }, keycloak.get);
+  const keycloakEnableNgCommand = cliparse.command('enable', {
+    description: 'Link the Keycloak operator to a Network Group, used for multi-instances secure communication',
+    args: [args.addonIdOrName],
+  }, keycloak.ngEnable);
+  const keycloakDisableNgCommand = cliparse.command('disable', {
+    description: 'Unlink the keycloak operator from its Network Group',
+    args: [args.addonIdOrName],
+  }, keycloak.ngDisable);
+  const keycloakNgCommands = cliparse.command('ng', {
+    description: 'Manage the Network Group of a Keycloak operator',
+    args: [args.addonIdOrName],
+    options: [opts.humanJsonOutputFormat],
+    commands: [keycloakEnableNgCommand, keycloakDisableNgCommand],
+  }, keycloak.get);
+  const keycloakLogsCommand = cliparse.command('logs', {
+    description: 'Open the Keycloak application logs in Clever Cloud Console',
+    args: [args.addonIdOrName],
+  }, keycloak.openLogs);
+  const keycloakOpenCommand = cliparse.command('open', {
+    description: 'Open the Keycloak admin console in your browser',
+    args: [args.addonIdOrName],
+    commands: [keycloakLogsCommand],
+  }, keycloak.open);
+  const keycloakRebootCommand = cliparse.command('reboot', {
+    description: 'Reboot the Keycloak operator',
+    args: [args.addonIdOrName],
+  }, keycloak.reboot);
+  const keycloakRebuildCommand = cliparse.command('rebuild', {
+    description: 'Rebuild the Keycloak operator',
+    args: [args.addonIdOrName],
+  }, keycloak.rebuild);
+  const keycloakVersionsGetCommand = cliparse.command('check', {
+    description: 'Check the Keycloak operator\'s deployed version',
+    args: [args.addonIdOrName],
+    options: [opts.humanJsonOutputFormat],
+  }, keycloak.checkVersion);
+  const keycloakVersionsSetCommand = cliparse.command('update', {
+    description: 'Update the Keycloak operator\'s version and rebuild it',
+    args: [args.addonIdOrName],
+  }, keycloak.updateVersion);
+  const keycloakVersionsCommands = cliparse.command('version', {
+    description: 'Manage the deployed version of a Keycloak operator',
+    commands: [keycloakVersionsGetCommand, keycloakVersionsSetCommand],
+  }, keycloak.checkVersion);
+  const keycloakCommand = cliparse.command('keycloak', {
+    description: 'Manage Clever Cloud Keycloak services',
+    privateOptions: [opts.humanJsonOutputFormat],
+    commands: [keycloakGetCommand, keycloakNgCommands, keycloakOpenCommand, keycloakRebootCommand, keycloakRebuildCommand, keycloakVersionsCommands],
+  }, keycloak.list);
+
   // KV COMMAND
   const kvRawCommand = cliparse.command('kv', {
     description: 'Send a raw command to a Materia KV or Redis® add-on',
@@ -1110,6 +1167,7 @@ async function run () {
   const featuresFromConf = await getFeatures();
 
   if (featuresFromConf.operators) {
+    commands.push(colorizeExperimentalCommand(keycloakCommand, 'operators'));
   }
 
   if (featuresFromConf.kv) {
