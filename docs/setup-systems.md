@@ -12,8 +12,6 @@ Clever Cloud CLI is based on Node.js. We thought it to be easily available on an
   - [Homebrew](/docs/setup-systems.md#homebrew)
   - [Binary (.tar.gz)](/docs/setup-systems.md#binary-zip)
 - [Windows](/docs/setup-systems.md#windows)
-  - [Chocolatey](/docs/setup-systems.md#chocolatey)
-  - [Binary (.zip)](/docs/setup-systems.md#binary-zip)
 - [Docker](/docs/setup-systems.md#docker)
 - [Nix package manager](/docs/setup-systems.md#nix-package-manager)
 
@@ -106,18 +104,7 @@ cp clever-tools-latest_macos/clever ~/.local/bin/
 
 ## Windows
 
-### Chocolatey
-
-If you use Windows and you have [Chocolatey](https://chocolatey.org) installed, run:
-
-```
-choco sources add -n=clevercloud -s='https://nexus.clever-cloud.com/repository/nupkg/'
-choco install clever-tools
-```
-
-### Binary (.zip)
-
-If you use Windows, but you don't have [Chocolatey](https://chocolatey.org) installed, download the `.zip` archive and extract the binary in your `PATH`:
+Download the `.zip` archive and extract the binary in your `PATH`:
 
 ```PowerShell
 Invoke-WebRequest https://clever-tools.clever-cloud.com/releases/latest/clever-tools-latest_win.zip -OutFile clever-tools-latest_win.zip
