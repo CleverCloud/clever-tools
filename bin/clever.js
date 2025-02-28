@@ -38,12 +38,14 @@ import * as domain from '../src/commands/domain.js';
 import * as drain from '../src/commands/drain.js';
 import * as env from '../src/commands/env.js';
 import * as features from '../src/commands/features.js';
+import * as functions from '../src/commands/functions.js';
 import * as kv from '../src/commands/kv.js';
 import * as link from '../src/commands/link.js';
 import * as login from '../src/commands/login.js';
 import * as logout from '../src/commands/logout.js';
 import * as logs from '../src/commands/logs.js';
 import * as makeDefault from '../src/commands/makeDefault.js';
+import * as ng from '../src/commands/ng.js';
 import * as notifyEmail from '../src/commands/notify-email.js';
 import * as open from '../src/commands/open.js';
 import * as consoleModule from '../src/commands/console.js';
@@ -90,9 +92,48 @@ async function run () {
 
   // ARGUMENTS
   const args = {
-    kvRawCommand: cliparse.argument('command', { description: 'The raw command to send to the Materia KV or Redis® add-on' }),
+    faasId: cliparse.argument('faas-id', {
+      description: 'Function ID',
+    }),
+    faasFile: cliparse.argument('filename', {
+      description: 'Path to the function code',
+    }),
+    kvRawCommand: cliparse.argument('command', {
+      description: 'The raw command to send to the Materia KV or Redis® add-on',
+    }),
     kvIdOrName: cliparse.argument('kv-id', {
       description: 'Add-on/Real ID (or name, if unambiguous) of a Materia KV or Redis® add-on',
+    }),
+    ngId: cliparse.argument('id', {
+      description: 'Network Group ID',
+      parser: Parsers.ngResourceType,
+    }),
+    ngLabel: cliparse.argument('ng-label', {
+      description: 'Network Group label',
+      parser: Parsers.ngResourceType,
+    }),
+    ngIdOrLabel: cliparse.argument('ng-id-or-label', {
+      description: 'Network Group ID or label',
+      parser: Parsers.ngResourceType,
+    }),
+    ngDescription: cliparse.argument('ng-description', {
+      description: 'Network Group description',
+    }),
+    ngExternalPeerLabel: cliparse.argument('external-peer-label', {
+      description: 'External peer label',
+      parser: Parsers.ngResourceType,
+    }),
+    ngExternalIdOrLabel: cliparse.argument('external-peer-id-or-label', {
+      description: 'External peer ID or label',
+      parser: Parsers.ngResourceType,
+    }),
+    ngAnyIdOrLabel: cliparse.argument('id-or-label', {
+      description: 'ID or Label of a Network group, a member or an (external) peer',
+      parser: Parsers.ngResourceType,
+    }),
+    wgPublicKey: cliparse.argument('public-key', {
+      metavar: 'public_key',
+      description: 'Wireguard public key of the external peer to link to a Network Group',
     }),
     addonIdOrName: cliparse.argument('addon-id', {
       description: 'Add-on ID (or name, if unambiguous)',
@@ -147,6 +188,30 @@ async function run () {
 
   // OPTIONS
   const opts = {
+    // Network Groups options
+    ngDescription: cliparse.option('description', {
+      metavar: 'description',
+      description: 'Network Group description',
+    }),
+    ngMembersIdsToLink: cliparse.option('link', {
+      metavar: 'members_ids',
+      description: "Comma separated list of members IDs to link to a Network Group ('app_xxx', 'addon_xxx', 'external_xxx')",
+      parser: Parsers.commaSeparated,
+    }),
+    ngMemberLabel: cliparse.option('label', {
+      required: false,
+      metavar: 'member_label',
+      description: 'The member label',
+      parser: Parsers.ngResourceType,
+    }),
+    ngPeerGetConfig: cliparse.flag('config', {
+      description: 'Get the Wireguard configuration of an external peer',
+    }),
+    ngResourceType: cliparse.option('type', {
+      metavar: 'type',
+      description: 'Type of resource to look for (NetworkGroup, Member, CleverPeer, ExternalPeer)',
+      parser: Parsers.ngValidType,
+    }),
     sourceableEnvVarsList: cliparse.flag('add-export', { description: 'Display sourceable env variables setting' }),
     logsFormat: getOutputFormatOption(['json-stream']),
     activityFormat: getOutputFormatOption(['json-stream']),
@@ -709,6 +774,29 @@ async function run () {
     commands: [enableFeatureCommand, disableFeatureCommand, listFeaturesCommand, infoFeaturesCommand],
   }, features.list);
 
+  // FUNCTIONS COMMANDS
+  const functionsCreateCommand = cliparse.command('create', {
+    description: 'Create a Clever Cloud Function',
+  }, functions.create);
+  const functionsDeleteCommand = cliparse.command('delete', {
+    description: 'Delete a Clever Cloud Function',
+    args: [args.faasId],
+  }, functions.destroy);
+  const functionsDeployCommand = cliparse.command('deploy', {
+    description: 'Deploy a Clever Cloud Function from compatible source code',
+    args: [args.faasFile, args.faasId],
+  }, functions.deploy);
+  const functionsListDeploymentsCommand = cliparse.command('list-deployments', {
+    description: 'List deployments of a Clever Cloud Function',
+    args: [args.faasId],
+    options: [opts.humanJsonOutputFormat],
+  }, functions.listDeployments);
+  const functionsCommand = cliparse.command('functions', {
+    description: 'Manage Clever Cloud Functions',
+    options: [opts.orgaIdOrName],
+    commands: [functionsCreateCommand, functionsDeleteCommand, functionsDeployCommand, functionsListDeploymentsCommand],
+  }, functions.list);
+
   // KV COMMAND
   const kvRawCommand = cliparse.command('kv', {
     description: 'Send a raw command to a Materia KV or Redis® add-on',
@@ -745,6 +833,60 @@ async function run () {
     description: 'Make a linked application the default one',
     args: [args.alias],
   }, makeDefault.makeDefault);
+
+  // NETWORK GROUP COMMANDS
+  const ngCreateExternalPeerCommand = cliparse.command('external', {
+    description: 'Create an external peer in a Network Group',
+    args: [args.ngExternalPeerLabel, args.ngIdOrLabel, args.wgPublicKey],
+  }, ng.createExternalPeer);
+  const ngDeleteExternalPeerCommand = cliparse.command('external', {
+    description: 'Delete an external peer from a Network Group',
+    args: [args.ngExternalIdOrLabel, args.ngIdOrLabel],
+  }, ng.deleteExternalPeer);
+  const ngCreateCommand = cliparse.command('create', {
+    description: 'Create a Network Group',
+    args: [args.ngLabel],
+    privateOptions: [opts.ngMembersIdsToLink, opts.ngDescription, opts.optTags],
+    commands: [ngCreateExternalPeerCommand],
+  }, ng.createNg);
+  const ngDeleteCommand = cliparse.command('delete', {
+    description: 'Delete a Network Group',
+    args: [args.ngIdOrLabel],
+    commands: [ngDeleteExternalPeerCommand],
+  }, ng.deleteNg);
+  const ngLinkCommand = cliparse.command('link', {
+    description: 'Link an application or a database add-on by its ID to a Network Group',
+    args: [args.ngAnyIdOrLabel, args.ngIdOrLabel],
+  }, ng.linkToNg);
+  const ngUnlinkCommand = cliparse.command('unlink', {
+    description: 'Unlink an application or a database add-on by its ID from a Network Group',
+    args: [args.ngAnyIdOrLabel, args.ngIdOrLabel],
+  }, ng.unlinkFromNg);
+  const ngGetCommand = cliparse.command('get', {
+    description: 'Get details about a Network Group, a member or a peer',
+    args: [args.ngAnyIdOrLabel],
+    options: [opts.ngResourceType, opts.humanJsonOutputFormat],
+  }, ng.get);
+  const ngGetConfigCommand = cliparse.command('get-config', {
+    description: 'Get the Wireguard configuration of a peer in a Network Group',
+    args: [args.ngExternalIdOrLabel, args.ngIdOrLabel],
+    options: [opts.humanJsonOutputFormat],
+  }, ng.getPeerConfig);
+  const ngSearchCommand = cliparse.command('search', {
+    description: 'Search Network Groups, members or peers and get their details',
+    args: [args.ngAnyIdOrLabel],
+    options: [opts.ngResourceType, opts.humanJsonOutputFormat],
+  }, ng.search);
+  /* const ngJoinCommand = cliparse.command('join', {
+    description: 'Join a Network Group',
+    args: [args.ngIdOrLabel],
+  }, ng.joinNg); */
+  const networkGroupsCommand = cliparse.command('ng', {
+    description: 'List Network Groups',
+    options: [opts.orgaIdOrName],
+    privateOptions: [opts.humanJsonOutputFormat],
+    commands: [ngCreateCommand, ngDeleteCommand, ngLinkCommand, ngUnlinkCommand, ngGetCommand, ngGetConfigCommand, ngSearchCommand],
+  }, ng.listNg);
 
   // NOTIFY-EMAIL COMMAND
   const addEmailNotificationCommand = cliparse.command('add', {
@@ -980,6 +1122,12 @@ async function run () {
 
   if (featuresFromConf.kv) {
     commands.push(colorizeExperimentalCommand(kvRawCommand, 'kv'));
+  }
+  if (featuresFromConf.ng) {
+    commands.push(colorizeExperimentalCommand(networkGroupsCommand, 'ng'));
+  }
+  if (featuresFromConf.functions) {
+    commands.push(colorizeExperimentalCommand(functionsCommand, 'functions'));
   }
 
   // CLI PARSER
