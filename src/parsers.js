@@ -75,10 +75,14 @@ export function orgaIdOrName (string) {
 }
 
 const addonIdRegex = /^addon_[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const operatorIdRegex = /^(keycloak|otoroshi|matomo|metabase)_[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 export function addonIdOrName (string) {
   if (string.match(addonIdRegex)) {
     return cliparse.parsers.success({ addon_id: string });
+  }
+  if (string.match(operatorIdRegex)) {
+    return cliparse.parsers.success({ operator_id: string });
   }
   return cliparse.parsers.success({ addon_name: string });
 }
@@ -173,5 +177,25 @@ export function durationInSeconds (durationStr = '') {
     }
 
     return cliparse.parsers.success(n);
+  }
+}
+
+// Network groups parsers
+export function ngResourceType (string) {
+  if (string.startsWith('ng_')) {
+    return cliparse.parsers.success({ ngId: string });
+  }
+  if (string.startsWith('app_') || string.startsWith('addon_') || string.startsWith('external_')) {
+    return cliparse.parsers.success({ memberId: string });
+  }
+  return cliparse.parsers.success({ ngResourceLabel: string });
+}
+
+export function ngValidType (string) {
+  if (string === 'NetworkGroup' || string === 'Member' || string === 'CleverPeer' || string === 'ExternalPeer') {
+    return cliparse.parsers.success(string);
+  }
+  else {
+    return cliparse.parsers.error('Invalid Network Group resource type: ' + string);
   }
 }
