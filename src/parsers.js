@@ -2,7 +2,6 @@ import cliparse from 'cliparse';
 
 import * as Application from './models/application.js';
 import ISO8601 from 'iso8601-duration';
-import Duration from 'duration-js';
 
 const addonOptionsRegex = /^[\w-]+=.+$/;
 
@@ -163,8 +162,8 @@ export function durationInSeconds (durationStr = '') {
   }
 
   try {
-    const duration = Duration.parse(durationStr);
-    return cliparse.parsers.success(duration.seconds());
+    const durationInSeconds = parseSimpleDuration(durationStr);
+    return cliparse.parsers.success(durationInSeconds);
   }
   catch (err) {
     const n = Number.parseInt(durationStr);
@@ -173,5 +172,24 @@ export function durationInSeconds (durationStr = '') {
     }
 
     return cliparse.parsers.success(n);
+  }
+}
+
+const SHORT_UNITS_TO_ISO = {
+  ms: (v) => `PT${(v / 1000).toFixed(3)}S`,
+  s: (v) => `PT${v}S`,
+  m: (v) => `PT${v}M`,
+  h: (v) => `PT${v}H`,
+  d: (v) => `P${v}D`,
+  w: (v) => `P${v}W`,
+};
+
+function parseSimpleDuration (durationStr) {
+  const { rawValue, unit } = durationStr.match(/^(?<rawValue>\d+)(?<unit>.*)$/)?.groups ?? {};
+  if (unit in SHORT_UNITS_TO_ISO) {
+    const value = Number(rawValue);
+    const isoDuration = SHORT_UNITS_TO_ISO[unit](value);
+    const d = ISO8601.parse(isoDuration);
+    return ISO8601.toSeconds(d);
   }
 }
