@@ -55,6 +55,20 @@ export function date (dateString) {
   return duration;
 }
 
+export function futureDateOrDuration (dateString) {
+  const date = new Date(dateString);
+  if (isNaN(dateString) && !isNaN(date.getTime())) {
+    return cliparse.parsers.success(date);
+  }
+
+  const duration = durationInSeconds(dateString);
+  if (duration.success) {
+    return cliparse.parsers.success(new Date(Date.now() + (duration.success * 1000)));
+  }
+
+  return duration;
+}
+
 const appIdRegex = /^app_[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 export function appIdOrName (string) {
@@ -182,6 +196,8 @@ const SHORT_UNITS_TO_ISO = {
   h: (v) => `PT${v}H`,
   d: (v) => `P${v}D`,
   w: (v) => `P${v}W`,
+  M: (v) => `P${v}M`,
+  y: (v) => `P${v}Y`,
 };
 
 function parseSimpleDuration (durationStr) {
