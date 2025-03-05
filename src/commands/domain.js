@@ -182,7 +182,16 @@ export async function overview (params) {
 
   const applicationsWithDomains = await Promise.all(
     applications.map(async (app) => {
-      const domains = await getAllDomains({ id: app.ownerId, appId: app.id }).then(sendToApi);
+      const domains = await getAllDomains({ id: app.ownerId, appId: app.id })
+        .then(sendToApi)
+        .catch((error) => {
+          // if the user cannot access application domains, we simply act as if there were no domains
+          if (error?.response?.status === 403) {
+            Logger.printErrorLine(`You cannot list domains for application ${app.name} (${app.id})`);
+            return [];
+          }
+          throw error;
+        });
       return { app, domains };
     }),
   );
