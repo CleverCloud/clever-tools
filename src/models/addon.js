@@ -1,4 +1,3 @@
-import * as application from '@clevercloud/client/esm/api/v2/application.js';
 import cliparse from 'cliparse';
 
 import { get as getAddon, getAll as getAllAddons, getAllEnvVars, remove as removeAddon, create as createAddon, update as updateAddon } from '@clevercloud/client/esm/api/v2/addon.js';
@@ -10,6 +9,7 @@ import * as Interact from './interact.js';
 import { Logger } from '../logger.js';
 import { sendToApi } from '../models/send-to-api.js';
 import { resolveOwnerId } from './ids-resolver.js';
+import { getAllLinkedAddons, linkAddon, unlinkAddon } from '@clevercloud/client/esm/api/v2/application.js';
 
 export function listProviders () {
   return getAllAddonProviders({}).then(sendToApi);
@@ -42,7 +42,7 @@ export async function list (ownerId, appId, showAll) {
     return allAddons;
   }
 
-  const myAddons = await application.getAllLinkedAddons({ id: ownerId, appId }).then(sendToApi);
+  const myAddons = await getAllLinkedAddons({ id: ownerId, appId }).then(sendToApi);
 
   if (showAll == null) {
     return myAddons;
@@ -191,12 +191,12 @@ async function getId (ownerId, addon) {
 
 export async function link (ownerId, appId, addon) {
   const addonId = await getId(ownerId, addon);
-  return application.linkAddon({ id: ownerId, appId }, JSON.stringify(addonId)).then(sendToApi);
+  return linkAddon({ id: ownerId, appId }, JSON.stringify(addonId)).then(sendToApi);
 }
 
 export async function unlink (ownerId, appId, addon) {
   const addonId = await getId(ownerId, addon);
-  return application.unlinkAddon({ id: ownerId, appId, addonId }).then(sendToApi);
+  return unlinkAddon({ id: ownerId, appId, addonId }).then(sendToApi);
 }
 
 export async function deleteAddon (ownerId, addonIdOrName, skipConfirmation) {

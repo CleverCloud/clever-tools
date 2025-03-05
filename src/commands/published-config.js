@@ -3,13 +3,13 @@ import { Logger } from '../logger.js';
 import * as variables from '../models/variables.js';
 import { sendToApi } from '../models/send-to-api.js';
 import { toNameEqualsValueString, validateName } from '@clevercloud/client/esm/utils/env-vars.js';
-import * as application from '@clevercloud/client/esm/api/v2/application.js';
+import { getAllExposedEnvVars, updateAllExposedEnvVars } from '@clevercloud/client/esm/api/v2/application.js';
 
 export async function list (params) {
   const { alias, app: appIdOrName, format } = params.options;
   const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
 
-  const publishedConfigs = await application.getAllExposedEnvVars({ id: ownerId, appId }).then(sendToApi);
+  const publishedConfigs = await getAllExposedEnvVars({ id: ownerId, appId }).then(sendToApi);
   const pairs = Object.entries(publishedConfigs).map(([name, value]) => ({ name, value }));
 
   switch (format) {
@@ -39,9 +39,9 @@ export async function set (params) {
 
   const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
 
-  const publishedConfigs = await application.getAllExposedEnvVars({ id: ownerId, appId }).then(sendToApi);
+  const publishedConfigs = await getAllExposedEnvVars({ id: ownerId, appId }).then(sendToApi);
   publishedConfigs[varName] = varValue;
-  await application.updateAllExposedEnvVars({ id: ownerId, appId }, publishedConfigs).then(sendToApi);
+  await updateAllExposedEnvVars({ id: ownerId, appId }, publishedConfigs).then(sendToApi);
 
   Logger.println('Your published config item has been successfully saved');
 };
@@ -51,9 +51,9 @@ export async function rm (params) {
   const { alias, app: appIdOrName } = params.options;
   const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
 
-  const publishedConfigs = await application.getAllExposedEnvVars({ id: ownerId, appId }).then(sendToApi);
+  const publishedConfigs = await getAllExposedEnvVars({ id: ownerId, appId }).then(sendToApi);
   delete publishedConfigs[varName];
-  await application.updateAllExposedEnvVars({ id: ownerId, appId }, publishedConfigs).then(sendToApi);
+  await updateAllExposedEnvVars({ id: ownerId, appId }, publishedConfigs).then(sendToApi);
 
   Logger.println('Your published config item has been successfully removed');
 };
@@ -64,7 +64,7 @@ export async function importEnv (params) {
   const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
 
   const publishedConfigs = await variables.readVariablesFromStdin(format);
-  await application.updateAllExposedEnvVars({ id: ownerId, appId }, publishedConfigs).then(sendToApi);
+  await updateAllExposedEnvVars({ id: ownerId, appId }, publishedConfigs).then(sendToApi);
 
   Logger.println('Your published configs have been set');
 };

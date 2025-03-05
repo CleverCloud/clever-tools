@@ -1,7 +1,16 @@
 import _ from 'lodash';
-import * as application from '@clevercloud/client/esm/api/v2/application.js';
+import {
+  create as createApplication,
+  remove as removeApplication,
+  getAll as getAllApplications,
+  get as getApplication,
+  redeploy as redeployApplication,
+  update as updateApplication,
+  getAllDependencies,
+  addDependency,
+  removeDependency,
+} from '@clevercloud/client/esm/api/v2/application.js';
 import cliparse from 'cliparse';
-import * as product from '@clevercloud/client/esm/api/v2/product.js';
 import { getSummary } from '@clevercloud/client/esm/api/v2/user.js';
 
 import * as AppConfiguration from './app_configuration.js';
@@ -12,6 +21,7 @@ import * as User from './user.js';
 
 import { sendToApi } from '../models/send-to-api.js';
 import { resolveOwnerId } from './ids-resolver.js';
+import { getAvailableInstances } from '@clevercloud/client/esm/api/v2/product.js';
 
 export function listAvailableTypes () {
   return cliparse.autocomplete.words(['docker', 'elixir', 'go', 'gradle', 'haskell', 'jar', 'maven', 'meteor', 'node', 'php', 'play1', 'play2', 'python', 'ruby', 'rust', 'sbt', 'static-apache', 'war']);
@@ -42,7 +52,7 @@ async function getId (ownerId, dependency) {
 async function getInstanceType (type) {
 
   // TODO: We should be able to use it without {}
-  const types = await product.getAvailableInstances({}).then(sendToApi);
+  const types = await getAvailableInstances({}).then(sendToApi);
 
   const enabledTypes = types.filter((t) => t.enabled);
   const matchingVariants = enabledTypes.filter((t) => t.variant != null && t.variant.slug === type);
@@ -83,7 +93,7 @@ export async function create (name, typeName, region, orgaIdOrName, github, isTa
     newApp.oauthApp = github;
   }
 
-  return application.create({ id: ownerId }, newApp).then(sendToApi);
+  return createApplication({ id: ownerId }, newApp).then(sendToApi);
 };
 
 export async function deleteApp (app, skipConfirmation) {
@@ -97,7 +107,7 @@ export async function deleteApp (app, skipConfirmation) {
     );
   }
 
-  return application.remove({ id: app.ownerId, appId: app.id }).then(sendToApi);
+  return removeApplication({ id: app.ownerId, appId: app.id }).then(sendToApi);
 };
 
 export async function getAllApps (ownerId) {
@@ -123,7 +133,7 @@ export async function getAllApps (ownerId) {
 };
 
 async function getApplicationsForOwner (ownerId) {
-  const rawApplications = await application.getAll({ id: ownerId }).then(sendToApi);
+  const rawApplications = await getAllApplications({ id: ownerId }).then(sendToApi);
   return rawApplications.map((app) => {
     return {
       app_id: app.id,
@@ -150,13 +160,13 @@ function getApplicationByName (apps, name) {
 };
 
 async function getByName (ownerId, name) {
-  const apps = await application.getAll({ id: ownerId }).then(sendToApi);
+  const apps = await getAllApplications({ id: ownerId }).then(sendToApi);
   return getApplicationByName(apps, name);
 };
 
 export function get (ownerId, appId) {
   Logger.debug(`Get information for the app: ${appId}`);
-  return application.get({ id: ownerId, appId }).then(sendToApi);
+  return getApplication({ id: ownerId, appId }).then(sendToApi);
 };
 
 function getFromSelf (appId) {
@@ -164,7 +174,7 @@ function getFromSelf (appId) {
   // /self differs from /organisations only for this one:
   // it fallbacks to the organisations of which the user
   // is a member, if it doesn't belong to Personal Space.
-  return application.get({ appId }).then(sendToApi);
+  return getApplication({ appId }).then(sendToApi);
 };
 
 /**
@@ -245,7 +255,7 @@ export function unlinkRepo (alias) {
 export function redeploy (ownerId, appId, commit, withoutCache) {
   Logger.debug(`Redeploying the app: ${appId}`);
   const useCache = (withoutCache) ? 'no' : null;
-  return application.redeploy({ id: ownerId, appId, commit, useCache }).then(sendToApi);
+  return redeployApplication({ id: ownerId, appId, commit, useCache }).then(sendToApi);
 };
 
 export function mergeScalabilityParameters (scalabilityParameters, instance) {
@@ -283,7 +293,7 @@ export function mergeScalabilityParameters (scalabilityParameters, instance) {
 export async function setScalability (appId, ownerId, scalabilityParameters, buildFlavor) {
   Logger.info('Scaling the app: ' + appId);
 
-  const app = await application.get({ id: ownerId, appId }).then(sendToApi);
+  const app = await getApplication({ id: ownerId, appId }).then(sendToApi);
   const instance = _.cloneDeep(app.instance);
 
   instance.minFlavor = instance.minFlavor.name;
@@ -301,17 +311,17 @@ export async function setScalability (appId, ownerId, scalabilityParameters, bui
     }
   }
 
-  return application.update({ id: ownerId, appId }, newConfig).then(sendToApi);
+  return updateApplication({ id: ownerId, appId }, newConfig).then(sendToApi);
 };
 
 export async function listDependencies (ownerId, appId, showAll) {
-  const applicationDeps = await application.getAllDependencies({ id: ownerId, appId }).then(sendToApi);
+  const applicationDeps = await getAllDependencies({ id: ownerId, appId }).then(sendToApi);
 
   if (!showAll) {
     return applicationDeps.map((app) => ({ ...app, isLinked: true }));
   }
 
-  const allApps = await application.getAll({ id: ownerId }).then(sendToApi);
+  const allApps = await getAllApplications({ id: ownerId }).then(sendToApi);
 
   const applicationDepsIds = applicationDeps.map((app) => app.id);
   return allApps.map((app) => {
@@ -322,10 +332,10 @@ export async function listDependencies (ownerId, appId, showAll) {
 
 export async function link (ownerId, appId, dependency) {
   const dependencyId = await getId(ownerId, dependency);
-  return application.addDependency({ id: ownerId, appId, dependencyId }).then(sendToApi);
+  return addDependency({ id: ownerId, appId, dependencyId }).then(sendToApi);
 };
 
 export async function unlink (ownerId, appId, dependency) {
   const dependencyId = await getId(ownerId, dependency);
-  return application.removeDependency({ id: ownerId, appId, dependencyId }).then(sendToApi);
+  return removeDependency({ id: ownerId, appId, dependencyId }).then(sendToApi);
 };

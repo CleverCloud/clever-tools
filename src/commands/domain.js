@@ -9,7 +9,7 @@ import {
   removeDomain,
   unmarkFavouriteDomain,
 } from '@clevercloud/client/esm/api/v2/application.js';
-import { getSummary } from '@clevercloud/client/cjs/api/v2/user.js';
+import { getSummary } from '@clevercloud/client/esm/api/v2/user.js';
 import { sendToApi } from '../models/send-to-api.js';
 import colors from 'colors/safe.js';
 import { parse as parseDomain } from 'tldts';
@@ -17,6 +17,7 @@ import { diagDomainConfig } from '@clevercloud/client/esm/utils/diag-domain-conf
 import { sortDomains } from '@clevercloud/client/esm/utils/domains.js';
 import { DnsResolver } from '../models/node-dns-resolver.js';
 import _ from 'lodash';
+import { getDefaultLoadBalancersDnsInfo } from '@clevercloud/client/esm/api/v4/load-balancers.js';
 
 /**
  * @typedef {import('@clevercloud/client/esm/utils/diag-domain-config.types.js').DomainInfo} DomainInfo
@@ -110,7 +111,7 @@ export async function diagApplication (params) {
   let hasError = false;
 
   const app = await getApp({ id: ownerId, appId }).then(sendToApi);
-  const expectedDnsForPublicLoadBalancer = await getDefaultLoadBalancersDnsInfo({ id: ownerId, appId }).then(sendToApi);
+  const expectedDnsForPublicLoadBalancer = await getDefaultLoadBalancersDnsInfo({ ownerId, appId }).then(sendToApi);
 
   const loadBalancerDnsConfig = {
     aRecords: expectedDnsForPublicLoadBalancer[0].dns.a,
@@ -349,19 +350,6 @@ function reportDomainDiagnostics ({ hostname, pathPrefix, resolvedDnsConfig, dia
 
     missingDiags.forEach((missingDiag) => printlnWithIndent(missingDiag.record.value, 6));
   }
-}
-
-// TODO: put in clever client
-function getDefaultLoadBalancersDnsInfo (params) {
-  return Promise.resolve({
-    method: 'get',
-    url: `/v4/load-balancers/organisations/${params.id}/applications/${params.appId}/load-balancers/default`,
-    headers: {
-      Accept: 'application/json',
-    },
-    // no query params
-    // no body
-  });
 }
 
 /**

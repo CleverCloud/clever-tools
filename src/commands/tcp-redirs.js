@@ -4,8 +4,8 @@ import * as Namespaces from '../models/namespaces.js';
 import { sendToApi } from '../models/send-to-api.js';
 import * as Interact from '../models/interact.js';
 import { Logger } from '../logger.js';
-import * as application from '@clevercloud/client/esm/api/v2/application.js';
 import * as Application from '../models/application.js';
+import { addTcpRedir, getTcpRedirs, removeTcpRedir } from '@clevercloud/client/esm/api/v2/application.js';
 
 export async function listNamespaces (params) {
   const { alias, app: appIdOrName, format } = params.options;
@@ -44,7 +44,7 @@ export async function list (params) {
   const { alias, app: appIdOrName, format } = params.options;
   const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
 
-  const redirs = await application.getTcpRedirs({ id: ownerId, appId }).then(sendToApi);
+  const redirs = await getTcpRedirs({ id: ownerId, appId }).then(sendToApi);
 
   switch (format) {
     case 'json': {
@@ -83,10 +83,10 @@ export async function add (params) {
   const { alias, app: appIdOrName, namespace, yes: skipConfirmation } = params.options;
   const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
 
-  const { port } = await application.addTcpRedir({ id: ownerId, appId }, { namespace }).then(sendToApi).catch((error) => {
+  const { port } = await addTcpRedir({ id: ownerId, appId }, { namespace }).then(sendToApi).catch((error) => {
     if (error.status === 402) {
       return acceptPayment(error.response.body, skipConfirmation).then(() => {
-        return application.addTcpRedir({ id: ownerId, appId, payment: 'accepted' }, { namespace }).then(sendToApi);
+        return addTcpRedir({ id: ownerId, appId, payment: 'accepted' }, { namespace }).then(sendToApi);
       });
     }
     else {
@@ -102,7 +102,7 @@ export async function remove (params) {
   const { alias, app: appIdOrName, namespace } = params.options;
   const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
 
-  await application.removeTcpRedir({ id: ownerId, appId, sourcePort: port, namespace }).then(sendToApi);
+  await removeTcpRedir({ id: ownerId, appId, sourcePort: port, namespace }).then(sendToApi);
 
   Logger.println('Successfully removed tcp redirection.');
 };
