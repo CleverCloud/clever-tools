@@ -2,7 +2,6 @@ import { sendToApi } from '../models/send-to-api.js';
 import { getBackups } from '@clevercloud/client/esm/api/v2/backups.js';
 import { Logger } from '../logger.js';
 import { formatTable as initFormatTable } from '../format-table.js';
-import superagent from 'superagent';
 import fs from 'node:fs';
 import { Writable } from 'node:stream';
 import { findOwnerId } from '../models/addon.js';
@@ -81,7 +80,7 @@ export async function downloadBackups (params) {
     throw new Error('no backup with this ID');
   }
 
-  const response = await fetch(backup.download_url);
+  const response = await globalThis.fetch(backup.download_url);
   if (!response.ok) {
     throw new Error('Failed to download backup');
   }
