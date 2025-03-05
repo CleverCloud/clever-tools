@@ -112,8 +112,11 @@ If you use Windows and you have [Chocolatey](https://chocolatey.org) installed, 
 
 ```
 choco sources add -n=clevercloud -s='https://nexus.clever-cloud.com/repository/nupkg/'
+choco feature disable --name='usePackageRepositoryOptimizations'
 choco install clever-tools
 ```
+
+We need to disable `usePackageRepositoryOptimizations` feature because of [an incompatibility](https://github.com/chocolatey/choco/issues/3506) between Chocolatey and Nexus.
 
 ### Binary (.zip)
 
