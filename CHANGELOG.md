@@ -1,6 +1,23 @@
 # clever-tools changelog
 
 
+## [3.12.0](https://github.com/CleverCloud/clever-tools/compare/3.11.0...3.12.0) (2025-03-06)
+
+
+### 🚀 Features
+
+* **database:** stream backup download ([80940a3](https://github.com/CleverCloud/clever-tools/commit/80940a37d193a2922cd72383f6d7432b057b00d1))
+* display a proper message for any 401 from the API ([379c866](https://github.com/CleverCloud/clever-tools/commit/379c8667c2c4b74e2e0edbec547f2ff0b3657e97))
+* **docker:** add curl and jq binaries ([3b71f0e](https://github.com/CleverCloud/clever-tools/commit/3b71f0e83dde74621463494a1eaade29fc7e35a5))
+* **ng:** introduce ng command ([687042b](https://github.com/CleverCloud/clever-tools/commit/687042bef5a27d50fcd9060cf1a68b9c61dee05b))
+* **tokens:** add `clever tokens` command to manage API tokens ([7044860](https://github.com/CleverCloud/clever-tools/commit/7044860ee24946d044d0fbc188ee407577c3fda4))
+
+
+### 🐛 Bug Fixes
+
+* **domains/overview:** handle 403 errors ([cdd6bac](https://github.com/CleverCloud/clever-tools/commit/cdd6bacc26293c4b023ac5f476b0b2b3fcf3f005)), closes [#881](https://github.com/CleverCloud/clever-tools/issues/881)
+* **link:** ignore org ID when using an app ID ([d2301ff](https://github.com/CleverCloud/clever-tools/commit/d2301ff74402491a30b901da8418aaac03f2947e))
+
 ## [3.11.0](https://github.com/CleverCloud/clever-tools/compare/3.10.1...3.11.0) (2024-12-18)
 
 
