@@ -27,11 +27,12 @@
   ],
   "dependencies": {
     "@clevercloud/client": "9.2.0",
+    "@inquirer/prompts": "7.3.2",
     "cliparse": "0.5.0",
     "colors": "1.4.0",
     "common-env": "6.4.0",
     "curlconverter": "3.21.0",
-    "duration-js": "4.0.0",
+    "dedent": "1.5.3",
     "eventsource": "1.1.0",
     "ioredis": "5.4.1",
     "iso8601-duration": "2.1.2",
