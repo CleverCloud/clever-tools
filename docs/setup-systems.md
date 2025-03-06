@@ -106,9 +106,17 @@ cp clever-tools-latest_macos/clever ~/.local/bin/
 
 ## Windows
 
+### Winget
+
+If you use Windows run in a terminal:
+
+```
+winget install CleverTools
+```
+
 ### Chocolatey
 
-If you use Windows and you have [Chocolatey](https://chocolatey.org) installed, run:
+If you prefer to use [Chocolatey](https://chocolatey.org), run:
 
 ```
 choco sources add -n=clevercloud -s='https://nexus.clever-cloud.com/repository/nupkg/'
@@ -120,7 +128,7 @@ We need to disable `usePackageRepositoryOptimizations` feature because of [an in
 
 ### Binary (.zip)
 
-If you use Windows, but you don't have [Chocolatey](https://chocolatey.org) installed, download the `.zip` archive and extract the binary in your `PATH`:
+You can also download the `.zip` archive and extract the binary in your `PATH`:
 
 ```PowerShell
 Invoke-WebRequest https://clever-tools.clever-cloud.com/releases/latest/clever-tools-latest_win.zip -OutFile clever-tools-latest_win.zip
