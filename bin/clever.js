@@ -44,6 +44,7 @@ import * as login from '../src/commands/login.js';
 import * as logout from '../src/commands/logout.js';
 import * as logs from '../src/commands/logs.js';
 import * as makeDefault from '../src/commands/makeDefault.js';
+import * as ng from '../src/commands/ng.js';
 import * as notifyEmail from '../src/commands/notify-email.js';
 import * as open from '../src/commands/open.js';
 import * as consoleModule from '../src/commands/console.js';
@@ -97,6 +98,37 @@ async function run () {
     }),
     apiTokenId: cliparse.argument('api-token-id', { description: 'API token ID' }),
     apiTokenName: cliparse.argument('api-token-name', { description: 'API token name' }),
+    ngId: cliparse.argument('id', {
+      description: 'Network Group ID',
+      parser: Parsers.ngResourceType,
+    }),
+    ngLabel: cliparse.argument('ng-label', {
+      description: 'Network Group label',
+      parser: Parsers.ngResourceType,
+    }),
+    ngIdOrLabel: cliparse.argument('ng-id-or-label', {
+      description: 'Network Group ID or label',
+      parser: Parsers.ngResourceType,
+    }),
+    ngDescription: cliparse.argument('ng-description', {
+      description: 'Network Group description',
+    }),
+    ngExternalPeerLabel: cliparse.argument('external-peer-label', {
+      description: 'External peer label',
+      parser: Parsers.ngResourceType,
+    }),
+    ngExternalIdOrLabel: cliparse.argument('external-peer-id-or-label', {
+      description: 'External peer ID or label',
+      parser: Parsers.ngResourceType,
+    }),
+    ngAnyIdOrLabel: cliparse.argument('id-or-label', {
+      description: 'ID or Label of a Network group, a member or an (external) peer',
+      parser: Parsers.ngResourceType,
+    }),
+    wgPublicKey: cliparse.argument('public-key', {
+      metavar: 'public_key',
+      description: 'Wireguard public key of the external peer to link to a Network Group',
+    }),
     addonIdOrName: cliparse.argument('addon-id', {
       description: 'Add-on ID (or name, if unambiguous)',
       parser: Parsers.addonIdOrName,
@@ -155,6 +187,30 @@ async function run () {
       metavar: 'expiration',
       parser: Parsers.futureDateOrDuration,
       description: 'Duration until API token expiration (e.g.: 1h, 4d, 2w, 6M), default 1y',
+    }),
+    // Network Groups options
+    ngDescription: cliparse.option('description', {
+      metavar: 'description',
+      description: 'Network Group description',
+    }),
+    ngMembersIdsToLink: cliparse.option('link', {
+      metavar: 'members_ids',
+      description: "Comma separated list of members IDs to link to a Network Group ('app_xxx', 'addon_xxx', 'external_xxx')",
+      parser: Parsers.commaSeparated,
+    }),
+    ngMemberLabel: cliparse.option('label', {
+      required: false,
+      metavar: 'member_label',
+      description: 'The member label',
+      parser: Parsers.ngResourceType,
+    }),
+    ngPeerGetConfig: cliparse.flag('config', {
+      description: 'Get the Wireguard configuration of an external peer',
+    }),
+    ngResourceType: cliparse.option('type', {
+      metavar: 'type',
+      description: 'Type of resource to look for (NetworkGroup, Member, CleverPeer, ExternalPeer)',
+      parser: Parsers.ngValidType,
     }),
     sourceableEnvVarsList: cliparse.flag('add-export', { description: 'Display sourceable env variables setting' }),
     logsFormat: getOutputFormatOption(['json-stream']),
@@ -755,6 +811,56 @@ async function run () {
     args: [args.alias],
   }, makeDefault.makeDefault);
 
+  // NETWORK GROUP COMMANDS
+  const ngCreateExternalPeerCommand = cliparse.command('external', {
+    description: 'Create an external peer in a Network Group',
+    args: [args.ngExternalPeerLabel, args.ngIdOrLabel, args.wgPublicKey],
+  }, ng.createExternalPeer);
+  const ngDeleteExternalPeerCommand = cliparse.command('external', {
+    description: 'Delete an external peer from a Network Group',
+    args: [args.ngExternalIdOrLabel, args.ngIdOrLabel],
+  }, ng.deleteExternalPeer);
+  const ngCreateCommand = cliparse.command('create', {
+    description: 'Create a Network Group',
+    args: [args.ngLabel],
+    privateOptions: [opts.ngMembersIdsToLink, opts.ngDescription, opts.optTags],
+    commands: [ngCreateExternalPeerCommand],
+  }, ng.createNg);
+  const ngDeleteCommand = cliparse.command('delete', {
+    description: 'Delete a Network Group',
+    args: [args.ngIdOrLabel],
+    commands: [ngDeleteExternalPeerCommand],
+  }, ng.deleteNg);
+  const ngLinkCommand = cliparse.command('link', {
+    description: 'Link an application or a database add-on by its ID to a Network Group',
+    args: [args.ngAnyIdOrLabel, args.ngIdOrLabel],
+  }, ng.linkToNg);
+  const ngUnlinkCommand = cliparse.command('unlink', {
+    description: 'Unlink an application or a database add-on by its ID from a Network Group',
+    args: [args.ngAnyIdOrLabel, args.ngIdOrLabel],
+  }, ng.unlinkFromNg);
+  const ngGetCommand = cliparse.command('get', {
+    description: 'Get details about a Network Group, a member or a peer',
+    args: [args.ngAnyIdOrLabel],
+    options: [opts.ngResourceType, opts.humanJsonOutputFormat],
+  }, ng.get);
+  const ngGetConfigCommand = cliparse.command('get-config', {
+    description: 'Get the Wireguard configuration of a peer in a Network Group',
+    args: [args.ngExternalIdOrLabel, args.ngIdOrLabel],
+    options: [opts.humanJsonOutputFormat],
+  }, ng.getPeerConfig);
+  const ngSearchCommand = cliparse.command('search', {
+    description: 'Search Network Groups, members or peers and get their details',
+    args: [args.ngAnyIdOrLabel],
+    options: [opts.ngResourceType, opts.humanJsonOutputFormat],
+  }, ng.search);
+  const networkGroupsCommand = cliparse.command('ng', {
+    description: 'List Network Groups',
+    options: [opts.orgaIdOrName],
+    privateOptions: [opts.humanJsonOutputFormat],
+    commands: [ngCreateCommand, ngDeleteCommand, ngLinkCommand, ngUnlinkCommand, ngGetCommand, ngGetConfigCommand, ngSearchCommand],
+  }, ng.listNg);
+
   // NOTIFY-EMAIL COMMAND
   const addEmailNotificationCommand = cliparse.command('add', {
     description: 'Add a new email notification',
@@ -1009,6 +1115,10 @@ async function run () {
 
   if (featuresFromConf.tokens) {
     commands.push(colorizeExperimentalCommand(tokensCommands, 'tokens'));
+  }
+
+  if (featuresFromConf.ng) {
+    commands.push(colorizeExperimentalCommand(networkGroupsCommand, 'ng'));
   }
 
   // CLI PARSER

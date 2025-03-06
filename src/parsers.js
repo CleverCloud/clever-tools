@@ -209,3 +209,23 @@ function parseSimpleDuration (durationStr) {
     return ISO8601.toSeconds(d);
   }
 }
+
+// Network groups parsers
+export function ngResourceType (string) {
+  if (string.startsWith('ng_')) {
+    return cliparse.parsers.success({ ngId: string });
+  }
+  if (string.startsWith('app_') || string.startsWith('addon_') || string.startsWith('external_')) {
+    return cliparse.parsers.success({ memberId: string });
+  }
+  return cliparse.parsers.success({ ngResourceLabel: string });
+}
+
+export function ngValidType (string) {
+  if (string === 'NetworkGroup' || string === 'Member' || string === 'CleverPeer' || string === 'ExternalPeer') {
+    return cliparse.parsers.success(string);
+  }
+  else {
+    return cliparse.parsers.error(`Invalid Network Group resource type: ${string}`);
+  }
+}

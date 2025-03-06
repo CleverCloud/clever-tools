@@ -55,6 +55,9 @@ export const Logger = _(['debug', 'info', 'warn', 'error'])
 // No decoration for Logger.println
 Logger.println = console.log;
 
+// Logger for success with a green check before the message
+Logger.printSuccess = (message) => console.log(`${colors.bold.green('✓')} ${message}`);
+
 // No decoration for Logger.println
 Logger.printJson = (obj) => {
   console.log(JSON.stringify(obj, null, 2));
