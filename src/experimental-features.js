@@ -55,7 +55,7 @@ export const EXPERIMENTAL_FEATURES = {
       - Search Network Groups, members or peers:
           clever ng search myQuery
 
-      Learn more about Network Groups: https://github.com/CleverCloud/clever-tools/blob/master/docs/ng.md
+      Learn more about Network Groups: https://www.clever-cloud.com/developers/doc/develop/network-groups/
     `,
   },
 };
