@@ -5,7 +5,7 @@ import _ from 'lodash';
 import git from 'isomorphic-git';
 import * as http from './isomorphic-http-with-agent.js';
 import cliparse from 'cliparse';
-import slugify from 'slugify';
+import { slugify } from '../lib/slugify.js';
 import { findPath } from './fs-utils.js';
 import { loadOAuthConf } from './configuration.js';
 
