@@ -1,6 +1,6 @@
 # Clever Cloud Network Groups
 
-Network Groups (NG) are a way to create a private secure network between resources inside Clever Cloud infrastructure, using [Wireguard](https://www.wireguard.com/). It's also possible to connect external resources to a Network Group. There are three components to this feature:
+[Network Groups](https://www.clever-cloud.com/developers/doc/develop/network-groups/) (NG) are a way to create a private secure network between resources inside Clever Cloud infrastructure, using [Wireguard](https://www.wireguard.com/). It's also possible to connect external resources to a Network Group. There are three components to this feature:
 
 * Network Group: a group of resources that can communicate with each through an encrypted tunnel
 * Member: a resource that can be part of a Network Group (`application`, `addon` or `external`)
@@ -9,9 +9,11 @@ Network Groups (NG) are a way to create a private secure network between resourc
 A Network Group is defined by an ID (`ngId`) and a `label`. It can be completed by a `description` and `tags`.
 
 > [!NOTE]
-> Network Groups are currently in public beta testing phase. You only need a Clever Cloud account to use them.
+> During beta testing phase, you can add add-ons and external peers to a Network Group, but these features are not yet fully supported.
 
 Tell us what you think of Network Groups and what features you need from it in [the dedicated section of our GitHub Community](https://github.com/CleverCloud/Community/discussions/categories/network-groups).
+
+- [Learn more about Network Groups](https://www.clever-cloud.com/developers/doc/develop/network-groups/)
 
 ## How it works
 
@@ -23,8 +25,6 @@ When an application connects to a Network Group, you can reach it on any port in
 > A Network Group member domain name is composed this way: `<memberID>.m.<ngID>cc-ng.cloud`
 
 ## Prerequisites
-
-To use Network Groups, you need [an alpha release of Clever Tools](https://github.com/CleverCloud/clever-tools/pull/780).
 
 Activate `ng` feature flag to manage Network Groups:
 
@@ -94,6 +94,8 @@ clever ng link app_xxx ngIdOrLabel
 clever ng unlink addon_xxx ngIdorLabel
 ```
 
+After an unlink, you may need to restart the application to apply the changes.
+
 ## Get information of a Network Group, a member or a peer
 
 To get information about a network group or a resource (a `json` formatted output is available):
@@ -125,6 +127,6 @@ clever ng get-config peerIdOrLabel myNG
 
 You can find ready to deploy projects using Network Groups in the following repositories:
 
-- XXX
+- https://github.com/CleverCloud/network-groups-example
 
 Create your own and [let us know](https://github.com/CleverCloud/Community/discussions/categories/network-groups)!

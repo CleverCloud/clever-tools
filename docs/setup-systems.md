@@ -12,6 +12,7 @@ Clever Cloud CLI is based on Node.js. We thought it to be easily available on an
   - [Homebrew](/docs/setup-systems.md#homebrew)
   - [Binary (.tar.gz)](/docs/setup-systems.md#binary-zip)
 - [Windows](/docs/setup-systems.md#windows)
+  - [Winget](/docs/setup-systems.md#winget)
   - [Chocolatey](/docs/setup-systems.md#chocolatey)
   - [Binary (.zip)](/docs/setup-systems.md#binary-zip)
 - [Docker](/docs/setup-systems.md#docker)

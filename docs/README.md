@@ -149,5 +149,5 @@ To revoke a token, use:
 clever tokens revoke myTokenId
 ```
 
->> [!INFO]
->> The `clever tokens` command is an experimental feature, activate it with `clever features enable tokens` command
+> [!INFO]
+> The `clever tokens` command is an experimental feature, activate it with `clever features enable tokens` command
