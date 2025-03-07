@@ -38,6 +38,7 @@ import * as domain from '../src/commands/domain.js';
 import * as drain from '../src/commands/drain.js';
 import * as env from '../src/commands/env.js';
 import * as features from '../src/commands/features.js';
+import * as invoices from '../src/commands/invoices.js';
 import * as kv from '../src/commands/kv.js';
 import * as link from '../src/commands/link.js';
 import * as login from '../src/commands/login.js';
@@ -92,6 +93,7 @@ async function run () {
 
   // ARGUMENTS
   const args = {
+    invoiceId: cliparse.argument('invoiceId', { description: 'Invoice ID' }),
     kvRawCommand: cliparse.argument('command', { description: 'The raw command to send to the Materia KV or Redis® add-on' }),
     kvIdOrName: cliparse.argument('kv-id', {
       description: 'Add-on/Real ID (or name, if unambiguous) of a Materia KV or Redis® add-on',
@@ -182,6 +184,14 @@ async function run () {
 
   // OPTIONS
   const opts = {
+    invoiceOpen: cliparse.flag('open', {
+      description: 'Open the invoice in the default browser',
+      default: false,
+    }),
+    invoiceOutputPath: cliparse.option('output', {
+      metavar: 'path',
+      description: 'Path to save the invoice (default: current directory)',
+    }),
     apiTokenExpiration: cliparse.option('expiration', {
       aliases: ['e'],
       metavar: 'expiration',
@@ -774,6 +784,22 @@ async function run () {
     commands: [enableFeatureCommand, disableFeatureCommand, listFeaturesCommand, infoFeaturesCommand],
   }, features.list);
 
+  // INVOICES COMMAND
+  const invoicesDownloadCommand = cliparse.command('download', {
+    description: 'Download an invoice',
+    args: [args.invoiceId],
+    options: [opts.invoiceOutputPath, opts.invoiceOpen],
+  }, invoices.download);
+  const invoicesOpenCommand = cliparse.command('open', {
+    description: 'Open the Invoices page in the Console',
+    options: [opts.invoiceId],
+  }, invoices.open);
+  const invoicesCommand = cliparse.command('invoices', {
+    description: 'List invoices',
+    options: [opts.orgaIdOrName, opts.humanJsonOutputFormat],
+    commands: [invoicesDownloadCommand, invoicesOpenCommand],
+  }, invoices.list);
+
   // KV COMMAND
   const kvRawCommand = cliparse.command('kv', {
     description: 'Send a raw command to a Materia KV or Redis® add-on',
@@ -1087,6 +1113,7 @@ async function run () {
     envCommands,
     featuresCommands,
     cliparseCommands.helpCommand,
+    invoicesCommand,
     loginCommand,
     logoutCommand,
     logsCommand,
