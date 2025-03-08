@@ -1,11 +1,10 @@
-import colors from 'colors/safe.js';
-import * as User from '../models/user.js';
-import * as Organisation from '../models/organisation.js';
-
 import crypto from 'node:crypto';
+import colors from 'colors/safe.js';
+
 import { Logger } from '../logger.js';
 import { sendToApi } from './send-to-api.js';
 import { checkMembersToLink } from './ng-resources.js';
+import { getOwnerIdFromOrgaIdOrName } from '../models/utils.js';
 import { searchNetworkGroupOrResource } from '../clever-client/ng.js';
 import { createNetworkGroup, deleteNetworkGroup, getNetworkGroup, getNetworkGroupWireGuardConfiguration, listNetworkGroups } from '@clevercloud/client/esm/api/v4/network-group.js';
 
@@ -262,15 +261,4 @@ async function pollNetworkGroup (ownerId, ngId, { waitForMembers = null, waitFor
 
     pollOnce();
   });
-}
-
-/**
- * Get the owner ID from an Organisation ID or name
- * @param {object} orgaIdOrName The Organisation ID or name
- * @returns {Promise<string>} The owner ID
- */
-async function getOwnerIdFromOrgaIdOrName (orgaIdOrName) {
-  return orgaIdOrName != null
-    ? Organisation.getId(orgaIdOrName)
-    : User.getCurrentId();
 }
