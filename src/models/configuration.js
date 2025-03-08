@@ -41,9 +41,10 @@ export async function loadOAuthConf () {
   Logger.debug('Load configuration from ' + conf.CONFIGURATION_FILE);
   try {
     const rawFile = await fs.readFile(conf.CONFIGURATION_FILE);
-    const { token, secret } = JSON.parse(rawFile);
+    const { apiToken, token, secret } = JSON.parse(rawFile);
     return {
       source: 'configuration file',
+      apiToken,
       token,
       secret,
     };

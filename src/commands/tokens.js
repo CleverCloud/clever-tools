@@ -76,8 +76,8 @@ export async function create (params) {
 
         Export this token and use it to make authenticated requests to the Clever Cloud API through the Auth Bridge:
 
-        export CC_API_TOKEN=${createdToken.apiToken}
-        curl -H "Authorization: Bearer $CC_API_TOKEN" ${conf.AUTH_BRIDGE_HOST}/v2/self
+        export CLEVER_API_TOKEN=${createdToken.apiToken}
+        curl -H "Authorization: Bearer $CLEVER_API_TOKEN" ${conf.AUTH_BRIDGE_HOST}/v2/self
 
         Then, to revoke this token, run:
         clever tokens revoke ${createdToken.apiTokenId}

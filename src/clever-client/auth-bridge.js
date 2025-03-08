@@ -32,6 +32,16 @@ export function deleteApiToken (apiTokenId) {
   });
 }
 
+export function addApiToken (token) {
+  return (requestParams) => {
+    requestParams.headers = {
+      ...requestParams.headers,
+      Authorization: `Bearer ${token}`,
+    };
+    return requestParams;
+  };
+}
+
 export function addOauthHeaderPlaintext (tokens) {
 
   return async function (requestParams) {
