@@ -184,6 +184,10 @@ async function run () {
 
   // OPTIONS
   const opts = {
+    invoiceId: cliparse.option('invoiceId', {
+      description: "Invoice ID, can be 'latest' or an index",
+      aliases: ['i'],
+    }),
     invoiceOpen: cliparse.flag('open', {
       description: 'Open the invoice in the default browser',
       default: false,
