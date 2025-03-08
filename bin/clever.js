@@ -16,6 +16,7 @@ import * as Application from '../src/models/application.js';
 import { AVAILABLE_ZONES } from '../src/models/application.js';
 import { EXPERIMENTAL_FEATURES } from '../src/experimental-features.js';
 import { getExitOnOption, getOutputFormatOption, getSameCommitPolicyOption } from '../src/command-options.js';
+import { getHostAndTokens } from '../src/models/send-to-api.js';
 import { getFeatures, conf } from '../src/models/configuration.js';
 
 import * as Addon from '../src/models/addon.js';
@@ -1005,11 +1006,21 @@ async function run () {
     description: 'Revoke an API token',
     args: [args.apiTokenId],
   }, tokens.revoke);
-  const tokensCommands = cliparse.command('tokens', {
+  let tokensCommands = cliparse.command('tokens', {
     description: `Manage API tokens to query Clever Cloud API from ${conf.AUTH_BRIDGE_HOST}`,
     commands: [apiTokenCreateCommand, apiTokenRevokeCommand],
     privateOptions: [opts.humanJsonOutputFormat],
   }, tokens.list);
+
+  // If the user is logged in through the API bridge, we remove list/revoke tokens commands
+  const data = await getHostAndTokens();
+  if (data.tokens.apiToken != null) {
+    tokensCommands = cliparse.command('tokens', {
+      description: `Manage API tokens to query Clever Cloud API from ${conf.AUTH_BRIDGE_HOST}`,
+      commands: [apiTokenCreateCommand],
+      privateOptions: [opts.humanJsonOutputFormat],
+    }, tokens.showApiTokenUser);
+  }
 
   // UNLINK COMMAND
   const appUnlinkCommand = cliparse.command('unlink', {

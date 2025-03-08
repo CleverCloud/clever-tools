@@ -135,3 +135,7 @@ export async function revoke (params) {
 function formatDate (dateInput) {
   return new Date(dateInput).toISOString().substring(0, 16).replace('T', ' ');
 }
+
+export async function showApiTokenUser () {
+  Logger.println(`You're logged in with an API Token, you can just create a new one with ${colors.blue('clever tokens create')} command`);
+}
