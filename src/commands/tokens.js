@@ -5,7 +5,7 @@ import { sendToAuthBridge } from '../models/send-to-api.js';
 import { getCurrent as getCurrentUser } from '../models/user.js';
 import { conf } from '../models/configuration.js';
 import dedent from 'dedent';
-import { promptPassword } from '../prompt-password.js';
+import { promptPassword } from '../prompt.js';
 
 /**
  * Create a new API token
