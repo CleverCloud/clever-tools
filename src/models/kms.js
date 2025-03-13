@@ -13,6 +13,19 @@ export async function getSecret (secret) {
 };
 
 /**
+ * Patch secret in Clever KMS
+ * @param {string} secret
+ * @param {Array<string>} data - key=value pairs
+ * @returns {Promise<object>} secret data
+ */
+export const patchSecret = (secret, data) => {
+  return KMS.patchSecret({ secret }, {
+    options: { cas: 0 },
+    data: checkKeyValues(data),
+  }).then(sendToKMS);
+};
+
+/**
  * Put secret in Clever KMS
  * @param {string} secret
  * @param {Array<string>} data - key=value pairs

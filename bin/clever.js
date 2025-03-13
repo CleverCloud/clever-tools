@@ -782,6 +782,10 @@ async function run () {
     description: 'Get the value of a secret',
     args: [args.kmsSecret],
   }, kms.get);
+  const kmsPatchCommand = cliparse.command('patch', {
+    description: 'Patch an existing secret',
+    args: [args.kmsSecret, args.kmsKeyValue],
+  }, kms.patch);
   const kmsPutCommand = cliparse.command('put', {
     description: 'Set the value of a secret',
     args: [args.kmsSecret, args.kmsKeyValue],
@@ -789,7 +793,7 @@ async function run () {
   const kmsCommands = cliparse.command('kms', {
     description: 'Manage secrets',
     options: [opts.humanJsonOutputFormat],
-    commands: [kmsGetCommand, kmsPutCommand],
+    commands: [kmsGetCommand, kmsPatchCommand, kmsPutCommand],
   }, kms.get);
 
   // KV COMMAND

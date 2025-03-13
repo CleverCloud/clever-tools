@@ -1,5 +1,5 @@
 import { Logger } from '../logger.js';
-import { getSecret, putSecret } from '../models/kms.js';
+import { getSecret, patchSecret, putSecret } from '../models/kms.js';
 
 /**
  * Get secret from Clever KMS
@@ -21,6 +21,30 @@ export async function get (params) {
     case 'human':
     default:
       console.table(secret.data.data);
+  }
+}
+
+/**
+ * Patch secret in Clever KMS
+ * @param {object} params
+ * @param {string} params.args[0] - secret name
+ * @param {Array<string>} params.args[...n] - key=value pairs
+ * @param {object} params.options.format - output format
+ * @returns {Promise<void>}
+ */
+export async function patch (params) {
+  const [fieldKey, ...fieldValues] = params.args;
+  const { format } = params.options;
+
+  const response = await patchSecret(fieldKey, fieldValues);
+
+  switch (format) {
+    case 'json':
+      Logger.printJson(response.data);
+      break;
+    case 'human':
+    default:
+      console.table(response.data);
   }
 }
 
