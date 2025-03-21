@@ -29,7 +29,7 @@ async function onAuth () {
 
 export async function addRemote (remoteName, url) {
   const repo = await getRepo();
-  const safeRemoteName = slugify(remoteName);
+  const safeRemoteName = slugify(remoteName, { remove: ':' });
   const allRemotes = await git.listRemotes({ ...repo });
   const existingRemote = _.find(allRemotes, { remote: safeRemoteName });
   if (existingRemote == null) {
