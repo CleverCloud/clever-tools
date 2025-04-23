@@ -18,7 +18,7 @@ export async function generateTerraform (params) {
   if (!orga) {
     throw new Error(`Could not find organisation with ID: ${ownerId}`);
   }
-  //console.log(JSON.stringify(orga.applications, null, 2)); process.exit(0);
+  // console.log(JSON.stringify(orga.applications, null, 2)); process.exit(0);
 
   let applications = orga.applications;
   let addons = orga.addons;
@@ -57,9 +57,14 @@ export async function generateTerraform (params) {
         providerId = 'materia_kv';
       }
 
+      let id = addon.realId;
+      if (addon.resourceKind === 'mongodb') {
+        id = addon.id;
+      }
+
       return {
         resourceKind: providerId.replaceAll('-addon', '').replaceAll('addon-', ''),
-        id: addon.realId,
+        id,
         name: addon.name || addon.realId,
       };
     })
@@ -82,16 +87,7 @@ export async function generateTerraform (params) {
     .concat(addonToImport).map((app) => {
       return {
         ...app,
-        name : slugify(app.name, { lower: true, strict: true, trim: true }),
-        /*name: app.name
-          .replaceAll('.', '_')
-          .replaceAll(' ', '_')
-          .replaceAll('(', '')
-          .replaceAll(')', '')
-          .replaceAll('[', '')
-          .replaceAll(']', '')
-          .replaceAll('/', '_')
-          .replaceAll(';', ''),
+        name: slugify(app.name, { lower: true, strict: true, trim: true }),
       };
     })
     .filter(({ name }) => {
