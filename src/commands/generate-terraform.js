@@ -35,6 +35,9 @@ export async function generateTerraform (params) {
       if (instanceType === 'node') {
         instanceType = 'nodejs';
       }
+      if (instanceType === 'java' && app.variantSlug === 'sbt') {
+        instanceType = 'scala';
+      }
 
       return { resourceKind: instanceType, id: app.id, name: app.name || app.id };
     })
