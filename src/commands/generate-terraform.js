@@ -4,6 +4,7 @@ import * as Application from '../models/application.js';
 import { sendToApi } from '../models/send-to-api.js';
 import dedent from 'dedent';
 import { Logger } from '../logger.js';
+import slugify from 'slugify';
 
 // TODO: get supported addons/app from some Hashicorp registry api
 const SUPPORTED_ADDONS = ['addon', 'cellar', 'keycloak', 'materia_kv', 'metabase', 'mongodb', 'postgresql', 'redis'];
