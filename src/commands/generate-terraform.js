@@ -18,6 +18,7 @@ export async function generateTerraform (params) {
   if (!orga) {
     throw new Error(`Could not find organisation with ID: ${ownerId}`);
   }
+  //console.log(JSON.stringify(orga.applications, null, 2)); process.exit(0);
 
   let applications = orga.applications;
   let addons = orga.addons;
