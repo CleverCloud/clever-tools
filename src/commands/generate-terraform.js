@@ -32,7 +32,7 @@ export async function generateTerraform (params) {
   const appToImport = applications
     .map((app) => {
       let instanceType = app.instanceType;
-      if (instanceType === 'nodejs') {
+      if (instanceType === 'node') {
         instanceType = 'nodejs';
       }
 
