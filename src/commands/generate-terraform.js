@@ -82,7 +82,8 @@ export async function generateTerraform (params) {
     .concat(addonToImport).map((app) => {
       return {
         ...app,
-        name: app.name
+        name : slugify(app.name, { lower: true, strict: true, trim: true }),
+        /*name: app.name
           .replaceAll('.', '_')
           .replaceAll(' ', '_')
           .replaceAll('(', '')
