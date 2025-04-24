@@ -63,6 +63,7 @@ import * as version from '../src/commands/version.js';
 import * as webhooks from '../src/commands/webhooks.js';
 import * as database from '../src/commands/database.js';
 import { curl } from '../src/commands/curl.js';
+import { generateTerraform } from '../src/commands/generate-terraform.js';
 
 // Exit cleanly if the program we pipe to exits abruptly
 process.stdout.on('error', (error) => {
@@ -1063,6 +1064,16 @@ async function run () {
     console.info('clever database backups download');
   });
 
+  const generateCommand = cliparse.command('generate', {
+    description: 'Generate things',
+    commands: [
+      cliparse.command('terraform', {
+        description: 'Generate terraform ',
+        options: [opts.orgaIdOrName, opts.appIdOrName],
+      }, generateTerraform),
+    ],
+  }, () => Promise.resolve());
+
   // Patch help command description
   cliparseCommands.helpCommand.description = 'Display help about the Clever Cloud CLI';
 
@@ -1104,6 +1115,7 @@ async function run () {
     tcpRedirsCommands,
     versionCommand,
     webhooksCommand,
+    generateCommand,
   ];
 
   // Add experimental features only if they are enabled through the configuration file
