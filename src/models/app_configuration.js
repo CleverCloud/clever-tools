@@ -2,7 +2,7 @@ import { promises as fs } from 'node:fs';
 import path from 'node:path';
 
 import _ from 'lodash';
-import slugify from 'slugify';
+import { slugify } from '../lib/slugify.js';
 
 import { Logger } from '../logger.js';
 import * as User from './user.js';
