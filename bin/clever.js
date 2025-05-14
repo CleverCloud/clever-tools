@@ -36,6 +36,7 @@ import * as deploy from '../src/commands/deploy.js';
 import * as diag from '../src/commands/diag.js';
 import * as domain from '../src/commands/domain.js';
 import * as drain from '../src/commands/drain.js';
+import * as emails from '../src/commands/emails.js';
 import * as env from '../src/commands/env.js';
 import * as features from '../src/commands/features.js';
 import * as kv from '../src/commands/kv.js';
@@ -128,6 +129,10 @@ async function run () {
     wgPublicKey: cliparse.argument('public-key', {
       metavar: 'public_key',
       description: 'Wireguard public key of the external peer to link to a Network Group',
+    }),
+    email: cliparse.argument('email', {
+      description: 'Email address',
+      parser: Parsers.email,
     }),
     addonIdOrName: cliparse.argument('addon-id', {
       description: 'Add-on ID (or name, if unambiguous)',
@@ -512,6 +517,10 @@ async function run () {
       aliases: ['y'],
       description: 'Skip confirmation even if the TCP redirection is not free',
     }),
+    yes: cliparse.flag('yes', {
+      aliases: ['y'],
+      description: 'Skip confirmation',
+    }),
     jsonFormat: cliparse.flag('json', { aliases: ['j'], description: 'Show result in JSON format' }),
     humanJsonOutputFormat: getOutputFormatOption(),
     tag: cliparse.option('tag', {
@@ -727,6 +736,31 @@ async function run () {
     privateOptions: [opts.humanJsonOutputFormat],
     commands: [drainCreateCommand, drainRemoveCommand, drainEnableCommand, drainDisableCommand],
   }, drain.list);
+
+  // EMAILS COMMANDS
+  const emailsAddCommand = cliparse.command('add', {
+    description: 'Add a new secondary email address to the current user',
+    args: [args.email],
+  }, emails.addSecondary);
+  const emailsPrimaryCommand = cliparse.command('primary', {
+    description: 'Set the primary email address of the current user',
+    args: [args.email],
+  }, emails.setPrimary);
+  const emailsRemoveCommand = cliparse.command('remove', {
+    description: 'Remove a secondary email address from the current user',
+    args: [args.email],
+  }, emails.removeSecondary);
+  const emailsClearCommand = cliparse.command('remove-all', {
+    description: 'Remove all secondary email addresses from the current user',
+    options: [opts.yes],
+  }, emails.removeAllSecondary);
+  const emailsOpenConsoleCommand = cliparse.command('open', {
+    description: 'Open the email addresses management page in the Console',
+  }, emails.openConsole);
+  const emailsCommands = cliparse.command('emails', {
+    description: 'Manage email addresses of the current user',
+    commands: [emailsAddCommand, emailsPrimaryCommand, emailsRemoveCommand, emailsClearCommand, emailsOpenConsoleCommand],
+  }, emails.list);
 
   // ENV COMMANDS
   const envSetCommand = cliparse.command('set', {
@@ -1084,6 +1118,7 @@ async function run () {
     domainCommands,
     drainCommands,
     emailNotificationsCommand,
+    emailsCommands,
     envCommands,
     featuresCommands,
     cliparseCommands.helpCommand,
