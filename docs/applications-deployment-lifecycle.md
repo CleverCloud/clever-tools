@@ -121,14 +121,13 @@ You can also get access logs from a specific timeline or add-on through options,
 [--after, --since] AFTER       Fetch logs after this date/time (ISO8601 date, positive number in seconds or duration, e.g.: 1h)
 [--format, -F] FORMAT          Output format (human, json, json-stream) (default: human)
 ```
-
-You can for example get access logs in JSON format for the last hour with:
+You can for example get access logs in JSON stream format for the last hour with:
 
 ```
-clever accesslogs --format json --since 1h
+clever accesslogs --format json-stream --since 1h
 ```
 
-or use `jq` to filter the output:
+or JSON with `jq` to filter the output:
 
 ```
 clever accesslogs --app APP_NAME --since 2024-06-21T13:37:42 --until 1d -F json | jq '[.[] | {date, countryCode: .source.countryCode, ip: .source.ip, port: .source.port}]'
