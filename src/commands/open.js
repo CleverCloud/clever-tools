@@ -1,8 +1,6 @@
-import openPage from 'open';
-
 import * as Application from '../models/application.js';
 import * as Domain from '../models/domain.js';
-import { Logger } from '../logger.js';
+import { openBrowser } from '../models/utils.js';
 
 export async function open (params) {
   const { alias, app: appIdOrName } = params.options;
@@ -11,6 +9,5 @@ export async function open (params) {
   const vhost = await Domain.getBest(appId, ownerId);
   const url = 'https://' + vhost.fqdn;
 
-  Logger.println('Opening the application in your browser');
-  await openPage(url, { wait: false });
+  await openBrowser(url, 'Opening the application in your browser');
 }
