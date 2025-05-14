@@ -1,6 +1,13 @@
 # clever-tools changelog
 
 
+## [3.12.1](https://github.com/CleverCloud/clever-tools/compare/3.12.0...3.12.1) (2025-05-14)
+
+
+### 🐛 Bug Fixes
+
+* apply strict text transformation on apps names for aliases and git remotes ([9b936c9](https://github.com/CleverCloud/clever-tools/commit/9b936c9032e08aa426dc360f89e306030c3ec583))
+
 ## [3.12.0](https://github.com/CleverCloud/clever-tools/compare/3.11.0...3.12.0) (2025-03-06)
 
 
