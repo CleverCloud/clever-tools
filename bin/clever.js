@@ -36,6 +36,7 @@ import * as deploy from '../src/commands/deploy.js';
 import * as diag from '../src/commands/diag.js';
 import * as domain from '../src/commands/domain.js';
 import * as drain from '../src/commands/drain.js';
+import * as emails from '../src/commands/emails.js';
 import * as env from '../src/commands/env.js';
 import * as features from '../src/commands/features.js';
 import * as kv from '../src/commands/kv.js';
@@ -54,6 +55,7 @@ import * as restart from '../src/commands/restart.js';
 import * as scale from '../src/commands/scale.js';
 import * as service from '../src/commands/service.js';
 import * as ssh from '../src/commands/ssh.js';
+import * as sshKeys from '../src/commands/ssh-keys.js';
 import * as status from '../src/commands/status.js';
 import * as stop from '../src/commands/stop.js';
 import * as tcpRedirs from '../src/commands/tcp-redirs.js';
@@ -129,6 +131,12 @@ async function run () {
       metavar: 'public_key',
       description: 'Wireguard public key of the external peer to link to a Network Group',
     }),
+    email: cliparse.argument('email', {
+      description: 'Email address',
+      parser: Parsers.email,
+    }),
+    sshKeyName: cliparse.argument('ssh-key-name', { description: 'SSH key name' }),
+    sshKeyPath: cliparse.argument('ssh-key-path', { description: 'SSH key path' }),
     addonIdOrName: cliparse.argument('addon-id', {
       description: 'Add-on ID (or name, if unambiguous)',
       parser: Parsers.addonIdOrName,
@@ -508,9 +516,17 @@ async function run () {
       aliases: ['y'],
       description: 'Skip confirmation and delete the application directly',
     }),
+    confirmSshKeyClean: cliparse.flag('yes', {
+      aliases: ['y'],
+      description: 'Skip confirmation and delete all the SSH keys directly',
+    }),
     confirmTcpRedirCreation: cliparse.flag('yes', {
       aliases: ['y'],
       description: 'Skip confirmation even if the TCP redirection is not free',
+    }),
+    yes: cliparse.flag('yes', {
+      aliases: ['y'],
+      description: 'Skip confirmation',
     }),
     jsonFormat: cliparse.flag('json', { aliases: ['j'], description: 'Show result in JSON format' }),
     humanJsonOutputFormat: getOutputFormatOption(),
@@ -727,6 +743,35 @@ async function run () {
     privateOptions: [opts.humanJsonOutputFormat],
     commands: [drainCreateCommand, drainRemoveCommand, drainEnableCommand, drainDisableCommand],
   }, drain.list);
+
+  // EMAILS COMMANDS
+  const emailsListCommand = cliparse.command('list', {
+    description: 'List primary and secondary email addresses of the current user',
+    options: [opts.humanJsonOutputFormat],
+  }, emails.list);
+  const emailsAddCommand = cliparse.command('add', {
+    description: 'Add a new secondary email address to the current user',
+    args: [args.email],
+  }, emails.addSecondary);
+  const emailsPrimaryCommand = cliparse.command('primary', {
+    description: 'Set the primary email address of the current user',
+    args: [args.email],
+  }, emails.setPrimary);
+  const emailsRemoveCommand = cliparse.command('remove', {
+    description: 'Remove a secondary email address from the current user',
+    args: [args.email],
+  }, emails.removeSecondary);
+  const emailsClearCommand = cliparse.command('clear', {
+    description: 'Remove all secondary emails addresses from the current user',
+    options: [opts.yes],
+  }, emails.removeAllSecondary);
+  const emailsOpenConsoleCommand = cliparse.command('open', {
+    description: 'Open the email addresses management page in the Console',
+  }, emails.openConsole);
+  const emailsCommands = cliparse.command('emails', {
+    description: 'Manage email addresses of the current user',
+    commands: [emailsListCommand, emailsAddCommand, emailsPrimaryCommand, emailsRemoveCommand, emailsClearCommand, emailsOpenConsoleCommand],
+  }, emails.list);
 
   // ENV COMMANDS
   const envSetCommand = cliparse.command('set', {
@@ -962,6 +1007,31 @@ async function run () {
     options: [opts.alias, opts.appIdOrName, opts.sshIdentityFile],
   }, ssh.ssh);
 
+  // SSH KEYS COMMANDS
+  const sshKeysListCommand = cliparse.command('list', {
+    description: 'List SSH keys of the current user',
+    options: [opts.humanJsonOutputFormat],
+  }, sshKeys.list);
+  const sshKeysAddCommand = cliparse.command('add', {
+    description: 'Add a new SSH key to the current user',
+    args: [args.sshKeyName, args.sshKeyPath],
+  }, sshKeys.add);
+  const sshKeysRemoveCommand = cliparse.command('remove', {
+    description: 'Remove a SSH key from the current user',
+    args: [args.sshKeyName],
+  }, sshKeys.remove);
+  const sshKeysRemoveAllCommand = cliparse.command('remove-all', {
+    description: 'Remove all SSH keys from the current user',
+    options: [opts.confirmSshKeyClean],
+  }, sshKeys.removeAll);
+  const sshKeysOpenConsoleCommand = cliparse.command('open', {
+    description: 'Open the SSH keys management page in the Console',
+  }, sshKeys.openConsole);
+  const sshKeysCommands = cliparse.command('ssh-keys', {
+    description: 'Manage SSH keys of the current user',
+    commands: [sshKeysListCommand, sshKeysAddCommand, sshKeysRemoveCommand, sshKeysRemoveAllCommand, sshKeysOpenConsoleCommand],
+  }, sshKeys.list);
+
   // STATUS COMMAND
   const statusCommand = cliparse.command('status', {
     description: 'See the status of an application',
@@ -1084,6 +1154,7 @@ async function run () {
     domainCommands,
     drainCommands,
     emailNotificationsCommand,
+    emailsCommands,
     envCommands,
     featuresCommands,
     cliparseCommands.helpCommand,
@@ -1099,6 +1170,7 @@ async function run () {
     scaleCommand,
     serviceCommands,
     sshCommand,
+    sshKeysCommands,
     statusCommand,
     stopCommand,
     tcpRedirsCommands,
