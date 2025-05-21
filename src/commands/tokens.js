@@ -112,6 +112,7 @@ export async function list (params) {
           'Creation IP address': token.ip,
           Creation: formatDate(token.creationDate),
           Expiration: formatDate(token.expirationDate),
+          State: token.state,
         };
       }));
     }
