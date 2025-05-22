@@ -1,3 +1,7 @@
+import { Logger } from '../logger.js';
+import { conf } from './configuration.js';
+import openPage from 'open';
+
 // Inspirations:
 // https://github.com/sindresorhus/p-defer/blob/master/index.js
 // https://github.com/ljharb/promise-deferred/blob/master/index.js
@@ -11,6 +15,23 @@ export class Deferred {
       this.reject = reject;
     });
   }
+}
+
+/**
+ * Open an absolute URL or a console path in the default browser
+ * @param {string} urlOrPath The URL to open
+ * @param {string} message The message to display before opening the URL
+ * @returns {Promise<void>} A promise that resolves when the URL is opened
+ */
+export function openBrowser (urlOrPath, message) {
+  const url = urlOrPath.startsWith('/')
+    ? `${conf.CONSOLE_URL}${urlOrPath}`
+    : urlOrPath;
+
+  Logger.debug(`Opening URL "${url}" in browser`);
+  Logger.println(message);
+
+  return openPage(url, { wait: false });
 }
 
 export function truncateWithEllipsis (length, string) {
