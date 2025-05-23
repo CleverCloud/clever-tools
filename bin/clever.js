@@ -1166,6 +1166,7 @@ async function run () {
     statusCommand,
     stopCommand,
     tcpRedirsCommands,
+    tokensCommands,
     versionCommand,
     webhooksCommand,
   ];
@@ -1175,10 +1176,6 @@ async function run () {
 
   if (featuresFromConf.kv) {
     commands.push(colorizeExperimentalCommand(kvRawCommand, 'kv'));
-  }
-
-  if (featuresFromConf.tokens) {
-    commands.push(colorizeExperimentalCommand(tokensCommands, 'tokens'));
   }
 
   if (featuresFromConf.ng) {
