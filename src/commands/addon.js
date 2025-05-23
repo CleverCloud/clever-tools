@@ -122,9 +122,9 @@ function displayAddon (format, addon, providerName, message) {
     },
   };
 
-  const WIP_PROVIDERS = {
+  const PROVIDERS = {
     keycloak: {
-      status: 'beta',
+      status: '',
       postCreateInstructions: dedent`
         Learn more about Keycloak on Clever Cloud: ${conf.DOC_URL}/addons/keycloak/,
       `,
@@ -139,19 +139,19 @@ function displayAddon (format, addon, providerName, message) {
       `,
     },
     'addon-matomo': {
-      status: 'beta',
+      status: '',
       postCreateInstructions: dedent`
         Learn more about Matomo on Clever Cloud: ${conf.DOC_URL}/addons/matomo/
       `,
     },
     metabase: {
-      status: 'beta',
+      status: '',
       postCreateInstructions: dedent`
         Learn more about Metabase on Clever Cloud: ${conf.DOC_URL}/addons/metabase/
       `,
     },
     otoroshi: {
-      status: 'beta',
+      status: '',
       postCreateInstructions: dedent`
         Learn more about Otoroshi with LLM on Clever Cloud: ${conf.DOC_URL}/addons/otoroshi/
       `,
@@ -166,14 +166,14 @@ function displayAddon (format, addon, providerName, message) {
 
   let providerNameToShow = '';
   let statusMessage = '';
-  if (providerName in WIP_PROVIDERS) {
+  if (providerName in PROVIDERS && PROVIDERS[providerName].status !== '') {
 
     providerNameToShow = providerName === 'kv'
       ? 'Materia KV'
       : providerName;
 
-    statusMessage = `The ${providerNameToShow} provider is in ${WIP_PROVIDERS[providerName].status} testing phase`;
-    statusMessage += WIP_PROVIDERS[providerName].status === 'alpha'
+    statusMessage = `The ${providerNameToShow} provider is in ${PROVIDERS[providerName].status} testing phase`;
+    statusMessage += PROVIDERS[providerName].status === 'alpha'
       ? '. Don\'t store sensitive or production grade data.'
       : '';
   }
@@ -188,8 +188,8 @@ function displayAddon (format, addon, providerName, message) {
         env: addon.env,
       };
 
-      Logger.printJson((WIP_PROVIDERS[providerName] != null)
-        ? { ...jsonAddon, availability: WIP_PROVIDERS[providerName].status, message: statusMessage }
+      Logger.printJson((PROVIDERS[providerName] != null)
+        ? { ...jsonAddon, availability: PROVIDERS[providerName].status, message: statusMessage }
         : jsonAddon);
       break;
     }
@@ -207,11 +207,12 @@ function displayAddon (format, addon, providerName, message) {
         const provider = PROVIDERS_WITH_URL[providerName];
         const urlEnv = addon.env.find((entry) => entry.name === provider.urlEnv);
         const urlToShow = urlEnv.value;
+        const urlToShowWithHttps = urlToShow.startsWith('http') ? urlToShow : `https://${urlToShow}`;
 
         if (urlEnv) {
           Logger.println();
           Logger.println(`Your ${provider.name} is starting:`);
-          Logger.println(` - Access it: ${urlToShow.startsWith('http') ? urlToShow : `https://${urlToShow}`}`);
+          Logger.println(` - Access it: ${urlToShowWithHttps}`);
           Logger.println(` - Manage it: ${conf.GOTO_URL}/${addon.id}`);
         }
 
@@ -222,19 +223,31 @@ function displayAddon (format, addon, providerName, message) {
           Logger.println(` - Temporary password: ${addon.env.find((e) => e.name === 'CC_KEYCLOAK_ADMIN_DEFAULT_PASSWORD').value}`);
         }
 
+        console.log(addon.env);
         if (providerName === 'otoroshi') {
           Logger.println();
           Logger.println('An initial account has been created, change the password at first login (Security -> Administrators -> Edit user):');
           Logger.println(` - Admin user name: ${addon.env.find((e) => e.name === 'CC_OTOROSHI_INITIAL_ADMIN_LOGIN').value}`);
           Logger.println(` - Initial password: ${addon.env.find((e) => e.name === 'CC_OTOROSHI_INITIAL_ADMIN_PASSWORD').value}`);
+          Logger.println();
+          Logger.println('You can also manage your Otoroshi instance through its API:');
+          Logger.println(` - API URL: ${addon.env.find((e) => e.name === 'CC_OTOROSHI_API_URL').value}`);
+          Logger.println(` - API Client ID: ${addon.env.find((e) => e.name === 'CC_OTOROSHI_API_CLIENT_ID').value}`);
+          Logger.println(` - API Client Secret: ${addon.env.find((e) => e.name === 'CC_OTOROSHI_API_CLIENT_SECRET').value}`);
+          Logger.println();
+          Logger.println(`API is documented through an OpenAPI JSON file: ${urlToShowWithHttps}/apis/openapi.json`);
         }
       }
 
-      if (providerName in WIP_PROVIDERS) {
+      if (providerName in PROVIDERS) {
 
         Logger.println();
-        Logger.println(colors.yellow(`/!\\ ${statusMessage}`));
-        Logger.println(WIP_PROVIDERS[providerName].postCreateInstructions);
+
+        if (statusMessage !== '') {
+          Logger.println(colors.yellow(`/!\\ ${statusMessage}`));
+        }
+
+        Logger.println(PROVIDERS[providerName].postCreateInstructions);
       }
   }
 }
