@@ -39,6 +39,7 @@ import * as drain from '../src/commands/drain.js';
 import * as emails from '../src/commands/emails.js';
 import * as env from '../src/commands/env.js';
 import * as features from '../src/commands/features.js';
+import * as kms from '../src/commands/kms.js';
 import * as kv from '../src/commands/kv.js';
 import * as link from '../src/commands/link.js';
 import * as login from '../src/commands/login.js';
@@ -94,6 +95,8 @@ async function run () {
 
   // ARGUMENTS
   const args = {
+    kmsKeyValue: cliparse.argument('key-value', { description: 'A key/value to store in a Clever KMS secret (e.g. secretKey=secretValue), can be used multiple times' }),
+    kmsSecret: cliparse.argument('secret', { description: 'The secret to get from Clever KMS' }),
     kvRawCommand: cliparse.argument('command', { description: 'The raw command to send to the Materia KV or Redis® add-on' }),
     kvIdOrName: cliparse.argument('kv-id', {
       description: 'Add-on/Real ID (or name, if unambiguous) of a Materia KV or Redis® add-on',
@@ -815,6 +818,25 @@ async function run () {
     commands: [enableFeatureCommand, disableFeatureCommand, listFeaturesCommand, infoFeaturesCommand],
   }, features.list);
 
+  // KMS COMMANDS
+  const kmsGetCommand = cliparse.command('get', {
+    description: 'Get the value of a secret',
+    args: [args.kmsSecret],
+  }, kms.get);
+  const kmsPatchCommand = cliparse.command('patch', {
+    description: 'Patch an existing secret',
+    args: [args.kmsSecret, args.kmsKeyValue],
+  }, kms.patch);
+  const kmsPutCommand = cliparse.command('put', {
+    description: 'Set the value of a secret',
+    args: [args.kmsSecret, args.kmsKeyValue],
+  }, kms.put);
+  const kmsCommands = cliparse.command('kms', {
+    description: 'Manage secrets',
+    options: [opts.humanJsonOutputFormat],
+    commands: [kmsGetCommand, kmsPatchCommand, kmsPutCommand],
+  }, kms.get);
+
   // KV COMMAND
   const kvRawCommand = cliparse.command('kv', {
     description: 'Send a raw command to a Materia KV or Redis® add-on',
@@ -1174,12 +1196,20 @@ async function run () {
   // Add experimental features only if they are enabled through the configuration file
   const featuresFromConf = await getFeatures();
 
+  if (featuresFromConf.kms) {
+    commands.push(colorizeExperimentalCommand(kmsCommands, 'kms'));
+  }
+
   if (featuresFromConf.kv) {
     commands.push(colorizeExperimentalCommand(kvRawCommand, 'kv'));
   }
 
   if (featuresFromConf.ng) {
     commands.push(colorizeExperimentalCommand(networkGroupsCommand, 'ng'));
+  }
+
+  if (featuresFromConf.tokens) {
+    commands.push(colorizeExperimentalCommand(tokensCommands, 'tokens'));
   }
 
   // CLI PARSER
