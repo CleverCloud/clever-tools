@@ -1,6 +1,21 @@
 # clever-tools changelog
 
 
+## [3.13.0](https://github.com/CleverCloud/clever-tools/compare/3.12.0...3.13.0) (2025-05-27)
+
+
+### 🚀 Features
+
+* **emails:** add emails command ([0a5210f](https://github.com/CleverCloud/clever-tools/commit/0a5210fbc88886d0a67c892c872d5c42fdd4e7c7))
+* **ssh-keys:** add ssh-keys command ([2900328](https://github.com/CleverCloud/clever-tools/commit/29003284fcfe34dc27de02335e642e3104bc5f78))
+* **tokens:** add "state" in tokens list ([0ec7cc0](https://github.com/CleverCloud/clever-tools/commit/0ec7cc087ec99852c4bfda6f0557b227ee8e811d))
+* **tokens:** make `clever tokens` available without the feature flag ([9722d5b](https://github.com/CleverCloud/clever-tools/commit/9722d5bff6bd36103535eaef0124d2fcdb979e1f))
+
+
+### 🐛 Bug Fixes
+
+* apply strict text transformation on apps names for aliases and git remotes ([9b936c9](https://github.com/CleverCloud/clever-tools/commit/9b936c9032e08aa426dc360f89e306030c3ec583))
+
 ## [3.12.0](https://github.com/CleverCloud/clever-tools/compare/3.11.0...3.12.0) (2025-03-06)
 
 
