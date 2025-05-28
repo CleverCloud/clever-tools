@@ -7,5 +7,5 @@ export async function unlink (params) {
   const app = await AppConfig.getAppDetails({ alias });
 
   await Application.unlinkRepo(app.alias);
-  Logger.println(colors.bold.green('✓'), `Application ${colors.green(app.appId)} has been successfully unlinked from local alias ${colors.green(app.alias)}!`);
+  Logger.printSuccess(`Application ${colors.green(app.appId)} has been successfully unlinked from local alias ${colors.green(app.alias)}!`);
 };

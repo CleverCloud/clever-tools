@@ -6,5 +6,5 @@ export async function makeDefault (params) {
 
   await AppConfig.setDefault(alias);
 
-  Logger.println(colors.bold.green('✓'), `The application ${colors.green(alias)} has been set as default`);
+  Logger.printSuccess(`The application ${colors.green(alias)} has been set as default`);
 };

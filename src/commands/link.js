@@ -14,5 +14,5 @@ export async function link (params) {
   }
 
   const linkedMessage = alias ? ` to local alias ${colors.green(alias)}` : '';
-  Logger.println(colors.bold.green('✓'), `Application ${colors.green(app.app_name || app.app_id)} has been successfully linked${linkedMessage}!`);
+  Logger.printSuccess(`Application ${colors.green(app.app_name || app.app_id)} has been successfully linked${linkedMessage}!`);
 }
