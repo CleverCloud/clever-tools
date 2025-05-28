@@ -28,7 +28,7 @@ export async function operatorCheckVersion (provider, addonIdOrName, format) {
     case 'human':
     default:
       if (!versions.needUpdate || (provider === 'metabase' && versions.installed === 'community-latest')) {
-        Logger.println(`${colors.green('✔', name)} is up-to-date (${colors.green(versions.installed)})`);
+        Logger.printSuccess(`${colors.green(name)} is up-to-date (${colors.green(versions.installed)})`);
       }
       else {
         Logger.println(`🔄 ${colors.red(name)} is outdated`);
@@ -43,7 +43,7 @@ export async function operatorCheckVersion (provider, addonIdOrName, format) {
           if (answer === 'Yes') {
             const body = JSON.stringify({ targetVersion: versions.latest });
             await versionUpdate({ provider, realId }, body).then(sendToApi);
-            Logger.println(`${colors.green('✔', name)} is up-to-date and being rebuilt…`);
+            Logger.printSuccess(`${colors.green(name)} is up-to-date and being rebuilt…`);
           }
         });
       }
@@ -73,13 +73,13 @@ export async function operatorUpdateVersion (provider, askedVersion, addonIdOrNa
   }
 
   if (versions.installed === targetVersion) {
-    Logger.println(`${colors.green('✔', name)} is already at version ${colors.green(targetVersion)}`);
+    Logger.printSuccess(`${colors.green(name)} is already at version ${colors.green(targetVersion)}`);
     return;
   }
 
   const body = JSON.stringify({ targetVersion });
   await versionUpdate({ provider, realId }, body).then(sendToApi);
-  Logger.println(`${colors.green('✔', name)} updated to ${colors.green(targetVersion)} and being rebuilt…`);
+  Logger.printSuccess(`${colors.green(name)} updated to ${colors.green(targetVersion)} and being rebuilt…`);
 }
 
 /** Unlink an operator from a Network Group
