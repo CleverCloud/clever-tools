@@ -124,7 +124,7 @@ function displayAddon (format, addon, providerName, message) {
 
   const WIP_PROVIDERS = {
     keycloak: {
-      status: 'beta',
+      status: '',
       postCreateInstructions: dedent`
         Learn more about Keycloak on Clever Cloud: ${conf.DOC_URL}/addons/keycloak/,
       `,
@@ -139,19 +139,19 @@ function displayAddon (format, addon, providerName, message) {
       `,
     },
     'addon-matomo': {
-      status: 'beta',
+      status: '',
       postCreateInstructions: dedent`
         Learn more about Matomo on Clever Cloud: ${conf.DOC_URL}/addons/matomo/
       `,
     },
     metabase: {
-      status: 'beta',
+      status: '',
       postCreateInstructions: dedent`
         Learn more about Metabase on Clever Cloud: ${conf.DOC_URL}/addons/metabase/
       `,
     },
     otoroshi: {
-      status: 'beta',
+      status: '',
       postCreateInstructions: dedent`
         Learn more about Otoroshi with LLM on Clever Cloud: ${conf.DOC_URL}/addons/otoroshi/
       `,
@@ -166,7 +166,7 @@ function displayAddon (format, addon, providerName, message) {
 
   let providerNameToShow = '';
   let statusMessage = '';
-  if (providerName in WIP_PROVIDERS) {
+  if (providerName in WIP_PROVIDERS && WIP_PROVIDERS[providerName].status !== '') {
 
     providerNameToShow = providerName === 'kv'
       ? 'Materia KV'
@@ -207,11 +207,12 @@ function displayAddon (format, addon, providerName, message) {
         const provider = PROVIDERS_WITH_URL[providerName];
         const urlEnv = addon.env.find((entry) => entry.name === provider.urlEnv);
         const urlToShow = urlEnv.value;
+        const urlToShowWithHttps = urlToShow.startsWith('http') ? urlToShow : `https://${urlToShow}`;
 
         if (urlEnv) {
           Logger.println();
           Logger.println(`Your ${provider.name} is starting:`);
-          Logger.println(` - Access it: ${urlToShow.startsWith('http') ? urlToShow : `https://${urlToShow}`}`);
+          Logger.println(` - Access it: ${urlToShowWithHttps}`);
           Logger.println(` - Manage it: ${conf.GOTO_URL}/${addon.id}`);
         }
 
@@ -233,7 +234,11 @@ function displayAddon (format, addon, providerName, message) {
       if (providerName in WIP_PROVIDERS) {
 
         Logger.println();
-        Logger.println(colors.yellow(`/!\\ ${statusMessage}`));
+
+        if (statusMessage !== '') {
+          Logger.println(colors.yellow(`/!\\ ${statusMessage}`));
+        }
+
         Logger.println(WIP_PROVIDERS[providerName].postCreateInstructions);
       }
   }
