@@ -1,5 +1,6 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
+import * as Application from '../models/application.js';
 
 import _ from 'lodash';
 import { slugify } from '../lib/slugify.js';
@@ -68,6 +69,24 @@ export async function removeLinkedApplication ({ appId, alias }) {
 
   return false;
 };
+
+function startsWithPrefixAndUUID (str, prefix) {
+  const hex = '[0-9a-fA-F]';
+  const pattern = `^${prefix}_${hex}{8}-${hex}{4}-${hex}{4}-${hex}{4}-${hex}{12}$`;
+  const regex = new RegExp(pattern);
+  return regex.test(str);
+}
+
+export async function findAppIdFromAlias (config, alias) {
+  if (startsWithPrefixAndUUID(alias, 'app')) {
+    const { appId } = await Application.resolveId({ app_id: alias }, null);
+    return appId;
+  }
+  else {
+    const app = findApp(config, alias);
+    return app.app_id;
+  }
+}
 
 export function findApp (config, alias) {
   if (_.isEmpty(config.apps)) {
@@ -172,7 +191,7 @@ function persistConfig (modifiedConfig) {
 
 export async function setDefault (alias) {
   const config = await loadApplicationConf();
-  const app = findApp(config, alias);
-  const newConfig = { ...config, default: app.app_id };
+  const appId = await findAppIdFromAlias(config, alias);
+  const newConfig = { ...config, default: appId };
   return persistConfig(newConfig);
 }
