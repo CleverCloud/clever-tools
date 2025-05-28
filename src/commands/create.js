@@ -97,7 +97,7 @@ function displayAppCreation (app, alias, github, taskCommand) {
   Logger.println();
   Logger.println('  ' + colors.bold('Next steps:'));
 
-  if (gitStatus) {
+  if (gitStatus && !gitStatus.isClean) {
     Logger.println(`  ${colors.yellow('!')} ${colors.white(gitStatus.getMessage())}`);
     gitStatus.getCommands().forEach((cmd) => {
       Logger.println(`    ${colors.grey('$')} ${colors.yellow(cmd)}`);
