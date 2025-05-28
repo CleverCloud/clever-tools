@@ -856,18 +856,14 @@ async function run () {
     description: 'Rebuild the Keycloak operator',
     args: [args.addonIdOrName],
   }, keycloak.rebuild);
-  const keycloakVersionsGetCommand = cliparse.command('check', {
+  const keycloakVersionsCheckCommand = cliparse.command('check', {
     description: 'Check the Keycloak operator\'s deployed version',
     args: [args.addonIdOrName],
     options: [opts.humanJsonOutputFormat],
   }, keycloak.checkVersion);
-  const keycloakVersionsSetCommand = cliparse.command('update', {
-    description: 'Update the Keycloak operator\'s version and rebuild it',
-    args: [args.addonIdOrName],
-  }, keycloak.updateVersion);
   const keycloakVersionsCommands = cliparse.command('version', {
     description: 'Manage the deployed version of a Keycloak operator',
-    commands: [keycloakVersionsGetCommand, keycloakVersionsSetCommand],
+    commands: [keycloakVersionsCheckCommand],
   }, keycloak.checkVersion);
   const keycloakCommand = cliparse.command('keycloak', {
     description: 'Manage Clever Cloud Keycloak services',
@@ -964,18 +960,14 @@ async function run () {
     description: 'Rebuild the Metabase operator',
     args: [args.addonIdOrName],
   }, metabase.rebuild);
-  const metabaseVersionsGetCommand = cliparse.command('check', {
+  const metabaseVersionsCheckCommand = cliparse.command('check', {
     description: 'Check the Metabase operator\'s deployed version',
     args: [args.addonIdOrName],
     options: [opts.humanJsonOutputFormat],
   }, metabase.checkVersion);
-  const metabaseVersionsSetCommand = cliparse.command('update', {
-    description: 'Update the Metabase operator\'s version and rebuild it',
-    args: [args.addonIdOrName],
-  }, metabase.updateVersion);
   const metabaseVersionsCommands = cliparse.command('version', {
     description: 'Manage the deployed version of a Metabase operator',
-    commands: [metabaseVersionsGetCommand, metabaseVersionsSetCommand],
+    commands: [metabaseVersionsCheckCommand],
   }, metabase.checkVersion);
   const metabaseCommand = cliparse.command('metabase', {
     description: 'Manage Clever Cloud Metabase services',
@@ -1098,13 +1090,9 @@ async function run () {
     args: [args.addonIdOrName],
     options: [opts.humanJsonOutputFormat],
   }, otoroshi.checkVersion);
-  const otoroshiUpdateCommand = cliparse.command('update', {
-    description: 'Update the Otoroshi operator\'s version and rebuild it',
-    args: [args.addonIdOrName],
-  }, otoroshi.updateVersion);
   const otoroshiVersionsCommands = cliparse.command('version', {
     description: 'Manage the deployed version of an Otoroshi operator',
-    commands: [otoroshiVersionsCheckCommand, otoroshiUpdateCommand],
+    commands: [otoroshiVersionsCheckCommand],
   }, otoroshi.checkVersion);
   const otoroshiCommand = cliparse.command('otoroshi', {
     description: 'Manage Clever Cloud Otoroshi services',
