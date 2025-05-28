@@ -51,6 +51,37 @@ export async function operatorCheckVersion (provider, addonIdOrName, format) {
   }
 }
 
+/** Update the version of an operator
+ * @param {string} provider The operator's provider
+ * @param {string} askedVersion The version to update to
+ * @param {string} addonIdOrName The operator's name or ID
+ * @returns {Promise<void>}
+ */
+export async function operatorUpdateVersion (provider, askedVersion, addonIdOrName) {
+  const name = addonIdOrName.addon_name || addonIdOrName.realId || addonIdOrName;
+  const realId = await Operator.getSingleRealId(addonIdOrName);
+
+  const versions = await versionCheck({ provider, realId }).then(sendToApi);
+
+  const targetVersion = askedVersion || await select({
+    message: `Which version do you want to update ${colors.blue(name)} to, current is ${colors.blue(versions.installed)}?`,
+    choices: versions.available.reverse(),
+  });
+
+  if (!versions.available.includes(targetVersion)) {
+    throw new Error(`Version ${colors.red(targetVersion)} is not available`);
+  }
+
+  if (versions.installed === targetVersion) {
+    Logger.println(`${colors.green('✔', name)} is already at version ${colors.green(targetVersion)}`);
+    return;
+  }
+
+  const body = JSON.stringify({ targetVersion });
+  await versionUpdate({ provider, realId }, body).then(sendToApi);
+  Logger.println(`${colors.green('✔', name)} updated to ${colors.green(targetVersion)} and being rebuilt…`);
+}
+
 /** Unlink an operator from a Network Group
  * @param {string} provider The operator's provider
  * @param {string} addonIdOrName The operator's name or ID

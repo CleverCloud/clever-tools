@@ -1,4 +1,4 @@
-import { operatorCheckVersion, operatorList, operatorOpen, operatorOpenLogs, operatorPrint, operatorReboot, operatorRebuild } from '../lib/operators.js';
+import { operatorCheckVersion, operatorList, operatorOpen, operatorOpenLogs, operatorPrint, operatorReboot, operatorRebuild, operatorUpdateVersion } from '../lib/operators.js';
 
 /** Check the version of a Metabase operator
  * @param {object} params The command's parameters
@@ -11,6 +11,18 @@ export async function checkVersion (params) {
   const { format } = params.options;
 
   await operatorCheckVersion('metabase', addonIdOrName, format);
+}
+
+/** Update the version of a Metabase operator
+ * @param {object} params The command's parameters
+ * @param {string} params.args[0] The operator's name or ID
+ * @returns {Promise<void>}
+ */
+export async function updateVersion (params) {
+  const [addonIdOrName] = params.args;
+  const { target } = params.options;
+
+  await operatorUpdateVersion('metabase', target, addonIdOrName);
 }
 
 /** Get the details of a Metabase operator
