@@ -179,7 +179,16 @@ export function printByName (app, name) {
 }
 
 export function print (app) {
+  const store = {};
+
   for (const config of CONFIG_KEYS) {
-    printConfig(app, config);
+    if (config.name === 'task') {
+      store[config.name] = app.instance.lifetime;
+    }
+    else {
+      store[config.name] = app[config.name];
+    }
   }
+
+  console.table(store);
 }
