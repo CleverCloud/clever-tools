@@ -180,7 +180,7 @@ async function run () {
       parser: Parsers.integer,
     }),
     configurationName: cliparse.argument('configuration-name', {
-      description: 'The name of the configuration to manage',
+      description: 'Configuration to manage: cancel-on-push, description, force-https, name, sticky-sessions, task or zero-downtime',
       complete () {
         return cliparse.autocomplete.words(ApplicationConfiguration.listAvailableIds());
       },
