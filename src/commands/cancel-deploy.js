@@ -14,8 +14,6 @@ export async function cancelDeploy (params) {
     throw new Error('There is no ongoing deployment for this application');
   }
 
-  const deploymentId = deployments[0].id;
-  await cancelDeployment({ id: ownerId, appId, deploymentId }).then(sendToApi);
-
-  Logger.println(colors.bold.green('✓'), 'Deployment successfully cancelled!');
+  await cancelDeployment({ id: ownerId, appId, deploymentId: deployments[0].id }).then(sendToApi);
+  Logger.printSuccess(`Deployment ${colors.bold.green(deployments[0].uuid)} successfully cancelled!`);
 };
