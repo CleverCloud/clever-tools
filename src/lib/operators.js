@@ -164,7 +164,7 @@ export async function operatorList (provider, format) {
   }
 }
 
-/** Open an operator in the browser
+/** Open an operator dashboard in the Clever Cloud Console in the browser
  * @param {string} provider The operator's provider
  * @param {string} addonIdOrName The operator's name or ID
  * @returns {Promise<void>}
@@ -173,7 +173,7 @@ export async function operatorOpen (provider, addonIdOrName) {
   const operator = await Operator.getDetails(provider, addonIdOrName);
 
   Logger.println(`Opening ${colors.blue(operator.addonId)} in the browser…`);
-  await openPage(`https://${operator.accessUrl}`, { wait: false });
+  await openPage(`https://console.clever-cloud.com/goto/${operator.addonId}`, { wait: false });
 }
 
 /** Open the Logs section of an operator application in the Clever Cloud Console
@@ -186,6 +186,18 @@ export async function operatorOpenLogs (provider, addonIdOrName) {
 
   Logger.println(`Opening ${colors.blue(operator.addonId)} logs in the Clever Cloud Console…`);
   await openPage(`https://console.clever-cloud.com/organisations/${operator.ownerId}/applications/${operator.resources.entrypoint}/logs`, { wait: false });
+}
+
+/** Open an operator Web UI in the browser
+ * @param {string} provider The operator's provider
+ * @param {string} addonIdOrName The operator's name or ID
+ * @returns {Promise<void>}
+ */
+export async function operatorOpenWebUi (provider, addonIdOrName) {
+  const operator = await Operator.getDetails(provider, addonIdOrName);
+
+  Logger.println(`Opening ${colors.blue(operator.addonId)} Management interface in the browser…`);
+  await openPage(`${operator.accessUrl}`, { wait: false });
 }
 
 /** Reboot an operator

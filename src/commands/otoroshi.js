@@ -1,4 +1,4 @@
-import { operatorCheckVersion, operatorList, operatorNgDisable, operatorNgEnable, operatorOpen, operatorOpenLogs, operatorPrint, operatorReboot, operatorRebuild, operatorUpdateVersion } from '../lib/operators.js';
+import { operatorCheckVersion, operatorList, operatorNgDisable, operatorNgEnable, operatorOpen, operatorOpenLogs, operatorOpenWebUi, operatorPrint, operatorReboot, operatorRebuild, operatorUpdateVersion } from '../lib/operators.js';
 
 /** Check the version of an Otoroshi operator
  * @param {object} params The command's parameters
@@ -70,7 +70,7 @@ export async function ngEnable (params) {
   get(params);
 }
 
-/** Open an Otoroshi operator in the browser
+/** Open an Otoroshi operator dashboard in the Clever Cloud Console
  * @param {object} params The command's parameters
  * @param {string} params.args[0] The operator's name or ID
  * @returns {Promise<void>}
@@ -88,6 +88,16 @@ export async function open (params) {
 export async function openLogs (params) {
   const [addonIdOrName] = params.args;
   await operatorOpenLogs('otoroshi', addonIdOrName);
+}
+
+/** Open the Web UI of an Otoroshi Operator application in the Clever Cloud Console
+ * @param {object} params The command's parameters
+ * @param {string} params.args[0] The operator's name or ID
+ * @returns {Promise<void>}
+ */
+export async function openWebUi (params) {
+  const [addonIdOrName] = params.args;
+  await operatorOpenWebUi('otoroshi', addonIdOrName);
 }
 
 /** Reboot an Otoroshi operator
