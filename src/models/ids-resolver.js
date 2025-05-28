@@ -1,3 +1,6 @@
+import * as User from './user.js';
+import * as Organisation from './organisation.js';
+
 import { Logger } from '../logger.js';
 import { sendToApi } from './send-to-api.js';
 import { getSummary } from '@clevercloud/client/esm/api/v2/user.js';
@@ -105,12 +108,23 @@ async function getIdsFromSummary () {
 }
 
 /**
+ * Get the owner ID from an Organisation ID or name
+ * @param {object} orgaIdOrName The Organisation ID or name
+ * @returns {Promise<string>} The owner ID
+ */
+export async function getOwnerIdFromOrgaIdOrName (orgaIdOrName) {
+  return orgaIdOrName != null
+    ? Organisation.getId(orgaIdOrName)
+    : User.getCurrentId();
+}
+
+/**
  * Get the IDs and owners of found add-ons from a name, ID or real ID
  * @param {string} addonIdOrRealIdOrName
  * @param {{ orga_name?: string, orga_id?: string }} ownerNameOrId
  * @throws {Error} if no add-on is found
  * @throws {Error} if several add-ons are found
- * @returns {Object} The ID and owner ID of the add-on { addonId, ownerId }
+ * @returns {Object} The name, IDs and owner ID of the add-on { name, addonId, realId, ownerId }
  */
 export async function findAddonsByNameOrId (addonIdOrRealIdOrName, ownerNameOrId) {
   const summary = await getSummary().then(sendToApi);
@@ -128,11 +142,44 @@ export async function findAddonsByNameOrId (addonIdOrRealIdOrName, ownerNameOrId
       return matchOwner && matchAddon;
     })
     .map(({ addon, owner }) => ({
+      name: addon.name,
       addonId: addon.id,
+      realId: addon.realId,
       ownerId: owner.id,
     }));
 
   Logger.debug(`Found ${candidates.length} candidate(s):`);
+  for (const candidate of candidates) {
+    Logger.debug(`  - ${candidate.addonId} (${candidate.ownerId})`);
+  }
+
+  return candidates;
+}
+
+/**
+ * Get the IDs and owners of found add-ons from a name, ID or real ID
+ * @param {string} addonIdOrRealIdOrName
+ * @param {{ orga_name?: string, orga_id?: string }} ownerNameOrId
+ * @throws {Error} if no add-on is found
+ * @throws {Error} if several add-ons are found
+ * @returns {Object} The name, IDs and owner ID of the add-on { name, addonId, realId, ownerId }
+ */
+export async function findAddonsByAddonProvider (provider, ownerNameOrId) {
+  const summary = await getSummary().then(sendToApi);
+
+  Logger.debug(`Searching for ${provider} add-ons in ${summary.user.id} and ${summary.organisations.map((org) => org.id).join(', ')}`);
+  const candidates = [summary.user, ...summary.organisations]
+    .flatMap((owner) => owner.addons.map((addon) => (addon.providerId === provider ? { addon, owner } : null)))
+    .filter((candidate) => candidate != null)
+    .map(({ addon, owner }) => ({
+      name: addon.name,
+      addonId: addon.id,
+      realId: addon.realId,
+      ownerId: owner.id,
+      ownerName: owner.name,
+    }));
+
+  Logger.debug(`Found ${candidates.length} candidate(s) for provider ${provider}:`);
   for (const candidate of candidates) {
     Logger.debug(`  - ${candidate.addonId} (${candidate.ownerId})`);
   }
