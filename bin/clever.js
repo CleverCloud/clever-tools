@@ -821,20 +821,20 @@ async function run () {
 
   // KEYCLOAK COMMAND
   const keycloakGetCommand = cliparse.command('get', {
-    description: 'Get information about the Keycloak operator',
+    description: 'Get information about a deployed Keycloak',
     args: [args.addonIdOrName],
     options: [opts.humanJsonOutputFormat],
   }, keycloak.get);
   const keycloakEnableNgCommand = cliparse.command('enable', {
-    description: 'Link the Keycloak operator to a Network Group, used for multi-instances secure communication',
+    description: 'Link Keycloak to a Network Group, used for multi-instances secure communication',
     args: [args.addonIdOrName],
   }, keycloak.ngEnable);
   const keycloakDisableNgCommand = cliparse.command('disable', {
-    description: 'Unlink the keycloak operator from its Network Group',
+    description: 'Unlink Keycloak from its Network Group',
     args: [args.addonIdOrName],
   }, keycloak.ngDisable);
   const keycloakNgCommands = cliparse.command('ng', {
-    description: 'Manage the Network Group of a Keycloak operator',
+    description: 'Manage the Network Group of a deployed Keycloak',
     args: [args.addonIdOrName],
     options: [opts.humanJsonOutputFormat],
     commands: [keycloakEnableNgCommand, keycloakDisableNgCommand],
@@ -848,27 +848,23 @@ async function run () {
     args: [args.addonIdOrName],
     commands: [keycloakLogsCommand],
   }, keycloak.open);
-  const keycloakRebootCommand = cliparse.command('reboot', {
-    description: 'Reboot the Keycloak operator',
+  const keycloakRestartCommand = cliparse.command('restart', {
+    description: 'Restart Keycloak',
     args: [args.addonIdOrName],
   }, keycloak.reboot);
   const keycloakRebuildCommand = cliparse.command('rebuild', {
-    description: 'Rebuild the Keycloak operator',
+    description: 'Rebuild Keycloak',
     args: [args.addonIdOrName],
   }, keycloak.rebuild);
-  const keycloakVersionsCheckCommand = cliparse.command('check', {
-    description: 'Check the Keycloak operator\'s deployed version',
+  const keycloakVersionsCommands = cliparse.command('version', {
+    description: 'Check Keycloak deployed version',
     args: [args.addonIdOrName],
     options: [opts.humanJsonOutputFormat],
-  }, keycloak.checkVersion);
-  const keycloakVersionsCommands = cliparse.command('version', {
-    description: 'Manage the deployed version of a Keycloak operator',
-    commands: [keycloakVersionsCheckCommand],
   }, keycloak.checkVersion);
   const keycloakCommand = cliparse.command('keycloak', {
     description: 'Manage Clever Cloud Keycloak services',
     privateOptions: [opts.humanJsonOutputFormat],
-    commands: [keycloakGetCommand, keycloakNgCommands, keycloakOpenCommand, keycloakRebootCommand, keycloakRebuildCommand, keycloakVersionsCommands],
+    commands: [keycloakGetCommand, keycloakNgCommands, keycloakOpenCommand, keycloakRestartCommand, keycloakRebuildCommand, keycloakVersionsCommands],
   }, keycloak.list);
 
   // KV COMMAND
@@ -910,36 +906,36 @@ async function run () {
 
   // MATOMO COMMAND
   const matomoGetCommand = cliparse.command('get', {
-    description: 'Get information about the matomo operator',
+    description: 'Get information about a deployed Matomo',
     args: [args.addonIdOrName],
     options: [opts.humanJsonOutputFormat],
   }, matomo.get);
   const matomoLogsCommand = cliparse.command('logs', {
-    description: 'Open the matomo application logs in Clever Cloud Console',
+    description: 'Open the Matomo application logs in Clever Cloud Console',
     args: [args.addonIdOrName],
   }, matomo.openLogs);
   const matomoOpenCommand = cliparse.command('open', {
-    description: 'Open the matomo admin console in your browser',
+    description: 'Open the Matomo admin console in your browser',
     args: [args.addonIdOrName],
     commands: [matomoLogsCommand],
   }, matomo.open);
-  const matomoRebootCommand = cliparse.command('reboot', {
-    description: 'Reboot the matomo operator',
+  const matomoRestartCommand = cliparse.command('restart', {
+    description: 'Restart Matomo',
     args: [args.addonIdOrName],
   }, matomo.reboot);
   const matomoRebuildCommand = cliparse.command('rebuild', {
-    description: 'Rebuild the matomo operator',
+    description: 'Rebuild Matomo',
     args: [args.addonIdOrName],
   }, matomo.rebuild);
   const matomoCommand = cliparse.command('matomo', {
-    description: 'Manage Clever Cloud matomo services',
+    description: 'Manage Clever Cloud Matomo services',
     privateOptions: [opts.humanJsonOutputFormat],
-    commands: [matomoGetCommand, matomoOpenCommand, matomoRebootCommand, matomoRebuildCommand],
+    commands: [matomoGetCommand, matomoOpenCommand, matomoRestartCommand, matomoRebuildCommand],
   }, matomo.list);
 
   // METABASE COMMAND
   const metabaseGetCommand = cliparse.command('get', {
-    description: 'Get information about the Metabase operator',
+    description: 'Get information about a deployed Metabase',
     args: [args.addonIdOrName],
     options: [opts.humanJsonOutputFormat],
   }, metabase.get);
@@ -952,27 +948,23 @@ async function run () {
     args: [args.addonIdOrName],
     commands: [metabaseLogsCommand],
   }, metabase.open);
-  const metabaseRebootCommand = cliparse.command('reboot', {
-    description: 'Reboot the Metabase operator',
+  const metabaseRestartCommand = cliparse.command('restart', {
+    description: 'Restart Metabase',
     args: [args.addonIdOrName],
   }, metabase.reboot);
   const metabaseRebuildCommand = cliparse.command('rebuild', {
-    description: 'Rebuild the Metabase operator',
+    description: 'Rebuild Metabase',
     args: [args.addonIdOrName],
   }, metabase.rebuild);
-  const metabaseVersionsCheckCommand = cliparse.command('check', {
-    description: 'Check the Metabase operator\'s deployed version',
+  const metabaseVersionsCommands = cliparse.command('version', {
+    description: 'Check Metabase deployed version',
     args: [args.addonIdOrName],
     options: [opts.humanJsonOutputFormat],
-  }, metabase.checkVersion);
-  const metabaseVersionsCommands = cliparse.command('version', {
-    description: 'Manage the deployed version of a Metabase operator',
-    commands: [metabaseVersionsCheckCommand],
   }, metabase.checkVersion);
   const metabaseCommand = cliparse.command('metabase', {
     description: 'Manage Clever Cloud Metabase services',
     privateOptions: [opts.humanJsonOutputFormat],
-    commands: [metabaseGetCommand, metabaseOpenCommand, metabaseRebootCommand, metabaseRebuildCommand, metabaseVersionsCommands],
+    commands: [metabaseGetCommand, metabaseOpenCommand, metabaseRestartCommand, metabaseRebuildCommand, metabaseVersionsCommands],
   }, metabase.list);
 
   // NETWORK GROUP COMMANDS
@@ -1050,7 +1042,7 @@ async function run () {
 
   // OTOROSHI COMMAND
   const otoroshiGetCommand = cliparse.command('get', {
-    description: 'Get information about the Otoroshi operator',
+    description: 'Get information about a deployed Otoroshi',
     args: [args.addonIdOrName],
     options: [opts.humanJsonOutputFormat],
   }, otoroshi.get);
@@ -1059,15 +1051,15 @@ async function run () {
     args: [args.addonIdOrName],
   }, otoroshi.openLogs);
   const otoroshiEnableNgCommand = cliparse.command('enable', {
-    description: 'Link the Keycloak operator to a Network Group, used for multi-instances secure communication',
+    description: 'Link Otoroshi to a Network Group',
     args: [args.addonIdOrName],
   }, otoroshi.ngEnable);
   const otoroshiDisableNgCommand = cliparse.command('disable', {
-    description: 'Unlink the keycloak operator from its Network Group',
+    description: 'Unlink Otoroshi from its Network Group',
     args: [args.addonIdOrName],
   }, otoroshi.ngDisable);
   const otoroshiNgCommands = cliparse.command('ng', {
-    description: 'Manage the Network Group of a Keycloak operator',
+    description: 'Manage the Network Group of a deployed Otoroshi',
     args: [args.addonIdOrName],
     options: [opts.humanJsonOutputFormat],
     commands: [otoroshiEnableNgCommand, otoroshiDisableNgCommand],
@@ -1077,27 +1069,23 @@ async function run () {
     args: [args.addonIdOrName],
     commands: [otoroshiLogsCommand],
   }, otoroshi.open);
-  const otoroshiRebootCommand = cliparse.command('reboot', {
-    description: 'Reboot your Otoroshi operator',
+  const otoroshiRestartCommand = cliparse.command('restart', {
+    description: 'Restart Otoroshi',
     args: [args.addonIdOrName],
   }, otoroshi.reboot);
   const otoroshiRebuildCommand = cliparse.command('rebuild', {
-    description: 'Rebuild your Otoroshi operator',
+    description: 'Rebuild Otoroshi',
     args: [args.addonIdOrName],
   }, otoroshi.rebuild);
-  const otoroshiVersionsCheckCommand = cliparse.command('check', {
-    description: 'Check the Otoroshi operator\'s deployed version',
+  const otoroshiVersionsCommands = cliparse.command('version', {
+    description: 'Check Otoroshi deployed version',
     args: [args.addonIdOrName],
     options: [opts.humanJsonOutputFormat],
-  }, otoroshi.checkVersion);
-  const otoroshiVersionsCommands = cliparse.command('version', {
-    description: 'Manage the deployed version of an Otoroshi operator',
-    commands: [otoroshiVersionsCheckCommand],
   }, otoroshi.checkVersion);
   const otoroshiCommand = cliparse.command('otoroshi', {
     description: 'Manage Clever Cloud Otoroshi services',
     privateOptions: [opts.humanJsonOutputFormat],
-    commands: [otoroshiGetCommand, otoroshiNgCommands, otoroshiOpenCommand, otoroshiRebootCommand, otoroshiRebuildCommand, otoroshiVersionsCommands],
+    commands: [otoroshiGetCommand, otoroshiNgCommands, otoroshiOpenCommand, otoroshiRestartCommand, otoroshiRebuildCommand, otoroshiVersionsCommands],
   }, otoroshi.list);
 
   // CONSOLE COMMAND

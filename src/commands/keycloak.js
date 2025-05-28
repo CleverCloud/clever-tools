@@ -79,7 +79,7 @@ export async function openLogs (params) {
   await operatorOpenLogs('keycloak', addonIdOrName);
 }
 
-/** Reboot a Keycloak operator
+/** Restart a Keycloak operator
  * @param {object} params The command's parameters
  * @param {string} params.args[0] The operator's name or ID
  * @returns {Promise<void>}

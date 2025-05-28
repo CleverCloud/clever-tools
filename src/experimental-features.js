@@ -46,7 +46,7 @@ export const EXPERIMENTAL_FEATURES = {
   },
   operators: {
     status: 'beta',
-    description: 'Manage operators with dedicated features such as Keycloak, Matomo, Metabase, Otoroshi',
+    description: 'Manage operators managed services and their features such as Keycloak, Matomo, Metabase, Otoroshi',
     instructions: `
 clever keycloak
 clever keycloak get keycloak_xxx

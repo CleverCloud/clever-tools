@@ -28,10 +28,10 @@ export async function operatorCheckVersion (provider, addonIdOrName, format) {
     case 'human':
     default:
       if (!version.needUpdate || (provider === 'metabase' && version.installed === 'community-latest')) {
-        Logger.println(`${colors.green('✔')} operator ${colors.green(name)} is up to date (${colors.green(version.installed)})`);
+        Logger.println(`${colors.green('✔', name)} is up-to-date (${colors.green(version.installed)})`);
       }
       else {
-        Logger.println(`🔄 Operator ${colors.red(name)} is outdated`);
+        Logger.println(`🔄 ${colors.red(name)} is outdated`);
         Logger.println(`    ├─ Installed version: ${colors.red(version.installed)}`);
         Logger.println(`    └─ Latest version: ${colors.green(version.latest)}`);
         Logger.println();
@@ -43,7 +43,7 @@ export async function operatorCheckVersion (provider, addonIdOrName, format) {
           if (answer === 'Yes') {
             const body = JSON.stringify({ targetVersion: version.latest });
             await versionUpdate({ provider, realId }, body).then(sendToApi);
-            Logger.println(colors.green('✔'), 'Your operator is up-to-date and being rebuilt…');
+            Logger.println(`${colors.green('✔', name)} is up-to-date and being rebuilt…`);
           }
         });
       }
@@ -60,11 +60,11 @@ export async function operatorCheckVersion (provider, addonIdOrName, format) {
 export async function operatorNgDisable (provider, addonIdOrName) {
   const operator = await Operator.getDetails(provider, addonIdOrName);
   if (!operator.features.networkGroup?.id) {
-    throw new Error(`Network Group is already disabled on the operator ${colors.red(operator.name)}`);
+    throw new Error(`Network Group is already disabled on ${colors.red(operator.name)}`);
   }
 
   await ngDisableOperator({ provider, realId: operator.resourceId }).then(sendToApi);
-  Logger.println(`Disabling Network Group on the operator ${colors.blue(operator.name)}…`);
+  Logger.println(`Disabling Network Group on ${colors.blue(operator.name)}…`);
 }
 
 /** Link an operator to a Network Group
@@ -77,11 +77,11 @@ export async function operatorNgEnable (provider, addonIdOrName) {
   const operator = await Operator.getDetails(provider, addonIdOrName);
 
   if (operator.features.networkGroup?.id) {
-    throw new Error(`Network Group is already enabled on the operator ${colors.red(operator.name)}`);
+    throw new Error(`Network Group is already enabled on ${colors.red(operator.name)}`);
   }
 
   await ngEnableOperator({ provider, realId: operator.resourceId }).then(sendToApi);
-  Logger.println(`Enabling Network Group on the operator ${colors.blue(operator.name)}…`);
+  Logger.println(`Enabling Network Group on ${colors.blue(operator.name)}…`);
 }
 
 /**
@@ -110,7 +110,7 @@ export async function operatorList (provider, format) {
     default:
 
       if (deployed.length === 0) {
-        Logger.println(`🔎 No ${providerName} operator found, create one with ${colors.blue(`clever addon create ${providerName.toLocaleLowerCase()}`)} command`);
+        Logger.println(`🔎 No ${providerName} found, create one with ${colors.blue(`clever addon create ${providerName.toLocaleLowerCase()}`)} command`);
         return;
       }
       Logger.println(`🔎 Found ${deployed.length} ${providerName} operator${deployed.length > 1 ? 's' : ''}:`);
@@ -141,7 +141,7 @@ export async function operatorList (provider, format) {
 export async function operatorOpen (provider, addonIdOrName) {
   const operator = await Operator.getDetails(provider, addonIdOrName);
 
-  Logger.println(`Opening the operator ${colors.blue(operator.addonId)} in the browser…`);
+  Logger.println(`Opening ${colors.blue(operator.addonId)} in the browser…`);
   await openPage(`https://${operator.accessUrl}`, { wait: false });
 }
 
@@ -153,7 +153,7 @@ export async function operatorOpen (provider, addonIdOrName) {
 export async function operatorOpenLogs (provider, addonIdOrName) {
   const operator = await Operator.getDetails(provider, addonIdOrName);
 
-  Logger.println(`Opening the operator logs ${colors.blue(operator.addonId)} in the Clever Cloud Console…`);
+  Logger.println(`Opening ${colors.blue(operator.addonId)} logs in the Clever Cloud Console…`);
   await openPage(`https://console.clever-cloud.com/organisations/${operator.ownerId}/applications/${operator.resources.entrypoint}/logs`, { wait: false });
 }
 
@@ -165,7 +165,7 @@ export async function operatorOpenLogs (provider, addonIdOrName) {
  */
 export async function operatorReboot (provider, addonIdOrName) {
   await Operator.reboot(provider, addonIdOrName);
-  Logger.println(`🔄 Rebooting the operator ${colors.blue(addonIdOrName.addon_name)}…`);
+  Logger.println(`🔄 Restarting ${colors.blue(addonIdOrName.addon_name)}…`);
 }
 
 /** Rebuild an operator
@@ -176,7 +176,7 @@ export async function operatorReboot (provider, addonIdOrName) {
  */
 export async function operatorRebuild (provider, addonIdOrName) {
   await Operator.rebuild(provider, addonIdOrName);
-  Logger.println(`🔄 Rebuilding the operator ${colors.blue(addonIdOrName.addon_name)}…`);
+  Logger.println(`🔄 Rebuilding ${colors.blue(addonIdOrName.addon_name)}…`);
 }
 
 /** Print the details of an operator

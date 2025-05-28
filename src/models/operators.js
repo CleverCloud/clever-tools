@@ -34,11 +34,11 @@ export async function getSingleRealId (operatorIdOrName) {
     const operator = await findAddonsByNameOrId(operatorIdOrName.addon_name || operatorIdOrName.addon_id || operatorIdOrName);
 
     if (operator.length === 0) {
-      throw new Error(`Could not find ${colors.red(operatorIdOrName.addon_name)} operator`);
+      throw new Error(`Could not find ${colors.red(operatorIdOrName.addon_name)}`);
     }
 
     if (operator.length > 1) {
-      throw new Error(`Ambiguous operator name ${colors.red(operatorIdOrName.addon_name)}, use the real ID instead:
+      throw new Error(`Ambiguous name ${colors.red(operatorIdOrName.addon_name)}, use the real ID instead:
 ${colors.grey(operator.map((otoroshi) => `- ${otoroshi.name} (${otoroshi.realId})`).join('\n'))}`);
     }
 
