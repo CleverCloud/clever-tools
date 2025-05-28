@@ -1,4 +1,4 @@
-import { operatorCheckVersion, operatorList, operatorOpen, operatorOpenLogs, operatorPrint, operatorReboot, operatorRebuild, operatorUpdateVersion } from '../lib/operators.js';
+import { operatorCheckVersion, operatorList, operatorOpen, operatorOpenLogs, operatorOpenWebUi, operatorPrint, operatorReboot, operatorRebuild, operatorUpdateVersion } from '../lib/operators.js';
 
 /** Check the version of a Metabase operator
  * @param {object} params The command's parameters
@@ -46,7 +46,7 @@ export async function list (params) {
   await operatorList('metabase', params.options.format);
 }
 
-/** Open a Metabase operator in the browser
+/** Open a Metabase operator dashboard in the Clever Cloud Console
  * @param {object} params The command's parameters
  * @param {string} params.args[0] The operator's name or ID
  * @returns {Promise<void>}
@@ -64,6 +64,16 @@ export async function open (params) {
 export async function openLogs (params) {
   const [addonIdOrName] = params.args;
   await operatorOpenLogs('metabase', addonIdOrName);
+}
+
+/** Open the Web UI of a Metabase Operator application in the Clever Cloud Console
+ * @param {object} params The command's parameters
+ * @param {string} params.args[0] The operator's name or ID
+ * @returns {Promise<void>}
+ */
+export async function openWebUi (params) {
+  const [addonIdOrName] = params.args;
+  await operatorOpenWebUi('metabase', addonIdOrName);
 }
 
 /** Reboot a Metabase operator

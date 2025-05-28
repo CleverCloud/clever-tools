@@ -843,14 +843,18 @@ async function run () {
     options: [opts.humanJsonOutputFormat],
     commands: [keycloakEnableNgCommand, keycloakDisableNgCommand],
   }, keycloak.get);
-  const keycloakLogsCommand = cliparse.command('logs', {
+  const keycloakOpenLogsCommand = cliparse.command('logs', {
     description: 'Open the Keycloak application logs in Clever Cloud Console',
     args: [args.addonIdOrName],
   }, keycloak.openLogs);
+  const keycloakOpenWebUiCommand = cliparse.command('webui', {
+    description: 'Open the Keycloak dashboard in Clever Cloud Console',
+    args: [args.addonIdOrName],
+  }, keycloak.openWebUi);
   const keycloakOpenCommand = cliparse.command('open', {
     description: 'Open the Keycloak admin console in your browser',
     args: [args.addonIdOrName],
-    commands: [keycloakLogsCommand],
+    commands: [keycloakOpenLogsCommand, keycloakOpenWebUiCommand],
   }, keycloak.open);
   const keycloakRestartCommand = cliparse.command('restart', {
     description: 'Restart Keycloak',
@@ -925,14 +929,18 @@ async function run () {
     args: [args.addonIdOrName],
     options: [opts.humanJsonOutputFormat],
   }, matomo.get);
-  const matomoLogsCommand = cliparse.command('logs', {
+  const matomoOpenLogsCommand = cliparse.command('logs', {
     description: 'Open the Matomo application logs in Clever Cloud Console',
     args: [args.addonIdOrName],
   }, matomo.openLogs);
-  const matomoOpenCommand = cliparse.command('open', {
+  const matomoOpenWebUiCommand = cliparse.command('webui', {
     description: 'Open the Matomo admin console in your browser',
     args: [args.addonIdOrName],
-    commands: [matomoLogsCommand],
+  }, matomo.openWebUi);
+  const matomoOpenCommand = cliparse.command('open', {
+    description: 'Open the Matomo dashboard in Clever Cloud Console',
+    args: [args.addonIdOrName],
+    commands: [matomoOpenLogsCommand, matomoOpenWebUiCommand],
   }, matomo.open);
   const matomoRestartCommand = cliparse.command('restart', {
     description: 'Restart Matomo',
@@ -954,14 +962,18 @@ async function run () {
     args: [args.addonIdOrName],
     options: [opts.humanJsonOutputFormat],
   }, metabase.get);
-  const metabaseLogsCommand = cliparse.command('logs', {
+  const metabaseOpenLogsCommand = cliparse.command('logs', {
     description: 'Open the Metabase application logs in Clever Cloud Console',
     args: [args.addonIdOrName],
   }, metabase.openLogs);
-  const metabaseOpenCommand = cliparse.command('open', {
+  const metabaseOpenWebUiCommand = cliparse.command('webui', {
     description: 'Open the Metabase admin console in your browser',
     args: [args.addonIdOrName],
-    commands: [metabaseLogsCommand],
+  }, metabase.openWebUi);
+  const metabaseOpenCommand = cliparse.command('open', {
+    description: 'Open the Metabase dashboard in Clever Cloud Console',
+    args: [args.addonIdOrName],
+    commands: [metabaseOpenLogsCommand, metabaseOpenWebUiCommand],
   }, metabase.open);
   const metabaseRestartCommand = cliparse.command('restart', {
     description: 'Restart Metabase',
@@ -1072,10 +1084,6 @@ async function run () {
     args: [args.addonIdOrName],
     options: [opts.humanJsonOutputFormat],
   }, otoroshi.get);
-  const otoroshiLogsCommand = cliparse.command('logs', {
-    description: 'Open the Otoroshi application logs in Clever Cloud Console',
-    args: [args.addonIdOrName],
-  }, otoroshi.openLogs);
   const otoroshiEnableNgCommand = cliparse.command('enable', {
     description: 'Link Otoroshi to a Network Group',
     args: [args.addonIdOrName],
@@ -1090,10 +1098,18 @@ async function run () {
     options: [opts.humanJsonOutputFormat],
     commands: [otoroshiEnableNgCommand, otoroshiDisableNgCommand],
   }, otoroshi.get);
-  const otoroshiOpenCommand = cliparse.command('open', {
+  const otoroshiOpenLogsCommand = cliparse.command('logs', {
+    description: 'Open the Otoroshi application logs in Clever Cloud Console',
+    args: [args.addonIdOrName],
+  }, otoroshi.openLogs);
+  const otoroshiOpenWebUiCommand = cliparse.command('webui', {
     description: 'Open the Otoroshi admin console in your browser',
     args: [args.addonIdOrName],
-    commands: [otoroshiLogsCommand],
+  }, otoroshi.openWebUi);
+  const otoroshiOpenCommand = cliparse.command('open', {
+    description: 'Open the Otoroshi dashboard in Clever Cloud Console',
+    args: [args.addonIdOrName],
+    commands: [otoroshiOpenLogsCommand, otoroshiOpenWebUiCommand],
   }, otoroshi.open);
   const otoroshiRestartCommand = cliparse.command('restart', {
     description: 'Restart Otoroshi',

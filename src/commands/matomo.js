@@ -1,4 +1,4 @@
-import { operatorList, operatorOpen, operatorOpenLogs, operatorPrint, operatorReboot, operatorRebuild } from '../lib/operators.js';
+import { operatorList, operatorOpen, operatorOpenLogs, operatorOpenWebUi, operatorPrint, operatorReboot, operatorRebuild } from '../lib/operators.js';
 
 /** Get the details of a Matomo operator
  * @param {object} params The command's parameters
@@ -21,7 +21,7 @@ export async function list (params) {
   await operatorList('addon-matomo', params.options.format);
 }
 
-/** Open a Matomo operator in the browser
+/** Open a Matomo operator dashboard in the Clever Cloud Console
  * @param {object} params The command's parameters
  * @param {string} params.args[0] The operator's name or ID
  * @returns {Promise<void>}
@@ -39,6 +39,16 @@ export async function open (params) {
 export async function openLogs (params) {
   const [addonIdOrName] = params.args;
   await operatorOpenLogs('matomo', addonIdOrName);
+}
+
+/** Open the Web UI of a Matomo Operator application in the Clever Cloud Console
+ * @param {object} params The command's parameters
+ * @param {string} params.args[0] The operator's name or ID
+ * @returns {Promise<void>}
+ */
+export async function openWebUi (params) {
+  const [addonIdOrName] = params.args;
+  await operatorOpenWebUi('matomo', addonIdOrName);
 }
 
 /** Reboot a Matomo operator
