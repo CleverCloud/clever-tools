@@ -6,6 +6,8 @@ export async function unlink (params) {
   const [alias] = params.args;
   const app = await AppConfig.getAppDetails({ alias });
 
+  await AppConfig.removeDefault(app.appId);
   await Application.unlinkRepo(app.alias);
+
   Logger.println('Your application has been successfully unlinked!');
 };

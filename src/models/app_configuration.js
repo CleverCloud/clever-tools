@@ -176,3 +176,15 @@ export async function setDefault (alias) {
   const newConfig = { ...config, default: app.app_id };
   return persistConfig(newConfig);
 }
+
+export async function removeDefault (app_id) {
+  const config = await loadApplicationConf();
+  const newConfig = { ...config };
+
+  // Check if the 'default' field matches the provided app_id
+  if (newConfig.default === app_id) {
+    delete newConfig.default;
+  }
+
+  return persistConfig(newConfig);
+}
