@@ -19,29 +19,29 @@ export async function operatorCheckVersion (provider, addonIdOrName, format) {
 
   const name = addonIdOrName.addon_name || addonIdOrName.realId || addonIdOrName;
   const realId = await Operator.getSingleRealId(addonIdOrName);
-  const version = await versionCheck({ provider, realId }).then(sendToApi);
+  const versions = await versionCheck({ provider, realId }).then(sendToApi);
 
   switch (format) {
     case 'json':
-      Logger.printJson(version);
+      Logger.printJson(versions);
       break;
     case 'human':
     default:
-      if (!version.needUpdate || (provider === 'metabase' && version.installed === 'community-latest')) {
-        Logger.println(`${colors.green('✔', name)} is up-to-date (${colors.green(version.installed)})`);
+      if (!versions.needUpdate || (provider === 'metabase' && versions.installed === 'community-latest')) {
+        Logger.println(`${colors.green('✔', name)} is up-to-date (${colors.green(versions.installed)})`);
       }
       else {
         Logger.println(`🔄 ${colors.red(name)} is outdated`);
-        Logger.println(`    ├─ Installed version: ${colors.red(version.installed)}`);
-        Logger.println(`    └─ Latest version: ${colors.green(version.latest)}`);
+        Logger.println(`    ├─ Installed version: ${colors.red(versions.installed)}`);
+        Logger.println(`    └─ Latest version: ${colors.green(versions.latest)}`);
         Logger.println();
 
         select({
-          message: `Do you want to update it to ${colors.green(version.latest)} now?`,
+          message: `Do you want to update it to ${colors.green(versions.latest)} now?`,
           choices: ['Yes', 'No'],
         }).then(async (answer) => {
           if (answer === 'Yes') {
-            const body = JSON.stringify({ targetVersion: version.latest });
+            const body = JSON.stringify({ targetVersion: versions.latest });
             await versionUpdate({ provider, realId }, body).then(sendToApi);
             Logger.println(`${colors.green('✔', name)} is up-to-date and being rebuilt…`);
           }
