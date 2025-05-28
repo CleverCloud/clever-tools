@@ -56,6 +56,9 @@ export async function deploy (params) {
 }
 
 async function restartOnSameCommit (ownerId, appId, commitIdToPush, quiet, withoutCache, exitStrategy) {
+  const cacheSuffix = withoutCache ? ' without using cache' : '';
+  Logger.println(`🔄 Restarting ${colors.bold(appId)}${cacheSuffix} ${colors.gray(`(commit ${commitIdToPush})`)}`);
+
   const restart = await Application.redeploy(ownerId, appId, commitIdToPush, withoutCache);
   return Log.watchDeploymentAndDisplayLogs({ ownerId, appId, deploymentId: restart.deploymentId, quiet, exitStrategy });
 }
