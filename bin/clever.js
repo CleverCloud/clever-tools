@@ -1022,6 +1022,7 @@ async function run () {
   }, sshKeys.openConsole);
   const sshKeysCommands = cliparse.command('ssh-keys', {
     description: 'Manage SSH keys of the current user',
+    privateOptions: [opts.humanJsonOutputFormat],
     commands: [sshKeysAddCommand, sshKeysRemoveCommand, sshKeysRemoveAllCommand, sshKeysOpenConsoleCommand],
   }, sshKeys.list);
 
