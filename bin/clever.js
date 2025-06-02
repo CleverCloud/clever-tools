@@ -766,6 +766,7 @@ async function run () {
   }, emails.openConsole);
   const emailsCommands = cliparse.command('emails', {
     description: 'Manage email addresses of the current user',
+    privateOptions: [opts.humanJsonOutputFormat],
     commands: [emailsAddCommand, emailsPrimaryCommand, emailsRemoveCommand, emailsClearCommand, emailsOpenConsoleCommand],
   }, emails.list);
 
