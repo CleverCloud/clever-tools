@@ -148,6 +148,34 @@ clever emails remove-all
 clever emails remove-all --yes
 ```
 
+## ssh-keys
+
+To list public SSH keys associated with your Clever Cloud account, you can use:
+
+```
+clever ssh-keys
+```
+
+To open the public SSH keys management page in your browser, use:
+
+```
+clever ssh-keys open
+```
+
+To add a new public SSH key, use:
+
+```
+clever ssh-keys add myPublicKey ~/.ssh/id_ecdsa.pub
+```
+
+To remove one or all public SSH keys, use:
+
+```
+clever ssh-keys remove myPublicKey
+clever ssh-keys remove-all
+clever ssh-keys remove-all --yes
+```
+
 ## curl
 
 To use our public API, you need to be authenticated for most endpoints. If you're logged in through Clever Tools, there is a simple way to make any request you want: `clever curl`. It's `curl`, but in an authenticated context for Clever Cloud API.
