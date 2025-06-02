@@ -13,6 +13,7 @@ You'll find below the first commands to know to connect Clever Tools to your acc
 
 - [Materia KV](/docs/kv.md)
 - [Network Groups](/docs/ng.md)
+- [Operators](/docs/operators.md)
 - [Applications: configuration](/docs/applications-config.md)
 - [Applications: management](/docs/applications-management.md)
 - [Applications: deployment and lifecycle](/docs/applications-deployment-lifecycle.md)
