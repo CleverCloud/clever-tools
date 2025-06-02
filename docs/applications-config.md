@@ -4,7 +4,7 @@ A Clever Cloud application can easily be configured once created, through follow
 
 ## config
 
-Each application have options you can get/set: `name`, `description`, `zero-downtime`, `sticky-sessions`, `cancel-on-push`, `force-https`.
+Each application has options you can get/set: `cancel-on-push`, `description`, `force-https`, `name`, `sticky-sessions`, `task`, `zero-downtime`.
 
 ```
 clever config get parameter
@@ -30,6 +30,8 @@ Available parameters are :
 [--disable-cancel-on-push]      Disable cancel-on-push (default: false)
 [--enable-force-https]          Enable force-https (default: false)
 [--disable-force-https]         Disable force-https (default: false)
+[--enable-task]                 Enable task (default: false)
+[--disable-task]                Disable task (default: false)
 ```
 
 ## env
