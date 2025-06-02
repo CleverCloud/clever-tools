@@ -114,6 +114,40 @@ clever profile open
 clever profile -F json
 ```
 
+## emails
+
+To list primary email and secondary emails associated with your Clever Cloud account, you can use:
+
+```
+clever emails
+```
+
+To open the email management page in your browser, use:
+
+```
+clever emails open
+```
+
+To add a secondary email, use:
+
+```
+clever emails add email@example.com
+```
+
+To set a secondary email as primary, use:
+
+```
+clever emails primary email@example.com
+```
+
+To remove one or all secondary emails, use:
+
+```
+clever emails remove email@example.com
+clever emails remove-all
+clever emails remove-all --yes
+```
+
 ## curl
 
 To use our public API, you need to be authenticated for most endpoints. If you're logged in through Clever Tools, there is a simple way to make any request you want: `clever curl`. It's `curl`, but in an authenticated context for Clever Cloud API.
