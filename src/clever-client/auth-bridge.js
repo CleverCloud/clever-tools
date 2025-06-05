@@ -1,4 +1,4 @@
-export function createApiToken ({ email, password, mfaCode, name, description, expirationDate }) {
+export function createApiToken ({ email, password, mfaCode, name, description = '', expirationDate }) {
   return Promise.resolve({
     method: 'post',
     url: '/api-tokens',

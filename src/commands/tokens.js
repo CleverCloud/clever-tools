@@ -13,6 +13,7 @@ import { promptPassword } from '../prompt-password.js';
  * @param {[string]} params.args - Command line args
  * @param {Object} params.options - Command line options
  * @param {'json'|'human'} params.options.format - Output format
+ * @param {number} params.options.expiration - Expiration date as timestamp
  */
 export async function create (params) {
   const [apiTokenName] = params.args;
@@ -25,10 +26,10 @@ export async function create (params) {
 
   let expirationDate;
   if (expiration != null) {
-    if (expiration > maxExpirationDate) {
+    if (expiration > maxExpirationDate.getTime()) {
       throw new Error('You cannot set an expiration date greater than 1 year');
     }
-    expirationDate = expiration;
+    expirationDate = new Date(expiration);
   }
   else {
     expirationDate = maxExpirationDate;
