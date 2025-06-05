@@ -18,6 +18,15 @@ import { promptPassword } from '../prompt-password.js';
 export async function create (params) {
   const [apiTokenName] = params.args;
   const { expiration, format } = params.options;
+  const user = await getCurrentUser();
+
+  if (!user.hasPassword) {
+    const apiTokenListHref = new URL('/users/me/api-tokens', conf.CONSOLE_URL).href;
+    throw new Error(dedent`
+      ${colors.yellow('!')} Your Clever Cloud account is linked via GitHub and has no password. Setting one is required to create API tokens.
+      ${colors.blue('→')} To do so, go to the following URL: ${colors.blue(apiTokenListHref)}
+    `);
+  }
 
   // Expire in 1 year
   const dateObject = new Date();
@@ -34,8 +43,6 @@ export async function create (params) {
   else {
     expirationDate = maxExpirationDate;
   }
-
-  const user = await getCurrentUser();
 
   const password = await promptPassword('Enter your password:');
 
