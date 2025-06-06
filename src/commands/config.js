@@ -25,12 +25,11 @@ export async function set (params) {
   const { alias, app: appIdOrName } = params.options;
   const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
   const config = ApplicationConfiguration.getById(configurationName);
-
-  if (config != null) {
-    const app = await updateApplication({ id: ownerId, appId }, { [config.name]: ApplicationConfiguration.parse(config, configurationValue) }).then(sendToApi);
-
-    ApplicationConfiguration.printById(app, configurationName);
-  }
+  const options = {
+    [config.name]: ApplicationConfiguration.parse(config, configurationValue),
+  };
+  const app = await updateApplication({ id: ownerId, appId }, options).then(sendToApi);
+  ApplicationConfiguration.printById(app, configurationName);
 }
 
 export async function update (params) {

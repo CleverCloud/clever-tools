@@ -2,6 +2,7 @@ import cliparse from 'cliparse';
 import colors from 'colors/safe.js';
 
 import { Logger } from '../logger.js';
+import dedent from 'dedent';
 
 const CONFIG_KEYS = [
   { id: 'name', name: 'name', displayName: 'Name', kind: 'string' },
@@ -18,11 +19,13 @@ export function listAvailableIds () {
 
 export function getById (id) {
   const config = CONFIG_KEYS.find((config) => config.id === id);
-  if (config == null) {
-    Logger.error(`Invalid configuration name: ${id}.`);
-    Logger.error(`Available configuration names are: ${listAvailableIds().join(', ')}.`);
+  if (config != null) {
+    return config;
   }
-  return config;
+  throw new Error(dedent`
+    Invalid configuration name: ${id}.
+    Available configuration names are: ${listAvailableIds().join(', ')}.
+  `);
 }
 
 function display (config, value) {
@@ -143,9 +146,7 @@ function printConfig (app, config) {
 
 export function printById (app, id) {
   const config = getById(id);
-  if (config != null) {
-    printConfig(app, config);
-  }
+  printConfig(app, config);
 }
 
 export function printByName (app, name) {
