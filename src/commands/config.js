@@ -1,15 +1,15 @@
 import { update as updateApplication } from '@clevercloud/client/esm/api/v2/application.js';
-
 import * as Application from '../models/application.js';
 import * as ApplicationConfiguration from '../models/application_configuration.js';
-
 import { sendToApi } from '../models/send-to-api.js';
+import { Logger } from '../logger.js';
+import colors from 'colors/safe.js';
 
 export async function list (params) {
   const { alias, app: appIdOrName } = params.options;
   const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
   const app = await Application.get(ownerId, appId);
-  ApplicationConfiguration.print(app);
+  ApplicationConfiguration.printAllValues(app);
 }
 
 export async function get (params) {
@@ -17,7 +17,7 @@ export async function get (params) {
   const { alias, app: appIdOrName } = params.options;
   const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
   const app = await Application.get(ownerId, appId);
-  ApplicationConfiguration.printById(app, configurationName);
+  ApplicationConfiguration.printValue(app, configurationName);
 }
 
 export async function set (params) {
@@ -29,7 +29,7 @@ export async function set (params) {
     [config.name]: ApplicationConfiguration.parse(config, configurationValue),
   };
   const app = await updateApplication({ id: ownerId, appId }, options).then(sendToApi);
-  ApplicationConfiguration.printById(app, configurationName);
+  Logger.printSuccess(`Config ${colors.green(config.id)} successfully updated to ${colors.green(ApplicationConfiguration.formatValue(config, app[config.name]))}!`);
 }
 
 export async function update (params) {
@@ -43,7 +43,5 @@ export async function update (params) {
 
   const app = await updateApplication({ id: ownerId, appId }, options).then(sendToApi);
 
-  for (const configName of Object.keys(options)) {
-    ApplicationConfiguration.printByName(app, configName);
-  }
+  ApplicationConfiguration.printAllValues(app);
 }

@@ -1,6 +1,4 @@
 import cliparse from 'cliparse';
-import colors from 'colors/safe.js';
-
 import { Logger } from '../logger.js';
 import dedent from 'dedent';
 
@@ -28,16 +26,16 @@ export function getById (id) {
   `);
 }
 
-function display (config, value) {
+export function formatValue (config, value) {
   switch (config.kind) {
     case 'bool': {
-      return (value) ? 'enabled' : 'disabled';
+      return value;
     }
     case 'inverted-bool': {
-      return (value) ? 'disabled' : 'enabled';
+      return !value;
     }
     case 'force-https': {
-      return value.toLowerCase();
+      return value === 'ENABLED';
     }
     default: {
       return String(value);
@@ -146,24 +144,17 @@ function parseConfigOption (config, options) {
   }
 }
 
-function printConfig (app, config) {
-  if (app[config.name] != null) {
-    Logger.println(`${config.displayName}: ${colors.bold(display(config, app[config.name]))}`);
-  }
-}
-
-export function printById (app, id) {
+export function printValue (app, id) {
   const config = getById(id);
-  printConfig(app, config);
+  Logger.println(formatValue(config, app[config.name]));
 }
 
-export function printByName (app, name) {
-  const config = CONFIG_KEYS.find((config) => config.name === name);
-  printConfig(app, config);
-}
-
-export function print (app) {
-  for (const config of CONFIG_KEYS) {
-    printConfig(app, config);
-  }
+export function printAllValues (app) {
+  console.table(
+    Object.fromEntries(
+      CONFIG_KEYS.map((config) => {
+        return [config.id, formatValue(config, app[config.name])];
+      }),
+    ),
+  );
 }
