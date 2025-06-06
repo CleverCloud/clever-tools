@@ -1,7 +1,6 @@
 import cliparse from 'cliparse';
-import colors from 'colors/safe.js';
-
 import { Logger } from '../logger.js';
+import dedent from 'dedent';
 
 const CONFIG_KEYS = [
   { id: 'name', name: 'name', displayName: 'Name', kind: 'string' },
@@ -10,31 +9,43 @@ const CONFIG_KEYS = [
   { id: 'sticky-sessions', name: 'stickySessions', displayName: 'Sticky sessions', kind: 'bool' },
   { id: 'cancel-on-push', name: 'cancelOnPush', displayName: 'Cancel current deployment on push', kind: 'bool' },
   { id: 'force-https', name: 'forceHttps', displayName: 'Force redirection of HTTP to HTTPS', kind: 'force-https' },
+  { id: 'task', name: 'instanceLifetime', displayName: 'Deploy an application as a Clever Task', kind: 'task' },
 ];
 
-export function listAvailableIds () {
-  return CONFIG_KEYS.map((config) => config.id);
+export function listAvailableIds (asText = false) {
+  const ids = CONFIG_KEYS.map((config) => config.id);
+  if (asText) {
+    return new Intl
+      .ListFormat('en', { style: 'short', type: 'disjunction' })
+      .format(ids);
+  }
+  return ids;
 }
 
 export function getById (id) {
   const config = CONFIG_KEYS.find((config) => config.id === id);
-  if (config == null) {
-    Logger.error(`Invalid configuration name: ${id}.`);
-    Logger.error(`Available configuration names are: ${listAvailableIds().join(', ')}.`);
+  if (config != null) {
+    return config;
   }
-  return config;
+  throw new Error(dedent`
+    Invalid configuration name: ${id}.
+    Available configuration names: ${listAvailableIds(true)}.
+  `);
 }
 
-function display (config, value) {
+export function formatValue (config, value) {
   switch (config.kind) {
     case 'bool': {
-      return (value) ? 'enabled' : 'disabled';
+      return value;
     }
     case 'inverted-bool': {
-      return (value) ? 'disabled' : 'enabled';
+      return !value;
     }
     case 'force-https': {
-      return value.toLowerCase();
+      return value === 'ENABLED';
+    }
+    case 'task': {
+      return value === 'TASK';
     }
     default: {
       return String(value);
@@ -44,14 +55,26 @@ function display (config, value) {
 
 export function parse (config, value) {
   switch (config.kind) {
-    case 'bool': {
-      return (value !== 'false');
-    }
-    case 'inverted-bool': {
-      return (value === 'false');
-    }
-    case 'force-https': {
-      return (value === 'false') ? 'DISABLED' : 'ENABLED';
+    case 'bool':
+    case 'inverted-bool':
+    case 'force-https':
+    case 'task': {
+      if (value !== 'true' && value !== 'false') {
+        throw new Error('Invalid configuration value, it must be a boolean (true or false)');
+      }
+      if (config.kind === 'bool') {
+        return (value === 'true');
+      }
+      if (config.kind === 'inverted-bool') {
+        return (value === 'false');
+      }
+      if (config.kind === 'force-https') {
+        return (value === 'true') ? 'ENABLED' : 'DISABLED';
+      }
+      if (config.kind === 'task') {
+        return (value === 'false') ? 'REGULAR' : 'TASK';
+      }
+      return;
     }
     default: {
       return value;
@@ -69,7 +92,8 @@ function getConfigOptions (config) {
   switch (config.kind) {
     case 'bool':
     case 'inverted-bool':
-    case 'force-https': {
+    case 'force-https':
+    case 'task': {
       return [
         cliparse.flag(`enable-${config.id}`, { description: `Enable ${config.id}` }),
         cliparse.flag(`disable-${config.id}`, { description: `Disable ${config.id}` }),
@@ -92,69 +116,45 @@ export function parseOptions (options) {
 
 function parseConfigOption (config, options) {
   switch (config.kind) {
-    case 'bool': {
+    case 'bool':
+    case 'inverted-bool':
+    case 'force-https':
+    case 'task': {
       const enable = options[`enable-${config.id}`];
       const disable = options[`disable-${config.id}`];
       if (enable && disable) {
-        Logger.warn(`${config.id} is both enabled and disabled, ignoring`);
+        throw new Error(`You cannot use both --enable-${config.id} and --disable-${config.id} at the same time`);
       }
-      else if (enable || disable) {
-        return [config.name, enable];
+      if (enable || disable) {
+        if (config.kind === 'bool') {
+          return [config.name, enable];
+        }
+        if (config.kind === 'inverted-bool') {
+          return [config.name, disable];
+        }
+        if (config.kind === 'force-https' || config.kind === 'task') {
+          return [config.name, parse(config, String(enable))];
+        }
       }
-      return null;
-    }
-    case 'inverted-bool': {
-      const disable = options[`enable-${config.id}`];
-      const enable = options[`disable-${config.id}`];
-      if (enable && disable) {
-        Logger.warn(`${config.id} is both enabled and disabled, ignoring`);
-      }
-      else if (enable || disable) {
-        return [config.name, enable];
-      }
-      return null;
-    }
-    case 'force-https': {
-      const enable = options[`enable-${config.id}`];
-      const disable = options[`disable-${config.id}`];
-      if (enable && disable) {
-        Logger.warn(`${config.id} is both enabled and disabled, ignoring`);
-      }
-      else if (enable || disable) {
-        const value = (enable) ? 'ENABLED' : 'DISABLED';
-        return [config.name, value];
-      }
-      return null;
+      return;
     }
     default: {
-      if (options[config.id] !== null) {
-        return [config.name, options[config.id]];
-      }
-      return null;
+      return [config.name, options[config.id]];
     }
   }
 }
 
-function printConfig (app, config) {
-  if (app[config.name] != null) {
-    Logger.println(`${config.displayName}: ${colors.bold(display(config, app[config.name]))}`);
-  }
-}
-
-export function printById (app, id) {
+export function printValue (app, id) {
   const config = getById(id);
-  if (config != null) {
-    printConfig(app, config);
-  }
+  Logger.println(formatValue(config, app[config.name]));
 }
 
-export function printByName (app, name) {
-  const config = CONFIG_KEYS.find((config) => config.name === name);
-  printConfig(app, config);
-}
-
-export function print (app) {
-  for (const config of CONFIG_KEYS) {
-    printConfig(app, config);
-  }
+export function printAllValues (app) {
+  console.table(
+    Object.fromEntries(
+      CONFIG_KEYS.map((config) => {
+        return [config.id, formatValue(config, app[config.name])];
+      }),
+    ),
+  );
 }

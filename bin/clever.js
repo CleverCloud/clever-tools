@@ -180,7 +180,7 @@ async function run () {
       parser: Parsers.integer,
     }),
     configurationName: cliparse.argument('configuration-name', {
-      description: 'The name of the configuration to manage',
+      description: `Configuration to manage: ${ApplicationConfiguration.listAvailableIds(true)}`,
       complete () {
         return cliparse.autocomplete.words(ApplicationConfiguration.listAvailableIds());
       },
@@ -648,7 +648,7 @@ async function run () {
     description: 'Display or edit the configuration of your application',
     options: [opts.alias, opts.appIdOrName],
     commands: [configGetCommand, configSetCommand, configUpdateCommand],
-  }, config.get);
+  }, config.list);
 
   // CREATE COMMAND
   const appCreateCommand = cliparse.command('create', {
