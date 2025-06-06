@@ -108,6 +108,11 @@ export async function getFeatures () {
   }
 }
 
+export async function isFeatureEnabled (feature) {
+  const features = await getFeatures();
+  return features[feature] ? features[feature]: false;
+}
+
 export async function setFeature (feature, value) {
   const currentFeatures = await getFeatures();
   const newFeatures = { ...currentFeatures, ...{ [feature]: value } };

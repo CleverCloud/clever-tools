@@ -1,10 +1,11 @@
 import * as Application from '../models/application.js';
-import * as LogV2 from '../models/log.js';
 import * as Log from '../models/log-v4.js';
+import * as LogV2 from '../models/log.js';
+import { isFeatureEnabled } from '../models/configuration.js';
 import { Logger } from '../logger.js';
 import { Deferred } from '../models/utils.js';
 import colors from 'colors/safe.js';
-import { resolveAddonId } from '../models/ids-resolver.js';
+import { resolveRealId, resolveAddonId, resolveOwnerId  } from '../models/ids-resolver.js';
 
 export async function appLogs (params) {
   const { alias, app: appIdOrName, addon: addonIdOrRealId, after: since, before: until, search, 'deployment-id': deploymentId, format } = params.options;
@@ -13,18 +14,14 @@ export async function appLogs (params) {
   const filter = (search !== '') ? search : null;
   const isForHuman = (format === 'human');
 
-  // TODO: drop when addons are migrated to the v4 API
   if (addonIdOrRealId != null) {
-    const addonId = await resolveAddonId(addonIdOrRealId);
-    if (isForHuman) {
-      Logger.println(colors.blue('Waiting for addon logs…'));
-    }
-    else {
-      throw new Error(`"${format}" format is not yet available for add-on logs`);
-    }
-    return LogV2.displayLogs({ appAddonId: addonId, since, until, filter, deploymentId });
+    return addonLogs({addonIdOrRealId, isForHuman, since, until, filter, format, since, until, deploymentId, format, filter});
   }
 
+  applicationLogs({appIdOrName, alias, isForHuman})
+}
+
+async function applicationLogs({appIdOrName, alias, isForHuman, since, until, deploymentId, format, filter}) {
   const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
 
   if (isForHuman) {
@@ -35,3 +32,31 @@ export async function appLogs (params) {
   await Log.displayLogs({ ownerId, appId, since, until, filter, deploymentId, format, deferred });
   return deferred.promise;
 }
+
+async function addonLogs({addonIdOrRealId, isForHuman, deploymentId, since, until, filter, format}) {
+  let addonId;
+  let realAddonId;
+  if(addonIdOrRealId.startsWith("addon_")) {
+    addonId = addonIdOrRealId;
+    realAddonId = await resolveRealId(addonId);
+  } else {
+    addonId = await resolveAddonId(addonIdOrRealId);
+    realAddonId = addonIdOrRealId;
+  }
+
+  const ownerId = await resolveOwnerId(realAddonId)
+
+  if (isForHuman) {
+    Logger.println(colors.blue('Waiting for addon logs…'));
+  }
+
+  const deferred = new Deferred();
+
+if (!(await isFeatureEnabled('addonLogsV4'))) {
+    return LogV2.displayLogs({ appAddonId: addonId, since, until, filter, deploymentId });
+  } else {
+    await Log.displayAddonLogs({ ownerId, addonId: realAddonId, deploymentId, since, until, filter, format, deferred });
+    return deferred.promise;
+  }
+}
+
