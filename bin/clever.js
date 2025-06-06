@@ -648,7 +648,7 @@ async function run () {
     description: 'Display or edit the configuration of your application',
     options: [opts.alias, opts.appIdOrName],
     commands: [configGetCommand, configSetCommand, configUpdateCommand],
-  }, config.get);
+  }, config.list);
 
   // CREATE COMMAND
   const appCreateCommand = cliparse.command('create', {
