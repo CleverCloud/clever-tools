@@ -9,6 +9,7 @@ const CONFIG_KEYS = [
   { id: 'sticky-sessions', name: 'stickySessions', displayName: 'Sticky sessions', kind: 'bool' },
   { id: 'cancel-on-push', name: 'cancelOnPush', displayName: 'Cancel current deployment on push', kind: 'bool' },
   { id: 'force-https', name: 'forceHttps', displayName: 'Force redirection of HTTP to HTTPS', kind: 'force-https' },
+  { id: 'task', name: 'instanceLifetime', displayName: 'Deploy an application as a Clever Task', kind: 'task' },
 ];
 
 export function listAvailableIds (asText = false) {
@@ -43,6 +44,9 @@ export function formatValue (config, value) {
     case 'force-https': {
       return value === 'ENABLED';
     }
+    case 'task': {
+      return value === 'TASK';
+    }
     default: {
       return String(value);
     }
@@ -53,7 +57,8 @@ export function parse (config, value) {
   switch (config.kind) {
     case 'bool':
     case 'inverted-bool':
-    case 'force-https': {
+    case 'force-https':
+    case 'task': {
       if (value !== 'true' && value !== 'false') {
         throw new Error('Invalid configuration value, it must be a boolean (true or false)');
       }
@@ -65,6 +70,9 @@ export function parse (config, value) {
       }
       if (config.kind === 'force-https') {
         return (value === 'true') ? 'ENABLED' : 'DISABLED';
+      }
+      if (config.kind === 'task') {
+        return (value === 'false') ? 'REGULAR' : 'TASK';
       }
       return;
     }
@@ -84,7 +92,8 @@ function getConfigOptions (config) {
   switch (config.kind) {
     case 'bool':
     case 'inverted-bool':
-    case 'force-https': {
+    case 'force-https':
+    case 'task': {
       return [
         cliparse.flag(`enable-${config.id}`, { description: `Enable ${config.id}` }),
         cliparse.flag(`disable-${config.id}`, { description: `Disable ${config.id}` }),
@@ -109,7 +118,8 @@ function parseConfigOption (config, options) {
   switch (config.kind) {
     case 'bool':
     case 'inverted-bool':
-    case 'force-https': {
+    case 'force-https':
+    case 'task': {
       const enable = options[`enable-${config.id}`];
       const disable = options[`disable-${config.id}`];
       if (enable && disable) {
@@ -122,7 +132,7 @@ function parseConfigOption (config, options) {
         if (config.kind === 'inverted-bool') {
           return [config.name, disable];
         }
-        if (config.kind === 'force-https') {
+        if (config.kind === 'force-https' || config.kind === 'task') {
           return [config.name, parse(config, String(enable))];
         }
       }
