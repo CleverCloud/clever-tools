@@ -1,6 +1,30 @@
 # clever-tools changelog
 
 
+## [3.13.0](https://github.com/CleverCloud/clever-tools/compare/3.12.0...3.13.0) (2025-06-06)
+
+
+### 🚀 Features
+
+* **config:** add support for "task" config ([deb3e26](https://github.com/CleverCloud/clever-tools/commit/deb3e261c30a5cda0fb9d1ffb88aaca284364aa0))
+* **config:** improve display for `list`, `get`, `set` and `update` commands ([e277eb1](https://github.com/CleverCloud/clever-tools/commit/e277eb1916e4d49f6b75ec42e58635aad9e89172))
+* **emails:** add emails command ([0a5210f](https://github.com/CleverCloud/clever-tools/commit/0a5210fbc88886d0a67c892c872d5c42fdd4e7c7))
+* **ssh-keys:** add ssh-keys command ([2900328](https://github.com/CleverCloud/clever-tools/commit/29003284fcfe34dc27de02335e642e3104bc5f78))
+* **tokens:** add "state" in tokens list ([0ec7cc0](https://github.com/CleverCloud/clever-tools/commit/0ec7cc087ec99852c4bfda6f0557b227ee8e811d))
+* **tokens:** handle users with no password set ([2e6576d](https://github.com/CleverCloud/clever-tools/commit/2e6576de313c90e96e79009e1ee8bc0436258da1))
+* **tokens:** make `clever tokens` available without the feature flag ([9722d5b](https://github.com/CleverCloud/clever-tools/commit/9722d5bff6bd36103535eaef0124d2fcdb979e1f))
+
+
+### 🐛 Bug Fixes
+
+* apply strict text transformation on apps names for aliases and git remotes ([9b936c9](https://github.com/CleverCloud/clever-tools/commit/9b936c9032e08aa426dc360f89e306030c3ec583))
+* **config:** exit with error if --enable-* and --disable-* are used at the same time ([f137732](https://github.com/CleverCloud/clever-tools/commit/f1377328c1fe0e7aea401cdf7d2736c1504e8bb5))
+* **config:** exit with error if config name is unknown ([788ac36](https://github.com/CleverCloud/clever-tools/commit/788ac36d3a4505b36739f07a4287b8b4ee298eae))
+* **config:** reject non boolean values for some config ([7080825](https://github.com/CleverCloud/clever-tools/commit/708082589510bf27ec2c49e415cf34784b4502a8))
+* **config:** remove undocumented behavior for `clever config CONFIG_NAME` ([3c1a19e](https://github.com/CleverCloud/clever-tools/commit/3c1a19ee478131abfd177733bcab128ac4633ec9))
+* **delete:** remove default app from `.clever.json` ([97233db](https://github.com/CleverCloud/clever-tools/commit/97233db1c909c322a5d5636e6548890c7bc94676))
+* **unlink:** remove default app from `.clever.json` ([97233db](https://github.com/CleverCloud/clever-tools/commit/97233db1c909c322a5d5636e6548890c7bc94676))
+
 ## [3.12.0](https://github.com/CleverCloud/clever-tools/compare/3.11.0...3.12.0) (2025-03-06)
 
 
