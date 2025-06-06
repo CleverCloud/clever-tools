@@ -47,14 +47,22 @@ function display (config, value) {
 
 export function parse (config, value) {
   switch (config.kind) {
-    case 'bool': {
-      return (value !== 'false');
-    }
-    case 'inverted-bool': {
-      return (value === 'false');
-    }
+    case 'bool':
+    case 'inverted-bool':
     case 'force-https': {
-      return (value === 'false') ? 'DISABLED' : 'ENABLED';
+      if (value !== 'true' && value !== 'false') {
+        throw new Error('Invalid configuration value, it must be a boolean (true or false)');
+      }
+      if (config.kind === 'bool') {
+        return (value === 'true');
+      }
+      if (config.kind === 'inverted-bool') {
+        return (value === 'false');
+      }
+      if (config.kind === 'force-https') {
+        return (value === 'true') ? 'ENABLED' : 'DISABLED';
+      }
+      return;
     }
     default: {
       return value;
