@@ -1,7 +1,5 @@
-import { update as updateApplication } from '@clevercloud/client/esm/api/v2/application.js';
 import * as Application from '../models/application.js';
 import * as ApplicationConfiguration from '../models/application_configuration.js';
-import { sendToApi } from '../models/send-to-api.js';
 import { Logger } from '../logger.js';
 import colors from 'colors/safe.js';
 
@@ -28,7 +26,7 @@ export async function set (params) {
   const patchedApp = {
     [config.name]: ApplicationConfiguration.parse(config, configurationValue),
   };
-  const app = await updateApplication({ id: ownerId, appId }, patchedApp).then(sendToApi);
+  const app = await Application.updateOptions(ownerId, appId, patchedApp);
   Logger.printSuccess(`Config ${colors.grey(config.id)} successfully updated to ${colors.grey(ApplicationConfiguration.formatValue(config, app[config.name]))}!`);
 }
 
@@ -41,7 +39,7 @@ export async function update (params) {
     throw new Error('No configuration to update');
   }
 
-  const app = await updateApplication({ id: ownerId, appId }, options).then(sendToApi);
+  const app = await Application.updateOptions(ownerId, appId, options);
 
   ApplicationConfiguration.printAllValues(app);
 }

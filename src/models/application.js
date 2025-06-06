@@ -1,14 +1,14 @@
 import _ from 'lodash';
 import {
-  create as createApplication,
-  remove as removeApplication,
-  getAll as getAllApplications,
-  get as getApplication,
-  redeploy as redeployApplication,
-  update as updateApplication,
-  getAllDependencies,
   addDependency,
+  create as createApplication,
+  get as getApplication,
+  getAll as getAllApplications,
+  getAllDependencies,
+  redeploy as redeployApplication,
+  remove as removeApplication,
   removeDependency,
+  update as updateApplication,
 } from '@clevercloud/client/esm/api/v2/application.js';
 import cliparse from 'cliparse';
 import { getSummary } from '@clevercloud/client/esm/api/v2/user.js';
@@ -164,9 +164,20 @@ async function getByName (ownerId, name) {
   return getApplicationByName(apps, name);
 };
 
+function addInstanceLifetime (app) {
+  // Patch to help config commands
+  app.instanceLifetime = app.instance.lifetime;
+  return app;
+}
+
 export function get (ownerId, appId) {
   Logger.debug(`Get information for the app: ${appId}`);
-  return getApplication({ id: ownerId, appId }).then(sendToApi);
+  return getApplication({ id: ownerId, appId }).then(sendToApi).then(addInstanceLifetime);
+};
+
+export function updateOptions (ownerId, appId, options) {
+  Logger.debug(`Update app: ${appId}`);
+  return updateApplication({ id: ownerId, appId }, options).then(sendToApi).then(addInstanceLifetime);
 };
 
 function getFromSelf (appId) {
