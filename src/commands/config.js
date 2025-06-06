@@ -5,18 +5,19 @@ import * as ApplicationConfiguration from '../models/application_configuration.j
 
 import { sendToApi } from '../models/send-to-api.js';
 
+export async function list (params) {
+  const { alias, app: appIdOrName } = params.options;
+  const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
+  const app = await Application.get(ownerId, appId);
+  ApplicationConfiguration.print(app);
+}
+
 export async function get (params) {
   const [configurationName] = params.args;
   const { alias, app: appIdOrName } = params.options;
   const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
   const app = await Application.get(ownerId, appId);
-
-  if (configurationName == null) {
-    ApplicationConfiguration.print(app);
-  }
-  else {
-    ApplicationConfiguration.printById(app, configurationName);
-  }
+  ApplicationConfiguration.printById(app, configurationName);
 }
 
 export async function set (params) {
