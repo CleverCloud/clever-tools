@@ -1,66 +1,40 @@
-import crypto from 'node:crypto';
-import util from 'node:util';
-
 import colors from 'colors/safe.js';
-import open from 'open';
-import superagent from 'superagent';
+import * as User from '../models/user.js';
 
 import { Logger } from '../logger.js';
-import * as User from '../models/user.js';
-import { conf, writeOAuthConf } from '../models/configuration.js';
-
-import { getPackageJson } from '../load-package-json.cjs';
-
-const delay = util.promisify(setTimeout);
-const pkg = getPackageJson();
-
-// 20 random bytes as Base64URL
-function randomToken () {
-  return crypto.randomBytes(20).toString('base64').replace(/\//g, '-').replace(/\+/g, '_').replace(/=/g, '');
-}
-
-const POLLING_INTERVAL = 2000;
-const POLLING_MAX_TRY_COUNT = 60;
-
-function pollOauthData (url, tryCount = 0) {
-
-  if (tryCount >= POLLING_MAX_TRY_COUNT) {
-    throw new Error('Something went wrong while trying to log you in.');
-  }
-  if (tryCount > 1 && tryCount % 10 === 0) {
-    Logger.println("We're still waiting for the login process (in your browser) to be completed…");
-  }
-
-  return superagent
-    .get(url)
-    .send()
-    .then(({ body }) => body)
-    .catch(async (e) => {
-      if (e.status === 404) {
-        await delay(POLLING_INTERVAL);
-        return pollOauthData(url, tryCount + 1);
-      }
-      throw new Error('Something went wrong while trying to log you in.');
-    });
-}
+import { promptEmail, promptPassword } from '../prompt.js';
+import { sendToAuthBridge } from '../models/send-to-api.js';
+import { writeOAuthConf } from '../models/configuration.js';
+import { createApiToken } from '../clever-client/auth-bridge.js';
 
 async function loginViaConsole () {
+  const dateObject = new Date();
+  dateObject.setFullYear(dateObject.getFullYear() + 1);
+  const expirationDate = dateObject;
 
-  const cliToken = randomToken();
+  const name = `Clever Tools - ${dateObject.getTime()}`;
+  const email = await promptEmail('Enter your email:');
+  const password = await promptPassword('Enter your password:');
+  const mfaCode = await promptPassword('Enter your 2FA code (press Enter if none):');
 
-  const consoleUrl = new URL(conf.CONSOLE_TOKEN_URL);
-  consoleUrl.searchParams.set('cli_version', pkg.version);
-  consoleUrl.searchParams.set('cli_token', cliToken);
+  const tokenData = {
+    email,
+    password,
+    mfaCode,
+    name,
+    expirationDate: expirationDate.toISOString(),
+  };
 
-  const cliPollUrl = new URL(conf.API_HOST);
-  cliPollUrl.pathname = '/v2/self/cli_tokens';
-  cliPollUrl.searchParams.set('cli_token', cliToken);
-
-  Logger.debug('Try to login to Clever Cloud…');
-  Logger.println(`Opening ${colors.green(consoleUrl.toString())} in your browser to log you in…`);
-  await open(consoleUrl.toString(), { wait: false });
-
-  return pollOauthData(cliPollUrl.toString());
+  return createApiToken(tokenData).then(sendToAuthBridge).catch((error) => {
+    const errorCode = error?.cause?.responseBody?.code;
+    if (errorCode === 'invalid-credential') {
+      throw new Error('Invalid credentials, check your password');
+    }
+    if (errorCode === 'invalid-mfa-code') {
+      throw new Error('Invalid credentials, check your 2FA code');
+    }
+    throw error;
+  });
 }
 
 export async function login (params) {
