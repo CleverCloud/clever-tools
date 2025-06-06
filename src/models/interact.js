@@ -1,5 +1,5 @@
 import readline from 'node:readline';
-
+import colors from 'colors/safe.js';
 function ask (question) {
 
   const rl = readline.createInterface({
@@ -8,7 +8,7 @@ function ask (question) {
   });
 
   return new Promise((resolve) => {
-    rl.question(question, (answer) => {
+    rl.question(`${colors.bold.blue('?')} ${question} `, (answer) => {
       rl.close();
       resolve(answer);
     });

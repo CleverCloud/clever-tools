@@ -8,5 +8,5 @@ export async function stop (params) {
   const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
 
   await stopApplication({ id: ownerId, appId }).then(sendToApi);
-  Logger.println('App successfully stopped!');
+  Logger.printSuccess('Application successfully stopped!');
 }
