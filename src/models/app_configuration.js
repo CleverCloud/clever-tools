@@ -54,19 +54,22 @@ export async function addLinkedApplication (appData, alias, ignoreParentConfig) 
 
 export async function removeLinkedApplication ({ appId, alias }) {
   const currentConfig = await loadApplicationConf();
+  const appToUnlink = currentConfig.apps.find((a) => a.app_id === appId || a.alias === alias);
+  if (appToUnlink == null) {
+    return false;
+  }
   const newConfig = {
     ...currentConfig,
-    apps: currentConfig.apps.filter((appEntry) => {
-      return appEntry.app_id !== appId && appEntry.alias !== alias;
-    }),
+    apps: currentConfig.apps.filter((a) => a !== appToUnlink),
   };
 
-  if (currentConfig.apps.length !== newConfig.apps.length) {
-    await persistConfig(newConfig);
-    return true;
+  const isDefault = currentConfig.default === appToUnlink.app_id;
+  if (isDefault) {
+    delete newConfig.default;
   }
 
-  return false;
+  await persistConfig(newConfig);
+  return true;
 };
 
 export function findApp (config, alias) {
@@ -134,7 +137,7 @@ async function getAppDetailsForId (appId) {
   }
   if (secondAppById != null) {
     throw new Error(`There are several applications matching id '${appId}'.`
-                  + 'This should not happen, your `.clever.json` should be fixed.');
+      + 'This should not happen, your `.clever.json` should be fixed.');
   }
 
   return appById;
