@@ -11,8 +11,14 @@ const CONFIG_KEYS = [
   { id: 'force-https', name: 'forceHttps', displayName: 'Force redirection of HTTP to HTTPS', kind: 'force-https' },
 ];
 
-export function listAvailableIds () {
-  return CONFIG_KEYS.map((config) => config.id);
+export function listAvailableIds (asText = false) {
+  const ids = CONFIG_KEYS.map((config) => config.id);
+  if (asText) {
+    return new Intl
+      .ListFormat('en', { style: 'short', type: 'disjunction' })
+      .format(ids);
+  }
+  return ids;
 }
 
 export function getById (id) {
@@ -22,7 +28,7 @@ export function getById (id) {
   }
   throw new Error(dedent`
     Invalid configuration name: ${id}.
-    Available configuration names are: ${listAvailableIds().join(', ')}.
+    Available configuration names: ${listAvailableIds(true)}.
   `);
 }
 

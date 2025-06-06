@@ -180,7 +180,7 @@ async function run () {
       parser: Parsers.integer,
     }),
     configurationName: cliparse.argument('configuration-name', {
-      description: 'The name of the configuration to manage',
+      description: `Configuration to manage: ${ApplicationConfiguration.listAvailableIds(true)}`,
       complete () {
         return cliparse.autocomplete.words(ApplicationConfiguration.listAvailableIds());
       },
