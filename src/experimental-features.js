@@ -44,4 +44,18 @@ export const EXPERIMENTAL_FEATURES = {
       Learn more about Network Groups: https://www.clever-cloud.com/developers/doc/develop/network-groups/
     `,
   },
+  operators: {
+    status: 'beta',
+    description: 'Manage operators managed services and their features such as Keycloak, Matomo, Metabase, Otoroshi',
+    instructions: `
+clever keycloak
+clever keycloak get keycloak_xxx
+clever keycloak ng enable myKeycloak
+
+clever metabase version check myMetabase
+clever metabase version update myMetabase 0.53
+
+clever matomo open myMatomo
+clever otoroshi open logs myOtoroshi`,
+  },
 };
