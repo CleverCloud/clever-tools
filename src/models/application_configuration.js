@@ -107,45 +107,29 @@ export function parseOptions (options) {
 
 function parseConfigOption (config, options) {
   switch (config.kind) {
-    case 'bool': {
-      const enable = options[`enable-${config.id}`];
-      const disable = options[`disable-${config.id}`];
-      if (enable && disable) {
-        Logger.warn(`${config.id} is both enabled and disabled, ignoring`);
-      }
-      else if (enable || disable) {
-        return [config.name, enable];
-      }
-      return null;
-    }
-    case 'inverted-bool': {
-      const disable = options[`enable-${config.id}`];
-      const enable = options[`disable-${config.id}`];
-      if (enable && disable) {
-        Logger.warn(`${config.id} is both enabled and disabled, ignoring`);
-      }
-      else if (enable || disable) {
-        return [config.name, enable];
-      }
-      return null;
-    }
+    case 'bool':
+    case 'inverted-bool':
     case 'force-https': {
       const enable = options[`enable-${config.id}`];
       const disable = options[`disable-${config.id}`];
       if (enable && disable) {
-        Logger.warn(`${config.id} is both enabled and disabled, ignoring`);
+        throw new Error(`You cannot use both --enable-${config.id} and --disable-${config.id} at the same time`);
       }
-      else if (enable || disable) {
-        const value = (enable) ? 'ENABLED' : 'DISABLED';
-        return [config.name, value];
+      if (enable || disable) {
+        if (config.kind === 'bool') {
+          return [config.name, enable];
+        }
+        if (config.kind === 'inverted-bool') {
+          return [config.name, disable];
+        }
+        if (config.kind === 'force-https') {
+          return [config.name, parse(config, String(enable))];
+        }
       }
-      return null;
+      return;
     }
     default: {
-      if (options[config.id] !== null) {
-        return [config.name, options[config.id]];
-      }
-      return null;
+      return [config.name, options[config.id]];
     }
   }
 }
