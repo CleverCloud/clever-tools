@@ -5,7 +5,7 @@ import { getAllAddonProviders } from '@clevercloud/client/esm/api/v2/product.js'
 import { getSummary } from '@clevercloud/client/esm/api/v2/user.js';
 import { getAddonProvider } from '@clevercloud/client/esm/api/v4/addon-providers.js';
 
-import * as Interact from './interact.js';
+import { confirm } from '../lib/prompts.js';
 import { Logger } from '../logger.js';
 import { sendToApi } from '../models/send-to-api.js';
 import { resolveOwnerId } from './ids-resolver.js';
@@ -203,7 +203,10 @@ export async function deleteAddon (ownerId, addonIdOrName, skipConfirmation) {
   const addonId = await getId(ownerId, addonIdOrName);
 
   if (!skipConfirmation) {
-    await Interact.confirm('Deleting the addon can\'t be undone, are you sure? ', 'No confirmation, aborting addon deletion');
+    await confirm(
+      'Deleting the add-on can\'t be undone, are you sure?',
+      'No confirmation, aborting add-on deletion',
+    );
   }
 
   return removeAddon({ id: ownerId, addonId }).then(sendToApi);

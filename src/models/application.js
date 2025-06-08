@@ -12,9 +12,10 @@ import {
 } from '@clevercloud/client/esm/api/v2/application.js';
 import cliparse from 'cliparse';
 import { getSummary } from '@clevercloud/client/esm/api/v2/user.js';
+import colors from 'colors/safe.js';
 
 import * as AppConfiguration from './app_configuration.js';
-import * as Interact from './interact.js';
+import { confirmAnswer } from '../lib/prompts.js';
 import { Logger } from '../logger.js';
 import * as Organisation from './organisation.js';
 import * as User from './user.js';
@@ -100,10 +101,10 @@ export async function deleteApp (app, skipConfirmation) {
   Logger.debug('Deleting app: ' + app.name + ' (' + app.id + ')');
 
   if (!skipConfirmation) {
-    await Interact.confirm(
-      `Deleting the application ${app.name} can't be undone, please type '${app.name}' to confirm: `,
+    await confirmAnswer(
+      `Deleting an application can't be undone, please type ${colors.green(app.name)} to confirm:`,
       'No confirmation, aborting application deletion',
-      [app.name],
+      app.name,
     );
   }
 

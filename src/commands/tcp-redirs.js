@@ -2,7 +2,7 @@ import colors from 'colors/safe.js';
 
 import * as Namespaces from '../models/namespaces.js';
 import { sendToApi } from '../models/send-to-api.js';
-import * as Interact from '../models/interact.js';
+import { confirm } from '../lib/prompts.js';
 import { Logger } from '../logger.js';
 import * as Application from '../models/application.js';
 import { addTcpRedir, getTcpRedirs, removeTcpRedir } from '@clevercloud/client/esm/api/v2/application.js';
@@ -72,8 +72,8 @@ async function acceptPayment (result, skipConfirmation) {
     Logger.println(`Total (without taxes): ${result.totalHT}€`);
     Logger.println(colors.bold(`Total (with taxes): ${result.totalTTC}€`));
 
-    await Interact.confirm(
-      `You're about to pay ${result.totalTTC}€, confirm? (yes or no) `,
+    await confirm(
+      `You're about to pay ${result.totalTTC}€, confirm?`,
       'No confirmation, aborting TCP redirection creation',
     );
   }
