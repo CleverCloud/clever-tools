@@ -295,7 +295,7 @@ function previewToPrintableDetails (p) {
     p.urls.map((u) => {
       const name = `${archEmoji[u.arch]} ${colors.bold(u.arch.padEnd(5, ' '))}`;
       const link = `${u.url}`;
-      const checksum = colors.gray(`${u.checksum.type}: ${u.checksum.value}`);
+      const checksum = colors.grey(`${u.checksum.type}: ${u.checksum.value}`);
 
       return colors.blue(`\n   ${name}: ${link}\n      ${checksum}`);
     }).join(''),
