@@ -6,6 +6,8 @@ import { waitForDeploymentEnd, waitForDeploymentStart } from './deployments.js';
 import { ApplicationLogStream } from '@clevercloud/client/esm/streams/application-logs.js';
 import { JsonArray } from './json-array.js';
 import * as ExitStrategy from '../models/exit-strategy-option.js';
+import { getBest } from './domain.js';
+import { conf } from './configuration.js';
 
 // 2000 logs per 100ms maximum
 const THROTTLE_ELEMENTS = 2000;
@@ -98,9 +100,11 @@ export async function watchDeploymentAndDisplayLogs (options) {
 
   ExitStrategy.plotQuietWarning(exitStrategy, quiet);
   // If in quiet mode, we only log start/finished deployment messages
-  !quiet && Logger.println('Waiting for deployment to start…');
+  if (!quiet) {
+    Logger.println(`   ${colors.blue('→ Waiting for deployment to start…')}`);
+  }
   const deployment = await waitForDeploymentStart({ ownerId, appId, deploymentId, commitId, knownDeployments });
-  Logger.println(colors.bold.blue(`Deployment started (${deployment.uuid})`));
+  Logger.println(`   ${colors.green(`✓ Deployment started ${colors.grey(`(${deployment.uuid})`)}`)}`);
 
   if (exitStrategy === 'deploy-start') {
     return;
@@ -119,7 +123,9 @@ export async function watchDeploymentAndDisplayLogs (options) {
     logsStream = await displayLogs({ ownerId, appId, deploymentId: deployment.uuid, since: redeployDate, deferred });
   }
 
-  !quiet && Logger.println('Waiting for application logs…');
+  if (!quiet) {
+    Logger.println(`   ${colors.blue('→ Waiting for application logs…')}`);
+  }
 
   // Wait for deployment end (or an error thrown by logs with the deferred)
   const deploymentEnded = await Promise.race([
@@ -132,7 +138,10 @@ export async function watchDeploymentAndDisplayLogs (options) {
   }
 
   if (deploymentEnded.state === 'OK') {
-    Logger.println(colors.bold.green('Deployment successful'));
+    const favouriteDomain = await getBest(appId, ownerId);
+    Logger.println('');
+    Logger.println(`${colors.bold.green('✓ Access your application:')} ${colors.underline.bold(`https://${favouriteDomain.fqdn}`)}`);
+    Logger.println(`${colors.bold.blue('→ Manage your application:')} ${colors.underline.bold(`${conf.GOTO_URL}/${appId}`)}`);
   }
   else if (deploymentEnded.state === 'CANCELLED') {
     throw new Error('Deployment was cancelled. Please check the activity');

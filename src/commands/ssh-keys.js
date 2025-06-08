@@ -1,4 +1,4 @@
-import { confirm } from '../models/interact.js';
+import { confirm } from '../lib/prompts.js';
 import colors from 'colors/safe.js';
 import { Logger } from '../logger.js';
 import fs from 'node:fs';
@@ -109,7 +109,7 @@ export async function remove (params) {
 export async function removeAll (params) {
   if (!params.options.yes) {
     await confirm(
-      'Are you sure you want to remove all your SSH keys? (y/n) ',
+      'Are you sure you want to remove all your SSH keys?',
       'No SSH keys removed',
     );
   }

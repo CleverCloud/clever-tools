@@ -5,7 +5,7 @@ import { sendToAuthBridge } from '../models/send-to-api.js';
 import { getCurrent as getCurrentUser } from '../models/user.js';
 import { conf } from '../models/configuration.js';
 import dedent from 'dedent';
-import { promptPassword } from '../prompt-password.js';
+import { promptSecret } from '../lib/prompts.js';
 
 /**
  * Create a new API token
@@ -44,11 +44,11 @@ export async function create (params) {
     expirationDate = maxExpirationDate;
   }
 
-  const password = await promptPassword('Enter your password:');
+  const password = await promptSecret('Enter your password:');
 
   let mfaCode;
   if (user.preferredMFA === 'TOTP') {
-    mfaCode = await promptPassword('Enter your 2FA code:');
+    mfaCode = await promptSecret('Enter your 2FA code:');
   }
 
   const tokenData = {

@@ -3,7 +3,7 @@ import * as User from '../models/user.js';
 import { Logger } from '../logger.js';
 import { openBrowser } from '../models/utils.js';
 import { sendToApi } from '../models/send-to-api.js';
-import { confirm } from '../models/interact.js';
+import { confirm } from '../lib/prompts.js';
 import {
   todo_addEmailAddress as addEmailAddress,
   todo_getEmailAddresses as getEmailAddresses,
@@ -119,7 +119,7 @@ export async function removeSecondary (params) {
 export async function removeAllSecondary (params) {
   if (!params.options.yes) {
     await confirm(
-      'Are you sure you want to remove all your secondary addresses? (y/n) ',
+      'Are you sure you want to remove all your secondary addresses?',
       'No secondary addresses removed',
     );
   }

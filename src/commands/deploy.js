@@ -1,4 +1,5 @@
 import colors from 'colors/safe.js';
+import dedent from 'dedent';
 
 import * as AppConfig from '../models/app_configuration.js';
 import * as Application from '../models/application.js';
@@ -27,14 +28,10 @@ export async function deploy (params) {
 
   await git.addRemote(appData.alias, appData.deployUrl);
 
-  Logger.println(colors.bold.blue(`Remote application is app_id=${appId}, alias=${appData.alias}, name=${appData.name}`));
-
-  Logger.println(colors.bold.blue(`Remote application belongs to ${ownerId}`));
-
   if (commitIdToPush === remoteHeadCommitId) {
     switch (sameCommitPolicy) {
       case 'ignore':
-        Logger.println(`The clever-cloud application is up-to-date (${colors.green(remoteHeadCommitId)})`);
+        Logger.printSuccess(`The application is up-to-date (${colors.grey(remoteHeadCommitId)})`);
         return;
       case 'restart':
         return restartOnSameCommit(ownerId, appId, commitIdToPush, quiet, false, exitStrategy);
@@ -42,31 +39,44 @@ export async function deploy (params) {
         return restartOnSameCommit(ownerId, appId, commitIdToPush, quiet, true, exitStrategy);
       case 'error':
       default: {
-        const upToDateMessage = `The clever-cloud application is up-to-date (${colors.green(remoteHeadCommitId)}).\nYou can set a policy with 'same-commit-policy' to handle differently when remote HEAD has the same commit as the one to push.\nOr try this command to restart the application:`;
-        if (commitIdToPush !== deployedCommitId) {
-          const restartWithId = `clever restart --commit ${commitIdToPush}`;
-          throw new Error(`${upToDateMessage}\n${colors.yellow(restartWithId)}`);
-        }
-        throw new Error(`${upToDateMessage}\n${colors.yellow('clever restart')}`);
+        const restartCommand = commitIdToPush !== deployedCommitId ? `clever restart --commit ${commitIdToPush}` : 'clever restart';
+        throw new Error(dedent`
+          Remote HEAD has the same commit as the one to push ${colors.grey(`(${remoteHeadCommitId})`)}, your application is up-to-date.
+          Create a new commit, use ${colors.blue(restartCommand)} or the ${colors.blue('--same-commit-policy')} option.
+        `);
       }
     }
   }
-
-  if (remoteHeadCommitId == null || deployedCommitId == null) {
-    Logger.println('App is brand new, no commits on remote yet');
-  }
-  else {
-    Logger.println(`Remote git head commit   is ${colors.green(remoteHeadCommitId)}`);
-    Logger.println(`Current deployed commit  is ${colors.green(deployedCommitId)}`);
-  }
-  Logger.println(`New local commit to push is ${colors.green(commitIdToPush)} (from ${colors.green(branchRefspec)})`);
 
   // It's sometimes tricky to figure out the deployment ID for the current git push.
   // We on have the commit ID but there in a situation where the last deployment was cancelled, it may have the same commit ID.
   // So before pushing, we get the last deployments so we can after the push figure out which deployment is new…
   const knownDeployments = await getAllDeployments({ id: ownerId, appId, limit: 5 }).then(sendToApi);
 
-  Logger.println('Pushing source code to Clever Cloud…');
+  Logger.println(dedent`
+    ${colors.bold(`🚀 Deploying ${colors.green(appData.name)}`)}
+       Application ID  ${colors.grey(`${appId}`)}
+       Org ID          ${colors.grey(`${ownerId}`)}
+  `);
+
+  Logger.println();
+
+  Logger.println(colors.bold('🔀 Git information'));
+  if (remoteHeadCommitId == null || deployedCommitId == null) {
+    Logger.println(`   ${colors.yellow('!')} App is brand new, no commits on remote yet`);
+  }
+  else {
+    Logger.println(`   Remote head     ${colors.yellow(remoteHeadCommitId)} (${branchRefspec})`);
+    Logger.println(`   Deployed commit ${colors.yellow(deployedCommitId)}`);
+  }
+  Logger.println(`   Local commit    ${colors.yellow(commitIdToPush)} ${colors.blue('[will be deployed]')}`);
+
+  Logger.println();
+
+  Logger.println(dedent`
+    ${colors.bold('🔄 Deployment progress')}
+       ${colors.blue('→ Pushing source code to Clever Cloud…')}
+  `);
 
   await git.push(appData.deployUrl, commitIdToPush, force)
     .catch(async (e) => {
@@ -78,12 +88,16 @@ export async function deploy (params) {
         throw e;
       }
     });
-  Logger.println(colors.bold.green('Your source code has been pushed to Clever Cloud.'));
+
+  await Logger.println(`   ${colors.green('✓ Code pushed to Clever Cloud')}`);
 
   return Log.watchDeploymentAndDisplayLogs({ ownerId, appId, commitId: commitIdToPush, knownDeployments, quiet, exitStrategy });
 }
 
 async function restartOnSameCommit (ownerId, appId, commitIdToPush, quiet, withoutCache, exitStrategy) {
+  const cacheSuffix = withoutCache ? ' without using cache' : '';
+  Logger.println(`🔄 Restarting ${colors.bold(appId)}${cacheSuffix} ${colors.grey(`(${commitIdToPush})`)}`);
+
   const restart = await Application.redeploy(ownerId, appId, commitIdToPush, withoutCache);
   return Log.watchDeploymentAndDisplayLogs({ ownerId, appId, deploymentId: restart.deploymentId, quiet, exitStrategy });
 }

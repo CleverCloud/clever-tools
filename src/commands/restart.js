@@ -26,7 +26,7 @@ export async function restart (params) {
   const commitId = fullCommitId || remoteCommitId;
   if (commitId != null) {
     const cacheSuffix = withoutCache ? ' without using cache' : '';
-    Logger.println(`Restarting ${app.name} on commit ${colors.green(commitId)}${cacheSuffix}`);
+    Logger.println(`🔄 Restarting ${colors.bold(app.name)}${cacheSuffix} ${colors.grey(`(${commitId})`)}`);
   }
 
   // This should be handled by the API when a deployment ID is set but we'll do this for now
