@@ -130,3 +130,31 @@ export async function isShallow () {
     return false;
   }
 }
+
+/**
+ * Check if the current directory is a git repository
+ * @returns {Promise<boolean>}
+ */
+export async function isInsideGitRepo () {
+  return getRepo()
+    .then(() => true)
+    .catch(() => false);
+}
+
+/**
+ * Check if the current git working directory is clean
+ * @returns {Promise<boolean>}
+ */
+export async function isGitWorkingDirectoryClean () {
+  const repo = await getRepo();
+  const status = await git.statusMatrix({ ...repo });
+  const isStatusEmpty = status
+    .filter(([filepath, head, workdir]) => {
+      // WARNING: isomorphic-git does not support global gitignore so we filter hidden files and dirs to reduce the amount of false positives
+      const isHidden = filepath.startsWith('.');
+      const isCleverJson = filepath === '.clever.json';
+      return (!isHidden || isCleverJson) && head !== workdir;
+    })
+    .length === 0;
+  return isStatusEmpty;
+}
