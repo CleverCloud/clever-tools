@@ -45,6 +45,7 @@ import * as link from '../src/commands/link.js';
 import * as login from '../src/commands/login.js';
 import * as logout from '../src/commands/logout.js';
 import * as logs from '../src/commands/logs.js';
+import * as matomo from '../src/commands/matomo.js';
 import * as makeDefault from '../src/commands/makeDefault.js';
 import * as ng from '../src/commands/ng.js';
 import * as notifyEmail from '../src/commands/notify-email.js';
@@ -915,6 +916,39 @@ async function run () {
     args: [args.alias],
   }, makeDefault.makeDefault);
 
+  // MATOMO COMMAND
+  const matomoGetCommand = cliparse.command('get', {
+    description: 'Get information about a deployed Matomo',
+    args: [args.addonIdOrName],
+    options: [opts.humanJsonOutputFormat],
+  }, matomo.get);
+  const matomoOpenLogsCommand = cliparse.command('logs', {
+    description: 'Open the Matomo application logs in Clever Cloud Console',
+    args: [args.addonIdOrName],
+  }, matomo.openLogs);
+  const matomoOpenWebUiCommand = cliparse.command('webui', {
+    description: 'Open the Matomo admin console in your browser',
+    args: [args.addonIdOrName],
+  }, matomo.openWebUi);
+  const matomoOpenCommand = cliparse.command('open', {
+    description: 'Open the Matomo dashboard in Clever Cloud Console',
+    args: [args.addonIdOrName],
+    commands: [matomoOpenLogsCommand, matomoOpenWebUiCommand],
+  }, matomo.open);
+  const matomoRestartCommand = cliparse.command('restart', {
+    description: 'Restart Matomo',
+    args: [args.addonIdOrName],
+  }, matomo.reboot);
+  const matomoRebuildCommand = cliparse.command('rebuild', {
+    description: 'Rebuild Matomo',
+    args: [args.addonIdOrName],
+  }, matomo.rebuild);
+  const matomoCommand = cliparse.command('matomo', {
+    description: 'Manage Clever Cloud Matomo services',
+    privateOptions: [opts.humanJsonOutputFormat],
+    commands: [matomoGetCommand, matomoOpenCommand, matomoRestartCommand, matomoRebuildCommand],
+  }, matomo.list);
+
   // NETWORK GROUP COMMANDS
   const ngCreateExternalPeerCommand = cliparse.command('external', {
     description: 'Create an external peer in a Network Group',
@@ -1240,6 +1274,7 @@ async function run () {
 
   if (featuresFromConf.operators) {
     commands.push(colorizeExperimentalCommand(keycloakCommand, 'operators'));
+    commands.push(colorizeExperimentalCommand(matomoCommand, 'operators'));
   }
 
   if (featuresFromConf.kv) {
