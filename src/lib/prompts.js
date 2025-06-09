@@ -1,4 +1,4 @@
-import { confirm as confirmPrompt, input, password } from '@inquirer/prompts';
+import { confirm as confirmPrompt, input, password, select } from '@inquirer/prompts';
 
 export function promptSecret (message) {
   return password({ message, mask: true }).catch(exitOnPromptError);
@@ -16,6 +16,10 @@ export async function confirmAnswer (message, rejectionMessage, expectedAnswer) 
   if (answer !== expectedAnswer) {
     throw new Error(rejectionMessage);
   }
+}
+
+export function selectAnswer (message, choices) {
+  return select({ message, choices }).catch(exitOnPromptError);
 }
 
 function exitOnPromptError (error) {
