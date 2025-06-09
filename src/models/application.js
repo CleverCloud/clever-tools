@@ -28,7 +28,7 @@ export function listAvailableTypes () {
   return cliparse.autocomplete.words(['docker', 'elixir', 'frankenphp', 'go', 'gradle', 'haskell', 'jar', 'maven', 'meteor', 'node', 'php', 'play1', 'play2', 'python', 'ruby', 'rust', 'sbt', 'static-apache', 'war']);
 };
 
-export const AVAILABLE_ZONES = ['par', 'parhds', 'grahds', 'rbx', 'rbxhds', 'scw', 'mtl', 'sgp', 'syd', 'wsw'];
+export const AVAILABLE_ZONES = ['par', 'parhds', 'grahds', 'rbx', 'rbxhds', 'scw', 'ldn', 'mtl', 'sgp', 'syd', 'wsw'];
 
 export function listAvailableZones () {
   return cliparse.autocomplete.words(AVAILABLE_ZONES);
