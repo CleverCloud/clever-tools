@@ -110,7 +110,7 @@ async function getIdsFromSummary () {
  * @param {{ orga_name?: string, orga_id?: string }} ownerNameOrId
  * @throws {Error} if no add-on is found
  * @throws {Error} if several add-ons are found
- * @returns {Object} The ID and owner ID of the add-on { addonId, ownerId }
+ * @returns {Object} The name, IDs and owner ID of the add-on { name, addonId, realId, ownerId }
  */
 export async function findAddonsByNameOrId (addonIdOrRealIdOrName, ownerNameOrId) {
   const summary = await getSummary().then(sendToApi);
@@ -128,11 +128,47 @@ export async function findAddonsByNameOrId (addonIdOrRealIdOrName, ownerNameOrId
       return matchOwner && matchAddon;
     })
     .map(({ addon, owner }) => ({
+      name: addon.name,
       addonId: addon.id,
+      realId: addon.realId,
       ownerId: owner.id,
     }));
 
   Logger.debug(`Found ${candidates.length} candidate(s):`);
+  for (const candidate of candidates) {
+    Logger.debug(`  - ${candidate.addonId} (${candidate.ownerId})`);
+  }
+
+  return candidates;
+}
+
+/**
+ * Get the IDs and owners of found add-ons from a name, ID or real ID
+ * @param {string} addonIdOrRealIdOrName
+ * @throws {Error} if no add-on is found
+ * @throws {Error} if several add-ons are found
+ * @returns {Object} The name, IDs and owner ID of the add-on { name, addonId, realId, ownerId }
+ */
+export async function findAddonsByAddonProvider (provider) {
+  const summary = await getSummary().then(sendToApi);
+
+  Logger.debug(`Searching for ${provider} add-ons in ${summary.user.id} and ${summary.organisations.map((org) => org.id).join(', ')}`);
+  const candidates = [summary.user, ...summary.organisations]
+    .flatMap((owner) => {
+      return owner.addons
+        .filter((addon) => addon.providerId === provider)
+        .map((addon) => {
+          return {
+            name: addon.name,
+            addonId: addon.id,
+            realId: addon.realId,
+            ownerId: owner.id,
+            ownerName: owner.name,
+          };
+        });
+    });
+
+  Logger.debug(`Found ${candidates.length} candidate(s) for provider ${provider}:`);
   for (const candidate of candidates) {
     Logger.debug(`  - ${candidate.addonId} (${candidate.ownerId})`);
   }
