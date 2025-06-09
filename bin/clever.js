@@ -52,6 +52,7 @@ import * as ng from '../src/commands/ng.js';
 import * as notifyEmail from '../src/commands/notify-email.js';
 import * as open from '../src/commands/open.js';
 import * as consoleModule from '../src/commands/console.js';
+import * as otoroshi from '../src/commands/otoroshi.js';
 import * as profile from '../src/commands/profile.js';
 import * as publishedConfig from '../src/commands/published-config.js';
 import * as restart from '../src/commands/restart.js';
@@ -1072,6 +1073,63 @@ async function run () {
     options: [opts.alias, opts.appIdOrName],
   }, open.open);
 
+  // OTOROSHI COMMAND
+  const otoroshiGetCommand = cliparse.command('get', {
+    description: 'Get information about a deployed Otoroshi',
+    args: [args.addonIdOrName],
+    options: [opts.humanJsonOutputFormat],
+  }, otoroshi.get);
+  const otoroshiEnableNgCommand = cliparse.command('enable-ng', {
+    description: 'Link Otoroshi to a Network Group',
+    args: [args.addonIdOrName],
+  }, otoroshi.ngEnable);
+  const otoroshiDisableNgCommand = cliparse.command('disable-ng', {
+    description: 'Unlink Otoroshi from its Network Group',
+    args: [args.addonIdOrName],
+  }, otoroshi.ngDisable);
+  const otoroshiOpenLogsCommand = cliparse.command('logs', {
+    description: 'Open the Otoroshi application logs in Clever Cloud Console',
+    args: [args.addonIdOrName],
+  }, otoroshi.openLogs);
+  const otoroshiOpenWebUiCommand = cliparse.command('webui', {
+    description: 'Open the Otoroshi admin console in your browser',
+    args: [args.addonIdOrName],
+  }, otoroshi.openWebUi);
+  const otoroshiOpenCommand = cliparse.command('open', {
+    description: 'Open the Otoroshi dashboard in Clever Cloud Console',
+    args: [args.addonIdOrName],
+    commands: [otoroshiOpenLogsCommand, otoroshiOpenWebUiCommand],
+  }, otoroshi.open);
+  const otoroshiRestartCommand = cliparse.command('restart', {
+    description: 'Restart Otoroshi',
+    args: [args.addonIdOrName],
+  }, otoroshi.reboot);
+  const otoroshiRebuildCommand = cliparse.command('rebuild', {
+    description: 'Rebuild Otoroshi',
+    args: [args.addonIdOrName],
+  }, otoroshi.rebuild);
+  const otoroshiVersionCheckCommand = cliparse.command('check', {
+    description: 'Check Otoroshi deployed version',
+    args: [args.addonIdOrName],
+    options: [opts.humanJsonOutputFormat],
+  }, otoroshi.checkVersion);
+  const otoroshiVersionUpdateCommand = cliparse.command('update', {
+    description: 'Update Otoroshi deployed version',
+    args: [args.addonIdOrName],
+    options: [opts.targetVersion],
+  }, otoroshi.updateVersion);
+  const otoroshiVersionsCommands = cliparse.command('version', {
+    description: 'Manage Otoroshi deployed version',
+    args: [args.addonIdOrName],
+    options: [opts.humanJsonOutputFormat],
+    commands: [otoroshiVersionCheckCommand, otoroshiVersionUpdateCommand],
+  }, otoroshi.checkVersion);
+  const otoroshiCommand = cliparse.command('otoroshi', {
+    description: 'Manage Clever Cloud Otoroshi services',
+    privateOptions: [opts.humanJsonOutputFormat],
+    commands: [otoroshiGetCommand, otoroshiEnableNgCommand, otoroshiDisableNgCommand, otoroshiOpenCommand, otoroshiRestartCommand, otoroshiRebuildCommand, otoroshiVersionsCommands],
+  }, otoroshi.list);
+
   // CONSOLE COMMAND
   const consoleCommand = cliparse.command('console', {
     description: 'Open an application in the Console',
@@ -1326,6 +1384,7 @@ async function run () {
     commands.push(colorizeExperimentalCommand(keycloakCommand, 'operators'));
     commands.push(colorizeExperimentalCommand(matomoCommand, 'operators'));
     commands.push(colorizeExperimentalCommand(metabaseCommand, 'operators'));
+    commands.push(colorizeExperimentalCommand(otoroshiCommand, 'operators'));
   }
 
   if (featuresFromConf.kv) {
