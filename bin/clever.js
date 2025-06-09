@@ -39,6 +39,7 @@ import * as drain from '../src/commands/drain.js';
 import * as emails from '../src/commands/emails.js';
 import * as env from '../src/commands/env.js';
 import * as features from '../src/commands/features.js';
+import * as keycloak from '../src/commands/keycloak.js';
 import * as kv from '../src/commands/kv.js';
 import * as link from '../src/commands/link.js';
 import * as login from '../src/commands/login.js';
@@ -820,6 +821,63 @@ async function run () {
     commands: [enableFeatureCommand, disableFeatureCommand, listFeaturesCommand, infoFeaturesCommand],
   }, features.list);
 
+  // KEYCLOAK COMMAND
+  const keycloakGetCommand = cliparse.command('get', {
+    description: 'Get information about a deployed Keycloak',
+    args: [args.addonIdOrName],
+    options: [opts.humanJsonOutputFormat],
+  }, keycloak.get);
+  const keycloakEnableNgCommand = cliparse.command('enable-ng', {
+    description: 'Link Keycloak to a Network Group, used for multi-instances secure communication',
+    args: [args.addonIdOrName],
+  }, keycloak.ngEnable);
+  const keycloakDisableNgCommand = cliparse.command('disable-ng', {
+    description: 'Unlink Keycloak from its Network Group',
+    args: [args.addonIdOrName],
+  }, keycloak.ngDisable);
+  const keycloakOpenLogsCommand = cliparse.command('logs', {
+    description: 'Open the Keycloak application logs in Clever Cloud Console',
+    args: [args.addonIdOrName],
+  }, keycloak.openLogs);
+  const keycloakOpenWebUiCommand = cliparse.command('webui', {
+    description: 'Open the Keycloak admin console in your browser',
+    args: [args.addonIdOrName],
+  }, keycloak.openWebUi);
+  const keycloakOpenCommand = cliparse.command('open', {
+    description: 'Open the Keycloak dashboard in Clever Cloud Console',
+    args: [args.addonIdOrName],
+    commands: [keycloakOpenLogsCommand, keycloakOpenWebUiCommand],
+  }, keycloak.open);
+  const keycloakRestartCommand = cliparse.command('restart', {
+    description: 'Restart Keycloak',
+    args: [args.addonIdOrName],
+  }, keycloak.reboot);
+  const keycloakRebuildCommand = cliparse.command('rebuild', {
+    description: 'Rebuild Keycloak',
+    args: [args.addonIdOrName],
+  }, keycloak.rebuild);
+  const keycloakVersionCheckCommand = cliparse.command('check', {
+    description: 'Check Keycloak deployed version',
+    args: [args.addonIdOrName],
+    options: [opts.humanJsonOutputFormat],
+  }, keycloak.checkVersion);
+  const keycloakVersionUpdateCommand = cliparse.command('update', {
+    description: 'Update Keycloak deployed version',
+    args: [args.addonIdOrName],
+    options: [opts.targetVersion],
+  }, keycloak.updateVersion);
+  const keycloakVersionsCommands = cliparse.command('version', {
+    description: 'Check Keycloak deployed version',
+    args: [args.addonIdOrName],
+    options: [opts.humanJsonOutputFormat],
+    commands: [keycloakVersionCheckCommand, keycloakVersionUpdateCommand],
+  }, keycloak.checkVersion);
+  const keycloakCommand = cliparse.command('keycloak', {
+    description: 'Manage Clever Cloud Keycloak services',
+    privateOptions: [opts.humanJsonOutputFormat],
+    commands: [keycloakGetCommand, keycloakEnableNgCommand, keycloakDisableNgCommand, keycloakOpenCommand, keycloakRestartCommand, keycloakRebuildCommand, keycloakVersionsCommands],
+  }, keycloak.list);
+
   // KV COMMAND
   const kvRawCommand = cliparse.command('kv', {
     description: 'Send a raw command to a Materia KV or Redis® add-on',
@@ -1181,6 +1239,7 @@ async function run () {
   const featuresFromConf = await getFeatures();
 
   if (featuresFromConf.operators) {
+    commands.push(colorizeExperimentalCommand(keycloakCommand, 'operators'));
   }
 
   if (featuresFromConf.kv) {
