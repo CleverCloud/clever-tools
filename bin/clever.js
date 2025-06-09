@@ -46,6 +46,7 @@ import * as login from '../src/commands/login.js';
 import * as logout from '../src/commands/logout.js';
 import * as logs from '../src/commands/logs.js';
 import * as matomo from '../src/commands/matomo.js';
+import * as metabase from '../src/commands/metabase.js';
 import * as makeDefault from '../src/commands/makeDefault.js';
 import * as ng from '../src/commands/ng.js';
 import * as notifyEmail from '../src/commands/notify-email.js';
@@ -949,6 +950,55 @@ async function run () {
     commands: [matomoGetCommand, matomoOpenCommand, matomoRestartCommand, matomoRebuildCommand],
   }, matomo.list);
 
+  // METABASE COMMAND
+  const metabaseGetCommand = cliparse.command('get', {
+    description: 'Get information about a deployed Metabase',
+    args: [args.addonIdOrName],
+    options: [opts.humanJsonOutputFormat],
+  }, metabase.get);
+  const metabaseOpenLogsCommand = cliparse.command('logs', {
+    description: 'Open the Metabase application logs in Clever Cloud Console',
+    args: [args.addonIdOrName],
+  }, metabase.openLogs);
+  const metabaseOpenWebUiCommand = cliparse.command('webui', {
+    description: 'Open the Metabase admin console in your browser',
+    args: [args.addonIdOrName],
+  }, metabase.openWebUi);
+  const metabaseOpenCommand = cliparse.command('open', {
+    description: 'Open the Metabase dashboard in Clever Cloud Console',
+    args: [args.addonIdOrName],
+    commands: [metabaseOpenLogsCommand, metabaseOpenWebUiCommand],
+  }, metabase.open);
+  const metabaseRestartCommand = cliparse.command('restart', {
+    description: 'Restart Metabase',
+    args: [args.addonIdOrName],
+  }, metabase.reboot);
+  const metabaseRebuildCommand = cliparse.command('rebuild', {
+    description: 'Rebuild Metabase',
+    args: [args.addonIdOrName],
+  }, metabase.rebuild);
+  const metabaseVersionCheckCommand = cliparse.command('check', {
+    description: 'Check Metabase deployed version',
+    args: [args.addonIdOrName],
+    options: [opts.humanJsonOutputFormat],
+  }, metabase.checkVersion);
+  const metabaseVersionUpdateCommand = cliparse.command('update', {
+    description: 'Update Metabase deployed version',
+    args: [args.addonIdOrName],
+    options: [opts.targetVersion],
+  }, metabase.updateVersion);
+  const metabaseVersionsCommands = cliparse.command('version', {
+    description: 'Manage Metabase deployed version',
+    args: [args.addonIdOrName],
+    options: [opts.humanJsonOutputFormat],
+    commands: [metabaseVersionCheckCommand, metabaseVersionUpdateCommand],
+  }, metabase.checkVersion);
+  const metabaseCommand = cliparse.command('metabase', {
+    description: 'Manage Clever Cloud Metabase services',
+    privateOptions: [opts.humanJsonOutputFormat],
+    commands: [metabaseGetCommand, metabaseOpenCommand, metabaseRestartCommand, metabaseRebuildCommand, metabaseVersionsCommands],
+  }, metabase.list);
+
   // NETWORK GROUP COMMANDS
   const ngCreateExternalPeerCommand = cliparse.command('external', {
     description: 'Create an external peer in a Network Group',
@@ -1275,6 +1325,7 @@ async function run () {
   if (featuresFromConf.operators) {
     commands.push(colorizeExperimentalCommand(keycloakCommand, 'operators'));
     commands.push(colorizeExperimentalCommand(matomoCommand, 'operators'));
+    commands.push(colorizeExperimentalCommand(metabaseCommand, 'operators'));
   }
 
   if (featuresFromConf.kv) {
