@@ -26,7 +26,7 @@
     "scripts/*.sh"
   ],
   "dependencies": {
-    "@clevercloud/client": "9.2.0",
+    "@clevercloud/client": "10.1.0",
     "@inquirer/prompts": "7.3.2",
     "cliparse": "0.5.0",
     "common-env": "6.4.0",
