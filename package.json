@@ -27,7 +27,7 @@
   ],
   "dependencies": {
     "@clevercloud/client": "10.1.0",
-    "@inquirer/prompts": "7.3.2",
+    "@inquirer/prompts": "7.5.3",
     "cliparse": "0.5.0",
     "common-env": "6.4.0",
     "curlconverter": "3.21.0",
