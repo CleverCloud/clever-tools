@@ -42,7 +42,6 @@
     "open": "8.4.0",
     "slugify": "1.5.3",
     "string-length": "4.0.2",
-    "superagent": "6.1.0",
     "text-table": "0.2.0",
     "tldts": "6.1.30",
     "update-notifier": "5.1.0",
@@ -69,7 +68,8 @@
     "magic-string": "0.30.11",
     "mime-types": "2.1.35",
     "rollup": "4.14.1",
-    "semver": "7.3.5"
+    "semver": "7.3.5",
+    "superagent": "6.1.0"
   },
   "scripts": {
     "build": "rollup -c rollup.config.js",

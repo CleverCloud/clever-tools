@@ -19,19 +19,6 @@ export default defineConfig({
     {
       transform (code, id) {
 
-        // formidable (used by superagent) hijacks require :-(
-        if (id.includes('/node_modules/formidable/')) {
-          const ms = new MagicString(code);
-          ms.replaceAll(
-            'if (global.GENTLY) require = GENTLY.hijack(require);',
-            '',
-          );
-          return {
-            code: ms.toString(),
-            map: ms.generateMap(),
-          };
-        }
-
         // for update notifier
         if (id.includes('/node_modules/update-notifier/')) {
           const ms = new MagicString(code);

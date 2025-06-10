@@ -1,7 +1,6 @@
 import crypto from 'node:crypto';
 import { promisify, styleText } from 'node:util';
 import open from 'open';
-import superagent from 'superagent';
 
 import { Logger } from '../logger.js';
 import * as User from '../models/user.js';
@@ -29,15 +28,15 @@ function pollOauthData (url, tryCount = 0) {
     Logger.println('We\'re still waiting for the login process (in your browser) to be completed…');
   }
 
-  return superagent
-    .get(url)
-    .send()
-    .then(({ body }) => body)
-    .catch(async (e) => {
-      if (e.status === 404) {
+  return globalThis.fetch(url)
+    .then(async (r) => {
+      if (r.status === 404) {
         await delay(POLLING_INTERVAL);
         return pollOauthData(url, tryCount + 1);
       }
+      return r.json();
+    })
+    .catch(async () => {
       throw new Error('Something went wrong while trying to log you in.');
     });
 }
