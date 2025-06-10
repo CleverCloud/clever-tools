@@ -51,9 +51,9 @@
   "devDependencies": {
     "@commitlint/cli": "18.4.3",
     "@commitlint/config-conventional": "18.4.3",
-    "@rollup/plugin-commonjs": "26.0.1",
+    "@rollup/plugin-commonjs": "28.0.3",
     "@rollup/plugin-json": "6.1.0",
-    "@rollup/plugin-node-resolve": "15.2.3",
+    "@rollup/plugin-node-resolve": "16.0.1",
     "@yao-pkg/pkg": "6.5.1",
     "aws-sdk": "2.919.0",
     "del": "6.0.0",
@@ -67,7 +67,7 @@
     "glob": "7.1.7",
     "magic-string": "0.30.11",
     "mime-types": "2.1.35",
-    "rollup": "4.14.1",
+    "rollup": "4.42.0",
     "semver": "7.3.5",
     "superagent": "6.1.0"
   },

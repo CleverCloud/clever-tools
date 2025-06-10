@@ -3,7 +3,7 @@ import { conf, loadOAuthConf } from '../models/configuration.js';
 import { addOauthHeader } from '@clevercloud/client/esm/oauth.js';
 import { Logger } from '../logger.js';
 import { styleText } from 'node:util';
-import curlconverter from 'curlconverter';
+import curlToJsonString from 'curlconverter/generators/json.js';
 import dedent from 'dedent';
 
 async function loadTokens () {
@@ -81,7 +81,7 @@ export async function curl () {
 
 async function parseCurlCommand (curlCommand) {
 
-  const jsonString = curlconverter.toJsonString(curlCommand);
+  const jsonString = curlToJsonString(curlCommand);
   const curlRequestParams = JSON.parse(jsonString);
 
   return {

@@ -17,6 +17,14 @@ export default defineConfig({
   external: ['fsevents'],
   plugins: [
     {
+      resolveImportMeta (property) {
+        // Rollup replaces "fileURLToPath(import.meta.url)"
+        // with a dynamic require('u' + 'rl') and pkg does not like that very much
+        // That's why we patch this
+        if (property === 'url') {
+          return 'require(\'url\').pathToFileURL(__filename).href';
+        }
+      },
       transform (code, id) {
 
         // for update notifier
@@ -26,7 +34,7 @@ export default defineConfig({
             .replaceAll(
               `const importLazy = require('import-lazy')(require);`,
               '',
-            )
+            )generates code with dynamic requireTHis helps the
             .replaceAll(
               /const ([^ ]+) = importLazy\(\'([^']+)\'\);/g,
               'const $1_ = require(\'$2\'); const $1 = () => $1_',
@@ -61,6 +69,8 @@ export default defineConfig({
     commonjs(),
     nodeResolve({
       preferBuiltins: true,
+      browser: false,
+      exportConditions: ['node'],
     }),
     json(),
   ],
