@@ -41,7 +41,7 @@
     "moment": "2.30.1",
     "open": "10.1.2",
     "slugify": "1.6.6",
-    "string-length": "4.0.2",
+    "string-length": "6.0.0",
     "text-table": "0.2.0",
     "tldts": "6.1.30",
     "update-notifier": "5.1.0",
