@@ -56,7 +56,6 @@
     "@rollup/plugin-node-resolve": "16.0.1",
     "@yao-pkg/pkg": "6.5.1",
     "aws-sdk": "2.919.0",
-    "del": "6.0.0",
     "eslint": "7.27.0",
     "eslint-config-standard": "16.0.3",
     "eslint-plugin-import": "2.23.4",

@@ -1,12 +1,12 @@
 import { styleText } from 'node:util';
 import _ from 'lodash';
 import childProcess from 'node:child_process';
-import fs from 'fs-extra';
+import fs from 'node:fs';
+import fsExtra from 'fs-extra';
 import glob from 'glob';
 import { URL } from 'node:url';
 import crypto from 'node:crypto';
 import { getShaFilepath } from './paths.js';
-import del from 'del';
 
 // This disables ES6+ template delimiters
 _.templateSettings.interpolate = /<%=([\s\S]+?)%>/g;
@@ -77,15 +77,15 @@ export async function applyTemplates (destPath, templatesPath, templateData) {
 }
 
 export async function writeStringToFile (content, destFilepath) {
-  await fs.ensureFile(destFilepath);
-  await fs.writeFile(destFilepath, content);
+  await fsExtra.ensureFile(destFilepath);
+  await fsExtra.writeFile(destFilepath, content);
 }
 
 export async function applyOneTemplate (destFilepath, templateFilepath, templateData) {
-  const template = await fs.readFile(templateFilepath, 'utf-8');
+  const template = await fsExtra.readFile(templateFilepath, 'utf-8');
   const contents = _.template(template)(templateData);
-  await fs.ensureFile(destFilepath);
-  await fs.writeFile(destFilepath, contents);
+  await fsExtra.ensureFile(destFilepath);
+  await fsExtra.writeFile(destFilepath, contents);
 }
 
 export async function commitAndPush ({ gitPath, version, commitMessage = `Update to ${version}` }) {
@@ -104,24 +104,24 @@ export async function generateChecksumFile (filepath) {
   startTask(`Generating checksum file for ${filepath}`, '');
   const sum = await new Promise((resolve, reject) => {
     const shasum = crypto.createHash('sha256');
-    const stream = fs.ReadStream(filepath);
+    const stream = fsExtra.ReadStream(filepath);
     stream.on('data', (d) => shasum.update(d));
     stream.on('end', () => resolve(shasum.digest('hex')));
     stream.on('error', reject);
   });
-  await fs.outputFile(getShaFilepath(filepath), sum);
+  await fsExtra.outputFile(getShaFilepath(filepath), sum);
   endTask('', '\n\n');
   return sum;
 }
 
 export async function cleanupDirectory (path) {
-  del.sync(path);
-  await fs.mkdirs(path);
+  fs.rmSync(path, { recursive: true, force: true });
+  await fsExtra.mkdirs(path);
 }
 
 export async function assertFileExists (filepath) {
   try {
-    await fs.exists(filepath);
+    await fsExtra.exists(filepath);
   }
   catch (e) {
     throw new Error(`${filepath} is missing.`);
