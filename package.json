@@ -60,7 +60,6 @@
     "@rollup/plugin-node-resolve": "15.2.3",
     "@yao-pkg/pkg": "6.5.1",
     "aws-sdk": "2.919.0",
-    "chai": "4.3.4",
     "del": "6.0.0",
     "eslint": "7.27.0",
     "eslint-config-standard": "16.0.3",
@@ -70,20 +69,13 @@
     "eslint-plugin-standard": "5.0.0",
     "fs-extra": "10.0.0",
     "glob": "7.1.7",
-    "grunt": "1.4.1",
-    "grunt-cli": "1.4.3",
-    "grunt-http": "2.3.3",
-    "grunt-mocha-test": "0.13.3",
     "magic-string": "0.30.11",
     "mime-types": "2.1.35",
-    "mocha": "8.4.0",
     "rollup": "4.14.1",
     "semver": "7.3.5"
   },
   "scripts": {
     "build": "rollup -c rollup.config.js",
-    "pretest": "npm run lint",
-    "test": "grunt test",
     "lint": "eslint bin src scripts",
     "lint:fix": "eslint --fix bin src scripts",
     "install-local:cliparse": "(cd ../cliparse-node && npm pack) && mv ../cliparse-node/cliparse-*.tgz . && npm i -f ./cliparse-*.tgz"
