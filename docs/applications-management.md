@@ -2,7 +2,7 @@
 
 ## create
 
-You can create a new application on Clever Cloud, linked to your local folder. Only its `type` is required, it should be one of: `docker`, `elixir`, `frankenphp`, `go`, `gradle`, `haskell`, `jar`,`maven`, `meteor`, `node`, `php`, `play1`, `play2`, `python`, `ruby`, `rust`, `sbt`, `static-apache` or `war`. Result can be printed in `human` or `json` format.
+You can create a new application on Clever Cloud, linked to your local folder. Only its `type` is required, it should be one of: `docker`, `elixir`, `frankenphp`, `go`, `gradle`, `haskell`, `jar`, `linux`, `maven`, `meteor`, `node`, `php`, `play1`, `play2`, `python`, `ruby`, `rust`, `sbt`, `static`, `static-apache`, `v` or `war`. Result can be printed in `human` or `json` format.
 
 ```
 clever create -t TYPE APP_NAME
