@@ -64,7 +64,7 @@
     "eslint-plugin-standard": "5.0.0",
     "fs-extra": "11.3.0",
     "glob": "7.1.7",
-    "magic-string": "0.30.11",
+    "magic-string": "0.30.17",
     "mime-types": "2.1.35",
     "rollup": "4.42.0",
     "semver": "7.7.2",
