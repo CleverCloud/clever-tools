@@ -35,7 +35,7 @@
     "eventsource": "1.1.0",
     "ioredis": "5.6.1",
     "iso8601-duration": "2.1.2",
-    "isomorphic-git": "1.25.3",
+    "isomorphic-git": "1.30.2",
     "linux-release-info": "3.0.0",
     "lodash": "4.17.21",
     "moment": "2.29.1",
