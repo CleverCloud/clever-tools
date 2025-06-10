@@ -27,25 +27,6 @@ export default defineConfig({
       },
       transform (code, id) {
 
-        // for update notifier
-        if (id.includes('/node_modules/update-notifier/')) {
-          const ms = new MagicString(code);
-          ms
-            .replaceAll(
-              `const importLazy = require('import-lazy')(require);`,
-              '',
-            )generates code with dynamic requireTHis helps the
-            .replaceAll(
-              /const ([^ ]+) = importLazy\(\'([^']+)\'\);/g,
-              'const $1_ = require(\'$2\'); const $1 = () => $1_',
-            );
-
-          return {
-            code: ms.toString(),
-            map: ms.generateMap(),
-          };
-        }
-
         // for ws peer deps
         if (id.includes('/node_modules/ws/')) {
           const ms = new MagicString(code);
