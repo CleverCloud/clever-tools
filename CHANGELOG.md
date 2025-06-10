@@ -1,6 +1,50 @@
 # clever-tools changelog
 
 
+## [3.13.0](https://github.com/CleverCloud/clever-tools/compare/3.12.0...3.13.0) (2025-06-10)
+
+
+### 🚀 Features
+
+* **addon:** remove beta status from Keycloak, Matomo, Metabase and Otoroshi ([adc6b5c](https://github.com/CleverCloud/clever-tools/commit/adc6b5c58514b4d5067744d374650f5bdfa8d808))
+* **cancel-deploy:** improve display (texts and colors) ([c8614e9](https://github.com/CleverCloud/clever-tools/commit/c8614e9c11eefb41b55635084112cb70d6bbf5e2))
+* **config:**
+  * add support for "task" config ([deb3e26](https://github.com/CleverCloud/clever-tools/commit/deb3e261c30a5cda0fb9d1ffb88aaca284364aa0))
+  * improve display for `list`, `get`, `set` and `update` commands ([e277eb1](https://github.com/CleverCloud/clever-tools/commit/e277eb1916e4d49f6b75ec42e58635aad9e89172))
+* **create:** improve display (texts and colors) ([c36ebc9](https://github.com/CleverCloud/clever-tools/commit/c36ebc905e5fde258ab9c7a884e000a23280ad2f))
+* **delete:** improve display (texts and colors) ([c8e5c93](https://github.com/CleverCloud/clever-tools/commit/c8e5c93ba92b6d1b0bd6783fae591f04bc48302f))
+* **deploy:** improve display (texts and colors) ([1e055f3](https://github.com/CleverCloud/clever-tools/commit/1e055f3ee6ca4b27d53d6864e7071422be43a7ae))
+* **emails:** add emails command ([0a5210f](https://github.com/CleverCloud/clever-tools/commit/0a5210fbc88886d0a67c892c872d5c42fdd4e7c7))
+* **features:** add `operator` feature for `keycloak`, `matomo`, `metabase` and `otoroshi` ([f782359](https://github.com/CleverCloud/clever-tools/commit/f782359a06abcb03363b2ef02580a724341aa495))
+* **keycloak:** add keycloak command ([6dc2c59](https://github.com/CleverCloud/clever-tools/commit/6dc2c594cfaaf41c0982cdb75422ba606aaf4356))
+* **link:** improve display (texts and colors) ([5896bbd](https://github.com/CleverCloud/clever-tools/commit/5896bbd195c6f9d9c0abbeb3e4f27a5236465c96))
+* **make-default:** improve display (texts and colors) ([addcac6](https://github.com/CleverCloud/clever-tools/commit/addcac64b259a92dc2e7b5b68d4b1166e0f4d488))
+* **matomo:** add matomo command ([8f3dafd](https://github.com/CleverCloud/clever-tools/commit/8f3dafd992ef79a6956b422f79316b3f5ef66cf8))
+* **metabase:** add metabase command ([8e29490](https://github.com/CleverCloud/clever-tools/commit/8e29490682637ba8af56e681396de808a888bad5))
+* **otoroshi:** add otoroshi command ([439ae13](https://github.com/CleverCloud/clever-tools/commit/439ae135cbb3ca7bde5feadbeffca8b27ba4db6c))
+* **restart:** improve display (texts and colors) ([248c47a](https://github.com/CleverCloud/clever-tools/commit/248c47ad45c92e39fe668f33b9af6600593ff3aa))
+* **ssh-keys:** add ssh-keys command ([2900328](https://github.com/CleverCloud/clever-tools/commit/29003284fcfe34dc27de02335e642e3104bc5f78))
+* **stop:** improve display (texts and colors) ([48fa89f](https://github.com/CleverCloud/clever-tools/commit/48fa89f92ed181424146a19f35846907af0f927a))
+* **tokens:**
+  * add "state" in tokens list ([0ec7cc0](https://github.com/CleverCloud/clever-tools/commit/0ec7cc087ec99852c4bfda6f0557b227ee8e811d))
+  * handle users with no password set ([2e6576d](https://github.com/CleverCloud/clever-tools/commit/2e6576de313c90e96e79009e1ee8bc0436258da1))
+  * make `clever tokens` available without the feature flag ([9722d5b](https://github.com/CleverCloud/clever-tools/commit/9722d5bff6bd36103535eaef0124d2fcdb979e1f))
+* **unlink:** improve display (texts and colors) ([3b27d74](https://github.com/CleverCloud/clever-tools/commit/3b27d74128545df3abefb4b7cd115ad0c7a47675))
+
+
+### 🐛 Bug Fixes
+
+* apply strict text transformation on apps names for aliases and git remotes ([9b936c9](https://github.com/CleverCloud/clever-tools/commit/9b936c9032e08aa426dc360f89e306030c3ec583))
+* **config:**
+  * exit with error if --enable-* and --disable-* are used at the same time ([f137732](https://github.com/CleverCloud/clever-tools/commit/f1377328c1fe0e7aea401cdf7d2736c1504e8bb5))
+  * exit with error if config name is unknown ([788ac36](https://github.com/CleverCloud/clever-tools/commit/788ac36d3a4505b36739f07a4287b8b4ee298eae))
+  * reject non boolean values for some config ([7080825](https://github.com/CleverCloud/clever-tools/commit/708082589510bf27ec2c49e415cf34784b4502a8))
+  * remove undocumented behavior for `clever config CONFIG_NAME` ([3c1a19e](https://github.com/CleverCloud/clever-tools/commit/3c1a19ee478131abfd177733bcab128ac4633ec9))
+* **delete:**
+  * exit with error if app doesn't exist ([7ac000c](https://github.com/CleverCloud/clever-tools/commit/7ac000ca1cdbc4d1dfed094958eea9feb8e5b286))
+  * remove default app from `.clever.json` ([97233db](https://github.com/CleverCloud/clever-tools/commit/97233db1c909c322a5d5636e6548890c7bc94676))
+* **unlink:** remove default app from `.clever.json` ([97233db](https://github.com/CleverCloud/clever-tools/commit/97233db1c909c322a5d5636e6548890c7bc94676))
+
 ## [3.12.0](https://github.com/CleverCloud/clever-tools/compare/3.11.0...3.12.0) (2025-03-06)
 
 
