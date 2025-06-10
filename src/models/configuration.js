@@ -2,7 +2,6 @@ import { promises as fs } from 'node:fs';
 import path from 'node:path';
 
 import commonEnv from 'common-env';
-import mkdirp from 'mkdirp';
 import xdg from 'xdg';
 
 import { Logger } from '../logger.js';
@@ -26,7 +25,7 @@ function getConfigPath (configFile) {
 
 // Every function which need 'clever-cloud' directory, need to call it before
 async function ensureConfigDirExists () {
-  await mkdirp(getConfigDir(), { mode: 0o700 });
+  await fs.mkdir(getConfigDir(), { recursive: true, mode: 0o700 });
 }
 
 export async function loadOAuthConf () {
