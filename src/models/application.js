@@ -25,7 +25,7 @@ import { resolveOwnerId } from './ids-resolver.js';
 import { getAvailableInstances } from '@clevercloud/client/esm/api/v2/product.js';
 
 export function listAvailableTypes () {
-  return cliparse.autocomplete.words(['docker', 'elixir', 'frankenphp', 'go', 'gradle', 'haskell', 'jar', 'maven', 'meteor', 'node', 'php', 'play1', 'play2', 'python', 'ruby', 'rust', 'sbt', 'static-apache', 'war']);
+  return cliparse.autocomplete.words(['docker', 'elixir', 'frankenphp', 'go', 'gradle', 'haskell', 'jar', 'linux', 'maven', 'meteor', 'node', 'php', 'play1', 'play2', 'python', 'ruby', 'rust', 'sbt', 'static', 'static-apache', 'v', 'war']);
 };
 
 export const AVAILABLE_ZONES = ['par', 'parhds', 'grahds', 'rbx', 'rbxhds', 'scw', 'ldn', 'mtl', 'sgp', 'syd', 'wsw'];
