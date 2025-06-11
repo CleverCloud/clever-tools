@@ -44,7 +44,6 @@
     "@inquirer/prompts": "7.8.4",
     "char-regex": "2.0.2",
     "cliparse": "0.5.0",
-    "colors": "1.4.0",
     "common-env": "6.4.0",
     "curlconverter": "3.21.0",
     "dedent": "1.6.0",

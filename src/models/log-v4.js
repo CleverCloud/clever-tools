@@ -1,5 +1,5 @@
 import { getHostAndTokens, processError } from './send-to-api.js';
-import colors from 'colors/safe.js';
+import { styleText } from 'node:util';
 import { Deferred } from './utils.js';
 import { Logger } from '../logger.js';
 import { waitForDeploymentEnd, waitForDeploymentStart } from './deployments.js';
@@ -51,13 +51,13 @@ export async function displayLogs (params) {
 
   logStream
     .on('open', (event) => {
-      Logger.debug(colors.blue(`Logs stream (open) ${JSON.stringify({ appId, filter, deploymentId })}`));
+      Logger.debug(styleText('blue', `Logs stream (open) ${JSON.stringify({ appId, filter, deploymentId })}`));
       if (format === 'json') {
         jsonArray.open();
       }
     })
     .on('error', (event) => {
-      Logger.debug(colors.red(`Logs stream (error) ${event.error.message}`));
+      Logger.debug(styleText('red', `Logs stream (error) ${event.error.message}`));
     })
     .onLog((log) => {
       switch (format) {
@@ -104,10 +104,10 @@ export async function watchDeploymentAndDisplayLogs (options) {
   ExitStrategy.plotQuietWarning(exitStrategy, quiet);
   // If in quiet mode, we only log start/finished deployment messages
   if (!quiet) {
-    Logger.println(`   ${colors.blue('→ Waiting for deployment to start…')}`);
+    Logger.println(`   ${styleText('blue', '→ Waiting for deployment to start…')}`);
   }
   const deployment = await waitForDeploymentStart({ ownerId, appId, deploymentId, commitId, knownDeployments });
-  Logger.println(`   ${colors.green(`✓ Deployment started ${colors.grey(`(${deployment.uuid})`)}`)}`);
+  Logger.println(`   ${styleText('green', `✓ Deployment started ${styleText('grey', `(${deployment.uuid})`)}`)}`);
 
   if (exitStrategy === 'deploy-start') {
     return;
@@ -127,7 +127,7 @@ export async function watchDeploymentAndDisplayLogs (options) {
   }
 
   if (!quiet) {
-    Logger.println(`   ${colors.blue('→ Waiting for application logs…')}`);
+    Logger.println(`   ${styleText('blue', '→ Waiting for application logs…')}`);
   }
 
   // Wait for deployment end (or an error thrown by logs with the deferred)
@@ -143,8 +143,8 @@ export async function watchDeploymentAndDisplayLogs (options) {
   if (deploymentEnded.state === 'OK') {
     const favouriteDomain = await getBest(appId, ownerId);
     Logger.println('');
-    Logger.println(`${colors.bold.green('✓ Access your application:')} ${colors.underline.bold(`https://${favouriteDomain.fqdn}`)}`);
-    Logger.println(`${colors.bold.blue('→ Manage your application:')} ${colors.underline.bold(`${conf.GOTO_URL}/${appId}`)}`);
+    Logger.println(`${styleText(['bold', 'green'], '✓ Access your application:')} ${styleText(['underline', 'bold'], `https://${favouriteDomain.fqdn}`)}`);
+    Logger.println(`${styleText(['bold', 'blue'], '→ Manage your application:')} ${styleText(['underline', 'bold'], `${conf.GOTO_URL}/${appId}`)}`);
   }
   else if (deploymentEnded.state === 'CANCELLED') {
     throw new Error('Deployment was cancelled. Please check the activity');
@@ -157,13 +157,13 @@ export async function watchDeploymentAndDisplayLogs (options) {
 function formatLogLine (log) {
   const { date, message } = log;
   if (isDeploymentSuccessMessage(log)) {
-    return `${date.toISOString()}: ${colors.bold.green(message)}`;
+    return `${date.toISOString()}: ${styleText(['bold', 'green'], message)}`;
   }
   else if (isDeploymentFailedMessage(log)) {
-    return `${date.toISOString()}: ${colors.bold.red(message)}`;
+    return `${date.toISOString()}: ${styleText(['bold', 'red'], message)}`;
   }
   else if (isBuildSucessMessage(log)) {
-    return `${date.toISOString()}: ${colors.bold.blue(message)}`;
+    return `${date.toISOString()}: ${styleText(['bold', 'blue'], message)}`;
   }
   return `${date.toISOString()}: ${message}${RESET_COLOR}`;
 }

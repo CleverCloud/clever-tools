@@ -1,4 +1,4 @@
-import colors from 'colors/safe.js';
+import { styleText } from 'node:util';
 
 import * as Namespaces from '../models/namespaces.js';
 import { sendToApi } from '../models/send-to-api.js';
@@ -70,7 +70,7 @@ async function acceptPayment (result, skipConfirmation) {
   if (!skipConfirmation) {
     result.lines.forEach(({ description, VAT, price }) => Logger.println(`${description}\tVAT: ${VAT}%\tPrice: ${price}€`));
     Logger.println(`Total (without taxes): ${result.totalHT}€`);
-    Logger.println(colors.bold(`Total (with taxes): ${result.totalTTC}€`));
+    Logger.println(styleText('bold', `Total (with taxes): ${result.totalTTC}€`));
 
     await confirm(
       `You're about to pay ${result.totalTTC}€, confirm?`,

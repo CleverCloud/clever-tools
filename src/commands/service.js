@@ -1,10 +1,17 @@
-import colors from 'colors/safe.js';
+import { styleText } from 'node:util';
 import * as Addon from '../models/addon.js';
 import * as Application from '../models/application.js';
 import { Logger } from '../logger.js';
 
 export async function list (params) {
-  const { alias, app: appIdOrName, 'show-all': showAll, 'only-apps': onlyApps, 'only-addons': onlyAddons, format } = params.options;
+  const {
+    alias,
+    app: appIdOrName,
+    'show-all': showAll,
+    'only-apps': onlyApps,
+    'only-addons': onlyAddons,
+    format,
+  } = params.options;
   if (onlyApps && onlyAddons) {
     throw new Error('--only-apps and --only-addons are mutually exclusive');
   }
@@ -42,7 +49,7 @@ export async function list (params) {
       const { applications = [], addons = [] } = formattedServices;
 
       if (applications.length === 0 && addons.length === 0) {
-        Logger.printInfo(`No linked services found, use ${colors.bold.blue('clever service link-app')} or ${colors.bold.blue('clever service link-addon')} to link services to an application`);
+        Logger.printInfo(`No linked services found, use ${styleText('blue', 'clever service link-app')} or ${styleText('blue', 'clever service link-addon')} to link services to an application`);
         return;
       }
 

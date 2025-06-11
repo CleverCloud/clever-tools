@@ -3,7 +3,7 @@ import { Logger } from '../logger.js';
 import { getHostAndTokens } from '../models/send-to-api.js';
 import { ApplicationAccessLogStream } from '@clevercloud/client/esm/streams/access-logs.js';
 import { JsonArray } from '../models/json-array.js';
-import colors from 'colors/safe.js';
+import { styleText } from 'node:util';
 import { formatTable } from '../format-table.js';
 import { truncateWithEllipsis } from '../models/utils.js';
 
@@ -35,7 +35,7 @@ export async function accessLogs (params) {
   });
 
   if (format === 'human') {
-    Logger.warn(colors.yellow('/!\\ Access Logs feature is in Alpha testing phase'));
+    Logger.warn(styleText('yellow', '/!\\ Access Logs feature is in Alpha testing phase'));
   }
 
   if (format === 'json' && (!until)) {
@@ -47,13 +47,13 @@ export async function accessLogs (params) {
 
   stream
     .on('open', (event) => {
-      Logger.debug(colors.blue(`Logs stream (open) ${JSON.stringify({ appId })}`));
+      Logger.debug(styleText('blue', `Logs stream (open) ${JSON.stringify({ appId })}`));
       if (format === 'json') {
         jsonArray.open();
       }
     })
     .on('error', (event) => {
-      Logger.debug(colors.red(`Logs stream (error) ${event.error.message}`));
+      Logger.debug(styleText('red', `Logs stream (error) ${event.error.message}`));
     })
     .onLog((log) => {
       switch (format) {
@@ -93,7 +93,7 @@ function formatHuman (log) {
   const hasSourceCity = source.city ?? '';
 
   return formatTable([[
-    colors.grey(date.toISOString(date)),
+    styleText('grey', date.toISOString(date)),
     source.ip,
     `${country}${hasSourceCity ? '/' + truncateWithEllipsis(CITY_MAX_LENGTH, source.city) : ''}`,
     colorStatusCode(http.response.statusCode),
@@ -112,18 +112,23 @@ const ACCESSLOG_COLUMN_WIDTHS = [
   // path
 ];
 
+/**
+ * @param {number} code
+ * @returns {string}
+ */
 function colorStatusCode (code) {
+  const codeString = code.toString();
   if (code >= 500) {
-    return colors.red(code);
+    return styleText('red', codeString);
   }
   if (code >= 400) {
-    return colors.yellow(code);
+    return styleText('yellow', codeString);
   }
   if (code >= 300) {
-    return colors.blue(code);
+    return styleText('blue', codeString);
   }
   if (code >= 200) {
-    return colors.green(code);
+    return styleText('green', codeString);
   }
-  return code;
+  return codeString;
 }

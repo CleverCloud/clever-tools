@@ -1,4 +1,4 @@
-import colors from 'colors/safe.js';
+import { styleText } from 'node:util';
 
 import * as Addon from '../models/addon.js';
 import * as AppConfig from '../models/app_configuration.js';
@@ -45,7 +45,7 @@ export async function list (params) {
         return [
           addon.plan.name + ' ' + addon.provider.name,
           addon.region,
-          colors.bold.green(addon.name),
+          styleText(['bold', 'green'], addon.name),
           addon.id,
         ];
       });
@@ -131,9 +131,9 @@ function displayAddon (format, addon, providerName, message) {
     kv: {
       status: 'alpha',
       postCreateInstructions: dedent`
-        ${colors.yellow('You can easily use Materia KV with \'redis-cli\', with such commands:')}
-        ${colors.blue(`source <(clever addon env ${addon.id} -F shell)`)}
-        ${colors.blue('redis-cli -h $KV_HOST -p $KV_PORT --tls')}
+        ${styleText('yellow', 'You can easily use Materia KV with \'redis-cli\', with such commands:')}
+        ${styleText('blue', `source <(clever addon env ${addon.id} -F shell)`)}
+        ${styleText('blue', 'redis-cli -h $KV_HOST -p $KV_PORT --tls')}
         Learn more about Materia KV on Clever Cloud: ${conf.DOC_URL}/addons/materia-kv/
       `,
     },
@@ -235,7 +235,7 @@ function displayAddon (format, addon, providerName, message) {
         Logger.println();
 
         if (statusMessage !== '') {
-          Logger.println(colors.yellow(`/!\\ ${statusMessage}`));
+          Logger.println(styleText('yellow', `/!\\ ${statusMessage}`));
         }
 
         Logger.println(WIP_PROVIDERS[providerName].postCreateInstructions);
@@ -296,7 +296,7 @@ export async function listProviders (params) {
     default: {
       const formattedProviders = providers.map((provider) => {
         return [
-          colors.bold(provider.id),
+          styleText('bold', provider.id),
           provider.name,
           provider.shortDesc || '',
         ];
@@ -365,7 +365,7 @@ export async function showProvider (params) {
     }
     case 'human':
     default: {
-      Logger.println(colors.bold(formattedProvider.id));
+      Logger.println(styleText('bold', formattedProvider.id));
       Logger.println(`${formattedProvider.name}: ${formattedProvider.shortDesc}`);
       Logger.println();
       Logger.println(`Available regions: ${formattedProvider.regions.join(', ')}`);
@@ -373,7 +373,7 @@ export async function showProvider (params) {
       Logger.println('Available plans');
 
       formattedProvider.plans.forEach((plan) => {
-        Logger.println(`Plan ${colors.bold(plan.slug)}`);
+        Logger.println(`Plan ${styleText('bold', plan.slug)}`);
         plan.features.forEach(({ name, value }) => Logger.println(`  ${name}: ${value}`));
 
         if (plan.versions != null) {

@@ -1,4 +1,4 @@
-import colors from 'colors/safe.js';
+import { styleText } from 'node:util';
 import * as User from '../models/user.js';
 import { Logger } from '../logger.js';
 import { openBrowser } from '../models/utils.js';
@@ -27,12 +27,12 @@ export async function list (params) {
     case 'human':
     default: {
       Logger.println('✉️  Primary email address:');
-      Logger.println(` • ${colors.green(addresses.primary)}`);
+      Logger.println(` • ${styleText('green', addresses.primary)}`);
       if (addresses.secondary.length > 0) {
         Logger.println();
         Logger.println(`✉️  ${addresses.secondary.length} secondary email address(es):`);
         addresses.secondary.forEach((address) =>
-          Logger.println(` • ${colors.blue(address)}`),
+          Logger.println(` • ${styleText('blue', address)}`),
         );
       }
     }

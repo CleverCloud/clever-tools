@@ -1,5 +1,5 @@
 import path from 'node:path';
-import colors from 'colors/safe.js';
+import { styleText } from 'node:util';
 import * as Application from '../models/application.js';
 import * as AppConfig from '../models/app_configuration.js';
 import { Logger } from '../logger.js';
@@ -64,14 +64,14 @@ function getCurrentDirectoryName () {
  */
 async function displayAppCreation (app, alias, github, taskCommand) {
 
-  Logger.printSuccess(`Application ${colors.green(app.name)} successfully created!`);
+  Logger.printSuccess(`Application ${styleText('green', app.name)} successfully created!`);
 
   const hasDistinctAlias = alias != null && alias !== app.name;
   const isTask = app.instance.lifetime === 'TASK';
 
   Logger.println();
   printFieldsAsTable(2, {
-    Type: colors.blue(`⬢ ${app.instance.variant.name}`),
+    Type: styleText('blue', `⬢ ${app.instance.variant.name}`),
     ID: app.id,
     'Organisation ID': app.ownerId,
     Name: app.name,
@@ -82,12 +82,12 @@ async function displayAppCreation (app, alias, github, taskCommand) {
   });
 
   Logger.println();
-  Logger.println('  ' + colors.bold('Next steps:'));
+  Logger.println('  ' + styleText('bold', 'Next steps:'));
 
   if (!github) {
     const isInsideGit = await isInsideGitRepo();
     if (!isInsideGit) {
-      Logger.println(`  ${colors.yellow('!')} Initialize a git repository first, for example:`);
+      Logger.println(`  ${styleText('yellow', '!')} Initialize a git repository first, for example:`);
       Logger.println(`    ${shellCommand('git init')}`);
       Logger.println(`    ${shellCommand('git add .')}`);
       Logger.println(`    ${shellCommand('git commit -m "Initial commit"')}`);
@@ -96,7 +96,7 @@ async function displayAppCreation (app, alias, github, taskCommand) {
     else {
       const isClean = await isGitWorkingDirectoryClean();
       if (!isClean) {
-        Logger.println(`  ${colors.yellow('!')} Commit your changes first:`);
+        Logger.println(`  ${styleText('yellow', '!')} Commit your changes first:`);
         Logger.println(`    ${shellCommand('git add .')}`);
         Logger.println(`    ${shellCommand('git commit -m "My changes"')}`);
         Logger.println();
@@ -105,24 +105,24 @@ async function displayAppCreation (app, alias, github, taskCommand) {
   }
 
   if (github) {
-    Logger.println(`  ${colors.blue('→')} Push changes to ${colors.blue(`${github.owner}/${github.name}`)} GitHub repository to trigger a deployment, or ${colors.blue('clever restart')} the latest pushed commit`);
+    Logger.println(`  ${styleText('blue', '→')} Push changes to ${styleText('blue', `${github.owner}/${github.name}`)} GitHub repository to trigger a deployment, or ${styleText('blue', 'clever restart')} the latest pushed commit`);
   }
   else {
-    Logger.println(`  ${colors.blue('→')} Run ${colors.blue('clever deploy')} ${isTask ? 'to execute your task' : 'to deploy your application'}`);
+    Logger.println(`  ${styleText('blue', '→')} Run ${styleText('blue', 'clever deploy')} ${isTask ? 'to execute your task' : 'to deploy your application'}`);
   }
 
-  Logger.println(`  ${colors.blue('→')} Manage your application at: ${colors.underline(`${conf.GOTO_URL}/${app.id}`)}`);
+  Logger.println(`  ${styleText('blue', '→')} Manage your application at: ${styleText('underline', `${conf.GOTO_URL}/${app.id}`)}`);
   Logger.println('');
 }
 
 function shellCommand (command) {
-  return `${colors.grey('$')} ${colors.yellow(command)}`;
+  return `${styleText('grey', '$')} ${styleText('yellow', command)}`;
 }
 
 function printFieldsAsTable (indent, fields) {
   const fieldsWithValues = Object.fromEntries(Object.entries(fields).filter(([_, value]) => typeof value === 'string'));
   const labelMaxWidth = Math.max(...Object.keys(fieldsWithValues).map((label) => label.length));
   return Object.entries(fieldsWithValues).forEach(([label, value]) => {
-    Logger.println(`${' '.repeat(indent)}${label.padEnd(labelMaxWidth, ' ')}  ${colors.grey(value)}`);
+    Logger.println(`${' '.repeat(indent)}${label.padEnd(labelMaxWidth, ' ')}  ${styleText('grey', value)}`);
   });
 }

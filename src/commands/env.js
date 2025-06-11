@@ -1,6 +1,6 @@
 import * as Application from '../models/application.js';
 import { Logger } from '../logger.js';
-import colors from 'colors/safe.js';
+import { styleText } from 'node:util';
 import * as variables from '../models/variables.js';
 import { sendToApi } from '../models/send-to-api.js';
 import { toNameEqualsValueString, validateName } from '@clevercloud/client/esm/utils/env-vars.js';
@@ -44,7 +44,7 @@ export async function list (params) {
     case 'human':
     default: {
       if (addExportsOption) {
-        Logger.println(colors.yellow('`--add-export` option is deprecated. Use `--format shell` instead.'));
+        Logger.println(styleText('yellow', '`--add-export` option is deprecated. Use `--format shell` instead.'));
       }
 
       const addExports = addExportsOption || format === 'shell';

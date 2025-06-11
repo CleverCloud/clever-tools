@@ -1,5 +1,5 @@
 import Redis from 'ioredis';
-import colors from 'colors/safe.js';
+import { styleText } from 'node:util';
 import { Logger } from '../logger.js';
 import { sendToApi } from '../models/send-to-api.js';
 import { getAllEnvVars } from '@clevercloud/client/esm/api/v2/addon.js';
@@ -28,7 +28,7 @@ export async function sendRawCommand (params) {
 
   if (addons.length > 1) {
     const formattedAddons = addons
-      .map(({ addonId, ownerId }) => `\n${colors.grey(`- ${addonId} (${ownerId})`)}`)
+      .map(({ addonId, ownerId }) => `\n${styleText('grey', `- ${addonId} (${ownerId})`)}`)
       .join('');
     throw new Error(`Several add-ons found for '${addonIdOrRealIdOrName}', use ID instead:${formattedAddons}`);
   }
@@ -66,7 +66,7 @@ async function getAddonUrl (ownerId, addonId) {
   const redisUrl = envVars.find((env) => env.name === URL_ENV_KEY)?.value;
 
   if (!redisUrl) {
-    throw new Error(`Environment variable ${colors.red(URL_ENV_KEY)} not found, is it a Materia KV or Redis® add-on?`);
+    throw new Error(`Environment variable ${styleText('red', URL_ENV_KEY)} not found, is it a Materia KV or Redis® add-on?`);
   }
 
   return redisUrl;

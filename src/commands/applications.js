@@ -1,4 +1,4 @@
-import colors from 'colors/safe.js';
+import { styleText } from 'node:util';
 
 import * as AppConfig from '../models/app_configuration.js';
 import * as Application from '../models/application.js';
@@ -34,7 +34,7 @@ function formatApps (apps, onlyAliases, json) {
           const sshUrl = app.git_ssh_url ?? app.deploy_url.replace('https://', 'git+ssh://git@');
           return [
             `Application ${app.name}`,
-            `  alias: ${colors.bold(app.alias)}`,
+            `  alias: ${styleText('bold', app.alias)}`,
             `  ID: ${app.app_id}`,
             `  deployment URL: ${app.deploy_url}`,
             `  git+ssh URL: ${sshUrl}`,
@@ -93,7 +93,7 @@ export async function listAll (params) {
         const applicationsPlural = org.applications.length !== 1 ? 'applications' : 'application';
         const punctuation = org.applications.length > 0 ? ':' : '';
 
-        Logger.println(colors.blue(`• Organization '${org.name}' (${org.id}) with ${org.applications.length} ${applicationsPlural}${punctuation}`));
+        Logger.println(styleText('blue', `• Organization '${org.name}' (${org.id}) with ${org.applications.length} ${applicationsPlural}${punctuation}`));
 
         if (org.applications.length > 0) {
           Logger.println();

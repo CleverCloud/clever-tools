@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import colors from 'colors/safe.js';
+import { styleText } from 'node:util';
 
 import { Logger } from '../logger.js';
 import { Deferred } from './utils.js';
@@ -31,13 +31,13 @@ function isBuildSucessMessage (line) {
 function formatLogLine (line) {
   const { '@timestamp': timestamp, '@message': message } = line._source;
   if (isDeploymentSuccessMessage(line)) {
-    return `${timestamp}: ${colors.bold.green(message)}`;
+    return `${timestamp}: ${styleText(['bold', 'green'], message)}`;
   }
   else if (isDeploymentFailedMessage(line)) {
-    return `${timestamp}: ${colors.bold.red(message)}`;
+    return `${timestamp}: ${styleText(['bold', 'red'], message)}`;
   }
   else if (isBuildSucessMessage(line)) {
-    return `${timestamp}: ${colors.bold.blue(message)}`;
+    return `${timestamp}: ${styleText(['bold', 'blue'], message)}`;
   }
   return `${timestamp}: ${message}`;
 }
@@ -105,7 +105,7 @@ export async function watchDeploymentAndDisplayLogs ({ ownerId, appId, deploymen
   // If in quiet mode, we only log start/finished deployment messages
   Logger.println('Waiting for deployment to start…');
   const deployment = await waitForDeploymentStart({ ownerId, appId, deploymentId, commitId, knownDeployments });
-  Logger.println(colors.bold.blue(`Deployment started (${deployment.uuid})`));
+  Logger.println(styleText(['bold', 'blue'], `Deployment started (${deployment.uuid})`));
 
   if (exitStrategy === 'deploy-start') {
     return;
@@ -137,7 +137,7 @@ export async function watchDeploymentAndDisplayLogs ({ ownerId, appId, deploymen
   }
 
   if (deploymentEnded.state === 'OK') {
-    Logger.println(colors.bold.green('Deployment successful'));
+    Logger.println(styleText(['bold', 'green'], 'Deployment successful'));
   }
   else if (deploymentEnded.state === 'CANCELLED') {
     throw new Error('Deployment was cancelled. Please check the activity');
