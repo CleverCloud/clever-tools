@@ -2,7 +2,7 @@ import { spawn } from 'node:child_process';
 import { conf, loadOAuthConf } from '../models/configuration.js';
 import { addOauthHeader } from '@clevercloud/client/esm/oauth.js';
 import { Logger } from '../logger.js';
-import colors from 'colors/safe.js';
+import { styleText } from 'node:util';
 import curlconverter from 'curlconverter';
 import dedent from 'dedent';
 
@@ -56,7 +56,7 @@ export async function curl () {
 
   // We only allow request to the respective API_HOST
   if (!requestParams.url.startsWith(conf.API_HOST)) {
-    Logger.error('"clever curl" command must be used with ' + colors.blue(conf.API_HOST));
+    Logger.error('"clever curl" command must be used with ' + styleText('blue', conf.API_HOST));
     process.exit(1);
   }
 

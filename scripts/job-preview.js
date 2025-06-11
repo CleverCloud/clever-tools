@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import fs from 'fs-extra';
-import colors from 'colors/safe.js';
+import { styleText } from 'node:util';
 import textTable from 'text-table';
 import * as cfg from './config.js';
 import { build } from './build.js';
@@ -289,15 +289,15 @@ async function updateListIndex (manifest) {
 function previewToPrintableDetails (p) {
   return [
     ...p.updatedAt.substring(0, 19).split('T'),
-    colors.red(p.commitId.substring(0, 8)),
-    colors.yellow(p.name),
-    colors.green(p.author),
+    styleText('red', p.commitId.substring(0, 8)),
+    styleText('yellow', p.name),
+    styleText('green', p.author),
     p.urls.map((u) => {
-      const name = `${archEmoji[u.arch]} ${colors.bold(u.arch.padEnd(5, ' '))}`;
+      const name = `${archEmoji[u.arch]} ${styleText('bold', u.arch.padEnd(5, ' '))}`;
       const link = `${u.url}`;
-      const checksum = colors.grey(`${u.checksum.type}: ${u.checksum.value}`);
+      const checksum = styleText('grey', `${u.checksum.type}: ${u.checksum.value}`);
 
-      return colors.blue(`\n   ${name}: ${link}\n      ${checksum}`);
+      return styleText('blue', `\n   ${name}: ${link}\n      ${checksum}`);
     }).join(''),
   ];
 }

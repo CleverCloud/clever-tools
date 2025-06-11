@@ -5,7 +5,7 @@ import { prefixUrl } from '@clevercloud/client/esm/prefix-url.js';
 import { request } from '@clevercloud/client/esm/request.fetch.js';
 import { subtle as cryptoSuble } from 'node:crypto';
 import { addOauthHeaderPlaintext } from '../clever-client/auth-bridge.js';
-import colors from 'colors/safe.js';
+import { styleText } from 'node:util';
 
 // Required for @clevercloud/client with "old" Node.js
 if (globalThis.crypto == null) {
@@ -59,7 +59,7 @@ export function processError (error) {
     throw new Error('The connection to the Clever Cloud API was closed abruptly, please try again.', { cause: error });
   }
   if (error?.response?.status === 401) {
-    throw new Error(`You're not logged in, use ${colors.red('clever login')} command to connect to your Clever Cloud account`, { cause: error });
+    throw new Error(`You're not logged in, use ${styleText('red', 'clever login')} command to connect to your Clever Cloud account`, { cause: error });
   }
   throw error;
 }

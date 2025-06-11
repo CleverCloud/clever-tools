@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import colors from 'colors/safe.js';
+import { styleText } from 'node:util';
 
 import * as Application from '../models/application.js';
 import { Logger } from '../logger.js';
@@ -24,20 +24,20 @@ export async function status (params) {
     case 'human':
     default: {
       const statusMessage = status.status === 'running'
-        ? `${colors.bold.green('running')} ${displayInstances(status.instances, status.commit)}`
-        : colors.bold.red('stopped');
+        ? `${styleText(['bold', 'green'], 'running')} ${displayInstances(status.instances, status.commit)}`
+        : styleText(['bold', 'red'], 'stopped');
 
       Logger.println(`${status.name}: ${statusMessage}`);
-      Logger.println(`Executed as: ${colors.bold(status.lifetime)}`);
+      Logger.println(`Executed as: ${styleText('bold', status.lifetime)}`);
       if (status.deploymentInProgress) {
         Logger.println(`Deployment in progress ${displayInstances(status.deploymentInProgress.instances, status.deploymentInProgress.commit)}`);
       }
       Logger.println();
       Logger.println('Scalability:');
-      Logger.println(`  Auto scalability: ${status.scalability.enabled ? colors.green('enabled') : colors.red('disabled')}`);
-      Logger.println(`  Scalers: ${colors.bold(formatScalability(status.scalability.horizontal))}`);
-      Logger.println(`  Sizes: ${colors.bold(formatScalability(status.scalability.vertical))}`);
-      Logger.println(`  Dedicated build: ${status.separateBuild ? colors.bold(status.buildFlavor) : colors.red('disabled')}`);
+      Logger.println(`  Auto scalability: ${status.scalability.enabled ? styleText('green', 'enabled') : styleText('red', 'disabled')}`);
+      Logger.println(`  Scalers: ${styleText('bold', formatScalability(status.scalability.horizontal))}`);
+      Logger.println(`  Sizes: ${styleText('bold', formatScalability(status.scalability.vertical))}`);
+      Logger.println(`  Dedicated build: ${status.separateBuild ? styleText('bold', status.buildFlavor) : styleText('red', 'disabled')}`);
     }
   }
 }

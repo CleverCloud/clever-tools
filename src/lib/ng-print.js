@@ -1,4 +1,4 @@
-import colors from 'colors/safe.js';
+import { styleText } from 'node:util';
 import * as networkGroup from '../models/ng.js';
 
 import { Logger } from '../logger.js';
@@ -35,7 +35,7 @@ function printNg (ng, format, full = false) {
             Domain: member.domainName,
           }));
         if (members.length > 0) {
-          Logger.println(colors.bold(' • Members:'));
+          Logger.println(styleText('bold', ' • Members:'));
           console.table(members);
         }
 
@@ -43,7 +43,7 @@ function printNg (ng, format, full = false) {
           .sort((a, b) => a[1].parentMember.localeCompare(b[1].parentMember))
           .map(([id, peer]) => formatPeer(peer));
         if (peers.length > 0) {
-          Logger.println(colors.bold(' • Peers:'));
+          Logger.println(styleText('bold', ' • Peers:'));
           console.table(peers);
         }
       }
@@ -139,7 +139,7 @@ export async function printResults (idOrLabel, org, format, action, type) {
     const searchString = idOrLabel.ngId
       ?? idOrLabel.memberId
       ?? idOrLabel.ngResourceLabel;
-    Logger.println(`${colors.blue('!')} No Network Group or resource found for ${colors.blue(searchString)}`);
+    Logger.println(`${styleText('blue', '!')} No Network Group or resource found for ${styleText('blue', searchString)}`);
     return;
   }
 
@@ -175,17 +175,17 @@ export async function printResults (idOrLabel, org, format, action, type) {
       case 'human':
       default: {
         if (grouped.NetworkGroup) {
-          Logger.println(`${colors.bold(` • Found ${grouped.NetworkGroup.length} Network Group(s):`)}`);
+          Logger.println(`${styleText('bold', ` • Found ${grouped.NetworkGroup.length} Network Group(s):`)}`);
           grouped.NetworkGroup?.forEach((item) => printNg(item, format));
         }
 
         if (grouped.Member) {
-          Logger.println(`${colors.bold(` • Found ${grouped.Member.length} Member(s):`)}`);
+          Logger.println(`${styleText('bold', ` • Found ${grouped.Member.length} Member(s):`)}`);
           grouped.Member?.forEach((item) => printMember(item, format));
         }
 
         if (grouped.ExternalPeer || grouped.CleverPeer) {
-          Logger.println(`${colors.bold(` • Found ${grouped.ExternalPeer.length + grouped.CleverPeer.length} Peer(s):`)}`);
+          Logger.println(`${styleText('bold', ` • Found ${grouped.ExternalPeer.length + grouped.CleverPeer.length} Peer(s):`)}`);
           grouped.CleverPeer?.forEach((item) => printPeer(item, format));
           grouped.ExternalPeer?.forEach((item) => printPeer(item, format));
         }

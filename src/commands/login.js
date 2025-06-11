@@ -1,7 +1,5 @@
 import crypto from 'node:crypto';
-import util from 'node:util';
-
-import colors from 'colors/safe.js';
+import { promisify, styleText } from 'node:util';
 import open from 'open';
 import superagent from 'superagent';
 
@@ -11,7 +9,7 @@ import { conf, writeOAuthConf } from '../models/configuration.js';
 
 import { getPackageJson } from '../load-package-json.cjs';
 
-const delay = util.promisify(setTimeout);
+const delay = promisify(setTimeout);
 const pkg = getPackageJson();
 
 // 20 random bytes as Base64URL
@@ -28,7 +26,7 @@ function pollOauthData (url, tryCount = 0) {
     throw new Error('Something went wrong while trying to log you in.');
   }
   if (tryCount > 1 && tryCount % 10 === 0) {
-    Logger.println("We're still waiting for the login process (in your browser) to be completed…");
+    Logger.println('We\'re still waiting for the login process (in your browser) to be completed…');
   }
 
   return superagent
@@ -57,7 +55,7 @@ async function loginViaConsole () {
   cliPollUrl.searchParams.set('cli_token', cliToken);
 
   Logger.debug('Try to login to Clever Cloud…');
-  Logger.println(`Opening ${colors.green(consoleUrl.toString())} in your browser to log you in…`);
+  Logger.println(`Opening ${styleText('green', consoleUrl.toString())} in your browser to log you in…`);
   await open(consoleUrl.toString(), { wait: false });
 
   return pollOauthData(cliPollUrl.toString());
@@ -76,7 +74,7 @@ export async function login (params) {
     const oauthData = await loginViaConsole();
     await writeOAuthConf(oauthData);
     const { name, email } = await User.getCurrent();
-    const formattedName = name || colors.red.bold('[unspecified name]');
+    const formattedName = name || styleText(['red', 'bold'], '[unspecified name]');
     return Logger.println(`Login successful as ${formattedName} <${email}>`);
   }
 

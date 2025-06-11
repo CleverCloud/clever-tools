@@ -1,7 +1,7 @@
 import * as Application from '../models/application.js';
 import * as ApplicationConfiguration from '../models/application_configuration.js';
 import { Logger } from '../logger.js';
-import colors from 'colors/safe.js';
+import { styleText } from 'node:util';
 
 export async function list (params) {
   const { alias, app: appIdOrName } = params.options;
@@ -27,7 +27,7 @@ export async function set (params) {
     [config.name]: ApplicationConfiguration.parse(config, configurationValue),
   };
   const app = await Application.updateOptions(ownerId, appId, options);
-  Logger.printSuccess(`Config ${colors.green(config.id)} successfully updated to ${colors.green(ApplicationConfiguration.formatValue(config, app[config.name]))}!`);
+  Logger.printSuccess(`Config ${styleText('green', config.id)} successfully updated to ${styleText('green', ApplicationConfiguration.formatValue(config, app[config.name]))}!`);
 }
 
 export async function update (params) {

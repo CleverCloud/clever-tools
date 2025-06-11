@@ -1,4 +1,4 @@
-import colors from 'colors/safe.js';
+import { styleText } from 'node:util';
 import _ from 'lodash';
 import childProcess from 'node:child_process';
 import fs from 'fs-extra';
@@ -12,17 +12,17 @@ import del from 'del';
 _.templateSettings.interpolate = /<%=([\s\S]+?)%>/g;
 
 export function startTask (taskName, suffix = '\n', separator = '============================') {
-  process.stdout.write(colors.bold.grey(`${separator}\n`));
-  process.stdout.write(colors.bold.grey(`${taskName} ... ${suffix}`));
+  process.stdout.write(styleText(['bold', 'grey'], `${separator}\n`));
+  process.stdout.write(styleText(['bold', 'grey'], `${taskName} ... ${suffix}`));
 }
 export function endTask (taskName, suffix = '\n\n', separator = '============================') {
-  process.stdout.write(colors.bold.grey(`${taskName} `) + colors.bold.green('Done!') + '\n');
-  process.stdout.write(colors.bold.grey(`${separator}${suffix}`));
+  process.stdout.write(styleText(['bold', 'grey'], `${taskName} `) + styleText(['bold', 'green'], 'Done!') + '\n');
+  process.stdout.write(styleText(['bold', 'grey'], `${separator}${suffix}`));
 }
 
 export function exec (command, cwd) {
-  console.log(colors.bold.blue('=> Execute command'));
-  console.log(colors.blue(`${command}`));
+  console.log(styleText(['bold', 'blue'], '=> Execute command'));
+  console.log(styleText('blue', `${command}`));
   return new Promise((resolve, reject) => {
     childProcess.exec(command, { cwd }, (err, stdout, stderr) => {
       console.log(stdout);

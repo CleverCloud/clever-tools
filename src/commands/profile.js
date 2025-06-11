@@ -1,4 +1,4 @@
-import colors from 'colors/safe.js';
+import { styleText } from 'node:util';
 import { openBrowser } from '../models/utils.js';
 import { Logger } from '../logger.js';
 import * as User from '../models/user.js';
@@ -41,7 +41,7 @@ export async function profile (params) {
       Logger.println(dedent`
         You're currently logged in as:
         User id           ${formattedUser.id}
-        Name              ${formattedUser.name ?? colors.red.bold('[not specified]')}
+        Name              ${formattedUser.name ?? styleText(['red', 'bold'], '[not specified]')}
         Email             ${formattedUser.email}
         Token expiration  ${tokenExpiration}
         Two factor auth   ${formattedUser.has2FA ? 'yes' : 'no'}
