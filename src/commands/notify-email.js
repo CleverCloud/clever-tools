@@ -1,4 +1,4 @@
-import colors from 'colors/safe.js';
+import { styleText } from 'node:util';
 
 import { Logger } from '../logger.js';
 import { getOwnerAndApp, getOrgaIdOrUserId } from '../models/notification.js';
@@ -35,7 +35,7 @@ export async function list (params) {
     case 'human':
     default: {
       formattedHooks.forEach((hook, i) => {
-        Logger.println(colors.bold(hook.name ?? hook.id));
+        Logger.println(styleText('bold', hook.name ?? hook.id));
         Logger.println(`  id: ${hook.id}`);
         Logger.println(`  services: ${hook.services.join(', ')}`);
         Logger.println(`  events: ${hook.events.join(', ')}`);

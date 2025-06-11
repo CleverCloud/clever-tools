@@ -1,4 +1,4 @@
-import colors from 'colors/safe.js';
+import { styleText } from 'node:util';
 import _ from 'lodash';
 import dedent from 'dedent';
 
@@ -39,23 +39,23 @@ export async function operatorCheckVersion (provider, addonIdOrName, format) {
     case 'human':
     default:
       if (!versions.needUpdate || (provider === 'metabase' && versions.installed === 'community-latest')) {
-        Logger.printSuccess(`${colors.green(name)} is up-to-date (${colors.green(versions.installed)})`);
+        Logger.printSuccess(`${styleText('green', name)} is up-to-date (${styleText('green', versions.installed)})`);
       }
       else {
         Logger.println(dedent`
-          🔄 ${colors.red(name)} is outdated
-             • Installed version: ${colors.red(versions.installed)}
-             • Latest version: ${colors.green(versions.latest)}
+          🔄 ${styleText('red', name)} is outdated
+             • Installed version: ${styleText('red', versions.installed)}
+             • Latest version: ${styleText('green', versions.latest)}
         `);
         Logger.println();
 
         await confirm(
-          `Do you want to update it to ${colors.green(versions.latest)} now?`,
+          `Do you want to update it to ${styleText('green', versions.latest)} now?`,
           'No confirmation, aborting version update',
         );
 
         await versionUpdate({ provider, realId }, { targetVersion: versions.latest }).then(sendToApi);
-        Logger.printSuccess(`${colors.green(name)} is up-to-date and being rebuilt…`);
+        Logger.printSuccess(`${styleText('green', name)} is up-to-date and being rebuilt…`);
       }
       break;
   }
@@ -75,21 +75,21 @@ export async function operatorUpdateVersion (provider, askedVersion, addonIdOrNa
   const versions = await versionCheck({ provider, realId }).then(sendToApi);
 
   const targetVersion = askedVersion ?? await selectAnswer(
-    `Which version do you want to update ${colors.blue(name)} to, current is ${colors.blue(versions.installed)}?`,
+    `Which version do you want to update ${styleText('blue', name)} to, current is ${styleText('blue', versions.installed)}?`,
     versions.available.reverse(),
   );
 
   if (!versions.available.includes(targetVersion)) {
-    throw new Error(`Version ${colors.red(targetVersion)} is not available`);
+    throw new Error(`Version ${styleText('red', targetVersion)} is not available`);
   }
 
   if (versions.installed === targetVersion) {
-    Logger.printSuccess(`${colors.green(name)} is already at version ${colors.green(targetVersion)}`);
+    Logger.printSuccess(`${styleText('green', name)} is already at version ${styleText('green', targetVersion)}`);
     return;
   }
 
   await versionUpdate({ provider, realId }, { targetVersion }).then(sendToApi);
-  Logger.printSuccess(`${colors.green(name)} updated to ${colors.green(targetVersion)} and being rebuilt…`);
+  Logger.printSuccess(`${styleText('green', name)} updated to ${styleText('green', targetVersion)} and being rebuilt…`);
 }
 
 /**
@@ -103,11 +103,11 @@ export async function operatorNgDisable (provider, addonIdOrName) {
   const name = getDisplayName(addonIdOrName);
   const operator = await Operator.getDetails(provider, addonIdOrName);
   if (!operator.features.networkGroup?.id) {
-    throw new Error(`Network Group is already disabled on ${colors.red(name)}`);
+    throw new Error(`Network Group is already disabled on ${styleText('red', name)}`);
   }
 
   await ngDisableOperator({ provider, realId: operator.resourceId }).then(sendToApi);
-  Logger.println(`Disabling Network Group on ${colors.blue(name)}…`);
+  Logger.println(`Disabling Network Group on ${styleText('blue', name)}…`);
 
   await operatorPrint(provider, addonIdOrName);
 }
@@ -124,11 +124,11 @@ export async function operatorNgEnable (provider, addonIdOrName) {
   const operator = await Operator.getDetails(provider, addonIdOrName);
 
   if (operator.features.networkGroup?.id) {
-    throw new Error(`Network Group is already enabled on ${colors.red(name)}`);
+    throw new Error(`Network Group is already enabled on ${styleText('red', name)}`);
   }
 
   await ngEnableOperator({ provider, realId: operator.resourceId }).then(sendToApi);
-  Logger.println(`Enabling Network Group on ${colors.blue(name)}…`);
+  Logger.println(`Enabling Network Group on ${styleText('blue', name)}…`);
 
   await operatorPrint(provider, addonIdOrName);
 }
@@ -152,7 +152,7 @@ export async function operatorList (provider, format) {
     default:
 
       if (deployed.length === 0) {
-        Logger.println(`🔎 No ${providerName} found, create one with ${colors.blue(`clever addon create ${providerName.toLocaleLowerCase()}`)} command`);
+        Logger.println(`🔎 No ${providerName} found, create one with ${styleText('blue', `clever addon create ${providerName.toLocaleLowerCase()}`)} command`);
         return;
       }
 
@@ -160,9 +160,9 @@ export async function operatorList (provider, format) {
       Logger.println();
 
       Object.values(operatorsPerOwner).forEach((operators) => {
-        Logger.println(`• ${colors.bold(`${(operators[0].ownerId)} (${(operators[0].ownerName)})`)}`);
+        Logger.println(`• ${styleText('bold', `${(operators[0].ownerId)} (${(operators[0].ownerName)})`)}`);
         operators.forEach((operator) => {
-          Logger.println(`  • ${operator.name} ${colors.grey(`(${operator.realId})`)}`);
+          Logger.println(`  • ${operator.name} ${styleText('grey', `(${operator.realId})`)}`);
         });
         Logger.println();
       });
@@ -178,7 +178,7 @@ export async function operatorList (provider, format) {
  */
 export async function operatorOpen (provider, addonIdOrName) {
   const operator = await Operator.getDetails(provider, addonIdOrName);
-  await openBrowser(`${conf.GOTO_URL}/${operator.addonId}`, `🌐 Opening ${colors.blue(operator.addonId)} in the browser…`);
+  await openBrowser(`${conf.GOTO_URL}/${operator.addonId}`, `🌐 Opening ${styleText('blue', operator.addonId)} in the browser…`);
 }
 
 /**
@@ -191,7 +191,7 @@ export async function operatorOpenLogs (provider, addonIdOrName) {
   const operator = await Operator.getDetails(provider, addonIdOrName);
   await openBrowser(
     `/organisations/${operator.ownerId}/applications/${operator.resources.entrypoint}/logs`,
-    `🌐 Opening ${colors.blue(operator.addonId)} logs in the Clever Cloud Console…`,
+    `🌐 Opening ${styleText('blue', operator.addonId)} logs in the Clever Cloud Console…`,
   );
 }
 
@@ -203,7 +203,7 @@ export async function operatorOpenLogs (provider, addonIdOrName) {
  */
 export async function operatorOpenWebUi (provider, addonIdOrName) {
   const operator = await Operator.getDetails(provider, addonIdOrName);
-  await openBrowser(operator.accessUrl, `🌐 Opening ${colors.blue(operator.addonId)} Management interface in the browser…`);
+  await openBrowser(operator.accessUrl, `🌐 Opening ${styleText('blue', operator.addonId)} Management interface in the browser…`);
 }
 
 /**
@@ -217,7 +217,7 @@ export async function operatorReboot (provider, addonIdOrName) {
   const name = getDisplayName(addonIdOrName);
   const realId = await Operator.getSingleRealId(addonIdOrName);
   await rebootOperator({ provider, realId }).then(sendToApi);
-  Logger.println(`🔄 Restarting ${colors.blue(name)}…`);
+  Logger.println(`🔄 Restarting ${styleText('blue', name)}…`);
 }
 
 /**
@@ -231,7 +231,7 @@ export async function operatorRebuild (provider, addonIdOrName) {
   const name = getDisplayName(addonIdOrName);
   const realId = await Operator.getSingleRealId(addonIdOrName);
   await rebuildOperator({ provider, realId }).then(sendToApi);
-  Logger.println(`🔄 Rebuilding ${colors.blue(name)}…`);
+  Logger.println(`🔄 Rebuilding ${styleText('blue', name)}…`);
 }
 
 /**

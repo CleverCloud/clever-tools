@@ -1,12 +1,11 @@
 import _ from 'lodash';
-import colors from 'colors/safe.js';
-import { format } from 'node:util';
+import { format, styleText } from 'node:util';
 
 function getPrefix (severity) {
   const prefix = `[${severity.toUpperCase()}] `;
   const prefixLength = prefix.length;
   if (severity === 'error') {
-    return { prefix: colors.bold.red(prefix), prefixLength };
+    return { prefix: styleText(['bold', 'red'], prefix), prefixLength };
   }
   return { prefix, prefixLength };
 }
@@ -56,10 +55,10 @@ export const Logger = _(['debug', 'info', 'warn', 'error'])
 Logger.println = console.log;
 
 // Logger for success with a green check before the message
-Logger.printSuccess = (message) => console.log(`${colors.bold.green('✓')} ${message}`);
+Logger.printSuccess = (message) => console.log(`${styleText(['bold', 'green'], '✓')} ${message}`);
 
 // Logger for information with a blue 'i' before the message
-Logger.printInfo = (message) => console.log(`${colors.bold.blue('i')} ${message}`);
+Logger.printInfo = (message) => console.log(`${styleText('blue', 'i')} ${message}`);
 
 // No decoration for Logger.println
 Logger.printJson = (obj) => {

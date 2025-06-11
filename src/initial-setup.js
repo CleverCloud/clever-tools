@@ -1,4 +1,3 @@
-import colors from 'colors/safe.js';
 import pkg from '../package.json' with { type: 'json' };
 import updateNotifierModule from 'update-notifier';
 
@@ -28,7 +27,7 @@ if (hasParam('--autocomplete-index')) {
 const colorExplicitFalse = hasParam('--no-color') || hasParam('--color', 'false');
 const colorExplicitTrue = hasParam('--color', 'true');
 if (colorExplicitFalse || (!process.stdout.isTTY && !colorExplicitTrue)) {
-  colors.disable();
+  process.env.NO_COLOR = '1';
 }
 
 // These need to be set before Logger and other stuffs

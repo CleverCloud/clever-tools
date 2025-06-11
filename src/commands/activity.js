@@ -1,4 +1,4 @@
-import colors from 'colors/safe.js';
+import { styleText } from 'node:util';
 import moment from 'moment';
 
 import * as Activity from '../models/activity.js';
@@ -11,16 +11,16 @@ import * as Application from '../models/application.js';
 
 function getColoredState (state, isLast) {
   if (state === 'OK') {
-    return colors.bold.green(state);
+    return styleText(['bold', 'green'], state);
   }
   if (state === 'FAIL' || state === 'CANCELLED') {
-    return colors.bold.red(state);
+    return styleText(['bold', 'red'], state);
   }
   if (state === 'WIP' && !isLast) {
-    return colors.bold.red('FAIL');
+    return styleText(['bold', 'red'], 'FAIL');
   }
   if (state === 'WIP' && isLast) {
-    return colors.bold.blue('IN PROGRESS');
+    return styleText(['bold', 'blue'], 'IN PROGRESS');
   }
   Logger.warn(`Unknown deployment state: ${state}`);
   return 'UNKNOWN';
