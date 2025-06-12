@@ -1,5 +1,5 @@
 import { confirm } from '../lib/prompts.js';
-import colors from 'colors/safe.js';
+import { styleText } from 'node:util';
 import { Logger } from '../logger.js';
 import fs from 'node:fs';
 import { sendToApi } from '../models/send-to-api.js';
@@ -30,23 +30,23 @@ export async function list (params) {
     default: {
       if (keys.length === 0) {
         Logger.println(dedent`
-          ${colors.blue('🔐 No SSH keys')}
+          ${styleText('blue', '🔐 No SSH keys')}
           
           To list the SSH keys on your local system, use the following command:
-          ${colors.grey('ssh-add -l -E sha256')}
+          ${styleText('grey', 'ssh-add -l -E sha256')}
           
           To create a new key pair, use the following command:
-          ${colors.grey('ssh-keygen -t ed25519 -f ~/.ssh/id_ed25519_clever -C "An optional comment"')}
+          ${styleText('grey', 'ssh-keygen -t ed25519 -f ~/.ssh/id_ed25519_clever -C "An optional comment"')}
           
           Then add the public key to your Clever Cloud account:
-          ${colors.grey('clever ssh-keys add myNewKey ~/.ssh/id_ed25519_clever.pub')}
+          ${styleText('grey', 'clever ssh-keys add myNewKey ~/.ssh/id_ed25519_clever.pub')}
         `);
         return;
       }
 
       Logger.println(`🔐 ${keys.length} SSH key(s):`);
       keys.forEach((key) => {
-        Logger.println(` • ${colors.blue(key.name)}`, colors.grey(`(${key.fingerprint})`));
+        Logger.println(` • ${styleText('blue', key.name)}`, styleText('grey', `(${key.fingerprint})`));
       });
     }
   }
@@ -91,7 +91,7 @@ export async function remove (params) {
   const keys = await getUserSshKeys();
 
   if (keys.find((key) => key.name === keyName) == null) {
-    throw new Error(`SSH key ${colors.red(keyName)} not found`);
+    throw new Error(`SSH key ${styleText('red', keyName)} not found`);
   }
 
   const keyNameEncoded = encodeURIComponent(keyName);

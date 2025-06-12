@@ -4,7 +4,7 @@
 import '../src/initial-setup.js';
 
 import cliparse from 'cliparse';
-import colors from 'colors/safe.js';
+import { styleText } from 'node:util';
 import cliparseCommands from 'cliparse/src/command.js';
 import _sortBy from 'lodash/sortBy.js';
 
@@ -90,7 +90,7 @@ cliparse.command = function (name, options, commandFunction) {
 // Add a yellow color and status tag to the description of an experimental command
 function colorizeExperimentalCommand (command, id) {
   const status = EXPERIMENTAL_FEATURES[id].status;
-  command.description = colors.yellow(command.description + ' [' + status.toUpperCase() + ']');
+  command.description = styleText('yellow', command.description + ' [' + status.toUpperCase() + ']');
   return command;
 }
 
