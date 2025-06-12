@@ -1,10 +1,9 @@
 import { spawn } from 'node:child_process';
 import { conf, loadOAuthConf } from '../models/configuration.js';
-import { addOauthHeader } from '@clevercloud/client/esm/oauth.js';
 import { Logger } from '../logger.js';
 import { styleText } from 'node:util';
-import curlToJsonString from 'curlconverter/generators/json.js';
 import dedent from 'dedent';
+import { addOauthHeaderPlaintext } from '../clever-client/auth-bridge.js';
 
 async function loadTokens () {
   const tokens = await loadOAuthConf();
@@ -37,7 +36,7 @@ function printCleverCurlHelp () {
 export async function curl () {
 
   // We remove the first three args: "node", "clever" and "curl"
-  const curlArgs = process.argv.slice(3);
+  const curlArgs = process.argv.slice(2);
   const hasNoArgs = curlArgs.length === 0;
   const startsWithHelpArg = curlArgs[0] === '--help' || curlArgs[0] === '-h';
   const shouldDisplayCleverCurlHelp = hasNoArgs || startsWithHelpArg;
@@ -47,15 +46,10 @@ export async function curl () {
     return;
   }
 
-  // WARNING: Version 3.x of curlconverter uses a fork of yargs.
-  // For "reasons", when the command has a help param, it stops the parsing and triggers a very short and localized version of some help (WAT?).
-  // That's why we remove the help param before parsing and "reinstate" it before execution.
-  const curlArgsNoHelp = curlArgs.filter((arg) => arg !== '--help' && arg !== '-h');
-  const curlCommand = ['curl', ...curlArgsNoHelp].join(' ');
-  const requestParams = await parseCurlCommand(curlCommand);
+  const curlUrl = curlArgs.find((part) => part.startsWith(conf.API_HOST));
 
   // We only allow request to the respective API_HOST
-  if (!requestParams.url.startsWith(conf.API_HOST)) {
+  if (curlUrl == null) {
     Logger.error('"clever curl" command must be used with ' + styleText('blue', conf.API_HOST));
     process.exit(1);
   }
@@ -63,31 +57,17 @@ export async function curl () {
   const lastCurlArg = curlArgs.at(-1);
   const lastCurlArgIsHelp = lastCurlArg !== '--help' && lastCurlArg !== '-h';
 
-  // Add oAuth header, only if last cURL arg is not help
+  // Add OAuth header, only if last cURL arg is not help
   // We do this because cURL's help arg expect a category
   if (lastCurlArgIsHelp) {
 
     const tokens = await loadTokens();
-    const oauthHeader = await Promise.resolve(requestParams)
-      .then(addOauthHeader(tokens))
-      .then((request) => request.headers.Authorization);
+    const oauthHeader = await Promise.resolve({})
+      .then(addOauthHeaderPlaintext(tokens))
+      .then((request) => request.headers.authorization);
 
-    curlArgs.push('-H', `Authorization: ${oauthHeader}`);
+    curlArgs.push('-H', `authorization: ${oauthHeader}`);
   }
 
   spawn('curl', curlArgs, { stdio: 'inherit' });
-
-}
-
-async function parseCurlCommand (curlCommand) {
-
-  const jsonString = curlToJsonString(curlCommand);
-  const curlRequestParams = JSON.parse(jsonString);
-
-  return {
-    method: curlRequestParams.method,
-    url: curlRequestParams.url,
-    headers: curlRequestParams.headers,
-    queryParams: curlRequestParams.queries,
-  };
 }
