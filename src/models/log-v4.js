@@ -9,6 +9,8 @@ import * as ExitStrategy from '../models/exit-strategy-option.js';
 import { getBest } from './domain.js';
 import { conf } from './configuration.js';
 
+const RESET_COLOR = '\x1B[0m';
+
 // 2000 logs per 100ms maximum
 const THROTTLE_ELEMENTS = 2000;
 const THROTTLE_PER_IN_MILLISECONDS = 100;
@@ -67,6 +69,7 @@ export async function displayLogs (params) {
           return;
         case 'human':
         default:
+          if (log.message === RESET_COLOR) return;
           Logger.println(formatLogLine(log));
       }
     });
@@ -162,7 +165,7 @@ function formatLogLine (log) {
   else if (isBuildSucessMessage(log)) {
     return `${date.toISOString()}: ${colors.bold.blue(message)}`;
   }
-  return `${date.toISOString()}: ${message}`;
+  return `${date.toISOString()}: ${message}${RESET_COLOR}`;
 }
 
 function isCleverMessage (log) {
