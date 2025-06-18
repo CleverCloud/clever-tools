@@ -1,6 +1,13 @@
 # clever-tools changelog
 
 
+## [3.13.1](https://github.com/CleverCloud/clever-tools/compare/3.13.0...3.13.1) (2025-06-18)
+
+
+### 🐛 Bug Fixes
+
+* logs with color ([db3221b](https://github.com/CleverCloud/clever-tools/commit/db3221be205181b591c539db5775ee92d5dd4393))
+
 ## [3.13.0](https://github.com/CleverCloud/clever-tools/compare/3.12.0...3.13.0) (2025-06-10)
 
 
