@@ -1,4 +1,4 @@
-import colors from 'colors/safe.js';
+import { styleText } from 'node:util';
 import { Logger } from '../logger.js';
 import { createApiToken, deleteApiToken, listApiTokens } from '../clever-client/auth-bridge.js';
 import { sendToAuthBridge } from '../models/send-to-api.js';
@@ -23,8 +23,8 @@ export async function create (params) {
   if (!user.hasPassword) {
     const apiTokenListHref = new URL('/users/me/api-tokens', conf.CONSOLE_URL).href;
     throw new Error(dedent`
-      ${colors.yellow('!')} Your Clever Cloud account is linked via GitHub and has no password. Setting one is required to create API tokens.
-      ${colors.blue('→')} To do so, go to the following URL: ${colors.blue(apiTokenListHref)}
+      ${styleText('yellow', '!')} Your Clever Cloud account is linked via GitHub and has no password. Setting one is required to create API tokens.
+      ${styleText('blue', '→')} To do so, go to the following URL: ${styleText('blue', apiTokenListHref)}
     `);
   }
 
@@ -76,11 +76,11 @@ export async function create (params) {
     case 'human':
     default:
       Logger.println(dedent`
-        ${colors.green('✔')} API token successfully created! Store it securely, you won't able to print it again.
+        ${styleText('green', '✔')} API token successfully created! Store it securely, you won't able to print it again.
 
-          - API token ID : ${colors.grey(createdToken.apiTokenId)}
-          - API token    : ${colors.grey(createdToken.apiToken)}
-          - Expiration   : ${colors.grey(formatDate(createdToken.expirationDate))}
+          - API token ID : ${styleText('grey', createdToken.apiTokenId)}
+          - API token    : ${styleText('grey', createdToken.apiToken)}
+          - Expiration   : ${styleText('grey', formatDate(createdToken.expirationDate))}
 
         Export this token and use it to make authenticated requests to the Clever Cloud API through the Auth Bridge:
 
@@ -110,7 +110,7 @@ export async function list (params) {
   }
   else {
     if (tokens.length === 0) {
-      Logger.println(`ℹ️  No API token found, create one with ${colors.blue('clever tokens create')} command`);
+      Logger.println(`ℹ️  No API token found, create one with ${styleText('blue', 'clever tokens create')} command`);
     }
     else {
       console.table(tokens.map((token) => {
@@ -138,7 +138,7 @@ export async function revoke (params) {
 
   await deleteApiToken(apiTokenId).then(sendToAuthBridge);
 
-  Logger.println(colors.green('✔'), 'API token successfully revoked!');
+  Logger.println(styleText('green', '✔'), 'API token successfully revoked!');
 }
 
 function formatDate (dateInput) {

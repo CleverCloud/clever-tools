@@ -1,5 +1,4 @@
-import colors from 'colors/safe.js';
-import moment from 'moment';
+import { styleText } from 'node:util';
 
 import * as Activity from '../models/activity.js';
 import { formatTable } from '../format-table.js';
@@ -9,18 +8,34 @@ import { EventsStream } from '@clevercloud/client/esm/streams/events.node.js';
 import { getHostAndTokens } from '../models/send-to-api.js';
 import * as Application from '../models/application.js';
 
+const dtf = new Intl.DateTimeFormat('en', {
+  year: 'numeric',
+  month: '2-digit',
+  day: '2-digit',
+  hour: '2-digit',
+  minute: '2-digit',
+  second: '2-digit',
+  hour12: false,
+  timeZoneName: 'longOffset',
+});
+
+function formatDate (date) {
+  const d = Object.fromEntries(dtf.formatToParts(date).map((p) => [p.type, p.value]));
+  return `${d.year}-${d.month}-${d.day}T${d.hour}:${d.minute}:${d.second}${d.timeZoneName.replace('GMT', '')}`;
+}
+
 function getColoredState (state, isLast) {
   if (state === 'OK') {
-    return colors.bold.green(state);
+    return styleText(['bold', 'green'], state);
   }
   if (state === 'FAIL' || state === 'CANCELLED') {
-    return colors.bold.red(state);
+    return styleText(['bold', 'red'], state);
   }
   if (state === 'WIP' && !isLast) {
-    return colors.bold.red('FAIL');
+    return styleText(['bold', 'red'], 'FAIL');
   }
   if (state === 'WIP' && isLast) {
-    return colors.bold.blue('IN PROGRESS');
+    return styleText(['bold', 'blue'], 'IN PROGRESS');
   }
   Logger.warn(`Unknown deployment state: ${state}`);
   return 'UNKNOWN';
@@ -28,7 +43,7 @@ function getColoredState (state, isLast) {
 
 // We use examples of maximum width text to have a clean display
 const formatActivityTable = formatTable([
-  moment().format(),
+  formatDate(Date.now()),
   47,
   'IN PROGRESS',
   'downscale',
@@ -51,7 +66,7 @@ function convertEventToJson (event) {
 function formatActivityLine (event) {
   return formatActivityTable([
     [
-      moment(event.date).format(),
+      formatDate(event.date),
       event.uuid,
       getColoredState(event.state, event.isLast),
       event.action,
@@ -118,7 +133,8 @@ function getEventHandler (format, follow) {
           Logger.println(JSON.stringify(convertEventToJson(event)));
         },
         pop: clearPreviousLine,
-        end: () => {},
+        end: () => {
+        },
       };
     }
     case 'human':
@@ -126,7 +142,8 @@ function getEventHandler (format, follow) {
       return {
         print: (event) => Logger.println(formatActivityLine(event)),
         pop: clearPreviousLine,
-        end: () => {},
+        end: () => {
+        },
       };
     }
   }

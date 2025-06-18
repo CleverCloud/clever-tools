@@ -3,7 +3,7 @@ import * as LogV2 from '../models/log.js';
 import * as Log from '../models/log-v4.js';
 import { Logger } from '../logger.js';
 import { Deferred } from '../models/utils.js';
-import colors from 'colors/safe.js';
+import { styleText } from 'node:util';
 import { resolveAddonId } from '../models/ids-resolver.js';
 
 export async function appLogs (params) {
@@ -17,7 +17,7 @@ export async function appLogs (params) {
   if (addonIdOrRealId != null) {
     const addonId = await resolveAddonId(addonIdOrRealId);
     if (isForHuman) {
-      Logger.println(colors.blue('Waiting for addon logs…'));
+      Logger.println(styleText('blue', 'Waiting for addon logs…'));
     }
     else {
       throw new Error(`"${format}" format is not yet available for add-on logs`);
@@ -28,7 +28,7 @@ export async function appLogs (params) {
   const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
 
   if (isForHuman) {
-    Logger.println(colors.blue('Waiting for application logs…'));
+    Logger.println(styleText('blue', 'Waiting for application logs…'));
   }
 
   const deferred = new Deferred();
