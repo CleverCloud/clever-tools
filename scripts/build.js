@@ -1,4 +1,4 @@
-import { exec as pkg } from 'pkg';
+import { exec as pkg } from '@yao-pkg/pkg';
 import * as cfg from './config.js';
 import { getBinaryFilepath, getBinaryDirectory, getWorkingDirectory } from './paths.js';
 import { startTask, endTask, cleanupDirectory, exec } from './utils.js';
