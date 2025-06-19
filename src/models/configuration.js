@@ -1,12 +1,10 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 
-import commonEnv from 'common-env';
 import mkdirp from 'mkdirp';
 import xdg from 'xdg';
 
 import { Logger } from '../logger.js';
-const env = commonEnv(Logger);
 
 const CONFIG_FILES = {
   MAIN: 'clever-tools.json',
@@ -121,7 +119,7 @@ export async function setFeature (feature, value) {
   }
 }
 
-export const conf = env.getOrElseAll({
+const defaultConf = {
   API_HOST: 'https://api.clever-cloud.com',
   AUTH_BRIDGE_HOST: 'https://api-bridge.clever-cloud.com',
   SSH_GATEWAY: 'ssh@sshgateway-clevercloud-customers.services.clever-cloud.com',
@@ -139,4 +137,13 @@ export const conf = env.getOrElseAll({
   CONSOLE_URL: 'https://console.clever-cloud.com',
   CONSOLE_TOKEN_URL: 'https://console.clever-cloud.com/cli-oauth',
   GOTO_URL: 'https://console.clever-cloud.com/goto',
-});
+};
+
+export const conf = Object.fromEntries(
+  Object.entries(defaultConf).map(([name, value]) => {
+    if (process.env[name] != null) {
+      return [name, process.env[name]];
+    }
+    return [name, value];
+  }),
+);
