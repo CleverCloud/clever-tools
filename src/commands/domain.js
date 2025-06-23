@@ -11,7 +11,7 @@ import {
 } from '@clevercloud/client/esm/api/v2/application.js';
 import { getSummary } from '@clevercloud/client/esm/api/v2/user.js';
 import { sendToApi } from '../models/send-to-api.js';
-import colors from 'colors/safe.js';
+import { styleText } from 'node:util';
 import { parse as parseDomain } from 'tldts';
 import { diagDomainConfig } from '@clevercloud/client/esm/utils/diag-domain-config.js';
 import { sortDomains } from '@clevercloud/client/esm/utils/domains.js';
@@ -271,24 +271,24 @@ function reportDomainDiagnostics ({ hostname, pathPrefix, resolvedDnsConfig, dia
   const hasARecords = resolvedDnsConfig.aRecords.length > 0;
   const hasCnameRecord = resolvedDnsConfig.cnameRecords.length > 0;
 
-  Logger.println('\n' + colors.blue(hostname) + colors.yellow(pathPrefix) + '\n');
+  Logger.println('\n' + styleText('blue', hostname) + styleText('yellow', pathPrefix) + '\n');
 
   switch (diagSummary) {
     case 'managed':
-      printlnWithIndent(colors.green('✔ Managed by Clever Cloud'), 2);
+      printlnWithIndent(styleText('green', '✔ Managed by Clever Cloud'), 2);
       printlnWithIndent('ⓘ cleverapps.io domains should only be used for testing purposes', 2);
       break;
     case 'no-config':
-      printlnWithIndent(colors.red('✘ No DNS configuration found'), 2);
+      printlnWithIndent(styleText('red', '✘ No DNS configuration found'), 2);
       break;
     case 'valid':
-      printlnWithIndent(colors.green('✔ Your configuration is valid'), 2);
+      printlnWithIndent(styleText('green', '✔ Your configuration is valid'), 2);
       break;
     case 'invalid':
-      printlnWithIndent(colors.red('✘ Something is wrong with your configuration'), 2);
+      printlnWithIndent(styleText('red', '✘ Something is wrong with your configuration'), 2);
       break;
     case 'incomplete':
-      printlnWithIndent(colors.yellow('⚠ Your configuration is incomplete'), 2);
+      printlnWithIndent(styleText('yellow', '⚠ Your configuration is incomplete'), 2);
       break;
   }
 
@@ -297,7 +297,7 @@ function reportDomainDiagnostics ({ hostname, pathPrefix, resolvedDnsConfig, dia
     Logger.println('');
     validDiags.forEach((diag) => {
       const source = hasCnameRecord ? `(from CNAME ${resolvedDnsConfig.cnameRecords[0]}.)` : '';
-      printlnWithIndent(`${diag.record.value} ${colors.green('✔ A Record OK')} ${source}`, 2);
+      printlnWithIndent(`${diag.record.value} ${styleText('green', '✔ A Record OK')} ${source}`, 2);
     });
   }
 
@@ -409,14 +409,14 @@ function recursiveDisplay (obj, indentLevel = 0) {
 
   if (typeof obj === 'object' && obj.appId != null) {
     printlnWithIndent(`${obj.ownerName} | ${obj.appName} (${obj.appVariantSlug})`, indentLevel);
-    printlnWithIndent(colors.blue(obj.appConsoleUrl), indentLevel);
+    printlnWithIndent(styleText('blue', obj.appConsoleUrl), indentLevel);
     return;
   }
 
   for (const [propertyPath, subObj] of Object.entries(obj)) {
     if (propertyPath !== '/') {
       Logger.println('');
-      printlnWithIndent(colors.yellow(propertyPath), indentLevel);
+      printlnWithIndent(styleText('yellow', propertyPath), indentLevel);
       recursiveDisplay(subObj, indentLevel + 2);
     }
     else {

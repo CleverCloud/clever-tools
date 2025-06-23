@@ -3,6 +3,7 @@ import { getPackageJson } from '../src/load-package-json.cjs';
 const pkg = getPackageJson();
 
 export const archList = ['linux', 'macos', 'win'];
+// export const archList = ['macos-arm64'];
 export const archEmoji = {
   linux: '🐧',
   macos: '🍏',

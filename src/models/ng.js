@@ -1,4 +1,4 @@
-import colors from 'colors/safe.js';
+import { styleText } from 'node:util';
 import * as User from '../models/user.js';
 import * as Organisation from '../models/organisation.js';
 
@@ -57,7 +57,7 @@ export async function destroy (ngIdOrLabel, orgaIdOrName) {
   const [found] = await searchNgOrResource(ngIdOrLabel, orgaIdOrName, 'NetworkGroup');
 
   if (!found) {
-    throw new Error(`Network Group ${colors.red(ngIdOrLabel.ngId ?? ngIdOrLabel.ngResourceLabel)} not found`);
+    throw new Error(`Network Group ${styleText('red', ngIdOrLabel.ngId ?? ngIdOrLabel.ngResourceLabel)} not found`);
   }
 
   await deleteNetworkGroup({ ownerId: found.ownerId, networkGroupId: found.id }).then(sendToApi);
@@ -80,18 +80,18 @@ export async function getPeerConfig (peerIdOrLabel, ngIdOrLabel, orgaIdOrName) {
   const [parentNg] = await searchNgOrResource(ngIdOrLabel, orgaIdOrName, 'NetworkGroup');
 
   if (!parentNg) {
-    throw new Error(`Network Group ${colors.red(ngIdOrLabel.ngId ?? ngIdOrLabel.ngResourceLabel)} not found`);
+    throw new Error(`Network Group ${styleText('red', ngIdOrLabel.ngId ?? ngIdOrLabel.ngResourceLabel)} not found`);
   }
 
   const [peer] = await searchNgOrResource(peerIdOrLabel, orgaIdOrName, 'Peer');
 
   // peer.id is catched as a ngResourceLabel as it's a string with no distinctive prefix for now, it will change from API
   if (!peer || (peerIdOrLabel.ngResourceLabel && (peerIdOrLabel.ngResourceLabel !== peer.label && peerIdOrLabel.ngResourceLabel !== peer.id))) {
-    throw new Error(`Peer ${colors.red(peerIdOrLabel.ngResourceLabel ?? peerIdOrLabel.member)} not found`);
+    throw new Error(`Peer ${styleText('red', peerIdOrLabel.ngResourceLabel ?? peerIdOrLabel.member)} not found`);
   }
 
   if (!parentNg.peers.find((p) => p.id === peer.id)) {
-    throw new Error(`Peer ${colors.red(peer.id)} is not in Network Group ${colors.red(parentNg.id)}`);
+    throw new Error(`Peer ${styleText('red', peer.id)} is not in Network Group ${styleText('red', parentNg.id)}`);
   }
 
   Logger.debug(`Getting configuration for Peer ${peer.id}`);
@@ -181,8 +181,8 @@ export async function searchNgOrResource (idOrLabel, orgaIdOrName, type = 'all',
   }
 
   if (filtered.length > 1 && type !== 'all') {
-    throw new Error(`Multiple resources found for ${colors.red(query)}, use ID instead:
-${filtered.map((f) => ` • ${f.id} ${colors.grey(`(${f.label} - ${f.type})`)}`).join('\n')}`);
+    throw new Error(`Multiple resources found for ${styleText('red', query)}, use ID instead:
+${filtered.map((f) => ` • ${f.id} ${styleText('grey', `(${f.label} - ${f.type})`)}`).join('\n')}`);
   }
 
   // Deduplicate results
