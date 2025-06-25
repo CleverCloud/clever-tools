@@ -58,6 +58,7 @@ import * as publishedConfig from '../src/commands/published-config.js';
 import * as restart from '../src/commands/restart.js';
 import * as scale from '../src/commands/scale.js';
 import * as service from '../src/commands/service.js';
+import * as setOauthConf from '../src/commands/set-oauth-conf.js';
 import * as ssh from '../src/commands/ssh.js';
 import * as sshKeys from '../src/commands/ssh-keys.js';
 import * as status from '../src/commands/status.js';
@@ -1202,6 +1203,15 @@ async function run () {
     commands: [serviceLinkAppCommand, serviceUnlinkAppCommand, serviceLinkAddonCommand, serviceUnlinkAddonCommand],
   }, service.list);
 
+  // SET-OAUTH-CONF COMMAND
+  const setOauthConfClearCommand = cliparse.command('clear', {
+    description: 'Clear the OAuth configuration for the current user',
+  }, setOauthConf.clearConf);
+  const setOauthConfCommand = cliparse.command('set-oauth-conf', {
+    description: 'Set the OAuth configuration for the current user',
+    commands: [setOauthConfClearCommand],
+  }, setOauthConf.askConf);
+
   // SSH COMMAND
   const sshCommand = cliparse.command('ssh', {
     description: 'Connect to running instances through SSH',
@@ -1367,6 +1377,7 @@ async function run () {
     restartCommand,
     scaleCommand,
     serviceCommands,
+    setOauthConfCommand,
     sshCommand,
     sshKeysCommands,
     statusCommand,
