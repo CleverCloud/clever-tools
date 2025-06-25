@@ -1,5 +1,5 @@
 import { conf } from '../models/configuration.js';
-import { promptInput, promptSecret } from '../lib/prompts.js';
+import { confirm, promptInput, promptSecret } from '../lib/prompts.js';
 import { writeFileSync } from 'node:fs';
 import { Logger } from '../logger.js';
 import colors from 'colors/safe.js';
@@ -25,5 +25,19 @@ export async function askConf () {
   }
 
   Logger.printSuccess(`OAuth Configuration saved successfully, test it with ${colors.green('clever login')}`);
+}
 
+export async function clearConf () {
+  const confirmation = await confirm('Are you sure you want to clear the OAuth configuration? This will remove all OAuth settings.');
+  if (!confirmation) {
+    throw new Error('OAuth Configuration clearing aborted');
+  }
+
+  try {
+    writeFileSync(conf.THIRD_PARTY_ZONE_FILE, '{}');
+    Logger.printSuccess('OAuth Configuration cleared successfully');
+  }
+  catch (error) {
+    console.error('Error clearing configuration file:', error);
+  }
 }

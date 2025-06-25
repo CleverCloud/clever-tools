@@ -1203,8 +1203,13 @@ async function run () {
     commands: [serviceLinkAppCommand, serviceUnlinkAppCommand, serviceLinkAddonCommand, serviceUnlinkAddonCommand],
   }, service.list);
 
+  // SET-OAUTH-CONF COMMAND
+  const setOauthConfClearCommand = cliparse.command('clear', {
+    description: 'Clear the OAuth configuration for the current user',
+  }, setOauthConf.clearConf);
   const setOauthConfCommand = cliparse.command('set-oauth-conf', {
     description: 'Set the OAuth configuration for the current user',
+    commands: [setOauthConfClearCommand],
   }, setOauthConf.askConf);
 
   // SSH COMMAND
