@@ -193,10 +193,10 @@ clever tokens create myTokenName
 clever tokens create myTokenName --expiration 2w --format json
 ```
 
-Once created, you can use it replacing the API endpoint with https://auth-bridge.clever-cloud.com. For example:
+Once created, you can use it replacing the API endpoint with https://api-bridge.clever-cloud.com. For example:
 
 ```
-curl https://auth-bridge.clever-cloud.com/v2/self -H "Authorization: Bearer myToken"
+curl https://api-bridge.clever-cloud.com/v2/self -H "Authorization: Bearer myToken"
 ```
 
 To list all your tokens, use:
