@@ -17,11 +17,9 @@ export async function diag(params) {
     if (authDetails.token == null) {
       return 'not connected';
     }
-
     if (userId == null) {
       return 'authentication failed';
     }
-
     return 'authenticated';
   }
 
@@ -32,7 +30,8 @@ export async function diag(params) {
     platform: os.platform(),
     release: os.release(),
     arch: process.arch,
-    shell: process.env.SHELL,
+    shell: getShell(),
+    terminal: getTerminal(),
     isPackaged: process.pkg != null,
     execPath: process.execPath,
     configFile: conf.CONFIGURATION_FILE,
@@ -69,7 +68,8 @@ export async function diag(params) {
         Logger.println('Linux         ' + styleText('green', formattedDiag.linuxInfos));
       }
       Logger.println('Shell         ' + styleText('green', formattedDiag.shell));
-      Logger.println('Packaged      ' + styleText('green', String(formattedDiag.isPackaged)));
+      Logger.println('Terminal      ' + styleText('green', formattedDiag.terminal));
+      Logger.println('Packaged      ' + styleText('green', formattedDiag.isPackaged));
       Logger.println('Exec path     ' + styleText('green', formattedDiag.execPath));
       Logger.println('Config file   ' + styleText('green', formattedDiag.configFile));
 
@@ -94,4 +94,33 @@ export async function diag(params) {
       }
     }
   }
+}
+
+function getShell() {
+  const platform = os.platform();
+
+  if (platform === 'win32') {
+    if (process.env.PSModulePath) {
+      if (process.env.WT_SESSION) {
+        return 'PowerShell (Windows Terminal)';
+      }
+      if (process.env.PSVersionTable || process.env.POWERSHELL_DISTRIBUTION_CHANNEL) {
+        return 'PowerShell Core';
+      }
+      return 'Windows PowerShell';
+    }
+    if (process.env.WT_SESSION) {
+      return 'Windows Terminal (cmd)';
+    }
+    return process.env.ComSpec || 'cmd.exe';
+  }
+
+  return process.env.SHELL || 'unknown';
+}
+
+function getTerminal() {
+  if (process.env.WT_SESSION) {
+    return 'Windows Terminal';
+  }
+  return process.env.TERM_PROGRAM || process.env.TERMINAL_EMULATOR || process.env.TERM;
 }
