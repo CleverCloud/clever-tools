@@ -1,4 +1,4 @@
-import colors from 'colors/safe.js';
+import { styleText } from 'node:util';
 import dedent from 'dedent';
 
 import * as AppConfig from '../models/app_configuration.js';
@@ -31,7 +31,7 @@ export async function deploy (params) {
   if (commitIdToPush === remoteHeadCommitId) {
     switch (sameCommitPolicy) {
       case 'ignore':
-        Logger.printSuccess(`The application is up-to-date (${colors.grey(remoteHeadCommitId)})`);
+        Logger.printSuccess(`The application is up-to-date (${styleText('grey', remoteHeadCommitId)})`);
         return;
       case 'restart':
         return restartOnSameCommit(ownerId, appId, commitIdToPush, quiet, false, exitStrategy);
@@ -41,8 +41,8 @@ export async function deploy (params) {
       default: {
         const restartCommand = commitIdToPush !== deployedCommitId ? `clever restart --commit ${commitIdToPush}` : 'clever restart';
         throw new Error(dedent`
-          Remote HEAD has the same commit as the one to push ${colors.grey(`(${remoteHeadCommitId})`)}, your application is up-to-date.
-          Create a new commit, use ${colors.blue(restartCommand)} or the ${colors.blue('--same-commit-policy')} option.
+          Remote HEAD has the same commit as the one to push ${styleText('grey', `(${remoteHeadCommitId})`)}, your application is up-to-date.
+          Create a new commit, use ${styleText('blue', restartCommand)} or the ${styleText('blue', '--same-commit-policy')} option.
         `);
       }
     }
@@ -54,28 +54,28 @@ export async function deploy (params) {
   const knownDeployments = await getAllDeployments({ id: ownerId, appId, limit: 5 }).then(sendToApi);
 
   Logger.println(dedent`
-    ${colors.bold(`🚀 Deploying ${colors.green(appData.name)}`)}
-       Application ID  ${colors.grey(`${appId}`)}
-       Org ID          ${colors.grey(`${ownerId}`)}
+    ${styleText('bold', `🚀 Deploying ${styleText('green', appData.name)}`)}
+       Application ID  ${styleText('grey', `${appId}`)}
+       Org ID          ${styleText('grey', `${ownerId}`)}
   `);
 
   Logger.println();
 
-  Logger.println(colors.bold('🔀 Git information'));
+  Logger.println(styleText('bold', '🔀 Git information'));
   if (remoteHeadCommitId == null || deployedCommitId == null) {
-    Logger.println(`   ${colors.yellow('!')} App is brand new, no commits on remote yet`);
+    Logger.println(`   ${styleText('yellow', '!')} App is brand new, no commits on remote yet`);
   }
   else {
-    Logger.println(`   Remote head     ${colors.yellow(remoteHeadCommitId)} (${branchRefspec})`);
-    Logger.println(`   Deployed commit ${colors.yellow(deployedCommitId)}`);
+    Logger.println(`   Remote head     ${styleText('yellow', remoteHeadCommitId)} (${branchRefspec})`);
+    Logger.println(`   Deployed commit ${styleText('yellow', deployedCommitId)}`);
   }
-  Logger.println(`   Local commit    ${colors.yellow(commitIdToPush)} ${colors.blue('[will be deployed]')}`);
+  Logger.println(`   Local commit    ${styleText('yellow', commitIdToPush)} ${styleText('blue', '[will be deployed]')}`);
 
   Logger.println();
 
   Logger.println(dedent`
-    ${colors.bold('🔄 Deployment progress')}
-       ${colors.blue('→ Pushing source code to Clever Cloud…')}
+    ${styleText('bold', '🔄 Deployment progress')}
+       ${styleText('blue', '→ Pushing source code to Clever Cloud…')}
   `);
 
   await git.push(appData.deployUrl, commitIdToPush, force)
@@ -89,14 +89,14 @@ export async function deploy (params) {
       }
     });
 
-  await Logger.println(`   ${colors.green('✓ Code pushed to Clever Cloud')}`);
+  await Logger.println(`   ${styleText('green', '✓ Code pushed to Clever Cloud')}`);
 
   return Log.watchDeploymentAndDisplayLogs({ ownerId, appId, commitId: commitIdToPush, knownDeployments, quiet, exitStrategy });
 }
 
 async function restartOnSameCommit (ownerId, appId, commitIdToPush, quiet, withoutCache, exitStrategy) {
   const cacheSuffix = withoutCache ? ' without using cache' : '';
-  Logger.println(`🔄 Restarting ${colors.bold(appId)}${cacheSuffix} ${colors.grey(`(${commitIdToPush})`)}`);
+  Logger.println(`🔄 Restarting ${styleText('bold', appId)}${cacheSuffix} ${styleText('grey', `(${commitIdToPush})`)}`);
 
   const restart = await Application.redeploy(ownerId, appId, commitIdToPush, withoutCache);
   return Log.watchDeploymentAndDisplayLogs({ ownerId, appId, deploymentId: restart.deploymentId, quiet, exitStrategy });

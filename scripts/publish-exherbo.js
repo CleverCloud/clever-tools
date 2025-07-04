@@ -1,6 +1,6 @@
 import * as cfg from './config.js';
-import del from 'del';
-import { cloneGitProject, applyOneTemplate, commitAndPush } from './utils.js';
+import fs from 'node:fs';
+import { applyOneTemplate, cloneGitProject, commitAndPush } from './utils.js';
 
 export async function publishExherbo (version) {
 
@@ -12,7 +12,7 @@ export async function publishExherbo (version) {
 
   await cloneGitProject({ gitUrl, gitPath, git, cleanRepo: false });
 
-  del.sync(`${gitCleverToolsDir}/*`);
+  fs.rmSync(`${gitCleverToolsDir}/*`, { recursive: true, force: true });
 
   await applyOneTemplate(`${gitCleverToolsDir}/clever-tools-bin-${version}.exheres-0`, templateFilepath, {
     copyrightYear: new Date().getFullYear(),

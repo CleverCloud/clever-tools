@@ -1,4 +1,4 @@
-import colors from 'colors/safe.js';
+import { styleText } from 'node:util';
 import dedent from 'dedent';
 
 import { sendToApi } from './send-to-api.js';
@@ -34,13 +34,13 @@ export async function getSingleRealId (operatorIdOrName) {
   const operators = await findAddonsByNameOrId(name);
 
   if (operators.length === 0) {
-    throw new Error(`Could not find ${colors.red(name)}`);
+    throw new Error(`Could not find ${styleText('red', name)}`);
   }
 
   if (operators.length > 1) {
     throw new Error(dedent`
-      Ambiguous name ${colors.red(name)}, use the real ID instead:
-        ${colors.grey(operators.map((otoroshi) => `- ${otoroshi.name} (${otoroshi.realId})`).join('\n'))}
+      Ambiguous name ${styleText('red', name)}, use the real ID instead:
+        ${styleText('grey', operators.map((otoroshi) => `- ${otoroshi.name} (${otoroshi.realId})`).join('\n'))}
     `);
   }
 
