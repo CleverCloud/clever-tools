@@ -27,6 +27,7 @@
   ],
   "dependencies": {
     "@clevercloud/client": "10.1.0",
+    "@clevercloud/tooling-javascript-eslint-config": "file:clevercloud-tooling-javascript-eslint-config-1.0.0.tgz",
     "@inquirer/prompts": "7.5.3",
     "cliparse": "0.5.0",
     "common-env": "6.4.0",
@@ -54,12 +55,7 @@
     "@rollup/plugin-node-resolve": "16.0.1",
     "@yao-pkg/pkg": "6.5.1",
     "aws-sdk": "2.919.0",
-    "eslint": "7.27.0",
-    "eslint-config-standard": "16.0.3",
-    "eslint-plugin-import": "2.23.4",
-    "eslint-plugin-node": "11.1.0",
-    "eslint-plugin-promise": "5.1.0",
-    "eslint-plugin-standard": "5.0.0",
+    "eslint": "^9.15.0",
     "fs-extra": "11.3.0",
     "glob": "7.1.7",
     "magic-string": "0.30.17",
@@ -70,9 +66,10 @@
   },
   "scripts": {
     "build": "rollup -c rollup.config.js",
-    "lint": "eslint bin src scripts",
-    "lint:fix": "eslint --fix bin src scripts",
-    "install-local:cliparse": "(cd ../cliparse-node && npm pack) && mv ../cliparse-node/cliparse-*.tgz . && npm i -f ./cliparse-*.tgz"
+    "lint": "eslint",
+    "lint:fix": "eslint --fix",
+    "install-local:cliparse": "(cd ../cliparse-node && npm pack) && mv ../cliparse-node/cliparse-*.tgz . && npm i -f ./cliparse-*.tgz",
+    "install-local:config": "(cd ../tooling-javascript/eslint/config && DEV=true npm pack) && mv ../tooling-javascript/eslint/config/clevercloud-tooling-javascript-eslint-config-*tgz . && npm i -f ./clevercloud-tooling-javascript-eslint-config-*tgz"
   },
   "repository": {
     "type": "git",
