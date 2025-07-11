@@ -72,7 +72,7 @@ By default, a Clever Cloud application gets `app_id.cleverapps.io` as fully qual
 clever domain
 ```
 
-To get an overview of domains linked to any of your applications and organizations, use:
+To get an overview of domains linked to any of your applications and organisations, use:
 
 ```
 clever domain overview
