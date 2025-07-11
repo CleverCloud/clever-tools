@@ -43,9 +43,8 @@ export async function list (ownerId, appId, showAll) {
   }
 
   const myAddons = await getAllLinkedAddons({ id: ownerId, appId }).then(sendToApi);
-
-  if (showAll == null) {
-    return myAddons;
+  if (!showAll) {
+    return myAddons.map((addon) => ({ ...addon, isLinked: true }));
   }
 
   const myAddonIds = myAddons.map((addon) => addon.id);
