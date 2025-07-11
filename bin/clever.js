@@ -195,6 +195,22 @@ async function run () {
 
   // OPTIONS
   const opts = {
+    apiHost: cliparse.option('api-host', {
+      metavar: 'api_host',
+      description: 'API host to use (e.g.: https://api.clever-cloud.com)',
+    }),
+    consoleTokenUrl: cliparse.option('console-token-url', {
+      metavar: 'console_token_url',
+      description: 'Console token URL to use (e.g.: https://console.clever-cloud.com/cli-oauth)',
+    }),
+    oauthConsumerKey: cliparse.option('oauth-consumer-key', {
+      metavar: 'oauth_consumer_key',
+      description: 'OAuth consumer key to use)',
+    }),
+    oauthConsumerSecret: cliparse.option('oauth-consumer-secret', {
+      metavar: 'oauth_consumer_secret',
+      description: 'OAuth consumer secret to use',
+    }),
     targetVersion: cliparse.option('target', {
       metavar: 'version',
       description: 'Target version to upgrade to (e.g.: 24, 2.4, 2.4.1)',
@@ -1209,6 +1225,7 @@ async function run () {
   }, setOauthConf.clearConf);
   const setOauthConfCommand = cliparse.command('set-oauth-conf', {
     description: 'Set the OAuth configuration for the current user',
+    options: [opts.apiHost, opts.consoleTokenUrl, opts.oauthConsumerKey, opts.oauthConsumerSecret],
     commands: [setOauthConfClearCommand],
   }, setOauthConf.askConf);
 

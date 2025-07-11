@@ -4,11 +4,18 @@ import { writeFileSync } from 'node:fs';
 import { Logger } from '../logger.js';
 import colors from 'colors/safe.js';
 
-export async function askConf () {
-  const apiHost = await promptInput('API Host');
-  const consoleTokenUrl = await promptInput('Console Token URL');
-  const oauthConsumerKey = await promptSecret('OAuth Consumer Key');
-  const oauthConsumerSecret = await promptSecret('OAuth Consumer Secret');
+export async function askConf (params) {
+  let {
+    'api-host': apiHost,
+    'console-token-url': consoleTokenUrl,
+    'oauth-consumer-key': oauthConsumerKey,
+    'oauth-consumer-secret': oauthConsumerSecret,
+  } = params.options;
+
+  apiHost = apiHost || await promptInput('API Host');
+  consoleTokenUrl = consoleTokenUrl || await promptInput('Console Token URL');
+  oauthConsumerKey = oauthConsumerKey || await promptSecret('OAuth Consumer Key');
+  oauthConsumerSecret = oauthConsumerSecret || await promptSecret('OAuth Consumer Secret');
 
   const config = {
     API_HOST: apiHost,
