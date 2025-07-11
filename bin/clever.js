@@ -39,6 +39,7 @@ import * as drain from '../src/commands/drain.js';
 import * as emails from '../src/commands/emails.js';
 import * as env from '../src/commands/env.js';
 import * as features from '../src/commands/features.js';
+import * as k8s from '../src/commands/k8s.js';
 import * as keycloak from '../src/commands/keycloak.js';
 import * as kv from '../src/commands/kv.js';
 import * as link from '../src/commands/link.js';
@@ -824,6 +825,15 @@ async function run () {
     commands: [enableFeatureCommand, disableFeatureCommand, listFeaturesCommand, infoFeaturesCommand],
   }, features.list);
 
+  // K8S COMMAND
+  const k8sCreateCommand = cliparse.command('create', {
+    description: 'Create a Kubernetes cluster',
+  }, k8s.create);
+  const k8sCommand = cliparse.command('k8s', {
+    description: 'Manage Clever Cloud Kubernetes clusters',
+    commands: [k8sCreateCommand],
+  }, k8s.create);
+
   // KEYCLOAK COMMAND
   const keycloakGetCommand = cliparse.command('get', {
     description: 'Get information about a deployed Keycloak',
@@ -1356,6 +1366,7 @@ async function run () {
     envCommands,
     featuresCommands,
     cliparseCommands.helpCommand,
+    k8sCommand,
     loginCommand,
     logoutCommand,
     logsCommand,
