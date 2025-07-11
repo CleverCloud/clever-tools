@@ -1,6 +1,6 @@
 # Clever Cloud services: notifications and hooks
 
-When events happen on Clever Cloud, during add-ons or applications lifecycle for example, you can send email notifications or trigger webhooks. For each of the following command, you can list all items and/or target a specific user/organization through these parameters:
+When events happen on Clever Cloud, during add-ons or applications lifecycle for example, you can send email notifications or trigger webhooks. For each of the following command, you can list all items and/or target a specific user/organisation through these parameters:
 
 ```
 [--org, -o, --owner]       Organisation ID (or name, if unambiguous)
