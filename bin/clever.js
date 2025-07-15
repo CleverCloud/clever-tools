@@ -872,7 +872,7 @@ async function run () {
   const keycloakVersionsCommands = cliparse.command('version', {
     description: 'Check Keycloak deployed version',
     args: [args.addonIdOrName],
-    options: [opts.humanJsonOutputFormat],
+    privateOptions: [opts.humanJsonOutputFormat],
     commands: [keycloakVersionCheckCommand, keycloakVersionUpdateCommand],
   }, keycloak.checkVersion);
   const keycloakCommand = cliparse.command('keycloak', {
@@ -991,7 +991,7 @@ async function run () {
   const metabaseVersionsCommands = cliparse.command('version', {
     description: 'Manage Metabase deployed version',
     args: [args.addonIdOrName],
-    options: [opts.humanJsonOutputFormat],
+    privateOptions: [opts.humanJsonOutputFormat],
     commands: [metabaseVersionCheckCommand, metabaseVersionUpdateCommand],
   }, metabase.checkVersion);
   const metabaseCommand = cliparse.command('metabase', {
@@ -1121,7 +1121,7 @@ async function run () {
   const otoroshiVersionsCommands = cliparse.command('version', {
     description: 'Manage Otoroshi deployed version',
     args: [args.addonIdOrName],
-    options: [opts.humanJsonOutputFormat],
+    privateOptions: [opts.humanJsonOutputFormat],
     commands: [otoroshiVersionCheckCommand, otoroshiVersionUpdateCommand],
   }, otoroshi.checkVersion);
   const otoroshiCommand = cliparse.command('otoroshi', {
