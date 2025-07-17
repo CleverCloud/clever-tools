@@ -12,7 +12,7 @@ import {
 } from '@clevercloud/client/esm/api/v2/application.js';
 import cliparse from 'cliparse';
 import { getSummary } from '@clevercloud/client/esm/api/v2/user.js';
-import colors from 'colors/safe.js';
+import { styleText } from 'node:util';
 
 import * as AppConfiguration from './app_configuration.js';
 import { confirmAnswer } from '../lib/prompts.js';
@@ -102,7 +102,7 @@ export async function deleteApp (app, skipConfirmation) {
 
   if (!skipConfirmation) {
     await confirmAnswer(
-      `Deleting an application can't be undone, please type ${colors.green(app.name)} to confirm:`,
+      `Deleting an application can't be undone, please type ${styleText('green', app.name)} to confirm:`,
       'No confirmation, aborting application deletion',
       app.name,
     );

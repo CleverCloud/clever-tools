@@ -1,4 +1,4 @@
-import colors from 'colors/safe.js';
+import { styleText } from 'node:util';
 import * as networkGroup from '../models/ng.js';
 import * as networkGroupResources from '../models/ng-resources.js';
 
@@ -21,13 +21,13 @@ export async function createNg (params) {
 
   await networkGroup.create(label, description, tags, membersIds, org);
 
-  const successMessage = `Network Group ${colors.green(label)} successfully created`;
+  const successMessage = `Network Group ${styleText('green', label)} successfully created`;
   if (membersIds == null) {
     Logger.printSuccess(`${successMessage}!`);
   }
   else {
     Logger.printSuccess(`${successMessage} with member(s):`);
-    Logger.println(membersIds.map((id) => colors.grey(`  - ${id}`)).join('\n'));
+    Logger.println(membersIds.map((id) => styleText('grey', `  - ${id}`)).join('\n'));
   }
 }
 
@@ -42,7 +42,7 @@ export async function deleteNg (params) {
 
   await networkGroup.destroy(ngIdOrLabel, org);
   const ngText = ngIdOrLabel.ngResourceLabel ?? ngIdOrLabel.ngId;
-  Logger.printSuccess(`Network Group ${colors.green(ngText)} successfully deleted!`);
+  Logger.printSuccess(`Network Group ${styleText('green', ngText)} successfully deleted!`);
 }
 
 /** Create an external peer in a Network Group
@@ -58,7 +58,7 @@ export async function createExternalPeer (params) {
 
   await networkGroupResources.createExternalPeerWithParent(ngIdOrLabel, peerIdOrLabel.ngResourceLabel, publicKey, org);
   const ngText = ngIdOrLabel.ngResourceLabel ?? ngIdOrLabel.ngId;
-  Logger.printSuccess(`External peer ${colors.green(peerIdOrLabel.ngResourceLabel)} successfully created in Network Group ${colors.green(ngText)}`);
+  Logger.printSuccess(`External peer ${styleText('green', peerIdOrLabel.ngResourceLabel)} successfully created in Network Group ${styleText('green', ngText)}`);
 }
 
 /** Delete an external peer from a Network Group
@@ -74,7 +74,7 @@ export async function deleteExternalPeer (params) {
   const peerText = peerIdOrLabel.ngResourceLabel ?? peerIdOrLabel.memberId;
   const ngText = ngIdOrLabel.ngResourceLabel ?? ngIdOrLabel.ngId;
   await networkGroupResources.deleteExternalPeerWithParent(ngIdOrLabel, peerText, org);
-  Logger.printSuccess(`External peer ${colors.green(peerText)} successfully deleted from Network Group ${colors.green(ngText)}`);
+  Logger.printSuccess(`External peer ${styleText('green', peerText)} successfully deleted from Network Group ${styleText('green', ngText)}`);
 }
 
 /** Link a member to a Network Group
@@ -89,7 +89,7 @@ export async function linkToNg (params) {
 
   await networkGroupResources.linkMember(ngIdOrLabel, resourceId.memberId, org);
   const ngText = ngIdOrLabel.ngResourceLabel ?? ngIdOrLabel.ngId;
-  Logger.printSuccess(`Member ${colors.green(resourceId.memberId)} successfully linked to Network Group ${colors.green(ngText)}`);
+  Logger.printSuccess(`Member ${styleText('green', resourceId.memberId)} successfully linked to Network Group ${styleText('green', ngText)}`);
 }
 
 /** Unlink a member from a Network Group
@@ -104,7 +104,7 @@ export async function unlinkFromNg (params) {
 
   await networkGroupResources.unlinkMember(ngIdOrLabel, resourceId.memberId, org);
   const ngText = ngIdOrLabel.ngResourceLabel ?? ngIdOrLabel.ngId;
-  Logger.printSuccess(`Member ${colors.green(resourceId.memberId)} successfully unlinked from Network Group ${colors.green(ngText)}`);
+  Logger.printSuccess(`Member ${styleText('green', resourceId.memberId)} successfully unlinked from Network Group ${styleText('green', ngText)}`);
 }
 
 /** Print the configuration of a Network Group's peer
@@ -151,7 +151,7 @@ export async function listNg (params) {
     case 'human':
     default: {
       if (!ngs.length) {
-        Logger.println(`ℹ️ No Network Group found, create one with ${colors.blue('clever ng create')} command`);
+        Logger.println(`ℹ️ No Network Group found, create one with ${styleText('blue', 'clever ng create')} command`);
         return;
       }
       const ngList = ngs.map(({

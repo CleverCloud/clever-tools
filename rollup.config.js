@@ -17,39 +17,15 @@ export default defineConfig({
   external: ['fsevents'],
   plugins: [
     {
+      resolveImportMeta (property) {
+        // Rollup replaces "fileURLToPath(import.meta.url)"
+        // with a dynamic require('u' + 'rl') and pkg does not like that very much
+        // That's why we patch this
+        if (property === 'url') {
+          return 'require(\'url\').pathToFileURL(__filename).href';
+        }
+      },
       transform (code, id) {
-
-        // formidable (used by superagent) hijacks require :-(
-        if (id.includes('/node_modules/formidable/')) {
-          const ms = new MagicString(code);
-          ms.replaceAll(
-            'if (global.GENTLY) require = GENTLY.hijack(require);',
-            '',
-          );
-          return {
-            code: ms.toString(),
-            map: ms.generateMap(),
-          };
-        }
-
-        // for update notifier
-        if (id.includes('/node_modules/update-notifier/')) {
-          const ms = new MagicString(code);
-          ms
-            .replaceAll(
-              `const importLazy = require('import-lazy')(require);`,
-              '',
-            )
-            .replaceAll(
-              /const ([^ ]+) = importLazy\(\'([^']+)\'\);/g,
-              'const $1_ = require(\'$2\'); const $1 = () => $1_',
-            );
-
-          return {
-            code: ms.toString(),
-            map: ms.generateMap(),
-          };
-        }
 
         // for ws peer deps
         if (id.includes('/node_modules/ws/')) {
@@ -74,6 +50,8 @@ export default defineConfig({
     commonjs(),
     nodeResolve({
       preferBuiltins: true,
+      browser: false,
+      exportConditions: ['node'],
     }),
     json(),
   ],
