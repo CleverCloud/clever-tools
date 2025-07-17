@@ -56,7 +56,7 @@ export async function deploy (params) {
   Logger.println(dedent`
     ${colors.bold(`🚀 Deploying ${colors.green(appData.name)}`)}
        Application ID  ${colors.grey(`${appId}`)}
-       Org ID          ${colors.grey(`${ownerId}`)}
+       Organisation ID ${colors.grey(`${ownerId}`)}
   `);
 
   Logger.println();
