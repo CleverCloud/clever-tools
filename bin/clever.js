@@ -38,6 +38,7 @@ import * as domain from '../src/commands/domain.js';
 import * as drain from '../src/commands/drain.js';
 import * as emails from '../src/commands/emails.js';
 import * as env from '../src/commands/env.js';
+import * as explain from '../src/commands/explain.js';
 import * as features from '../src/commands/features.js';
 import * as keycloak from '../src/commands/keycloak.js';
 import * as kv from '../src/commands/kv.js';
@@ -98,6 +99,7 @@ async function run () {
 
   // ARGUMENTS
   const args = {
+    cleverCommand: cliparse.argument('command', { description: 'The command to explain' }),
     kvRawCommand: cliparse.argument('command', { description: 'The raw command to send to the Materia KV or Redis® add-on' }),
     kvIdOrName: cliparse.argument('kv-id', {
       description: 'Add-on/Real ID (or name, if unambiguous) of a Materia KV or Redis® add-on',
@@ -802,6 +804,12 @@ async function run () {
     commands: [envSetCommand, envRemoveCommand, envImportCommand, envImportVarsFromLocalEnvCommand],
   }, env.list);
 
+  // EXPLAIN COMMAND
+  const explainCommand = cliparse.command('explain', {
+    description: 'Explain a command',
+    args: [args.cleverCommand],
+  }, explain.explain);
+
   // EXPERIMENTAL FEATURES COMMAND
   const listFeaturesCommand = cliparse.command('list', {
     description: 'List available experimental features',
@@ -1354,6 +1362,7 @@ async function run () {
     emailNotificationsCommand,
     emailsCommands,
     envCommands,
+    explainCommand,
     featuresCommands,
     cliparseCommands.helpCommand,
     loginCommand,
