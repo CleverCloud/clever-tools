@@ -48,7 +48,7 @@
     "curlconverter": "3.21.0",
     "dedent": "1.6.0",
     "eventsource": "4.0.0",
-    "ioredis": "5.4.1",
+    "ioredis": "5.7.0",
     "iso8601-duration": "2.1.2",
     "isomorphic-git": "1.25.3",
     "linux-release-info": "3.0.0",
