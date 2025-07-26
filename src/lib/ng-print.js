@@ -1,7 +1,6 @@
 import { styleText } from 'node:util';
-import * as networkGroup from '../models/ng.js';
-
 import { Logger } from '../logger.js';
+import * as networkGroup from '../models/ng.js';
 
 /**
  * Print a Network Group
@@ -9,8 +8,7 @@ import { Logger } from '../logger.js';
  * @param {string} format Output format
  * @param {boolean} full If true, get more details about the Network Group (default: false)
  */
-function printNg (ng, format, full = false) {
-
+function printNg(ng, format, full = false) {
   switch (format) {
     case 'json': {
       Logger.printJson(ng);
@@ -56,8 +54,7 @@ function printNg (ng, format, full = false) {
  * @param {Object} member The Network Group member to print
  * @param {string} format Output format
  */
-function printMember (member, format) {
-
+function printMember(member, format) {
   switch (format) {
     case 'json': {
       Logger.printJson(member);
@@ -79,7 +76,7 @@ function printMember (member, format) {
  * @param {string} format Output format
  * @param {boolean} full If true, get more details about the peer (default: false)
  */
-function printPeer (peer, format, full = false) {
+function printPeer(peer, format, full = false) {
   switch (format) {
     case 'json': {
       Logger.printJson(peer);
@@ -97,7 +94,7 @@ function printPeer (peer, format, full = false) {
  * @param {Object} peer
  * @param {boolean} full If true, get more details about the peer (default: false)
  */
-function formatPeer (peer, full = false) {
+function formatPeer(peer, full = false) {
   const peerToPrint = {
     'Parent Member': peer.parentMember,
     ID: peer.id,
@@ -108,8 +105,7 @@ function formatPeer (peer, full = false) {
   if (full) {
     if (peer.endpoint.ngTerm != null) {
       peerToPrint['Host:IP'] = `${peer.endpoint.ngTerm.host}:${peer.endpoint.ngTerm.port}`;
-    }
-    else {
+    } else {
       peerToPrint.Host = peer.endpoint.ngIp;
     }
     if (peer.endpoint.publicTerm != null) {
@@ -128,18 +124,17 @@ function formatPeer (peer, full = false) {
  * @param {string} action Action to perform (search or get)
  * @param {string} type Type of item to search (NetworkGroup, Member, Peer)
  */
-export async function printResults (idOrLabel, org, format, action, type) {
-
+export async function printResults(idOrLabel, org, format, action, type) {
   const exactMatch = action === 'get';
   const toLookFor = type ?? (action === 'search' ? 'all' : 'single');
 
   const found = await networkGroup.searchNgOrResource(idOrLabel, org, toLookFor, exactMatch);
 
   if (!found.length) {
-    const searchString = idOrLabel.ngId
-      ?? idOrLabel.memberId
-      ?? idOrLabel.ngResourceLabel;
-    Logger.println(`${styleText('blue', '!')} No Network Group or resource found for ${styleText('blue', searchString)}`);
+    const searchString = idOrLabel.ngId ?? idOrLabel.memberId ?? idOrLabel.ngResourceLabel;
+    Logger.println(
+      `${styleText('blue', '!')} No Network Group or resource found for ${styleText('blue', searchString)}`,
+    );
     return;
   }
 
@@ -185,7 +180,9 @@ export async function printResults (idOrLabel, org, format, action, type) {
         }
 
         if (grouped.ExternalPeer || grouped.CleverPeer) {
-          Logger.println(`${styleText('bold', ` • Found ${grouped.ExternalPeer.length + grouped.CleverPeer.length} Peer(s):`)}`);
+          Logger.println(
+            `${styleText('bold', ` • Found ${grouped.ExternalPeer.length + grouped.CleverPeer.length} Peer(s):`)}`,
+          );
           grouped.CleverPeer?.forEach((item) => printPeer(item, format));
           grouped.ExternalPeer?.forEach((item) => printPeer(item, format));
         }

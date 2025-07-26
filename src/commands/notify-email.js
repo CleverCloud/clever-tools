@@ -1,12 +1,10 @@
+import { createEmailhook, deleteEmailhook, getEmailhooks } from '@clevercloud/client/esm/api/v2/notification.js';
 import { styleText } from 'node:util';
-
 import { Logger } from '../logger.js';
-import { getOwnerAndApp, getOrgaIdOrUserId } from '../models/notification.js';
-
-import { getEmailhooks, createEmailhook, deleteEmailhook } from '@clevercloud/client/esm/api/v2/notification.js';
+import { getOrgaIdOrUserId, getOwnerAndApp } from '../models/notification.js';
 import { sendToApi } from '../models/send-to-api.js';
 
-export async function list (params) {
+export async function list(params) {
   const { org, 'list-all': listAll, format } = params.options;
 
   // TODO: fix alias option
@@ -42,8 +40,7 @@ export async function list (params) {
         if (hook.notified.length > 1) {
           Logger.println('  to:');
           hook.notified.forEach((target) => Logger.println(`    ${target}`));
-        }
-        else {
+        } else {
           Logger.println(`  to: ${hook.notified[0]}`);
         }
       });
@@ -51,8 +48,7 @@ export async function list (params) {
   }
 }
 
-export function getEmailNotificationTargets (notifTargets) {
-
+export function getEmailNotificationTargets(notifTargets) {
   if (notifTargets == null) {
     return [];
   }
@@ -73,7 +69,7 @@ export function getEmailNotificationTargets (notifTargets) {
     .filter((e) => e != null);
 }
 
-export async function add (params) {
+export async function add(params) {
   const { org, event: events, service, notify: notifTargets } = params.options;
   const [name] = params.args;
 
@@ -83,7 +79,7 @@ export async function add (params) {
   const body = {
     name,
     notified: getEmailNotificationTargets(notifTargets),
-    scope: (appId != null && service == null) ? [appId] : service,
+    scope: appId != null && service == null ? [appId] : service,
     events,
   };
 
@@ -92,7 +88,7 @@ export async function add (params) {
   Logger.println('The webhook has been added');
 }
 
-export async function remove (params) {
+export async function remove(params) {
   const { org } = params.options;
   const [notificationId] = params.args;
 

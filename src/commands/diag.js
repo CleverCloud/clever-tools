@@ -1,21 +1,19 @@
-import os from 'node:os';
-
 import { releaseInfo as getLinuxInfos } from 'linux-release-info';
+import os from 'node:os';
 import { styleText } from 'node:util';
-
-import { Logger } from '../logger.js';
 import pkg from '../../package.json' with { type: 'json' };
-import * as User from '../models/user.js';
+import { Logger } from '../logger.js';
 import { conf, loadOAuthConf } from '../models/configuration.js';
+import * as User from '../models/user.js';
 
-export async function diag (params) {
+export async function diag(params) {
   const { format } = params.options;
 
   /** @type {string} */
   const userId = await User.getCurrentId().catch(() => null);
   const authDetails = await loadOAuthConf();
 
-  function getAuthState () {
+  function getAuthState() {
     if (authDetails.token == null) {
       return 'not connected';
     }
@@ -72,7 +70,8 @@ export async function diag (params) {
 
       Logger.println('Auth source   ' + styleText('green', formattedDiag.authSource));
 
-      const token = formattedDiag.oAuthToken == null ? styleText('red', '(none)') : styleText('green', formattedDiag.oAuthToken);
+      const token =
+        formattedDiag.oAuthToken == null ? styleText('red', '(none)') : styleText('green', formattedDiag.oAuthToken);
       Logger.println('oAuth token   ' + token);
 
       switch (formattedDiag.authState) {

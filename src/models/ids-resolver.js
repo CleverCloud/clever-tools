@@ -1,7 +1,7 @@
-import { Logger } from '../logger.js';
-import { sendToApi } from './send-to-api.js';
 import { getSummary } from '@clevercloud/client/esm/api/v2/user.js';
+import { Logger } from '../logger.js';
 import { loadIdsCache, writeIdsCache } from './configuration.js';
+import { sendToApi } from './send-to-api.js';
 
 /*
 This system uses a simplified representation of the summary to expose IDs links:
@@ -25,14 +25,13 @@ This system uses a simplified representation of the summary to expose IDs links:
 }
  */
 
-export async function resolveOwnerId (id) {
+export async function resolveOwnerId(id) {
   return getIdFromCacheOrSummary((ids) => ids.owners[id]);
 }
 
-export async function resolveAddonId (id) {
-
+export async function resolveAddonId(id) {
   const addonId = await getIdFromCacheOrSummary((ids) => {
-    return (ids.addons[id] != null) ? ids.addons[id].addonId : null;
+    return ids.addons[id] != null ? ids.addons[id].addonId : null;
   });
 
   if (addonId != null) {
@@ -42,10 +41,9 @@ export async function resolveAddonId (id) {
   throw new Error(`Add-on ${id} does not exist`);
 }
 
-export async function resolveRealId (id) {
-
+export async function resolveRealId(id) {
   const realId = await getIdFromCacheOrSummary((ids) => {
-    return (ids.addons[id] != null) ? ids.addons[id].realId : null;
+    return ids.addons[id] != null ? ids.addons[id].realId : null;
   });
 
   if (realId != null) {
@@ -55,8 +53,7 @@ export async function resolveRealId (id) {
   throw new Error(`Add-on ${id} does not exist foo`);
 }
 
-async function getIdFromCacheOrSummary (callback) {
-
+async function getIdFromCacheOrSummary(callback) {
   const idsFromCache = await loadIdsCache();
   const idFromCache = callback(idsFromCache);
   if (idFromCache != null) {
@@ -74,8 +71,7 @@ async function getIdFromCacheOrSummary (callback) {
   return null;
 }
 
-async function getIdsFromSummary () {
-
+async function getIdsFromSummary() {
   const ids = {
     owners: {},
     addons: {},
@@ -83,10 +79,7 @@ async function getIdsFromSummary () {
 
   const summary = await getSummary().then(sendToApi);
 
-  const owners = [
-    summary.user,
-    ...summary.organisations,
-  ];
+  const owners = [summary.user, ...summary.organisations];
 
   for (const owner of owners) {
     for (const app of owner.applications) {
@@ -112,19 +105,21 @@ async function getIdsFromSummary () {
  * @throws {Error} if several add-ons are found
  * @returns {Object} The name, IDs and owner ID of the add-on { name, addonId, realId, ownerId }
  */
-export async function findAddonsByNameOrId (addonIdOrRealIdOrName, ownerNameOrId) {
+export async function findAddonsByNameOrId(addonIdOrRealIdOrName, ownerNameOrId) {
   const summary = await getSummary().then(sendToApi);
 
-  Logger.debug(`Searching for add-on '${addonIdOrRealIdOrName}' in ${summary.user.id} and ${summary.organisations.map((org) => org.id).join(', ')}`);
+  Logger.debug(
+    `Searching for add-on '${addonIdOrRealIdOrName}' in ${summary.user.id} and ${summary.organisations.map((org) => org.id).join(', ')}`,
+  );
   const candidates = [summary.user, ...summary.organisations]
     .flatMap((owner) => owner.addons.map((addon) => ({ addon, owner })))
     .filter(({ addon, owner }) => {
-      const matchOwner = ownerNameOrId == null
-        || owner.id === ownerNameOrId.orga_id
-        || owner.name === ownerNameOrId.orga_name;
-      const matchAddon = addon.name === addonIdOrRealIdOrName
-        || addon.realId === addonIdOrRealIdOrName
-        || addon.id === addonIdOrRealIdOrName;
+      const matchOwner =
+        ownerNameOrId == null || owner.id === ownerNameOrId.orga_id || owner.name === ownerNameOrId.orga_name;
+      const matchAddon =
+        addon.name === addonIdOrRealIdOrName ||
+        addon.realId === addonIdOrRealIdOrName ||
+        addon.id === addonIdOrRealIdOrName;
       return matchOwner && matchAddon;
     })
     .map(({ addon, owner }) => ({
@@ -149,24 +144,25 @@ export async function findAddonsByNameOrId (addonIdOrRealIdOrName, ownerNameOrId
  * @throws {Error} if several add-ons are found
  * @returns {Object} The name, IDs and owner ID of the add-on { name, addonId, realId, ownerId }
  */
-export async function findAddonsByAddonProvider (provider) {
+export async function findAddonsByAddonProvider(provider) {
   const summary = await getSummary().then(sendToApi);
 
-  Logger.debug(`Searching for ${provider} add-ons in ${summary.user.id} and ${summary.organisations.map((org) => org.id).join(', ')}`);
-  const candidates = [summary.user, ...summary.organisations]
-    .flatMap((owner) => {
-      return owner.addons
-        .filter((addon) => addon.providerId === provider)
-        .map((addon) => {
-          return {
-            name: addon.name,
-            addonId: addon.id,
-            realId: addon.realId,
-            ownerId: owner.id,
-            ownerName: owner.name,
-          };
-        });
-    });
+  Logger.debug(
+    `Searching for ${provider} add-ons in ${summary.user.id} and ${summary.organisations.map((org) => org.id).join(', ')}`,
+  );
+  const candidates = [summary.user, ...summary.organisations].flatMap((owner) => {
+    return owner.addons
+      .filter((addon) => addon.providerId === provider)
+      .map((addon) => {
+        return {
+          name: addon.name,
+          addonId: addon.id,
+          realId: addon.realId,
+          ownerId: owner.id,
+          ownerName: owner.name,
+        };
+      });
+  });
 
   Logger.debug(`Found ${candidates.length} candidate(s) for provider ${provider}:`);
   for (const candidate of candidates) {

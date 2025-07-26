@@ -1,15 +1,22 @@
 import { styleText } from 'node:util';
-
+import { Logger } from '../logger.js';
 import * as Application from '../models/application.js';
+import * as ExitStrategy from '../models/exit-strategy-option.js';
 import * as git from '../models/git.js';
 import * as Log from '../models/log-v4.js';
-import { Logger } from '../logger.js';
-import * as ExitStrategy from '../models/exit-strategy-option.js';
 
 // Once the API call to redeploy() has been triggerred successfully,
 // the rest (waiting for deployment state to evolve and displaying logs) is done with auto retry (resilient to network pb)
-export async function restart (params) {
-  const { alias, app: appIdOrName, quiet, commit, 'without-cache': withoutCache, follow, 'exit-on': exitOnDeploy } = params.options;
+export async function restart(params) {
+  const {
+    alias,
+    app: appIdOrName,
+    quiet,
+    commit,
+    'without-cache': withoutCache,
+    follow,
+    'exit-on': exitOnDeploy,
+  } = params.options;
 
   const exitStrategy = ExitStrategy.get(follow, exitOnDeploy);
 
@@ -18,7 +25,7 @@ export async function restart (params) {
   const app = await Application.get(ownerId, appId);
 
   if (app == null) {
-    throw new Error('The application doesn\'t exist');
+    throw new Error("The application doesn't exist");
   }
 
   const remoteCommitId = app.commitId;

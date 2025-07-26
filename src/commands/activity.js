@@ -1,12 +1,12 @@
 import { styleText } from 'node:util';
 
-import * as Activity from '../models/activity.js';
+import { EventsStream } from '@clevercloud/client/esm/streams/events.js';
 import { formatTable } from '../format-table.js';
 import { Logger } from '../logger.js';
-import { Deferred } from '../models/utils.js';
-import { EventsStream } from '@clevercloud/client/esm/streams/events.js';
-import { getHostAndTokens } from '../models/send-to-api.js';
+import * as Activity from '../models/activity.js';
 import * as Application from '../models/application.js';
+import { getHostAndTokens } from '../models/send-to-api.js';
+import { Deferred } from '../models/utils.js';
 
 const dtf = new Intl.DateTimeFormat('en', {
   year: 'numeric',
@@ -19,12 +19,12 @@ const dtf = new Intl.DateTimeFormat('en', {
   timeZoneName: 'longOffset',
 });
 
-function formatDate (date) {
+function formatDate(date) {
   const d = Object.fromEntries(dtf.formatToParts(date).map((p) => [p.type, p.value]));
   return `${d.year}-${d.month}-${d.day}T${d.hour}:${d.minute}:${d.second}${d.timeZoneName.replace('GMT', '')}`;
 }
 
-function getColoredState (state, isLast) {
+function getColoredState(state, isLast) {
   if (state === 'OK') {
     return styleText(['bold', 'green'], state);
   }
@@ -52,7 +52,7 @@ const ACTIVITY_TABLE_COLUMN_WIDTHS = [
   0,
 ];
 
-function convertEventToJson (event) {
+function convertEventToJson(event) {
   return {
     uuid: event.uuid,
     date: event.date,
@@ -63,27 +63,30 @@ function convertEventToJson (event) {
   };
 }
 
-function formatActivityLine (event) {
-  return formatTable([
+function formatActivityLine(event) {
+  return formatTable(
     [
-      formatDate(event.date),
-      event.uuid,
-      getColoredState(event.state, event.isLast),
-      event.action,
-      event?.commit?.substring(0, 8) ?? 'N/A',
-      event.cause,
+      [
+        formatDate(event.date),
+        event.uuid,
+        getColoredState(event.state, event.isLast),
+        event.action,
+        event?.commit?.substring(0, 8) ?? 'N/A',
+        event.cause,
+      ],
     ],
-  ], ACTIVITY_TABLE_COLUMN_WIDTHS);
+    ACTIVITY_TABLE_COLUMN_WIDTHS,
+  );
 }
 
-function isTemporaryEvent (ev) {
+function isTemporaryEvent(ev) {
   if (ev == null) {
     return false;
   }
   return (ev.state === 'WIP' && ev.isLast) || ev.state === 'CANCELLED';
 }
 
-function clearPreviousLine () {
+function clearPreviousLine() {
   if (process.stdout.isTTY) {
     process.stdout.moveCursor(0, -1);
     process.stdout.cursorTo(0);
@@ -91,7 +94,7 @@ function clearPreviousLine () {
   }
 }
 
-function handleEvent (previousEvent, event, handler) {
+function handleEvent(previousEvent, event, handler) {
   if (isTemporaryEvent(previousEvent)) {
     handler.pop();
   }
@@ -101,21 +104,24 @@ function handleEvent (previousEvent, event, handler) {
   return event;
 }
 
-function onEvent (previousEvent, newEvent, handler) {
-  const { event, date, data: { uuid, state, action, commit, cause } } = newEvent;
+function onEvent(previousEvent, newEvent, handler) {
+  const {
+    event,
+    date,
+    data: { uuid, state, action, commit, cause },
+  } = newEvent;
   if (event !== 'DEPLOYMENT_ACTION_BEGIN' && event !== 'DEPLOYMENT_ACTION_END') {
     return previousEvent;
   }
   return handleEvent(previousEvent, { date, uuid, state, action, commit, cause, isLast: true }, handler);
 }
 
-function getEventHandler (format, follow) {
+function getEventHandler(format, follow) {
   switch (format) {
     case 'json': {
       if (follow) {
         throw new Error('The `follow` option and "json" format are not compatible. Use "json-stream" format instead.');
-      }
-      else {
+      } else {
         const buf = [];
 
         return {
@@ -133,8 +139,7 @@ function getEventHandler (format, follow) {
           Logger.println(JSON.stringify(convertEventToJson(event)));
         },
         pop: clearPreviousLine,
-        end: () => {
-        },
+        end: () => {},
       };
     }
     case 'human':
@@ -142,27 +147,27 @@ function getEventHandler (format, follow) {
       return {
         print: (event) => Logger.println(formatActivityLine(event)),
         pop: clearPreviousLine,
-        end: () => {
-        },
+        end: () => {},
       };
     }
   }
 }
 
-export async function activity (params) {
+export async function activity(params) {
   const { alias, app: appIdOrName, 'show-all': showAll, follow, format } = params.options;
   const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
   const events = await Activity.list(ownerId, appId, showAll);
-  const reversedArrayWithIndex = events
-    .reverse()
-    .map((event, index, all) => {
-      const isLast = index === all.length - 1;
-      return ({ ...event, isLast });
-    });
+  const reversedArrayWithIndex = events.reverse().map((event, index, all) => {
+    const isLast = index === all.length - 1;
+    return { ...event, isLast };
+  });
 
   const handler = getEventHandler(format, follow);
 
-  let lastEvent = reversedArrayWithIndex.reduce((previousEvent, newEvent) => handleEvent(previousEvent, newEvent, handler), {});
+  let lastEvent = reversedArrayWithIndex.reduce(
+    (previousEvent, newEvent) => handleEvent(previousEvent, newEvent, handler),
+    {},
+  );
 
   if (!follow) {
     handler.end();

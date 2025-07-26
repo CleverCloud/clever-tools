@@ -1,4 +1,4 @@
-export function createApiToken ({ email, password, mfaCode, name, description = '', expirationDate }) {
+export function createApiToken({ email, password, mfaCode, name, description = '', expirationDate }) {
   return Promise.resolve({
     method: 'post',
     url: '/api-tokens',
@@ -7,7 +7,7 @@ export function createApiToken ({ email, password, mfaCode, name, description = 
   });
 }
 
-export function listApiTokens () {
+export function listApiTokens() {
   return Promise.resolve({
     method: 'get',
     url: '/api-tokens',
@@ -15,7 +15,7 @@ export function listApiTokens () {
   });
 }
 
-export function updateApiToken (apiTokenId, { name, description }) {
+export function updateApiToken(apiTokenId, { name, description }) {
   return Promise.resolve({
     method: 'put',
     url: `/api-tokens/${apiTokenId}`,
@@ -24,7 +24,7 @@ export function updateApiToken (apiTokenId, { name, description }) {
   });
 }
 
-export function deleteApiToken (apiTokenId) {
+export function deleteApiToken(apiTokenId) {
   return Promise.resolve({
     method: 'delete',
     url: `/api-tokens/${apiTokenId}`,
@@ -32,13 +32,11 @@ export function deleteApiToken (apiTokenId) {
   });
 }
 
-export function addOauthHeaderPlaintext (tokens) {
-
+export function addOauthHeaderPlaintext(tokens) {
   return async function (requestParams) {
-
-    const authorizationHeader = (
-      'OAuth '
-      + [
+    const authorizationHeader =
+      'OAuth ' +
+      [
         `oauth_consumer_key="${tokens.OAUTH_CONSUMER_KEY}"`,
         `oauth_token="${tokens.API_OAUTH_TOKEN}"`,
         // %26 is URL escaped character "&"
@@ -47,8 +45,7 @@ export function addOauthHeaderPlaintext (tokens) {
         // oauth_signature_method is not mandatory, it defaults to PLAINTEXT
         // oauth_timestamp is not mandatory
         // oauth_version is not mandatory, it defaults to 1.0
-      ].join(', ')
-    );
+      ].join(', ');
 
     return {
       ...requestParams,

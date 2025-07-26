@@ -1,6 +1,6 @@
+import openPage from 'open';
 import { Logger } from '../logger.js';
 import { conf } from './configuration.js';
-import openPage from 'open';
 
 // Inspirations:
 // https://github.com/sindresorhus/p-defer/blob/master/index.js
@@ -8,8 +8,7 @@ import openPage from 'open';
 
 // When you mix async/await APIs with event emitters callbacks, it's hard to keep a proper error flow without a good old deferred.
 export class Deferred {
-
-  constructor () {
+  constructor() {
     this.promise = new Promise((resolve, reject) => {
       this.resolve = resolve;
       this.reject = reject;
@@ -23,10 +22,8 @@ export class Deferred {
  * @param {string} message The message to display before opening the URL
  * @returns {Promise<void>} A promise that resolves when the URL is opened
  */
-export function openBrowser (urlOrPath, message) {
-  const url = urlOrPath.startsWith('/')
-    ? `${conf.CONSOLE_URL}${urlOrPath}`
-    : urlOrPath;
+export function openBrowser(urlOrPath, message) {
+  const url = urlOrPath.startsWith('/') ? `${conf.CONSOLE_URL}${urlOrPath}` : urlOrPath;
 
   Logger.debug(`Opening URL "${url}" in browser`);
   Logger.println(message);
@@ -34,7 +31,7 @@ export function openBrowser (urlOrPath, message) {
   return openPage(url, { wait: false });
 }
 
-export function truncateWithEllipsis (length, string) {
+export function truncateWithEllipsis(length, string) {
   if (string.length > length - 1) {
     return string.substring(0, length - 1) + '…';
   }

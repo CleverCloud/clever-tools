@@ -1,11 +1,11 @@
-import * as Application from '../models/application.js';
-import { Logger } from '../logger.js';
-import * as variables from '../models/variables.js';
-import { sendToApi } from '../models/send-to-api.js';
-import { toNameEqualsValueString, validateName } from '@clevercloud/client/esm/utils/env-vars.js';
 import { getAllExposedEnvVars, updateAllExposedEnvVars } from '@clevercloud/client/esm/api/v2/application.js';
+import { toNameEqualsValueString, validateName } from '@clevercloud/client/esm/utils/env-vars.js';
+import { Logger } from '../logger.js';
+import * as Application from '../models/application.js';
+import { sendToApi } from '../models/send-to-api.js';
+import * as variables from '../models/variables.js';
 
-export async function list (params) {
+export async function list(params) {
   const { alias, app: appIdOrName, format } = params.options;
   const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
 
@@ -28,7 +28,7 @@ export async function list (params) {
   }
 }
 
-export async function set (params) {
+export async function set(params) {
   const [varName, varValue] = params.args;
   const { alias, app: appIdOrName } = params.options;
 
@@ -44,9 +44,9 @@ export async function set (params) {
   await updateAllExposedEnvVars({ id: ownerId, appId }, publishedConfigs).then(sendToApi);
 
   Logger.println('Your published config item has been successfully saved');
-};
+}
 
-export async function rm (params) {
+export async function rm(params) {
   const [varName] = params.args;
   const { alias, app: appIdOrName } = params.options;
   const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
@@ -56,9 +56,9 @@ export async function rm (params) {
   await updateAllExposedEnvVars({ id: ownerId, appId }, publishedConfigs).then(sendToApi);
 
   Logger.println('Your published config item has been successfully removed');
-};
+}
 
-export async function importEnv (params) {
+export async function importEnv(params) {
   const { alias, app: appIdOrName, json } = params.options;
   const format = json ? 'json' : 'name-equals-value';
   const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
@@ -67,4 +67,4 @@ export async function importEnv (params) {
   await updateAllExposedEnvVars({ id: ownerId, appId }, publishedConfigs).then(sendToApi);
 
   Logger.println('Your published configs have been set');
-};
+}

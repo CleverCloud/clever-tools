@@ -1,6 +1,6 @@
+import { getAllDeployments, getDeployment } from '@clevercloud/client/esm/api/v2/application.js';
 import { setTimeout as delay } from 'node:timers/promises';
 import { Logger } from '../logger.js';
-import { getDeployment, getAllDeployments } from '@clevercloud/client/esm/api/v2/application.js';
 import { sendToApi } from './send-to-api.js';
 
 const DEPLOYMENT_POLLING_DELAY = 5000;
@@ -8,11 +8,9 @@ const BACKOFF_FACTOR = 1.25;
 const INIT_RETRY_TIMEOUT = 1500;
 const MAX_RETRY_COUNT = 5;
 
-export async function waitForDeploymentStart ({ ownerId, appId, deploymentId, commitId, knownDeployments }) {
-
+export async function waitForDeploymentStart({ ownerId, appId, deploymentId, commitId, knownDeployments }) {
   return waitFor(async () => {
     try {
-
       // In a deploy situation, we don't have the deployment ID so we get the latest deployments,
       // then we match by commit ID and we filter out "known deployments" that existed before the deploy.
       // In a restart situation, we have a deployment ID but fetching it too soon may result in an error so we get latest deployments,
@@ -33,15 +31,14 @@ export async function waitForDeploymentStart ({ ownerId, appId, deploymentId, co
         return deployment;
       }
       Logger.debug('Deployment cannot be found yet');
-    }
-    catch (e) {
+    } catch (e) {
       Logger.debug('Failed to retrieve deployment');
       throw e;
     }
   });
 }
 
-export async function waitForDeploymentEnd ({ ownerId, appId, deploymentId }) {
+export async function waitForDeploymentEnd({ ownerId, appId, deploymentId }) {
   return waitFor(async () => {
     try {
       const deployment = await getDeployment({ id: ownerId, appId, deploymentId }).then(sendToApi);
@@ -51,8 +48,7 @@ export async function waitForDeploymentEnd ({ ownerId, appId, deploymentId }) {
         return deployment;
       }
       Logger.debug(`Deployment is not finished yet (state:${deployment.state})`);
-    }
-    catch (e) {
+    } catch (e) {
       Logger.debug('Failed to retrieve current deployment status');
       throw e;
     }
@@ -63,14 +59,11 @@ export async function waitForDeploymentEnd ({ ownerId, appId, deploymentId }) {
 // Return fetchResult's result if it's not null
 // Retry with simple "infinite polling" if fetchResult succeeds and returns null
 // Retry with exponential backoff if fetchResult fails
-async function waitFor (fetchResult) {
-
+async function waitFor(fetchResult) {
   let failCount = 0;
 
   while (true) {
-
     try {
-
       const result = await fetchResult();
       if (result != null) {
         return result;
@@ -81,8 +74,7 @@ async function waitFor (fetchResult) {
 
       // Retry with simple polling when API calls succeed
       await delay(DEPLOYMENT_POLLING_DELAY);
-    }
-    catch (e) {
+    } catch (e) {
       // If only retry if it's a network error
       if (e.code !== 'EAI_AGAIN') {
         throw e;
@@ -95,7 +87,7 @@ async function waitFor (fetchResult) {
       }
 
       // If API call fails, retry with an exponential backoff
-      await delay(INIT_RETRY_TIMEOUT * (BACKOFF_FACTOR ** failCount));
+      await delay(INIT_RETRY_TIMEOUT * BACKOFF_FACTOR ** failCount);
     }
   }
 }

@@ -1,15 +1,13 @@
-import { sendToApi } from '../models/send-to-api.js';
 import { getBackups } from '@clevercloud/client/esm/api/v2/backups.js';
-import { Logger } from '../logger.js';
-import { formatTable } from '../format-table.js';
 import fs from 'node:fs';
 import { Writable } from 'node:stream';
+import { formatTable } from '../format-table.js';
+import { Logger } from '../logger.js';
 import { findOwnerId } from '../models/addon.js';
-import { resolveRealId, resolveAddonId } from '../models/ids-resolver.js';
+import { resolveAddonId, resolveRealId } from '../models/ids-resolver.js';
+import { sendToApi } from '../models/send-to-api.js';
 
-
-export async function listBackups (params) {
-
+export async function listBackups(params) {
   const { org, format } = params.options;
   const [addonIdOrRealId] = params.args;
 
@@ -43,29 +41,16 @@ export async function listBackups (params) {
       break;
     }
     case 'human': {
-      const formattedLines = sortedBackups
-        .map((backup) => [
-          backup.backup_id,
-          backup.creation_date,
-          backup.status,
-        ]);
+      const formattedLines = sortedBackups.map((backup) => [backup.backup_id, backup.creation_date, backup.status]);
 
-      const head = [
-        'BACKUP ID',
-        'CREATION DATE',
-        'STATUS',
-      ];
+      const head = ['BACKUP ID', 'CREATION DATE', 'STATUS'];
 
-      Logger.println(formatTable([
-        head,
-        ...formattedLines,
-      ]));
+      Logger.println(formatTable([head, ...formattedLines]));
     }
   }
 }
 
-export async function downloadBackups (params) {
-
+export async function downloadBackups(params) {
   const { org, output } = params.options;
   const [addonIdOrRealId, backupId] = params.args;
 
@@ -84,9 +69,5 @@ export async function downloadBackups (params) {
     throw new Error('Failed to download backup');
   }
 
-  await response
-    .body
-    .pipeTo(
-      Writable.toWeb(output ? fs.createWriteStream(output) : process.stdout),
-    );
+  await response.body.pipeTo(Writable.toWeb(output ? fs.createWriteStream(output) : process.stdout));
 }
