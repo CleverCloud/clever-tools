@@ -46,7 +46,7 @@
     "colors": "1.4.0",
     "common-env": "6.4.0",
     "curlconverter": "3.21.0",
-    "dedent": "1.5.3",
+    "dedent": "1.6.0",
     "eventsource": "4.0.0",
     "ioredis": "5.4.1",
     "iso8601-duration": "2.1.2",
