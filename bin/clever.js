@@ -2,6 +2,7 @@
 
 // WARNING: this needs to run before other imports
 import '../src/initial-setup.js';
+import '../src/initial-update-notifier.js';
 // Other imports
 import cliparse from 'cliparse';
 import cliparseCommands from 'cliparse/src/command.js';
