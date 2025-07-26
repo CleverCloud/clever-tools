@@ -85,9 +85,6 @@
     "pkg-fetch": "3.5.2"
   },
   "scripts": {
-    "build": "rollup -c rollup.config.js",
-    "pretest": "npm run lint",
-    "test": "grunt test",
     "lint": "eslint bin src scripts",
     "lint:fix": "eslint --fix bin src scripts",
     "install-local:cliparse": "(cd ../cliparse-node && npm pack) && mv ../cliparse-node/cliparse-*.tgz . && npm i -f ./cliparse-*.tgz"
