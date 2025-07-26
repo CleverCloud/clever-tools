@@ -43,7 +43,6 @@
     "@clevercloud/client": "11.0.1",
     "@inquirer/prompts": "7.8.0",
     "cliparse": "0.5.0",
-    "curlconverter": "3.21.0",
     "dedent": "1.6.0",
     "eventsource": "4.0.0",
     "ioredis": "5.6.1",
