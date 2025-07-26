@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 import _ from 'lodash';
-import git from 'isomorphic-git';
+import * as git from 'isomorphic-git';
 import * as http from './isomorphic-http-with-agent.js';
 import cliparse from 'cliparse';
 import { slugify } from '../lib/slugify.js';
@@ -14,7 +14,7 @@ async function getRepo () {
     const dir = await findPath('.', '.git');
     return { fs, dir, http };
   }
-  catch (e) {
+  catch {
     throw new Error('Could not find the .git folder.');
   }
 }
@@ -126,7 +126,7 @@ export async function isShallow () {
     await fs.promises.access(path.join(dir, '.git', 'shallow'));
     return true;
   }
-  catch (e) {
+  catch {
     return false;
   }
 }

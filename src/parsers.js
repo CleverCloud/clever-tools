@@ -184,7 +184,7 @@ export function durationInSeconds (durationStr = '') {
       const d = ISO8601.parse(durationStr);
       return cliparse.parsers.success(ISO8601.toSeconds(d));
     }
-    catch (err) {
+    catch {
       return failed;
     }
   }
@@ -193,7 +193,7 @@ export function durationInSeconds (durationStr = '') {
     const durationInSeconds = parseSimpleDuration(durationStr);
     return cliparse.parsers.success(durationInSeconds);
   }
-  catch (err) {
+  catch {
     const n = Number.parseInt(durationStr);
     if (isNaN(n) || n < 0) {
       return failed;

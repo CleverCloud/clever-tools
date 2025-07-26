@@ -7,7 +7,7 @@ import { getAddonProvider } from '@clevercloud/client/esm/api/v4/addon-providers
 
 import { confirm } from '../lib/prompts.js';
 import { Logger } from '../logger.js';
-import { sendToApi } from '../models/send-to-api.js';
+import { sendToApi } from "./send-to-api.js";
 import { resolveOwnerId } from './ids-resolver.js';
 import { getAllLinkedAddons, linkAddon, unlinkAddon } from '@clevercloud/client/esm/api/v2/application.js';
 
@@ -125,7 +125,7 @@ function validateAddonVersionAndOptions (region, version, addonOptions, provider
   }
 }
 
-export async function create ({ ownerId, name, providerName, planName, region, skipConfirmation, version, addonOptions }) {
+export async function create ({ ownerId, name, providerName, planName, region, version, addonOptions }) {
 
   // TODO: We should be able to use it without {}
   const provider = await getProvider(providerName);

@@ -1,5 +1,5 @@
 import { get } from '@clevercloud/client/esm/api/v2/organisation.js';
-import { sendToApi } from '../models/send-to-api.js';
+import { sendToApi } from "./send-to-api.js";
 
 export function getCurrent () {
   return get({}).then(sendToApi);

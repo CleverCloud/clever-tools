@@ -34,7 +34,7 @@ export async function list (params) {
     }
     case 'human':
     default: {
-      formattedHooks.forEach((hook, i) => {
+      formattedHooks.forEach((hook) => {
         Logger.println(styleText('bold', hook.name ?? hook.id));
         Logger.println(`  id: ${hook.id}`);
         Logger.println(`  services: ${hook.services.join(', ')}`);

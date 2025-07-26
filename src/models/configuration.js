@@ -113,7 +113,7 @@ export async function setFeature (feature, value) {
     await ensureConfigDirExists();
     await fs.writeFile(conf.EXPERIMENTAL_FEATURES_FILE, JSON.stringify(newFeatures, null, 2));
   }
-  catch (error) {
+  catch {
     throw new Error(`Cannot write experimental features configuration to ${conf.EXPERIMENTAL_FEATURES_FILE}`);
   }
 }

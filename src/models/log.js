@@ -7,7 +7,7 @@ import { getOldLogs } from '@clevercloud/client/esm/api/v2/log.js';
 import { LogsStream } from '@clevercloud/client/esm/streams/logs.node.js';
 import { sendToApi, getHostAndTokens } from './send-to-api.js';
 import { waitForDeploymentEnd, waitForDeploymentStart } from './deployments.js';
-import * as ExitStrategy from '../models/exit-strategy-option.js';
+import * as ExitStrategy from "./exit-strategy-option.js";
 
 function isCleverMessage (line) {
   return line._source.syslog_program === '/home/bas/rubydeployer/deployer.rb';

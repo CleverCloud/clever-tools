@@ -46,7 +46,7 @@ export async function accessLogs (params) {
   const jsonArray = new JsonArray();
 
   stream
-    .on('open', (event) => {
+    .on('open', () => {
       Logger.debug(styleText('blue', `Logs stream (open) ${JSON.stringify({ appId })}`));
       if (format === 'json') {
         jsonArray.open();
