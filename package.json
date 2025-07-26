@@ -3,9 +3,15 @@
   "version": "3.14.1",
   "description": "Command Line Interface for Clever Cloud.",
   "keywords": [
-    "clever-tools",
     "cli",
-    "clever cloud"
+    "command-line",
+    "tool",
+    "clever-cloud",
+    "paas",
+    "deployment",
+    "cloud",
+    "devops",
+    "automation"
   ],
   "homepage": "https://github.com/CleverCloud/clever-tools",
   "repository": {
