@@ -8,7 +8,7 @@ import colors from 'colors/safe.js';
 import cliparseCommands from 'cliparse/src/command.js';
 import _sortBy from 'lodash/sortBy.js';
 
-import { getPackageJson } from '../src/load-package-json.cjs';
+import pkg from '../package.json' with { type: 'json' };
 import * as git from '../src/models/git.js';
 import * as Parsers from '../src/parsers.js';
 import { handleCommandPromise } from '../src/command-promise-handler.js';
@@ -1399,7 +1399,7 @@ async function run () {
   const cliParser = cliparse.cli({
     name: 'clever',
     description: 'CLI tool to manage Clever Cloud\'s data and products',
-    version: getPackageJson().version,
+    version: pkg.version,
     options: [opts.color, opts.updateNotifier, opts.verbose],
     helpCommand: false,
     commands: _sortBy(commands, 'name'),

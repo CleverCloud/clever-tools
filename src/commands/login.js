@@ -9,10 +9,9 @@ import { Logger } from '../logger.js';
 import * as User from '../models/user.js';
 import { conf, writeOAuthConf } from '../models/configuration.js';
 
-import { getPackageJson } from '../load-package-json.cjs';
+import pkg from '../../package.json' with { type: 'json' };
 
 const delay = util.promisify(setTimeout);
-const pkg = getPackageJson();
 
 // 20 random bytes as Base64URL
 function randomToken () {
