@@ -61,14 +61,14 @@
     "superagent": "6.1.0",
     "text-table": "0.2.0",
     "tldts": "7.0.12",
+    "semver": "7.7.2",
     "update-notifier": "7.3.1",
     "uuid": "8.3.2",
     "xdg": "0.1.1"
   },
   "devDependencies": {
-    "@commitlint/cli": "18.4.3",
-    "@commitlint/config-conventional": "18.4.3",
-    "semver": "7.3.5"
+    "@commitlint/cli": "19.8.1",
+    "@commitlint/config-conventional": "19.8.1"
   },
   "engines": {
     "node": ">=22"
