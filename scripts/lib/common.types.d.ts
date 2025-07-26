@@ -19,3 +19,13 @@ export interface PreviewBuild {
 
 type StyleText = typeof import('node:util').styleText;
 export type StyleTextFormat = Parameters<StyleText>[0] | 'none';
+
+export interface Profile {
+  name: string;
+  email: string;
+  id: string;
+  token: string;
+  secret: string;
+  expirationDate?: string;
+  current?: boolean;
+}
