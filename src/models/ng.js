@@ -1,6 +1,6 @@
 import { styleText } from 'node:util';
-import * as User from '../models/user.js';
-import * as Organisation from '../models/organisation.js';
+import * as User from "./user.js";
+import * as Organisation from "./organisation.js";
 
 import crypto from 'node:crypto';
 import { Logger } from '../logger.js';

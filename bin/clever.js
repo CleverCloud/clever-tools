@@ -1,4 +1,4 @@
-#! /usr/bin/env node
+#!/usr/bin/env node
 
 // WARNING: this needs to run before other imports
 import '../src/initial-setup.js';

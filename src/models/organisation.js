@@ -1,7 +1,7 @@
 import _ from 'lodash';
 
 import { getSummary } from '@clevercloud/client/esm/api/v2/user.js';
-import { sendToApi } from '../models/send-to-api.js';
+import { sendToApi } from "./send-to-api.js";
 
 export async function getId (orgaIdOrName) {
   if (orgaIdOrName == null) {

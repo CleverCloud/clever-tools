@@ -55,7 +55,7 @@ function parseFromJson (rawStdin) {
   const namesOccurences = _countBy(variables, 'name');
   const duplicatedNames = Object
     .entries(namesOccurences)
-    .filter(([name, count]) => count > 1)
+    .filter(([_name, count]) => count > 1)
     .map(([name]) => `"${name}"`)
     .join(', ');
 

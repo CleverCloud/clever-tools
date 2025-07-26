@@ -225,7 +225,7 @@ export async function checkMembersToLink (members, ownerId) {
   let source = data.applications;
 
   for (const memberId of members) {
-    if (memberId.startsWith('addon_')) source = data.addons;
+    if (memberId.startsWith('addon_')) {source = data.addons;}
 
     const foundRessource = source.find((r) => r.id === memberId);
 

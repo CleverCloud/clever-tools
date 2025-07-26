@@ -31,7 +31,7 @@ function printNg (ng, format, full = false) {
       if (full) {
         const members = Object.entries(ng.members)
           .sort((a, b) => a[1].domainName.localeCompare(b[1].domainName))
-          .map(([id, member]) => ({
+          .map(([_id, member]) => ({
             Domain: member.domainName,
           }));
         if (members.length > 0) {
@@ -41,7 +41,7 @@ function printNg (ng, format, full = false) {
 
         const peers = Object.entries(ng.peers)
           .sort((a, b) => a[1].parentMember.localeCompare(b[1].parentMember))
-          .map(([id, peer]) => formatPeer(peer));
+          .map(([_id, peer]) => formatPeer(peer));
         if (peers.length > 0) {
           Logger.println(styleText('bold', ' • Peers:'));
           console.table(peers);

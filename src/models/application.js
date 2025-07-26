@@ -20,7 +20,7 @@ import { Logger } from '../logger.js';
 import * as Organisation from './organisation.js';
 import * as User from './user.js';
 
-import { sendToApi } from '../models/send-to-api.js';
+import { sendToApi } from "./send-to-api.js";
 import { resolveOwnerId } from './ids-resolver.js';
 import { getAvailableInstances } from '@clevercloud/client/esm/api/v2/product.js';
 

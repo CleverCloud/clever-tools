@@ -5,7 +5,7 @@ import { Logger } from '../logger.js';
 import { waitForDeploymentEnd, waitForDeploymentStart } from './deployments.js';
 import { ApplicationLogStream } from '@clevercloud/client/esm/streams/application-logs.js';
 import { JsonArray } from './json-array.js';
-import * as ExitStrategy from '../models/exit-strategy-option.js';
+import * as ExitStrategy from "./exit-strategy-option.js";
 import { getBest } from './domain.js';
 import { conf } from './configuration.js';
 
@@ -50,7 +50,7 @@ export async function displayLogs (params) {
   const jsonArray = new JsonArray();
 
   logStream
-    .on('open', (event) => {
+    .on('open', () => {
       Logger.debug(styleText('blue', `Logs stream (open) ${JSON.stringify({ appId, filter, deploymentId })}`));
       if (format === 'json') {
         jsonArray.open();
@@ -69,14 +69,14 @@ export async function displayLogs (params) {
           return;
         case 'human':
         default:
-          if (log.message === RESET_COLOR) return;
+          if (log.message === RESET_COLOR) {return;}
           Logger.println(formatLogLine(log));
       }
     });
 
   // start() is blocking until end of stream
   logStream.start()
-    .then((reason) => {
+    .then(() => {
       if (format === 'json') {
         jsonArray.close();
       }

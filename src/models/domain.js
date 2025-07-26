@@ -2,7 +2,7 @@ import _ from 'lodash';
 
 import { Logger } from '../logger.js';
 import { getAllDomains, getFavouriteDomain } from '@clevercloud/client/esm/api/v2/application.js';
-import { sendToApi } from '../models/send-to-api.js';
+import { sendToApi } from "./send-to-api.js";
 
 export async function getBest (appId, orgaId) {
   Logger.debug('Trying to get the favourite vhost for ' + appId);

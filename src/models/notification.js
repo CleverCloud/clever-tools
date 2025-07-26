@@ -1,7 +1,7 @@
 import cliparse from 'cliparse';
-import * as AppConfig from '../models/app_configuration.js';
-import * as Organisation from '../models/organisation.js';
-import * as User from '../models/user.js';
+import * as AppConfig from "./app_configuration.js";
+import * as Organisation from "./organisation.js";
+import * as User from "./user.js";
 
 export function listMetaEvents () {
   return cliparse.autocomplete.words([
