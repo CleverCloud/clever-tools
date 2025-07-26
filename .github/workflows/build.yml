@@ -1,0 +1,87 @@
+name: Build
+
+on:
+  workflow_call:
+    inputs:
+      version:
+        required: true
+        type: string
+      include-windows:
+        type: boolean
+        default: true
+        description: 'Whether to include Windows in the build matrix'
+
+jobs:
+  bundle-cjs:
+    name: 'Bundle single clever.cjs'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-node
+      - name: 'Bundle to single clever.cjs'
+        run: ./scripts/bundle-cjs.js ${{ inputs.version }}
+      - uses: ./.github/actions/upload-artifact
+        with:
+          artifact-name: bundle-cjs
+          path: build/**/clever.cjs
+
+  build-linux:
+    name: 'Build for linux'
+    needs: bundle-cjs
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-node
+      - uses: ./.github/actions/download-artifacts
+        with: { pattern: bundle-cjs }
+      - name: 'Build binary'
+        run: ./scripts/build-binary.js ${{ inputs.version }}
+      - name: 'Create archive'
+        run: ./scripts/create-archive.js ${{ inputs.version }}
+      - uses: ./.github/actions/upload-artifact
+        with:
+          artifact-name: build-linux-binary
+          path: build/**/clever
+      - uses: ./.github/actions/upload-artifact
+        with:
+          artifact-name: build-linux-archive
+          path: build/**/*.tar.gz
+
+  build-macos:
+    name: 'Build for macos'
+    needs: bundle-cjs
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-node
+      - uses: ./.github/actions/download-artifacts
+        with: { pattern: bundle-cjs }
+      - name: 'Build binary'
+        run: ./scripts/build-binary.js ${{ inputs.version }}
+      - name: 'Create archive'
+        run: ./scripts/create-archive.js ${{ inputs.version }}
+      - uses: ./.github/actions/upload-artifact
+        with:
+          artifact-name: build-macos-archive
+          path: build/**/*.tar.gz
+
+  build-windows:
+    name: 'Build for windows'
+    needs: bundle-cjs
+    runs-on: windows-2025
+    if: ${{ inputs.include-windows }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-node
+      - uses: ./.github/actions/download-artifacts
+        with: { pattern: bundle-cjs }
+      - name: 'Build binary'
+        shell: bash
+        run: ./scripts/build-binary.js ${{ inputs.version }}
+      - name: 'Create archive'
+        shell: bash
+        run: ./scripts/create-archive.js ${{ inputs.version }}
+      - uses: ./.github/actions/upload-artifact
+        with:
+          artifact-name: build-win-archive
+          path: build/**/*.zip
