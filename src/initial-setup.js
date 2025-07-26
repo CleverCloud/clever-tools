@@ -1,5 +1,5 @@
 import colors from 'colors/safe.js';
-import { getPackageJson } from './load-package-json.cjs';
+import pkg from '../package.json' with { type: 'json' };
 import updateNotifierModule from 'update-notifier';
 
 function hasParam (param, paramValue) {
@@ -32,7 +32,6 @@ if (colorExplicitFalse || (!process.stdout.isTTY && !colorExplicitTrue)) {
 }
 
 // These need to be set before Logger and other stuffs
-const pkg = getPackageJson();
 const isRunThroughPackagedBinary = process.pkg != null;
 const updateNotifierExplicitFalse = hasParam('--no-update-notifier') || hasParam('--update-notifier', 'false');
 if (!updateNotifierExplicitFalse && !isRunThroughPackagedBinary) {

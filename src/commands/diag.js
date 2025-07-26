@@ -4,11 +4,9 @@ import { releaseInfo as getLinuxInfos } from 'linux-release-info';
 import colors from 'colors/safe.js';
 
 import { Logger } from '../logger.js';
-import { getPackageJson } from '../load-package-json.cjs';
+import pkg from '../../package.json' with { type: 'json' };
 import * as User from '../models/user.js';
 import { conf, loadOAuthConf } from '../models/configuration.js';
-
-const pkg = getPackageJson();
 
 export async function diag (params) {
   const { format } = params.options;

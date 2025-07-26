@@ -1,8 +1,6 @@
 import { Logger } from './logger.js';
-import { getPackageJson } from './load-package-json.cjs';
+import pkg from '../package.json' with { type: 'json' };
 import semver from 'semver';
-
-const pkg = getPackageJson();
 
 export function handleCommandPromise (promise) {
   promise.catch((error) => {
