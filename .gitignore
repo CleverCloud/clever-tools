@@ -4,6 +4,7 @@ build/
 .idea/
 .s3cfg*
 *.gpg.key
+.preview-binaries
 
 # macOS system files
 .DS_Store

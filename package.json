@@ -66,6 +66,7 @@
     "xdg": "0.1.1"
   },
   "devDependencies": {
+    "@aws-sdk/client-s3": "3.876.0",
     "@clevercloud/eslint-config": "1.0.1",
     "@commitlint/cli": "19.8.1",
     "@commitlint/config-conventional": "19.8.1",
@@ -73,9 +74,11 @@
     "@rollup/plugin-commonjs": "28.0.6",
     "@rollup/plugin-json": "6.1.0",
     "@rollup/plugin-node-resolve": "16.0.1",
+    "@types/mime-types": "3.0.1",
     "@yao-pkg/pkg": "6.6.0",
     "eslint": "9.34.0",
     "globals": "16.3.0",
+    "mime-types": "3.0.1",
     "prettier": "3.6.2",
     "prettier-plugin-organize-imports": "4.2.0",
     "rollup": "4.49.0",
