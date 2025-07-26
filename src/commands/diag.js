@@ -27,6 +27,7 @@ export async function diag(params) {
 
   const formattedDiag = {
     version: pkg.version,
+    commitId: pkg.commitId,
     nodeVersion: process.version,
     platform: os.platform(),
     release: os.release(),
@@ -56,6 +57,10 @@ export async function diag(params) {
     case 'human':
     default: {
       Logger.println('clever-tools  ' + styleText('green', formattedDiag.version));
+      // Only available in built binaries
+      if (formattedDiag.commitId) {
+        Logger.println('Commit        ' + styleText('green', formattedDiag.commitId));
+      }
       Logger.println('Node.js       ' + styleText('green', formattedDiag.nodeVersion));
       Logger.println('Platform      ' + styleText('green', formattedDiag.platform));
       Logger.println('Release       ' + styleText('green', formattedDiag.release));
