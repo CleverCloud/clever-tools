@@ -57,7 +57,7 @@
     "moment": "2.29.1",
     "open": "10.2.0",
     "slugify": "1.6.6",
-    "string-length": "4.0.2",
+    "string-length": "6.0.0",
     "superagent": "6.1.0",
     "text-table": "0.2.0",
     "tldts": "6.1.30",
