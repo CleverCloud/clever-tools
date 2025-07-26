@@ -1,9 +1,8 @@
 import _ from 'lodash';
-import table from 'text-table';
 import stringLength from 'string-length';
+import table from 'text-table';
 
-export function formatTable (columnWidth = []) {
-
+export function formatTable(columnWidth = []) {
   const fixedWidthPlaceholder = columnWidth.map((item) => {
     if (typeof item === 'number') {
       return _.repeat(' ', item);

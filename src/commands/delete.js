@@ -1,15 +1,15 @@
+import { styleText } from 'node:util';
+import { Logger } from '../logger.js';
 import * as AppConfig from '../models/app_configuration.js';
 import * as Application from '../models/application.js';
-import { Logger } from '../logger.js';
-import { styleText } from 'node:util';
 
-export async function deleteApp (params) {
+export async function deleteApp(params) {
   const { alias, app: appIdOrName, yes: skipConfirmation } = params.options;
   const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
 
   const app = await Application.get(ownerId, appId);
   if (app == null) {
-    throw new Error('The application doesn\'t exist');
+    throw new Error("The application doesn't exist");
   }
 
   // delete app
@@ -21,4 +21,4 @@ export async function deleteApp (params) {
   if (wasUnlinked) {
     Logger.println(`  ${styleText('blue', '→')} Local alias ${styleText('blue', alias || app.name)} unlinked`);
   }
-};
+}

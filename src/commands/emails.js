@@ -1,21 +1,21 @@
-import { styleText } from 'node:util';
-import * as User from '../models/user.js';
-import { Logger } from '../logger.js';
-import { openBrowser } from '../models/utils.js';
-import { sendToApi } from '../models/send-to-api.js';
-import { confirm } from '../lib/prompts.js';
 import {
   todo_addEmailAddress as addEmailAddress,
   todo_getEmailAddresses as getEmailAddresses,
   todo_removeEmailAddress as removeEmailAddress,
 } from '@clevercloud/client/esm/api/v2/user.js';
+import { styleText } from 'node:util';
+import { confirm } from '../lib/prompts.js';
+import { Logger } from '../logger.js';
+import { sendToApi } from '../models/send-to-api.js';
+import * as User from '../models/user.js';
+import { openBrowser } from '../models/utils.js';
 
 /**
  * Show primary and secondary email addresses of the current user
  * @param {object} params The command parameters
  * @param {string} params.options.format The output format
  */
-export async function list (params) {
+export async function list(params) {
   const { format } = params.options;
   const addresses = await getUserEmailAddresses();
 
@@ -31,9 +31,7 @@ export async function list (params) {
       if (addresses.secondary.length > 0) {
         Logger.println();
         Logger.println(`✉️  ${addresses.secondary.length} secondary email address(es):`);
-        addresses.secondary.forEach((address) =>
-          Logger.println(` • ${styleText('blue', address)}`),
-        );
+        addresses.secondary.forEach((address) => Logger.println(` • ${styleText('blue', address)}`));
       }
     }
   }
@@ -44,15 +42,16 @@ export async function list (params) {
  * @param {object} params The command parameters
  * @param {Array<string>} params.args
  */
-export async function addSecondary (params) {
+export async function addSecondary(params) {
   const [secondaryAddress] = params.args;
 
   const secondaryAddressEncoded = encodeURIComponent(secondaryAddress);
   try {
     await addEmailAddress({ email: secondaryAddressEncoded }).then(sendToApi);
-    Logger.printSuccess(`The server sent a confirmation email to ${secondaryAddress} to validate your secondary address`);
-  }
-  catch (e) {
+    Logger.printSuccess(
+      `The server sent a confirmation email to ${secondaryAddress} to validate your secondary address`,
+    );
+  } catch (e) {
     switch (e?.responseBody?.id) {
       case 101:
         throw new Error('This address already belongs to your account');
@@ -71,7 +70,7 @@ export async function addSecondary (params) {
  * @param {object} params The command parameters
  * @param {Array<string>} params.args
  */
-export async function setPrimary (params) {
+export async function setPrimary(params) {
   const [newPrimaryAddress] = params.args;
 
   const addresses = await getUserEmailAddresses();
@@ -95,13 +94,13 @@ export async function setPrimary (params) {
  * @param {object} params The command parameters
  * @param {Array<string>} params.args
  */
-export async function removeSecondary (params) {
+export async function removeSecondary(params) {
   const [addressToRemove] = params.args;
 
   const addresses = await getUserEmailAddresses();
 
   if (!addresses.secondary.includes(addressToRemove)) {
-    throw new Error('This address is not part of the secondary addresses of the current user, it can\'t be removed');
+    throw new Error("This address is not part of the secondary addresses of the current user, it can't be removed");
   }
 
   const addressToRemoveEncoded = encodeURIComponent(addressToRemove);
@@ -116,12 +115,9 @@ export async function removeSecondary (params) {
  * @param {object} params.options The command options
  * @param {boolean} params.options.yes The user confirmation
  */
-export async function removeAllSecondary (params) {
+export async function removeAllSecondary(params) {
   if (!params.options.yes) {
-    await confirm(
-      'Are you sure you want to remove all your secondary addresses?',
-      'No secondary addresses removed',
-    );
+    await confirm('Are you sure you want to remove all your secondary addresses?', 'No secondary addresses removed');
   }
 
   const addresses = await getUserEmailAddresses();
@@ -134,7 +130,8 @@ export async function removeAllSecondary (params) {
   const results = await Promise.all(
     addresses.secondary.map((addressToRemove) => {
       const addressToRemoveEncoded = encodeURIComponent(addressToRemove);
-      return removeEmailAddress({ email: addressToRemoveEncoded }).then(sendToApi)
+      return removeEmailAddress({ email: addressToRemoveEncoded })
+        .then(sendToApi)
         .then(() => [true, addressToRemove])
         .catch(() => [false, addressToRemove]);
     }),
@@ -142,8 +139,7 @@ export async function removeAllSecondary (params) {
 
   if (results.every(([isRemoved]) => isRemoved)) {
     Logger.printSuccess('All secondary addresses were removed successfully');
-  }
-  else {
+  } else {
     const addressesWithErrors = results
       .filter(([isRemoved]) => !isRemoved)
       .map(([_, address]) => address)
@@ -156,7 +152,7 @@ export async function removeAllSecondary (params) {
  * Open the email addresses management page of the Console in your browser
  * @returns {Promise<void>} A promise that resolves when the page is opened
  */
-export function openConsole () {
+export function openConsole() {
   return openBrowser('/users/me/emails', 'Opening the email addresses management page of the Console in your browser');
 }
 
@@ -164,7 +160,7 @@ export function openConsole () {
  * Get the primary and secondary email addresses of the current user
  * @returns {Promise<{ primary: string, secondary: string[] }>} The primary and secondary email addresses of the current user
  */
-async function getUserEmailAddresses () {
+async function getUserEmailAddresses() {
   const currentUser = await User.getCurrent();
   const secondaryAddresses = await getEmailAddresses().then(sendToApi);
   return {

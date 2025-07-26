@@ -1,17 +1,18 @@
 import { get } from '@clevercloud/client/esm/api/v2/organisation.js';
-import { sendToApi } from "./send-to-api.js";
+import { sendToApi } from './send-to-api.js';
 
-export function getCurrent () {
+export function getCurrent() {
   return get({}).then(sendToApi);
 }
 
-export function getCurrentId () {
-  return get({}).then(sendToApi)
+export function getCurrentId() {
+  return get({})
+    .then(sendToApi)
     .then(({ id }) => id);
 }
 
 // TODO move to clever client
-export function getCurrentToken () {
+export function getCurrentToken() {
   return Promise.resolve({
     method: 'get',
     url: '/v2/self/tokens/current',

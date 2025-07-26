@@ -1,6 +1,6 @@
 import cliparse from 'cliparse';
-import { Logger } from '../logger.js';
 import dedent from 'dedent';
+import { Logger } from '../logger.js';
 
 const CONFIG_KEYS = [
   { id: 'name', name: 'name', displayName: 'Name', kind: 'string' },
@@ -12,17 +12,15 @@ const CONFIG_KEYS = [
   { id: 'task', name: 'instanceLifetime', displayName: 'Deploy an application as a Clever Task', kind: 'task' },
 ];
 
-export function listAvailableIds (asText = false) {
+export function listAvailableIds(asText = false) {
   const ids = CONFIG_KEYS.map((config) => config.id);
   if (asText) {
-    return new Intl
-      .ListFormat('en', { style: 'short', type: 'disjunction' })
-      .format(ids);
+    return new Intl.ListFormat('en', { style: 'short', type: 'disjunction' }).format(ids);
   }
   return ids;
 }
 
-export function getById (id) {
+export function getById(id) {
   const config = CONFIG_KEYS.find((config) => config.id === id);
   if (config != null) {
     return config;
@@ -33,7 +31,7 @@ export function getById (id) {
   `);
 }
 
-export function formatValue (config, value) {
+export function formatValue(config, value) {
   switch (config.kind) {
     case 'bool': {
       return value;
@@ -53,7 +51,7 @@ export function formatValue (config, value) {
   }
 }
 
-export function parse (config, value) {
+export function parse(config, value) {
   switch (config.kind) {
     case 'bool':
     case 'inverted-bool':
@@ -63,16 +61,16 @@ export function parse (config, value) {
         throw new Error('Invalid configuration value, it must be a boolean (true or false)');
       }
       if (config.kind === 'bool') {
-        return (value === 'true');
+        return value === 'true';
       }
       if (config.kind === 'inverted-bool') {
-        return (value === 'false');
+        return value === 'false';
       }
       if (config.kind === 'force-https') {
-        return (value === 'true') ? 'ENABLED' : 'DISABLED';
+        return value === 'true' ? 'ENABLED' : 'DISABLED';
       }
       if (config.kind === 'task') {
-        return (value === 'false') ? 'REGULAR' : 'TASK';
+        return value === 'false' ? 'REGULAR' : 'TASK';
       }
       return;
     }
@@ -82,13 +80,11 @@ export function parse (config, value) {
   }
 }
 
-export function getUpdateOptions () {
-  return CONFIG_KEYS
-    .map((config) => getConfigOptions(config))
-    .reduce((a, b) => [...a, ...b], []);
+export function getUpdateOptions() {
+  return CONFIG_KEYS.map((config) => getConfigOptions(config)).reduce((a, b) => [...a, ...b], []);
 }
 
-function getConfigOptions (config) {
+function getConfigOptions(config) {
   switch (config.kind) {
     case 'bool':
     case 'inverted-bool':
@@ -100,21 +96,17 @@ function getConfigOptions (config) {
       ];
     }
     default: {
-      return [
-        cliparse.option(`${config.id}`, { description: `Set ${config.id}` }),
-      ];
+      return [cliparse.option(`${config.id}`, { description: `Set ${config.id}` })];
     }
   }
 }
 
-export function parseOptions (options) {
-  const newOptions = CONFIG_KEYS
-    .map((config) => parseConfigOption(config, options))
-    .filter((a) => a != null);
+export function parseOptions(options) {
+  const newOptions = CONFIG_KEYS.map((config) => parseConfigOption(config, options)).filter((a) => a != null);
   return Object.fromEntries(newOptions);
 }
 
-function parseConfigOption (config, options) {
+function parseConfigOption(config, options) {
   switch (config.kind) {
     case 'bool':
     case 'inverted-bool':
@@ -144,12 +136,12 @@ function parseConfigOption (config, options) {
   }
 }
 
-export function printValue (app, id) {
+export function printValue(app, id) {
   const config = getById(id);
   Logger.println(formatValue(config, app[config.name]));
 }
 
-export function printAllValues (app) {
+export function printAllValues(app) {
   console.table(
     Object.fromEntries(
       CONFIG_KEYS.map((config) => {

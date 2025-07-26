@@ -1,34 +1,30 @@
 import { styleText } from 'node:util';
-
+import { formatTable } from '../format-table.js';
+import { Logger } from '../logger.js';
 import * as AppConfig from '../models/app_configuration.js';
 import * as Application from '../models/application.js';
 import * as Organisation from '../models/organisation.js';
-import { Logger } from '../logger.js';
-import { formatTable } from '../format-table.js';
 import { truncateWithEllipsis } from '../models/utils.js';
 
-export async function list (params) {
+export async function list(params) {
   const { 'only-aliases': onlyAliases, json } = params.options;
 
   const { apps } = await AppConfig.loadApplicationConf();
 
   const formattedApps = formatApps(apps, onlyAliases, json);
   Logger.println(formattedApps);
-};
+}
 
-function formatApps (apps, onlyAliases, json) {
-
+function formatApps(apps, onlyAliases, json) {
   if (json) {
     if (onlyAliases) {
       apps = apps.map((a) => a.alias);
     }
     return JSON.stringify(apps, null, 2);
-  }
-  else {
+  } else {
     if (onlyAliases) {
       return apps.map((a) => a.alias).join('\n');
-    }
-    else {
+    } else {
       return apps
         .map((app) => {
           const sshUrl = app.git_ssh_url ?? app.deploy_url.replace('https://', 'git+ssh://git@');
@@ -45,14 +41,12 @@ function formatApps (apps, onlyAliases, json) {
   }
 }
 
-export async function listAll (params) {
+export async function listAll(params) {
   const { org: orgaIdOrName, format } = params.options;
 
   const linkedApps = await AppConfig.loadApplicationConf().then((conf) => conf.apps);
 
-  const ownerId = (orgaIdOrName != null && orgaIdOrName.orga_name !== '')
-    ? await Organisation.getId(orgaIdOrName)
-    : null;
+  const ownerId = orgaIdOrName != null && orgaIdOrName.orga_name !== '' ? await Organisation.getId(orgaIdOrName) : null;
 
   const allAppsPerOrg = await Application.getAllApps(ownerId);
 
@@ -72,7 +66,6 @@ export async function listAll (params) {
     }
     case 'human':
     default: {
-
       const headers = ['APPLICATION ID', 'NAME', 'TYPE', 'ZONE', 'LOCAL ALIAS'];
       const appNameWidth = 42;
 
@@ -88,26 +81,32 @@ export async function listAll (params) {
       const formatTableWithColumnWidth = formatTable(columnWidths);
 
       allAppsWithAliasPerOrg.forEach((org) => {
-
         Logger.println();
 
         const applicationsPlural = org.applications.length !== 1 ? 'applications' : 'application';
         const punctuation = org.applications.length > 0 ? ':' : '';
 
-        Logger.println(styleText('blue', `• Organization '${org.name}' (${org.id}) with ${org.applications.length} ${applicationsPlural}${punctuation}`));
+        Logger.println(
+          styleText(
+            'blue',
+            `• Organization '${org.name}' (${org.id}) with ${org.applications.length} ${applicationsPlural}${punctuation}`,
+          ),
+        );
 
         if (org.applications.length > 0) {
           Logger.println();
-          Logger.println(formatTableWithColumnWidth([
-            headers,
-            ...org.applications.map((app) => [
-              app.app_id,
-              truncateWithEllipsis(appNameWidth, app.name),
-              app.type,
-              app.zone,
-              app.alias,
+          Logger.println(
+            formatTableWithColumnWidth([
+              headers,
+              ...org.applications.map((app) => [
+                app.app_id,
+                truncateWithEllipsis(appNameWidth, app.name),
+                app.type,
+                app.zone,
+                app.alias,
+              ]),
             ]),
-          ]));
+          );
         }
       });
 
@@ -116,6 +115,6 @@ export async function listAll (params) {
   }
 }
 
-function getPropertyMaxWidth (array, propertyName) {
+function getPropertyMaxWidth(array, propertyName) {
   return Math.max(...array.map((o) => o[propertyName].length));
 }

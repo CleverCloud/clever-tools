@@ -1,13 +1,11 @@
+import { getAllInstances, get as getApplication } from '@clevercloud/client/esm/api/v2/application.js';
 import _ from 'lodash';
 import { styleText } from 'node:util';
-
-import * as Application from '../models/application.js';
 import { Logger } from '../logger.js';
-
-import { get as getApplication, getAllInstances } from '@clevercloud/client/esm/api/v2/application.js';
+import * as Application from '../models/application.js';
 import { sendToApi } from '../models/send-to-api.js';
 
-export async function status (params) {
+export async function status(params) {
   const { alias, app: appIdOrName, format } = params.options;
   const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
 
@@ -23,30 +21,37 @@ export async function status (params) {
     }
     case 'human':
     default: {
-      const statusMessage = status.status === 'running'
-        ? `${styleText(['bold', 'green'], 'running')} ${displayInstances(status.instances, status.commit)}`
-        : styleText(['bold', 'red'], 'stopped');
+      const statusMessage =
+        status.status === 'running'
+          ? `${styleText(['bold', 'green'], 'running')} ${displayInstances(status.instances, status.commit)}`
+          : styleText(['bold', 'red'], 'stopped');
 
       Logger.println(`${status.name}: ${statusMessage}`);
       Logger.println(`Executed as: ${styleText('bold', status.lifetime)}`);
       if (status.deploymentInProgress) {
-        Logger.println(`Deployment in progress ${displayInstances(status.deploymentInProgress.instances, status.deploymentInProgress.commit)}`);
+        Logger.println(
+          `Deployment in progress ${displayInstances(status.deploymentInProgress.instances, status.deploymentInProgress.commit)}`,
+        );
       }
       Logger.println();
       Logger.println('Scalability:');
-      Logger.println(`  Auto scalability: ${status.scalability.enabled ? styleText('green', 'enabled') : styleText('red', 'disabled')}`);
+      Logger.println(
+        `  Auto scalability: ${status.scalability.enabled ? styleText('green', 'enabled') : styleText('red', 'disabled')}`,
+      );
       Logger.println(`  Scalers: ${styleText('bold', formatScalability(status.scalability.horizontal))}`);
       Logger.println(`  Sizes: ${styleText('bold', formatScalability(status.scalability.vertical))}`);
-      Logger.println(`  Dedicated build: ${status.separateBuild ? styleText('bold', status.buildFlavor) : styleText('red', 'disabled')}`);
+      Logger.println(
+        `  Dedicated build: ${status.separateBuild ? styleText('bold', status.buildFlavor) : styleText('red', 'disabled')}`,
+      );
     }
   }
 }
 
-function displayInstances (instances, commit) {
+function displayInstances(instances, commit) {
   return `(${instances.map((instance) => `${instance.count}*${instance.flavor}`)},  Commit: ${commit || 'N/A'})`;
 }
 
-function computeStatus (instances, app) {
+function computeStatus(instances, app) {
   const upInstances = _.filter(instances, ({ state }) => state === 'UP');
   const isUp = !_.isEmpty(upInstances);
   const upCommit = _(upInstances).map('commit').head();
@@ -57,8 +62,7 @@ function computeStatus (instances, app) {
 
   const { minFlavor, maxFlavor, minInstances, maxInstances } = app.instance;
 
-  const scalabilityEnabled = (minFlavor.name !== maxFlavor.name)
-    || (minInstances !== maxInstances);
+  const scalabilityEnabled = minFlavor.name !== maxFlavor.name || minInstances !== maxInstances;
 
   const status = {
     id: app.id,
@@ -86,11 +90,11 @@ function computeStatus (instances, app) {
   return status;
 }
 
-function formatScalability ({ min, max }) {
-  return (min === max) ? min : `${min} to ${max}`;
+function formatScalability({ min, max }) {
+  return min === max ? min : `${min} to ${max}`;
 }
 
-function groupInstances (instances) {
+function groupInstances(instances) {
   return _(instances)
     .groupBy((i) => i.flavor.name)
     .map((instances, flavorName) => ({

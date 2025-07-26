@@ -1,12 +1,10 @@
+import { createWebhook, deleteWebhook, getWebhooks } from '@clevercloud/client/esm/api/v2/notification.js';
 import { styleText } from 'node:util';
-
 import { Logger } from '../logger.js';
-import { getOwnerAndApp, getOrgaIdOrUserId } from '../models/notification.js';
-
-import { getWebhooks, createWebhook, deleteWebhook } from '@clevercloud/client/esm/api/v2/notification.js';
+import { getOrgaIdOrUserId, getOwnerAndApp } from '../models/notification.js';
 import { sendToApi } from '../models/send-to-api.js';
 
-export async function list (params) {
+export async function list(params) {
   const { org, 'list-all': listAll, format } = params.options;
 
   // TODO: fix alias option
@@ -46,7 +44,7 @@ export async function list (params) {
   }
 }
 
-export async function add (params) {
+export async function add(params) {
   const { org, format, event: events, service } = params.options;
   const [name, hookUrl] = params.args;
 
@@ -56,7 +54,7 @@ export async function add (params) {
   const body = {
     name,
     urls: [{ format, url: hookUrl }],
-    scope: (appId != null && service == null) ? [appId] : service,
+    scope: appId != null && service == null ? [appId] : service,
     events,
   };
 
@@ -65,7 +63,7 @@ export async function add (params) {
   Logger.println('The webhook has been added');
 }
 
-export async function remove (params) {
+export async function remove(params) {
   const { org } = params.options;
   const [notificationId] = params.args;
 

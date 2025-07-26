@@ -1,24 +1,22 @@
 import path from 'node:path';
 import { styleText } from 'node:util';
-import * as Application from '../models/application.js';
-import * as AppConfig from '../models/app_configuration.js';
 import { Logger } from '../logger.js';
-import { isGitWorkingDirectoryClean, isInsideGitRepo } from '../models/git.js';
+import * as AppConfig from '../models/app_configuration.js';
+import * as Application from '../models/application.js';
 import { conf } from '../models/configuration.js';
+import { isGitWorkingDirectoryClean, isInsideGitRepo } from '../models/git.js';
 
-export async function create (params) {
+export async function create(params) {
   const { type: typeName } = params.options;
   const [rawName] = params.args;
   const { org: orgaIdOrName, alias, region, github: githubOwnerRepo, format, task: taskCommand } = params.options;
   const { apps } = await AppConfig.loadApplicationConf();
 
   // Application name is optionnal, use current directory name if not specified (empty string)
-  const name = (rawName !== '') ? rawName : getCurrentDirectoryName();
+  const name = rawName !== '' ? rawName : getCurrentDirectoryName();
 
-  const isTask = (taskCommand != null);
-  const envVars = isTask
-    ? { CC_RUN_COMMAND: taskCommand }
-    : {};
+  const isTask = taskCommand != null;
+  const envVars = isTask ? { CC_RUN_COMMAND: taskCommand } : {};
 
   AppConfig.checkAlreadyLinked(apps, name, alias);
 
@@ -42,16 +40,16 @@ export async function create (params) {
     default:
       await displayAppCreation(app, alias, github, taskCommand);
   }
-};
+}
 
-function getGithubDetails (githubOwnerRepo) {
+function getGithubDetails(githubOwnerRepo) {
   if (githubOwnerRepo != null) {
     const [owner, name] = githubOwnerRepo.split('/');
     return { owner, name };
   }
 }
 
-function getCurrentDirectoryName () {
+function getCurrentDirectoryName() {
   return path.basename(process.cwd());
 }
 
@@ -62,8 +60,7 @@ function getCurrentDirectoryName () {
  * @param {Object} github - The GitHub details
  * @param {string} taskCommand - The task command
  */
-async function displayAppCreation (app, alias, github, taskCommand) {
-
+async function displayAppCreation(app, alias, github, taskCommand) {
   Logger.printSuccess(`Application ${styleText('green', app.name)} successfully created!`);
 
   const hasDistinctAlias = alias != null && alias !== app.name;
@@ -92,8 +89,7 @@ async function displayAppCreation (app, alias, github, taskCommand) {
       Logger.println(`    ${shellCommand('git add .')}`);
       Logger.println(`    ${shellCommand('git commit -m "Initial commit"')}`);
       Logger.println();
-    }
-    else {
+    } else {
       const isClean = await isGitWorkingDirectoryClean();
       if (!isClean) {
         Logger.println(`  ${styleText('yellow', '!')} Commit your changes first:`);
@@ -105,21 +101,26 @@ async function displayAppCreation (app, alias, github, taskCommand) {
   }
 
   if (github) {
-    Logger.println(`  ${styleText('blue', '→')} Push changes to ${styleText('blue', `${github.owner}/${github.name}`)} GitHub repository to trigger a deployment, or ${styleText('blue', 'clever restart')} the latest pushed commit`);
-  }
-  else {
-    Logger.println(`  ${styleText('blue', '→')} Run ${styleText('blue', 'clever deploy')} ${isTask ? 'to execute your task' : 'to deploy your application'}`);
+    Logger.println(
+      `  ${styleText('blue', '→')} Push changes to ${styleText('blue', `${github.owner}/${github.name}`)} GitHub repository to trigger a deployment, or ${styleText('blue', 'clever restart')} the latest pushed commit`,
+    );
+  } else {
+    Logger.println(
+      `  ${styleText('blue', '→')} Run ${styleText('blue', 'clever deploy')} ${isTask ? 'to execute your task' : 'to deploy your application'}`,
+    );
   }
 
-  Logger.println(`  ${styleText('blue', '→')} Manage your application at: ${styleText('underline', `${conf.GOTO_URL}/${app.id}`)}`);
+  Logger.println(
+    `  ${styleText('blue', '→')} Manage your application at: ${styleText('underline', `${conf.GOTO_URL}/${app.id}`)}`,
+  );
   Logger.println('');
 }
 
-function shellCommand (command) {
+function shellCommand(command) {
   return `${styleText('grey', '$')} ${styleText('yellow', command)}`;
 }
 
-function printFieldsAsTable (indent, fields) {
+function printFieldsAsTable(indent, fields) {
   const fieldsWithValues = Object.fromEntries(Object.entries(fields).filter(([_, value]) => typeof value === 'string'));
   const labelMaxWidth = Math.max(...Object.keys(fieldsWithValues).map((label) => label.length));
   return Object.entries(fieldsWithValues).forEach(([label, value]) => {

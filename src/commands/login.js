@@ -1,32 +1,30 @@
 import crypto from 'node:crypto';
-import { styleText } from 'node:util';
 import { setTimeout as delay } from 'node:timers/promises';
+import { styleText } from 'node:util';
 import open from 'open';
-
-import { Logger } from '../logger.js';
-import * as User from '../models/user.js';
-import { conf, writeOAuthConf } from '../models/configuration.js';
-
 import pkg from '../../package.json' with { type: 'json' };
+import { Logger } from '../logger.js';
+import { conf, writeOAuthConf } from '../models/configuration.js';
+import * as User from '../models/user.js';
 
 // 20 random bytes as Base64URL
-function randomToken () {
+function randomToken() {
   return crypto.randomBytes(20).toString('base64').replace(/\//g, '-').replace(/\+/g, '_').replace(/=/g, '');
 }
 
 const POLLING_INTERVAL = 2000;
 const POLLING_MAX_TRY_COUNT = 60;
 
-function pollOauthData (url, tryCount = 0) {
-
+function pollOauthData(url, tryCount = 0) {
   if (tryCount >= POLLING_MAX_TRY_COUNT) {
     throw new Error('Something went wrong while trying to log you in.');
   }
   if (tryCount > 1 && tryCount % 10 === 0) {
-    Logger.println('We\'re still waiting for the login process (in your browser) to be completed…');
+    Logger.println("We're still waiting for the login process (in your browser) to be completed…");
   }
 
-  return globalThis.fetch(url)
+  return globalThis
+    .fetch(url)
     .then(async (r) => {
       if (r.status === 404) {
         await delay(POLLING_INTERVAL);
@@ -39,8 +37,7 @@ function pollOauthData (url, tryCount = 0) {
     });
 }
 
-async function loginViaConsole () {
-
+async function loginViaConsole() {
   const cliToken = randomToken();
 
   const consoleUrl = new URL(conf.CONSOLE_TOKEN_URL);
@@ -58,10 +55,10 @@ async function loginViaConsole () {
   return pollOauthData(cliPollUrl.toString());
 }
 
-export async function login (params) {
+export async function login(params) {
   const { token, secret } = params.options;
-  const isLoginWithArgs = (token != null && secret != null);
-  const isInteractiveLogin = (token == null && secret == null);
+  const isLoginWithArgs = token != null && secret != null;
+  const isInteractiveLogin = token == null && secret == null;
 
   if (isLoginWithArgs) {
     return writeOAuthConf({ token, secret });

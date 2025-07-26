@@ -3,7 +3,8 @@ import dedent from 'dedent';
 export const EXPERIMENTAL_FEATURES = {
   kv: {
     status: 'alpha',
-    description: 'Send commands to databases such as Materia KV or Redis® directly from Clever Tools, without other dependencies',
+    description:
+      'Send commands to databases such as Materia KV or Redis® directly from Clever Tools, without other dependencies',
     instructions: dedent`
       Target any compatible add-on by its name or ID (with an org ID if needed) and send commands to it:
 

@@ -1,25 +1,23 @@
+import cliparse from 'cliparse';
+import * as git from 'isomorphic-git';
+import _ from 'lodash';
 import fs from 'node:fs';
 import path from 'node:path';
-
-import _ from 'lodash';
-import * as git from 'isomorphic-git';
-import * as http from './isomorphic-http-with-agent.js';
-import cliparse from 'cliparse';
 import { slugify } from '../lib/slugify.js';
-import { findPath } from './fs-utils.js';
 import { loadOAuthConf } from './configuration.js';
+import { findPath } from './fs-utils.js';
+import * as http from './isomorphic-http-with-agent.js';
 
-async function getRepo () {
+async function getRepo() {
   try {
     const dir = await findPath('.', '.git');
     return { fs, dir, http };
-  }
-  catch {
+  } catch {
     throw new Error('Could not find the .git folder.');
   }
 }
 
-async function onAuth () {
+async function onAuth() {
   const tokens = await loadOAuthConf();
   return {
     username: tokens.token,
@@ -27,7 +25,7 @@ async function onAuth () {
   };
 }
 
-export async function addRemote (remoteName, url) {
+export async function addRemote(remoteName, url) {
   const repo = await getRepo();
   const safeRemoteName = slugify(remoteName);
   const allRemotes = await git.listRemotes({ ...repo });
@@ -38,15 +36,14 @@ export async function addRemote (remoteName, url) {
   }
 }
 
-export async function resolveFullCommitId (commitId) {
+export async function resolveFullCommitId(commitId) {
   if (commitId == null) {
     return null;
   }
   try {
     const repo = await getRepo();
     return await git.expandOid({ ...repo, oid: commitId });
-  }
-  catch (e) {
+  } catch (e) {
     if (e.code === 'ShortOidNotFound') {
       throw new Error(`Commit id ${commitId} is ambiguous`);
     }
@@ -54,7 +51,7 @@ export async function resolveFullCommitId (commitId) {
   }
 }
 
-export async function getRemoteCommit (remoteUrl) {
+export async function getRemoteCommit(remoteUrl) {
   const repo = await getRepo();
   const remoteInfos = await git.getRemoteInfo({
     ...repo,
@@ -64,16 +61,16 @@ export async function getRemoteCommit (remoteUrl) {
   return _.get(remoteInfos, 'refs.heads.master');
 }
 
-export async function getFullBranch (branchName) {
+export async function getFullBranch(branchName) {
   const repo = await getRepo();
   if (branchName === '') {
     const currentBranch = await git.currentBranch({ ...repo, fullname: true });
     return currentBranch || 'HEAD';
   }
   return git.expandRef({ ...repo, ref: branchName });
-};
+}
 
-export async function getBranchCommit (refspec) {
+export async function getBranchCommit(refspec) {
   const repo = await getRepo();
   const oid = await git.resolveRef({ ...repo, ref: refspec });
   // When a refspec refers to an annotated tag, the OID ref represents the annotation and not the commit directly,
@@ -82,7 +79,7 @@ export async function getBranchCommit (refspec) {
   return res.oid;
 }
 
-export async function isExistingTag (tag) {
+export async function isExistingTag(tag) {
   const repo = await getRepo();
   const tags = await git.listTags({
     ...repo,
@@ -90,7 +87,7 @@ export async function isExistingTag (tag) {
   return tags.includes(tag);
 }
 
-export async function push (remoteUrl, branchRefspec, force) {
+export async function push(remoteUrl, branchRefspec, force) {
   const repo = await getRepo();
   try {
     const push = await git.push({
@@ -105,8 +102,7 @@ export async function push (remoteUrl, branchRefspec, force) {
       throw new Error(push.errors.join(', '));
     }
     return push;
-  }
-  catch (e) {
+  } catch (e) {
     if (e.code === 'PushRejectedNonFastForward') {
       throw new Error('Push rejected because it was not a simple fast-forward. Use "--force" to override.');
     }
@@ -114,19 +110,18 @@ export async function push (remoteUrl, branchRefspec, force) {
   }
 }
 
-export function completeBranches () {
+export function completeBranches() {
   return getRepo()
     .then((repo) => git.listBranches(repo))
     .then(cliparse.autocomplete.words);
 }
 
-export async function isShallow () {
+export async function isShallow() {
   const { dir } = await getRepo();
   try {
     await fs.promises.access(path.join(dir, '.git', 'shallow'));
     return true;
-  }
-  catch {
+  } catch {
     return false;
   }
 }
@@ -135,7 +130,7 @@ export async function isShallow () {
  * Check if the current directory is a git repository
  * @returns {Promise<boolean>}
  */
-export async function isInsideGitRepo () {
+export async function isInsideGitRepo() {
   return getRepo()
     .then(() => true)
     .catch(() => false);
@@ -145,16 +140,15 @@ export async function isInsideGitRepo () {
  * Check if the current git working directory is clean
  * @returns {Promise<boolean>}
  */
-export async function isGitWorkingDirectoryClean () {
+export async function isGitWorkingDirectoryClean() {
   const repo = await getRepo();
   const status = await git.statusMatrix({ ...repo });
-  const isStatusEmpty = status
-    .filter(([filepath, head, workdir]) => {
+  const isStatusEmpty =
+    status.filter(([filepath, head, workdir]) => {
       // WARNING: isomorphic-git does not support global gitignore so we filter hidden files and dirs to reduce the amount of false positives
       const isHidden = filepath.startsWith('.');
       const isCleverJson = filepath === '.clever.json';
       return (!isHidden || isCleverJson) && head !== workdir;
-    })
-    .length === 0;
+    }).length === 0;
   return isStatusEmpty;
 }

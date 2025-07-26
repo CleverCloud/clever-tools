@@ -1,11 +1,11 @@
-import { spawn } from 'node:child_process';
-import { conf, loadOAuthConf } from '../models/configuration.js';
 import { addOauthHeader } from '@clevercloud/client/esm/oauth.js';
-import { Logger } from '../logger.js';
-import { styleText } from 'node:util';
 import dedent from 'dedent';
+import { spawn } from 'node:child_process';
+import { styleText } from 'node:util';
+import { Logger } from '../logger.js';
+import { conf, loadOAuthConf } from '../models/configuration.js';
 
-async function loadTokens () {
+async function loadTokens() {
   const tokens = await loadOAuthConf();
   return {
     OAUTH_CONSUMER_KEY: conf.OAUTH_CONSUMER_KEY,
@@ -15,7 +15,7 @@ async function loadTokens () {
   };
 }
 
-function printCleverCurlHelp () {
+function printCleverCurlHelp() {
   Logger.println(dedent`
     Usage: clever curl
     Query Clever Cloud's API using Clever Tools credentials. For example:
@@ -33,8 +33,7 @@ function printCleverCurlHelp () {
   `);
 }
 
-export async function curl () {
-
+export async function curl() {
   // We remove the first three args: "node", "clever" and "curl"
   const curlArgs = process.argv.slice(2);
   const hasNoArgs = curlArgs.length === 0;
@@ -60,7 +59,6 @@ export async function curl () {
   // Add OAuth header, only if last cURL arg is not help
   // We do this because cURL's help arg expect a category
   if (lastCurlArgIsHelp) {
-
     const tokens = await loadTokens();
     const oauthHeader = await Promise.resolve({})
       .then(addOauthHeader(tokens))

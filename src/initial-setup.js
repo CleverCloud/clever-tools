@@ -1,7 +1,7 @@
-import pkg from '../package.json' with { type: 'json' };
 import updateNotifierModule from 'update-notifier';
+import pkg from '../package.json' with { type: 'json' };
 
-function hasParam (param, paramValue) {
+function hasParam(param, paramValue) {
   const index = process.argv.indexOf(param);
   if (index === -1) {
     return false;
@@ -39,7 +39,7 @@ if (!updateNotifierExplicitFalse && !isRunThroughPackagedBinary) {
     tagsUrl: 'https://api.github.com/repos/CleverCloud/clever-tools/tags',
   }).notify({
     isGlobal: true,
-    getDetails () {
+    getDetails() {
       const docsUrl = 'https://github.com/CleverCloud/clever-tools/tree/master/docs#how-to-use-clever-tools';
       return `\nPlease follow this link to update your clever-tools:\n${docsUrl}`;
     },

@@ -1,9 +1,9 @@
 import { styleText } from 'node:util';
+import { Logger } from '../logger.js';
 import * as Addon from '../models/addon.js';
 import * as Application from '../models/application.js';
-import { Logger } from '../logger.js';
 
-export async function list (params) {
+export async function list(params) {
   const {
     alias,
     app: appIdOrName,
@@ -49,7 +49,9 @@ export async function list (params) {
       const { applications = [], addons = [] } = formattedServices;
 
       if (applications.length === 0 && addons.length === 0) {
-        Logger.printInfo(`No linked services found, use ${styleText('blue', 'clever service link-app')} or ${styleText('blue', 'clever service link-addon')} to link services to an application`);
+        Logger.printInfo(
+          `No linked services found, use ${styleText('blue', 'clever service link-app')} or ${styleText('blue', 'clever service link-addon')} to link services to an application`,
+        );
         return;
       }
 
@@ -66,7 +68,7 @@ export async function list (params) {
   }
 }
 
-export async function linkApp (params) {
+export async function linkApp(params) {
   const { alias, app: appIdOrName } = params.options;
   const [dependency] = params.args;
   const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
@@ -75,7 +77,7 @@ export async function linkApp (params) {
   Logger.println(`App ${dependency.app_id || dependency.app_name} successfully linked`);
 }
 
-export async function unlinkApp (params) {
+export async function unlinkApp(params) {
   const { alias, app: appIdOrName } = params.options;
   const [dependency] = params.args;
   const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
@@ -84,7 +86,7 @@ export async function unlinkApp (params) {
   Logger.println(`App ${dependency.app_id || dependency.app_name} successfully unlinked`);
 }
 
-export async function linkAddon (params) {
+export async function linkAddon(params) {
   const { alias, app: appIdOrName } = params.options;
   const [addon] = params.args;
   const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
@@ -93,7 +95,7 @@ export async function linkAddon (params) {
   Logger.println(`Addon ${addon.addon_id || addon.addon_name} successfully linked`);
 }
 
-export async function unlinkAddon (params) {
+export async function unlinkAddon(params) {
   const { alias, app: appIdOrName } = params.options;
   const [addon] = params.args;
   const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);

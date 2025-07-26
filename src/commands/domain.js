@@ -1,23 +1,23 @@
-import * as Application from '../models/application.js';
-import { Logger } from '../logger.js';
 import {
   addDomain,
-  get as getApp,
   getAllDomains,
+  get as getApp,
   getFavouriteDomain as getFavouriteDomainWithError,
   markFavouriteDomain,
   removeDomain,
   unmarkFavouriteDomain,
 } from '@clevercloud/client/esm/api/v2/application.js';
 import { getSummary } from '@clevercloud/client/esm/api/v2/user.js';
-import { sendToApi } from '../models/send-to-api.js';
-import { styleText } from 'node:util';
-import { parse as parseDomain } from 'tldts';
+import { getDefaultLoadBalancersDnsInfo } from '@clevercloud/client/esm/api/v4/load-balancers.js';
 import { diagDomainConfig } from '@clevercloud/client/esm/utils/diag-domain-config.js';
 import { sortDomains } from '@clevercloud/client/esm/utils/domains.js';
-import { DnsResolver } from '../models/node-dns-resolver.js';
 import _ from 'lodash';
-import { getDefaultLoadBalancersDnsInfo } from '@clevercloud/client/esm/api/v4/load-balancers.js';
+import { styleText } from 'node:util';
+import { parse as parseDomain } from 'tldts';
+import { Logger } from '../logger.js';
+import * as Application from '../models/application.js';
+import { DnsResolver } from '../models/node-dns-resolver.js';
+import { sendToApi } from '../models/send-to-api.js';
 
 /**
  * @typedef {import('@clevercloud/client/esm/utils/diag-domain-config.types.js').DomainInfo} DomainInfo
@@ -25,7 +25,7 @@ import { getDefaultLoadBalancersDnsInfo } from '@clevercloud/client/esm/api/v4/l
  * @typedef {import('@clevercloud/client/esm/utils/diag-domain-config.types.js').DomainDiag} DomainDiag
  */
 
-function getFavouriteDomain ({ ownerId, appId }) {
+function getFavouriteDomain({ ownerId, appId }) {
   return getFavouriteDomainWithError({ id: ownerId, appId })
     .then(sendToApi)
     .then(({ fqdn }) => fqdn)
@@ -38,21 +38,19 @@ function getFavouriteDomain ({ ownerId, appId }) {
     });
 }
 
-export async function list (params) {
+export async function list(params) {
   const { alias, app: appIdOrName } = params.options;
   const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
 
   const app = await getApp({ id: ownerId, appId }).then(sendToApi);
   const favouriteDomain = await getFavouriteDomain({ ownerId, appId });
   return app.vhosts.forEach(({ fqdn }) => {
-    const prefix = (fqdn === favouriteDomain)
-      ? '* '
-      : '  ';
+    const prefix = fqdn === favouriteDomain ? '* ' : '  ';
     Logger.println(prefix + fqdn);
   });
 }
 
-export async function add (params) {
+export async function add(params) {
   const [fqdn] = params.args;
   const { alias, app: appIdOrName } = params.options;
   const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
@@ -62,7 +60,7 @@ export async function add (params) {
   Logger.println('Your domain has been successfully saved');
 }
 
-export async function getFavourite (params) {
+export async function getFavourite(params) {
   const { alias, app: appIdOrName } = params.options;
   const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
 
@@ -75,7 +73,7 @@ export async function getFavourite (params) {
   return Logger.println(favouriteDomain);
 }
 
-export async function setFavourite (params) {
+export async function setFavourite(params) {
   const [fqdn] = params.args;
   const { alias, app: appIdOrName } = params.options;
   const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
@@ -84,7 +82,7 @@ export async function setFavourite (params) {
   Logger.println('Your favourite domain has been successfully set');
 }
 
-export async function unsetFavourite (params) {
+export async function unsetFavourite(params) {
   const { alias, app: appIdOrName } = params.options;
   const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
 
@@ -92,7 +90,7 @@ export async function unsetFavourite (params) {
   Logger.println('Favourite domain has been successfully unset');
 }
 
-export async function rm (params) {
+export async function rm(params) {
   const [fqdn] = params.args;
   const { alias, app: appIdOrName } = params.options;
   const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
@@ -102,7 +100,7 @@ export async function rm (params) {
   Logger.println('Your domain has been successfully removed');
 }
 
-export async function diagApplication (params) {
+export async function diagApplication(params) {
   const dnsResolver = new DnsResolver();
   const allDomainDiagnostics = [];
   const { alias, app: appIdOrName, format, filter } = params.options;
@@ -125,14 +123,18 @@ export async function diagApplication (params) {
   for (const { hostname, pathPrefix, isApex } of sortedDomains) {
     const resolvedDnsConfig = {
       aRecords: await dnsResolver.resolveA(hostname),
-      cnameRecords: await dnsResolver.resolveCname(hostname) ?? [],
+      cnameRecords: (await dnsResolver.resolveCname(hostname)) ?? [],
     };
 
-    const diagnosticResults = diagDomainConfig({
-      hostname,
-      pathPrefix,
-      isApex,
-    }, resolvedDnsConfig, loadBalancerDnsConfig);
+    const diagnosticResults = diagDomainConfig(
+      {
+        hostname,
+        pathPrefix,
+        isApex,
+      },
+      resolvedDnsConfig,
+      loadBalancerDnsConfig,
+    );
     allDomainDiagnostics.push({ ...diagnosticResults, resolvedDnsConfig });
 
     if (diagnosticResults.diagSummary === 'invalid' || diagnosticResults.diagSummary === 'no-config') {
@@ -162,8 +164,7 @@ export async function diagApplication (params) {
   }
 }
 
-export async function overview (params) {
-
+export async function overview(params) {
   const { format, filter } = params.options;
 
   const summary = await getSummary().then(sendToApi);
@@ -196,39 +197,40 @@ export async function overview (params) {
     }),
   );
 
-  const applicationsWithParsedDomain = applicationsWithDomains
-    .flatMap(({ app, domains }) => {
-      return domains
-        .filter((domain) => filter == null || domain.fqdn.includes(filter))
-        .map((domain) => {
+  const applicationsWithParsedDomain = applicationsWithDomains.flatMap(({ app, domains }) => {
+    return domains
+      .filter((domain) => filter == null || domain.fqdn.includes(filter))
+      .map((domain) => {
+        // `validateHostname` is set to `false` so that wildcard domains may be parsed correctly
+        const parsedDomain = parseDomain(domain.fqdn, { validateHostname: false });
+        const pathname = new URL('https://' + domain.fqdn).pathname;
+        const subdomains = parsedDomain.subdomain !== '' ? parsedDomain.subdomain.split('.') : [];
 
-          // `validateHostname` is set to `false` so that wildcard domains may be parsed correctly
-          const parsedDomain = parseDomain(domain.fqdn, { validateHostname: false });
-          const pathname = new URL('https://' + domain.fqdn).pathname;
-          const subdomains = parsedDomain.subdomain !== '' ? parsedDomain.subdomain.split('.') : [];
+        // We're trying to create a propertyPath for lodash to create a tree structure object,
+        // the propertyPath for `aaa.bbb.ccc.example.com/the-path` would be:
+        // ["example.com", "example.com.ccc", "example.com.ccc.bbb", "example.com.ccc.bbb.aaa", "/path-aaa"]",
 
-          // We're trying to create a propertyPath for lodash to create a tree structure object,
-          // the propertyPath for `aaa.bbb.ccc.example.com/the-path` would be:
-          // ["example.com", "example.com.ccc", "example.com.ccc.bbb", "example.com.ccc.bbb.aaa", "/path-aaa"]",
-
-          const sortSegments = [parsedDomain.domain, ...subdomains.reverse()];
-          const propertyPath = sortSegments.map((item, i, all) => {
-            return all.slice(0, i + 1).reverse().join('.');
-          });
-          propertyPath.push(pathname);
-
-          return {
-            ownerId: app.ownerId,
-            ownerName: app.ownerName,
-            appId: app.id,
-            appName: app.name,
-            appConsoleUrl: `${consoleUrl}/goto/${app.id}`,
-            appVariantSlug: app.variantSlug,
-            domain: domain.fqdn,
-            propetyPath: propertyPath,
-          };
+        const sortSegments = [parsedDomain.domain, ...subdomains.reverse()];
+        const propertyPath = sortSegments.map((item, i, all) => {
+          return all
+            .slice(0, i + 1)
+            .reverse()
+            .join('.');
         });
-    });
+        propertyPath.push(pathname);
+
+        return {
+          ownerId: app.ownerId,
+          ownerName: app.ownerName,
+          appId: app.id,
+          appName: app.name,
+          appConsoleUrl: `${consoleUrl}/goto/${app.id}`,
+          appVariantSlug: app.variantSlug,
+          domain: domain.fqdn,
+          propetyPath: propertyPath,
+        };
+      });
+  });
 
   const applicationsWithParsedDomainAsTree = {};
   for (const { propetyPath, ...appWithDomain } of applicationsWithParsedDomain) {
@@ -246,12 +248,10 @@ export async function overview (params) {
       if (Object.keys(applicationsWithParsedDomainAsSortedTree).length === 0) {
         if (filter?.length > 0) {
           Logger.println(`No matches for filter "${filter}"`);
-        }
-        else {
+        } else {
           Logger.println('No domains');
         }
-      }
-      else {
+      } else {
         recursiveDisplay(applicationsWithParsedDomainAsSortedTree);
       }
       break;
@@ -259,8 +259,7 @@ export async function overview (params) {
 }
 
 /** @param {DomainDiag & { resolvedDnsConfig: ResolveDnsResult }} domainDiag */
-function reportDomainDiagnostics ({ hostname, pathPrefix, resolvedDnsConfig, diagDetails, diagSummary }) {
-
+function reportDomainDiagnostics({ hostname, pathPrefix, resolvedDnsConfig, diagDetails, diagSummary }) {
   const validDiags = diagDetails.filter((diag) => diag.code === 'valid-a');
   const unknownDiags = diagDetails.filter((diag) => diag.code === 'unknown-a');
   const missingDiags = diagDetails.filter((diag) => diag.code === 'missing-a');
@@ -320,7 +319,7 @@ function reportDomainDiagnostics ({ hostname, pathPrefix, resolvedDnsConfig, dia
   }
 
   // Replace unknown CNAME with missing CNAME
-  if ((diagSummary === 'invalid') && missingCname != null && unknownCname != null) {
+  if (diagSummary === 'invalid' && missingCname != null && unknownCname != null) {
     Logger.println('');
     printlnWithIndent('➖Remove this CNAME record:', 2);
     printlnWithIndent(unknownCname.record.value + '. ', 6);
@@ -367,7 +366,7 @@ function reportDomainDiagnostics ({ hostname, pathPrefix, resolvedDnsConfig, dia
  * @param {Array<{ fqdn: string }>} vhosts
  * @returns {Array<Partial<DomainInfo>>} Array of parsed domain objects
  */
-function getParsedDomains (vhosts) {
+function getParsedDomains(vhosts) {
   return vhosts.map(({ fqdn }) => {
     const { hostname, pathname } = new URL('https://' + fqdn);
     const { subdomain } = parseDomain(fqdn);
@@ -382,31 +381,31 @@ function getParsedDomains (vhosts) {
  * @param {string} text - The text to be printed.
  * @param {number} indentLevel - The number of spaces to indent the text.
  */
-function printlnWithIndent (text, indentLevel) {
+function printlnWithIndent(text, indentLevel) {
   Logger.println(' '.repeat(indentLevel) + text);
 }
 
-function recursiveSort (obj) {
-
+function recursiveSort(obj) {
   if (typeof obj === 'object' && obj.appId != null) {
     return obj;
   }
 
   const sortedObj = {};
-  Object.keys(obj).sort((a, b) => {
-    // if the domain contains a wildcard, we want it to be the first of subdomains
-    const aWithReplacedWildcard = a.replace(/^\*/, 'a');
-    const bWithReplacedWildcard = b.replace(/^\*/, 'a');
-    return aWithReplacedWildcard.localeCompare(bWithReplacedWildcard);
-  }).forEach((key) => {
-    sortedObj[key] = recursiveSort(obj[key]);
-  });
+  Object.keys(obj)
+    .sort((a, b) => {
+      // if the domain contains a wildcard, we want it to be the first of subdomains
+      const aWithReplacedWildcard = a.replace(/^\*/, 'a');
+      const bWithReplacedWildcard = b.replace(/^\*/, 'a');
+      return aWithReplacedWildcard.localeCompare(bWithReplacedWildcard);
+    })
+    .forEach((key) => {
+      sortedObj[key] = recursiveSort(obj[key]);
+    });
 
   return sortedObj;
 }
 
-function recursiveDisplay (obj, indentLevel = 0) {
-
+function recursiveDisplay(obj, indentLevel = 0) {
   if (typeof obj === 'object' && obj.appId != null) {
     printlnWithIndent(`${obj.ownerName} | ${obj.appName} (${obj.appVariantSlug})`, indentLevel);
     printlnWithIndent(styleText('blue', obj.appConsoleUrl), indentLevel);
@@ -418,8 +417,7 @@ function recursiveDisplay (obj, indentLevel = 0) {
       Logger.println('');
       printlnWithIndent(styleText('yellow', propertyPath), indentLevel);
       recursiveDisplay(subObj, indentLevel + 2);
-    }
-    else {
+    } else {
       recursiveDisplay(subObj, indentLevel);
     }
   }
