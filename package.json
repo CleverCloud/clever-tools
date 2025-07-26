@@ -2,18 +2,23 @@
   "name": "clever-tools",
   "version": "3.14.1",
   "description": "Command Line Interface for Clever Cloud.",
-  "main": "bin/clever.js",
-  "type": "module",
   "keywords": [
     "clever-tools",
     "cli",
     "clever cloud"
   ],
-  "engines": {
-    "node": ">=22"
+  "homepage": "https://github.com/CleverCloud/clever-tools",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/CleverCloud/clever-tools.git"
+  },
+  "bugs": {
+    "url": "https://github.com/CleverCloud/clever-tools/issues"
   },
   "author": "Clever Cloud <ci@clever-cloud.com>",
   "license": "Apache-2.0",
+  "type": "module",
+  "main": "bin/clever.js",
   "bin": {
     "clever": "bin/clever.js",
     "clever-tools": "bin/clever.js",
@@ -25,6 +30,9 @@
     "src",
     "scripts/*.sh"
   ],
+  "scripts": {
+    "install-local:cliparse": "(cd ../cliparse-node && npm pack) && mv ../cliparse-node/cliparse-*.tgz . && npm i -f ./cliparse-*.tgz"
+  },
   "dependencies": {
     "@clevercloud/client": "9.2.0",
     "@inquirer/prompts": "7.3.2",
@@ -57,17 +65,9 @@
     "@commitlint/config-conventional": "18.4.3",
     "semver": "7.3.5"
   },
-  "scripts": {
-    "install-local:cliparse": "(cd ../cliparse-node && npm pack) && mv ../cliparse-node/cliparse-*.tgz . && npm i -f ./cliparse-*.tgz"
+  "engines": {
+    "node": ">=22"
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/CleverCloud/clever-tools.git"
-  },
-  "bugs": {
-    "url": "https://github.com/CleverCloud/clever-tools/issues"
-  },
-  "homepage": "https://github.com/CleverCloud/clever-tools",
   "volta": {
     "node": "22.17.0"
   }
