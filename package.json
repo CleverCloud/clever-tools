@@ -83,6 +83,7 @@
     "prettier-plugin-organize-imports": "4.2.0",
     "rollup": "4.49.0",
     "simple-git": "3.28.0",
+    "tinyglobby": "0.2.14",
     "typescript": "5.9.2"
   },
   "engines": {
