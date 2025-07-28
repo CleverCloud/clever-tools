@@ -9,6 +9,15 @@ to ask for new features, enhancements or help us to provide them to our communit
 - [How to install Clever Tools](/docs/setup-systems.md)
 - [Create a Clever Cloud account](https://console.clever-cloud.com)
 
+Use Clever Tools through `npx` or `npm exec` for one-off usage or in CI/CD pipelines for example:
+
+```bash
+# Set/Export CLEVER_TOKEN and CLEVER_SECRET to login with a given account
+# --yes is used to skip the interactive prompts
+npx --yes clever-tools@latest version
+npm exec -- clever-tools@3.14 profile --format json
+```
+
 You'll find below the first commands to know to connect Clever Tools to your account, get its information and manage some options. Others are developed in dedicated pages:
 
 - [Materia KV](/docs/kv.md)
