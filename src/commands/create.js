@@ -73,7 +73,7 @@ async function displayAppCreation (app, alias, github, taskCommand) {
   printFieldsAsTable(2, {
     Type: colors.blue(`⬢ ${app.instance.variant.name}`),
     ID: app.id,
-    'Org ID': app.ownerId,
+    'Organisation ID': app.ownerId,
     Name: app.name,
     GitHub: github != null && `${github.owner}/${github.name}`,
     Alias: hasDistinctAlias && alias,
