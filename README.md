@@ -8,8 +8,17 @@ Deploy on Clever Cloud and control your applications, add-ons, services from com
 
 Clever Tools are available from many channels. The simpler way to install them, if you already have Node.js on your system, is through `npm` package manager:
 
-```sh
+```bash
 npm install -g clever-tools
+```
+
+You can use it through `npx` or `npm exec` without installing it globally:
+
+```bash
+# Set/Export CLEVER_TOKEN and CLEVER_SECRET to login with a given account
+# --yes is used to skip the interactive prompts
+npx --yes clever-tools@latest version
+npm exec -- clever-tools@3.14 profile --format json
 ```
 
 We also distribute binaries and packages for multiple systems and tools:
