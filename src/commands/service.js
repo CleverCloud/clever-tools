@@ -1,3 +1,4 @@
+import colors from 'colors/safe.js';
 import * as Addon from '../models/addon.js';
 import * as Application from '../models/application.js';
 import { Logger } from '../logger.js';
@@ -38,14 +39,21 @@ export async function list (params) {
     }
     case 'human':
     default: {
-      if (formattedServices.applications) {
-        Logger.println('Applications:');
-        formattedServices.applications.forEach(({ isLinked, name }) => Logger.println(`${isLinked ? '*' : ' '} ${name}`));
+      const { applications = [], addons = [] } = formattedServices;
+
+      if (applications.length === 0 && addons.length === 0) {
+        Logger.printInfo(`No linked services found, use ${colors.bold.blue('clever service link-app')} or ${colors.bold.blue('clever service link-addon')} to link services to an application`);
+        return;
       }
 
-      if (formattedServices.addons) {
+      if (applications.length > 0) {
+        Logger.println('Applications:');
+        applications.forEach(({ isLinked, name }) => Logger.println(`${isLinked ? '*' : ' '} ${name}`));
+      }
+
+      if (addons.length > 0) {
         Logger.println('Addons:');
-        formattedServices.addons.forEach(({ isLinked, name, realId }) => Logger.println(`${isLinked ? '*' : ' '} ${name} (${realId})`));
+        addons.forEach(({ isLinked, name, realId }) => Logger.println(`${isLinked ? '*' : ' '} ${name} (${realId})`));
       }
     }
   }

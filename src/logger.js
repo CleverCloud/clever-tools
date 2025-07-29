@@ -58,6 +58,9 @@ Logger.println = console.log;
 // Logger for success with a green check before the message
 Logger.printSuccess = (message) => console.log(`${colors.bold.green('✓')} ${message}`);
 
+// Logger for information with a blue 'i' before the message
+Logger.printInfo = (message) => console.log(`${colors.bold.blue('i')} ${message}`);
+
 // No decoration for Logger.println
 Logger.printJson = (obj) => {
   console.log(JSON.stringify(obj, null, 2));
