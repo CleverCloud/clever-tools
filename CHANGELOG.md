@@ -1,6 +1,20 @@
 # clever-tools changelog
 
 
+## [3.14.0](https://github.com/CleverCloud/clever-tools/compare/3.13.1...3.14.0) (2025-07-29)
+
+
+### 🚀 Features
+
+* add 'clever-tools' as binary ([e9dd580](https://github.com/CleverCloud/clever-tools/commit/e9dd580978b752d109477429aa110040dc0bf30d))
+* **service:** print a message if there is no linked service ([3d4c2bc](https://github.com/CleverCloud/clever-tools/commit/3d4c2bcc4290516b53922635bc440f0af7476bbd))
+
+
+### 🐛 Bug Fixes
+
+* remove duplicate --format option for operators version check ([9b92ff1](https://github.com/CleverCloud/clever-tools/commit/9b92ff1e08d1fd0f7d047684206df6ac5b26fe4c))
+* **service:** only print linked add-ons if --show-all is not true ([5668c08](https://github.com/CleverCloud/clever-tools/commit/5668c08daef3ed304f470923e6f36a9eaa369644))
+
 ## [3.13.1](https://github.com/CleverCloud/clever-tools/compare/3.13.0...3.13.1) (2025-06-18)
 
 
