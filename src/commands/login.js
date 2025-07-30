@@ -1,5 +1,6 @@
 import crypto from 'node:crypto';
-import { promisify, styleText } from 'node:util';
+import { styleText } from 'node:util';
+import { setTimeout as delay } from 'node:timers/promises';
 import open from 'open';
 
 import { Logger } from '../logger.js';
@@ -7,8 +8,6 @@ import * as User from '../models/user.js';
 import { conf, writeOAuthConf } from '../models/configuration.js';
 
 import pkg from '../../package.json' with { type: 'json' };
-
-const delay = promisify(setTimeout);
 
 // 20 random bytes as Base64URL
 function randomToken () {
