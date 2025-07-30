@@ -12,7 +12,6 @@
   "engines": {
     "node": ">=18"
   },
-  "pkg-node-version": "18",
   "author": "Clever Cloud <ci@clever-cloud.com>",
   "license": "Apache-2.0",
   "bin": {
@@ -56,37 +55,9 @@
   "devDependencies": {
     "@commitlint/cli": "18.4.3",
     "@commitlint/config-conventional": "18.4.3",
-    "@rollup/plugin-commonjs": "26.0.1",
-    "@rollup/plugin-json": "6.1.0",
-    "@rollup/plugin-node-resolve": "15.2.3",
-    "aws-sdk": "2.919.0",
-    "chai": "4.3.4",
-    "del": "6.0.0",
-    "eslint": "7.27.0",
-    "eslint-config-standard": "16.0.3",
-    "eslint-plugin-import": "2.23.4",
-    "eslint-plugin-node": "11.1.0",
-    "eslint-plugin-promise": "5.1.0",
-    "eslint-plugin-standard": "5.0.0",
-    "fs-extra": "10.0.0",
-    "glob": "7.1.7",
-    "grunt": "1.4.1",
-    "grunt-cli": "1.4.3",
-    "grunt-http": "2.3.3",
-    "grunt-mocha-test": "0.13.3",
-    "magic-string": "0.30.11",
-    "mime-types": "2.1.35",
-    "mocha": "8.4.0",
-    "pkg": "5.8.1",
-    "rollup": "4.14.1",
     "semver": "7.3.5"
   },
-  "overrides": {
-    "pkg-fetch": "3.5.2"
-  },
   "scripts": {
-    "lint": "eslint bin src scripts",
-    "lint:fix": "eslint --fix bin src scripts",
     "install-local:cliparse": "(cd ../cliparse-node && npm pack) && mv ../cliparse-node/cliparse-*.tgz . && npm i -f ./cliparse-*.tgz"
   },
   "repository": {
@@ -97,11 +68,6 @@
     "url": "https://github.com/CleverCloud/clever-tools/issues"
   },
   "homepage": "https://github.com/CleverCloud/clever-tools",
-  "pkg": {
-    "scripts": [
-      "src/**/*.js"
-    ]
-  },
   "volta": {
     "node": "18.15.0"
   }
