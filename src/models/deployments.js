@@ -1,9 +1,7 @@
-import { promisify } from 'node:util';
+import { setTimeout as delay } from 'node:timers/promises';
 import { Logger } from '../logger.js';
 import { getDeployment, getAllDeployments } from '@clevercloud/client/esm/api/v2/application.js';
 import { sendToApi } from './send-to-api.js';
-
-const delay = promisify(setTimeout);
 
 const DEPLOYMENT_POLLING_DELAY = 5000;
 const BACKOFF_FACTOR = 1.25;
