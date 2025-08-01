@@ -1,57 +1,77 @@
-import _ from 'lodash';
 import {
   addDependency,
   create as createApplication,
-  get as getApplication,
   getAll as getAllApplications,
   getAllDependencies,
+  get as getApplication,
   redeploy as redeployApplication,
   remove as removeApplication,
   removeDependency,
   update as updateApplication,
 } from '@clevercloud/client/esm/api/v2/application.js';
-import cliparse from 'cliparse';
+import { getAvailableInstances } from '@clevercloud/client/esm/api/v2/product.js';
 import { getSummary } from '@clevercloud/client/esm/api/v2/user.js';
-import colors from 'colors/safe.js';
-
-import * as AppConfiguration from './app_configuration.js';
+import cliparse from 'cliparse';
+import _ from 'lodash';
+import { styleText } from 'node:util';
 import { confirmAnswer } from '../lib/prompts.js';
 import { Logger } from '../logger.js';
+import * as AppConfiguration from './app_configuration.js';
+import { resolveOwnerId } from './ids-resolver.js';
 import * as Organisation from './organisation.js';
+import { sendToApi } from './send-to-api.js';
 import * as User from './user.js';
 
-import { sendToApi } from '../models/send-to-api.js';
-import { resolveOwnerId } from './ids-resolver.js';
-import { getAvailableInstances } from '@clevercloud/client/esm/api/v2/product.js';
-
-export function listAvailableTypes () {
-  return cliparse.autocomplete.words(['docker', 'elixir', 'frankenphp', 'go', 'gradle', 'haskell', 'jar', 'linux', 'maven', 'meteor', 'node', 'php', 'play1', 'play2', 'python', 'ruby', 'rust', 'sbt', 'static', 'static-apache', 'v', 'war']);
-};
+export function listAvailableTypes() {
+  return cliparse.autocomplete.words([
+    'docker',
+    'elixir',
+    'frankenphp',
+    'go',
+    'gradle',
+    'haskell',
+    'jar',
+    'linux',
+    'maven',
+    'meteor',
+    'node',
+    'php',
+    'play1',
+    'play2',
+    'python',
+    'ruby',
+    'rust',
+    'sbt',
+    'static',
+    'static-apache',
+    'v',
+    'war',
+  ]);
+}
 
 export const AVAILABLE_ZONES = ['par', 'parhds', 'grahds', 'rbx', 'rbxhds', 'scw', 'ldn', 'mtl', 'sgp', 'syd', 'wsw'];
 
-export function listAvailableZones () {
+export function listAvailableZones() {
   return cliparse.autocomplete.words(AVAILABLE_ZONES);
-};
+}
 
-export function listAvailableAliases () {
+export function listAvailableAliases() {
   return AppConfiguration.loadApplicationConf().then(({ apps }) => cliparse.autocomplete.words(_.map(apps, 'alias')));
-};
+}
 
-export function listAvailableFlavors () {
+export function listAvailableFlavors() {
   return ['pico', 'nano', 'XS', 'S', 'M', 'L', 'XL', '2XL', '3XL'];
-};
+}
 
-async function getId (ownerId, dependency) {
+async function getId(ownerId, dependency) {
   if (dependency.app_id) {
     return dependency.app_id;
   }
   const app = await getByName(ownerId, dependency.app_name);
   return app.id;
-};
+}
 
-async function getInstanceType (type) {
-
+async function getInstanceType(type) {
   // TODO: We should be able to use it without {}
   const types = await getAvailableInstances({}).then(sendToApi);
 
@@ -62,14 +82,12 @@ async function getInstanceType (type) {
     throw new Error(type + ' type does not exist.');
   }
   return instanceVariant;
-};
+}
 
-export async function create (name, typeName, region, orgaIdOrName, github, isTask, envVars) {
+export async function create(name, typeName, region, orgaIdOrName, github, isTask, envVars) {
   Logger.debug('Create the application…');
 
-  const ownerId = (orgaIdOrName != null)
-    ? await Organisation.getId(orgaIdOrName)
-    : await User.getCurrentId();
+  const ownerId = orgaIdOrName != null ? await Organisation.getId(orgaIdOrName) : await User.getCurrentId();
 
   const instanceType = await getInstanceType(typeName);
 
@@ -95,24 +113,23 @@ export async function create (name, typeName, region, orgaIdOrName, github, isTa
   }
 
   return createApplication({ id: ownerId }, newApp).then(sendToApi);
-};
+}
 
-export async function deleteApp (app, skipConfirmation) {
+export async function deleteApp(app, skipConfirmation) {
   Logger.debug('Deleting app: ' + app.name + ' (' + app.id + ')');
 
   if (!skipConfirmation) {
     await confirmAnswer(
-      `Deleting an application can't be undone, please type ${colors.green(app.name)} to confirm:`,
+      `Deleting an application can't be undone, please type ${styleText('green', app.name)} to confirm:`,
       'No confirmation, aborting application deletion',
       app.name,
     );
   }
 
   return removeApplication({ id: app.ownerId, appId: app.id }).then(sendToApi);
-};
+}
 
-export async function getAllApps (ownerId) {
-
+export async function getAllApps(ownerId) {
   const summary = await getSummary().then(sendToApi);
 
   const orgaWithApps = await Promise.all(
@@ -131,9 +148,9 @@ export async function getAllApps (ownerId) {
   );
 
   return orgaWithApps;
-};
+}
 
-async function getApplicationsForOwner (ownerId) {
+async function getApplicationsForOwner(ownerId) {
   const rawApplications = await getAllApplications({ id: ownerId }).then(sendToApi);
   return rawApplications.map((app) => {
     return {
@@ -149,52 +166,51 @@ async function getApplicationsForOwner (ownerId) {
   });
 }
 
-function getApplicationByName (apps, name) {
+function getApplicationByName(apps, name) {
   const filteredApps = apps.filter((app) => app.name === name);
   if (filteredApps.length === 1) {
     return filteredApps[0];
-  }
-  else if (filteredApps.length === 0) {
+  } else if (filteredApps.length === 0) {
     throw new Error('Application not found');
   }
   throw new Error('Ambiguous application name');
-};
+}
 
-async function getByName (ownerId, name) {
+async function getByName(ownerId, name) {
   const apps = await getAllApplications({ id: ownerId }).then(sendToApi);
   return getApplicationByName(apps, name);
-};
+}
 
-function addInstanceLifetime (app) {
+function addInstanceLifetime(app) {
   // Patch to help config commands
   app.instanceLifetime = app.instance.lifetime;
   return app;
 }
 
-export function get (ownerId, appId) {
+export function get(ownerId, appId) {
   Logger.debug(`Get information for the app: ${appId}`);
   return getApplication({ id: ownerId, appId }).then(sendToApi).then(addInstanceLifetime);
-};
+}
 
-export function updateOptions (ownerId, appId, options) {
+export function updateOptions(ownerId, appId, options) {
   Logger.debug(`Update app: ${appId}`);
   return updateApplication({ id: ownerId, appId }, options).then(sendToApi).then(addInstanceLifetime);
-};
+}
 
-function getFromSelf (appId) {
+function getFromSelf(appId) {
   Logger.debug(`Get information for the app: ${appId}`);
   // /self differs from /organisations only for this one:
   // it fallbacks to the organisations of which the user
   // is a member, if it doesn't belong to Personal Space.
   return getApplication({ appId }).then(sendToApi);
-};
+}
 
 /**
  * @param {{app_id: string}|{app_name: string}} appIdOrName
  * @param {string} alias
  * @return {Promise<{appId: string, ownerId: string}>}
  */
-export async function resolveId (appIdOrName, alias) {
+export async function resolveId(appIdOrName, alias) {
   if (appIdOrName != null && alias != null) {
     throw new Error('Only one of the `--app` or `--alias` options can be set at a time');
   }
@@ -245,32 +261,28 @@ export async function resolveId (appIdOrName, alias) {
   throw new Error('Ambiguous application name, use the `--app` option with one of the IDs above');
 }
 
-export async function linkRepo (app, orgaIdOrName, alias, ignoreParentConfig) {
+export async function linkRepo(app, orgaIdOrName, alias, ignoreParentConfig) {
   Logger.debug(`Linking current repository to the app: ${app.app_id || app.app_name}`);
 
-  const ownerId = (orgaIdOrName != null)
-    ? await Organisation.getId(orgaIdOrName)
-    : await User.getCurrentId();
+  const ownerId = orgaIdOrName != null ? await Organisation.getId(orgaIdOrName) : await User.getCurrentId();
 
-  const appData = (app.app_id != null)
-    ? await getFromSelf(app.app_id)
-    : await getByName(ownerId, app.app_name);
+  const appData = app.app_id != null ? await getFromSelf(app.app_id) : await getByName(ownerId, app.app_name);
 
   return AppConfiguration.addLinkedApplication(appData, alias, ignoreParentConfig);
-};
+}
 
-export function unlinkRepo (alias) {
+export function unlinkRepo(alias) {
   Logger.debug(`Unlinking current repository from the app: ${alias}`);
   return AppConfiguration.removeLinkedApplication({ alias });
-};
+}
 
-export function redeploy (ownerId, appId, commit, withoutCache) {
+export function redeploy(ownerId, appId, commit, withoutCache) {
   Logger.debug(`Redeploying the app: ${appId}`);
-  const useCache = (withoutCache) ? 'no' : null;
+  const useCache = withoutCache ? 'no' : null;
   return redeployApplication({ id: ownerId, appId, commit, useCache }).then(sendToApi);
-};
+}
 
-export function mergeScalabilityParameters (scalabilityParameters, instance) {
+export function mergeScalabilityParameters(scalabilityParameters, instance) {
   const flavors = listAvailableFlavors();
 
   if (scalabilityParameters.minFlavor) {
@@ -281,8 +293,10 @@ export function mergeScalabilityParameters (scalabilityParameters, instance) {
   }
   if (scalabilityParameters.maxFlavor) {
     instance.maxFlavor = scalabilityParameters.maxFlavor;
-    if (flavors.indexOf(instance.minFlavor) > flavors.indexOf(instance.maxFlavor)
-      && scalabilityParameters.minFlavor == null) {
+    if (
+      flavors.indexOf(instance.minFlavor) > flavors.indexOf(instance.maxFlavor) &&
+      scalabilityParameters.minFlavor == null
+    ) {
       instance.minFlavor = instance.maxFlavor;
     }
   }
@@ -300,9 +314,9 @@ export function mergeScalabilityParameters (scalabilityParameters, instance) {
     }
   }
   return instance;
-};
+}
 
-export async function setScalability (appId, ownerId, scalabilityParameters, buildFlavor) {
+export async function setScalability(appId, ownerId, scalabilityParameters, buildFlavor) {
   Logger.info('Scaling the app: ' + appId);
 
   const app = await getApplication({ id: ownerId, appId }).then(sendToApi);
@@ -314,19 +328,18 @@ export async function setScalability (appId, ownerId, scalabilityParameters, bui
   const newConfig = mergeScalabilityParameters(scalabilityParameters, instance);
 
   if (buildFlavor != null) {
-    newConfig.separateBuild = (buildFlavor !== 'disabled');
+    newConfig.separateBuild = buildFlavor !== 'disabled';
     if (buildFlavor !== 'disabled') {
       newConfig.buildFlavor = buildFlavor;
-    }
-    else {
+    } else {
       Logger.info('No build size given, disabling dedicated build instance');
     }
   }
 
   return updateApplication({ id: ownerId, appId }, newConfig).then(sendToApi);
-};
+}
 
-export async function listDependencies (ownerId, appId, showAll) {
+export async function listDependencies(ownerId, appId, showAll) {
   const applicationDeps = await getAllDependencies({ id: ownerId, appId }).then(sendToApi);
 
   if (!showAll) {
@@ -342,12 +355,12 @@ export async function listDependencies (ownerId, appId, showAll) {
   });
 }
 
-export async function link (ownerId, appId, dependency) {
+export async function link(ownerId, appId, dependency) {
   const dependencyId = await getId(ownerId, dependency);
   return addDependency({ id: ownerId, appId, dependencyId }).then(sendToApi);
-};
+}
 
-export async function unlink (ownerId, appId, dependency) {
+export async function unlink(ownerId, appId, dependency) {
   const dependencyId = await getId(ownerId, dependency);
   return removeDependency({ id: ownerId, appId, dependencyId }).then(sendToApi);
-};
+}

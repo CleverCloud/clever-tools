@@ -1,0 +1,5 @@
+# Lock files
+package-lock.json
+
+# Ignore MD files
+**/*.md

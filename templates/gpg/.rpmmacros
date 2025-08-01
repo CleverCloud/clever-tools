@@ -1,7 +1,0 @@
-%_signature gpg
-%_gpg_path <%= gpgPath %>/.gnupg
-%_gpg_name <%= gpgName %>
-%_gpg_pass <%= gpgPass %>
-%_gpgbin /usr/bin/gpg
-%_gpg /usr/bin/gpg
-%__gpg_sign_cmd  %{_gpg} --no-verbose --no-armor --batch --pinentry-mode loopback --passphrase '%{_gpg_pass}' --no-secmem-warning -u "%{_gpg_name}" -sbo %{__signature_filename} %{__plaintext_filename}

@@ -1,0 +1,255 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  build:
+    uses: ./.github/workflows/build.yml
+    with:
+      version: ${{ github.ref_name }}
+
+  package-rpm:
+    name: 'Build .rpm'
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-node
+      - uses: ./.github/actions/download-artifacts
+        with: { pattern: build-linux-binary }
+      - name: 'Build .rpm with nfpm'
+        run: ./scripts/package-nfpm.js ${{ github.ref_name }} rpm
+        env:
+          RPM_GPG_PRIVATE_KEY: ${{ secrets.RPM_GPG_PRIVATE_KEY }}
+          RPM_GPG_PASSPHRASE: ${{ secrets.RPM_GPG_PASSPHRASE }}
+      - uses: ./.github/actions/upload-artifact
+        with:
+          artifact-name: package-rpm
+          path: build/**/*.rpm
+
+  package-deb:
+    name: 'Build .deb'
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-node
+      - uses: ./.github/actions/download-artifacts
+        with: { pattern: build-linux-binary }
+      - name: 'Build .deb with nfpm'
+        run: ./scripts/package-nfpm.js ${{ github.ref_name }} deb
+      - uses: ./.github/actions/upload-artifact
+        with:
+          artifact-name: package-deb
+          path: build/**/*.deb
+
+  publish-npm:
+    name: 'Publish to npm'
+    runs-on: ubuntu-latest
+    steps:
+      # We don't reuse ".github/actions/setup-node"
+      # because we don't need the "npm ci" and we want the official https://registry.npmjs.org
+      - name: 'Checkout sources'
+        uses: actions/checkout@v4
+      - name: 'Setup Node.js'
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: 'package.json'
+          registry-url: 'https://registry.npmjs.org'
+      - name: 'Publish to npm'
+        run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  update-github-release:
+    name: 'Update GitHub release'
+    runs-on: ubuntu-latest
+    needs: [build, package-rpm, package-deb]
+    steps:
+      - name: 'Checkout sources'
+        uses: actions/checkout@v4
+      - uses: ./.github/actions/download-artifacts
+        with: { pattern: build-*-archive }
+      - uses: ./.github/actions/download-artifacts
+        with: { pattern: package-* }
+      - uses: ./.github/actions/setup-node
+      - name: 'Upload artifacts to GitHub release'
+        run: ./scripts/update-github-release.js ${{ github.ref_name }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  publish-cellar-archives:
+    name: 'Publish archives to cellar'
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-node
+      - uses: ./.github/actions/download-artifacts
+        with: { pattern: build-*-archive }
+      - name: 'Publish archives to cellar'
+        run: ./scripts/publish-cellar.js ${{ github.ref_name }} archives
+        env:
+          CC_CLEVER_TOOLS_RELEASES_CELLAR_BUCKET: ${{ vars.CC_CLEVER_TOOLS_RELEASES_CELLAR_BUCKET }}
+          CC_CLEVER_TOOLS_RELEASES_CELLAR_KEY_ID: ${{ secrets.CC_CLEVER_TOOLS_RELEASES_CELLAR_KEY_ID }}
+          CC_CLEVER_TOOLS_RELEASES_CELLAR_SECRET_KEY: ${{ secrets.CC_CLEVER_TOOLS_RELEASES_CELLAR_SECRET_KEY }}
+
+  publish-cellar-rpm:
+    name: 'Publish .rpm to cellar'
+    needs: package-rpm
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-node
+      - uses: ./.github/actions/download-artifacts
+        with: { pattern: package-rpm }
+      - name: 'Publish .rpm to cellar'
+        run: ./scripts/publish-cellar.js ${{ github.ref_name }} rpm
+        env:
+          CC_CLEVER_TOOLS_RELEASES_CELLAR_BUCKET: ${{ vars.CC_CLEVER_TOOLS_RELEASES_CELLAR_BUCKET }}
+          CC_CLEVER_TOOLS_RELEASES_CELLAR_KEY_ID: ${{ secrets.CC_CLEVER_TOOLS_RELEASES_CELLAR_KEY_ID }}
+          CC_CLEVER_TOOLS_RELEASES_CELLAR_SECRET_KEY: ${{ secrets.CC_CLEVER_TOOLS_RELEASES_CELLAR_SECRET_KEY }}
+
+  publish-cellar-deb:
+    name: 'Publish .deb to cellar'
+    needs: package-deb
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-node
+      - uses: ./.github/actions/download-artifacts
+        with: { pattern: package-deb }
+      - name: 'Publish .deb to cellar'
+        run: ./scripts/publish-cellar.js ${{ github.ref_name }} deb
+        env:
+          CC_CLEVER_TOOLS_RELEASES_CELLAR_BUCKET: ${{ vars.CC_CLEVER_TOOLS_RELEASES_CELLAR_BUCKET }}
+          CC_CLEVER_TOOLS_RELEASES_CELLAR_KEY_ID: ${{ secrets.CC_CLEVER_TOOLS_RELEASES_CELLAR_KEY_ID }}
+          CC_CLEVER_TOOLS_RELEASES_CELLAR_SECRET_KEY: ${{ secrets.CC_CLEVER_TOOLS_RELEASES_CELLAR_SECRET_KEY }}
+
+  publish-aur:
+    name: 'Publish to AUR'
+    needs: publish-cellar-archives
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'Setup SSH key'
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-node
+      - uses: ./.github/actions/download-artifacts
+        with: { pattern: build-linux-archive }
+      - name: 'Publish to AUR'
+        run: ./scripts/publish-aur.js ${{ github.ref_name }}
+        env:
+          AUR_GIT_URL: ${{ vars.AUR_GIT_URL }}
+
+  publish-homebrew:
+    name: 'Publish to Homebrew'
+    needs: publish-cellar-archives
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'Setup SSH key'
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-node
+      - uses: ./.github/actions/download-artifacts
+        with: { pattern: build-macos-archive }
+      - name: 'Publish to Homebrew'
+        run: ./scripts/publish-homebrew.js ${{ github.ref_name }}
+        env:
+          HOMEBREW_GIT_URL: ${{ vars.HOMEBREW_GIT_URL }}
+
+  publish-dockerhub:
+    name: 'Publish to Docker Hub'
+    needs: publish-cellar-archives
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'Setup SSH key'
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-node
+      - name: 'Publish to Docker Hub (and related GitHub project)'
+        run: ./scripts/publish-dockerhub.js ${{ github.ref_name }}
+        env:
+          DOCKERHUB_USERNAME: ${{ vars.DOCKERHUB_USERNAME }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+          DOCKER_IMAGE_NAME: ${{ vars.DOCKER_IMAGE_NAME }}
+          DOCKERHUB_GIT_URL: ${{ vars.DOCKERHUB_GIT_URL }}
+          CC_CLEVER_TOOLS_RELEASES_CELLAR_BUCKET: ${{ vars.CC_CLEVER_TOOLS_RELEASES_CELLAR_BUCKET }}
+
+  publish-exherbo:
+    name: 'Publish to exherbo'
+    needs: publish-cellar-archives
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'Setup SSH key'
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-node
+      - name: 'Publish to GitHub for exherbo'
+        run: ./scripts/publish-exherbo.js ${{ github.ref_name }}
+        env:
+          EXHERBO_GIT_URL: ${{ vars.EXHERBO_GIT_URL }}
+
+  publish-nexus-rpm:
+    name: 'Publish .rpm to Nexus'
+    needs: package-rpm
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-node
+      - uses: ./.github/actions/download-artifacts
+        with: { pattern: package-rpm }
+      - name: 'Publish .rpm to Nexus Repository'
+        run: ./scripts/publish-nexus.js ${{ github.ref_name }} rpm
+        env:
+          NEXUS_USER: ${{ vars.NEXUS_USER }}
+          NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
+          NEXUS_RPM_REPOSITORY: ${{ vars.NEXUS_RPM_REPOSITORY }}
+
+  publish-nexus-deb:
+    name: 'Publish .deb to Nexus'
+    needs: package-deb
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-node
+      - uses: ./.github/actions/download-artifacts
+        with: { pattern: package-deb }
+      - name: 'Publish .deb to Nexus Repository'
+        run: ./scripts/publish-nexus.js ${{ github.ref_name }} deb
+        env:
+          NEXUS_USER: ${{ vars.NEXUS_USER }}
+          NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
+          NEXUS_DEB_REPOSITORY: ${{ vars.NEXUS_DEB_REPOSITORY }}
+
+  publish-winget:
+    name: 'Publish to WinGet'
+    needs: publish-cellar-archives
+    runs-on: windows-2025
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-node
+      - name: 'Install WingetCreate'
+        shell: powershell
+        run: |
+          # Download Winget-Create msixbundle, install, and execute update
+          iwr https://aka.ms/wingetcreate/latest/msixbundle -OutFile "wingetcreate.msixbundle"
+          Add-AppxPackage "wingetcreate.msixbundle"
+      - name: 'Publish to WinGet'
+        shell: bash
+        run: ./scripts/publish-winget.js ${{ github.ref_name }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CC_CLEVER_TOOLS_RELEASES_CELLAR_BUCKET: ${{ vars.CC_CLEVER_TOOLS_RELEASES_CELLAR_BUCKET }}
+          WINGET_PACKAGE_ID: ${{ vars.WINGET_PACKAGE_ID }}

@@ -1,11 +1,9 @@
+import { ERROR_TYPES, parseRaw, toNameValueObject, validateName } from '@clevercloud/client/esm/utils/env-vars.js';
 import _countBy from 'lodash/countBy.js';
 import readline from 'node:readline';
-import { ERROR_TYPES, parseRaw, toNameValueObject, validateName } from '@clevercloud/client/esm/utils/env-vars.js';
 
-function readStdin () {
-
+function readStdin() {
   return new Promise((resolve, reject) => {
-
     const rl = readline.createInterface({
       input: process.stdin,
       output: process.stdout,
@@ -31,31 +29,32 @@ function readStdin () {
 // a "name" property with a string and value
 // a "value" property with a string and value
 // TODO: This should be moved and unit tested in the clever-client repo
-function parseFromJson (rawStdin) {
-
+function parseFromJson(rawStdin) {
   let variables;
   try {
     variables = JSON.parse(rawStdin);
-  }
-  catch (e) {
+  } catch (e) {
     throw new Error(`Error when parsing JSON input: ${e.message}`);
   }
 
   if (!Array.isArray(variables) || variables.some((entry) => typeof entry !== 'object')) {
-    throw new Error('The input was valid JSON but it does not follow the correct format. It must be an array of objects.');
+    throw new Error(
+      'The input was valid JSON but it does not follow the correct format. It must be an array of objects.',
+    );
   }
 
   const someEntriesDontHaveNameAndValueAsString = variables.some(({ name, value }) => {
-    return (typeof name !== 'string') || (typeof value !== 'string');
+    return typeof name !== 'string' || typeof value !== 'string';
   });
   if (someEntriesDontHaveNameAndValueAsString) {
-    throw new Error('The input was a valid JSON array of objects but all entries must have properties "name" and "value" of type string. Ex: { "name": "THE_NAME", "value": "the value" }');
+    throw new Error(
+      'The input was a valid JSON array of objects but all entries must have properties "name" and "value" of type string. Ex: { "name": "THE_NAME", "value": "the value" }',
+    );
   }
 
   const namesOccurences = _countBy(variables, 'name');
-  const duplicatedNames = Object
-    .entries(namesOccurences)
-    .filter(([name, count]) => count > 1)
+  const duplicatedNames = Object.entries(namesOccurences)
+    .filter(([_name, count]) => count > 1)
     .map(([name]) => `"${name}"`)
     .join(', ');
 
@@ -75,11 +74,10 @@ function parseFromJson (rawStdin) {
   return toNameValueObject(variables);
 }
 
-function parseFromNameEqualsValue (rawStdin) {
+function parseFromNameEqualsValue(rawStdin) {
   const { variables, errors } = parseRaw(rawStdin);
 
   if (errors.length !== 0) {
-
     const formattedErrors = errors
       .map(({ type, name, pos }) => {
         if (type === ERROR_TYPES.INVALID_NAME) {
@@ -95,7 +93,8 @@ function parseFromNameEqualsValue (rawStdin) {
           return `line ${pos.line}: the value is not valid, if you use quotes, you need to escape them like this: \\" or quote the whole value.`;
         }
         return 'Unknown error in your input';
-      }).join('\n');
+      })
+      .join('\n');
 
     throw new Error(formattedErrors);
   }
@@ -103,8 +102,7 @@ function parseFromNameEqualsValue (rawStdin) {
   return toNameValueObject(variables);
 }
 
-export async function readVariablesFromStdin (format) {
-
+export async function readVariablesFromStdin(format) {
   const rawStdin = await readStdin();
 
   switch (format) {
@@ -113,6 +111,6 @@ export async function readVariablesFromStdin (format) {
     case 'json':
       return parseFromJson(rawStdin);
     default:
-      throw new Error('Unrecognized environment input format. Available formats are \'name-equals-value\' and \'json\'');
+      throw new Error("Unrecognized environment input format. Available formats are 'name-equals-value' and 'json'");
   }
 }

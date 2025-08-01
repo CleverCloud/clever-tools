@@ -5,6 +5,6 @@ import slugifyRaw from 'slugify';
  * @param {string} string - The string to be converted to a slug
  * @returns {string} The slugified string
  */
-export function slugify (string) {
+export function slugify(string) {
   return slugifyRaw(string, { strict: true });
 }

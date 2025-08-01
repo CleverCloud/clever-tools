@@ -1,23 +1,19 @@
-import os from 'node:os';
-
 import { releaseInfo as getLinuxInfos } from 'linux-release-info';
-import colors from 'colors/safe.js';
-
+import os from 'node:os';
+import { styleText } from 'node:util';
+import pkg from '../../package.json' with { type: 'json' };
 import { Logger } from '../logger.js';
-import { getPackageJson } from '../load-package-json.cjs';
-import * as User from '../models/user.js';
 import { conf, loadOAuthConf } from '../models/configuration.js';
+import * as User from '../models/user.js';
 
-const pkg = getPackageJson();
-
-export async function diag (params) {
+export async function diag(params) {
   const { format } = params.options;
 
   /** @type {string} */
   const userId = await User.getCurrentId().catch(() => null);
   const authDetails = await loadOAuthConf();
 
-  function getAuthState () {
+  function getAuthState() {
     if (authDetails.token == null) {
       return 'not connected';
     }
@@ -31,6 +27,7 @@ export async function diag (params) {
 
   const formattedDiag = {
     version: pkg.version,
+    commitId: pkg.commitId,
     nodeVersion: process.version,
     platform: os.platform(),
     release: os.release(),
@@ -59,35 +56,40 @@ export async function diag (params) {
     }
     case 'human':
     default: {
-      Logger.println('clever-tools  ' + colors.green(formattedDiag.version));
-      Logger.println('Node.js       ' + colors.green(formattedDiag.nodeVersion));
-      Logger.println('Platform      ' + colors.green(formattedDiag.platform));
-      Logger.println('Release       ' + colors.green(formattedDiag.release));
-      Logger.println('Architecture  ' + colors.green(formattedDiag.arch));
-      if (formattedDiag.linuxInfos != null) {
-        Logger.println('Linux         ' + colors.green(formattedDiag.linuxInfos));
+      Logger.println('clever-tools  ' + styleText('green', formattedDiag.version));
+      // Only available in built binaries
+      if (formattedDiag.commitId) {
+        Logger.println('Commit        ' + styleText('green', formattedDiag.commitId));
       }
-      Logger.println('Shell         ' + colors.green(formattedDiag.shell));
-      Logger.println('Packaged      ' + colors.green(formattedDiag.isPackaged));
-      Logger.println('Exec path     ' + colors.green(formattedDiag.execPath));
-      Logger.println('Config file   ' + colors.green(formattedDiag.configFile));
+      Logger.println('Node.js       ' + styleText('green', formattedDiag.nodeVersion));
+      Logger.println('Platform      ' + styleText('green', formattedDiag.platform));
+      Logger.println('Release       ' + styleText('green', formattedDiag.release));
+      Logger.println('Architecture  ' + styleText('green', formattedDiag.arch));
+      if (formattedDiag.linuxInfos != null) {
+        Logger.println('Linux         ' + styleText('green', formattedDiag.linuxInfos));
+      }
+      Logger.println('Shell         ' + styleText('green', formattedDiag.shell));
+      Logger.println('Packaged      ' + styleText('green', String(formattedDiag.isPackaged)));
+      Logger.println('Exec path     ' + styleText('green', formattedDiag.execPath));
+      Logger.println('Config file   ' + styleText('green', formattedDiag.configFile));
 
-      Logger.println('Auth source   ' + colors.green(formattedDiag.authSource));
+      Logger.println('Auth source   ' + styleText('green', formattedDiag.authSource));
 
-      const token = formattedDiag.oAuthToken == null ? colors.red('(none)') : colors.green(formattedDiag.oAuthToken);
+      const token =
+        formattedDiag.oAuthToken == null ? styleText('red', '(none)') : styleText('green', formattedDiag.oAuthToken);
       Logger.println('oAuth token   ' + token);
 
       switch (formattedDiag.authState) {
         case 'authenticated': {
-          Logger.println('User ID       ' + colors.green(formattedDiag.userId));
+          Logger.println('User ID       ' + styleText('green', formattedDiag.userId));
           break;
         }
         case 'authentication failed': {
-          Logger.println('User ID       ' + colors.red('Authentication failed'));
+          Logger.println('User ID       ' + styleText('red', 'Authentication failed'));
           break;
         }
         case 'not connected': {
-          Logger.println('User ID       ' + colors.red('Not connected'));
+          Logger.println('User ID       ' + styleText('red', 'Not connected'));
         }
       }
     }
