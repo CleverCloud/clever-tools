@@ -28,6 +28,7 @@ export async function status (params) {
         : colors.bold.red('stopped');
 
       Logger.println(`${status.name}: ${statusMessage}`);
+      Logger.println(`Type: ${status.type.name}`);
       Logger.println(`Executed as: ${colors.bold(status.lifetime)}`);
       if (status.deploymentInProgress) {
         Logger.println(`Deployment in progress ${displayInstances(status.deploymentInProgress.instances, status.deploymentInProgress.commit)}`);
@@ -63,6 +64,10 @@ function computeStatus (instances, app) {
   const status = {
     id: app.id,
     name: app.name,
+    type: {
+      name: app.instance.variant.name,
+      slug: app.instance.variant.slug,
+    },
     lifetime: app.instance.lifetime,
     status: isUp ? 'running' : 'stopped',
     commit: upCommit,
