@@ -827,7 +827,7 @@ async function run() {
     'domain',
     {
       description: 'Manage domain names for an application',
-      privateOptions: [opts.alias, opts.appIdOrName],
+      privateOptions: [opts.alias, opts.appIdOrName, opts.humanJsonOutputFormat],
       commands: [
         domainCreateCommand,
         domainFavouriteCommands,

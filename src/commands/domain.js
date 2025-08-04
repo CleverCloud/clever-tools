@@ -39,15 +39,24 @@ function getFavouriteDomain({ ownerId, appId }) {
 }
 
 export async function list(params) {
-  const { alias, app: appIdOrName } = params.options;
+  const { alias, app: appIdOrName, format } = params.options;
   const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
 
   const app = await getApp({ id: ownerId, appId }).then(sendToApi);
   const favouriteDomain = await getFavouriteDomain({ ownerId, appId });
-  return app.vhosts.forEach(({ fqdn }) => {
-    const prefix = fqdn === favouriteDomain ? '* ' : '  ';
-    Logger.println(prefix + fqdn);
-  });
+
+  const domains = app.vhosts.map((vhost) => getDomainObject(vhost.fqdn, favouriteDomain));
+
+  switch (format) {
+    case 'json':
+      Logger.printJson(domains);
+      break;
+    default:
+      domains.forEach((domain) => {
+        Logger.println(`${domain.isFavourite ? '* ' : '  '}${domain.domainWithPathPrefix}`);
+      });
+      break;
+  }
 }
 
 export async function add(params) {
@@ -256,6 +265,21 @@ export async function overview(params) {
       }
       break;
   }
+}
+
+function getDomainObject(domainWithPathPrefix, favouriteDomain) {
+  const parsed = parseDomain(domainWithPathPrefix, { validateHostname: false });
+  return {
+    domainWithPathPrefix,
+    domain: parsed.domain,
+    domainWithoutSuffix: parsed.domainWithoutSuffix,
+    hostname: parsed.hostname,
+    publicSuffix: parsed.publicSuffix,
+    subdomain: parsed.subdomain,
+    isApex: parsed.subdomain === '',
+    pathPrefix: new URL('https://' + domainWithPathPrefix).pathname,
+    isFavourite: domainWithPathPrefix === favouriteDomain,
+  };
 }
 
 /** @param {DomainDiag & { resolvedDnsConfig: ResolveDnsResult }} domainDiag */
