@@ -723,7 +723,7 @@ async function run () {
   }, domain.overview);
   const domainCommands = cliparse.command('domain', {
     description: 'Manage domain names for an application',
-    privateOptions: [opts.alias, opts.appIdOrName],
+    privateOptions: [opts.alias, opts.appIdOrName, opts.humanJsonOutputFormat],
     commands: [domainCreateCommand, domainFavouriteCommands, domainRemoveCommand, domainDiagApplicationCommand, domainOverviewCommand],
   }, domain.list);
 

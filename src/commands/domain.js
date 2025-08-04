@@ -39,17 +39,36 @@ function getFavouriteDomain ({ ownerId, appId }) {
 }
 
 export async function list (params) {
-  const { alias, app: appIdOrName } = params.options;
+  const { alias, app: appIdOrName, format } = params.options;
   const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
 
   const app = await getApp({ id: ownerId, appId }).then(sendToApi);
   const favouriteDomain = await getFavouriteDomain({ ownerId, appId });
-  return app.vhosts.forEach(({ fqdn }) => {
-    const prefix = (fqdn === favouriteDomain)
-      ? '* '
-      : '  ';
-    Logger.println(prefix + fqdn);
+
+  const domains = {};
+  domains.favourite = favouriteDomain;
+  domains.vhosts = app.vhosts.map(({ fqdn }) => {
+    const parsed = parseDomain(fqdn, { validateHostname: false });
+    const parsedWithoutFlags = _.omit(parsed, ['isIcann', 'isIp', 'isPrivate']);
+
+    return {
+      fqdn,
+      ...parsedWithoutFlags,
+      isApex: parsed.subdomain === '',
+      pathPrefix: new URL('https://' + fqdn).pathname,
+    };
   });
+
+  switch (format) {
+    case 'json':
+      Logger.printJson(domains);
+      break;
+    default:
+      domains.vhosts.forEach(({ fqdn }) => {
+        Logger.println(`${fqdn === domains.favourite ? '* ' : '  '}${fqdn}`);
+      });
+      break;
+  }
 }
 
 export async function add (params) {
