@@ -91,7 +91,7 @@ rm                         Remove a domain name from a Clever Cloud application
 ```
 
 > [!TIP]
-> You can set the same domain with multiple apps thanks to [prefix routing](https://www.clever-cloud.com/developers/doc/administrate/domain-names/#prefix-routing). For example, you can add `mydomain.com/app1` domain to an application and `mydomain.com/app2` to another.
+> You can set the same domain with multiple apps thanks to [prefix routing](https://www.clever.cloud/developers/doc/administrate/domain-names/#prefix-routing). For example, you can add `mydomain.com/app1` domain to an application and `mydomain.com/app2` to another.
 
 To (un)set the favourite domain, use:
 
@@ -153,4 +153,4 @@ clever tcp-redirs
 clever tcp-redirs --format json
 ```
 
-- [Learn more about TCP redirections](https://www.clever-cloud.com/developers/doc/administrate/tcp-redirections/)
+- [Learn more about TCP redirections](https://www.clever.cloud/developers/doc/administrate/tcp-redirections/)

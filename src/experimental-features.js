@@ -1,4 +1,5 @@
 import dedent from 'dedent';
+import { conf } from './models/configuration.js';
 
 export const EXPERIMENTAL_FEATURES = {
   kv: {
@@ -13,7 +14,7 @@ export const EXPERIMENTAL_FEATURES = {
           clever kv myMateriaKV -o myOrg TTL myTempKey
           clever kv redis_xxxxx --org org_xxxxx PING
 
-      Learn more about Materia KV: https://www.clever-cloud.com/developers/doc/addons/materia-kv/
+      Learn more about Materia KV: ${conf.DOC_URL}/addons/materia-kv/
     `,
   },
   ng: {
@@ -41,7 +42,7 @@ export const EXPERIMENTAL_FEATURES = {
       - Search Network Groups, members or peers:
           clever ng search myQuery
 
-      Learn more about Network Groups: https://www.clever-cloud.com/developers/doc/develop/network-groups/
+      Learn more about Network Groups: ${conf.DOC_URL}/develop/network-groups/
     `,
   },
   operators: {
@@ -51,10 +52,10 @@ export const EXPERIMENTAL_FEATURES = {
       clever keycloak
       clever keycloak get keycloak_xxx
       clever keycloak ng enable myKeycloak
-      
+
       clever metabase version check myMetabase
       clever metabase version update myMetabase 0.53
-      
+
       clever matomo open myMatomo
       clever otoroshi open logs myOtoroshi
     `,
