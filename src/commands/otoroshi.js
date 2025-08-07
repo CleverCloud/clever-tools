@@ -19,7 +19,7 @@ import {
  * @param {string} params.options.format The output format
  * @returns {Promise<void>}
  */
-export async function checkVersion (params) {
+export async function checkVersion(params) {
   const [addonIdOrName] = params.args;
   const { format } = params.options;
   await operatorCheckVersion('otoroshi', addonIdOrName, format);
@@ -31,7 +31,7 @@ export async function checkVersion (params) {
  * @param {string} params.args[0] The operator's name or ID
  * @returns {Promise<void>}
  */
-export async function updateVersion (params) {
+export async function updateVersion(params) {
   const [addonIdOrName] = params.args;
   const { target } = params.options;
   await operatorUpdateVersion('otoroshi', target, addonIdOrName);
@@ -44,7 +44,7 @@ export async function updateVersion (params) {
  * @param {string} params.options.format The output format
  * @returns {Promise<void>}
  */
-export async function get (params) {
+export async function get(params) {
   const [addonIdOrName] = params.args;
   const { format } = params.options;
   await operatorPrint('otoroshi', addonIdOrName, format);
@@ -54,7 +54,7 @@ export async function get (params) {
  * List all Otoroshi operators
  * @returns {Promise<void>}
  */
-export async function list (params) {
+export async function list(params) {
   await operatorList('otoroshi', params.options.format);
 }
 
@@ -65,7 +65,7 @@ export async function list (params) {
  * @returns {Promise<void>}
  * @throws {Error} If the Network Group feature is already disabled
  */
-export async function ngDisable (params) {
+export async function ngDisable(params) {
   const [addonIdOrName] = params.args;
   await operatorNgDisable('otoroshi', addonIdOrName);
 }
@@ -77,7 +77,7 @@ export async function ngDisable (params) {
  * @returns {Promise<void>}
  * @throws {Error} If the Network Group feature is already enabled
  */
-export async function ngEnable (params) {
+export async function ngEnable(params) {
   const [addonIdOrName] = params.args;
   await operatorNgEnable('otoroshi', addonIdOrName);
 }
@@ -88,7 +88,7 @@ export async function ngEnable (params) {
  * @param {string} params.args[0] The operator's name or ID
  * @returns {Promise<void>}
  */
-export async function open (params) {
+export async function open(params) {
   const [addonIdOrName] = params.args;
   await operatorOpen('otoroshi', addonIdOrName);
 }
@@ -99,7 +99,7 @@ export async function open (params) {
  * @param {string} params.args[0] The operator's name or ID
  * @returns {Promise<void>}
  */
-export async function openLogs (params) {
+export async function openLogs(params) {
   const [addonIdOrName] = params.args;
   await operatorOpenLogs('otoroshi', addonIdOrName);
 }
@@ -110,7 +110,7 @@ export async function openLogs (params) {
  * @param {string} params.args[0] The operator's name or ID
  * @returns {Promise<void>}
  */
-export async function openWebUi (params) {
+export async function openWebUi(params) {
   const [addonIdOrName] = params.args;
   await operatorOpenWebUi('otoroshi', addonIdOrName);
 }
@@ -121,7 +121,7 @@ export async function openWebUi (params) {
  * @param {string} params.args[0] The operator's name or ID
  * @returns {Promise<void>}
  */
-export async function reboot (params) {
+export async function reboot(params) {
   const [addonIdOrName] = params.args;
   await operatorReboot('otoroshi', addonIdOrName);
 }
@@ -132,7 +132,7 @@ export async function reboot (params) {
  * @param {string} params.args[0] The operator's name or ID
  * @returns {Promise<void>}
  */
-export async function rebuild (params) {
+export async function rebuild(params) {
   const [addonIdOrName] = params.args;
   await operatorRebuild('otoroshi', addonIdOrName);
 }

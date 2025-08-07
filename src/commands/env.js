@@ -1,19 +1,19 @@
-import * as Application from '../models/application.js';
-import { Logger } from '../logger.js';
-import colors from 'colors/safe.js';
-import * as variables from '../models/variables.js';
-import { sendToApi } from '../models/send-to-api.js';
-import { toNameEqualsValueString, validateName } from '@clevercloud/client/esm/utils/env-vars.js';
 import {
   getAllEnvVars,
   getAllEnvVarsForAddons,
   getAllEnvVarsForDependencies,
-  updateEnvVar,
-  updateAllEnvVars,
   removeEnvVar,
+  updateAllEnvVars,
+  updateEnvVar,
 } from '@clevercloud/client/esm/api/v2/application.js';
+import { toNameEqualsValueString, validateName } from '@clevercloud/client/esm/utils/env-vars.js';
+import { styleText } from 'node:util';
+import { Logger } from '../logger.js';
+import * as Application from '../models/application.js';
+import { sendToApi } from '../models/send-to-api.js';
+import * as variables from '../models/variables.js';
 
-export async function list (params) {
+export async function list(params) {
   const { alias, app: appIdOrName, 'add-export': addExportsOption, format } = params.options;
   const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
 
@@ -44,7 +44,7 @@ export async function list (params) {
     case 'human':
     default: {
       if (addExportsOption) {
-        Logger.println(colors.yellow('`--add-export` option is deprecated. Use `--format shell` instead.'));
+        Logger.println(styleText('yellow', '`--add-export` option is deprecated. Use `--format shell` instead.'));
       }
 
       const addExports = addExportsOption || format === 'shell';
@@ -65,7 +65,7 @@ export async function list (params) {
   }
 }
 
-export async function set (params) {
+export async function set(params) {
   const [envName, value] = params.args;
   const { alias, app: appIdOrName } = params.options;
 
@@ -79,9 +79,9 @@ export async function set (params) {
   await updateEnvVar({ id: ownerId, appId, envName }, { value }).then(sendToApi);
 
   Logger.println('Your environment variable has been successfully saved');
-};
+}
 
-export async function rm (params) {
+export async function rm(params) {
   const [envName] = params.args;
   const { alias, app: appIdOrName } = params.options;
   const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
@@ -89,9 +89,9 @@ export async function rm (params) {
   await removeEnvVar({ id: ownerId, appId, envName }).then(sendToApi);
 
   Logger.println('Your environment variable has been successfully removed');
-};
+}
 
-export async function importEnv (params) {
+export async function importEnv(params) {
   const { alias, app: appIdOrName, json } = params.options;
   const format = json ? 'json' : 'name-equals-value';
   const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
@@ -100,9 +100,9 @@ export async function importEnv (params) {
   await updateAllEnvVars({ id: ownerId, appId }, envVars).then(sendToApi);
 
   Logger.println('Environment variables have been set');
-};
+}
 
-export async function importVarsFromLocalEnv (params) {
+export async function importVarsFromLocalEnv(params) {
   const [envNames] = params.args;
   const { alias, app: appIdOrName } = params.options;
 
@@ -121,4 +121,4 @@ export async function importVarsFromLocalEnv (params) {
   }
 
   Logger.println('Your environment variables have been successfully saved');
-};
+}

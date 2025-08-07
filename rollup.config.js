@@ -1,79 +1,48 @@
-import { defineConfig } from 'rollup';
-import { nodeResolve } from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 import json from '@rollup/plugin-json';
-import MagicString from 'magic-string';
+import { nodeResolve } from '@rollup/plugin-node-resolve';
+import { defineConfig } from 'rollup';
 
 export default defineConfig({
   input: 'bin/clever.js',
   output: {
-    file: 'build/clever.cjs',
     format: 'cjs',
-    sourcemap: 'inline',
   },
-  // This dependency is only pulled in when building on MacOS (see https://github.com/CleverCloud/clever-tools/issues/864)
-  // It's a binary file and it shouldn't be parsed by rollup, only copied.
-  // We exclude it from the bundle because it's a dependency that is pulled by `curlconverter` but we don't actually need it.
-  external: ['fsevents'],
   plugins: [
+    // Rollup replaces "fileURLToPath(import.meta.url)"
+    // with a dynamic require('u' + 'rl') and pkg does not like that very much
+    // That's why we patch this
     {
-      transform (code, id) {
-
-        // formidable (used by superagent) hijacks require :-(
-        if (id.includes('/node_modules/formidable/')) {
-          const ms = new MagicString(code);
-          ms.replaceAll(
-            'if (global.GENTLY) require = GENTLY.hijack(require);',
-            '',
-          );
-          return {
-            code: ms.toString(),
-            map: ms.generateMap(),
-          };
+      resolveImportMeta(property) {
+        if (property === 'url') {
+          return "require('url').pathToFileURL(__filename).href";
         }
-
-        // for update notifier
-        if (id.includes('/node_modules/update-notifier/')) {
-          const ms = new MagicString(code);
-          ms
-            .replaceAll(
-              `const importLazy = require('import-lazy')(require);`,
-              '',
-            )
-            .replaceAll(
-              /const ([^ ]+) = importLazy\(\'([^']+)\'\);/g,
-              'const $1_ = require(\'$2\'); const $1 = () => $1_',
-            );
-
-          return {
-            code: ms.toString(),
-            map: ms.generateMap(),
-          };
+      },
+    },
+    // When distributing previews, we want to replace the version with the preview name
+    {
+      transform(code, id) {
+        if (id.includes('/package.json')) {
+          const packageData = JSON.parse(code);
+          packageData.version = `preview-${process.env.CLEVER_TOOLS_PREVIEW_VERSION}`;
+          packageData.commitId = process.env.CLEVER_TOOLS_COMMIT_ID;
+          return JSON.stringify(packageData);
         }
-
-        // for ws peer deps
-        if (id.includes('/node_modules/ws/')) {
-          const ms = new MagicString(code);
-          ms
-            .replaceAll(
-              'require(\'bufferutil\')',
-              'null',
-            )
-            .replaceAll(
-              'require(\'utf-8-validate\')',
-              '{}',
-            );
-
-          return {
-            code: ms.toString(),
-            map: ms.generateMap(),
-          };
+      },
+    },
+    // When building the CJS for the binary builds, we don't want to include "update-notifier"
+    {
+      transform(code, id) {
+        if (id.endsWith('/bin/clever.js')) {
+          return code.replace("import '../src/initial-update-notifier.js';", '');
         }
       },
     },
     commonjs(),
     nodeResolve({
       preferBuiltins: true,
+      browser: false,
+      exportConditions: ['node'],
     }),
     json(),
   ],

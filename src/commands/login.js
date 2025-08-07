@@ -1,29 +1,21 @@
 import crypto from 'node:crypto';
-import util from 'node:util';
-
-import colors from 'colors/safe.js';
+import { setTimeout as delay } from 'node:timers/promises';
+import { styleText } from 'node:util';
 import open from 'open';
-import superagent from 'superagent';
-
+import pkg from '../../package.json' with { type: 'json' };
 import { Logger } from '../logger.js';
-import * as User from '../models/user.js';
 import { conf, writeOAuthConf } from '../models/configuration.js';
-
-import { getPackageJson } from '../load-package-json.cjs';
-
-const delay = util.promisify(setTimeout);
-const pkg = getPackageJson();
+import * as User from '../models/user.js';
 
 // 20 random bytes as Base64URL
-function randomToken () {
+function randomToken() {
   return crypto.randomBytes(20).toString('base64').replace(/\//g, '-').replace(/\+/g, '_').replace(/=/g, '');
 }
 
 const POLLING_INTERVAL = 2000;
 const POLLING_MAX_TRY_COUNT = 60;
 
-function pollOauthData (url, tryCount = 0) {
-
+function pollOauthData(url, tryCount = 0) {
   if (tryCount >= POLLING_MAX_TRY_COUNT) {
     throw new Error('Something went wrong while trying to log you in.');
   }
@@ -31,21 +23,21 @@ function pollOauthData (url, tryCount = 0) {
     Logger.println("We're still waiting for the login process (in your browser) to be completed…");
   }
 
-  return superagent
-    .get(url)
-    .send()
-    .then(({ body }) => body)
-    .catch(async (e) => {
-      if (e.status === 404) {
+  return globalThis
+    .fetch(url)
+    .then(async (r) => {
+      if (r.status === 404) {
         await delay(POLLING_INTERVAL);
         return pollOauthData(url, tryCount + 1);
       }
+      return r.json();
+    })
+    .catch(async () => {
       throw new Error('Something went wrong while trying to log you in.');
     });
 }
 
-async function loginViaConsole () {
-
+async function loginViaConsole() {
   const cliToken = randomToken();
 
   const consoleUrl = new URL(conf.CONSOLE_TOKEN_URL);
@@ -57,16 +49,16 @@ async function loginViaConsole () {
   cliPollUrl.searchParams.set('cli_token', cliToken);
 
   Logger.debug('Try to login to Clever Cloud…');
-  Logger.println(`Opening ${colors.green(consoleUrl.toString())} in your browser to log you in…`);
+  Logger.println(`Opening ${styleText('green', consoleUrl.toString())} in your browser to log you in…`);
   await open(consoleUrl.toString(), { wait: false });
 
   return pollOauthData(cliPollUrl.toString());
 }
 
-export async function login (params) {
+export async function login(params) {
   const { token, secret } = params.options;
-  const isLoginWithArgs = (token != null && secret != null);
-  const isInteractiveLogin = (token == null && secret == null);
+  const isLoginWithArgs = token != null && secret != null;
+  const isInteractiveLogin = token == null && secret == null;
 
   if (isLoginWithArgs) {
     return writeOAuthConf({ token, secret });
@@ -76,7 +68,7 @@ export async function login (params) {
     const oauthData = await loginViaConsole();
     await writeOAuthConf(oauthData);
     const { name, email } = await User.getCurrent();
-    const formattedName = name || colors.red.bold('[unspecified name]');
+    const formattedName = name || styleText(['red', 'bold'], '[unspecified name]');
     return Logger.println(`Login successful as ${formattedName} <${email}>`);
   }
 

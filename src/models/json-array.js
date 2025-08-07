@@ -2,25 +2,24 @@
  * Helper to print a real JSON array with starting `[` and ending `]`
  */
 export class JsonArray {
-  constructor () {
+  constructor() {
     this._isFirst = true;
   }
 
-  open () {
+  open() {
     process.stdout.write('[\n');
   }
 
-  push (log) {
+  push(log) {
     if (this._isFirst) {
       this._isFirst = false;
-    }
-    else {
+    } else {
       process.stdout.write(',\n');
     }
     process.stdout.write(`  ${JSON.stringify(log)}`);
   }
 
-  close () {
+  close() {
     process.stdout.write('\n]');
   }
 }
