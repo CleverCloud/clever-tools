@@ -79,6 +79,10 @@ process.stdout.on('error', (error) => {
 const cliparseCommand = cliparse.command;
 
 cliparse.command = function (name, options, commandFunction) {
+  if (commandFunction == null) {
+    return cliparseCommand(name, options);
+  }
+
   return cliparseCommand(name, options, (...args) => {
     const promise = commandFunction(...args);
     handleCommandPromise(promise);
