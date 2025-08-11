@@ -81,10 +81,16 @@ process.stdout.on('error', (error) => {
 const cliparseCommand = cliparse.command;
 
 cliparse.command = function (name, options, commandFunction) {
-  return cliparseCommand(name, options, (...args) => {
-    const promise = commandFunction(...args);
-    handleCommandPromise(promise);
-  });
+  let callback;
+
+  if (commandFunction !== undefined) {
+    callback = (...args) => {
+      const promise = commandFunction(...args);
+      handleCommandPromise(promise);
+    };
+  }
+
+  return cliparseCommand(name, options, callback);
 };
 
 // Add a yellow color and status tag to the description of an experimental command
