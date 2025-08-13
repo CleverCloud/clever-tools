@@ -1331,10 +1331,6 @@ async function run () {
   const databaseCommand = cliparse.command('database', {
     description: 'List available databases',
     commands: [backupsCommand],
-  }, async () => {
-    console.info('This command is not available, you can try the following commands:');
-    console.info('clever database backups');
-    console.info('clever database backups download');
   });
 
   // Patch help command description
