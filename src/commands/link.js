@@ -1,3 +1,4 @@
+import * as AppConfig from '../models/app_configuration.js';
 import * as Application from '../models/application.js';
 import { Logger } from '../logger.js';
 import colors from 'colors/safe.js';
@@ -14,6 +15,8 @@ export async function link (params) {
     await Application.linkRepo(app, orgaIdOrName, alias);
   }
 
-  const linkedMessage = alias ? ` to local alias ${colors.green(alias)}` : '';
-  Logger.printSuccess(`Application ${colors.green(app.app_name || app.app_id)} has been successfully linked${linkedMessage}!`);
+  const { apps } = await AppConfig.loadApplicationConf();
+  const attributedAlias = apps.find((a) => a.app_id === app.app_id)?.alias;
+
+  Logger.printSuccess(`Application has been successfully linked to local alias ${colors.green(attributedAlias)}!`);
 }
