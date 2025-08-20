@@ -46,7 +46,9 @@ export async function addLinkedApplication(appData, alias, ignoreParentConfig) {
     currentConfig.apps.push(appEntry);
   }
 
-  return persistConfig(currentConfig);
+  return persistConfig(currentConfig).then(() => {
+    return appEntry;
+  });
 }
 
 export async function removeLinkedApplication({ appId, alias }) {
