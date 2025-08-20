@@ -2,6 +2,7 @@ import _ from 'lodash';
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { slugify } from '../lib/slugify.js';
+import { styleText } from '../lib/style-text.js';
 import { Logger } from '../logger.js';
 import { conf } from './configuration.js';
 import * as User from './user.js';
@@ -39,12 +40,13 @@ export async function addLinkedApplication(appData, alias, ignoreParentConfig) {
   };
 
   const isPresent = currentConfig.apps.find((app) => app.app_id === appEntry.app_id) != null;
-
-  // ToDo see what to do when there is a conflict between an existing entry
-  // and the entry we want to add (same app_id, different other values)
-  if (!isPresent) {
-    currentConfig.apps.push(appEntry);
+  if (isPresent) {
+    throw new Error(
+      `Application ${styleText('red', appEntry.app_id)} is already linked with alias ${styleText('red', appEntry.alias)}`,
+    );
   }
+
+  currentConfig.apps.push(appEntry);
 
   return persistConfig(currentConfig).then(() => {
     return appEntry;
