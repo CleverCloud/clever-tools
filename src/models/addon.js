@@ -276,7 +276,7 @@ export function parseAddonOptions (options) {
     return {};
   }
 
-  const pairs = options.split(/,(?=\w+=)/) || [];
+  const pairs = options.split(/,(?=\w+(?:-\w+)*=)/) || [];
 
   return pairs.reduce((options, pair) => {
     const [key, ...valueParts] = pair.split('=');
