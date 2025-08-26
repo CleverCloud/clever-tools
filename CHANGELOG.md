@@ -1,6 +1,13 @@
 # clever-tools changelog
 
 
+## [3.14.1](https://github.com/CleverCloud/clever-tools/compare/3.14.0...3.14.1) (2025-08-26)
+
+
+### 🐛 Bug Fixes
+
+* handle correctly add-ons option including "-" ([09c2c50](https://github.com/CleverCloud/clever-tools/commit/09c2c508d998239694f07900c278ff37cd8cd3cd))
+
 ## [3.14.0](https://github.com/CleverCloud/clever-tools/compare/3.13.1...3.14.0) (2025-07-29)
 
 
