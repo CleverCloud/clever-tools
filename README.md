@@ -1,81 +1,159 @@
 # Clever Tools
 
-Deploy on Clever Cloud and control your applications, add-ons, services from command line.
+[![npm version](https://img.shields.io/npm/v/clever-tools.svg)](https://www.npmjs.com/package/clever-tools)
+[![Node.js requirement](https://img.shields.io/node/v/clever-tools.svg)](https://nodejs.org)
 
-- [Create a Clever Cloud account](https://console.clever-cloud.com)
+The official CLI for [Clever Cloud](https://www.clever.cloud) - Deploy and manage your applications, add-ons, and services from the command line with modern tooling and automated workflows. The perfect developer companion, complementing the [Clever Cloud Console](https://console.clever-cloud.com).
 
-## Installation
+## Quick Start
 
-Clever Tools are available from many channels. The simpler way to install them, if you already have Node.js on your system, is through `npm` package manager:
+**Prerequisites:** Node.js 22+ 
 
 ```bash
+# Install globally
 npm install -g clever-tools
-```
 
-You can use it through `npx` or `npm exec` without installing it globally:
-
-```bash
-# Set/Export CLEVER_TOKEN and CLEVER_SECRET to login with a given account
-# --yes is used to skip the interactive prompts
+# Or use directly without installation
 npx --yes clever-tools@latest version
-npm exec -- clever-tools@3.14 profile --format json
 ```
 
-We also distribute binaries and packages for multiple systems and tools:
-
-* [GNU/Linux](docs/setup-systems.md#gnulinux)
-  * [Arch Linux (AUR)](docs/setup-systems.md#arch-linux-aur)
-  * [CentOS/Fedora (.rpm)](docs/setup-systems.md#centosfedora-rpm)
-  * [Debian/Ubuntu (.deb)](docs/setup-systems.md#debianubuntu-deb)
-  * [Exherbo](docs/setup-systems.md#exherbo)
-  * [Binary (.tar.gz)](docs/setup-systems.md#other-distributions-targz)
-* [macOS](docs/setup-systems.md#macos)
-  * [Homebrew](docs/setup-systems.md#homebrew)
-  * [Binary (.tar.gz)](docs/setup-systems.md#binary-zip)
-* [Windows](docs/setup-systems.md#windows)
-  * [Chocolatey](docs/setup-systems.md#chocolatey)
-  * [Binary (.zip)](docs/setup-systems.md#binary-zip)
-* [Docker](docs/setup-systems.md#docker)
-* [Nix package manager](docs/setup-systems.md#nix-package-manager)
-
-## Enabling autocompletion
-
-The clever-tools CLI comes with a comprehensive auto-completion system. Some installation methods through package managers will try to enable it automatically. If not, use this for bash:
-
-```bash
-clever --bash-autocomplete-script $(which clever) | sudo tee /usr/share/bash-completion/completions/clever
-```
-
-or that for zsh:
-
-```bash
-clever --zsh-autocomplete-script $(which clever) | sudo tee /usr/share/zsh/site-functions
-```
-
-## How to use
-
-You can then login and check everything is working:
-
+**First steps:**
 ```bash
 clever login
 clever profile
 ```
 
-Discover how to use Clever Tools through [our documentation](docs/).
+## Key Features
 
-## Examples
+- **Complete Platform Control**: Manage applications, add-ons, domains, and services from the command line
+- **Real-time Monitoring**: Stream logs, monitor deployments, and check application status
+- **Seamless Deployment**: Deploy directly from your local environment or CI/CD pipelines
+- **Cross-platform**: Available for Linux, macOS, Windows via multiple package managers
+- **API Integration**: Direct access to Clever Cloud's API with authenticated commands
 
-Discover how to deploy many applications on Clever Cloud within [our guides](https://www.clever-cloud.com/developers/guides/).
+## Installation Options
 
-## How to send feedback?
+For Node.js users, npm is the fastest way. For other installation methods including:
 
-[Send us an email!](mailto:support@clever-cloud.com) or [submit an issue](https://github.com/CleverCloud/clever-tools/issues).
+- Docker images
+- Binary downloads
+- Native packages (RPM, DEB)  
+- Package managers (Homebrew, Chocolatey, AUR)
 
-## Automated releases
+See our complete [setup guide](docs/setup-systems.md).
 
-This project uses GitHub Actions to build binaries, package them and release them automatically on the various repositories.
-If you want to know more or if you need to release a new version, please read [RELEASE.md](./RELEASE.md) carefully.
+### Autocompletion
+
+Enable smart autocompletion for bash or zsh:
+
+```bash
+# Bash
+clever --bash-autocomplete-script $(which clever) | sudo tee /usr/share/bash-completion/completions/clever
+
+# Zsh  
+clever --zsh-autocomplete-script $(which clever) | sudo tee /usr/share/zsh/site-functions/_clever
+```
+
+## Documentation
+
+- **[Complete CLI Documentation](https://www.clever-cloud.com/developers/doc/cli/)** - Official user guide
+- **[CLI Reference](https://www.clever-cloud.com/developers/doc/reference/cli/)** - Complete command reference
+- **[Deployment Examples](https://www.clever-cloud.com/developers/guides/)** - Real-world tutorials
+
+## Basic Usage
+
+### Authentication
+```bash
+# Interactive login
+clever login
+
+# Non-interactive login
+clever login --token <your-token> --secret <your-secret>
+
+# Or use environment variables, idéal for CI/CD
+export CLEVER_TOKEN="your-token"
+export CLEVER_SECRET="your-secret"
+clever profile
+```
+
+### Application Management
+```bash
+# List applications
+clever applications list
+
+# Create a new Node.js/Bun application
+clever applications create --type node
+
+# Link existing app to the current directory
+clever link <app_id>
+
+# Deploy current directory
+clever deploy
+
+# Monitor logs
+clever logs --since 1h
+
+# Restart an application
+clever restart --app <app_id>
+```
+
+Learn more in our [Application Management Guide](https://www.clever-cloud.com/developers/doc/cli/applications/).
+
+### Add-ons & Services Management
+```bash
+# List add-ons
+clever addon
+
+# Create a PostgreSQL add-on
+clever addon create postgresql-addon myPG
+
+# Create a Cellar (S3-compatible storage) add-on
+clever addon create cellar-addon  myCellar
+
+# Create and manage a Keycloak service
+clever addon create keycloak myKeycloak
+
+clever features enable operatos
+clever keycloak get myKetcloak
+```
+Learn more in our [Add-ons & Services Guide](https://www.clever-cloud.com/developers/doc/cli/addons/).
+
+# Create and manage
+
+### API Access with clever curl and clever tokens
+
+Access Clever Cloud's API directly through authenticated commands:
+
+```bash
+# Get your user information
+clever curl https://api.clever-cloud.com/v2/self
+
+# Get platform summary
+clever curl https://api.clever-cloud.com/v2/summary
+
+# List your applications (with jq for filtering)
+clever curl https://api.clever-cloud.com/v2/organisations/<ORG_ID>/applications | jq '.[].id'
+
+# Create API tokens for external tools
+clever tokens create myTokenName
+clever tokens create myTokenName --expiration 2w --format json
+```
+
+Learn more about API integration in our [API How-to Guide](https://www.clever-cloud.com/developers/api/howto).
+
+### Get Help
+```bash
+clever help                    # List all commands
+clever <command> --help        # Get specific help
+clever --format json <command> # JSON output for scripting
+```
+
+## Support & Contributing
+
+- **Issues & Questions**: [GitHub Issues](https://github.com/CleverCloud/clever-tools/issues)
+- **Email Support**: [Ticket Center](https://console.clever-cloud.com/ticket-center-choice)
+- **Contributing**: See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup and guidelines
 
 ## License
 
-This project is licensed under the [Apache-2.0](https://spdx.org/licenses/Apache-2.0.html).
+This project is licensed under the [Apache-2.0](LICENSE).
