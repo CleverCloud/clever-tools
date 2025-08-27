@@ -2,53 +2,51 @@
 
 Welcome to the clever-tools project! We're happy you're interested in contributing. This guide will help you get started with development and explain our contribution process.
 
-## Prerequisites & Setup
+## Table of Contents
 
-### Requirements
+- [Requirements](#requirements)
+- [Quick Start](#getting-started)
+- [Development Workflow](#development-workflow)
+- [Project Structure](#project-structure)
+- [Development Standards](#development-standards)
+- [Pull Request Process](#pull-request-process)
+- [CI/CD & Release Process](#cicd--release-process)
+- [Getting Help](#getting-help)
 
-- Node.js 22 or higher (includes npm)
-- A Clever Cloud account (needed to test CLI commands)
+## Requirements
+
 - Git
+- Node.js 22 or higher (includes npm)
 - System tools for local builds: `tar`, `zip` (usually pre-installed)
+- A [Clever Cloud account](https://console.clever-cloud.com/users/me/information) (needed to test CLI commands)
 
-### Getting Started
+## Getting Started
 
-1. **Fork and clone the repository**
-   ```bash
-   git clone https://github.com/YOUR_USERNAME/clever-tools.git
-   cd clever-tools
-   ```
+```bash
+# 1. Fork and clone
+git clone https://github.com/CleverCloud/clever-tools.git
+cd clever-tools
 
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
+# 2. Install and setup
+npm install
+git config core.hooksPath '.githooks'
 
-3. **Set up local development**
-   
-   To use your local development version anywhere on your system, create an alias:
-   ```bash
-   # Add to your .bashrc, .zshrc, or equivalent
-   alias cleverr='node /path/to/clever-tools/bin/clever.js'
-   ```
-   
-   Some developers use `cleverr` (with two Rs), others prefer `clever-local` or similar. Choose what works for you!
+# 3. Create development alias
+echo "alias cleverr='node $(pwd)/bin/clever.js'" >> ~/.bashrc
+source ~/.bashrc
 
-4. **Configure Git hooks** (recommended)
-   
-   To ensure your commits follow our conventions:
-   ```bash
-   git config core.hooksPath '.githooks'
-   ```
+# 4. Verify setup
+cleverr version
+```
 
 ## Development Workflow
 
 ### Before you start
 
-**Always create an issue before starting work on a PR.** This helps us:
-- Discuss the feature/fix before implementation
+**Always create an issue before starting work on a PR**, it helps us to:
 - Avoid duplicate work
 - Ensure the change aligns with project goals
+- Discuss the feature/fix before implementation
 
 ### Branch Strategy
 
@@ -70,21 +68,61 @@ We maintain a conservative approach to dependencies:
 
 ### API Integration
 
-All communication with Clever Cloud's platform uses the `@clevercloud/client` library:
+All communication with Clever Cloud's platform uses the [@clevercloud/client](https://www.npmjs.com/package/@clevercloud/client) library:
 - Handles authentication and API requests
 - Provides typed interfaces for all API endpoints
 - Ensures consistent error handling across commands
+
+### Development Scripts and Tools
+
+We provide several utility scripts to streamline development (located in `/scripts`):
+
+#### Profile Management
+- **`scripts/switch-profile.js`**: Interactive tool for managing multiple Clever Cloud accounts
+  ```bash
+  # Interactive profile selection
+  node scripts/switch-profile.js
+  
+  # Direct profile switching
+  node scripts/switch-profile.js --profile "user@example.com"
+  ```
+
+#### GitHub Actions Validation  
+- **`scripts/check-github-actions.js`**: Validates CI/CD configuration
+  ```bash
+  node scripts/check-github-actions.js
+  ```
+
+#### Preview Management
+- **`scripts/preview.js`**: Build and manage PR preview versions
+  ```bash
+  # Build local preview
+  scripts/preview.js build [branch-name]
+  
+  # List remote previews
+  scripts/preview.js update
+  ```
+
+All scripts are written in TypeScript with JSDoc enforcement and include comprehensive usage examples.
 
 ## Project Structure
 
 Understanding the codebase structure will help you navigate and contribute effectively:
 
-- **`bin/clever.js`** - Main entry point for the CLI
-- **`src/commands/`** - All CLI commands are defined here
-- **`src/`** - Core libraries and utilities
-- **`src/lib/`** - Additional utility libraries
-- **`src/models/`** - Business logic and API interactions (a bit of a mixed bag)
-- **`scripts/`** - Build and CI scripts (TypeScript with JSDoc enforced)
+```text
+clever-tools/
+├── bin/
+│   └── clever.js            # Main entry point for the CLI
+├── src/
+│   ├── commands/            # All CLI commands are defined here
+│   ├── lib/                 # Additional utility libraries
+│   ├── models/              # Business logic and API interactions (a bit of a mixed bag)
+│   └── ...                  # Core libraries and utilities
+├── scripts/                 # Build and CI scripts (TypeScript with JSDoc enforced)
+│   ├── lib/                 # Shared utilities for scripts
+│   └── templates/           # Templates for package managers (AUR, Homebrew, etc.)
+└── ...
+```
 
 ## Development Standards
 
@@ -130,6 +168,13 @@ npm run typecheck
 ```
 
 We use TypeScript through JSDoc comments for type safety without transpilation.
+
+#### Development Environment
+
+The project supports multiple development approaches:
+- **Local debugging**: Use Node.js remote debugger with `--inspect` flag
+- **Script development**: All `/scripts` files support `--help` for usage information
+- **Profile switching**: Use the profile utility for testing with different Clever Cloud accounts
 
 ### Commit Guidelines
 
@@ -177,22 +222,17 @@ For changes affecting multiple commands:
 
 ### 1. Before Creating a PR
 
-- Ensure an issue exists for your change
-- Run all quality checks locally (these will also be automatically validated on your PR):
-  ```bash
-  npm run lint
-  npm run format:check
-  npm run typecheck
-  ```
 - Test your changes thoroughly
+- Ensure an issue exists for your change
 - Ensure your branch is rebased on the latest `master` and contains no fixup/squash commits
+- Run all quality checks locally with `npm run validate` (it will also be run automatically on your PR)
 
 ### 2. Creating Your PR
 
-- Reference the issue in your PR description
 - Provide clear description of changes
-- Include testing instructions if applicable
 - Mark as draft if work is in progress
+- Reference the issue in your PR description
+- Include testing instructions if applicable
 
 ### 3. Preview Builds
 
@@ -224,7 +264,7 @@ scripts/preview.js delete [branch-name]
 scripts/preview.js pr-comment [branch-name]
 ```
 
-The script provides terminal-based preview listing and management with download progress reporting. For publish/delete operations, you'll need Cellar credentials:
+The script provides terminal-based preview listing and management with download progress reporting. For publish/delete operations, you'll need admin Cellar credentials:
 
 ```bash
 export CC_CLEVER_TOOLS_PREVIEWS_CELLAR_BUCKET="your-bucket"
@@ -255,14 +295,14 @@ Our CI/CD pipeline ensures quality and automates releases:
 - Conventional commits drive changelog generation
 - Release-please manages versioning
 - Automated publishing to multiple platforms:
-  - **npm**: Published on npmjs.org
-  - **GitHub Releases**: Binary archives and release notes
-  - **Docker Hub**: Official Docker images
-  - **Cellar**: Clever Cloud's object storage for direct downloads
-  - **Nexus**: RPM and DEB packages for Linux distributions
   - **AUR**: Arch Linux User Repository
-  - **Homebrew**: macOS package manager
+  - **Cellar**: Clever Cloud's object storage for direct downloads
+  - **Docker Hub**: Official Docker images
   - **Exherbo**: Linux distribution packages
+  - **Homebrew**: macOS package manager
+  - **GitHub Releases**: Binary archives and release notes
+  - **Nexus**: RPM and DEB packages for Linux distributions
+  - **npm**: Published on npmjs.org
   - **WinGet**: Windows Package Manager
 
 Key workflows:
@@ -326,10 +366,11 @@ graph LR
 
 ### Build System
 
-The build process creates self-contained binaries for all platforms:
-- **Bundling**: Rollup creates a single CommonJS file
-- **Compilation**: @yao-pkg/pkg compiles the single CommonJS file into binaries for Linux, macOS, and Windows
-- **Packaging**: Scripts generate platform-specific archives (.tar.gz, .zip) and packages (.deb, .rpm)
+The build process creates self-contained binaries for all platforms using modern tooling:
+- **Bundling**: Rollup creates a single CommonJS file from the ESM source
+- **Compilation**: @yao-pkg/pkg (successor to vercel/pkg) compiles binaries for Linux, macOS, and Windows
+- **Packaging**: Node.js scripts generate platform-specific archives (.tar.gz, .zip) and packages (.deb, .rpm)
+- **Distribution**: Automated publishing to 10+ channels including npm, Homebrew, Docker Hub, and Linux repositories
 
 ### Script-Based Architecture
 
