@@ -102,6 +102,10 @@ npm run lint
 
 # Auto-fix fixable issues
 npm run lint:fix
+
+# Run all quality checks and try to auto-fix them
+npm run validate
+npm run fix-all
 ```
 
 #### Prettier
