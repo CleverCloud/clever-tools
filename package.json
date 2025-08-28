@@ -42,6 +42,7 @@
   "dependencies": {
     "@clevercloud/client": "11.0.1",
     "@inquirer/prompts": "7.8.4",
+    "char-regex": "2.0.2",
     "cliparse": "0.5.0",
     "colors": "1.4.0",
     "common-env": "6.4.0",
@@ -56,12 +57,10 @@
     "mkdirp": "1.0.4",
     "moment": "2.29.1",
     "open": "10.2.0",
-    "slugify": "1.6.6",
-    "string-length": "4.0.2",
-    "superagent": "6.1.0",
-    "text-table": "0.2.0",
-    "tldts": "7.0.12",
     "semver": "7.7.2",
+    "slugify": "1.6.6",
+    "superagent": "6.1.0",
+    "tldts": "7.0.12",
     "update-notifier": "7.3.1",
     "uuid": "8.3.2",
     "xdg": "0.1.1"

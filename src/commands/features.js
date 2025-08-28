@@ -1,9 +1,8 @@
 import { getFeatures, setFeature } from '../models/configuration.js';
 import { EXPERIMENTAL_FEATURES } from '../experimental-features.js';
-import { formatTable as initFormatTable } from '../format-table.js';
+import { formatTable } from '../format-table.js';
 import { Logger } from '../logger.js';
 
-const formatTable = initFormatTable();
 
 export async function list (params) {
   const { format } = params.options;

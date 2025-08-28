@@ -85,7 +85,6 @@ export async function listAll (params) {
         getPropertyMaxWidth(allApps, 'zone'),
         getPropertyMaxWidth(allApps, 'alias'),
       ];
-      const formatTableWithColumnWidth = formatTable(columnWidths);
 
       allAppsWithAliasPerOrg.forEach((org) => {
 
@@ -98,7 +97,7 @@ export async function listAll (params) {
 
         if (org.applications.length > 0) {
           Logger.println();
-          Logger.println(formatTableWithColumnWidth([
+          Logger.println(formatTable([
             headers,
             ...org.applications.map((app) => [
               app.app_id,
@@ -107,7 +106,7 @@ export async function listAll (params) {
               app.zone,
               app.alias,
             ]),
-          ]));
+          ], columnWidths));
         }
       });
 

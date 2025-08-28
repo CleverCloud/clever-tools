@@ -92,16 +92,16 @@ function formatHuman (log) {
   const country = source.countryCode ?? '(unknown)';
   const hasSourceCity = source.city ?? '';
 
-  return row([[
+  return formatTable([[
     colors.grey(date.toISOString(date)),
     source.ip,
     `${country}${hasSourceCity ? '/' + truncateWithEllipsis(CITY_MAX_LENGTH, source.city) : ''}`,
     colorStatusCode(http.response.statusCode),
     http.request.method.toString().padEnd(4, ' ') + ' ' + http.request.path,
-  ]]);
+  ]], ACCESSLOG_COLUMN_WIDTHS);
 }
 
-const row = formatTable([
+const ACCESSLOG_COLUMN_WIDTHS = [
   '2024-06-24T08:05:43.880Z',
   '255.255.255.255',
   // country / city
@@ -110,7 +110,7 @@ const row = formatTable([
   // longest method name
   'OPTIONS',
   // path
-]);
+];
 
 function colorStatusCode (code) {
   if (code >= 500) {

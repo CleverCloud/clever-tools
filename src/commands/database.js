@@ -1,13 +1,12 @@
 import { sendToApi } from '../models/send-to-api.js';
 import { getBackups } from '@clevercloud/client/esm/api/v2/backups.js';
 import { Logger } from '../logger.js';
-import { formatTable as initFormatTable } from '../format-table.js';
+import { formatTable } from '../format-table.js';
 import fs from 'node:fs';
 import { Writable } from 'node:stream';
 import { findOwnerId } from '../models/addon.js';
 import { resolveRealId, resolveAddonId } from '../models/ids-resolver.js';
 
-const formatTable = initFormatTable();
 
 export async function listBackups (params) {
 

@@ -27,7 +27,7 @@ function getColoredState (state, isLast) {
 }
 
 // We use examples of maximum width text to have a clean display
-const formatActivityTable = formatTable([
+const ACTIVITY_TABLE_COLUMN_WIDTHS = [
   moment().format(),
   47,
   'IN PROGRESS',
@@ -35,7 +35,7 @@ const formatActivityTable = formatTable([
   // a git commit id is 8 chars long
   8,
   0,
-]);
+];
 
 function convertEventToJson (event) {
   return {
@@ -49,7 +49,7 @@ function convertEventToJson (event) {
 }
 
 function formatActivityLine (event) {
-  return formatActivityTable([
+  return formatTable([
     [
       moment(event.date).format(),
       event.uuid,
@@ -58,7 +58,7 @@ function formatActivityLine (event) {
       event?.commit?.substring(0, 8) ?? 'N/A',
       event.cause,
     ],
-  ]);
+  ], ACTIVITY_TABLE_COLUMN_WIDTHS);
 }
 
 function isTemporaryEvent (ev) {

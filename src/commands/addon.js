@@ -2,7 +2,7 @@ import colors from 'colors/safe.js';
 
 import * as Addon from '../models/addon.js';
 import * as AppConfig from '../models/app_configuration.js';
-import { formatTable as initFormatTable } from '../format-table.js';
+import { formatTable } from '../format-table.js';
 import { Logger } from '../logger.js';
 import * as Organisation from '../models/organisation.js';
 import * as User from '../models/user.js';
@@ -14,7 +14,6 @@ import { resolveAddonId } from '../models/ids-resolver.js';
 import { conf } from '../models/configuration.js';
 import dedent from 'dedent';
 
-const formatTable = initFormatTable();
 
 export async function list (params) {
   const { org: orgaIdOrName, format } = params.options;
