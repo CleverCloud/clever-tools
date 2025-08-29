@@ -1,12 +1,11 @@
-import colors from 'colors/safe.js';
-import * as networkGroup from './ng.js';
+import { getSummary } from '@clevercloud/client/esm/api/v2/user.js';
 import * as networkGroupApi from '@clevercloud/client/esm/api/v4/network-group.js';
-
 import crypto from 'node:crypto';
 import { setTimeout } from 'node:timers/promises';
+import { styleText } from 'node:util';
 import { Logger } from '../logger.js';
+import * as networkGroup from './ng.js';
 import { sendToApi } from './send-to-api.js';
-import { getSummary } from '@clevercloud/client/esm/api/v2/user.js';
 
 /**
  * Create an external peer and link its parent member to the Network Group
@@ -19,8 +18,7 @@ import { getSummary } from '@clevercloud/client/esm/api/v2/user.js';
  * @throws {Error} If the parent member is not linked to the Network Group
  * @throws {Error} If the external peer is not linked to the Network Group
  */
-export async function createExternalPeerWithParent (ngIdOrLabel, peerLabel, publicKey, org) {
-
+export async function createExternalPeerWithParent(ngIdOrLabel, peerLabel, publicKey, org) {
   if (!peerLabel) {
     throw new Error('A valid peer label is required');
   }
@@ -28,7 +26,7 @@ export async function createExternalPeerWithParent (ngIdOrLabel, peerLabel, publ
   const [ng] = await networkGroup.searchNgOrResource(ngIdOrLabel, org, 'NetworkGroup');
 
   if (!ng) {
-    throw new Error(`Network Group ${colors.red(ngIdOrLabel.ngId || ngIdOrLabel.ngResourceLabel)} not found`);
+    throw new Error(`Network Group ${styleText('red', ngIdOrLabel.ngId || ngIdOrLabel.ngResourceLabel)} not found`);
   }
 
   // We define a parent member for the external peer
@@ -45,7 +43,9 @@ export async function createExternalPeerWithParent (ngIdOrLabel, peerLabel, publ
 
   const checkParentMember = await checkResource(ng.id, org, parentMember.id, true);
   if (!checkParentMember) {
-    throw new Error(`Parent member ${colors.red(parentMember.id)} not linked to Network Group ${colors.red(ng.id)}`);
+    throw new Error(
+      `Parent member ${styleText('red', parentMember.id)} not linked to Network Group ${styleText('red', ng.id)}`,
+    );
   }
 
   Logger.info(`Parent member ${parentMember.id} created and linked to Network Group ${ng.id}`);
@@ -60,11 +60,15 @@ export async function createExternalPeerWithParent (ngIdOrLabel, peerLabel, publ
 
   Logger.info(`Adding external peer to Member ${parentMember.id} of Network Group ${ng.id}`);
   Logger.debug('Sending body: ' + JSON.stringify(body, null, 2));
-  await networkGroupApi.createNetworkGroupExternalPeer({ ownerId: ng.ownerId, networkGroupId: ng.id }, body).then(sendToApi);
+  await networkGroupApi
+    .createNetworkGroupExternalPeer({ ownerId: ng.ownerId, networkGroupId: ng.id }, body)
+    .then(sendToApi);
 
   const checkExternalPeer = await checkResource(ng.id, org, peerLabel, true, 'peer', 'label');
   if (!checkExternalPeer) {
-    throw new Error(`External peer ${colors.red(peerLabel)} not linked to Network Group ${colors.red(ng.id)}`);
+    throw new Error(
+      `External peer ${styleText('red', peerLabel)} not linked to Network Group ${styleText('red', ng.id)}`,
+    );
   }
 
   Logger.info(`External peer ${peerLabel} added to Member ${parentMember.id} of Network Group ${ng.id}`);
@@ -80,12 +84,11 @@ export async function createExternalPeerWithParent (ngIdOrLabel, peerLabel, publ
  * @throws {Error} If the External Peer is still linked to the Network Group
  * @throws {Error} If the Parent Member is still linked to the Network Group
  */
-export async function deleteExternalPeerWithParent (ngIdOrLabel, peerIdOrLabel, org) {
-
+export async function deleteExternalPeerWithParent(ngIdOrLabel, peerIdOrLabel, org) {
   const [ng] = await networkGroup.searchNgOrResource(ngIdOrLabel, org, 'NetworkGroup');
 
   if (!ng) {
-    throw new Error(`Network Group ${colors.red(ngIdOrLabel.ngId || ngIdOrLabel.ngResourceLabel)} not found`);
+    throw new Error(`Network Group ${styleText('red', ngIdOrLabel.ngId || ngIdOrLabel.ngResourceLabel)} not found`);
   }
 
   const externalPeer = ng.peers.find((p) => {
@@ -93,15 +96,19 @@ export async function deleteExternalPeerWithParent (ngIdOrLabel, peerIdOrLabel, 
   });
 
   if (!externalPeer) {
-    throw new Error(`External peer ${colors.red(peerIdOrLabel)} not found`);
+    throw new Error(`External peer ${styleText('red', peerIdOrLabel)} not found`);
   }
 
   Logger.info(`Deleting external peer ${externalPeer.id} from Network Group ${ng.id}`);
-  await networkGroupApi.deleteNetworkGroupExternalPeer({ ownerId: ng.ownerId, networkGroupId: ng.id, peerId: externalPeer.id }).then(sendToApi);
+  await networkGroupApi
+    .deleteNetworkGroupExternalPeer({ ownerId: ng.ownerId, networkGroupId: ng.id, peerId: externalPeer.id })
+    .then(sendToApi);
 
   const checkPeer = await checkResource(ng.id, org, externalPeer.id, false, 'peer');
   if (!checkPeer) {
-    throw new Error(`External peer ${colors.red(externalPeer.id)} still linked to Network Group ${colors.red(ng.id)}`);
+    throw new Error(
+      `External peer ${styleText('red', externalPeer.id)} still linked to Network Group ${styleText('red', ng.id)}`,
+    );
   }
 
   Logger.info(`External peer ${externalPeer.id} deleted from Network Group ${ng.id}`);
@@ -111,7 +118,9 @@ export async function deleteExternalPeerWithParent (ngIdOrLabel, peerIdOrLabel, 
 
   const checkParentMember = await checkResource(ng.id, org, externalPeer.parentMember, false);
   if (!checkParentMember) {
-    throw new Error(`Parent member ${colors.red(externalPeer.parentMember)} still linked to Network Group ${colors.red(ng.id)}`);
+    throw new Error(
+      `Parent member ${styleText('red', externalPeer.parentMember)} still linked to Network Group ${styleText('red', ng.id)}`,
+    );
   }
 
   Logger.info(`Parent member ${externalPeer.parentMember} unlinked from Network Group ${ng.id}`);
@@ -124,7 +133,7 @@ export async function deleteExternalPeerWithParent (ngIdOrLabel, peerIdOrLabel, 
  * @param {object} org Organisation ID or name
  * @param {string} label Label of the Member
  */
-export async function linkMember (ngIdOrLabel, memberId, org, label) {
+export async function linkMember(ngIdOrLabel, memberId, org, label) {
   if (!memberId) {
     throw new Error('A valid member ID is required (addon_xxx, app_xxx, external_xxx)');
   }
@@ -132,14 +141,16 @@ export async function linkMember (ngIdOrLabel, memberId, org, label) {
   const [ng] = await networkGroup.searchNgOrResource(ngIdOrLabel, org, 'NetworkGroup');
 
   if (!ng) {
-    throw new Error(`Network Group ${colors.red(ngIdOrLabel.ngId || ngIdOrLabel.ngResourceLabel)} not found`);
+    throw new Error(`Network Group ${styleText('red', ngIdOrLabel.ngId || ngIdOrLabel.ngResourceLabel)} not found`);
   }
 
   await checkMembersToLink([memberId], ng.ownerId);
 
   const alreadyMember = ng.members.find((m) => m.id === memberId);
   if (alreadyMember) {
-    throw new Error(`Member ${colors.red(memberId)} is already linked to Network Group ${colors.red(ng.id)}`);
+    throw new Error(
+      `Member ${styleText('red', memberId)} is already linked to Network Group ${styleText('red', ng.id)}`,
+    );
   }
 
   const [member] = networkGroup.constructMembers(ng.id, [memberId]);
@@ -157,7 +168,7 @@ export async function linkMember (ngIdOrLabel, memberId, org, label) {
 
   const check = await checkResource(ng.id, org, member.id, true);
   if (!check) {
-    throw new Error(`Member ${colors.red(member.id)} not linked to Network Group ${colors.red(ng.id)}`);
+    throw new Error(`Member ${styleText('red', member.id)} not linked to Network Group ${styleText('red', ng.id)}`);
   }
 
   Logger.info(`Member ${member.id} linked to Network Group ${ng.id}`);
@@ -173,7 +184,7 @@ export async function linkMember (ngIdOrLabel, memberId, org, label) {
  * @throws {Error} If the Member is not found in the Network Group
  * @throws {Error} If the Member is still linked to the Network Group
  */
-export async function unlinkMember (ngIdOrLabel, memberId, org) {
+export async function unlinkMember(ngIdOrLabel, memberId, org) {
   if (!memberId) {
     throw new Error('A valid member ID is required (addon_xxx, app_xxx, external_xxx)');
   }
@@ -181,20 +192,22 @@ export async function unlinkMember (ngIdOrLabel, memberId, org) {
   const [ng] = await networkGroup.searchNgOrResource(ngIdOrLabel, org, 'NetworkGroup');
 
   if (!ng) {
-    throw new Error(`Network Group ${colors.red(ngIdOrLabel.ngId || ngIdOrLabel.ngLabel)} not found`);
+    throw new Error(`Network Group ${styleText('red', ngIdOrLabel.ngId || ngIdOrLabel.ngLabel)} not found`);
   }
 
   const member = ng.members.find((m) => m.id === memberId);
   if (!member) {
-    throw new Error(`Member ${colors.red(memberId)} not found in Network Group ${colors.red(ng.id)}`);
+    throw new Error(`Member ${styleText('red', memberId)} not found in Network Group ${styleText('red', ng.id)}`);
   }
 
   Logger.info(`Unlinking member ${memberId} from Network Group ${ng.id}`);
-  await networkGroupApi.deleteNetworkGroupMember({ ownerId: ng.ownerId, networkGroupId: ng.id, memberId }).then(sendToApi);
+  await networkGroupApi
+    .deleteNetworkGroupMember({ ownerId: ng.ownerId, networkGroupId: ng.id, memberId })
+    .then(sendToApi);
 
   const check = await checkResource(ng.id, org, memberId, false);
   if (!check) {
-    throw new Error(`Member ${colors.red(memberId)} still linked to Network Group ${colors.red(ng.id)}`);
+    throw new Error(`Member ${styleText('red', memberId)} still linked to Network Group ${styleText('red', ng.id)}`);
   }
 
   Logger.info(`Member ${memberId} unlinked from Network Group ${ng.id}`);
@@ -205,14 +218,8 @@ export async function unlinkMember (ngIdOrLabel, memberId, org) {
  * @param {Array<string>} members Members to check
  * @throws {Error} If members can't be linked to a Network Group
  */
-export async function checkMembersToLink (members, ownerId) {
-  const VALID_ADDON_PROVIDERS = [
-    'es-addon',
-    'mongodb-addon',
-    'mysql-addon',
-    'postgresql-addon',
-    'redis-addon',
-  ];
+export async function checkMembersToLink(members, ownerId) {
+  const VALID_ADDON_PROVIDERS = ['es-addon', 'mongodb-addon', 'mysql-addon', 'postgresql-addon', 'redis-addon'];
 
   const summary = await getSummary().then(sendToApi);
 
@@ -225,20 +232,23 @@ export async function checkMembersToLink (members, ownerId) {
   let source = data.applications;
 
   for (const memberId of members) {
-    if (memberId.startsWith('addon_')) source = data.addons;
+    if (memberId.startsWith('addon_')) {
+      source = data.addons;
+    }
 
     const foundRessource = source.find((r) => r.id === memberId);
 
     if (foundRessource && memberId.startsWith('addon_') && !VALID_ADDON_PROVIDERS.includes(foundRessource.providerId)) {
       membersNotOK.push(memberId);
-    }
-    else if (!foundRessource && !memberId.startsWith('external_')) {
+    } else if (!foundRessource && !memberId.startsWith('external_')) {
       membersNotOK.push(memberId);
     }
   }
 
   if (membersNotOK.length > 0) {
-    throw new Error(`Member(s) ${colors.red(membersNotOK.join(', '))} can't be linked to the Network Group, check Organisation ID or name`);
+    throw new Error(
+      `Member(s) ${styleText('red', membersNotOK.join(', '))} can't be linked to the Network Group, check Organisation ID or name`,
+    );
   }
 }
 
@@ -252,7 +262,7 @@ export async function checkMembersToLink (members, ownerId) {
  * @param {string} [searchBy] Search by 'id' or 'label', default is 'id'
  * @returns {Promise<boolean>} True if the resource is present, false otherwise
  */
-async function checkResource (ngId, org, resource, shouldBePresent, resourceType = 'member', searchBy = 'id') {
+async function checkResource(ngId, org, resource, shouldBePresent, resourceType = 'member', searchBy = 'id') {
   const endTime = Date.now() + networkGroup.POLLING_TIMEOUT_MS;
 
   while (Date.now() < endTime) {

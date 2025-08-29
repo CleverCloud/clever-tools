@@ -1,9 +1,8 @@
-import _ from 'lodash';
-
 import { getSummary } from '@clevercloud/client/esm/api/v2/user.js';
-import { sendToApi } from '../models/send-to-api.js';
+import _ from 'lodash';
+import { sendToApi } from './send-to-api.js';
 
-export async function getId (orgaIdOrName) {
+export async function getId(orgaIdOrName) {
   if (orgaIdOrName == null) {
     return null;
   }
@@ -12,12 +11,10 @@ export async function getId (orgaIdOrName) {
     return orgaIdOrName.orga_id;
   }
 
-  return getByName(orgaIdOrName.orga_name)
-    .then((orga) => orga.id);
+  return getByName(orgaIdOrName.orga_name).then((orga) => orga.id);
 }
 
-async function getByName (name) {
-
+async function getByName(name) {
   const fullSummary = await getSummary({}).then(sendToApi);
   const filteredOrgs = _.filter(fullSummary.organisations, { name });
 

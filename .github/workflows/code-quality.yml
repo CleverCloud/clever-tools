@@ -1,0 +1,44 @@
+name: Code quality
+
+on:
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+    branches-ignore:
+      - 'release-please--**'
+
+concurrency:
+  group: code-quality-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  code-quality:
+    name: 'Code quality'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: ./.github/actions/setup-node
+      - name: 'Check commit message format with commitlint'
+        run: npx commitlint --from=origin/master --to=HEAD --verbose
+      - name: 'Check for fixup commits'
+        run: |
+          if git log --oneline origin/master..HEAD | grep -E '^[a-f0-9]+ (fixup!|squash!)'; then
+            echo "Error: Found fixup or squash commits. Please squash them before merging."
+            exit 1
+          fi
+      - name: 'Check branch is rebased on latest master'
+        run: |
+          git fetch origin master
+          if ! git merge-base --is-ancestor origin/master HEAD; then
+            echo "Error: Branch is not rebased on latest master. Please rebase."
+            exit 1
+          fi
+      - name: 'Check for lint issues with ESLint'
+        run: npm run lint
+      - name: 'Check for formatting issues with Prettier'
+        run: npm run format:check
+      - name: 'Check for type issues with TypeScript and JSDoc'
+        run: npm run typecheck

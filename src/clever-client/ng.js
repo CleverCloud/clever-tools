@@ -6,7 +6,7 @@
  * @param {String} params.ownerId
  * @param {String} params.query
  */
-export function searchNetworkGroupOrResource (params) {
+export function searchNetworkGroupOrResource(params) {
   // no multipath for /self or /organisations/{id}
   return Promise.resolve({
     method: 'get',

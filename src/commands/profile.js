@@ -1,10 +1,10 @@
-import colors from 'colors/safe.js';
-import { openBrowser } from '../models/utils.js';
+import dedent from 'dedent';
+import { styleText } from 'node:util';
 import { Logger } from '../logger.js';
 import * as User from '../models/user.js';
-import dedent from 'dedent';
+import { openBrowser } from '../models/utils.js';
 
-export async function profile (params) {
+export async function profile(params) {
   const { format } = params.options;
 
   const user = await User.getCurrent();
@@ -28,7 +28,7 @@ export async function profile (params) {
     creationDate: new Date(user.creationDate),
     tokenExpiration: new Date(currentToken.expirationDate).toISOString(),
     lang: user.lang,
-    has2FA: (user.preferredMFA != null && user.preferredMFA !== 'NONE'),
+    has2FA: user.preferredMFA != null && user.preferredMFA !== 'NONE',
   };
 
   switch (format) {
@@ -41,15 +41,15 @@ export async function profile (params) {
       Logger.println(dedent`
         You're currently logged in as:
         User id           ${formattedUser.id}
-        Name              ${formattedUser.name ?? colors.red.bold('[not specified]')}
+        Name              ${formattedUser.name ?? styleText(['red', 'bold'], '[not specified]')}
         Email             ${formattedUser.email}
         Token expiration  ${tokenExpiration}
         Two factor auth   ${formattedUser.has2FA ? 'yes' : 'no'}
       `);
     }
   }
-};
+}
 
-export async function openProfile () {
+export async function openProfile() {
   await openBrowser('/users/me/information', 'Opening the profile page in your browser');
 }

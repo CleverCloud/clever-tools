@@ -1,21 +1,26 @@
-import cliparse from 'cliparse';
-
-import { get as getAddon, getAll as getAllAddons, getAllEnvVars, remove as removeAddon, create as createAddon, update as updateAddon } from '@clevercloud/client/esm/api/v2/addon.js';
+import {
+  create as createAddon,
+  get as getAddon,
+  getAll as getAllAddons,
+  getAllEnvVars,
+  remove as removeAddon,
+  update as updateAddon,
+} from '@clevercloud/client/esm/api/v2/addon.js';
+import { getAllLinkedAddons, linkAddon, unlinkAddon } from '@clevercloud/client/esm/api/v2/application.js';
 import { getAllAddonProviders } from '@clevercloud/client/esm/api/v2/product.js';
 import { getSummary } from '@clevercloud/client/esm/api/v2/user.js';
 import { getAddonProvider } from '@clevercloud/client/esm/api/v4/addon-providers.js';
-
+import cliparse from 'cliparse';
 import { confirm } from '../lib/prompts.js';
 import { Logger } from '../logger.js';
-import { sendToApi } from '../models/send-to-api.js';
 import { resolveOwnerId } from './ids-resolver.js';
-import { getAllLinkedAddons, linkAddon, unlinkAddon } from '@clevercloud/client/esm/api/v2/application.js';
+import { sendToApi } from './send-to-api.js';
 
-export function listProviders () {
+export function listProviders() {
   return getAllAddonProviders({}).then(sendToApi);
 }
 
-export async function getProvider (providerName) {
+export async function getProvider(providerName) {
   const providers = await listProviders();
   const provider = providers.find((p) => p.id === providerName);
   if (provider == null) {
@@ -24,8 +29,9 @@ export async function getProvider (providerName) {
   return provider;
 }
 
-export function getProviderInfos (providerName) {
-  return getAddonProvider({ providerId: providerName }).then(sendToApi)
+export function getProviderInfos(providerName) {
+  return getAddonProvider({ providerId: providerName })
+    .then(sendToApi)
     .catch(() => {
       // An error can occur because the add-on api doesn't implement this endpoint yet
       // This is fine, just ignore it
@@ -34,7 +40,7 @@ export function getProviderInfos (providerName) {
     });
 }
 
-export async function list (ownerId, appId, showAll) {
+export async function list(ownerId, appId, showAll) {
   const allAddons = await getAllAddons({ id: ownerId }).then(sendToApi);
 
   if (appId == null) {
@@ -54,7 +60,7 @@ export async function list (ownerId, appId, showAll) {
   });
 }
 
-function validateAddonVersionAndOptions (region, version, addonOptions, providerInfos, planType) {
+function validateAddonVersionAndOptions(region, version, addonOptions, providerInfos, planType) {
   if (providerInfos != null) {
     if (version != null) {
       const type = planType.value.toLowerCase();
@@ -62,16 +68,18 @@ function validateAddonVersionAndOptions (region, version, addonOptions, provider
         const cluster = providerInfos.clusters.find(({ zone }) => zone === region);
         if (cluster == null) {
           throw new Error(`Can't find cluster for region ${region}`);
+        } else if (cluster.version !== version) {
+          throw new Error(
+            `Invalid version ${version}, selected shared cluster only supports version ${cluster.version}`,
+          );
         }
-        else if (cluster.version !== version) {
-          throw new Error(`Invalid version ${version}, selected shared cluster only supports version ${cluster.version}`);
-        }
-      }
-      else if (type === 'dedicated') {
+      } else if (type === 'dedicated') {
         const availableVersions = Object.keys(providerInfos.dedicated);
         const hasVersion = availableVersions.find((availableVersion) => availableVersion === version);
         if (hasVersion == null) {
-          throw new Error(`Invalid version ${addonOptions.version}, available versions are: ${availableVersions.join(', ')}`);
+          throw new Error(
+            `Invalid version ${addonOptions.version}, available versions are: ${availableVersions.join(', ')}`,
+          );
         }
       }
     }
@@ -90,8 +98,7 @@ function validateAddonVersionAndOptions (region, version, addonOptions, provider
         }
 
         availableOptions = cluster.features;
-      }
-      else if (type === 'dedicated') {
+      } else if (type === 'dedicated') {
         availableOptions = providerInfos.dedicated[chosenVersion].features;
       }
 
@@ -102,8 +109,7 @@ function validateAddonVersionAndOptions (region, version, addonOptions, provider
           let availableOptionsError = null;
           if (optionNames.length > 0) {
             availableOptionsError = `Available options are: ${optionNames}.`;
-          }
-          else {
+          } else {
             availableOptionsError = 'No options are available for this plan.';
           }
 
@@ -116,17 +122,15 @@ function validateAddonVersionAndOptions (region, version, addonOptions, provider
       version: chosenVersion,
       ...addonOptions,
     };
-  }
-  else {
+  } else {
     if (version != null) {
-      throw new Error('You provided a version for an add-on that doesn\'t support choosing the version.');
+      throw new Error("You provided a version for an add-on that doesn't support choosing the version.");
     }
     return {};
   }
 }
 
-export async function create ({ ownerId, name, providerName, planName, region, skipConfirmation, version, addonOptions }) {
-
+export async function create({ ownerId, name, providerName, planName, region, version, addonOptions }) {
   // TODO: We should be able to use it without {}
   const provider = await getProvider(providerName);
 
@@ -147,7 +151,9 @@ export async function create ({ ownerId, name, providerName, planName, region, s
   // This missing feature should have been added during the add-on's development phase
   // The console has a similar check so I believe we shouldn't hit this
   if (providerInfos != null && planType == null) {
-    throw new Error('Internal error. The selected plan misses the TYPE feature. Please contact our support with the command line you used');
+    throw new Error(
+      'Internal error. The selected plan misses the TYPE feature. Please contact our support with the command line you used',
+    );
   }
 
   const createOptions = validateAddonVersionAndOptions(region, version, addonOptions, providerInfos, planType);
@@ -166,7 +172,7 @@ export async function create ({ ownerId, name, providerName, planName, region, s
   return createdAddon;
 }
 
-async function getByName (ownerId, addonNameOrRealId) {
+async function getByName(ownerId, addonNameOrRealId) {
   const addons = await getAllAddons({ id: ownerId }).then(sendToApi);
   const filteredAddons = addons.filter(({ name, realId }) => {
     return name === addonNameOrRealId || realId === addonNameOrRealId;
@@ -180,7 +186,7 @@ async function getByName (ownerId, addonNameOrRealId) {
   throw new Error('Ambiguous addon name');
 }
 
-async function getId (ownerId, addon) {
+async function getId(ownerId, addon) {
   if (addon.addon_id) {
     return addon.addon_id;
   }
@@ -188,44 +194,41 @@ async function getId (ownerId, addon) {
   return addonDetails.id;
 }
 
-export async function link (ownerId, appId, addon) {
+export async function link(ownerId, appId, addon) {
   const addonId = await getId(ownerId, addon);
   return linkAddon({ id: ownerId, appId }, JSON.stringify(addonId)).then(sendToApi);
 }
 
-export async function unlink (ownerId, appId, addon) {
+export async function unlink(ownerId, appId, addon) {
   const addonId = await getId(ownerId, addon);
   return unlinkAddon({ id: ownerId, appId, addonId }).then(sendToApi);
 }
 
-export async function deleteAddon (ownerId, addonIdOrName, skipConfirmation) {
+export async function deleteAddon(ownerId, addonIdOrName, skipConfirmation) {
   const addonId = await getId(ownerId, addonIdOrName);
 
   if (!skipConfirmation) {
-    await confirm(
-      'Deleting the add-on can\'t be undone, are you sure?',
-      'No confirmation, aborting add-on deletion',
-    );
+    await confirm("Deleting the add-on can't be undone, are you sure?", 'No confirmation, aborting add-on deletion');
   }
 
   return removeAddon({ id: ownerId, addonId }).then(sendToApi);
 }
 
-export async function rename (ownerId, addon, name) {
+export async function rename(ownerId, addon, name) {
   const addonId = await getId(ownerId, addon);
   return updateAddon({ id: ownerId, addonId }, { name }).then(sendToApi);
 }
 
-export function completeRegion () {
+export function completeRegion() {
   return cliparse.autocomplete.words(['par', 'mtl']);
 }
 
 // TODO: We need to fix this
-export function completePlan () {
+export function completePlan() {
   return cliparse.autocomplete.words(['dev', 's', 'm', 'l', 'xl', 'xxl']);
 }
 
-export async function findById (addonId) {
+export async function findById(addonId) {
   const { user, organisations } = await getSummary({}).then(sendToApi);
   for (const orga of [user, ...organisations]) {
     for (const simpleAddon of orga.addons) {
@@ -241,7 +244,7 @@ export async function findById (addonId) {
   throw new Error(`Could not find add-on with ID: ${addonId}`);
 }
 
-export async function findByName (addonName) {
+export async function findByName(addonName) {
   const { user, organisations } = await getSummary({}).then(sendToApi);
   for (const orga of [user, ...organisations]) {
     for (const simpleAddon of orga.addons) {
@@ -257,8 +260,7 @@ export async function findByName (addonName) {
   throw new Error(`Could not find add-on with name ${addonName}`);
 }
 
-export async function findOwnerId (org, addonId) {
-
+export async function findOwnerId(org, addonId) {
   if (org != null && org.orga_id != null) {
     return org.orga_id;
   }
@@ -271,7 +273,7 @@ export async function findOwnerId (org, addonId) {
   throw new Error(`Add-on ${addonId} does not exist`);
 }
 
-export function parseAddonOptions (options) {
+export function parseAddonOptions(options) {
   if (options == null) {
     return {};
   }
@@ -289,14 +291,11 @@ export function parseAddonOptions (options) {
     let formattedValue = value;
     if (value === 'true' || value === 'enabled') {
       formattedValue = 'true';
-    }
-    else if (value === 'false' || value === 'disabled') {
+    } else if (value === 'false' || value === 'disabled') {
       formattedValue = 'false';
-    }
-    else if (typeof key === 'string') {
+    } else if (typeof key === 'string') {
       formattedValue = value;
-    }
-    else {
+    } else {
       throw new Error(`Can't parse option value: ${value}. Accepted values are: enabled, disabled, true, false`);
     }
 
@@ -305,7 +304,7 @@ export function parseAddonOptions (options) {
   }, {});
 }
 
-function getPlan (planName, plans) {
+function getPlan(planName, plans) {
   // if no plan specified, pick the cheapest one
   if (planName == null || planName === '') {
     return plans.sort((p1, p2) => p1.price - p2.price)[0];

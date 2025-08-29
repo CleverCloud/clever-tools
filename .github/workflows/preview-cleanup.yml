@@ -1,0 +1,30 @@
+name: Cleanup preview
+
+on:
+  pull_request:
+    types:
+      - closed
+    branches-ignore:
+      - 'release-please--**'
+
+env:
+  CC_CLEVER_TOOLS_PREVIEWS_CELLAR_BUCKET: ${{ vars.CC_CLEVER_TOOLS_PREVIEWS_CELLAR_BUCKET }}
+  CC_CLEVER_TOOLS_PREVIEWS_CELLAR_KEY_ID: ${{ secrets.CC_CLEVER_TOOLS_PREVIEWS_CELLAR_KEY_ID }}
+  CC_CLEVER_TOOLS_PREVIEWS_CELLAR_SECRET_KEY: ${{ secrets.CC_CLEVER_TOOLS_PREVIEWS_CELLAR_SECRET_KEY }}
+
+jobs:
+  cleanup:
+    name: 'Cleanup preview'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-node
+      - name: 'Delete preview'
+        run: ./scripts/preview.js delete ${{ github.event.pull_request.head.ref }}
+      - name: 'Remove preview links from PR comment'
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          message: 🔎 The preview has been automatically deleted.

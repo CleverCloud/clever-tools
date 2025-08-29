@@ -1,0 +1,17 @@
+name: 'Download artifacts'
+description: 'Download artifacts to build directory'
+
+inputs:
+  pattern:
+    description: 'Pattern to match artifacts (can be exact name or glob pattern)'
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+    - name: 'Download ${{ inputs.pattern }} artifacts'
+      uses: actions/download-artifact@v4
+      with:
+        pattern: ${{ inputs.pattern }}
+        path: build
+        merge-multiple: true

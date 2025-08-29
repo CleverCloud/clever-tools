@@ -1,18 +1,15 @@
+import { createDrain, deleteDrain, getDrains, updateDrainState } from '@clevercloud/client/esm/api/v2/log.js';
+import { Logger } from '../logger.js';
 import * as Application from '../models/application.js';
 import { createDrainBody } from '../models/drain.js';
-import { Logger } from '../logger.js';
-
-import { getDrains, createDrain, deleteDrain, updateDrainState } from '@clevercloud/client/esm/api/v2/log.js';
 import { sendToApi } from '../models/send-to-api.js';
 
 // TODO: This could be useful in other commands
-async function getAppOrAddonId ({ alias, appIdOrName, addonId }) {
-  return (addonId != null)
-    ? addonId
-    : await Application.resolveId(appIdOrName, alias).then(({ appId }) => appId);
+async function getAppOrAddonId({ alias, appIdOrName, addonId }) {
+  return addonId != null ? addonId : await Application.resolveId(appIdOrName, alias).then(({ appId }) => appId);
 }
 
-export async function list (params) {
+export async function list(params) {
   const { alias, app: appIdOrName, addon: addonId, format } = params.options;
 
   const appIdOrAddonId = await getAppOrAddonId({ alias, appIdOrName, addonId });
@@ -52,20 +49,35 @@ export async function list (params) {
   }
 }
 
-export async function create (params) {
+export async function create(params) {
   const [drainTargetType, drainTargetURL] = params.args;
-  const { alias, app: appIdOrName, addon: addonId, username, password, 'api-key': apiKey, 'index-prefix': indexPrefix, 'sd-params': structuredDataParameters } = params.options;
+  const {
+    alias,
+    app: appIdOrName,
+    addon: addonId,
+    username,
+    password,
+    'api-key': apiKey,
+    'index-prefix': indexPrefix,
+    'sd-params': structuredDataParameters,
+  } = params.options;
   const drainTargetCredentials = { username, password };
   const drainTargetConfig = { apiKey, indexPrefix, structuredDataParameters };
 
   const appIdOrAddonId = await getAppOrAddonId({ alias, appIdOrName, addonId });
-  const body = createDrainBody(appIdOrAddonId, drainTargetURL, drainTargetType, drainTargetCredentials, drainTargetConfig);
+  const body = createDrainBody(
+    appIdOrAddonId,
+    drainTargetURL,
+    drainTargetType,
+    drainTargetCredentials,
+    drainTargetConfig,
+  );
   await createDrain({ appId: appIdOrAddonId }, body).then(sendToApi);
 
   Logger.println('Your drain has been successfully saved');
 }
 
-export async function rm (params) {
+export async function rm(params) {
   const [drainId] = params.args;
   const { alias, app: appIdOrName, addon: addonId } = params.options;
 
@@ -75,7 +87,7 @@ export async function rm (params) {
   Logger.println('Your drain has been successfully removed');
 }
 
-export async function enable (params) {
+export async function enable(params) {
   const [drainId] = params.args;
   const { alias, app: appIdOrName, addon: addonId } = params.options;
 
@@ -85,7 +97,7 @@ export async function enable (params) {
   Logger.println('Your drain has been enabled');
 }
 
-export async function disable (params) {
+export async function disable(params) {
   const [drainId] = params.args;
   const { alias, app: appIdOrName, addon: addonId } = params.options;
 

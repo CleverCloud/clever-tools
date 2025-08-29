@@ -9,10 +9,11 @@ const DRAIN_TYPES = [
   { id: 'NewRelicHTTP', apiKey: 'MANDATORY' },
 ];
 
-export function createDrainBody (appId, drainTargetURL, drainTargetType, drainTargetCredentials, drainTargetConfig) {
-
+export function createDrainBody(appId, drainTargetURL, drainTargetType, drainTargetCredentials, drainTargetConfig) {
   if (!authorizeDrainCreation(drainTargetType, drainTargetCredentials, drainTargetConfig)) {
-    throw new Error("Credentials are: optional for HTTP, mandatory for ElasticSearch, NewRelicHTTP and TCPSyslog/UDPSyslog don't need them.");
+    throw new Error(
+      "Credentials are: optional for HTTP, mandatory for ElasticSearch, NewRelicHTTP and TCPSyslog/UDPSyslog don't need them.",
+    );
   }
 
   const body = {
@@ -37,7 +38,7 @@ export function createDrainBody (appId, drainTargetURL, drainTargetType, drainTa
   return body;
 }
 
-export function authorizeDrainCreation (drainTargetType, drainTargetCredentials, drainTargetConfig) {
+export function authorizeDrainCreation(drainTargetType, drainTargetCredentials, drainTargetConfig) {
   if (drainTypeExists(drainTargetType)) {
     // retrieve field for drain type ('mandatory', 'optional', undefined)
     const credStatus = fieldStatus(drainTargetType).credentials;
@@ -87,46 +88,46 @@ export function authorizeDrainCreation (drainTargetType, drainTargetCredentials,
   }
 }
 
-function fieldStatus (drainTargetType) {
+function fieldStatus(drainTargetType) {
   return DRAIN_TYPES.find(({ id }) => id === drainTargetType);
 }
 
-function drainTypeExists (drainTargetType) {
+function drainTypeExists(drainTargetType) {
   return DRAIN_TYPES.some(({ id }) => id === drainTargetType);
 }
 
-function credentialsExist ({ username, password }) {
+function credentialsExist({ username, password }) {
   return username != null && password != null;
 }
 
-function credentialsEmpty ({ username, password }) {
+function credentialsEmpty({ username, password }) {
   return username == null && password == null;
 }
 
-function indexPrefixExist ({ indexPrefix }) {
+function indexPrefixExist({ indexPrefix }) {
   return indexPrefix != null;
 }
 
-function indexPrefixEmpty ({ indexPrefix }) {
+function indexPrefixEmpty({ indexPrefix }) {
   return indexPrefix == null;
 }
 
-function structuredDataParametersExist ({ structuredDataParameters }) {
+function structuredDataParametersExist({ structuredDataParameters }) {
   return structuredDataParameters != null;
 }
 
-function structuredDataParametersEmpty ({ structuredDataParameters }) {
+function structuredDataParametersEmpty({ structuredDataParameters }) {
   return structuredDataParameters == null;
 }
 
-function keyExist ({ apiKey }) {
+function keyExist({ apiKey }) {
   return apiKey != null;
 }
 
-function keyEmpty ({ apiKey }) {
+function keyEmpty({ apiKey }) {
   return apiKey == null;
 }
 
-export function listDrainTypes () {
+export function listDrainTypes() {
   return cliparse.autocomplete.words(DRAIN_TYPES.map((type) => type.id));
 }

@@ -1,11 +1,9 @@
-import { getFeatures, setFeature } from '../models/configuration.js';
 import { EXPERIMENTAL_FEATURES } from '../experimental-features.js';
-import { formatTable as initFormatTable } from '../format-table.js';
+import { formatTable } from '../format-table.js';
 import { Logger } from '../logger.js';
+import { getFeatures, setFeature } from '../models/configuration.js';
 
-const formatTable = initFormatTable();
-
-export async function list (params) {
+export async function list(params) {
   const { format } = params.options;
 
   const featuresConf = await getFeatures();
@@ -30,20 +28,17 @@ export async function list (params) {
     default: {
       const headers = ['ID', 'STATUS', 'DESCRIPTION', 'ENABLED'];
 
-      Logger.println(formatTable([
-        headers,
-        ...features.map((feature) => [
-          feature.id,
-          feature.status,
-          feature.description,
-          feature.enabled,
+      Logger.println(
+        formatTable([
+          headers,
+          ...features.map((feature) => [feature.id, feature.status, feature.description, feature.enabled]),
         ]),
-      ]));
+      );
     }
   }
 }
 
-export async function info (params) {
+export async function info(params) {
   const { feature } = params.namedArgs;
   const availableFeatures = Object.keys(EXPERIMENTAL_FEATURES);
 
@@ -54,7 +49,7 @@ export async function info (params) {
   Logger.println(EXPERIMENTAL_FEATURES[feature].instructions);
 }
 
-export async function enable (params) {
+export async function enable(params) {
   const { features } = params.namedArgs;
   const availableFeatures = Object.keys(EXPERIMENTAL_FEATURES);
 
@@ -70,14 +65,13 @@ export async function enable (params) {
 
   if (features.length === 1) {
     Logger.println(EXPERIMENTAL_FEATURES[features[0]].instructions);
-  }
-  else {
+  } else {
     Logger.println();
     Logger.println("To learn more about these experimental features, use 'clever features info FEATURE_NAME'");
   }
 }
 
-export async function disable (params) {
+export async function disable(params) {
   const { features } = params.namedArgs;
   const availableFeatures = Object.keys(EXPERIMENTAL_FEATURES);
 
