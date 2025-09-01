@@ -1,6 +1,20 @@
 # clever-tools changelog
 
 
+## [4.0.0](https://github.com/CleverCloud/clever-tools/compare/3.14.1...4.0.0) (2025-09-01)
+
+
+### ⚠ BREAKING CHANGES
+
+* Node.js 18 → 22: Users installing via npm need Node.js 22+
+* macOS Binary: Homebrew now distributes ARM-only (Intel users need to use npm)
+* Windows Distribution: Moved from Chocolatey/Nexus to WinGet
+
+### 🚀 Features
+
+This release does not contain any use facing new features but it has many underlying changes on the build system, the CI and the dependencies.
+More details in [PR #943](https://github.com/CleverCloud/clever-tools/pull/943).
+
 ## [3.14.1](https://github.com/CleverCloud/clever-tools/compare/3.14.0...3.14.1) (2025-08-26)
 
 
