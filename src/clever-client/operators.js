@@ -6,7 +6,7 @@
  * @param {String} params.provider
  * @param {String} params.realId
  */
-export function getOperator (params) {
+export function getOperator(params) {
   // no multipath for /self or /organisations/{id}
   return Promise.resolve({
     method: 'get',
@@ -23,7 +23,7 @@ export function getOperator (params) {
  * @param {String} params.provider
  * @param {String} params.realId
  */
-export function rebootOperator (params) {
+export function rebootOperator(params) {
   // no multipath for /self or /organisations/{id}
   return Promise.resolve({
     method: 'post',
@@ -40,7 +40,7 @@ export function rebootOperator (params) {
  * @param {String} params.provider
  * @param {String} params.realId
  */
-export function rebuildOperator (params) {
+export function rebuildOperator(params) {
   // no multipath for /self or /organisations/{id}
   return Promise.resolve({
     method: 'post',
@@ -57,7 +57,7 @@ export function rebuildOperator (params) {
  * @param {String} params.provider
  * @param {String} params.realId
  */
-export function ngEnableOperator (params) {
+export function ngEnableOperator(params) {
   // no multipath for /self or /organisations/{id}
   return Promise.resolve({
     method: 'post',
@@ -74,7 +74,7 @@ export function ngEnableOperator (params) {
  * @param {String} params.provider
  * @param {String} params.realId
  */
-export function ngDisableOperator (params) {
+export function ngDisableOperator(params) {
   // no multipath for /self or /organisations/{id}
   return Promise.resolve({
     method: 'delete',
@@ -91,7 +91,7 @@ export function ngDisableOperator (params) {
  * @param {String} params.provider
  * @param {String} params.realId
  */
-export function versionCheck (params) {
+export function versionCheck(params) {
   // no multipath for /self or /organisations/{id}
   return Promise.resolve({
     method: 'get',
@@ -109,7 +109,7 @@ export function versionCheck (params) {
  * @param {String} params.realId
  * @param {Object} body
  */
-export function versionUpdate (params, body) {
+export function versionUpdate(params, body) {
   // no multipath for /self or /organisations/{id}
   return Promise.resolve({
     method: 'post',

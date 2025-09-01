@@ -1,9 +1,8 @@
-import colors from 'colors/safe.js';
 import dedent from 'dedent';
-
-import { sendToApi } from './send-to-api.js';
-import { findAddonsByNameOrId } from './ids-resolver.js';
+import { styleText } from 'node:util';
 import { getOperator } from '../clever-client/operators.js';
+import { findAddonsByNameOrId } from './ids-resolver.js';
+import { sendToApi } from './send-to-api.js';
 
 /**
  * Get the details of an operator from its name or ID
@@ -12,7 +11,7 @@ import { getOperator } from '../clever-client/operators.js';
  * @returns {Promise<object>} The operator's details
  * @throws {Error} If the operator provider is unknown
  */
-export async function getDetails (provider, operatorIdOrName) {
+export async function getDetails(provider, operatorIdOrName) {
   const realId = await getSingleRealId(operatorIdOrName);
   return getOperator({ provider, realId }).then(sendToApi);
 }
@@ -24,8 +23,7 @@ export async function getDetails (provider, operatorIdOrName) {
  * @throws {Error} If the operator is not found
  * @throws {Error} If the operator name is ambiguous
  */
-export async function getSingleRealId (operatorIdOrName) {
-
+export async function getSingleRealId(operatorIdOrName) {
   if (operatorIdOrName.operator_id != null) {
     return operatorIdOrName.operator_id;
   }
@@ -34,13 +32,13 @@ export async function getSingleRealId (operatorIdOrName) {
   const operators = await findAddonsByNameOrId(name);
 
   if (operators.length === 0) {
-    throw new Error(`Could not find ${colors.red(name)}`);
+    throw new Error(`Could not find ${styleText('red', name)}`);
   }
 
   if (operators.length > 1) {
     throw new Error(dedent`
-      Ambiguous name ${colors.red(name)}, use the real ID instead:
-        ${colors.grey(operators.map((otoroshi) => `- ${otoroshi.name} (${otoroshi.realId})`).join('\n'))}
+      Ambiguous name ${styleText('red', name)}, use the real ID instead:
+        ${styleText('grey', operators.map((otoroshi) => `- ${otoroshi.name} (${otoroshi.realId})`).join('\n'))}
     `);
   }
 

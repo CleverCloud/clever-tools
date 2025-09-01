@@ -1,46 +1,87 @@
-name: 'Build'
+name: Build
+
 on:
-  push:
-    branches:
-      - master
-  pull_request:
-    branches:
-      - master
+  workflow_call:
+    inputs:
+      version:
+        required: true
+        type: string
+      include-windows:
+        type: boolean
+        default: true
+        description: 'Whether to include Windows in the build matrix'
+
 jobs:
-  build:
-    name: 'Build'
+  bundle-cjs:
+    name: 'Bundle single clever.cjs'
     runs-on: ubuntu-latest
-
     steps:
-      - name: '[Prepare] Checkout'
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-node
+      - name: 'Bundle to single clever.cjs'
+        run: ./scripts/bundle-cjs.js ${{ inputs.version }}
+      - uses: ./.github/actions/upload-artifact
         with:
-          fetch-depth: 0
-      - name: '[Prepare] Setup Node.js'
-        uses: actions/setup-node@v3
+          artifact-name: bundle-cjs
+          path: build/**/clever.cjs
+
+  build-linux:
+    name: 'Build for linux'
+    needs: bundle-cjs
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-node
+      - uses: ./.github/actions/download-artifacts
+        with: { pattern: bundle-cjs }
+      - name: 'Build binary'
+        run: ./scripts/build-binary.js ${{ inputs.version }}
+      - name: 'Create archive'
+        run: ./scripts/create-archive.js ${{ inputs.version }}
+      - uses: ./.github/actions/upload-artifact
         with:
-          node-version-file: 'package.json'
-          cache: 'npm'
-      - name: '[Prepare] Install dependencies'
-        run: npm ci
-
-      - name: '[Code quality] Check commit message'
-        if: github.event_name == 'pull_request'
-        run: npx commitlint --from ${{ github.event.pull_request.base.sha }} --to ${{ github.event.pull_request.head.sha }} --verbose
-
-      - name: '[Code quality] Check ESLint'
-        run: npm run lint
-
-      - name: '[Build] [Prepare] Setup ruby'
-        uses: ruby/setup-ruby@v1
+          artifact-name: build-linux-binary
+          path: build/**/clever
+      - uses: ./.github/actions/upload-artifact
         with:
-          ruby-version: '3.3'
-          bundler-cache: true
-      - name: '[Build] [Prepare] Install fpm'
-        run: gem install fpm
-      - name: '[Build] [Run] Build'
-        run: node scripts/job-build.js 0.0.0 --latest --bundle
-        env:
-          RPM_GPG_PRIVATE_KEY: ${{ secrets.RPM_GPG_PRIVATE_KEY }}
-          RPM_GPG_NAME: 'Clever Cloud Nexus (rpm)'
-          RPM_GPG_PASS: ${{ secrets.RPM_GPG_PASSPHRASE }}
+          artifact-name: build-linux-archive
+          path: build/**/*.tar.gz
+
+  build-macos:
+    name: 'Build for macos'
+    needs: bundle-cjs
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-node
+      - uses: ./.github/actions/download-artifacts
+        with: { pattern: bundle-cjs }
+      - name: 'Build binary'
+        run: ./scripts/build-binary.js ${{ inputs.version }}
+      - name: 'Create archive'
+        run: ./scripts/create-archive.js ${{ inputs.version }}
+      - uses: ./.github/actions/upload-artifact
+        with:
+          artifact-name: build-macos-archive
+          path: build/**/*.tar.gz
+
+  build-windows:
+    name: 'Build for windows'
+    needs: bundle-cjs
+    runs-on: windows-2025
+    if: ${{ inputs.include-windows }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-node
+      - uses: ./.github/actions/download-artifacts
+        with: { pattern: bundle-cjs }
+      - name: 'Build binary'
+        shell: bash
+        run: ./scripts/build-binary.js ${{ inputs.version }}
+      - name: 'Create archive'
+        shell: bash
+        run: ./scripts/create-archive.js ${{ inputs.version }}
+      - uses: ./.github/actions/upload-artifact
+        with:
+          artifact-name: build-win-archive
+          path: build/**/*.zip

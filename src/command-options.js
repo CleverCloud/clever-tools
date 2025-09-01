@@ -1,6 +1,6 @@
 import cliparse from 'cliparse';
 
-export function getOutputFormatOption (formats = []) {
+export function getOutputFormatOption(formats = []) {
   const availableFormats = ['human', 'json', ...formats];
   return cliparse.option('format', {
     aliases: ['F'],
@@ -12,13 +12,13 @@ export function getOutputFormatOption (formats = []) {
     },
     default: 'human',
     description: `Output format (${availableFormats.join(', ')})`,
-    complete () {
+    complete() {
       return cliparse.autocomplete.words(availableFormats);
     },
   });
 }
 
-export function getSameCommitPolicyOption () {
+export function getSameCommitPolicyOption() {
   const availablePolicies = ['error', 'ignore', 'restart', 'rebuild'];
   return cliparse.option('same-commit-policy', {
     aliases: ['p'],
@@ -30,13 +30,13 @@ export function getSameCommitPolicyOption () {
     },
     default: 'error',
     description: `What to do when local and remote commit are identical (${availablePolicies.join(', ')})`,
-    complete () {
+    complete() {
       return cliparse.autocomplete.words(availablePolicies);
     },
   });
 }
 
-export function getExitOnOption () {
+export function getExitOnOption() {
   const availableExitOn = ['deploy-start', 'deploy-end', 'never'];
   return cliparse.option('exit-on', {
     aliases: ['e'],
@@ -48,7 +48,7 @@ export function getExitOnOption () {
     },
     default: 'deploy-end',
     description: `Step at which the logs streaming is ended, steps are: ${availableExitOn.join(', ')}`,
-    complete () {
+    complete() {
       return cliparse.autocomplete.words(availableExitOn);
     },
   });

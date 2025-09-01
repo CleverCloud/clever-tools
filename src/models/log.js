@@ -1,49 +1,42 @@
-import _ from 'lodash';
-import colors from 'colors/safe.js';
-
-import { Logger } from '../logger.js';
-import { Deferred } from './utils.js';
 import { getOldLogs } from '@clevercloud/client/esm/api/v2/log.js';
 import { LogsStream } from '@clevercloud/client/esm/streams/logs.node.js';
-import { sendToApi, getHostAndTokens } from './send-to-api.js';
+import _ from 'lodash';
+import { styleText } from 'node:util';
+import { Logger } from '../logger.js';
 import { waitForDeploymentEnd, waitForDeploymentStart } from './deployments.js';
-import * as ExitStrategy from '../models/exit-strategy-option.js';
+import * as ExitStrategy from './exit-strategy-option.js';
+import { getHostAndTokens, sendToApi } from './send-to-api.js';
+import { Deferred } from './utils.js';
 
-function isCleverMessage (line) {
+function isCleverMessage(line) {
   return line._source.syslog_program === '/home/bas/rubydeployer/deployer.rb';
-};
+}
 
-function isDeploymentSuccessMessage (line) {
-  return isCleverMessage(line)
-    && _.startsWith(line._source['@message'].toLowerCase(), 'successfully deployed in');
-};
+function isDeploymentSuccessMessage(line) {
+  return isCleverMessage(line) && _.startsWith(line._source['@message'].toLowerCase(), 'successfully deployed in');
+}
 
-function isDeploymentFailedMessage (line) {
-  return isCleverMessage(line)
-    && _.startsWith(line._source['@message'].toLowerCase(), 'deploy failed in');
-};
+function isDeploymentFailedMessage(line) {
+  return isCleverMessage(line) && _.startsWith(line._source['@message'].toLowerCase(), 'deploy failed in');
+}
 
-function isBuildSucessMessage (line) {
-  return isCleverMessage(line)
-    && _.startsWith(line._source['@message'].toLowerCase(), 'build succeeded in');
-};
+function isBuildSucessMessage(line) {
+  return isCleverMessage(line) && _.startsWith(line._source['@message'].toLowerCase(), 'build succeeded in');
+}
 
-function formatLogLine (line) {
+function formatLogLine(line) {
   const { '@timestamp': timestamp, '@message': message } = line._source;
   if (isDeploymentSuccessMessage(line)) {
-    return `${timestamp}: ${colors.bold.green(message)}`;
-  }
-  else if (isDeploymentFailedMessage(line)) {
-    return `${timestamp}: ${colors.bold.red(message)}`;
-  }
-  else if (isBuildSucessMessage(line)) {
-    return `${timestamp}: ${colors.bold.blue(message)}`;
+    return `${timestamp}: ${styleText(['bold', 'green'], message)}`;
+  } else if (isDeploymentFailedMessage(line)) {
+    return `${timestamp}: ${styleText(['bold', 'red'], message)}`;
+  } else if (isBuildSucessMessage(line)) {
+    return `${timestamp}: ${styleText(['bold', 'blue'], message)}`;
   }
   return `${timestamp}: ${message}`;
 }
 
-async function displayLiveLogs ({ appId, filter, until, deploymentId }, deferred) {
-
+async function displayLiveLogs({ appId, filter, until, deploymentId }, deferred) {
   const { apiHost, tokens } = await getHostAndTokens();
   const logsStream = new LogsStream({ apiHost, tokens, appId, filter, deploymentId });
 
@@ -53,8 +46,7 @@ async function displayLiveLogs ({ appId, filter, until, deploymentId }, deferred
       const { '@timestamp': timestamp } = line._source;
       if (until != null && new Date(timestamp) > until) {
         logsStream.close();
-      }
-      else {
+      } else {
         Logger.println(formatLogLine(line));
       }
     })
@@ -67,13 +59,11 @@ async function displayLiveLogs ({ appId, filter, until, deploymentId }, deferred
   return logsStream;
 }
 
-export async function displayLogs ({ appAddonId, until, since, filter, deploymentId }) {
-
+export async function displayLogs({ appAddonId, until, since, filter, deploymentId }) {
   const now = new Date();
 
-  const fetchOldLogs = (since == null || since < now);
+  const fetchOldLogs = since == null || since < now;
   if (fetchOldLogs) {
-
     const oldLogs = await getOldLogs({
       appId: appAddonId,
       before: until != null ? until.toISOString() : null,
@@ -99,13 +89,20 @@ export async function displayLogs ({ appAddonId, until, since, filter, deploymen
   return deferred.promise;
 }
 
-export async function watchDeploymentAndDisplayLogs ({ ownerId, appId, deploymentId, commitId, knownDeployments, quiet, exitStrategy }) {
-
+export async function watchDeploymentAndDisplayLogs({
+  ownerId,
+  appId,
+  deploymentId,
+  commitId,
+  knownDeployments,
+  quiet,
+  exitStrategy,
+}) {
   ExitStrategy.plotQuietWarning(exitStrategy, quiet);
   // If in quiet mode, we only log start/finished deployment messages
   Logger.println('Waiting for deployment to start…');
   const deployment = await waitForDeploymentStart({ ownerId, appId, deploymentId, commitId, knownDeployments });
-  Logger.println(colors.bold.blue(`Deployment started (${deployment.uuid})`));
+  Logger.println(styleText(['bold', 'blue'], `Deployment started (${deployment.uuid})`));
 
   if (exitStrategy === 'deploy-start') {
     return;
@@ -137,12 +134,10 @@ export async function watchDeploymentAndDisplayLogs ({ ownerId, appId, deploymen
   }
 
   if (deploymentEnded.state === 'OK') {
-    Logger.println(colors.bold.green('Deployment successful'));
-  }
-  else if (deploymentEnded.state === 'CANCELLED') {
+    Logger.println(styleText(['bold', 'green'], 'Deployment successful'));
+  } else if (deploymentEnded.state === 'CANCELLED') {
     throw new Error('Deployment was cancelled. Please check the activity');
-  }
-  else {
+  } else {
     throw new Error('Deployment failed. Please check the logs');
   }
 }

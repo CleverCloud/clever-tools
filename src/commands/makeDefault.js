@@ -1,11 +1,11 @@
-import * as AppConfig from '../models/app_configuration.js';
+import { styleText } from 'node:util';
 import { Logger } from '../logger.js';
-import colors from 'colors/safe.js';
+import * as AppConfig from '../models/app_configuration.js';
 
-export async function makeDefault (params) {
+export async function makeDefault(params) {
   const [alias] = params.args;
 
   await AppConfig.setDefault(alias);
 
-  Logger.printSuccess(`The application ${colors.green(alias)} has been set as default`);
-};
+  Logger.printSuccess(`The application ${styleText('green', alias)} has been set as default`);
+}

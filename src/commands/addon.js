@@ -1,22 +1,20 @@
-import colors from 'colors/safe.js';
+import { styleText } from 'node:util';
 
-import * as Addon from '../models/addon.js';
-import * as AppConfig from '../models/app_configuration.js';
-import { formatTable as initFormatTable } from '../format-table.js';
-import { Logger } from '../logger.js';
-import * as Organisation from '../models/organisation.js';
-import * as User from '../models/user.js';
-import { parseAddonOptions, findOwnerId } from '../models/addon.js';
 import { getAllEnvVars } from '@clevercloud/client/esm/api/v2/addon.js';
-import { sendToApi } from '../models/send-to-api.js';
 import { toNameEqualsValueString } from '@clevercloud/client/esm/utils/env-vars.js';
-import { resolveAddonId } from '../models/ids-resolver.js';
-import { conf } from '../models/configuration.js';
 import dedent from 'dedent';
+import { formatTable } from '../format-table.js';
+import { Logger } from '../logger.js';
+import * as Addon from '../models/addon.js';
+import { findOwnerId, parseAddonOptions } from '../models/addon.js';
+import * as AppConfig from '../models/app_configuration.js';
+import { conf } from '../models/configuration.js';
+import { resolveAddonId } from '../models/ids-resolver.js';
+import * as Organisation from '../models/organisation.js';
+import { sendToApi } from '../models/send-to-api.js';
+import * as User from '../models/user.js';
 
-const formatTable = initFormatTable();
-
-export async function list (params) {
+export async function list(params) {
   const { org: orgaIdOrName, format } = params.options;
 
   const ownerId = await Organisation.getId(orgaIdOrName);
@@ -46,7 +44,7 @@ export async function list (params) {
         return [
           addon.plan.name + ' ' + addon.provider.name,
           addon.region,
-          colors.bold.green(addon.name),
+          styleText(['bold', 'green'], addon.name),
           addon.id,
         ];
       });
@@ -55,7 +53,7 @@ export async function list (params) {
   }
 }
 
-export async function create (params) {
+export async function create(params) {
   const [providerName, name] = params.args;
   const {
     link: linkedAppAlias,
@@ -68,9 +66,7 @@ export async function create (params) {
   const version = params.options['addon-version'];
   const addonOptions = parseAddonOptions(params.options.option);
 
-  const ownerId = (orgaIdOrName != null)
-    ? await Organisation.getId(orgaIdOrName)
-    : await User.getCurrentId();
+  const ownerId = orgaIdOrName != null ? await Organisation.getId(orgaIdOrName) : await User.getCurrentId();
 
   const addonToCreate = {
     ownerId,
@@ -86,23 +82,28 @@ export async function create (params) {
   if (linkedAppAlias != null) {
     const linkedAppData = await AppConfig.getAppDetails({ alias: linkedAppAlias });
     if (orgaIdOrName != null && linkedAppData.ownerId !== ownerId && format === 'human') {
-      Logger.warn('The specified application does not belong to the specified organisation. Ignoring the `--org` option');
+      Logger.warn(
+        'The specified application does not belong to the specified organisation. Ignoring the `--org` option',
+      );
     }
     const newAddon = await Addon.create({
       ...addonToCreate,
       ownerId: linkedAppData.ownerId,
     });
     await Addon.link(linkedAppData.ownerId, linkedAppData.appId, { addon_id: newAddon.id });
-    displayAddon(format, newAddon, providerName, `Add-on created and linked to application ${linkedAppAlias} successfully!`);
-  }
-  else {
+    displayAddon(
+      format,
+      newAddon,
+      providerName,
+      `Add-on created and linked to application ${linkedAppAlias} successfully!`,
+    );
+  } else {
     const newAddon = await Addon.create(addonToCreate);
     displayAddon(format, newAddon, providerName, 'Add-on created successfully!');
   }
 }
 
-function displayAddon (format, addon, providerName, message) {
-
+function displayAddon(format, addon, providerName, message) {
   const PROVIDERS_WITH_URL = {
     keycloak: {
       name: 'Keycloak',
@@ -132,9 +133,9 @@ function displayAddon (format, addon, providerName, message) {
     kv: {
       status: 'alpha',
       postCreateInstructions: dedent`
-        ${colors.yellow('You can easily use Materia KV with \'redis-cli\', with such commands:')}
-        ${colors.blue(`source <(clever addon env ${addon.id} -F shell)`)}
-        ${colors.blue('redis-cli -h $KV_HOST -p $KV_PORT --tls')}
+        ${styleText('yellow', "You can easily use Materia KV with 'redis-cli', with such commands:")}
+        ${styleText('blue', `source <(clever addon env ${addon.id} -F shell)`)}
+        ${styleText('blue', 'redis-cli -h $KV_HOST -p $KV_PORT --tls')}
         Learn more about Materia KV on Clever Cloud: ${conf.DOC_URL}/addons/materia-kv/
       `,
     },
@@ -167,19 +168,14 @@ function displayAddon (format, addon, providerName, message) {
   let providerNameToShow = '';
   let statusMessage = '';
   if (providerName in WIP_PROVIDERS && WIP_PROVIDERS[providerName].status !== '') {
-
-    providerNameToShow = providerName === 'kv'
-      ? 'Materia KV'
-      : providerName;
+    providerNameToShow = providerName === 'kv' ? 'Materia KV' : providerName;
 
     statusMessage = `The ${providerNameToShow} provider is in ${WIP_PROVIDERS[providerName].status} testing phase`;
-    statusMessage += WIP_PROVIDERS[providerName].status === 'alpha'
-      ? '. Don\'t store sensitive or production grade data.'
-      : '';
+    statusMessage +=
+      WIP_PROVIDERS[providerName].status === 'alpha' ? ". Don't store sensitive or production grade data." : '';
   }
 
   switch (format) {
-
     case 'json': {
       const jsonAddon = {
         id: addon.id,
@@ -188,20 +184,17 @@ function displayAddon (format, addon, providerName, message) {
         env: addon.env,
       };
 
-      Logger.printJson((WIP_PROVIDERS[providerName] != null)
-        ? { ...jsonAddon, availability: WIP_PROVIDERS[providerName].status, message: statusMessage }
-        : jsonAddon);
+      Logger.printJson(
+        WIP_PROVIDERS[providerName] != null
+          ? { ...jsonAddon, availability: WIP_PROVIDERS[providerName].status, message: statusMessage }
+          : jsonAddon,
+      );
       break;
     }
 
     case 'human':
     default:
-      Logger.println([
-        message,
-        `ID: ${addon.id}`,
-        `Real ID: ${addon.realId}`,
-        `Name: ${addon.name}`,
-      ].join('\n'));
+      Logger.println([message, `ID: ${addon.id}`, `Real ID: ${addon.realId}`, `Name: ${addon.name}`].join('\n'));
 
       if (providerName in PROVIDERS_WITH_URL) {
         const provider = PROVIDERS_WITH_URL[providerName];
@@ -218,25 +211,34 @@ function displayAddon (format, addon, providerName, message) {
 
         if (providerName === 'keycloak') {
           Logger.println();
-          Logger.println("An initial account has been created, you'll be invited to change the password at first login:");
+          Logger.println(
+            "An initial account has been created, you'll be invited to change the password at first login:",
+          );
           Logger.println(` - Admin user name: ${addon.env.find((e) => e.name === 'CC_KEYCLOAK_ADMIN').value}`);
-          Logger.println(` - Temporary password: ${addon.env.find((e) => e.name === 'CC_KEYCLOAK_ADMIN_DEFAULT_PASSWORD').value}`);
+          Logger.println(
+            ` - Temporary password: ${addon.env.find((e) => e.name === 'CC_KEYCLOAK_ADMIN_DEFAULT_PASSWORD').value}`,
+          );
         }
 
         if (providerName === 'otoroshi') {
           Logger.println();
-          Logger.println('An initial account has been created, change the password at first login (Security -> Administrators -> Edit user):');
-          Logger.println(` - Admin user name: ${addon.env.find((e) => e.name === 'CC_OTOROSHI_INITIAL_ADMIN_LOGIN').value}`);
-          Logger.println(` - Initial password: ${addon.env.find((e) => e.name === 'CC_OTOROSHI_INITIAL_ADMIN_PASSWORD').value}`);
+          Logger.println(
+            'An initial account has been created, change the password at first login (Security -> Administrators -> Edit user):',
+          );
+          Logger.println(
+            ` - Admin user name: ${addon.env.find((e) => e.name === 'CC_OTOROSHI_INITIAL_ADMIN_LOGIN').value}`,
+          );
+          Logger.println(
+            ` - Initial password: ${addon.env.find((e) => e.name === 'CC_OTOROSHI_INITIAL_ADMIN_PASSWORD').value}`,
+          );
         }
       }
 
       if (providerName in WIP_PROVIDERS) {
-
         Logger.println();
 
         if (statusMessage !== '') {
-          Logger.println(colors.yellow(`/!\\ ${statusMessage}`));
+          Logger.println(styleText('yellow', `/!\\ ${statusMessage}`));
         }
 
         Logger.println(WIP_PROVIDERS[providerName].postCreateInstructions);
@@ -244,7 +246,7 @@ function displayAddon (format, addon, providerName, message) {
   }
 }
 
-export async function deleteAddon (params) {
+export async function deleteAddon(params) {
   const { yes: skipConfirmation, org: orgaIdOrName } = params.options;
   const [addon] = params.args;
 
@@ -262,7 +264,7 @@ export async function deleteAddon (params) {
   Logger.println(`Addon ${addon.addon_id || addon.addon_name} successfully deleted`);
 }
 
-export async function rename (params) {
+export async function rename(params) {
   const [addon, newName] = params.args;
   const { org: orgaIdOrName } = params.options;
 
@@ -272,7 +274,7 @@ export async function rename (params) {
   Logger.println(`Addon ${addon.addon_id || addon.addon_name} successfully renamed to ${newName}`);
 }
 
-export async function listProviders (params) {
+export async function listProviders(params) {
   const { format } = params.options;
 
   const providers = await Addon.listProviders();
@@ -296,18 +298,14 @@ export async function listProviders (params) {
     case 'human':
     default: {
       const formattedProviders = providers.map((provider) => {
-        return [
-          colors.bold(provider.id),
-          provider.name,
-          provider.shortDesc || '',
-        ];
+        return [styleText('bold', provider.id), provider.name, provider.shortDesc || ''];
       });
       Logger.println(formatTable(formattedProviders));
     }
   }
 }
 
-export async function showProvider (params) {
+export async function showProvider(params) {
   const [providerName] = params.args;
   const { format } = params.options;
 
@@ -366,7 +364,7 @@ export async function showProvider (params) {
     }
     case 'human':
     default: {
-      Logger.println(colors.bold(formattedProvider.id));
+      Logger.println(styleText('bold', formattedProvider.id));
       Logger.println(`${formattedProvider.name}: ${formattedProvider.shortDesc}`);
       Logger.println();
       Logger.println(`Available regions: ${formattedProvider.regions.join(', ')}`);
@@ -374,11 +372,13 @@ export async function showProvider (params) {
       Logger.println('Available plans');
 
       formattedProvider.plans.forEach((plan) => {
-        Logger.println(`Plan ${colors.bold(plan.slug)}`);
+        Logger.println(`Plan ${styleText('bold', plan.slug)}`);
         plan.features.forEach(({ name, value }) => Logger.println(`  ${name}: ${value}`));
 
         if (plan.versions != null) {
-          Logger.println(`  Available versions: ${plan.versions.map(({ version, isDefault }) => isDefault ? `${version} (default)` : version).join(', ')}`);
+          Logger.println(
+            `  Available versions: ${plan.versions.map(({ version, isDefault }) => (isDefault ? `${version} (default)` : version)).join(', ')}`,
+          );
           plan.versions.forEach(({ version, options }) => {
             Logger.println(`  Options for version ${version}:`);
             options.forEach(({ name, enabledByDefault }) => {
@@ -391,8 +391,7 @@ export async function showProvider (params) {
   }
 }
 
-export async function env (params) {
-
+export async function env(params) {
   const { org, format } = params.options;
   const [addonIdOrRealId] = params.args;
 
@@ -402,11 +401,8 @@ export async function env (params) {
   const envFromAddon = await getAllEnvVars({ id: ownerId, addonId }).then(sendToApi);
 
   switch (format) {
-
     case 'json': {
-      const envFromAddonJson = Object.fromEntries(
-        envFromAddon.map(({ name, value }) => [name, value]),
-      );
+      const envFromAddonJson = Object.fromEntries(envFromAddon.map(({ name, value }) => [name, value]));
       Logger.println(JSON.stringify(envFromAddonJson, null, 2));
       break;
     }

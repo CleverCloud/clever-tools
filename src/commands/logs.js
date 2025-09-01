@@ -1,25 +1,33 @@
-import * as Application from '../models/application.js';
-import * as LogV2 from '../models/log.js';
-import * as Log from '../models/log-v4.js';
+import { styleText } from 'node:util';
 import { Logger } from '../logger.js';
-import { Deferred } from '../models/utils.js';
-import colors from 'colors/safe.js';
+import * as Application from '../models/application.js';
 import { resolveAddonId } from '../models/ids-resolver.js';
+import * as Log from '../models/log-v4.js';
+import * as LogV2 from '../models/log.js';
+import { Deferred } from '../models/utils.js';
 
-export async function appLogs (params) {
-  const { alias, app: appIdOrName, addon: addonIdOrRealId, after: since, before: until, search, 'deployment-id': deploymentId, format } = params.options;
+export async function appLogs(params) {
+  const {
+    alias,
+    app: appIdOrName,
+    addon: addonIdOrRealId,
+    after: since,
+    before: until,
+    search,
+    'deployment-id': deploymentId,
+    format,
+  } = params.options;
 
   // ignore --search ""
-  const filter = (search !== '') ? search : null;
-  const isForHuman = (format === 'human');
+  const filter = search !== '' ? search : null;
+  const isForHuman = format === 'human';
 
   // TODO: drop when addons are migrated to the v4 API
   if (addonIdOrRealId != null) {
     const addonId = await resolveAddonId(addonIdOrRealId);
     if (isForHuman) {
-      Logger.println(colors.blue('Waiting for addon logs…'));
-    }
-    else {
+      Logger.println(styleText('blue', 'Waiting for addon logs…'));
+    } else {
       throw new Error(`"${format}" format is not yet available for add-on logs`);
     }
     return LogV2.displayLogs({ appAddonId: addonId, since, until, filter, deploymentId });
@@ -28,7 +36,7 @@ export async function appLogs (params) {
   const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
 
   if (isForHuman) {
-    Logger.println(colors.blue('Waiting for application logs…'));
+    Logger.println(styleText('blue', 'Waiting for application logs…'));
   }
 
   const deferred = new Deferred();

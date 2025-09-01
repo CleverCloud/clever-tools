@@ -1,11 +1,10 @@
 node_modules/
-spec/empty-repo
-spec/application.instance-types.js
 .clever.json
 build/
 .idea/
 .s3cfg*
 *.gpg.key
+.preview-binaries
 
 # macOS system files
 .DS_Store

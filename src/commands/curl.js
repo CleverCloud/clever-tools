@@ -1,12 +1,11 @@
-import { spawn } from 'node:child_process';
-import { conf, loadOAuthConf } from '../models/configuration.js';
 import { addOauthHeader } from '@clevercloud/client/esm/oauth.js';
-import { Logger } from '../logger.js';
-import colors from 'colors/safe.js';
-import curlconverter from 'curlconverter';
 import dedent from 'dedent';
+import { spawn } from 'node:child_process';
+import { styleText } from 'node:util';
+import { Logger } from '../logger.js';
+import { conf, loadOAuthConf } from '../models/configuration.js';
 
-async function loadTokens () {
+async function loadTokens() {
   const tokens = await loadOAuthConf();
   return {
     OAUTH_CONSUMER_KEY: conf.OAUTH_CONSUMER_KEY,
@@ -16,7 +15,7 @@ async function loadTokens () {
   };
 }
 
-function printCleverCurlHelp () {
+function printCleverCurlHelp() {
   Logger.println(dedent`
     Usage: clever curl
     Query Clever Cloud's API using Clever Tools credentials. For example:
@@ -34,8 +33,7 @@ function printCleverCurlHelp () {
   `);
 }
 
-export async function curl () {
-
+export async function curl() {
   // We remove the first three args: "node", "clever" and "curl"
   const curlArgs = process.argv.slice(3);
   const hasNoArgs = curlArgs.length === 0;
@@ -47,47 +45,27 @@ export async function curl () {
     return;
   }
 
-  // WARNING: Version 3.x of curlconverter uses a fork of yargs.
-  // For "reasons", when the command has a help param, it stops the parsing and triggers a very short and localized version of some help (WAT?).
-  // That's why we remove the help param before parsing and "reinstate" it before execution.
-  const curlArgsNoHelp = curlArgs.filter((arg) => arg !== '--help' && arg !== '-h');
-  const curlCommand = ['curl', ...curlArgsNoHelp].join(' ');
-  const requestParams = await parseCurlCommand(curlCommand);
+  const curlUrl = curlArgs.find((part) => part.startsWith(conf.API_HOST));
 
   // We only allow request to the respective API_HOST
-  if (!requestParams.url.startsWith(conf.API_HOST)) {
-    Logger.error('"clever curl" command must be used with ' + colors.blue(conf.API_HOST));
+  if (curlUrl == null) {
+    Logger.error('"clever curl" command must be used with ' + styleText('blue', conf.API_HOST));
     process.exit(1);
   }
 
   const lastCurlArg = curlArgs.at(-1);
   const lastCurlArgIsHelp = lastCurlArg !== '--help' && lastCurlArg !== '-h';
 
-  // Add oAuth header, only if last cURL arg is not help
+  // Add OAuth header, only if last cURL arg is not help
   // We do this because cURL's help arg expect a category
   if (lastCurlArgIsHelp) {
-
     const tokens = await loadTokens();
-    const oauthHeader = await Promise.resolve(requestParams)
+    const oauthHeader = await Promise.resolve({})
       .then(addOauthHeader(tokens))
-      .then((request) => request.headers.Authorization);
+      .then((request) => request.headers.authorization);
 
-    curlArgs.push('-H', `Authorization: ${oauthHeader}`);
+    curlArgs.push('-H', `authorization: ${oauthHeader}`);
   }
 
   spawn('curl', curlArgs, { stdio: 'inherit' });
-
-}
-
-async function parseCurlCommand (curlCommand) {
-
-  const jsonString = curlconverter.toJsonString(curlCommand);
-  const curlRequestParams = JSON.parse(jsonString);
-
-  return {
-    method: curlRequestParams.method,
-    url: curlRequestParams.url,
-    headers: curlRequestParams.headers,
-    queryParams: curlRequestParams.queries,
-  };
 }

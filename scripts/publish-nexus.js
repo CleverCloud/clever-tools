@@ -1,118 +1,79 @@
-import * as cfg from './config.js';
-import { promises as fs } from 'node:fs';
-import path from 'node:path';
-import superagent from 'superagent';
-import { getBundleFilepath } from './paths.js';
+#!/usr/bin/env node
+//
+// Publish RPM and DEB packages to Nexus Repository Manager.
+//
+// This script uploads built packages to the configured Nexus repository
+// using HTTP PUT (for RPM) or POST (for DEB) methods with basic authentication.
+//
+// USAGE: publish-nexus.js <version> <packager>
+//
+// ARGUMENTS:
+//   version         Version string (e.g., "1.2.3")
+//   packager        Package format to upload ('rpm' or 'deb')
+//
+// ENVIRONMENT VARIABLES:
+//   NEXUS_USER              Nexus username
+//   NEXUS_PASSWORD          Nexus password
+//   NEXUS_RPM_REPOSITORY    RPM repository name (when packager=rpm)
+//   NEXUS_DEB_REPOSITORY    DEB repository name (when packager=deb)
+//
+// REQUIRED SYSTEM BINARIES:
+//
+// EXAMPLES:
+//   publish-nexus.js 1.2.3 rpm
+//   publish-nexus.js 1.2.3 deb
 
-const NEXUS_DEB = 'https://nexus.clever-cloud.com/repository/deb/';
-const NEXUS_NUPKG = 'https://nexus.clever-cloud.com/repository/nupkg/';
-const NEXUS_RPM = 'https://nexus.clever-cloud.com/repository/rpm/';
+import fs from 'node:fs/promises';
+import { ArgumentError, readEnvVars, runCommand } from './lib/command.js';
+import { getAssetPath } from './lib/paths.js';
+import { highlight } from './lib/terminal.js';
 
-export async function publishNexus (version) {
+const NEXUS_SERVER_URL = 'https://nexus.clever-cloud.com';
 
-  const nexusAuth = cfg.getNexusAuth();
-
-  const errors = [];
-
-  await publishDebToNexus({ nexusAuth, filepath: getBundleFilepath('deb', version) })
-    .catch((error) => errors.push(error));
-
-  await publishNupkgToNexus({ nexusAuth, filepath: getBundleFilepath('nupkg', version) })
-    .catch((error) => errors.push(error));
-
-  await publishRpmToNexus({ nexusAuth, filepath: getBundleFilepath('rpm', version) })
-    .catch((error) => errors.push(error));
-
-  if (errors.length > 0) {
-    console.error(errors);
-    throw new Error('Some error occurred while publishing assets to Nexus.');
+runCommand(async () => {
+  const [version, packager] = process.argv.slice(2);
+  if (version == null) {
+    throw new ArgumentError('version');
   }
-};
+  if (packager == null) {
+    throw new ArgumentError('packager');
+  }
+  if (packager !== 'rpm' && packager !== 'deb') {
+    throw new ArgumentError('packager', ['rpm', 'deb']);
+  }
 
-async function publishDebToNexus ({ nexusAuth, filepath }) {
+  const [nexusUser, nexusPassword] = readEnvVars(['NEXUS_USER', 'NEXUS_PASSWORD']);
 
-  const filebuffer = await fs.readFile(filepath);
+  let url;
+  if (packager === 'rpm') {
+    const [rpmRepository] = readEnvVars(['NEXUS_RPM_REPOSITORY']);
+    url = `${NEXUS_SERVER_URL}/repository/${rpmRepository}/clever-tools-${version}.rpm`;
+  } else {
+    const [debRepository] = readEnvVars(['NEXUS_DEB_REPOSITORY']);
+    url = `${NEXUS_SERVER_URL}/repository/${debRepository}/`;
+  }
+  const method = packager === 'rpm' ? 'PUT' : 'POST';
 
-  console.log('Uploading deb on Nexus...');
-  console.log(`  file ${filepath}`);
-  console.log(`  to ${NEXUS_DEB}`);
+  const authorization = `Basic ${Buffer.from(`${nexusUser}:${nexusPassword}`).toString('base64')}`;
 
-  return superagent
-    .post(NEXUS_DEB)
-    .auth(nexusAuth.user, nexusAuth.password)
-    .set('accept', 'application/json')
-    .type('multipart/form-data')
-    .on('progress', displayProgress())
-    .send(filebuffer)
-    .then(() => console.log('  DONE!'))
-    .catch((error) => {
-      console.error('  FAILED!');
-      console.error(`  ${getNexusErrorFromHtml(error.response.text)}`);
-      throw error;
-    });
-}
+  const packagePath = getAssetPath(packager, version, 'build');
+  const packageData = await fs.readFile(packagePath);
 
-async function publishNupkgToNexus ({ nexusAuth, filepath }) {
+  console.log(highlight`=> Publishing ${packagePath} to ${url}`);
+  const [response, fetchError] = await fetch(url, {
+    method,
+    headers: { authorization },
+    body: packageData,
+  })
+    .then((r) => [r])
+    .catch((err) => [null, err]);
 
-  const { base: filename } = path.parse(filepath);
-  const targetUrl = new URL(filename, NEXUS_NUPKG).toString();
-  const filebuffer = await fs.readFile(filepath);
+  if (fetchError != null) {
+    throw new Error(`${fetchError.message} / ${fetchError?.cause?.message}`);
+  }
+  if (!response?.ok || response?.status < 200 || response?.status >= 300) {
+    throw new Error(`Upload failed with HTTP status ${response.status}: ${response.statusText}`);
+  }
 
-  console.log('Uploading nupkg on Nexus...');
-  console.log(`  file ${filepath}`);
-  console.log(`  to ${NEXUS_NUPKG}`);
-
-  return superagent
-    .put(targetUrl)
-    .set('X-NuGet-ApiKey', nexusAuth.nugetApiKey)
-    .attach('data', filebuffer)
-    .on('progress', displayProgress())
-    .then(() => console.log('  DONE!'))
-    .catch((error) => {
-      console.error('  FAILED!');
-      console.error(`  ${error.response.error.message}`);
-      throw error;
-    });
-}
-
-async function publishRpmToNexus ({ nexusAuth, filepath }) {
-
-  const { base: filename } = path.parse(filepath);
-  const targetUrl = new URL(filename, NEXUS_RPM).toString();
-  const filebuffer = await fs.readFile(filepath);
-
-  console.log('Uploading rpm on Nexus...');
-  console.log(`  file ${filepath}`);
-  console.log(`  to ${NEXUS_RPM}`);
-
-  return superagent
-    .put(targetUrl)
-    .auth(nexusAuth.user, nexusAuth.password)
-    .on('progress', displayProgress())
-    .send(filebuffer)
-    .then(() => console.log('  DONE!'))
-    .catch((error) => {
-      console.error('  FAILED!');
-      console.error(`  ${error.response.error.message}`);
-      throw error;
-    });
-}
-
-function displayProgress () {
-  let lastPercent = 0;
-  return (event) => {
-    const percent = Math.floor((event.loaded / event.total) * 100);
-    if (percent > lastPercent + 15 || percent === 100) {
-      lastPercent = percent;
-      console.log(`  ${percent}%`);
-    }
-  };
-}
-
-// Very cheap way of trying to get an error message from Nexus
-function getNexusErrorFromHtml (html) {
-  return html
-    .replace(/^.*<div class="content-section">/s, '')
-    .replace(/<\/.*$/s, '')
-    .trim();
-}
+  console.log(highlight`=> ${packager.toUpperCase()} upload successful with status ${response.status}`);
+});
