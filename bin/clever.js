@@ -103,10 +103,6 @@ async function run() {
     }),
     apiTokenId: cliparse.argument('api-token-id', { description: 'API token ID' }),
     apiTokenName: cliparse.argument('api-token-name', { description: 'API token name' }),
-    ngId: cliparse.argument('id', {
-      description: 'Network Group ID',
-      parser: Parsers.ngResourceType,
-    }),
     ngLabel: cliparse.argument('ng-label', {
       description: 'Network Group label',
       parser: Parsers.ngResourceType,
@@ -114,9 +110,6 @@ async function run() {
     ngIdOrLabel: cliparse.argument('ng-id-or-label', {
       description: 'Network Group ID or label',
       parser: Parsers.ngResourceType,
-    }),
-    ngDescription: cliparse.argument('ng-description', {
-      description: 'Network Group description',
     }),
     ngExternalPeerLabel: cliparse.argument('external-peer-label', {
       description: 'External peer label',
@@ -216,15 +209,6 @@ async function run() {
         "Comma separated list of members IDs to link to a Network Group ('app_xxx', 'addon_xxx', 'external_xxx')",
       parser: Parsers.commaSeparated,
     }),
-    ngMemberLabel: cliparse.option('label', {
-      required: false,
-      metavar: 'member_label',
-      description: 'The member label',
-      parser: Parsers.ngResourceType,
-    }),
-    ngPeerGetConfig: cliparse.flag('config', {
-      description: 'Get the Wireguard configuration of an external peer',
-    }),
     ngResourceType: cliparse.option('type', {
       metavar: 'type',
       description: 'Type of resource to look for (NetworkGroup, Member, CleverPeer, ExternalPeer)',
@@ -265,10 +249,6 @@ async function run() {
       metavar: 'TEXT',
       description: 'Get only domains containing the provided text',
     }),
-    naturalName: cliparse.flag('natural-name', {
-      aliases: ['n'],
-      description: 'Show the application names or aliases if possible',
-    }),
     before: cliparse.option('before', {
       metavar: 'before',
       aliases: ['until'],
@@ -293,10 +273,6 @@ async function run() {
       default: '',
       metavar: 'tag',
       description: 'Tag to push (none by default)',
-    }),
-    databaseId: cliparse.option('database-id', {
-      metavar: 'database_id',
-      description: 'The Database ID (e.g.: postgresql_xxx)',
     }),
     deploymentId: cliparse.option('deployment-id', {
       metavar: 'deployment_id',
@@ -544,34 +520,10 @@ async function run() {
     }),
     jsonFormat: cliparse.flag('json', { aliases: ['j'], description: 'Show result in JSON format' }),
     humanJsonOutputFormat: getOutputFormatOption(),
-    tag: cliparse.option('tag', {
-      required: true,
-      metavar: 'tag',
-      description: 'A tag',
-      parser: Parsers.tag,
-    }),
-    tags: cliparse.option('tags', {
-      required: true,
-      metavar: 'tags',
-      description: 'List of tags, separated by a comma',
-      parser: Parsers.tags,
-    }),
     optTags: cliparse.option('tags', {
       metavar: 'tags',
       description: 'List of tags, separated by a comma',
       parser: Parsers.tags,
-    }),
-    optIpAddress: cliparse.option('ip', {
-      required: false,
-      metavar: 'ip_address',
-      description: 'An IP address',
-      parser: Parsers.ipAddress,
-    }),
-    optPortNumber: cliparse.option('port', {
-      required: false,
-      metavar: 'port_number',
-      description: 'A port number',
-      parser: Parsers.portNumber,
     }),
   };
 
