@@ -510,10 +510,6 @@ async function run() {
       aliases: ['y'],
       description: 'Skip confirmation and remove all SSH keys directly',
     }),
-    confirmTcpRedirCreation: cliparse.flag('yes', {
-      aliases: ['y'],
-      description: 'Skip confirmation even if the TCP redirection is not free',
-    }),
     yes: cliparse.flag('yes', {
       aliases: ['y'],
       description: 'Skip confirmation',
@@ -1859,7 +1855,7 @@ async function run() {
     'add',
     {
       description: 'Add a new TCP redirection to the application',
-      options: [opts.namespace, opts.confirmTcpRedirCreation],
+      options: [opts.namespace],
     },
     tcpRedirs.add,
   );
