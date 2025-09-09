@@ -75,7 +75,7 @@ runCommand(async () => {
 /**
  * Uploads an artifact to both versioned and latest paths in Cellar storage
  * @param {CellarClient} cellarClient - The Cellar client instance
- * @param {'bundle'|'binary'|'archive'|'rpm'|'deb'} type - Asset type
+ * @param {'archive'|'rpm'|'deb'} type - Asset type
  * @param {string} version - The version string
  * @param {OS} [os] - Operating system (required for binary/archive)
  */
@@ -85,6 +85,15 @@ async function uploadArtifact(cellarClient, type, version, os) {
   const latestRemotePath = getAssetPath(type, 'latest', 'release', os);
 
   console.log(highlight`=> Upload ${localPath} to ${remotePath}`);
-  console.log(highlight`=> Upload ${localPath} to ${latestRemotePath}`);
-  await Promise.all([cellarClient.upload(localPath, remotePath), cellarClient.upload(localPath, latestRemotePath)]);
+  await cellarClient.upload(localPath, remotePath);
+
+  // For archives, "latest" artifact exists in the "latest" dir
+  if (type === 'archive') {
+    const latestLocalPath = getAssetPath(type, 'latest', 'build', os);
+    console.log(highlight`=> Upload ${latestLocalPath} to ${latestRemotePath}`);
+    await cellarClient.upload(latestLocalPath, latestRemotePath);
+  } else {
+    console.log(highlight`=> Upload ${localPath} to ${latestRemotePath}`);
+    await cellarClient.upload(localPath, latestRemotePath);
+  }
 }

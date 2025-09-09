@@ -130,7 +130,7 @@ async function buildPreview(previewName, os) {
   await fs.mkdir(binaryParts.directory, { recursive: true });
   await bundleToSingleCjs(previewName, true);
   await buildBinary(previewName, os);
-  await createArchive(previewName, os);
+  await createArchive(previewName, os, false);
   await installBinary(previewName, os, false);
 }
 
