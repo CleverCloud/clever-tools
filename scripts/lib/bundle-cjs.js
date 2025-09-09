@@ -5,14 +5,15 @@ import { exec } from './process.js';
 /**
  * Bundle the whole project to a single CommonJS file with Rollup
  * @param {string} version - The version to build
+ * @param {boolean} isPreview - Whether this is a preview build
  * @returns {Promise<void>}
  */
-export async function bundleToSingleCjs(version) {
+export async function bundleToSingleCjs(version, isPreview) {
   const filename = getAssetPath('bundle', version, 'build');
-  await exec(`npx rollup -c rollup.config.js -o ${filename}`, {
-    env: {
-      CLEVER_TOOLS_PREVIEW_VERSION: version,
-      CLEVER_TOOLS_COMMIT_ID: await getCurrentCommit(),
-    },
-  });
+  const env = {};
+  if (isPreview) {
+    env.CLEVER_TOOLS_PREVIEW_VERSION = version;
+    env.CLEVER_TOOLS_COMMIT_ID = await getCurrentCommit();
+  }
+  await exec(`npx rollup -c rollup.config.js -o ${filename}`, { env });
 }

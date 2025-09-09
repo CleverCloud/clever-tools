@@ -10,6 +10,7 @@ jobs:
     uses: ./.github/workflows/build.yml
     with:
       version: ${{ github.ref_name }}
+      isPreview: false
 
   package-rpm:
     name: 'Build .rpm'
@@ -138,6 +139,10 @@ jobs:
         uses: webfactory/ssh-agent@v0.9.0
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+      - name: 'Add AUR to known hosts'
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H aur.archlinux.org >> ~/.ssh/known_hosts
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup-node
       - uses: ./.github/actions/download-artifacts
@@ -250,6 +255,6 @@ jobs:
         shell: bash
         run: ./scripts/publish-winget.js ${{ github.ref_name }}
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CI_TOKEN: ${{ secrets.CI_TOKEN }}
           CC_CLEVER_TOOLS_RELEASES_CELLAR_BUCKET: ${{ vars.CC_CLEVER_TOOLS_RELEASES_CELLAR_BUCKET }}
           WINGET_PACKAGE_ID: ${{ vars.WINGET_PACKAGE_ID }}

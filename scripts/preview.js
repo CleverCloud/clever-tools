@@ -128,7 +128,7 @@ runCommand(async () => {
 async function buildPreview(previewName, os) {
   const binaryParts = getAssetParts('binary', previewName, 'build', os);
   await fs.mkdir(binaryParts.directory, { recursive: true });
-  await bundleToSingleCjs(previewName);
+  await bundleToSingleCjs(previewName, true);
   await buildBinary(previewName, os);
   await createArchive(previewName, os);
   await installBinary(previewName, os, false);

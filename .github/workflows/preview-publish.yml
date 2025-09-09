@@ -27,6 +27,7 @@ jobs:
     uses: ./.github/workflows/build.yml
     with:
       version: ${{ github.event.pull_request.head.ref }}
+      isPreview: true
       include-windows: ${{ contains(github.event.pull_request.labels.*.name, 'build:win') }}
 
   publish:
