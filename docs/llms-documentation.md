@@ -1,4 +1,4 @@
-This document is automatically generated from Clever Tools `3.14.0` and Clever Cloud API. It covers all Clever Tools commands and options. Use it to better understand this CLI and its capabilities or to train/use LLMs, AI-assisted IDEs.
+This document is automatically generated from Clever Tools `4.0.1` and Clever Cloud API. It covers all Clever Tools commands and options. Use it to better understand this CLI and its capabilities or to train/use LLMs, AI-assisted IDEs.
 
 To use Clever Tools, you need:
 - A Clever Cloud account, create one at https://console.clever-cloud.com/
@@ -89,6 +89,8 @@ cp clever-tools-latest_linux/clever ~/.local/bin/
 
 ### macOS
 
+We only provide macOS packages for Apple Silicon processors. On an Intel Mac, prefer using `npm` release.
+
 #### Homebrew
 
 If you use macOS and you have [Homebrew](https://brew.sh) installed, run:
@@ -113,25 +115,13 @@ cp clever-tools-latest_macos/clever ~/.local/bin/
 
 ### Windows
 
-#### Winget
+#### WinGet
 
 If you use Windows run in a terminal:
 
 ```
 winget install CleverTools
 ```
-
-#### Chocolatey
-
-If you prefer to use [Chocolatey](https://chocolatey.org), run:
-
-```
-choco sources add -n=clevercloud -s='https://nexus.clever-cloud.com/repository/nupkg/'
-choco feature disable --name='usePackageRepositoryOptimizations'
-choco install clever-tools
-```
-
-We need to disable `usePackageRepositoryOptimizations` feature because of [an incompatibility](https://github.com/chocolatey/choco/issues/3506) between Chocolatey and Nexus.
 
 #### Binary (.zip)
 
@@ -216,13 +206,13 @@ Applications deployment zones (region): `par`, `parhds`, `fr-north-hds`, `grahds
   - plans: `clever_solo`, `clever_scaling_10`, `clever_scaling_70`, `clever_scaling_50`, `clever_scaling_20`, `clever_scaling_30`, `clever_scaling_100`, `clever_scaling_40`
   - zones: `par`
 
+- `keycloak`:
+  - plans: `base`
+  - zones: `par`, `rbx`, `scw`, `sgp`, `wsw`, `mtl`, `syd`
+
 - `jenkins`:
   - plans: `M`, `XS`, `L`, `XL`, `S`
   - zones: `par`, `rbxhds`, `scw`, `ldn`, `grahds`
-
-- `metabase`:
-  - plans: `base`
-  - zones: `par`, `rbx`, `rbxhds`, `scw`, `sgp`, `fr-north-hds`, `grahds`, `wsw`, `mtl`, `syd`
 
 - `cellar-addon`:
   - plans: `S`
@@ -232,13 +222,13 @@ Applications deployment zones (region): `par`, `parhds`, `fr-north-hds`, `grahds
   - plans: `s`
   - zones: `par`, `rbx`, `scw`, `ldn`, `sgp`, `wsw`, `mtl`, `syd`
 
-- `keycloak`:
-  - plans: `base`
-  - zones: `par`, `rbx`, `scw`, `sgp`, `wsw`, `mtl`, `syd`
-
 - `addon-pulsar`:
   - plans: `beta`
   - zones: `par`, `parhds`
+
+- `metabase`:
+  - plans: `base`
+  - zones: `par`, `rbx`, `rbxhds`, `scw`, `sgp`, `fr-north-hds`, `grahds`, `wsw`, `mtl`, `syd`
 
 - `es-addon`:
   - plans: `xs`, `xl`, `l`, `4xl`, `xxxl`, `xxl`, `s`, `m`, `5xl`
