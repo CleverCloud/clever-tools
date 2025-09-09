@@ -1,7 +1,5 @@
 # Clever Tools
 
-Hello Geo
-
 [![npm version](https://img.shields.io/npm/v/clever-tools.svg)](https://www.npmjs.com/package/clever-tools)
 [![Node.js requirement](https://img.shields.io/node/v/clever-tools.svg)](https://nodejs.org)
 
