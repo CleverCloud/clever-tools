@@ -10,6 +10,7 @@ jobs:
     uses: ./.github/workflows/build.yml
     with:
       version: ${{ github.ref_name }}
+      isPreview: false
 
   package-rpm:
     name: 'Build .rpm'

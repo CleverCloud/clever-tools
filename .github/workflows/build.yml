@@ -6,6 +6,10 @@ on:
       version:
         required: true
         type: string
+      isPreview:
+        required: true
+        type: boolean
+        description: 'Whether this is a preview build'
       include-windows:
         type: boolean
         default: true
@@ -19,7 +23,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup-node
       - name: 'Bundle to single clever.cjs'
-        run: ./scripts/bundle-cjs.js ${{ inputs.version }}
+        run: ./scripts/bundle-cjs.js ${{ inputs.version }} ${{ inputs.isPreview }}
       - uses: ./.github/actions/upload-artifact
         with:
           artifact-name: bundle-cjs

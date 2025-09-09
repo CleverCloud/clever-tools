@@ -22,7 +22,11 @@ export default defineConfig({
     // When distributing previews, we want to replace the version with the preview name
     {
       transform(code, id) {
-        if (id.includes('/package.json')) {
+        if (
+          id.includes('/package.json') &&
+          process.env.CLEVER_TOOLS_PREVIEW_VERSION &&
+          process.env.CLEVER_TOOLS_COMMIT_ID
+        ) {
           const packageData = JSON.parse(code);
           packageData.version = `preview-${process.env.CLEVER_TOOLS_PREVIEW_VERSION}`;
           packageData.commitId = process.env.CLEVER_TOOLS_COMMIT_ID;
