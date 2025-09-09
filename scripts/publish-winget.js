@@ -11,9 +11,9 @@
 //   version         Version string (e.g., "1.2.3")
 //
 // ENVIRONMENT VARIABLES:
-//   GITHUB_TOKEN                GitHub token with public_repo scope
+//   CI_TOKEN                                GitHub token with public_repo scope
 //   CC_CLEVER_TOOLS_RELEASES_CELLAR_BUCKET  Cellar bucket for Windows archive
-//   WINGET_PACKAGE_ID           Windows Package Manager package ID
+//   WINGET_PACKAGE_ID                       Windows Package Manager package ID
 //
 // REQUIRED SYSTEM BINARIES:
 //   winget          Windows Package Manager CLI
@@ -34,8 +34,8 @@ runCommand(async () => {
     throw new ArgumentError('version');
   }
 
-  const [githubToken, cellarBucket, packageId] = readEnvVars([
-    'GITHUB_TOKEN',
+  const [ciToken, cellarBucket, packageId] = readEnvVars([
+    'CI_TOKEN',
     'CC_CLEVER_TOOLS_RELEASES_CELLAR_BUCKET',
     'WINGET_PACKAGE_ID',
   ]);
@@ -51,7 +51,7 @@ runCommand(async () => {
 
   try {
     console.log('=> Attempting to update existing package...');
-    await exec(`wingetcreate update ${packageId} -u "${windowsArchiveUrl}" -v ${version} -t ${githubToken} --submit`);
+    await exec(`wingetcreate update ${packageId} -u "${windowsArchiveUrl}" -v ${version} -t ${ciToken} --submit`);
     console.log(highlight`=> Successfully submitted winget manifest update for ${packageId} v${version}`);
   } catch (updateError) {
     console.error('Failed to update winget manifest');

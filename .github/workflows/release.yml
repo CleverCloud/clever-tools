@@ -255,6 +255,6 @@ jobs:
         shell: bash
         run: ./scripts/publish-winget.js ${{ github.ref_name }}
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CI_TOKEN: ${{ secrets.CI_TOKEN }}
           CC_CLEVER_TOOLS_RELEASES_CELLAR_BUCKET: ${{ vars.CC_CLEVER_TOOLS_RELEASES_CELLAR_BUCKET }}
           WINGET_PACKAGE_ID: ${{ vars.WINGET_PACKAGE_ID }}
