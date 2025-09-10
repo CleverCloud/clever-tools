@@ -39,7 +39,7 @@ For Node.js users, npm is the fastest way. For other installation methods includ
 - Docker images
 - Binary downloads
 - Native packages (RPM, DEB)  
-- Package managers (Homebrew, Winget, AUR)
+- Package managers (Homebrew, WinGet, AUR)
 
 See our complete [setup guide](docs/setup-systems.md).
 

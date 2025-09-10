@@ -12,8 +12,7 @@ Clever Cloud CLI is based on Node.js. We thought it to be easily available on an
   - [Homebrew](/docs/setup-systems.md#homebrew)
   - [Binary (.tar.gz)](/docs/setup-systems.md#binary-zip)
 - [Windows](/docs/setup-systems.md#windows)
-  - [Winget](/docs/setup-systems.md#winget)
-  - [Chocolatey](/docs/setup-systems.md#chocolatey)
+  - [WinGet](/docs/setup-systems.md#winget)
   - [Binary (.zip)](/docs/setup-systems.md#binary-zip)
 - [Docker](/docs/setup-systems.md#docker)
 - [Nix package manager](/docs/setup-systems.md#nix-package-manager)
@@ -83,6 +82,8 @@ cp clever-tools-latest_linux/clever ~/.local/bin/
 
 ## macOS
 
+We only provide macOS packages for Apple Silicon processors. On an Intel Mac, prefer using `npm` release.
+
 ### Homebrew
 
 If you use macOS and you have [Homebrew](https://brew.sh) installed, run:
@@ -107,25 +108,13 @@ cp clever-tools-latest_macos/clever ~/.local/bin/
 
 ## Windows
 
-### Winget
+### WinGet
 
 If you use Windows run in a terminal:
 
 ```
 winget install CleverTools
 ```
-
-### Chocolatey
-
-If you prefer to use [Chocolatey](https://chocolatey.org), run:
-
-```
-choco sources add -n=clevercloud -s='https://nexus.clever-cloud.com/repository/nupkg/'
-choco feature disable --name='usePackageRepositoryOptimizations'
-choco install clever-tools
-```
-
-We need to disable `usePackageRepositoryOptimizations` feature because of [an incompatibility](https://github.com/chocolatey/choco/issues/3506) between Chocolatey and Nexus.
 
 ### Binary (.zip)
 
