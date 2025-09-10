@@ -41,7 +41,7 @@ jobs:
       - name: 'Build binary'
         run: ./scripts/build-binary.js ${{ inputs.version }}
       - name: 'Create archive'
-        run: ./scripts/create-archive.js ${{ inputs.version }}
+        run: ./scripts/create-archive.js ${{ inputs.version }} ${{ !inputs.isPreview }}
       - uses: ./.github/actions/upload-artifact
         with:
           artifact-name: build-linux-binary
@@ -63,7 +63,7 @@ jobs:
       - name: 'Build binary'
         run: ./scripts/build-binary.js ${{ inputs.version }}
       - name: 'Create archive'
-        run: ./scripts/create-archive.js ${{ inputs.version }}
+        run: ./scripts/create-archive.js ${{ inputs.version }} ${{ !inputs.isPreview }}
       - uses: ./.github/actions/upload-artifact
         with:
           artifact-name: build-macos-archive
@@ -84,7 +84,7 @@ jobs:
         run: ./scripts/build-binary.js ${{ inputs.version }}
       - name: 'Create archive'
         shell: bash
-        run: ./scripts/create-archive.js ${{ inputs.version }}
+        run: ./scripts/create-archive.js ${{ inputs.version }} ${{ !inputs.isPreview }}
       - uses: ./.github/actions/upload-artifact
         with:
           artifact-name: build-win-archive
