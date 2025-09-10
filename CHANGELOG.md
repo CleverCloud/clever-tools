@@ -1,6 +1,16 @@
 # clever-tools changelog
 
 
+## [4.0.1](https://github.com/CleverCloud/clever-tools/compare/4.0.0...4.0.1) (2025-09-10)
+
+
+### 🤖 CI Fixes
+
+* **release**: use `CI_TOKEN` instead of `GITHUB_TOKEN` for WinGet publishing ([eefa7d4a](https://github.com/CleverCloud/clever-tools/commit/eefa7d4ad97873aa167701d46d2c5ff822eb9628))
+* **build**: add isPreview parameter to build workflow ([53722f1b](https://github.com/CleverCloud/clever-tools/commit/53722f1b97885e0a0711c61475b7b4d98f785c6f))
+* **release**: add AUR to known hosts in release workflow ([83fbe2aa](https://github.com/CleverCloud/clever-tools/commit/83fbe2aada4cff338587013780e3c6e4ccd7476e))
+* **release**: rename inner directories in "latest" release archives ([9557185](https://github.com/CleverCloud/clever-tools/commit/955718507f6f58778afb6bff4e6ba1cd986db388))
+
 ## [4.0.0](https://github.com/CleverCloud/clever-tools/compare/3.14.1...4.0.0) (2025-09-01)
 
 
