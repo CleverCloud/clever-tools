@@ -274,20 +274,20 @@ function reportDomainDiagnostics({ hostname, pathPrefix, resolvedDnsConfig, diag
 
   switch (diagSummary) {
     case 'managed':
-      printlnWithIndent(styleText('green', '✔ Managed by Clever Cloud'), 2);
-      printlnWithIndent('ⓘ cleverapps.io domains should only be used for testing purposes', 2);
+      Logger.printlnWithIndent(styleText('green', '✔ Managed by Clever Cloud'), 2);
+      Logger.printlnWithIndent('ⓘ cleverapps.io domains should only be used for testing purposes', 2);
       break;
     case 'no-config':
-      printlnWithIndent(styleText('red', '✘ No DNS configuration found'), 2);
+      Logger.printlnWithIndent(styleText('red', '✘ No DNS configuration found'), 2);
       break;
     case 'valid':
-      printlnWithIndent(styleText('green', '✔ Your configuration is valid'), 2);
+      Logger.printlnWithIndent(styleText('green', '✔ Your configuration is valid'), 2);
       break;
     case 'invalid':
-      printlnWithIndent(styleText('red', '✘ Something is wrong with your configuration'), 2);
+      Logger.printlnWithIndent(styleText('red', '✘ Something is wrong with your configuration'), 2);
       break;
     case 'incomplete':
-      printlnWithIndent(styleText('yellow', '⚠ Your configuration is incomplete'), 2);
+      Logger.printlnWithIndent(styleText('yellow', '⚠ Your configuration is incomplete'), 2);
       break;
   }
 
@@ -296,15 +296,15 @@ function reportDomainDiagnostics({ hostname, pathPrefix, resolvedDnsConfig, diag
     Logger.println('');
     validDiags.forEach((diag) => {
       const source = hasCnameRecord ? `(from CNAME ${resolvedDnsConfig.cnameRecords[0]}.)` : '';
-      printlnWithIndent(`${diag.record.value} ${styleText('green', '✔ A Record OK')} ${source}`, 2);
+      Logger.printlnWithIndent(`${diag.record.value} ${styleText('green', '✔ A Record OK')} ${source}`, 2);
     });
   }
 
   // Replace A with CNAME
   if (diagSummary === 'valid' && suggestedCname != null) {
     Logger.println('');
-    printlnWithIndent('ⓘ You can replace your A records with this CNAME:', 2);
-    printlnWithIndent(suggestedCname.record.value, 6);
+    Logger.printlnWithIndent('ⓘ You can replace your A records with this CNAME:', 2);
+    Logger.printlnWithIndent(suggestedCname.record.value, 6);
   }
 
   // Replace A Records with CNAME
@@ -312,51 +312,51 @@ function reportDomainDiagnostics({ hostname, pathPrefix, resolvedDnsConfig, diag
     const cnameToUse = suggestedCname != null ? suggestedCname.record.value : missingCname.record.value;
 
     Logger.println('');
-    printlnWithIndent('⇄ Replace your A records with this CNAME:', 2);
-    printlnWithIndent(cnameToUse, 6);
+    Logger.printlnWithIndent('⇄ Replace your A records with this CNAME:', 2);
+    Logger.printlnWithIndent(cnameToUse, 6);
     Logger.println('');
-    printlnWithIndent('or:', 2);
+    Logger.printlnWithIndent('or:', 2);
   }
 
   // Replace unknown CNAME with missing CNAME
   if (diagSummary === 'invalid' && missingCname != null && unknownCname != null) {
     Logger.println('');
-    printlnWithIndent('➖Remove this CNAME record:', 2);
-    printlnWithIndent(unknownCname.record.value + '. ', 6);
+    Logger.printlnWithIndent('➖Remove this CNAME record:', 2);
+    Logger.printlnWithIndent(unknownCname.record.value + '. ', 6);
     Logger.println('');
-    printlnWithIndent('➕Add this CNAME record instead:', 2);
-    printlnWithIndent(missingCname.record.value, 6);
+    Logger.printlnWithIndent('➕Add this CNAME record instead:', 2);
+    Logger.printlnWithIndent(missingCname.record.value, 6);
 
     if (hasARecords) {
       Logger.println('');
-      printlnWithIndent('or:', 2);
+      Logger.printlnWithIndent('or:', 2);
     }
   }
 
   // Add CNAME
   if (diagSummary === 'no-config' && missingCname != null) {
     Logger.println('');
-    printlnWithIndent('➕Add this CNAME record:', 2);
-    printlnWithIndent(missingCname.record.value, 6);
+    Logger.printlnWithIndent('➕Add this CNAME record:', 2);
+    Logger.printlnWithIndent(missingCname.record.value, 6);
   }
 
   // Remove Unknown records
   if (unknownDiags.length > 0) {
     Logger.println('');
-    printlnWithIndent('➖Remove these A records:', 2);
+    Logger.printlnWithIndent('➖Remove these A records:', 2);
 
     unknownDiags.forEach((diag) => {
       const source = hasCnameRecord ? `(from CNAME ${resolvedDnsConfig.cnameRecords[0]}.)` : '';
-      printlnWithIndent(`${diag.record.value} ${source}`, 6);
+      Logger.printlnWithIndent(`${diag.record.value} ${source}`, 6);
     });
   }
 
   // Add missing A records
   if (missingDiags.length > 0) {
     Logger.println('');
-    printlnWithIndent('➕Add these A records:', 2);
+    Logger.printlnWithIndent('➕Add these A records:', 2);
 
-    missingDiags.forEach((missingDiag) => printlnWithIndent(missingDiag.record.value, 6));
+    missingDiags.forEach((missingDiag) => Logger.printlnWithIndent(missingDiag.record.value, 6));
   }
 }
 
@@ -373,16 +373,6 @@ function getParsedDomains(vhosts) {
 
     return { hostname, pathPrefix: pathname, isApex: subdomain === '' };
   });
-}
-
-/**
- * Prints a line of text with specified indentation.
- *
- * @param {string} text - The text to be printed.
- * @param {number} indentLevel - The number of spaces to indent the text.
- */
-function printlnWithIndent(text, indentLevel) {
-  Logger.println(' '.repeat(indentLevel) + text);
 }
 
 function recursiveSort(obj) {
@@ -407,15 +397,15 @@ function recursiveSort(obj) {
 
 function recursiveDisplay(obj, indentLevel = 0) {
   if (typeof obj === 'object' && obj.appId != null) {
-    printlnWithIndent(`${obj.ownerName} | ${obj.appName} (${obj.appVariantSlug})`, indentLevel);
-    printlnWithIndent(styleText('blue', obj.appConsoleUrl), indentLevel);
+    Logger.printlnWithIndent(`${obj.ownerName} | ${obj.appName} (${obj.appVariantSlug})`, indentLevel);
+    Logger.printlnWithIndent(styleText('blue', obj.appConsoleUrl), indentLevel);
     return;
   }
 
   for (const [propertyPath, subObj] of Object.entries(obj)) {
     if (propertyPath !== '/') {
       Logger.println('');
-      printlnWithIndent(styleText('yellow', propertyPath), indentLevel);
+      Logger.printlnWithIndent(styleText('yellow', propertyPath), indentLevel);
       recursiveDisplay(subObj, indentLevel + 2);
     } else {
       recursiveDisplay(subObj, indentLevel);
