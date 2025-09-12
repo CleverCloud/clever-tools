@@ -1,5 +1,5 @@
 import fs from 'node:fs';
-import { styleText } from 'node:util';
+import { styleText } from '../../src/lib/style-text.js';
 
 /**
  * Runs a function and catches any errors, logging them to the console.

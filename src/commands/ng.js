@@ -1,5 +1,5 @@
-import { styleText } from 'node:util';
 import { printResults } from '../lib/ng-print.js';
+import { styleText } from '../lib/style-text.js';
 import { Logger } from '../logger.js';
 import * as networkGroupResources from '../models/ng-resources.js';
 import * as networkGroup from '../models/ng.js';

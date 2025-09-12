@@ -1,5 +1,5 @@
 import { ApplicationLogStream } from '@clevercloud/client/esm/streams/application-logs.js';
-import { styleText } from 'node:util';
+import { styleText } from '../lib/style-text.js';
 import { Logger } from '../logger.js';
 import { conf } from './configuration.js';
 import { waitForDeploymentEnd, waitForDeploymentStart } from './deployments.js';

@@ -1,7 +1,7 @@
 import { getOldLogs } from '@clevercloud/client/esm/api/v2/log.js';
 import { LogsStream } from '@clevercloud/client/esm/streams/logs.node.js';
 import _ from 'lodash';
-import { styleText } from 'node:util';
+import { styleText } from '../lib/style-text.js';
 import { Logger } from '../logger.js';
 import { waitForDeploymentEnd, waitForDeploymentStart } from './deployments.js';
 import * as ExitStrategy from './exit-strategy-option.js';

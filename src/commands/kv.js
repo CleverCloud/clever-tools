@@ -1,6 +1,6 @@
 import { getAllEnvVars } from '@clevercloud/client/esm/api/v2/addon.js';
 import Redis from 'ioredis';
-import { styleText } from 'node:util';
+import { styleText } from '../lib/style-text.js';
 import { Logger } from '../logger.js';
 import { findAddonsByNameOrId } from '../models/ids-resolver.js';
 import { sendToApi } from '../models/send-to-api.js';

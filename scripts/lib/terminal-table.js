@@ -1,4 +1,5 @@
-import { stripVTControlCharacters, styleText } from 'node:util';
+import { stripVTControlCharacters } from 'node:util';
+import { styleText } from '../../src/lib/style-text.js';
 
 /**
  * @typedef {import('./common.types.js').StyleTextFormat} StyleTextFormat

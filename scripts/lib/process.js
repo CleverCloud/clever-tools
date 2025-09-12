@@ -1,5 +1,5 @@
 import childProcess from 'node:child_process';
-import { styleText } from 'node:util';
+import { styleText } from '../../src/lib/style-text.js';
 
 /**
  * Executes a shell command asynchronously and logs the output.

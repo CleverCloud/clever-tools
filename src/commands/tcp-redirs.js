@@ -1,6 +1,6 @@
 import { addTcpRedir, getTcpRedirs, removeTcpRedir } from '@clevercloud/client/esm/api/v2/application.js';
-import { styleText } from 'node:util';
 import { confirm } from '../lib/prompts.js';
+import { styleText } from '../lib/style-text.js';
 import { Logger } from '../logger.js';
 import * as Application from '../models/application.js';
 import * as Namespaces from '../models/namespaces.js';

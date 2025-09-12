@@ -3,8 +3,8 @@ import {
   todo_getEmailAddresses as getEmailAddresses,
   todo_removeEmailAddress as removeEmailAddress,
 } from '@clevercloud/client/esm/api/v2/user.js';
-import { styleText } from 'node:util';
 import { confirm } from '../lib/prompts.js';
+import { styleText } from '../lib/style-text.js';
 import { Logger } from '../logger.js';
 import { sendToApi } from '../models/send-to-api.js';
 import * as User from '../models/user.js';

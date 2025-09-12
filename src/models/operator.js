@@ -1,6 +1,6 @@
 import dedent from 'dedent';
-import { styleText } from 'node:util';
 import { getOperator } from '../clever-client/operators.js';
+import { styleText } from '../lib/style-text.js';
 import { findAddonsByNameOrId } from './ids-resolver.js';
 import { sendToApi } from './send-to-api.js';
 

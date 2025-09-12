@@ -1,5 +1,5 @@
 import { cancelDeployment, getAllDeployments } from '@clevercloud/client/esm/api/v2/application.js';
-import { styleText } from 'node:util';
+import { styleText } from '../lib/style-text.js';
 import { Logger } from '../logger.js';
 import * as Application from '../models/application.js';
 import { sendToApi } from '../models/send-to-api.js';

@@ -1,6 +1,6 @@
 import { ApplicationAccessLogStream } from '@clevercloud/client/esm/streams/access-logs.js';
-import { styleText } from 'node:util';
 import { formatTable } from '../format-table.js';
+import { styleText } from '../lib/style-text.js';
 import { Logger } from '../logger.js';
 import * as Application from '../models/application.js';
 import { JsonArray } from '../models/json-array.js';

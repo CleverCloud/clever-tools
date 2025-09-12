@@ -21,7 +21,7 @@
 import { select } from '@inquirer/prompts';
 import { execSync } from 'node:child_process';
 import process from 'node:process';
-import { styleText } from 'node:util';
+import { styleText } from '../src/lib/style-text.js';
 import { runCommand } from './lib/command.js';
 import { readJson, writeJson } from './lib/fs.js';
 import { TerminalTable } from './lib/terminal-table.js';

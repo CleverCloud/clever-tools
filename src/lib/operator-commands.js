@@ -1,6 +1,5 @@
 import dedent from 'dedent';
 import _ from 'lodash';
-import { styleText } from 'node:util';
 import {
   ngDisableOperator,
   ngEnableOperator,
@@ -16,6 +15,7 @@ import * as Operator from '../models/operator.js';
 import { sendToApi } from '../models/send-to-api.js';
 import { openBrowser } from '../models/utils.js';
 import { confirm, selectAnswer } from './prompts.js';
+import { styleText } from './style-text.js';
 
 /**
  * Check the version of an operator

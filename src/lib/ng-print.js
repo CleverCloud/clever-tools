@@ -1,6 +1,6 @@
-import { styleText } from 'node:util';
 import { Logger } from '../logger.js';
 import * as networkGroup from '../models/ng.js';
+import { styleText } from './style-text.js';
 
 /**
  * Print a Network Group
