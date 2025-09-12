@@ -1,6 +1,13 @@
 # clever-tools changelog
 
 
+## [4.0.2](https://github.com/CleverCloud/clever-tools/compare/4.0.1...4.0.2) (2025-09-12)
+
+
+### 🐛 Bug Fixes
+
+* replace node:util styleText with custom implementation ([90ac587](https://github.com/CleverCloud/clever-tools/commit/90ac5870ac3149ada9132a31ae56e75e789af1ea))
+
 ## [4.0.1](https://github.com/CleverCloud/clever-tools/compare/4.0.0...4.0.1) (2025-09-10)
 
 
