@@ -6,8 +6,8 @@ import {
   listNetworkGroups,
 } from '@clevercloud/client/esm/api/v4/network-group.js';
 import crypto from 'node:crypto';
-import { styleText } from 'node:util';
 import { searchNetworkGroupOrResource } from '../clever-client/ng.js';
+import { styleText } from '../lib/style-text.js';
 import { Logger } from '../logger.js';
 import { checkMembersToLink } from './ng-resources.js';
 import * as Organisation from './organisation.js';

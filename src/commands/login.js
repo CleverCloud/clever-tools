@@ -1,8 +1,8 @@
 import crypto from 'node:crypto';
 import { setTimeout as delay } from 'node:timers/promises';
-import { styleText } from 'node:util';
 import open from 'open';
 import pkg from '../../package.json' with { type: 'json' };
+import { styleText } from '../lib/style-text.js';
 import { Logger } from '../logger.js';
 import { conf, writeOAuthConf } from '../models/configuration.js';
 import * as User from '../models/user.js';

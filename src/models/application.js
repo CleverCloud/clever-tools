@@ -13,8 +13,8 @@ import { getAvailableInstances } from '@clevercloud/client/esm/api/v2/product.js
 import { getSummary } from '@clevercloud/client/esm/api/v2/user.js';
 import cliparse from 'cliparse';
 import _ from 'lodash';
-import { styleText } from 'node:util';
 import { confirmAnswer } from '../lib/prompts.js';
+import { styleText } from '../lib/style-text.js';
 import { Logger } from '../logger.js';
 import * as AppConfiguration from './app_configuration.js';
 import { resolveOwnerId } from './ids-resolver.js';

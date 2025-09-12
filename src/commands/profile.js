@@ -1,5 +1,5 @@
 import dedent from 'dedent';
-import { styleText } from 'node:util';
+import { styleText } from '../lib/style-text.js';
 import { Logger } from '../logger.js';
 import * as User from '../models/user.js';
 import { openBrowser } from '../models/utils.js';

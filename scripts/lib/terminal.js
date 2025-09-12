@@ -1,4 +1,4 @@
-import { styleText } from 'node:util';
+import { styleText } from '../../src/lib/style-text.js';
 
 /**
  * Template literal tag function that highlights interpolated values in yellow.

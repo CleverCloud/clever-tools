@@ -1,5 +1,5 @@
 import { createWebhook, deleteWebhook, getWebhooks } from '@clevercloud/client/esm/api/v2/notification.js';
-import { styleText } from 'node:util';
+import { styleText } from '../lib/style-text.js';
 import { Logger } from '../logger.js';
 import { getOrgaIdOrUserId, getOwnerAndApp } from '../models/notification.js';
 import { sendToApi } from '../models/send-to-api.js';

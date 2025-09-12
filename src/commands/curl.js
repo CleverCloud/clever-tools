@@ -1,7 +1,7 @@
 import { addOauthHeader } from '@clevercloud/client/esm/oauth.js';
 import dedent from 'dedent';
 import { spawn } from 'node:child_process';
-import { styleText } from 'node:util';
+import { styleText } from '../lib/style-text.js';
 import { Logger } from '../logger.js';
 import { conf, loadOAuthConf } from '../models/configuration.js';
 

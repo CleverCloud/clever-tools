@@ -1,5 +1,6 @@
 import _ from 'lodash';
-import { format, styleText } from 'node:util';
+import { format } from 'node:util';
+import { styleText } from './lib/style-text.js';
 
 function getPrefix(severity) {
   const prefix = `[${severity.toUpperCase()}] `;

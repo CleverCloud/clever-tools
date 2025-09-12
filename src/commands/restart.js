@@ -1,4 +1,4 @@
-import { styleText } from 'node:util';
+import { styleText } from '../lib/style-text.js';
 import { Logger } from '../logger.js';
 import * as Application from '../models/application.js';
 import * as ExitStrategy from '../models/exit-strategy-option.js';

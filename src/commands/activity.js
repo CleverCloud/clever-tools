@@ -1,4 +1,4 @@
-import { styleText } from 'node:util';
+import { styleText } from '../lib/style-text.js';
 
 import { EventsStream } from '@clevercloud/client/esm/streams/events.js';
 import { formatTable } from '../format-table.js';

@@ -12,8 +12,8 @@ import { getDefaultLoadBalancersDnsInfo } from '@clevercloud/client/esm/api/v4/l
 import { diagDomainConfig } from '@clevercloud/client/esm/utils/diag-domain-config.js';
 import { sortDomains } from '@clevercloud/client/esm/utils/domains.js';
 import _ from 'lodash';
-import { styleText } from 'node:util';
 import { parse as parseDomain } from 'tldts';
+import { styleText } from '../lib/style-text.js';
 import { Logger } from '../logger.js';
 import * as Application from '../models/application.js';
 import { DnsResolver } from '../models/node-dns-resolver.js';

@@ -41,7 +41,7 @@ import { checkbox } from '@inquirer/prompts';
 import dedent from 'dedent';
 import { existsSync } from 'node:fs';
 import fs from 'node:fs/promises';
-import { styleText } from 'node:util';
+import { styleText } from '../src/lib/style-text.js';
 import { buildBinary } from './lib/build-binary.js';
 import { bundleToSingleCjs } from './lib/bundle-cjs.js';
 import { CellarClientPublic } from './lib/cellar-client-public.js';

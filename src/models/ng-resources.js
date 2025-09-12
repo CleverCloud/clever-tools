@@ -2,7 +2,7 @@ import { getSummary } from '@clevercloud/client/esm/api/v2/user.js';
 import * as networkGroupApi from '@clevercloud/client/esm/api/v4/network-group.js';
 import crypto from 'node:crypto';
 import { setTimeout } from 'node:timers/promises';
-import { styleText } from 'node:util';
+import { styleText } from '../lib/style-text.js';
 import { Logger } from '../logger.js';
 import * as networkGroup from './ng.js';
 import { sendToApi } from './send-to-api.js';

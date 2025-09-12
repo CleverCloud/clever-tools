@@ -1,4 +1,4 @@
-import { styleText } from 'node:util';
+import { styleText } from '../lib/style-text.js';
 import { Logger } from '../logger.js';
 import * as Addon from '../models/addon.js';
 import * as Application from '../models/application.js';

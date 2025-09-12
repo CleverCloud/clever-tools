@@ -1,4 +1,4 @@
-import { styleText } from 'node:util';
+import { styleText } from '../lib/style-text.js';
 
 import { formatTable } from '../format-table.js';
 import { Logger } from '../logger.js';

@@ -5,8 +5,8 @@ import {
 } from '@clevercloud/client/esm/api/v2/user.js';
 import dedent from 'dedent';
 import fs from 'node:fs';
-import { styleText } from 'node:util';
 import { confirm } from '../lib/prompts.js';
+import { styleText } from '../lib/style-text.js';
 import { Logger } from '../logger.js';
 import { sendToApi } from '../models/send-to-api.js';
 import { openBrowser } from '../models/utils.js';

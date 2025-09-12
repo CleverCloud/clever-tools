@@ -1,7 +1,7 @@
 import dedent from 'dedent';
-import { styleText } from 'node:util';
 import { createApiToken, deleteApiToken, listApiTokens } from '../clever-client/auth-bridge.js';
 import { promptSecret } from '../lib/prompts.js';
+import { styleText } from '../lib/style-text.js';
 import { Logger } from '../logger.js';
 import { conf } from '../models/configuration.js';
 import { sendToAuthBridge } from '../models/send-to-api.js';

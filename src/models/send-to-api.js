@@ -2,8 +2,8 @@ import { addOauthHeader } from '@clevercloud/client/esm/oauth.js';
 import { prefixUrl } from '@clevercloud/client/esm/prefix-url.js';
 import { request } from '@clevercloud/client/esm/request.fetch.js';
 import { subtle as cryptoSuble } from 'node:crypto';
-import { styleText } from 'node:util';
 import { addOauthHeaderPlaintext } from '../clever-client/auth-bridge.js';
+import { styleText } from '../lib/style-text.js';
 import { Logger } from '../logger.js';
 import { conf, loadOAuthConf } from './configuration.js';
 

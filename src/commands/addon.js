@@ -1,4 +1,4 @@
-import { styleText } from 'node:util';
+import { styleText } from '../lib/style-text.js';
 
 import { getAllEnvVars } from '@clevercloud/client/esm/api/v2/addon.js';
 import { toNameEqualsValueString } from '@clevercloud/client/esm/utils/env-vars.js';
