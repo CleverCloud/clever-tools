@@ -58,6 +58,16 @@ export const Logger = _(['debug', 'info', 'warn', 'error'])
 // No decoration for Logger.println
 Logger.println = console.log;
 
+/**
+ * Prints a line of text with specified indentation.
+ *
+ * @param {string} text - The text to be printed.
+ * @param {number} indentLevel - The number of spaces to indent the text.
+ */
+Logger.printlnWithIndent = (text, indentLevel) => {
+  Logger.println(' '.repeat(indentLevel) + text);
+};
+
 // Logger for success with a green check before the message
 Logger.printSuccess = (message) => console.log(`${styleText(['bold', 'green'], '✓')} ${message}`);
 

@@ -1,13 +1,12 @@
 import {
   todo_addEmailAddress as addEmailAddress,
-  todo_getEmailAddresses as getEmailAddresses,
   todo_removeEmailAddress as removeEmailAddress,
 } from '@clevercloud/client/esm/api/v2/user.js';
 import { confirm } from '../lib/prompts.js';
 import { styleText } from '../lib/style-text.js';
 import { Logger } from '../logger.js';
+import { getUserEmailAddresses } from '../models/emails.js';
 import { sendToApi } from '../models/send-to-api.js';
-import * as User from '../models/user.js';
 import { openBrowser } from '../models/utils.js';
 
 /**
@@ -154,17 +153,4 @@ export async function removeAllSecondary(params) {
  */
 export function openConsole() {
   return openBrowser('/users/me/emails', 'Opening the email addresses management page of the Console in your browser');
-}
-
-/**
- * Get the primary and secondary email addresses of the current user
- * @returns {Promise<{ primary: string, secondary: string[] }>} The primary and secondary email addresses of the current user
- */
-async function getUserEmailAddresses() {
-  const currentUser = await User.getCurrent();
-  const secondaryAddresses = await getEmailAddresses().then(sendToApi);
-  return {
-    primary: currentUser.email,
-    secondary: secondaryAddresses.sort(),
-  };
 }

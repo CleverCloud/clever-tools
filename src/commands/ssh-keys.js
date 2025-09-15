@@ -1,14 +1,11 @@
-import {
-  todo_addSshKey as addSshKey,
-  todo_getSshKeys as getSshKeys,
-  todo_removeSshKey as removeSshKey,
-} from '@clevercloud/client/esm/api/v2/user.js';
+import { todo_addSshKey as addSshKey, todo_removeSshKey as removeSshKey } from '@clevercloud/client/esm/api/v2/user.js';
 import dedent from 'dedent';
 import fs from 'node:fs';
 import { confirm } from '../lib/prompts.js';
 import { styleText } from '../lib/style-text.js';
 import { Logger } from '../logger.js';
 import { sendToApi } from '../models/send-to-api.js';
+import { getUserSshKeys } from '../models/ssh-keys.js';
 import { openBrowser } from '../models/utils.js';
 
 /**
@@ -144,12 +141,4 @@ export async function removeAll(params) {
  */
 export function openConsole() {
   return openBrowser('/users/me/ssh-keys', 'Opening the SSH keys management page of the Console in your browser');
-}
-
-/**
- * @return {Promise<Array<{ name: string, key: string, fingerprint: string }>>}
- */
-async function getUserSshKeys() {
-  const rawKeys = await getSshKeys().then(sendToApi);
-  return rawKeys.sort((a, b) => a.name.localeCompare(b.name));
 }

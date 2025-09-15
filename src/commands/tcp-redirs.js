@@ -1,6 +1,4 @@
 import { addTcpRedir, getTcpRedirs, removeTcpRedir } from '@clevercloud/client/esm/api/v2/application.js';
-import { confirm } from '../lib/prompts.js';
-import { styleText } from '../lib/style-text.js';
 import { Logger } from '../logger.js';
 import * as Application from '../models/application.js';
 import * as Namespaces from '../models/namespaces.js';
@@ -64,37 +62,10 @@ export async function list(params) {
   }
 }
 
-async function acceptPayment(result, skipConfirmation) {
-  if (!skipConfirmation) {
-    result.lines.forEach(({ description, VAT, price }) =>
-      Logger.println(`${description}\tVAT: ${VAT}%\tPrice: ${price}€`),
-    );
-    Logger.println(`Total (without taxes): ${result.totalHT}€`);
-    Logger.println(styleText('bold', `Total (with taxes): ${result.totalTTC}€`));
-
-    await confirm(
-      `You're about to pay ${result.totalTTC}€, confirm?`,
-      'No confirmation, aborting TCP redirection creation',
-    );
-  }
-}
-
 export async function add(params) {
-  const { alias, app: appIdOrName, namespace, yes: skipConfirmation } = params.options;
+  const { alias, app: appIdOrName, namespace } = params.options;
   const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
-
-  const { port } = await addTcpRedir({ id: ownerId, appId }, { namespace })
-    .then(sendToApi)
-    .catch((error) => {
-      if (error.status === 402) {
-        return acceptPayment(error.response.body, skipConfirmation).then(() => {
-          return addTcpRedir({ id: ownerId, appId, payment: 'accepted' }, { namespace }).then(sendToApi);
-        });
-      } else {
-        throw error;
-      }
-    });
-
+  const { port } = await addTcpRedir({ id: ownerId, appId }, { namespace }).then(sendToApi);
   Logger.println('Successfully added tcp redirection on port: ' + port);
 }
 

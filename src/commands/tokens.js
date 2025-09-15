@@ -1,5 +1,6 @@
 import dedent from 'dedent';
 import { createApiToken, deleteApiToken, listApiTokens } from '../clever-client/auth-bridge.js';
+import { formatDate } from '../lib/format-date.js';
 import { promptSecret } from '../lib/prompts.js';
 import { styleText } from '../lib/style-text.js';
 import { Logger } from '../logger.js';
@@ -140,8 +141,4 @@ export async function revoke(params) {
   await deleteApiToken(apiTokenId).then(sendToAuthBridge);
 
   Logger.println(styleText('green', '✔'), 'API token successfully revoked!');
-}
-
-function formatDate(dateInput) {
-  return new Date(dateInput).toISOString().substring(0, 16).replace('T', ' ');
 }
