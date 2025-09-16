@@ -17,7 +17,8 @@ const THROTTLE_PER_IN_MILLISECONDS = 100;
 
 const retryConfiguration = {
   enabled: true,
-  maxRetryCount: 6,
+  initRetryTimeout: 3000,
+  maxRetryCount: 10,
 };
 
 export async function displayLogs(params) {
