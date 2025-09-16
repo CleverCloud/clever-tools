@@ -862,7 +862,7 @@ async function run() {
       description: 'Remove a drain',
       args: [args.drainId],
     },
-    drain.rm,
+    drain.remove,
   );
   const drainEnableCommand = cliparse.command(
     'enable',
