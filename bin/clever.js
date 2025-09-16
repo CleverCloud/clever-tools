@@ -884,7 +884,7 @@ async function run() {
     'drain',
     {
       description: 'Manage drains',
-      options: [opts.alias, opts.appIdOrName, opts.addonId],
+      options: [opts.alias, opts.appIdOrName],
       privateOptions: [opts.humanJsonOutputFormat],
       commands: [drainCreateCommand, drainRemoveCommand, drainEnableCommand, drainDisableCommand],
     },
