@@ -34,7 +34,7 @@ export async function accessLogs(params) {
   });
 
   if (format === 'human') {
-    Logger.warn(styleText('yellow', '/!\\ Access Logs feature is in Alpha testing phase'));
+    Logger.println(styleText('yellow', '/!\\ This feature is in Beta testing phase'));
   }
 
   if (format === 'json' && !until) {
