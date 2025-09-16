@@ -47,7 +47,7 @@
     "typecheck": "tsc -p tsconfig.json"
   },
   "dependencies": {
-    "@clevercloud/client": "11.0.1",
+    "@clevercloud/client": "11.2.0",
     "@inquirer/prompts": "7.8.4",
     "char-regex": "2.0.2",
     "cliparse": "0.5.0",
