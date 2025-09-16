@@ -1,8 +1,8 @@
 import { createDrain, deleteDrain, disableDrain, enableDrain, getDrains } from '../clever-client/drains.js';
 import { styleText } from '../lib/style-text.js';
 import { Logger } from '../logger.js';
-import * as Application from '../models/application.js';
-import { resolveOwnerId } from '../models/ids-resolver.js';
+
+import { resolveAppOrAddonId, resolveOwnerId } from '../models/ids-resolver.js';
 import { sendToApi } from '../models/send-to-api.js';
 
 const DRAIN_TYPES = [
@@ -15,15 +15,10 @@ const DRAIN_TYPES = [
   'SyslogUDPRecipient',
 ];
 
-// TODO: This could be useful in other commands
-async function getAppOrAddonId({ alias, appIdOrName, addonId }) {
-  return addonId != null ? addonId : await Application.resolveId(appIdOrName, alias).then(({ appId }) => appId);
-}
-
 export async function list(params) {
   const { alias, app: appIdOrName, addon: addonId, format } = params.options;
 
-  const applicationId = await getAppOrAddonId({ alias, appIdOrName, addonId });
+  const applicationId = await resolveAppOrAddonId({ alias, appIdOrName, addonId });
   const ownerId = await resolveOwnerId(applicationId);
 
   const drains = await getDrains({ ownerId, applicationId }).then(sendToApi);
@@ -78,7 +73,7 @@ export async function create(params) {
     throw new Error(`Invalid drain type. Supported types are: ${DRAIN_TYPES.join(', ')}`);
   }
 
-  const applicationId = await getAppOrAddonId({ alias, appIdOrName, addonId });
+  const applicationId = await resolveAppOrAddonId({ alias, appIdOrName, addonId });
   const ownerId = await resolveOwnerId(applicationId);
 
   if (type === 'ElasticsearchRecipient') {
@@ -126,7 +121,7 @@ export async function remove(params) {
   const [drainId] = params.args;
   const { alias, app: appIdOrName, addon: addonId } = params.options;
 
-  const applicationId = await getAppOrAddonId({ alias, appIdOrName, addonId });
+  const applicationId = await resolveAppOrAddonId({ alias, appIdOrName, addonId });
   const ownerId = await resolveOwnerId(applicationId);
 
   await deleteDrain({ applicationId, ownerId, drainId }).then(sendToApi);
@@ -137,7 +132,7 @@ export async function enable(params) {
   const [drainId] = params.args;
   const { alias, app: appIdOrName, addon: addonId } = params.options;
 
-  const applicationId = await getAppOrAddonId({ alias, appIdOrName, addonId });
+  const applicationId = await resolveAppOrAddonId({ alias, appIdOrName, addonId });
   const ownerId = await resolveOwnerId(applicationId);
 
   await enableDrain({ ownerId, applicationId, drainId }).then(sendToApi);
@@ -149,7 +144,7 @@ export async function disable(params) {
   const [drainId] = params.args;
   const { alias, app: appIdOrName, addon: addonId } = params.options;
 
-  const applicationId = await getAppOrAddonId({ alias, appIdOrName, addonId });
+  const applicationId = await resolveAppOrAddonId({ alias, appIdOrName, addonId });
   const ownerId = await resolveOwnerId(applicationId);
 
   await disableDrain({ ownerId, applicationId, drainId }).then(sendToApi);
