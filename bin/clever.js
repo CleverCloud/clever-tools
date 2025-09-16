@@ -803,6 +803,7 @@ async function run() {
     {
       description: 'Manage the favourite domain name for an application',
       options: [opts.alias, opts.appIdOrName],
+      privateOptions: [opts.humanJsonOutputFormat],
       commands: [domainSetFavouriteCommand, domainUnsetFavouriteCommand],
     },
     domain.getFavourite,

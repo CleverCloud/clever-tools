@@ -70,16 +70,23 @@ export async function add(params) {
 }
 
 export async function getFavourite(params) {
-  const { alias, app: appIdOrName } = params.options;
+  const { alias, app: appIdOrName, format } = params.options;
   const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
 
   const favouriteDomain = await getFavouriteDomain({ ownerId, appId });
 
-  if (favouriteDomain == null) {
-    return Logger.println('No favourite domain set');
+  switch (format) {
+    case 'json':
+      const domain = getDomainObject(favouriteDomain, favouriteDomain);
+      Logger.printJson(domain);
+      break;
+    default:
+      if (favouriteDomain == null) {
+        return Logger.println('No favourite domain set');
+      }
+      Logger.println(favouriteDomain);
+      break;
   }
-
-  return Logger.println(favouriteDomain);
 }
 
 export async function setFavourite(params) {
