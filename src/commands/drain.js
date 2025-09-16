@@ -5,7 +5,7 @@ import { Logger } from '../logger.js';
 import { resolveAppOrAddonId, resolveOwnerId } from '../models/ids-resolver.js';
 import { sendToApi } from '../models/send-to-api.js';
 
-const DRAIN_TYPES = [
+export const DRAIN_TYPES = [
   'DatadogRecipient',
   'ElasticsearchRecipient',
   'NewRelicRecipient',
