@@ -75,19 +75,24 @@ export async function getFavourite(params) {
 
   const favouriteDomain = await getFavouriteDomain({ ownerId, appId });
 
+  if (favouriteDomain == null) {
+    switch (format) {
+      case 'json':
+        Logger.printJson({});
+        break;
+      default:
+        Logger.println('No favourite domain set');
+        break;
+    }
+    return;
+  }
+
   switch (format) {
     case 'json':
-      if (favouriteDomain == null) {
-        Logger.printJson({});
-      } else {
-        const domain = getDomainObject(favouriteDomain, favouriteDomain);
-        Logger.printJson(domain);
-      }
+      const domain = getDomainObject(favouriteDomain, favouriteDomain);
+      Logger.printJson(domain);
       break;
     default:
-      if (favouriteDomain == null) {
-        return Logger.println('No favourite domain set');
-      }
       Logger.println(favouriteDomain);
       break;
   }
