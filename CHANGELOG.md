@@ -1,6 +1,24 @@
 # clever-tools changelog
 
 
+## [4.1.0](https://github.com/CleverCloud/clever-tools/compare/4.0.2...4.1.0) (2025-09-17)
+
+
+### 🚀 Features
+
+* **domain:** add JSON format support to `clever domain` ([10e68b9](https://github.com/CleverCloud/clever-tools/commit/10e68b9142c38464e24f6db7b953e0bf96616e9e))
+* **domain:** add JSON output format to `clever domain favourite` ([6fcfde9](https://github.com/CleverCloud/clever-tools/commit/6fcfde9c8242e5ccaed5269ad35e481ab1d720ef))
+* **link:** always print application ID and alias after a link ([4ad3371](https://github.com/CleverCloud/clever-tools/commit/4ad33710dd828ece493b61bcb557037b715aef13))
+* **status:** show application runtime ([ff37600](https://github.com/CleverCloud/clever-tools/commit/ff376003544b2ddae4b8f01028e38b010609b1fd))
+
+
+### 🐛 Bug Fixes
+
+* **accesslogs:** update feature status message from Alpha to Beta testing phase ([be2943b](https://github.com/CleverCloud/clever-tools/commit/be2943b35f92378216fc2703c7f558e27ed0274a))
+* **ci:** add missing AUR package template with metadata and source configuration ([483d465](https://github.com/CleverCloud/clever-tools/commit/483d4659cef5a5d25e8f0afb126546c1850287b9))
+* **link:** throw an error if an application is already linked ([157f528](https://github.com/CleverCloud/clever-tools/commit/157f5285711f591768377b7c7116c534adfd9c80))
+* **logs:** increase retryConfiguration ([ae26646](https://github.com/CleverCloud/clever-tools/commit/ae26646df747a991ba222636432dccce6dda522f))
+
 ## [4.0.2](https://github.com/CleverCloud/clever-tools/compare/4.0.1...4.0.2) (2025-09-12)
 
 
