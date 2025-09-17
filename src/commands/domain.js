@@ -77,8 +77,12 @@ export async function getFavourite(params) {
 
   switch (format) {
     case 'json':
-      const domain = getDomainObject(favouriteDomain, favouriteDomain);
-      Logger.printJson(domain);
+      if (favouriteDomain == null) {
+        Logger.printJson({});
+      } else {
+        const domain = getDomainObject(favouriteDomain, favouriteDomain);
+        Logger.printJson(domain);
+      }
       break;
     default:
       if (favouriteDomain == null) {
