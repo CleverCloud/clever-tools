@@ -55,6 +55,11 @@ export async function accessLogs(params) {
       Logger.debug(styleText('red', `Logs stream (error) ${event.error.message}`));
     })
     .onLog((log) => {
+      // Remove this when transport is added in the API
+      if (!log.transport) {
+        log.transport = log.http ? 'HTTP' : log.requestId ? 'TCP' : 'SSH';
+      }
+
       switch (format) {
         case 'json':
           jsonArray.push(log);
@@ -64,11 +69,6 @@ export async function accessLogs(params) {
           break;
         case 'human':
         default:
-          // when the connection is cut too early, or for TCP redirections, we don't have HTTP section
-          if (log.http == null) {
-            break;
-          }
-
           Logger.println(formatHuman(log));
           break;
       }
@@ -87,7 +87,7 @@ export async function accessLogs(params) {
 }
 
 function formatHuman(log) {
-  const { date, http, source } = log;
+  const { date, http, source, transport } = log;
   const country = source.countryCode ?? '(unknown)';
   const hasSourceCity = source.city ?? '';
 
@@ -95,10 +95,11 @@ function formatHuman(log) {
     [
       [
         styleText('grey', date.toISOString(date)),
+        transport,
         source.ip,
         `${country}${hasSourceCity ? '/' + truncateWithEllipsis(CITY_MAX_LENGTH, source.city) : ''}`,
-        colorStatusCode(http.response.statusCode),
-        http.request.method.toString().padEnd(4, ' ') + ' ' + http.request.path,
+        http ? colorStatusCode(http.response.statusCode) : '',
+        http ? http.request.method.toString().padEnd(4, ' ') + ' ' + http.request.path : '',
       ],
     ],
     ACCESSLOG_COLUMN_WIDTHS,
@@ -107,6 +108,7 @@ function formatHuman(log) {
 
 const ACCESSLOG_COLUMN_WIDTHS = [
   '2024-06-24T08:05:43.880Z',
+  'HTTP',
   '255.255.255.255',
   // country / city
   2 + 1 + CITY_MAX_LENGTH,
