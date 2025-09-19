@@ -1,5 +1,6 @@
 import { getSummary } from '@clevercloud/client/esm/api/v2/user.js';
 import { Logger } from '../logger.js';
+import * as Application from './application.js';
 import { loadIdsCache, writeIdsCache } from './configuration.js';
 import { sendToApi } from './send-to-api.js';
 
@@ -27,6 +28,10 @@ This system uses a simplified representation of the summary to expose IDs links:
 
 export async function resolveOwnerId(id) {
   return getIdFromCacheOrSummary((ids) => ids.owners[id]);
+}
+
+export async function resolveAppOrAddonId({ alias, appIdOrName, addonId }) {
+  return addonId != null ? addonId : await Application.resolveId(appIdOrName, alias).then(({ appId }) => appId);
 }
 
 export async function resolveAddonId(id) {

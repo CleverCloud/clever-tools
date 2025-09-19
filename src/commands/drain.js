@@ -1,26 +1,34 @@
-import { createDrain, deleteDrain, getDrains, updateDrainState } from '@clevercloud/client/esm/api/v2/log.js';
+import { createDrain, deleteDrain, disableDrain, enableDrain, getDrains } from '../clever-client/drains.js';
+import { styleText } from '../lib/style-text.js';
 import { Logger } from '../logger.js';
-import * as Application from '../models/application.js';
-import { createDrainBody } from '../models/drain.js';
+
+import { resolveAppOrAddonId, resolveOwnerId } from '../models/ids-resolver.js';
 import { sendToApi } from '../models/send-to-api.js';
 
-// TODO: This could be useful in other commands
-async function getAppOrAddonId({ alias, appIdOrName, addonId }) {
-  return addonId != null ? addonId : await Application.resolveId(appIdOrName, alias).then(({ appId }) => appId);
-}
+export const DRAIN_TYPES = [
+  'DatadogRecipient',
+  'ElasticsearchRecipient',
+  'NewRelicRecipient',
+  'OVHTCPRecipient',
+  'RawRecipient',
+  'SyslogTCPRecipient',
+  'SyslogUDPRecipient',
+];
 
 export async function list(params) {
   const { alias, app: appIdOrName, addon: addonId, format } = params.options;
 
-  const appIdOrAddonId = await getAppOrAddonId({ alias, appIdOrName, addonId });
-  const drains = await getDrains({ appId: appIdOrAddonId }).then(sendToApi);
+  const applicationId = await resolveAppOrAddonId({ alias, appIdOrName, addonId });
+  const ownerId = await resolveOwnerId(applicationId);
+
+  const drains = await getDrains({ ownerId, applicationId }).then(sendToApi);
 
   switch (format) {
     case 'json': {
       const formattedDrains = drains.map((drain) => ({
         id: drain.id,
-        target: drain.target,
-        state: drain.state,
+        target: drain.recipient,
+        state: drain.status,
       }));
 
       Logger.printJson(formattedDrains);
@@ -29,20 +37,21 @@ export async function list(params) {
     case 'human':
     default: {
       if (drains.length === 0) {
-        Logger.println(`There are no drains for ${appIdOrAddonId}`);
+        Logger.println(`There are no drains for ${applicationId}`);
       }
 
       drains.forEach((drain) => {
-        const { id, state, target } = drain;
-        const { url, drainType, indexPrefix, structuredDataParameters } = target;
+        const { id, index, rfc5424StructuredDataParameters, recipient, status } = drain;
+        const { url, type } = recipient;
 
-        let drainView = `${id} -> ${state} for ${url} as ${drainType}`;
-        if (indexPrefix != null) {
-          drainView += `, custom index: '${indexPrefix}-YYYY-MM-DD'`;
+        let drainView = `${id} -> ${status.status} for ${url} as ${type}`;
+        if (index != null) {
+          drainView += `, custom index: '${index}-YYYY-MM-DD'`;
         }
-        if (structuredDataParameters != null) {
-          drainView += `, sd-params: '${structuredDataParameters}'`;
+        if (rfc5424StructuredDataParameters != null) {
+          drainView += `, sd-params: '${rfc5424StructuredDataParameters}'`;
         }
+
         Logger.println(drainView);
       });
     }
@@ -50,59 +59,95 @@ export async function list(params) {
 }
 
 export async function create(params) {
-  const [drainTargetType, drainTargetURL] = params.args;
+  const { alias, app: appIdOrName, addon: addonId } = params.options;
   const {
-    alias,
-    app: appIdOrName,
-    addon: addonId,
     username,
     password,
     'api-key': apiKey,
     'index-prefix': indexPrefix,
-    'sd-params': structuredDataParameters,
+    'sd-params': rfc5424StructuredDataParameters,
   } = params.options;
-  const drainTargetCredentials = { username, password };
-  const drainTargetConfig = { apiKey, indexPrefix, structuredDataParameters };
+  const [type, url] = params.args;
 
-  const appIdOrAddonId = await getAppOrAddonId({ alias, appIdOrName, addonId });
-  const body = createDrainBody(
-    appIdOrAddonId,
-    drainTargetURL,
-    drainTargetType,
-    drainTargetCredentials,
-    drainTargetConfig,
-  );
-  await createDrain({ appId: appIdOrAddonId }, body).then(sendToApi);
+  if (!DRAIN_TYPES.includes(type)) {
+    throw new Error(`Invalid drain type. Supported types are: ${DRAIN_TYPES.join(', ')}`);
+  }
 
-  Logger.println('Your drain has been successfully saved');
+  const applicationId = await resolveAppOrAddonId({ alias, appIdOrName, addonId });
+  const ownerId = await resolveOwnerId(applicationId);
+
+  if (type === 'ElasticsearchRecipient') {
+    if (!indexPrefix) {
+      throw new Error('ElasticsearchRecipient drains require an index prefix (--index-prefix) to be set');
+    }
+
+    if (!url.endsWith('/_bulk')) {
+      throw new Error("ElasticsearchRecipient drain URL must end with '/_bulk'");
+    }
+  }
+
+  if (type === 'OVHTCPRecipient' && !rfc5424StructuredDataParameters) {
+    throw new Error('OVHTCPRecipient drains require RFC5424 structured data parameters (--sd-params) to be set');
+  }
+
+  const recipientExtras = {
+    ElasticsearchRecipient: {
+      indexPrefix,
+      ...(username && { username }),
+      ...(password && { password }),
+    },
+    NewRelicRecipient: { apiKey },
+    OVHTCPRecipient: { rfc5424StructuredDataParameters },
+    RawRecipient: {
+      ...(username && { username }),
+      ...(password && { password }),
+    },
+  };
+
+  const body = {
+    kind: 'LOG',
+    recipient: {
+      type,
+      url,
+      ...(recipientExtras[type] || {}),
+    },
+  };
+
+  const drain = await createDrain({ applicationId, ownerId, body }).then(sendToApi);
+  Logger.printSuccess(`Drain ${styleText(['bold', 'green'], drain.id)} has been successfully created and enabled!`);
 }
 
-export async function rm(params) {
+export async function remove(params) {
   const [drainId] = params.args;
   const { alias, app: appIdOrName, addon: addonId } = params.options;
 
-  const appIdOrAddonId = await getAppOrAddonId({ alias, appIdOrName, addonId });
-  await deleteDrain({ appId: appIdOrAddonId, drainId }).then(sendToApi);
+  const applicationId = await resolveAppOrAddonId({ alias, appIdOrName, addonId });
+  const ownerId = await resolveOwnerId(applicationId);
 
-  Logger.println('Your drain has been successfully removed');
+  await deleteDrain({ applicationId, ownerId, drainId }).then(sendToApi);
+  Logger.printSuccess(`Drain ${styleText(['bold', 'green'], drainId)} has been successfully removed!`);
 }
 
 export async function enable(params) {
   const [drainId] = params.args;
   const { alias, app: appIdOrName, addon: addonId } = params.options;
 
-  const appIdOrAddonId = await getAppOrAddonId({ alias, appIdOrName, addonId });
-  await updateDrainState({ appId: appIdOrAddonId, drainId }, { state: 'ENABLED' }).then(sendToApi);
+  const applicationId = await resolveAppOrAddonId({ alias, appIdOrName, addonId });
+  const ownerId = await resolveOwnerId(applicationId);
 
-  Logger.println('Your drain has been enabled');
+  await enableDrain({ ownerId, applicationId, drainId }).then(sendToApi);
+
+  Logger.printSuccess(`Drain ${styleText(['bold', 'green'], drainId)} has been successfully enabled!`);
 }
 
 export async function disable(params) {
   const [drainId] = params.args;
   const { alias, app: appIdOrName, addon: addonId } = params.options;
 
-  const appIdOrAddonId = await getAppOrAddonId({ alias, appIdOrName, addonId });
-  await updateDrainState({ appId: appIdOrAddonId, drainId }, { state: 'DISABLED' }).then(sendToApi);
+  const applicationId = await resolveAppOrAddonId({ alias, appIdOrName, addonId });
+  const ownerId = await resolveOwnerId(applicationId);
 
-  Logger.println('Your drain has been disabled');
+  await disableDrain({ ownerId, applicationId, drainId }).then(sendToApi);
+
+  Logger.printSuccess(`Drain ${styleText(['bold', 'green'], drainId)} has been successfully disabled!`);
 }

@@ -62,7 +62,6 @@ import * as Application from '../src/models/application.js';
 import { AVAILABLE_ZONES } from '../src/models/application.js';
 import * as ApplicationConfiguration from '../src/models/application_configuration.js';
 import { conf, getFeatures } from '../src/models/configuration.js';
-import * as Drain from '../src/models/drain.js';
 import * as git from '../src/models/git.js';
 import * as Namespaces from '../src/models/namespaces.js';
 import * as Notification from '../src/models/notification.js';
@@ -155,7 +154,7 @@ async function run() {
     drainId: cliparse.argument('drain-id', { description: 'Drain ID' }),
     drainType: cliparse.argument('drain-type', {
       description: 'Drain type',
-      complete: Drain.listDrainTypes,
+      complete: drain.DRAIN_TYPES,
     }),
     drainUrl: cliparse.argument('drain-url', { description: 'Drain URL' }),
     fqdn: cliparse.argument('fqdn', { description: 'Domain name of the application' }),
@@ -862,7 +861,7 @@ async function run() {
       description: 'Remove a drain',
       args: [args.drainId],
     },
-    drain.rm,
+    drain.remove,
   );
   const drainEnableCommand = cliparse.command(
     'enable',
@@ -884,7 +883,7 @@ async function run() {
     'drain',
     {
       description: 'Manage drains',
-      options: [opts.alias, opts.appIdOrName, opts.addonId],
+      options: [opts.alias, opts.appIdOrName],
       privateOptions: [opts.humanJsonOutputFormat],
       commands: [drainCreateCommand, drainRemoveCommand, drainEnableCommand, drainDisableCommand],
     },
