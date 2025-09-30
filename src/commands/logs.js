@@ -1,9 +1,8 @@
 import { styleText } from '../lib/style-text.js';
 import { Logger } from '../logger.js';
 import * as Application from '../models/application.js';
-import { resolveAddonId } from '../models/ids-resolver.js';
+import { resolveOwnerId, resolveRealId } from '../models/ids-resolver.js';
 import * as Log from '../models/log-v4.js';
-import * as LogV2 from '../models/log.js';
 import { Deferred } from '../models/utils.js';
 
 export async function appLogs(params) {
@@ -24,13 +23,18 @@ export async function appLogs(params) {
 
   // TODO: drop when addons are migrated to the v4 API
   if (addonIdOrRealId != null) {
-    const addonId = await resolveAddonId(addonIdOrRealId);
+    const addonId = await resolveRealId(addonIdOrRealId);
+    const ownerId = await resolveOwnerId(addonId);
     if (isForHuman) {
       Logger.println(styleText('blue', 'Waiting for addon logs…'));
     } else {
       throw new Error(`"${format}" format is not yet available for add-on logs`);
     }
-    return LogV2.displayLogs({ appAddonId: addonId, since, until, filter, deploymentId });
+
+    const deferred = new Deferred();
+    await Log.displayAddonLogs({ ownerId, addonId, since, until, filter, deploymentId, format, deferred });
+    return deferred.promise;
+    //return LogV2.displayLogs({ appAddonId: addonId, since, until, filter, deploymentId });
   }
 
   const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
