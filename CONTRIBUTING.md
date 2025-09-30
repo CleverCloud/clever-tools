@@ -85,7 +85,7 @@ We provide several utility scripts to streamline development (located in `/scrip
   node scripts/switch-profile.js
 
   # Direct profile switching
-  node scripts/switch-profile.js --profile "user@example.com"
+  node scripts/switch-profile.js "user_id"
   ```
 
 #### GitHub Actions Validation
