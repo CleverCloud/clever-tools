@@ -65,7 +65,7 @@ export async function displayLogs(params) {
           jsonArray.push(log);
           return;
         case 'json-stream':
-          Logger.printJson(log);
+          Logger.println(JSON.stringify(log));
           return;
         case 'human':
         default:
