@@ -79,6 +79,10 @@ process.stdout.on('error', (error) => {
 const cliparseCommand = cliparse.command;
 
 cliparse.command = function (name, options, commandFunction) {
+  if (commandFunction == null) {
+    return cliparseCommand(name, options);
+  }
+
   return cliparseCommand(name, options, (...args) => {
     const promise = commandFunction(...args);
     handleCommandPromise(promise);
@@ -1977,18 +1981,10 @@ async function run() {
     },
     database.listBackups,
   );
-  const databaseCommand = cliparse.command(
-    'database',
-    {
-      description: 'List available databases',
-      commands: [backupsCommand],
-    },
-    async () => {
-      console.info('This command is not available, you can try the following commands:');
-      console.info('clever database backups');
-      console.info('clever database backups download');
-    },
-  );
+  const databaseCommand = cliparse.command('database', {
+    description: 'Manage databases and backups',
+    commands: [backupsCommand],
+  });
 
   // Patch help command description
   cliparseCommands.helpCommand.description = 'Display help about the Clever Cloud CLI';
