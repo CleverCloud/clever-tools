@@ -83,12 +83,12 @@ We provide several utility scripts to streamline development (located in `/scrip
   ```bash
   # Interactive profile selection
   node scripts/switch-profile.js
-  
+
   # Direct profile switching
-  node scripts/switch-profile.js --profile "user@example.com"
+  node scripts/switch-profile.js "user_id"
   ```
 
-#### GitHub Actions Validation  
+#### GitHub Actions Validation
 
 - **`scripts/check-github-actions.js`**: Validates CI/CD configuration
   ```bash
@@ -101,7 +101,7 @@ We provide several utility scripts to streamline development (located in `/scrip
   ```bash
   # Build local preview
   scripts/preview.js build [branch-name]
-  
+
   # List remote previews
   scripts/preview.js update
   ```
@@ -337,34 +337,34 @@ graph LR
         direction LR
         BUNDLE[bundle-cjs]
         BUNDLE --> BUILD_LINUX[build-linux]
-        BUNDLE --> BUILD_MACOS[build-macos] 
+        BUNDLE --> BUILD_MACOS[build-macos]
         BUNDLE --> BUILD_WIN[build-windows<br/>if build:win label]
     end
     BUILD_1 --> PUB_PREVIEW[publish<br/>Upload to Cellar<br/>Comment on PR]
-    
+
     %% Release workflow
     REL --> BUILD_2
     subgraph BUILD_2 ["<div style='width:400px; display:flex; justify-content: flex-start; align-items:flex-start;'>build.yml (reusable)</div>"]
         direction LR
         BUNDLE2[bundle-cjs]
         BUNDLE2 --> BUILD_LINUX2[build-linux]
-        BUNDLE2 --> BUILD_MACOS2[build-macos] 
+        BUNDLE2 --> BUILD_MACOS2[build-macos]
         BUNDLE2 --> BUILD_WIN2[build-windows]
     end
 
     BUILD_2 --> PACKAGE_RPM[package-rpm]
     BUILD_2 --> PACKAGE_DEB[package-deb]
     BUILD_2 --> CELLAR_ARC[publish-cellar-archives]
-    
+
     PACKAGE_RPM --> CELLAR_RPM[publish-cellar-rpm]
     PACKAGE_RPM --> NEXUS_RPM[publish-nexus-rpm]
-    
+
     PACKAGE_RPM --> GITHUB_REL[update-github-release]
     PACKAGE_DEB --> GITHUB_REL
-    
+
     PACKAGE_DEB --> CELLAR_DEB[publish-cellar-deb]
     PACKAGE_DEB --> NEXUS_DEB[publish-nexus-deb]
-    
+
     %% Package managers (depend on cellar archives)
     CELLAR_ARC --> AUR[publish-aur]
     CELLAR_ARC --> HOMEBREW[publish-homebrew]
