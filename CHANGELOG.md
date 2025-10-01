@@ -1,6 +1,14 @@
 # clever-tools changelog
 
 
+## [4.2.0](https://github.com/CleverCloud/clever-tools/compare/4.1.0...4.2.0) (2025-10-01)
+
+
+### 🚀 Features
+
+* **diag:** add terminal info and improve Windows shell detection ([70cbd57](https://github.com/CleverCloud/clever-tools/commit/70cbd575b820ccf0fbf631fc7f4c9ca45f31a935))
+* **logs:** make json-stream format use one liner printer ([a31f832](https://github.com/CleverCloud/clever-tools/commit/a31f832018df00e8d62af7c840f9d44cf8f26edf))
+
 ## [4.1.0](https://github.com/CleverCloud/clever-tools/compare/4.0.2...4.1.0) (2025-09-17)
 
 
