@@ -102,18 +102,20 @@ export async function create(params) {
 
   if (type === DRAIN_TYPES_OBJECT.NEWRELIC) {
     // TODO error if not present ?
-    if (apiKey) {
-      body.recipient.apiKey = apiKey;
+    if (!apiKey) {
+      throw new Error(`${DRAIN_TYPES_OBJECT.NEWRELIC} drains require and API key (--api-key) to be set`);
     }
+    body.recipient.apiKey = apiKey;
   }
 
-  if (type === DRAIN_TYPES_OBJECT.OVH_TCP) {
-    if (!rfc5424StructuredDataParameters) {
-      throw new Error(
-        `${DRAIN_TYPES_OBJECT.OVH_TCP} drains require RFC5424 structured data parameters (--sd-params) to be set`,
-      );
+  if (
+    type === DRAIN_TYPES_OBJECT.OVH_TCP ||
+    type === DRAIN_TYPES_OBJECT.SYSLOG_TCP ||
+    type === DRAIN_TYPES_OBJECT.SYSLOG_UDP
+  ) {
+    if (rfc5424StructuredDataParameters) {
+      body.recipient.rfc5424StructuredDataParameters = rfc5424StructuredDataParameters;
     }
-    body.recipient.rfc5424StructuredDataParameters = rfc5424StructuredDataParameters;
   }
 
   const drain = await createDrain({ ownerId, applicationId, body }).then(sendToApi);

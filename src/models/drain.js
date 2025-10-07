@@ -5,6 +5,7 @@ export function formatDrain(rawDrain) {
     'Execution status': rawDrain.execution.status,
     URL: rawDrain.recipient.url,
     Type: rawDrain.recipient.type,
+    // 'Custom Index': rawDrain.recipient.,
     'Message output rate': Math.floor(rawDrain.backlog.msgRateOut * 60) + ' messages/minute',
     'Message throughput': Math.floor(rawDrain.backlog.msgRateOut) + ' bytes/second',
     Backlog: rawDrain.backlog.msgBacklog + ' pending messages',
