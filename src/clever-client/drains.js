@@ -85,7 +85,7 @@ export function getDrain(params) {
 export function disableDrain(params) {
   // no multipath for /self or /organisations/{id}
   return Promise.resolve({
-    method: 'PUT',
+    method: 'put',
     url: `/v4/drains/organisations/${params.ownerId}/applications/${params.applicationId}/drains/${params.drainId}/disable`,
     headers: { Accept: 'application/json' },
     // no body
@@ -102,7 +102,7 @@ export function disableDrain(params) {
 export function enableDrain(params) {
   // no multipath for /self or /organisations/{id}
   return Promise.resolve({
-    method: 'PUT',
+    method: 'put',
     url: `/v4/drains/organisations/${params.ownerId}/applications/${params.applicationId}/drains/${params.drainId}/enable`,
     headers: { Accept: 'application/json' },
     // no body
@@ -119,7 +119,7 @@ export function enableDrain(params) {
 export function resetDrainCursor(params) {
   // no multipath for /self or /organisations/{id}
   return Promise.resolve({
-    method: 'PATCH',
+    method: 'patch',
     url: `/v4/drains/organisations/${params.ownerId}/applications/${params.applicationId}/drains/${params.drainId}/reset-cursor`,
     headers: { Accept: 'application/json' },
     // no body
