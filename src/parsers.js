@@ -225,14 +225,24 @@ function parseSimpleDuration(durationStr) {
   }
 }
 
-// Network groups parsers
+// Network Groups parsers
 export function ngResourceType(string) {
   if (string.startsWith('ng_')) {
     return cliparse.parsers.success({ ngId: string });
   }
-  if (string.startsWith('app_') || string.startsWith('addon_') || string.startsWith('external_')) {
+
+  if (
+    string.startsWith('app_') ||
+    string.startsWith('elasticsearch_') ||
+    string.startsWith('mongodb_') ||
+    string.startsWith('mysql_') ||
+    string.startsWith('postgresql_') ||
+    string.startsWith('redis_') ||
+    string.startsWith('external_')
+  ) {
     return cliparse.parsers.success({ memberId: string });
   }
+
   return cliparse.parsers.success({ ngResourceLabel: string });
 }
 

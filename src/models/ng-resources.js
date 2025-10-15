@@ -128,14 +128,16 @@ export async function deleteExternalPeerWithParent(ngIdOrLabel, peerIdOrLabel, o
 
 /**
  * Link a Member to a Network Group
- * @param {object} ngIdOrLabel The Network group ID or Label
+ * @param {object} ngIdOrLabel The Network Group ID or Label
  * @param {string} memberId ID of the Member to link
  * @param {object} org Organisation ID or name
  * @param {string} label Label of the Member
  */
 export async function linkMember(ngIdOrLabel, memberId, org, label) {
   if (!memberId) {
-    throw new Error('A valid member ID is required (addon_xxx, app_xxx, external_xxx)');
+    throw new Error(
+      'A valid member ID is required (app_xxx, external_xxx, mysql_xxx, postgresql_xxx, redis_xxx, etc.)',
+    );
   }
 
   const [ng] = await networkGroup.searchNgOrResource(ngIdOrLabel, org, 'NetworkGroup');
@@ -186,7 +188,9 @@ export async function linkMember(ngIdOrLabel, memberId, org, label) {
  */
 export async function unlinkMember(ngIdOrLabel, memberId, org) {
   if (!memberId) {
-    throw new Error('A valid member ID is required (addon_xxx, app_xxx, external_xxx)');
+    throw new Error(
+      'A valid member ID is required (app_xxx, external_xxx, mysql_xxx, postgresql_xxx, redis_xxx, etc.)',
+    );
   }
 
   const [ng] = await networkGroup.searchNgOrResource(ngIdOrLabel, org, 'NetworkGroup');
@@ -229,16 +233,17 @@ export async function checkMembersToLink(members, ownerId) {
   }
 
   const membersNotOK = [];
-  let source = data.applications;
 
   for (const memberId of members) {
-    if (memberId.startsWith('addon_')) {
+    let source = data.applications;
+
+    if (!memberId.startsWith('app_') && !memberId.startsWith('external_')) {
       source = data.addons;
     }
 
-    const foundRessource = source.find((r) => r.id === memberId);
+    const foundRessource = source.find((r) => r.realId === memberId || r.id === memberId);
 
-    if (foundRessource && memberId.startsWith('addon_') && !VALID_ADDON_PROVIDERS.includes(foundRessource.providerId)) {
+    if (foundRessource && !memberId.startsWith('app_') && !VALID_ADDON_PROVIDERS.includes(foundRessource.providerId)) {
       membersNotOK.push(memberId);
     } else if (!foundRessource && !memberId.startsWith('external_')) {
       membersNotOK.push(memberId);

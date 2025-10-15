@@ -2,7 +2,6 @@ import {
   createNetworkGroup,
   deleteNetworkGroup,
   getNetworkGroup,
-  getNetworkGroupWireGuardConfiguration,
   listNetworkGroups,
 } from '@clevercloud/client/esm/api/v4/network-group.js';
 import crypto from 'node:crypto';
@@ -72,11 +71,11 @@ export async function destroy(ngIdOrLabel, orgaIdOrName) {
 }
 
 /**
- * Get the Wireguard configuration of a Network Group peer
+ * Get the WireGuard configuration of a Network Group peer
  * @param {object} peerIdOrLabel The Peer ID or Label
  * @param {object} ngIdOrLabel The Network Group ID or Label
  * @param {object} orgaIdOrName The owner ID or name
- * @returns {Promise<Object>} The Peer Wireguard configuration
+ * @returns {Promise<Object>} The Peer WireGuard configuration
  * @throws {Error} If the Peer is not found
  * @throws {Error} If the Network Group is not found
  * @throws {Error} If the Peer is not in the Network Group
@@ -105,7 +104,7 @@ export async function getPeerConfig(peerIdOrLabel, ngIdOrLabel, orgaIdOrName) {
   }
 
   Logger.debug(`Getting configuration for Peer ${peer.id}`);
-  const result = await getNetworkGroupWireGuardConfiguration({
+  const result = await getNetworkGroupConfiguration({
     ownerId: parentNg.ownerId,
     networkGroupId: parentNg.id,
     peerId: peer.id,
@@ -116,7 +115,7 @@ export async function getPeerConfig(peerIdOrLabel, ngIdOrLabel, orgaIdOrName) {
 }
 
 /**
- * Get a Network group from an owner with members and peers
+ * Get a Network Group from an owner with members and peers
  * @param {string} networkGroupId The Network Group ID
  * @param {string} orgaIdOrName The owner ID or name
  * @returns {Promise<Array<Object>>} The Network Groups
@@ -187,7 +186,7 @@ export async function searchNgOrResource(idOrLabel, orgaIdOrName, type = 'all', 
 
   if (filtered.length > 1 && type !== 'all') {
     throw new Error(`Multiple resources found for ${styleText('red', query)}, use ID instead:
-${filtered.map((f) => ` • ${f.id} ${styleText('grey', `(${f.label} - ${f.type})`)}`).join('\n')}`);
+${filtered.map((f) => ` • ${f.id} ${styleText('grey', `(${f.domainName || f.label} - ${f.type})`)}`).join('\n')}`);
   }
 
   // Deduplicate results
@@ -208,8 +207,8 @@ export function constructMembers(ngId, membersIds) {
     return {
       id,
       domainName,
-      // Get kind from prefix match in id (app_*, addon_*, external_*) or default to 'APPLICATION'
-      kind: prefixToType[Object.keys(prefixToType).find((p) => id.startsWith(p))] ?? TYPE_PREFIXES.app_,
+      // Get kind from prefix match in id (app_*, addon_*, external_*) or default to 'ADDON'
+      kind: prefixToType[Object.keys(prefixToType).find((p) => id.startsWith(p))] ?? TYPE_PREFIXES.addon_,
     };
   });
 }

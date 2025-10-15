@@ -47,7 +47,7 @@ export async function deleteNg(params) {
  * @param {Object} params
  * @param {Object} params.args[0] External peer ID or label
  * @param {Object} params.args[1] Network Group ID or label
- * @param {string} params.args[2] Wireguard public key
+ * @param {string} params.args[2] WireGuard public key
  * @param {Object} params.options.org Organisation ID or name
  */
 export async function createExternalPeer(params) {
