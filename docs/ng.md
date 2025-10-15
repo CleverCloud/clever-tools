@@ -3,7 +3,7 @@
 [Network Groups](https://www.clever.cloud/developers/doc/develop/network-groups/) (NG) are a way to create a private secure network between resources inside Clever Cloud infrastructure, using [Wireguard](https://www.wireguard.com/). It's also possible to connect external resources to a Network Group. There are three components to this feature:
 
 * Network Group: a group of resources that can communicate with each through an encrypted tunnel
-* Member: a resource that can be part of a Network Group (`application`, `addon` or `external`)
+* Member: a resource that can be part of a Network Group (`application`, `add-on` or `external`)
 * Peer: Instance of a resource connected to a Network Group (can be `external`)
 
 A Network Group is defined by an ID (`ngId`) and a `label`. It can be completed by a `description` and `tags`.
@@ -51,7 +51,7 @@ clever ng create myNG
 You can create it declaring its members:
 
 ```
-clever ng create myNG --link app_xxx,addon_xxx
+clever ng create myNG --link app_xxx,postgresql_xxx
 ```
 
 You can add a description and tags:
@@ -91,10 +91,14 @@ To (un)link an application, add-on or external peer to a Network Group:
 
 ```
 clever ng link app_xxx ngIdOrLabel
-clever ng unlink addon_xxx ngIdorLabel
+clever ng unlink redis_xxx ngIdorLabel
 ```
 
 After an unlink, you may need to restart the application to apply the changes.
+
+> [!TIP]
+> To link add-ons to a Network Group, use real IDs (`mysql_xxx`, `postgresql_xxx`, `redis_`, etc.). \
+> Only add-ons deployed as of 2024 support Network Groups. If you can't access your add-on, migrate or restart it.
 
 ## Get information of a Network Group, a member or a peer
 
