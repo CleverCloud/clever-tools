@@ -127,6 +127,10 @@ async function run() {
       description: 'ID or Label of a Network group, a member or an (external) peer',
       parser: Parsers.ngResourceType,
     }),
+    ngResourceId: cliparse.argument('id', {
+      description: 'ID of a resource to (un)link to a Network group',
+      parser: Parsers.ngResourceType,
+    }),
     wgPublicKey: cliparse.argument('public-key', {
       metavar: 'public_key',
       description: 'Wireguard public key of the external peer to link to a Network Group',
@@ -1417,16 +1421,16 @@ async function run() {
   const ngLinkCommand = cliparse.command(
     'link',
     {
-      description: 'Link an application or a database add-on by its ID to a Network Group',
-      args: [args.ngAnyIdOrLabel, args.ngIdOrLabel],
+      description: 'Link a resource by its ID (app_xxx, external_xxx, mysql_xxx, postgresql_xxx, redis_xxx, etc.) to a Network Group',
+      args: [args.ngResourceId, args.ngIdOrLabel],
     },
     ng.linkToNg,
   );
   const ngUnlinkCommand = cliparse.command(
     'unlink',
     {
-      description: 'Unlink an application or a database add-on by its ID from a Network Group',
-      args: [args.ngAnyIdOrLabel, args.ngIdOrLabel],
+      description: 'Unlink a resource by its ID (app_xxx, external_xxx, mysql_xxx, postgresql_xxx, redis_xxx, etc.) from a Network Group',
+      args: [args.ngResourceId, args.ngIdOrLabel],
     },
     ng.unlinkFromNg,
   );

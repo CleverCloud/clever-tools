@@ -208,8 +208,8 @@ export function constructMembers(ngId, membersIds) {
     return {
       id,
       domainName,
-      // Get kind from prefix match in id (app_*, addon_*, external_*) or default to 'APPLICATION'
-      kind: prefixToType[Object.keys(prefixToType).find((p) => id.startsWith(p))] ?? TYPE_PREFIXES.app_,
+      // Get kind from prefix match in id (app_*, addon_*, external_*) or default to 'ADDON'
+      kind: prefixToType[Object.keys(prefixToType).find((p) => id.startsWith(p))] ?? TYPE_PREFIXES.addon_,
     };
   });
 }
