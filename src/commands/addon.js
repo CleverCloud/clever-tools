@@ -131,7 +131,7 @@ function displayAddon(format, addon, providerName, message) {
       `,
     },
     kv: {
-      status: 'alpha',
+      status: 'beta',
       postCreateInstructions: dedent`
         ${styleText('yellow', "You can easily use Materia KV with 'redis-cli', with such commands:")}
         ${styleText('blue', `source <(clever addon env ${addon.id} -F shell)`)}
@@ -158,7 +158,7 @@ function displayAddon(format, addon, providerName, message) {
       `,
     },
     'addon-pulsar': {
-      status: 'beta',
+      status: '',
       postCreateInstructions: dedent`
         Learn more about Pulsar on Clever Cloud: ${conf.DOC_URL}/addons/pulsar/
       `,
