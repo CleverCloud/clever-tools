@@ -238,7 +238,8 @@ export function ngResourceType(string) {
     string.startsWith('mysql_') ||
     string.startsWith('postgresql_') ||
     string.startsWith('redis_') ||
-    string.startsWith('external_')) {
+    string.startsWith('external_')
+  ) {
     return cliparse.parsers.success({ memberId: string });
   }
 

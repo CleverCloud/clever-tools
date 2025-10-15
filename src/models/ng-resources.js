@@ -135,7 +135,9 @@ export async function deleteExternalPeerWithParent(ngIdOrLabel, peerIdOrLabel, o
  */
 export async function linkMember(ngIdOrLabel, memberId, org, label) {
   if (!memberId) {
-    throw new Error('A valid member ID is required (app_xxx, external_xxx, mysql_xxx, postgresql_xxx, redis_xxx, etc.)');
+    throw new Error(
+      'A valid member ID is required (app_xxx, external_xxx, mysql_xxx, postgresql_xxx, redis_xxx, etc.)',
+    );
   }
 
   const [ng] = await networkGroup.searchNgOrResource(ngIdOrLabel, org, 'NetworkGroup');
@@ -186,7 +188,9 @@ export async function linkMember(ngIdOrLabel, memberId, org, label) {
  */
 export async function unlinkMember(ngIdOrLabel, memberId, org) {
   if (!memberId) {
-    throw new Error('A valid member ID is required (app_xxx, external_xxx, mysql_xxx, postgresql_xxx, redis_xxx, etc.)');
+    throw new Error(
+      'A valid member ID is required (app_xxx, external_xxx, mysql_xxx, postgresql_xxx, redis_xxx, etc.)',
+    );
   }
 
   const [ng] = await networkGroup.searchNgOrResource(ngIdOrLabel, org, 'NetworkGroup');

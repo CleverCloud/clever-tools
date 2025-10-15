@@ -2,7 +2,6 @@ import {
   createNetworkGroup,
   deleteNetworkGroup,
   getNetworkGroup,
-  getNetworkGroupWireGuardConfiguration,
   listNetworkGroups,
 } from '@clevercloud/client/esm/api/v4/network-group.js';
 import crypto from 'node:crypto';

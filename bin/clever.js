@@ -1421,7 +1421,8 @@ async function run() {
   const ngLinkCommand = cliparse.command(
     'link',
     {
-      description: 'Link a resource by its ID (app_xxx, external_xxx, mysql_xxx, postgresql_xxx, redis_xxx, etc.) to a Network Group',
+      description:
+        'Link a resource by its ID (app_xxx, external_xxx, mysql_xxx, postgresql_xxx, redis_xxx, etc.) to a Network Group',
       args: [args.ngResourceId, args.ngIdOrLabel],
     },
     ng.linkToNg,
@@ -1429,7 +1430,8 @@ async function run() {
   const ngUnlinkCommand = cliparse.command(
     'unlink',
     {
-      description: 'Unlink a resource by its ID (app_xxx, external_xxx, mysql_xxx, postgresql_xxx, redis_xxx, etc.) from a Network Group',
+      description:
+        'Unlink a resource by its ID (app_xxx, external_xxx, mysql_xxx, postgresql_xxx, redis_xxx, etc.) from a Network Group',
       args: [args.ngResourceId, args.ngIdOrLabel],
     },
     ng.unlinkFromNg,
