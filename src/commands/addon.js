@@ -3,6 +3,7 @@ import { styleText } from '../lib/style-text.js';
 import { getAllEnvVars } from '@clevercloud/client/esm/api/v2/addon.js';
 import { toNameEqualsValueString } from '@clevercloud/client/esm/utils/env-vars.js';
 import dedent from 'dedent';
+import { getOperator } from '../clever-client/operators.js';
 import { formatTable } from '../format-table.js';
 import { Logger } from '../logger.js';
 import * as Addon from '../models/addon.js';
@@ -99,28 +100,16 @@ export async function create(params) {
     );
   } else {
     const newAddon = await Addon.create(addonToCreate);
-    displayAddon(format, newAddon, providerName, 'Add-on created successfully!');
+    await displayAddon(format, newAddon, providerName, 'Add-on created successfully!');
   }
 }
 
-function displayAddon(format, addon, providerName, message) {
-  const PROVIDERS_WITH_URL = {
-    keycloak: {
-      name: 'Keycloak',
-      urlEnv: 'CC_KEYCLOAK_URL',
-    },
-    'addon-matomo': {
-      name: 'Matomo',
-      urlEnv: 'MATOMO_URL',
-    },
-    metabase: {
-      name: 'Metabase',
-      urlEnv: 'METABASE_URL',
-    },
-    otoroshi: {
-      name: 'Otoroshi with LLM',
-      urlEnv: 'CC_OTOROSHI_URL',
-    },
+async function displayAddon(format, addon, providerName, message) {
+  const OPERATORS = {
+    keycloak: 'Keycloak',
+    'addon-matomo': 'Matomo',
+    metabase: 'Metabase',
+    otoroshi: 'Otoroshi with LLM',
   };
 
   const WIP_PROVIDERS = {
@@ -196,41 +185,32 @@ function displayAddon(format, addon, providerName, message) {
     default:
       Logger.println([message, `ID: ${addon.id}`, `Real ID: ${addon.realId}`, `Name: ${addon.name}`].join('\n'));
 
-      if (providerName in PROVIDERS_WITH_URL) {
-        const provider = PROVIDERS_WITH_URL[providerName];
-        const urlEnv = addon.env.find((entry) => entry.name === provider.urlEnv);
-        const urlToShow = urlEnv.value;
-        const urlToShowWithHttps = urlToShow.startsWith('http') ? urlToShow : `https://${urlToShow}`;
+      if (providerName in OPERATORS) {
+        const operator = await getOperator({ provider: providerName, realId: addon.realId }).then(sendToApi);
 
-        if (urlEnv) {
+        if (operator.accessUrl) {
           Logger.println();
-          Logger.println(`Your ${provider.name} is starting:`);
-          Logger.println(` - Access it: ${urlToShowWithHttps}`);
+          Logger.println(`Your ${OPERATORS[providerName]} is starting:`);
+          Logger.println(` - Access it: ${operator.accessUrl}`);
           Logger.println(` - Manage it: ${conf.GOTO_URL}/${addon.id}`);
         }
 
-        if (providerName === 'keycloak') {
+        if (providerName === 'keycloak' && operator.initialCredentials) {
           Logger.println();
           Logger.println(
             "An initial account has been created, you'll be invited to change the password at first login:",
           );
-          Logger.println(` - Admin user name: ${addon.env.find((e) => e.name === 'CC_KEYCLOAK_ADMIN').value}`);
-          Logger.println(
-            ` - Temporary password: ${addon.env.find((e) => e.name === 'CC_KEYCLOAK_ADMIN_DEFAULT_PASSWORD').value}`,
-          );
+          Logger.println(` - Admin user name: ${operator.initialCredentials.user}`);
+          Logger.println(` - Temporary password: ${operator.initialCredentials.password}`);
         }
 
-        if (providerName === 'otoroshi') {
+        if (providerName === 'otoroshi' && operator.initialCredentials) {
           Logger.println();
           Logger.println(
             'An initial account has been created, change the password at first login (Security -> Administrators -> Edit user):',
           );
-          Logger.println(
-            ` - Admin user name: ${addon.env.find((e) => e.name === 'CC_OTOROSHI_INITIAL_ADMIN_LOGIN').value}`,
-          );
-          Logger.println(
-            ` - Initial password: ${addon.env.find((e) => e.name === 'CC_OTOROSHI_INITIAL_ADMIN_PASSWORD').value}`,
-          );
+          Logger.println(` - Admin user name: ${operator.initialCredentials.user}`);
+          Logger.println(` - Password: ${operator.initialCredentials.password}`);
         }
       }
 
