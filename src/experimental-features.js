@@ -3,7 +3,7 @@ import { conf } from './models/configuration.js';
 
 export const EXPERIMENTAL_FEATURES = {
   kv: {
-    status: 'alpha',
+    status: 'beta',
     description:
       'Send commands to databases such as Materia KV or Redis® directly from Clever Tools, without other dependencies',
     instructions: dedent`

@@ -3,6 +3,7 @@ import { styleText } from '../lib/style-text.js';
 import { getAllEnvVars } from '@clevercloud/client/esm/api/v2/addon.js';
 import { toNameEqualsValueString } from '@clevercloud/client/esm/utils/env-vars.js';
 import dedent from 'dedent';
+import { getOperator } from '../clever-client/operators.js';
 import { formatTable } from '../format-table.js';
 import { Logger } from '../logger.js';
 import * as Addon from '../models/addon.js';
@@ -53,6 +54,45 @@ export async function list(params) {
   }
 }
 
+const ADDON_PROVIDERS = {
+  keycloak: {
+    name: 'Keycloak',
+    isOperator: true,
+    postCreateInstructions: `Learn more about Keycloak on Clever Cloud: ${conf.DOC_URL}/addons/keycloak/`,
+  },
+  kv: {
+    name: 'Materia KV',
+    isOperator: false,
+    status: 'beta',
+    postCreateInstructions: (addonId) => dedent`
+      ${styleText('yellow', "You can easily use Materia KV with 'redis-cli', with such commands:")}
+      ${styleText('blue', `source <(clever addon env ${addonId} -F shell)`)}
+      ${styleText('blue', 'redis-cli -h $KV_HOST -p $KV_PORT --tls')}
+      Learn more about Materia KV on Clever Cloud: ${conf.DOC_URL}/addons/materia-kv/
+    `,
+  },
+  'addon-matomo': {
+    name: 'Matomo',
+    isOperator: true,
+    postCreateInstructions: `Learn more about Matomo on Clever Cloud: ${conf.DOC_URL}/addons/matomo/`,
+  },
+  metabase: {
+    name: 'Metabase',
+    isOperator: true,
+    postCreateInstructions: `Learn more about Metabase on Clever Cloud: ${conf.DOC_URL}/addons/metabase/`,
+  },
+  otoroshi: {
+    name: 'Otoroshi with LLM',
+    isOperator: true,
+    postCreateInstructions: `Learn more about Otoroshi with LLM on Clever Cloud: ${conf.DOC_URL}/addons/otoroshi/`,
+  },
+  'addon-pulsar': {
+    name: 'Pulsar',
+    isOperator: false,
+    postCreateInstructions: `Learn more about Pulsar on Clever Cloud: ${conf.DOC_URL}/addons/pulsar/`,
+  },
+};
+
 export async function create(params) {
   const [providerName, name] = params.args;
   const {
@@ -62,23 +102,21 @@ export async function create(params) {
     yes: skipConfirmation,
     org: orgaIdOrName,
     format,
+    'addon-version': version,
+    option: addonOptions,
   } = params.options;
-  const version = params.options['addon-version'];
-  const addonOptions = parseAddonOptions(params.options.option);
-
-  const ownerId = orgaIdOrName != null ? await Organisation.getId(orgaIdOrName) : await User.getCurrentId();
 
   const addonToCreate = {
-    ownerId,
     name,
     providerName,
     planName,
     region,
     skipConfirmation,
     version,
-    addonOptions,
+    addonOptions: parseAddonOptions(addonOptions),
   };
 
+  const ownerId = orgaIdOrName != null ? await Organisation.getId(orgaIdOrName) : await User.getCurrentId();
   if (linkedAppAlias != null) {
     const linkedAppData = await AppConfig.getAppDetails({ alias: linkedAppAlias });
     if (orgaIdOrName != null && linkedAppData.ownerId !== ownerId && format === 'human') {
@@ -86,163 +124,98 @@ export async function create(params) {
         'The specified application does not belong to the specified organisation. Ignoring the `--org` option',
       );
     }
-    const newAddon = await Addon.create({
-      ...addonToCreate,
-      ownerId: linkedAppData.ownerId,
-    });
-    await Addon.link(linkedAppData.ownerId, linkedAppData.appId, { addon_id: newAddon.id });
-    displayAddon(
-      format,
-      newAddon,
-      providerName,
-      `Add-on created and linked to application ${linkedAppAlias} successfully!`,
-    );
+    addonToCreate.ownerId = linkedAppData.ownerId;
   } else {
-    const newAddon = await Addon.create(addonToCreate);
-    displayAddon(format, newAddon, providerName, 'Add-on created successfully!');
+    addonToCreate.ownerId = ownerId;
   }
-}
 
-function displayAddon(format, addon, providerName, message) {
-  const PROVIDERS_WITH_URL = {
-    keycloak: {
-      name: 'Keycloak',
-      urlEnv: 'CC_KEYCLOAK_URL',
-    },
-    'addon-matomo': {
-      name: 'Matomo',
-      urlEnv: 'MATOMO_URL',
-    },
-    metabase: {
-      name: 'Metabase',
-      urlEnv: 'METABASE_URL',
-    },
-    otoroshi: {
-      name: 'Otoroshi with LLM',
-      urlEnv: 'CC_OTOROSHI_URL',
-    },
-  };
+  const newAddon = await Addon.create(addonToCreate);
 
-  const WIP_PROVIDERS = {
-    keycloak: {
-      status: '',
-      postCreateInstructions: dedent`
-        Learn more about Keycloak on Clever Cloud: ${conf.DOC_URL}/addons/keycloak/,
-      `,
-    },
-    kv: {
-      status: 'alpha',
-      postCreateInstructions: dedent`
-        ${styleText('yellow', "You can easily use Materia KV with 'redis-cli', with such commands:")}
-        ${styleText('blue', `source <(clever addon env ${addon.id} -F shell)`)}
-        ${styleText('blue', 'redis-cli -h $KV_HOST -p $KV_PORT --tls')}
-        Learn more about Materia KV on Clever Cloud: ${conf.DOC_URL}/addons/materia-kv/
-      `,
-    },
-    'addon-matomo': {
-      status: '',
-      postCreateInstructions: dedent`
-        Learn more about Matomo on Clever Cloud: ${conf.DOC_URL}/addons/matomo/
-      `,
-    },
-    metabase: {
-      status: '',
-      postCreateInstructions: dedent`
-        Learn more about Metabase on Clever Cloud: ${conf.DOC_URL}/addons/metabase/
-      `,
-    },
-    otoroshi: {
-      status: '',
-      postCreateInstructions: dedent`
-        Learn more about Otoroshi with LLM on Clever Cloud: ${conf.DOC_URL}/addons/otoroshi/
-      `,
-    },
-    'addon-pulsar': {
-      status: 'beta',
-      postCreateInstructions: dedent`
-        Learn more about Pulsar on Clever Cloud: ${conf.DOC_URL}/addons/pulsar/
-      `,
-    },
-  };
+  if (linkedAppAlias != null) {
+    const linkedAppData = await AppConfig.getAppDetails({ alias: linkedAppAlias });
+    await Addon.link(linkedAppData.ownerId, linkedAppData.appId, { addon_id: newAddon.id });
+  }
 
-  let providerNameToShow = '';
+  const provider = ADDON_PROVIDERS[providerName];
   let statusMessage = '';
-  if (providerName in WIP_PROVIDERS && WIP_PROVIDERS[providerName].status !== '') {
-    providerNameToShow = providerName === 'kv' ? 'Materia KV' : providerName;
-
-    statusMessage = `The ${providerNameToShow} provider is in ${WIP_PROVIDERS[providerName].status} testing phase`;
-    statusMessage +=
-      WIP_PROVIDERS[providerName].status === 'alpha' ? ". Don't store sensitive or production grade data." : '';
+  if (provider?.status) {
+    statusMessage = `The ${provider.name} provider is in ${provider.status} testing phase`;
+    if (provider.status === 'alpha') {
+      statusMessage += ". Don't store sensitive or production grade data.";
+    }
   }
 
-  switch (format) {
-    case 'json': {
-      const jsonAddon = {
-        id: addon.id,
-        realId: addon.realId,
-        name: addon.name,
-        env: addon.env,
-      };
+  // JSON format
+  if (format === 'json') {
+    const jsonAddon = {
+      id: newAddon.id,
+      realId: newAddon.realId,
+      name: newAddon.name,
+      env: newAddon.env,
+    };
 
-      Logger.printJson(
-        WIP_PROVIDERS[providerName] != null
-          ? { ...jsonAddon, availability: WIP_PROVIDERS[providerName].status, message: statusMessage }
-          : jsonAddon,
-      );
-      break;
+    if (provider?.status) {
+      jsonAddon.availability = provider.status;
+      jsonAddon.message = statusMessage;
     }
 
-    case 'human':
-    default:
-      Logger.println([message, `ID: ${addon.id}`, `Real ID: ${addon.realId}`, `Name: ${addon.name}`].join('\n'));
+    Logger.printJson(jsonAddon);
+    return;
+  }
 
-      if (providerName in PROVIDERS_WITH_URL) {
-        const provider = PROVIDERS_WITH_URL[providerName];
-        const urlEnv = addon.env.find((entry) => entry.name === provider.urlEnv);
-        const urlToShow = urlEnv.value;
-        const urlToShowWithHttps = urlToShow.startsWith('http') ? urlToShow : `https://${urlToShow}`;
+  // Human format
+  if (linkedAppAlias != null) {
+    Logger.println(`Add-on created and linked to application ${linkedAppAlias} successfully!`);
+  } else {
+    Logger.println('Add-on created successfully!');
+  }
 
-        if (urlEnv) {
-          Logger.println();
-          Logger.println(`Your ${provider.name} is starting:`);
-          Logger.println(` - Access it: ${urlToShowWithHttps}`);
-          Logger.println(` - Manage it: ${conf.GOTO_URL}/${addon.id}`);
-        }
+  Logger.println(`ID: ${newAddon.id}`);
+  Logger.println(`Real ID: ${newAddon.realId}`);
+  Logger.println(`Name: ${newAddon.name}`);
 
-        if (providerName === 'keycloak') {
-          Logger.println();
-          Logger.println(
-            "An initial account has been created, you'll be invited to change the password at first login:",
-          );
-          Logger.println(` - Admin user name: ${addon.env.find((e) => e.name === 'CC_KEYCLOAK_ADMIN').value}`);
-          Logger.println(
-            ` - Temporary password: ${addon.env.find((e) => e.name === 'CC_KEYCLOAK_ADMIN_DEFAULT_PASSWORD').value}`,
-          );
-        }
+  const operator = ADDON_PROVIDERS[providerName]?.isOperator
+    ? await getOperator({ provider: providerName, realId: newAddon.realId }).then(sendToApi)
+    : null;
 
-        if (providerName === 'otoroshi') {
-          Logger.println();
-          Logger.println(
-            'An initial account has been created, change the password at first login (Security -> Administrators -> Edit user):',
-          );
-          Logger.println(
-            ` - Admin user name: ${addon.env.find((e) => e.name === 'CC_OTOROSHI_INITIAL_ADMIN_LOGIN').value}`,
-          );
-          Logger.println(
-            ` - Initial password: ${addon.env.find((e) => e.name === 'CC_OTOROSHI_INITIAL_ADMIN_PASSWORD').value}`,
-          );
-        }
-      }
+  if (operator) {
+    if (operator.accessUrl) {
+      Logger.println();
+      Logger.println(`Your ${ADDON_PROVIDERS[providerName].name} is starting:`);
+      Logger.println(` - Access it: ${operator.accessUrl}`);
+      Logger.println(` - Manage it: ${conf.GOTO_URL}/${newAddon.id}`);
+    }
 
-      if (providerName in WIP_PROVIDERS) {
+    if (operator.initialCredentials) {
+      if (providerName === 'keycloak') {
         Logger.println();
-
-        if (statusMessage !== '') {
-          Logger.println(styleText('yellow', `/!\\ ${statusMessage}`));
-        }
-
-        Logger.println(WIP_PROVIDERS[providerName].postCreateInstructions);
+        Logger.println("An initial account has been created, you'll be invited to change the password at first login:");
+        Logger.println(` - Admin user name: ${operator.initialCredentials.user}`);
+        Logger.println(` - Temporary password: ${operator.initialCredentials.password}`);
       }
+      if (providerName === 'otoroshi') {
+        Logger.println();
+        Logger.println(
+          'An initial account has been created, change the password at first login (Security -> Administrators -> Edit user):',
+        );
+        Logger.println(` - Admin user name: ${operator.initialCredentials.user}`);
+        Logger.println(` - Password: ${operator.initialCredentials.password}`);
+      }
+    }
+  }
+
+  if (provider?.postCreateInstructions) {
+    Logger.println();
+
+    if (statusMessage !== '') {
+      Logger.println(styleText('yellow', `/!\\ ${statusMessage}`));
+    }
+
+    if (typeof provider.postCreateInstructions === 'function') {
+      Logger.println(provider.postCreateInstructions(newAddon.id));
+    } else {
+      Logger.println(provider.postCreateInstructions);
+    }
   }
 }
 
