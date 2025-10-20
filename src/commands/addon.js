@@ -3,6 +3,7 @@ import { styleText } from '../lib/style-text.js';
 import { getAllEnvVars } from '@clevercloud/client/esm/api/v2/addon.js';
 import { toNameEqualsValueString } from '@clevercloud/client/esm/utils/env-vars.js';
 import dedent from 'dedent';
+import { getOperator } from '../clever-client/operators.js';
 import { formatTable } from '../format-table.js';
 import { Logger } from '../logger.js';
 import * as Addon from '../models/addon.js';
@@ -56,11 +57,12 @@ export async function list(params) {
 const ADDON_PROVIDERS = {
   keycloak: {
     name: 'Keycloak',
-    urlEnv: 'CC_KEYCLOAK_URL',
+    isOperator: true,
     postCreateInstructions: `Learn more about Keycloak on Clever Cloud: ${conf.DOC_URL}/addons/keycloak/`,
   },
   kv: {
     name: 'Materia KV',
+    isOperator: false,
     status: 'beta',
     postCreateInstructions: (addonId) => dedent`
       ${styleText('yellow', "You can easily use Materia KV with 'redis-cli', with such commands:")}
@@ -71,21 +73,22 @@ const ADDON_PROVIDERS = {
   },
   'addon-matomo': {
     name: 'Matomo',
-    urlEnv: 'MATOMO_URL',
+    isOperator: true,
     postCreateInstructions: `Learn more about Matomo on Clever Cloud: ${conf.DOC_URL}/addons/matomo/`,
   },
   metabase: {
     name: 'Metabase',
-    urlEnv: 'METABASE_URL',
+    isOperator: true,
     postCreateInstructions: `Learn more about Metabase on Clever Cloud: ${conf.DOC_URL}/addons/metabase/`,
   },
   otoroshi: {
     name: 'Otoroshi with LLM',
-    urlEnv: 'CC_OTOROSHI_URL',
+    isOperator: true,
     postCreateInstructions: `Learn more about Otoroshi with LLM on Clever Cloud: ${conf.DOC_URL}/addons/otoroshi/`,
   },
   'addon-pulsar': {
     name: 'Pulsar',
+    isOperator: false,
     postCreateInstructions: `Learn more about Pulsar on Clever Cloud: ${conf.DOC_URL}/addons/pulsar/`,
   },
 };
@@ -171,38 +174,33 @@ export async function create(params) {
   Logger.println(`Real ID: ${newAddon.realId}`);
   Logger.println(`Name: ${newAddon.name}`);
 
-  if (provider?.urlEnv) {
-    const urlEnv = newAddon.env.find((entry) => entry.name === provider.urlEnv);
-    const urlToShow = urlEnv.value;
-    const urlToShowWithHttps = urlToShow.startsWith('http') ? urlToShow : `https://${urlToShow}`;
+  const operator = ADDON_PROVIDERS[providerName]?.isOperator
+    ? await getOperator({ provider: providerName, realId: newAddon.realId }).then(sendToApi)
+    : null;
 
-    if (urlEnv) {
+  if (operator) {
+    if (operator.accessUrl) {
       Logger.println();
-      Logger.println(`Your ${provider.name} is starting:`);
-      Logger.println(` - Access it: ${urlToShowWithHttps}`);
+      Logger.println(`Your ${ADDON_PROVIDERS[providerName].name} is starting:`);
+      Logger.println(` - Access it: ${operator.accessUrl}`);
       Logger.println(` - Manage it: ${conf.GOTO_URL}/${newAddon.id}`);
     }
 
-    if (providerName === 'keycloak') {
-      Logger.println();
-      Logger.println("An initial account has been created, you'll be invited to change the password at first login:");
-      Logger.println(` - Admin user name: ${newAddon.env.find((e) => e.name === 'CC_KEYCLOAK_ADMIN').value}`);
-      Logger.println(
-        ` - Temporary password: ${newAddon.env.find((e) => e.name === 'CC_KEYCLOAK_ADMIN_DEFAULT_PASSWORD').value}`,
-      );
-    }
-
-    if (providerName === 'otoroshi') {
-      Logger.println();
-      Logger.println(
-        'An initial account has been created, change the password at first login (Security -> Administrators -> Edit user):',
-      );
-      Logger.println(
-        ` - Admin user name: ${newAddon.env.find((e) => e.name === 'CC_OTOROSHI_INITIAL_ADMIN_LOGIN').value}`,
-      );
-      Logger.println(
-        ` - Initial password: ${newAddon.env.find((e) => e.name === 'CC_OTOROSHI_INITIAL_ADMIN_PASSWORD').value}`,
-      );
+    if (operator.initialCredentials) {
+      if (providerName === 'keycloak') {
+        Logger.println();
+        Logger.println("An initial account has been created, you'll be invited to change the password at first login:");
+        Logger.println(` - Admin user name: ${operator.initialCredentials.user}`);
+        Logger.println(` - Temporary password: ${operator.initialCredentials.password}`);
+      }
+      if (providerName === 'otoroshi') {
+        Logger.println();
+        Logger.println(
+          'An initial account has been created, change the password at first login (Security -> Administrators -> Edit user):',
+        );
+        Logger.println(` - Admin user name: ${operator.initialCredentials.user}`);
+        Logger.println(` - Password: ${operator.initialCredentials.password}`);
+      }
     }
   }
 
