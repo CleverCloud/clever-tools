@@ -9,6 +9,8 @@ export async function confirm(message, rejectionMessage) {
   if (!answer) {
     throw new Error(rejectionMessage);
   }
+
+  return answer;
 }
 
 export async function confirmAnswer(message, rejectionMessage, expectedAnswer) {
