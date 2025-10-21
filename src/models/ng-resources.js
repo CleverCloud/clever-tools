@@ -1,10 +1,10 @@
-import { getSummary } from '@clevercloud/client/esm/api/v2/user.js';
 import * as networkGroupApi from '@clevercloud/client/esm/api/v4/network-group.js';
 import crypto from 'node:crypto';
 import { setTimeout } from 'node:timers/promises';
 import { styleText } from '../lib/style-text.js';
 import { Logger } from '../logger.js';
 import * as networkGroup from './ng.js';
+import { NG_MEMBER_PREFIXES } from './ng.js';
 import { sendToApi } from './send-to-api.js';
 
 /**
@@ -128,14 +128,16 @@ export async function deleteExternalPeerWithParent(ngIdOrLabel, peerIdOrLabel, o
 
 /**
  * Link a Member to a Network Group
- * @param {object} ngIdOrLabel The Network group ID or Label
+ * @param {object} ngIdOrLabel The Network Group ID or Label
  * @param {string} memberId ID of the Member to link
  * @param {object} org Organisation ID or name
  * @param {string} label Label of the Member
  */
 export async function linkMember(ngIdOrLabel, memberId, org, label) {
   if (!memberId) {
-    throw new Error('A valid member ID is required (addon_xxx, app_xxx, external_xxx)');
+    throw new Error(
+      'A valid member ID is required (app_xxx, external_xxx, mysql_xxx, postgresql_xxx, redis_xxx, etc.)',
+    );
   }
 
   const [ng] = await networkGroup.searchNgOrResource(ngIdOrLabel, org, 'NetworkGroup');
@@ -144,7 +146,7 @@ export async function linkMember(ngIdOrLabel, memberId, org, label) {
     throw new Error(`Network Group ${styleText('red', ngIdOrLabel.ngId || ngIdOrLabel.ngResourceLabel)} not found`);
   }
 
-  await checkMembersToLink([memberId], ng.ownerId);
+  checkMembersToLink([memberId]);
 
   const alreadyMember = ng.members.find((m) => m.id === memberId);
   if (alreadyMember) {
@@ -186,7 +188,9 @@ export async function linkMember(ngIdOrLabel, memberId, org, label) {
  */
 export async function unlinkMember(ngIdOrLabel, memberId, org) {
   if (!memberId) {
-    throw new Error('A valid member ID is required (addon_xxx, app_xxx, external_xxx)');
+    throw new Error(
+      'A valid member ID is required (app_xxx, external_xxx, mysql_xxx, postgresql_xxx, redis_xxx, etc.)',
+    );
   }
 
   const [ng] = await networkGroup.searchNgOrResource(ngIdOrLabel, org, 'NetworkGroup');
@@ -215,39 +219,23 @@ export async function unlinkMember(ngIdOrLabel, memberId, org) {
 
 /**
  * Check if members can be linked to a Network Group
- * @param {Array<string>} members Members to check
+ * @param {Array<string>} memberIds Members to check
  * @throws {Error} If members can't be linked to a Network Group
  */
-export async function checkMembersToLink(members, ownerId) {
-  const VALID_ADDON_PROVIDERS = ['es-addon', 'mongodb-addon', 'mysql-addon', 'postgresql-addon', 'redis-addon'];
-
-  const summary = await getSummary().then(sendToApi);
-
-  let data = summary.user;
-  if (summary.user.id !== ownerId) {
-    data = summary.organisations.find((o) => o.id === ownerId);
-  }
-
+export function checkMembersToLink(memberIds) {
+  const validPrefixes = Object.keys(NG_MEMBER_PREFIXES);
   const membersNotOK = [];
-  let source = data.applications;
 
-  for (const memberId of members) {
-    if (memberId.startsWith('addon_')) {
-      source = data.addons;
-    }
-
-    const foundRessource = source.find((r) => r.id === memberId);
-
-    if (foundRessource && memberId.startsWith('addon_') && !VALID_ADDON_PROVIDERS.includes(foundRessource.providerId)) {
-      membersNotOK.push(memberId);
-    } else if (!foundRessource && !memberId.startsWith('external_')) {
+  for (const memberId of memberIds) {
+    const hasValidPrefix = validPrefixes.some((prefix) => memberId.startsWith(prefix));
+    if (!hasValidPrefix) {
       membersNotOK.push(memberId);
     }
   }
 
   if (membersNotOK.length > 0) {
     throw new Error(
-      `Member(s) ${styleText('red', membersNotOK.join(', '))} can't be linked to the Network Group, check Organisation ID or name`,
+      `Member(s) ${styleText('red', membersNotOK.join(', '))} can't be linked to the Network Group, check member ID format`,
     );
   }
 }

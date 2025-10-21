@@ -17,9 +17,13 @@ import * as User from './user.js';
 export const POLLING_TIMEOUT_MS = 30_000;
 export const POLLING_INTERVAL_MS = 1000;
 export const DOMAIN = 'cc-ng.cloud';
-const TYPE_PREFIXES = {
+export const NG_MEMBER_PREFIXES = {
   app_: 'APPLICATION',
-  addon_: 'ADDON',
+  elasticsearch_: 'ADDON',
+  mongodb_: 'ADDON',
+  mysql_: 'ADDON',
+  postgresql_: 'ADDON',
+  redis_: 'ADDON',
   external_: 'EXTERNAL',
 };
 
@@ -37,7 +41,7 @@ export async function create(label, description, tags, membersIds, orgaIdOrName)
   const ownerId = await getOwnerIdFromOrgaIdOrName(orgaIdOrName);
 
   if (membersIds?.length > 0) {
-    await checkMembersToLink(membersIds, ownerId);
+    checkMembersToLink(membersIds);
   }
 
   const members = constructMembers(id, membersIds || []);
@@ -72,11 +76,11 @@ export async function destroy(ngIdOrLabel, orgaIdOrName) {
 }
 
 /**
- * Get the Wireguard configuration of a Network Group peer
+ * Get the WireGuard configuration of a Network Group peer
  * @param {object} peerIdOrLabel The Peer ID or Label
  * @param {object} ngIdOrLabel The Network Group ID or Label
  * @param {object} orgaIdOrName The owner ID or name
- * @returns {Promise<Object>} The Peer Wireguard configuration
+ * @returns {Promise<Object>} The Peer WireGuard configuration
  * @throws {Error} If the Peer is not found
  * @throws {Error} If the Network Group is not found
  * @throws {Error} If the Peer is not in the Network Group
@@ -116,7 +120,7 @@ export async function getPeerConfig(peerIdOrLabel, ngIdOrLabel, orgaIdOrName) {
 }
 
 /**
- * Get a Network group from an owner with members and peers
+ * Get a Network Group from an owner with members and peers
  * @param {string} networkGroupId The Network Group ID
  * @param {string} orgaIdOrName The owner ID or name
  * @returns {Promise<Array<Object>>} The Network Groups
@@ -187,7 +191,7 @@ export async function searchNgOrResource(idOrLabel, orgaIdOrName, type = 'all', 
 
   if (filtered.length > 1 && type !== 'all') {
     throw new Error(`Multiple resources found for ${styleText('red', query)}, use ID instead:
-${filtered.map((f) => ` • ${f.id} ${styleText('grey', `(${f.label} - ${f.type})`)}`).join('\n')}`);
+${filtered.map((f) => ` • ${f.id} ${styleText('grey', `(${f.domainName || f.label} - ${f.type})`)}`).join('\n')}`);
   }
 
   // Deduplicate results
@@ -203,14 +207,9 @@ ${filtered.map((f) => ` • ${f.id} ${styleText('grey', `(${f.label} - ${f.type}
 export function constructMembers(ngId, membersIds) {
   return membersIds.map((id) => {
     const domainName = `${id}.m.${ngId}.${DOMAIN}`;
-    const prefixToType = TYPE_PREFIXES;
-
-    return {
-      id,
-      domainName,
-      // Get kind from prefix match in id (app_*, addon_*, external_*) or default to 'APPLICATION'
-      kind: prefixToType[Object.keys(prefixToType).find((p) => id.startsWith(p))] ?? TYPE_PREFIXES.app_,
-    };
+    const prefix = Object.keys(NG_MEMBER_PREFIXES).find((p) => id.startsWith(p));
+    const kind = NG_MEMBER_PREFIXES[prefix];
+    return { id, domainName, kind };
   });
 }
 

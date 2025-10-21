@@ -1,6 +1,7 @@
 import cliparse from 'cliparse';
 import ISO8601 from 'iso8601-duration';
 import * as Application from './models/application.js';
+import { NG_MEMBER_PREFIXES } from './models/ng.js';
 
 const addonOptionsRegex = /^[\w-]+=.+$/;
 
@@ -225,12 +226,12 @@ function parseSimpleDuration(durationStr) {
   }
 }
 
-// Network groups parsers
+// Network Groups parsers
 export function ngResourceType(string) {
   if (string.startsWith('ng_')) {
     return cliparse.parsers.success({ ngId: string });
   }
-  if (string.startsWith('app_') || string.startsWith('addon_') || string.startsWith('external_')) {
+  if (Object.keys(NG_MEMBER_PREFIXES).some((prefix) => string.startsWith(prefix))) {
     return cliparse.parsers.success({ memberId: string });
   }
   return cliparse.parsers.success({ ngResourceLabel: string });

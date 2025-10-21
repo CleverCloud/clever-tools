@@ -124,12 +124,16 @@ async function run() {
       parser: Parsers.ngResourceType,
     }),
     ngAnyIdOrLabel: cliparse.argument('id-or-label', {
-      description: 'ID or Label of a Network group, a member or an (external) peer',
+      description: 'ID or Label of a Network Group, a member or an (external) peer',
+      parser: Parsers.ngResourceType,
+    }),
+    ngResourceId: cliparse.argument('id', {
+      description: 'ID of a resource to (un)link to a Network Group',
       parser: Parsers.ngResourceType,
     }),
     wgPublicKey: cliparse.argument('public-key', {
       metavar: 'public_key',
-      description: 'Wireguard public key of the external peer to link to a Network Group',
+      description: 'WireGuard public key of the external peer to link to a Network Group',
     }),
     email: cliparse.argument('email', {
       description: 'Email address',
@@ -210,7 +214,7 @@ async function run() {
     ngMembersIdsToLink: cliparse.option('link', {
       metavar: 'members_ids',
       description:
-        "Comma separated list of members IDs to link to a Network Group ('app_xxx', 'addon_xxx', 'external_xxx')",
+        'Comma separated list of members IDs to link to a Network Group (app_xxx, external_xxx, mysql_xxx, postgresql_xxx, redis_xxx, etc.)',
       parser: Parsers.commaSeparated,
     }),
     ngResourceType: cliparse.option('type', {
@@ -1417,16 +1421,18 @@ async function run() {
   const ngLinkCommand = cliparse.command(
     'link',
     {
-      description: 'Link an application or a database add-on by its ID to a Network Group',
-      args: [args.ngAnyIdOrLabel, args.ngIdOrLabel],
+      description:
+        'Link a resource by its ID (app_xxx, external_xxx, mysql_xxx, postgresql_xxx, redis_xxx, etc.) to a Network Group',
+      args: [args.ngResourceId, args.ngIdOrLabel],
     },
     ng.linkToNg,
   );
   const ngUnlinkCommand = cliparse.command(
     'unlink',
     {
-      description: 'Unlink an application or a database add-on by its ID from a Network Group',
-      args: [args.ngAnyIdOrLabel, args.ngIdOrLabel],
+      description:
+        'Unlink a resource by its ID (app_xxx, external_xxx, mysql_xxx, postgresql_xxx, redis_xxx, etc.) from a Network Group',
+      args: [args.ngResourceId, args.ngIdOrLabel],
     },
     ng.unlinkFromNg,
   );
@@ -1442,7 +1448,7 @@ async function run() {
   const ngGetConfigCommand = cliparse.command(
     'get-config',
     {
-      description: 'Get the Wireguard configuration of a peer in a Network Group',
+      description: 'Get the WireGuard configuration of a peer in a Network Group',
       args: [args.ngExternalIdOrLabel, args.ngIdOrLabel],
       options: [opts.humanJsonOutputFormat],
     },
