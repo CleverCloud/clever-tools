@@ -191,7 +191,7 @@ export async function searchNgOrResource(idOrLabel, orgaIdOrName, type = 'all', 
 
   if (filtered.length > 1 && type !== 'all') {
     throw new Error(`Multiple resources found for ${styleText('red', query)}, use ID instead:
-${filtered.map((f) => ` • ${f.id} ${styleText('grey', `(${f.label} - ${f.type})`)}`).join('\n')}`);
+${filtered.map((f) => ` • ${f.id} ${styleText('grey', `(${f.domainName || f.label} - ${f.type})`)}`).join('\n')}`);
   }
 
   // Deduplicate results
