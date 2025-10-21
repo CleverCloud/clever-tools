@@ -9,10 +9,9 @@ import crypto from 'node:crypto';
 import { searchNetworkGroupOrResource } from '../clever-client/ng.js';
 import { styleText } from '../lib/style-text.js';
 import { Logger } from '../logger.js';
+import { getOwnerIdFromOrgIdOrName } from './ids-resolver.js';
 import { checkMembersToLink } from './ng-resources.js';
-import * as Organisation from './organisation.js';
 import { sendToApi } from './send-to-api.js';
-import * as User from './user.js';
 
 export const POLLING_TIMEOUT_MS = 30_000;
 export const POLLING_INTERVAL_MS = 1000;
@@ -38,7 +37,7 @@ export const NG_MEMBER_PREFIXES = {
  */
 export async function create(label, description, tags, membersIds, orgaIdOrName) {
   const id = `ng_${crypto.randomUUID()}`;
-  const ownerId = await getOwnerIdFromOrgaIdOrName(orgaIdOrName);
+  const ownerId = await getOwnerIdFromOrgIdOrName(orgaIdOrName);
 
   if (membersIds?.length > 0) {
     checkMembersToLink(membersIds);
@@ -126,7 +125,7 @@ export async function getPeerConfig(peerIdOrLabel, ngIdOrLabel, orgaIdOrName) {
  * @returns {Promise<Array<Object>>} The Network Groups
  */
 export async function getNG(networkGroupId, orgaIdOrName) {
-  const ownerId = await getOwnerIdFromOrgaIdOrName(orgaIdOrName);
+  const ownerId = await getOwnerIdFromOrgIdOrName(orgaIdOrName);
 
   Logger.info(`Get Network Group ${networkGroupId} for owner ${ownerId}`);
   const result = await getNetworkGroup({ networkGroupId, ownerId }).then(sendToApi);
@@ -141,7 +140,7 @@ export async function getNG(networkGroupId, orgaIdOrName) {
  * @returns {Promise<Array<Object>>} The Network Groups
  */
 export async function getAllNGs(orgaIdOrName) {
-  const ownerId = await getOwnerIdFromOrgaIdOrName(orgaIdOrName);
+  const ownerId = await getOwnerIdFromOrgIdOrName(orgaIdOrName);
 
   Logger.info(`Listing Network Groups from owner ${ownerId}`);
   const result = await listNetworkGroups({ ownerId }).then(sendToApi);
@@ -159,7 +158,7 @@ export async function getAllNGs(orgaIdOrName) {
  * @returns {Promise<Object>} Found results
  */
 export async function searchNgOrResource(idOrLabel, orgaIdOrName, type = 'all', exactMatch = true) {
-  const ownerId = await getOwnerIdFromOrgaIdOrName(orgaIdOrName);
+  const ownerId = await getOwnerIdFromOrgIdOrName(orgaIdOrName);
 
   // If idOrLabel is a string we use it, or we look through multiple keys
   const query =
@@ -264,13 +263,4 @@ async function pollNetworkGroup(ownerId, ngId, { waitForMembers = null, waitForD
 
     pollOnce();
   });
-}
-
-/**
- * Get the owner ID from an Organisation ID or name
- * @param {object} orgaIdOrName The Organisation ID or name
- * @returns {Promise<string>} The owner ID
- */
-async function getOwnerIdFromOrgaIdOrName(orgaIdOrName) {
-  return orgaIdOrName != null ? Organisation.getId(orgaIdOrName) : User.getCurrentId();
 }
