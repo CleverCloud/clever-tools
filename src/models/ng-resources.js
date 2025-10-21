@@ -128,7 +128,7 @@ export async function deleteExternalPeerWithParent(ngIdOrLabel, peerIdOrLabel, o
 
 /**
  * Link a Member to a Network Group
- * @param {object} ngIdOrLabel The Network group ID or Label
+ * @param {object} ngIdOrLabel The Network Group ID or Label
  * @param {string} memberId ID of the Member to link
  * @param {object} org Organisation ID or name
  * @param {string} label Label of the Member

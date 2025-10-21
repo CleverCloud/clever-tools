@@ -20,7 +20,7 @@ export const EXPERIMENTAL_FEATURES = {
   },
   ng: {
     status: 'beta',
-    description: 'Manage Network Groups to manage applications, add-ons, external peers through a Wireguard network',
+    description: 'Manage Network Groups to manage applications, add-ons, external peers through a WireGuard network',
     instructions: dedent`
       - Create a Network Group:
           clever ng create myNG
@@ -33,7 +33,7 @@ export const EXPERIMENTAL_FEATURES = {
       - (Un)Link an application or a database add-on to an existing Network Group:
           clever ng link app_xxx myNG
           clever ng unlink addon_xxx myNG
-      - Get the Wireguard configuration of a peer:
+      - Get the WireGuard configuration of a peer:
           clever ng get-config peerIdOrLabel myNG
       - Get details about a Network Group, a member or a peer:
           clever ng get myNg

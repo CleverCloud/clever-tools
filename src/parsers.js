@@ -225,7 +225,7 @@ function parseSimpleDuration(durationStr) {
   }
 }
 
-// Network groups parsers
+// Network Groups parsers
 export function ngResourceType(string) {
   if (string.startsWith('ng_')) {
     return cliparse.parsers.success({ ngId: string });

@@ -124,12 +124,12 @@ async function run() {
       parser: Parsers.ngResourceType,
     }),
     ngAnyIdOrLabel: cliparse.argument('id-or-label', {
-      description: 'ID or Label of a Network group, a member or an (external) peer',
+      description: 'ID or Label of a Network Group, a member or an (external) peer',
       parser: Parsers.ngResourceType,
     }),
     wgPublicKey: cliparse.argument('public-key', {
       metavar: 'public_key',
-      description: 'Wireguard public key of the external peer to link to a Network Group',
+      description: 'WireGuard public key of the external peer to link to a Network Group',
     }),
     email: cliparse.argument('email', {
       description: 'Email address',
@@ -1442,7 +1442,7 @@ async function run() {
   const ngGetConfigCommand = cliparse.command(
     'get-config',
     {
-      description: 'Get the Wireguard configuration of a peer in a Network Group',
+      description: 'Get the WireGuard configuration of a peer in a Network Group',
       args: [args.ngExternalIdOrLabel, args.ngIdOrLabel],
       options: [opts.humanJsonOutputFormat],
     },
