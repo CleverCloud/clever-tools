@@ -1,6 +1,16 @@
 # clever-tools changelog
 
 
+## [4.2.0](https://github.com/CleverCloud/clever-tools/compare/4.1.0...4.2.0) (2025-10-21)
+
+
+### 🚀 Features
+
+* **diag:** add terminal info and improve Windows shell detection ([70cbd57](https://github.com/CleverCloud/clever-tools/commit/70cbd575b820ccf0fbf631fc7f4c9ca45f31a935))
+* **logs:** make json-stream format use one liner printer ([a31f832](https://github.com/CleverCloud/clever-tools/commit/a31f832018df00e8d62af7c840f9d44cf8f26edf))
+* **ng:** add support for some add-ons with their real ID ([cf47676](https://github.com/CleverCloud/clever-tools/commit/cf476764bb0bb04aaa5d0af1e42ea7c3155f6446))
+* **ng:** display domain name in get when a member is in multiple NGs ([16e6289](https://github.com/CleverCloud/clever-tools/commit/16e6289d6a700a81a26c88a7cfdba013c604aae2))
+
 ## [4.1.0](https://github.com/CleverCloud/clever-tools/compare/4.0.2...4.1.0) (2025-09-17)
 
 
