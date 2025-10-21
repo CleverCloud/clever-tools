@@ -51,7 +51,7 @@ clever ng create myNG
 You can create it declaring its members:
 
 ```
-clever ng create myNG --link app_xxx,addon_xxx
+clever ng create myNG --link app_xxx,postgresql_xxx
 ```
 
 You can add a description and tags:
@@ -91,10 +91,14 @@ To (un)link an application, add-on or external peer to a Network Group:
 
 ```
 clever ng link app_xxx ngIdOrLabel
-clever ng unlink addon_xxx ngIdorLabel
+clever ng unlink redis_xxx ngIdorLabel
 ```
 
 After an unlink, you may need to restart the application to apply the changes.
+
+> [!TIP]
+> To link add-ons to a Network Group, use real IDs (`mysql_xxx`, `postgresql_xxx`, `redis_`, etc.). \
+> Only add-ons deployed as of 2024 support Network Groups. If you can't access your add-on, migrate or restart it.
 
 ## Get information of a Network Group, a member or a peer
 

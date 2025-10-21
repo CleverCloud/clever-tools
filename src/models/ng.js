@@ -17,9 +17,13 @@ import * as User from './user.js';
 export const POLLING_TIMEOUT_MS = 30_000;
 export const POLLING_INTERVAL_MS = 1000;
 export const DOMAIN = 'cc-ng.cloud';
-const TYPE_PREFIXES = {
+export const NG_MEMBER_PREFIXES = {
   app_: 'APPLICATION',
-  addon_: 'ADDON',
+  elasticsearch_: 'ADDON',
+  mongodb_: 'ADDON',
+  mysql_: 'ADDON',
+  postgresql_: 'ADDON',
+  redis_: 'ADDON',
   external_: 'EXTERNAL',
 };
 
@@ -37,7 +41,7 @@ export async function create(label, description, tags, membersIds, orgaIdOrName)
   const ownerId = await getOwnerIdFromOrgaIdOrName(orgaIdOrName);
 
   if (membersIds?.length > 0) {
-    await checkMembersToLink(membersIds, ownerId);
+    checkMembersToLink(membersIds);
   }
 
   const members = constructMembers(id, membersIds || []);
@@ -203,14 +207,9 @@ ${filtered.map((f) => ` • ${f.id} ${styleText('grey', `(${f.label} - ${f.type}
 export function constructMembers(ngId, membersIds) {
   return membersIds.map((id) => {
     const domainName = `${id}.m.${ngId}.${DOMAIN}`;
-    const prefixToType = TYPE_PREFIXES;
-
-    return {
-      id,
-      domainName,
-      // Get kind from prefix match in id (app_*, addon_*, external_*) or default to 'APPLICATION'
-      kind: prefixToType[Object.keys(prefixToType).find((p) => id.startsWith(p))] ?? TYPE_PREFIXES.app_,
-    };
+    const prefix = Object.keys(NG_MEMBER_PREFIXES).find((p) => id.startsWith(p));
+    const kind = NG_MEMBER_PREFIXES[prefix];
+    return { id, domainName, kind };
   });
 }
 

@@ -25,14 +25,14 @@ export const EXPERIMENTAL_FEATURES = {
       - Create a Network Group:
           clever ng create myNG
       - Create a Network Group with members (application, database add-on):
-          clever ng create myNG --link app_xxx,addon_xxx
+          clever ng create myNG --link app_xxx,postgresql_xxx
       - List Network Groups:
           clever ng
       - Delete a Network Group:
           clever ng delete myNG
       - (Un)Link an application or a database add-on to an existing Network Group:
           clever ng link app_xxx myNG
-          clever ng unlink addon_xxx myNG
+          clever ng unlink postgresql_xxx myNG
       - Get the WireGuard configuration of a peer:
           clever ng get-config peerIdOrLabel myNG
       - Get details about a Network Group, a member or a peer:
