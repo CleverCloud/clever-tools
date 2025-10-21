@@ -2,6 +2,33 @@ import dedent from 'dedent';
 import { conf } from './models/configuration.js';
 
 export const EXPERIMENTAL_FEATURES = {
+  k8s: {
+    status: 'beta',
+    description: 'Deploy and manage Kubernetes clusters on Clever Cloud',
+    instructions: dedent`
+      - Create a Kubernetes cluster:
+          clever k8s create my-cluster
+          clever k8s create my-cluster --org myOrg
+
+      - List Kubernetes clusters:
+          clever k8s list
+
+      - Get details about a Kubernetes cluster:
+          clever k8s get my-cluster
+
+      - Get kubeconfig file for a Kubernetes cluster:
+          clever k8s get-kubeconfig my-cluster
+          clever k8s get-kubeconfig my-cluster > ~/.kube/config
+
+      - Activate persistent storage on a Kubernetes cluster:
+          clever k8s add-persistent-storage my-cluster
+
+      - Delete a Kubernetes cluster:
+          clever k8s delete my-cluster
+
+      Learn more about Clever Kubernetes: ${conf.DOC_URL}/kubernetes/
+    `,
+  },
   kv: {
     status: 'beta',
     description:

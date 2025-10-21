@@ -28,6 +28,7 @@ import * as drain from '../src/commands/drain.js';
 import * as emails from '../src/commands/emails.js';
 import * as env from '../src/commands/env.js';
 import * as features from '../src/commands/features.js';
+import * as k8s from '../src/commands/k8s.js';
 import * as keycloak from '../src/commands/keycloak.js';
 import * as kv from '../src/commands/kv.js';
 import * as link from '../src/commands/link.js';
@@ -99,6 +100,11 @@ function colorizeExperimentalCommand(command, id) {
 async function run() {
   // ARGUMENTS
   const args = {
+    k8sClusterName: cliparse.argument('cluster-name', { description: 'Kubernetes cluster name' }),
+    k8sIdOrName: cliparse.argument('id-or-name', {
+      description: 'Kubernetes cluster ID or name',
+      parser: Parsers.addonIdOrName,
+    }),
     kvRawCommand: cliparse.argument('command', {
       description: 'The raw command to send to the Materia KV or Redis® add-on',
     }),
@@ -196,6 +202,13 @@ async function run() {
 
   // OPTIONS
   const opts = {
+    k8sDeployWatch: cliparse.flag('watch', {
+      aliases: ['w'],
+      description: 'Watch the deployment until the cluster is deployed',
+    }),
+    kubeConfigForceDownload: cliparse.flag('force', {
+      description: 'Force the download of the kubeconfig file, even if it already exists',
+    }),
     targetVersion: cliparse.option('target', {
       metavar: 'version',
       description: 'Target version to upgrade to (e.g.: 24, 2.4, 2.4.1)',
@@ -1042,6 +1055,73 @@ async function run() {
     },
     features.list,
   );
+
+  // K8S COMMAND
+  const k8sListCommand = cliparse.command(
+    'list',
+    {
+      description: 'List Kubernetes clusters',
+      options: [opts.orgaIdOrName, opts.humanJsonOutputFormat],
+    },
+    k8s.list,
+  );
+  const k8sCreateCommand = cliparse.command(
+    'create',
+    {
+      description: 'Create a Kubernetes cluster',
+      args: [args.k8sClusterName],
+      options: [opts.orgaIdOrName, opts.k8sDeployWatch],
+    },
+    k8s.create,
+  );
+  const k8sDeleteCommand = cliparse.command(
+    'delete',
+    {
+      description: 'Delete a Kubernetes cluster',
+      options: [opts.orgaIdOrName, opts.confirmAddonDeletion],
+      args: [args.k8sIdOrName],
+    },
+    k8s.del,
+  );
+  const k8sGetCommand = cliparse.command(
+    'get',
+    {
+      description: 'Get information about a Kubernetes cluster',
+      args: [args.k8sIdOrName],
+      options: [opts.orgaIdOrName, opts.humanJsonOutputFormat],
+    },
+    k8s.get,
+  );
+  const k8sGetConfigCommand = cliparse.command(
+    'get-kubeconfig',
+    {
+      description: 'Get configuration of a Kubernetes cluster',
+      args: [args.k8sIdOrName],
+      options: [opts.orgaIdOrName],
+    },
+    k8s.getConfig,
+  );
+  const k8sAddPersistentStorageCommand = cliparse.command(
+    'add-persistent-storage',
+    {
+      description: 'Activate persistent storage to a deployed Kubernetes cluster',
+      args: [args.k8sIdOrName],
+      options: [opts.orgaIdOrName],
+    },
+    k8s.addPersistentStorage,
+  );
+
+  const k8sCommand = cliparse.command('k8s', {
+    description: 'Manage Kubernetes clusters',
+    commands: [
+      k8sListCommand,
+      k8sCreateCommand,
+      k8sAddPersistentStorageCommand,
+      k8sDeleteCommand,
+      k8sGetCommand,
+      k8sGetConfigCommand,
+    ],
+  });
 
   // KEYCLOAK COMMAND
   const keycloakGetCommand = cliparse.command(
@@ -2046,6 +2126,10 @@ async function run() {
     commands.push(colorizeExperimentalCommand(matomoCommand, 'operators'));
     commands.push(colorizeExperimentalCommand(metabaseCommand, 'operators'));
     commands.push(colorizeExperimentalCommand(otoroshiCommand, 'operators'));
+  }
+
+  if (featuresFromConf.k8s) {
+    commands.push(colorizeExperimentalCommand(k8sCommand, 'k8s'));
   }
 
   if (featuresFromConf.kv) {
