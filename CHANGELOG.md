@@ -1,6 +1,13 @@
 # clever-tools changelog
 
 
+## [4.3.0](https://github.com/CleverCloud/clever-tools/compare/4.2.0...4.3.0) (2025-10-22)
+
+
+### 🚀 Features
+
+* add k8s command ([ce0cd59](https://github.com/CleverCloud/clever-tools/commit/ce0cd59486f88adb882e211342906c22d24d4852))
+
 ## [4.2.0](https://github.com/CleverCloud/clever-tools/compare/4.1.0...4.2.0) (2025-10-21)
 
 
