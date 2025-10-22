@@ -1,4 +1,4 @@
-This document is automatically generated from Clever Tools `4.0.1` and Clever Cloud API. It covers all Clever Tools commands and options. Use it to better understand this CLI and its capabilities or to train/use LLMs, AI-assisted IDEs.
+This document is automatically generated from Clever Tools `4.2.0` and Clever Cloud API. It covers all Clever Tools commands and options. Use it to better understand this CLI and its capabilities or to train/use LLMs, AI-assisted IDEs.
 
 To use Clever Tools, you need:
 - A Clever Cloud account, create one at https://console.clever-cloud.com/
@@ -162,7 +162,7 @@ If you are using Nix on NixOS or any other compatible system, the package is ava
 
 You can deploy applications on Clever Cloud with the following runtimes type: `docker`, `dotnet`, `elixir`, `frankenphp`, `go`, `gradle`, `haskell`, `jar`, `linux`, `maven`, `meteor`, `node`, `php`, `play1`, `play2`, `python`, `ruby`, `rust`, `sbt`, `static`, `static-apache`, `v`, `war`
 
-Available flavors: `pico`, `nano`, `XS`, `S`, `M`, `L`, `XL`, `2XL`, `3XL`
+Available flavors: `nano`, `XS`, `S`, `M`, `L`, `XL`, `2XL`, `3XL`, `pico`
 
 Flavor `pico` is not available for the following instances: `docker`, `frankenphp`, `php`, `static-apache`
 
@@ -187,7 +187,7 @@ Applications deployment zones (region): `par`, `parhds`, `fr-north-hds`, `grahds
   - zones: `par`, `rbx`, `rbxhds`, `scw`, `sgp`, `fr-north-hds`, `grahds`, `wsw`, `mtl`, `syd`
 
 - `kv`:
-  - plans: `alpha`
+  - plans: `base`
   - zones: `par`
 
 - `addon-matomo`:
@@ -567,7 +567,7 @@ Usage: clever curl
 Usage: database 
 ```
 
-**Description:** List available databases
+**Description:** Manage databases and backups
 
 ### database backups
 
@@ -656,8 +656,9 @@ Usage: domain
 
 **Options:**
 ```
-[--alias, -a] ALIAS     Short name for the application
-[--app] ID_OR_NAME      Application to manage by its ID (or name, if unambiguous)
+[--alias, -a] ALIAS       Short name for the application
+[--app] ID_OR_NAME        Application to manage by its ID (or name, if unambiguous)
+[--format, -F] FORMAT     Output format (human, json) (default: human)
 ```
 
 ### domain add
@@ -684,8 +685,9 @@ Usage: favourite
 
 **Options:**
 ```
-[--alias, -a] ALIAS     Short name for the application
-[--app] ID_OR_NAME      Application to manage by its ID (or name, if unambiguous)
+[--alias, -a] ALIAS       Short name for the application
+[--app] ID_OR_NAME        Application to manage by its ID (or name, if unambiguous)
+[--format, -F] FORMAT     Output format (human, json) (default: human)
 ```
 
 #### domain favourite set
@@ -1156,7 +1158,7 @@ Usage: update ADDON-ID
 Usage: kv KV-ID COMMAND
 ```
 
-**Description:** Send a raw command to a Materia KV or Redis® add-on [ALPHA]
+**Description:** Send a raw command to a Materia KV or Redis® add-on [BETA]
 
 **Options:**
 ```
@@ -1424,7 +1426,7 @@ Usage: create NG-LABEL
 **Options:**
 ```
 [--org, -o, --owner] ID_OR_NAME     Organisation to target by its ID (or name, if unambiguous)
-[--link] MEMBERS_IDS                Comma separated list of members IDs to link to a Network Group ('app_xxx', 'addon_xxx', 'external_xxx')
+[--link] MEMBERS_IDS                Comma separated list of members IDs to link to a Network Group (app_xxx, external_xxx, mysql_xxx, postgresql_xxx, redis_xxx, etc.)
 [--description] DESCRIPTION         Network Group description
 [--tags] TAGS                       List of tags, separated by a comma
 ```
@@ -1471,10 +1473,10 @@ Usage: external EXTERNAL-PEER-ID-OR-LABEL NG-ID-OR-LABEL
 ### ng link
 
 ```
-Usage: link ID-OR-LABEL NG-ID-OR-LABEL
+Usage: link ID NG-ID-OR-LABEL
 ```
 
-**Description:** Link an application or a database add-on by its ID to a Network Group
+**Description:** Link a resource by its ID (app_xxx, external_xxx, mysql_xxx, postgresql_xxx, redis_xxx, etc.) to a Network Group
 
 **Options:**
 ```
@@ -1484,10 +1486,10 @@ Usage: link ID-OR-LABEL NG-ID-OR-LABEL
 ### ng unlink
 
 ```
-Usage: unlink ID-OR-LABEL NG-ID-OR-LABEL
+Usage: unlink ID NG-ID-OR-LABEL
 ```
 
-**Description:** Unlink an application or a database add-on by its ID from a Network Group
+**Description:** Unlink a resource by its ID (app_xxx, external_xxx, mysql_xxx, postgresql_xxx, redis_xxx, etc.) from a Network Group
 
 **Options:**
 ```
@@ -1515,7 +1517,7 @@ Usage: get ID-OR-LABEL
 Usage: get-config EXTERNAL-PEER-ID-OR-LABEL NG-ID-OR-LABEL
 ```
 
-**Description:** Get the Wireguard configuration of a peer in a Network Group
+**Description:** Get the WireGuard configuration of a peer in a Network Group
 
 **Options:**
 ```
@@ -2066,7 +2068,6 @@ Usage: add --namespace NAMESPACE
 [--alias, -a] ALIAS       Short name for the application
 [--app] ID_OR_NAME        Application to manage by its ID (or name, if unambiguous)
 --namespace NAMESPACE     Namespace in which the TCP redirection should be
-[--yes, -y]               Skip confirmation even if the TCP redirection is not free (default: false)
 ```
 
 ### tcp-redirs remove
