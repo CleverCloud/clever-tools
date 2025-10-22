@@ -1,6 +1,8 @@
 import { getSummary } from '@clevercloud/client/esm/api/v2/user.js';
 import { Logger } from '../logger.js';
+import * as User from '../models/user.js';
 import { loadIdsCache, writeIdsCache } from './configuration.js';
+import * as Organisation from './organisation.js';
 import { sendToApi } from './send-to-api.js';
 
 /*
@@ -170,4 +172,13 @@ export async function findAddonsByAddonProvider(provider) {
   }
 
   return candidates;
+}
+
+/**
+ * Get the owner ID from an Organisation ID or name
+ * @param {object} orgIdOrName The Organisation ID or name
+ * @returns {Promise<string>} The owner ID
+ */
+export async function getOwnerIdFromOrgIdOrName(orgIdOrName) {
+  return orgIdOrName != null ? Organisation.getId(orgIdOrName) : User.getCurrentId();
 }

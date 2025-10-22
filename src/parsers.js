@@ -100,12 +100,13 @@ export function orgaIdOrName(string) {
 const addonIdRegex = /^addon_[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const operatorIdRegex =
   /^(keycloak|otoroshi|matomo|metabase)_[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const ulidRegex = /^(kubernetes)_[0-9A-HJ-NP-TV-Z]{26}$/i;
 
 export function addonIdOrName(string) {
   if (string.match(addonIdRegex)) {
     return cliparse.parsers.success({ addon_id: string });
   }
-  if (string.match(operatorIdRegex)) {
+  if (string.match(operatorIdRegex) || string.match(ulidRegex)) {
     return cliparse.parsers.success({ operator_id: string });
   }
   return cliparse.parsers.success({ addon_name: string });
