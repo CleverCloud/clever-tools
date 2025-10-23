@@ -1,4 +1,4 @@
-This document is automatically generated from Clever Tools `4.2.0` and Clever Cloud API. It covers all Clever Tools commands and options. Use it to better understand this CLI and its capabilities or to train/use LLMs, AI-assisted IDEs.
+This document is automatically generated from Clever Tools `4.3.0` and Clever Cloud API. It covers all Clever Tools commands and options. Use it to better understand this CLI and its capabilities or to train/use LLMs, AI-assisted IDEs.
 
 To use Clever Tools, you need:
 - A Clever Cloud account, create one at https://console.clever-cloud.com/
@@ -1030,6 +1030,96 @@ Usage: help
 ```
 
 **Description:** Display help about the Clever Cloud CLI
+
+## k8s
+
+```
+Usage: k8s 
+```
+
+**Description:** Manage Kubernetes clusters [BETA]
+
+### k8s list
+
+```
+Usage: list 
+```
+
+**Description:** List Kubernetes clusters
+
+**Options:**
+```
+[--org, -o, --owner] ID_OR_NAME     Organisation to target by its ID (or name, if unambiguous)
+[--format, -F] FORMAT               Output format (human, json) (default: human)
+```
+
+### k8s create
+
+```
+Usage: create CLUSTER-NAME
+```
+
+**Description:** Create a Kubernetes cluster
+
+**Options:**
+```
+[--org, -o, --owner] ID_OR_NAME     Organisation to target by its ID (or name, if unambiguous)
+[--watch, -w]                       Watch the deployment until the cluster is deployed (default: false)
+```
+
+### k8s add-persistent-storage
+
+```
+Usage: add-persistent-storage ID-OR-NAME
+```
+
+**Description:** Activate persistent storage to a deployed Kubernetes cluster
+
+**Options:**
+```
+[--org, -o, --owner] ID_OR_NAME     Organisation to target by its ID (or name, if unambiguous)
+```
+
+### k8s delete
+
+```
+Usage: delete ID-OR-NAME
+```
+
+**Description:** Delete a Kubernetes cluster
+
+**Options:**
+```
+[--org, -o, --owner] ID_OR_NAME     Organisation to target by its ID (or name, if unambiguous)
+[--yes, -y]                         Skip confirmation and delete the add-on directly (default: false)
+```
+
+### k8s get
+
+```
+Usage: get ID-OR-NAME
+```
+
+**Description:** Get information about a Kubernetes cluster
+
+**Options:**
+```
+[--org, -o, --owner] ID_OR_NAME     Organisation to target by its ID (or name, if unambiguous)
+[--format, -F] FORMAT               Output format (human, json) (default: human)
+```
+
+### k8s get-kubeconfig
+
+```
+Usage: get-kubeconfig ID-OR-NAME
+```
+
+**Description:** Get configuration of a Kubernetes cluster
+
+**Options:**
+```
+[--org, -o, --owner] ID_OR_NAME     Organisation to target by its ID (or name, if unambiguous)
+```
 
 ## keycloak
 
