@@ -2,7 +2,7 @@
 
 Clever Cloud allows you to create and manage Kubernetes clusters directly from Clever Tools. Once created and configured, you can use them with `kubectl` or any Kubernetes-compatible tool.
 
-- [Learn more about Kubernetes on Clever Cloud](https://www.clever-cloud.com/doc/kubernetes/)
+- [Learn more about Kubernetes on Clever Cloud](https://www.clever.cloud/doc/kubernetes/)
 
 ## Prerequisites
 

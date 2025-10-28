@@ -48,9 +48,9 @@ You can ask to deploy your application in a specific organisation/user account, 
 
 Default region is our Paris datacenters (`par`), but it can be:
 
-- `par` (Paris, [Clever Cloud](https://www.clever-cloud.com/infrastructure/))
-- `parhds` (Paris, HDS infrastructure, [Clever Cloud](https://www.clever-cloud.com/infrastructure/))
-- `scw` (Paris, [Scaleway DC5](https://www.clever-cloud.com/blog/press/2023/01/17/clever-cloud-and-scaleway-join-forces-to-unveil-a-sovereign-european-paas-offering/))
+- `par` (Paris, [Clever Cloud](https://www.clever.cloud/infrastructure/))
+- `parhds` (Paris, HDS infrastructure, [Clever Cloud](https://www.clever.cloud/infrastructure/))
+- `scw` (Paris, [Scaleway DC5](https://www.clever.cloud/blog/press/2023/01/17/clever-cloud-and-scaleway-join-forces-to-unveil-a-sovereign-european-paas-offering/))
 - `grahds` (Gravelines, HDS infrastructure, OVHcloud)
 - `ldn` (London, Ionos)
 - `mtl` (Montreal, OVHcloud)
@@ -62,7 +62,7 @@ Default region is our Paris datacenters (`par`), but it can be:
 
 > [!NOTE]
 > To benefit from certified hosting for health data, you need to deploy in an HDS zone and to sign up to a specific contract. \
-> This begins with [an initial discussion with our team](https://www.clever-cloud.com/fr/hebergement-donnees-de-sante/contact-hds/).
+> This begins with [an initial discussion with our team](https://www.clever.cloud/fr/hebergement-donnees-de-sante/contact-hds/).
 
 After the application creation, you can ask for a `json` formatted report instead of an `human` sentence:
 
