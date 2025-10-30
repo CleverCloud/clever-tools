@@ -7,7 +7,7 @@ The official CLI for [Clever Cloud](https://www.clever.cloud) - Deploy and manag
 
 ## Quick Start
 
-**Prerequisites:** Node.js 22+ 
+**Prerequisites:** Node.js 22+
 
 ```bash
 # Install globally
@@ -38,7 +38,7 @@ For Node.js users, npm is the fastest way. For other installation methods includ
 
 - Docker images
 - Binary downloads
-- Native packages (RPM, DEB)  
+- Native packages (RPM, DEB)
 - Package managers (Homebrew, WinGet, AUR)
 
 See our complete [setup guide](docs/setup-systems.md).
@@ -51,15 +51,15 @@ Enable smart autocompletion for bash or zsh:
 # Bash
 clever --bash-autocomplete-script $(which clever) | sudo tee /usr/share/bash-completion/completions/clever
 
-# Zsh  
+# Zsh
 clever --zsh-autocomplete-script $(which clever) | sudo tee /usr/share/zsh/site-functions/_clever
 ```
 
 ## Documentation
 
-- **[Complete CLI Documentation](https://www.clever-cloud.com/developers/doc/cli/)** - Official user guide
-- **[CLI Reference](https://www.clever-cloud.com/developers/doc/reference/cli/)** - Complete command reference
-- **[Deployment Examples](https://www.clever-cloud.com/developers/guides/)** - Real-world tutorials
+- **[Complete CLI Documentation](https://www.clever.cloud/developers/doc/cli/)** - Official user guide
+- **[CLI Reference](https://www.clever.cloud/developers/doc/reference/cli/)** - Complete command reference
+- **[Deployment Examples](https://www.clever.cloud/developers/guides/)** - Real-world tutorials
 
 ## Basic Usage
 
@@ -100,7 +100,7 @@ clever logs --since 1h
 clever restart --app <app_id>
 ```
 
-Learn more in our [Application Management Guide](https://www.clever-cloud.com/developers/doc/cli/applications/).
+Learn more in our [Application Management Guide](https://www.clever.cloud/developers/doc/cli/applications/).
 
 ### Add-ons & Services Management
 
@@ -121,7 +121,7 @@ clever features enable operatos
 clever keycloak get myKetcloak
 ```
 
-Learn more in our [Add-ons & Services Guide](https://www.clever-cloud.com/developers/doc/cli/addons/).
+Learn more in our [Add-ons & Services Guide](https://www.clever.cloud/developers/doc/cli/addons/).
 
 # Create and manage
 
@@ -144,7 +144,7 @@ clever tokens create myTokenName
 clever tokens create myTokenName --expiration 2w --format json
 ```
 
-Learn more about API integration in our [API How-to Guide](https://www.clever-cloud.com/developers/api/howto).
+Learn more about API integration in our [API How-to Guide](https://www.clever.cloud/developers/api/howto).
 
 ### Get Help
 
