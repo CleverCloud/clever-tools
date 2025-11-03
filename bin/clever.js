@@ -1620,6 +1620,14 @@ async function run() {
     },
     otoroshi.get,
   );
+  const otoroshiGetConfigCommand = cliparse.command(
+    'get-config',
+    {
+      description: 'Get configuration of a deployed Otoroshi in otoroshictl format',
+      args: [args.addonIdOrName],
+    },
+    otoroshi.getConfig,
+  );
   const otoroshiEnableNgCommand = cliparse.command(
     'enable-ng',
     {
@@ -1712,6 +1720,7 @@ async function run() {
       privateOptions: [opts.humanJsonOutputFormat],
       commands: [
         otoroshiGetCommand,
+        otoroshiGetConfigCommand,
         otoroshiEnableNgCommand,
         otoroshiDisableNgCommand,
         otoroshiOpenCommand,

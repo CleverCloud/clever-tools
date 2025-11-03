@@ -51,6 +51,18 @@ export async function get(params) {
 }
 
 /**
+ * Print the configuration of an Otoroshi operator in otoroshictl format
+ * @param {object} params The command's parameters
+ * @param {string} params.args[0] The operator's name or ID
+ * @returns {Promise<void>}
+ */
+export async function getConfig(params) {
+  const [addonIdOrName] = params.args;
+  const { format } = params.options;
+  await operatorPrint('otoroshi', addonIdOrName, 'otoroshictl');
+}
+
+/**
  * List all Otoroshi operators
  * @returns {Promise<void>}
  */

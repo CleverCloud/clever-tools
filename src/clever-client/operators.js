@@ -119,3 +119,19 @@ export function versionUpdate(params, body) {
     body,
   });
 }
+
+/**
+ * GET /v4/addon-providers/addon-otoroshi/addons/{realId}/config.yaml
+ * @param {Object} params
+ * @param {String} params.realId
+ */
+export function getOtoroshiConfig(params) {
+  // no multipath for /self or /organisations/{id}
+  return Promise.resolve({
+    method: 'get',
+    url: `/v4/addon-providers/addon-otoroshi/addons/${params.realId}/config.yaml`,
+    // headers: { Accept: 'application/yaml' },
+    // no queryParams
+    // no body
+  });
+}
