@@ -1,6 +1,7 @@
 import dedent from 'dedent';
 import _ from 'lodash';
 import {
+  getOtoroshiConfig,
   ngDisableOperator,
   ngEnableOperator,
   rebootOperator,
@@ -248,6 +249,13 @@ export async function operatorRebuild(provider, addonIdOrName) {
  */
 export async function operatorPrint(provider, addonIdOrName, format = 'human') {
   const operator = await Operator.getDetails(provider, addonIdOrName);
+
+  if (provider === 'otoroshi' && format === 'otoroshictl') {
+    const config = await getOtoroshiConfig({ realId: operator.resourceId }).then(sendToApi);
+
+    Logger.println(config);
+    return;
+  }
 
   const dataToPrint = {
     Name: operator.name,
