@@ -168,8 +168,8 @@ async function run() {
     }),
     drainId: cliparse.argument('drain-id', { description: 'Drain ID' }),
     drainType: cliparse.argument('drain-type', {
-      description: 'Drain type',
-      complete: Drain.listDrainTypes,
+      description: Drain.DRAIN_TYPE_CLI_CODES.join(', '),
+      complete: Drain.DRAIN_TYPE_CLI_CODES,
     }),
     drainUrl: cliparse.argument('drain-url', { description: 'Drain URL' }),
     fqdn: cliparse.argument('fqdn', { description: 'Domain name of the application' }),
@@ -420,7 +420,7 @@ async function run() {
     drainPassword: cliparse.option('password', {
       aliases: ['p'],
       metavar: 'password',
-      description: '(HTTP drains) basic auth password',
+      description: 'Basic auth password (for elasticsearch or raw-http)',
     }),
     addonPlan: cliparse.option('plan', {
       aliases: ['p'],
@@ -492,22 +492,22 @@ async function run() {
     drainUsername: cliparse.option('username', {
       aliases: ['u'],
       metavar: 'username',
-      description: '(HTTP drains) basic auth username',
+      description: 'Basic auth username (for elasticsearch or raw-http)',
     }),
-    drainAPIKey: cliparse.option('api-key', {
+    drainApiKey: cliparse.option('api-key', {
       aliases: ['k'],
       metavar: 'api_key',
-      description: '(NewRelic drains) API key',
+      description: 'API key (for newrelic)',
     }),
     drainIndexPrefix: cliparse.option('index-prefix', {
       aliases: ['i'],
       metavar: 'index_prefix',
-      description: '(ElasticSearch drains) optional index prefix. `logstash` value is used if not set',
+      description: 'Optional index prefix (for elasticsearch), `logstash` value is used if not set',
     }),
-    drainSDParameters: cliparse.option('sd-params', {
+    drainSdParameters: cliparse.option('sd-params', {
       aliases: ['s'],
       metavar: 'sd_params',
-      description: '(TCP and UDP drains) sd-params string (e.g.: `X-OVH-TOKEN=\\"REDACTED\\"`)',
+      description: 'RFC5424 structured data parameters (for ovh-tcp), e.g.: `X-OVH-TOKEN=\\"REDACTED\\"`',
     }),
     verbose: cliparse.flag('verbose', { aliases: ['v'], description: 'Verbose output' }),
     color: cliparse.flag('color', {
@@ -870,12 +870,21 @@ async function run() {
       options: [
         opts.drainUsername,
         opts.drainPassword,
-        opts.drainAPIKey,
+        opts.drainApiKey,
         opts.drainIndexPrefix,
-        opts.drainSDParameters,
+        opts.drainSdParameters,
       ],
     },
     drain.create,
+  );
+  const drainGetCommand = cliparse.command(
+    'get',
+    {
+      description: 'Get drain info',
+      args: [args.drainId],
+      privateOptions: [opts.humanJsonOutputFormat],
+    },
+    drain.get,
   );
   const drainRemoveCommand = cliparse.command(
     'remove',
@@ -883,7 +892,7 @@ async function run() {
       description: 'Remove a drain',
       args: [args.drainId],
     },
-    drain.rm,
+    drain.remove,
   );
   const drainEnableCommand = cliparse.command(
     'enable',
@@ -905,9 +914,9 @@ async function run() {
     'drain',
     {
       description: 'Manage drains',
-      options: [opts.alias, opts.appIdOrName, opts.addonId],
+      options: [opts.alias, opts.appIdOrName],
       privateOptions: [opts.humanJsonOutputFormat],
-      commands: [drainCreateCommand, drainRemoveCommand, drainEnableCommand, drainDisableCommand],
+      commands: [drainCreateCommand, drainGetCommand, drainRemoveCommand, drainEnableCommand, drainDisableCommand],
     },
     drain.list,
   );
