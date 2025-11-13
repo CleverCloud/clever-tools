@@ -13,7 +13,7 @@ jobs:
   release-please:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - id: read-changelog-types
         # Transform JSON to a single line for GitHub Actions output
         run: echo "content=$(jq -c . .github/config/changelog-types.json)" >> $GITHUB_OUTPUT
