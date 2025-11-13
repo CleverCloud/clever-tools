@@ -61,7 +61,8 @@ jobs:
       - name: 'Setup Node.js'
         uses: actions/setup-node@v6
         with:
-          node-version-file: 'package.json'
+          # Here we use lts because we need a recent version of npm for the new OIDC publication on npmjs.org
+          node-version: 'lts/*'
           registry-url: 'https://registry.npmjs.org'
       - name: 'Publish to npm'
         run: npm publish --access public --provenance
