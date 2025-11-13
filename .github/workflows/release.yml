@@ -50,6 +50,9 @@ jobs:
   publish-npm:
     name: 'Publish to npm'
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write # Required for OIDC
+      contents: read
     steps:
       # We don't reuse ".github/actions/setup-node"
       # because we don't need the "npm ci" and we want the official https://registry.npmjs.org
@@ -61,9 +64,7 @@ jobs:
           node-version-file: 'package.json'
           registry-url: 'https://registry.npmjs.org'
       - name: 'Publish to npm'
-        run: npm publish --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npm publish --access public --provenance
 
   update-github-release:
     name: 'Update GitHub release'
