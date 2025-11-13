@@ -1,6 +1,14 @@
 # clever-tools changelog
 
 
+## [4.4.0](https://github.com/CleverCloud/clever-tools/compare/4.3.0...4.4.0) (2025-11-13)
+
+
+### 🚀 Features
+
+* **drain:** re-enable drain commands with API v4 client integration ([de5a622](https://github.com/CleverCloud/clever-tools/commit/de5a622ff7d100c645a3be419f955ffdbd9e5ae6))
+* **operators:** add get-config command to Otoroshi ([9a29da5](https://github.com/CleverCloud/clever-tools/commit/9a29da56ec0807f2f6d225cf3e9587a471a78e0b))
+
 ## [4.3.0](https://github.com/CleverCloud/clever-tools/compare/4.2.0...4.3.0) (2025-10-22)
 
 
