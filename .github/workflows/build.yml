@@ -20,7 +20,7 @@ jobs:
     name: 'Bundle single clever.cjs'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: ./.github/actions/setup-node
       - name: 'Bundle to single clever.cjs'
         run: ./scripts/bundle-cjs.js ${{ inputs.version }} ${{ inputs.isPreview }}
@@ -34,7 +34,7 @@ jobs:
     needs: bundle-cjs
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: ./.github/actions/setup-node
       - uses: ./.github/actions/download-artifacts
         with: { pattern: bundle-cjs }
@@ -56,7 +56,7 @@ jobs:
     needs: bundle-cjs
     runs-on: macos-14
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: ./.github/actions/setup-node
       - uses: ./.github/actions/download-artifacts
         with: { pattern: bundle-cjs }
@@ -75,7 +75,7 @@ jobs:
     runs-on: windows-2025
     if: ${{ inputs.include-windows }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: ./.github/actions/setup-node
       - uses: ./.github/actions/download-artifacts
         with: { pattern: bundle-cjs }

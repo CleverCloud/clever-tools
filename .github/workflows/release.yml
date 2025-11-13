@@ -17,7 +17,7 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: ./.github/actions/setup-node
       - uses: ./.github/actions/download-artifacts
         with: { pattern: build-linux-binary }
@@ -36,7 +36,7 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: ./.github/actions/setup-node
       - uses: ./.github/actions/download-artifacts
         with: { pattern: build-linux-binary }
@@ -57,7 +57,7 @@ jobs:
       # We don't reuse ".github/actions/setup-node"
       # because we don't need the "npm ci" and we want the official https://registry.npmjs.org
       - name: 'Checkout sources'
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: 'Setup Node.js'
         uses: actions/setup-node@v4
         with:
@@ -72,7 +72,7 @@ jobs:
     needs: [build, package-rpm, package-deb]
     steps:
       - name: 'Checkout sources'
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - uses: ./.github/actions/download-artifacts
         with: { pattern: build-*-archive }
       - uses: ./.github/actions/download-artifacts
@@ -88,7 +88,7 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: ./.github/actions/setup-node
       - uses: ./.github/actions/download-artifacts
         with: { pattern: build-*-archive }
@@ -104,7 +104,7 @@ jobs:
     needs: package-rpm
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: ./.github/actions/setup-node
       - uses: ./.github/actions/download-artifacts
         with: { pattern: package-rpm }
@@ -120,7 +120,7 @@ jobs:
     needs: package-deb
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: ./.github/actions/setup-node
       - uses: ./.github/actions/download-artifacts
         with: { pattern: package-deb }
@@ -144,7 +144,7 @@ jobs:
         run: |
           mkdir -p ~/.ssh
           ssh-keyscan -H aur.archlinux.org >> ~/.ssh/known_hosts
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: ./.github/actions/setup-node
       - uses: ./.github/actions/download-artifacts
         with: { pattern: build-linux-archive }
@@ -162,7 +162,7 @@ jobs:
         uses: webfactory/ssh-agent@v0.9.0
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: ./.github/actions/setup-node
       - uses: ./.github/actions/download-artifacts
         with: { pattern: build-macos-archive }
@@ -180,7 +180,7 @@ jobs:
         uses: webfactory/ssh-agent@v0.9.0
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: ./.github/actions/setup-node
       - name: 'Publish to Docker Hub (and related GitHub project)'
         run: ./scripts/publish-dockerhub.js ${{ github.ref_name }}
@@ -200,7 +200,7 @@ jobs:
         uses: webfactory/ssh-agent@v0.9.0
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: ./.github/actions/setup-node
       - name: 'Publish to GitHub for exherbo'
         run: ./scripts/publish-exherbo.js ${{ github.ref_name }}
@@ -212,7 +212,7 @@ jobs:
     needs: package-rpm
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: ./.github/actions/setup-node
       - uses: ./.github/actions/download-artifacts
         with: { pattern: package-rpm }
@@ -228,7 +228,7 @@ jobs:
     needs: package-deb
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: ./.github/actions/setup-node
       - uses: ./.github/actions/download-artifacts
         with: { pattern: package-deb }
@@ -244,7 +244,7 @@ jobs:
     needs: publish-cellar-archives
     runs-on: windows-2025
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: ./.github/actions/setup-node
       - name: 'Install WingetCreate'
         shell: powershell
