@@ -134,11 +134,17 @@ export async function watchDeploymentAndDisplayLogs(options) {
   }
 
   if (deploymentEnded.state === 'OK') {
-    const favouriteDomain = await getBest(appId, ownerId);
     Logger.println('');
-    Logger.println(
-      `${styleText(['bold', 'green'], '✓ Access your application:')} ${styleText(['underline', 'bold'], `https://${favouriteDomain.fqdn}`)}`,
-    );
+
+    // There can be applications without any domain, so we don't fail if we can't get one
+    const favouriteDomain = await getBest(appId, ownerId).catch(() => null);
+
+    if (favouriteDomain) {
+      Logger.println(
+        `${styleText(['bold', 'green'], '✓ Access your application:')} ${styleText(['underline', 'bold'], `https://${favouriteDomain.fqdn}`)}`,
+      );
+    }
+
     Logger.println(
       `${styleText(['bold', 'blue'], '→ Manage your application:')} ${styleText(['underline', 'bold'], `${conf.GOTO_URL}/${appId}`)}`,
     );
