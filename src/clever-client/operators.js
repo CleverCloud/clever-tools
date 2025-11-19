@@ -130,7 +130,7 @@ export function getOtoroshiConfig(params) {
   return Promise.resolve({
     method: 'get',
     url: `/v4/addon-providers/addon-otoroshi/addons/${params.realId}/config.yaml`,
-    // headers: { Accept: 'application/yaml' },
+    headers: { Accept: 'application/yaml' },
     // no queryParams
     // no body
   });
