@@ -1,5 +1,9 @@
 import { confirm as confirmPrompt, input, password, select } from '@inquirer/prompts';
 
+export function promptInput(message, defaultValue = '') {
+  return input({ message, default: defaultValue }).catch(exitOnPromptError);
+}
+
 export function promptSecret(message) {
   return password({ message, mask: true }).catch(exitOnPromptError);
 }
