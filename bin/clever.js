@@ -47,6 +47,7 @@ import * as publishedConfig from '../src/commands/published-config.js';
 import * as restart from '../src/commands/restart.js';
 import * as scale from '../src/commands/scale.js';
 import * as service from '../src/commands/service.js';
+import * as setOauthConf from '../src/commands/set-oauth-conf.js';
 import * as sshKeys from '../src/commands/ssh-keys.js';
 import * as ssh from '../src/commands/ssh.js';
 import * as status from '../src/commands/status.js';
@@ -202,6 +203,22 @@ async function run() {
 
   // OPTIONS
   const opts = {
+    apiHost: cliparse.option('api-host', {
+      metavar: 'api_host',
+      description: 'API host to use (e.g.: https://api.clever-cloud.com)',
+    }),
+    consoleTokenUrl: cliparse.option('console-token-url', {
+      metavar: 'console_token_url',
+      description: 'Console token URL to use (e.g.: https://console.clever-cloud.com/cli-oauth)',
+    }),
+    oauthConsumerKey: cliparse.option('oauth-consumer-key', {
+      metavar: 'oauth_consumer_key',
+      description: 'OAuth consumer key to use)',
+    }),
+    oauthConsumerSecret: cliparse.option('oauth-consumer-secret', {
+      metavar: 'oauth_consumer_secret',
+      description: 'OAuth consumer secret to use',
+    }),
     k8sDeployWatch: cliparse.flag('watch', {
       aliases: ['w'],
       description: 'Watch the deployment until the cluster is deployed',
@@ -1879,6 +1896,24 @@ async function run() {
     service.list,
   );
 
+  // SET-OAUTH-CONF COMMAND
+  const setOauthConfClearCommand = cliparse.command(
+    'clear',
+    {
+      description: 'Clear the OAuth configuration for the current user',
+    },
+    setOauthConf.clearConf,
+  );
+  const setOauthConfCommand = cliparse.command(
+    'set-oauth-conf',
+    {
+      description: 'Set the OAuth configuration for the current user',
+      options: [opts.apiHost, opts.consoleTokenUrl, opts.oauthConsumerKey, opts.oauthConsumerSecret],
+      commands: [setOauthConfClearCommand],
+    },
+    setOauthConf.askConf,
+  );
+
   // SSH COMMAND
   const sshCommand = cliparse.command(
     'ssh',
@@ -2126,6 +2161,7 @@ async function run() {
     restartCommand,
     scaleCommand,
     serviceCommands,
+    setOauthConfCommand,
     sshCommand,
     sshKeysCommands,
     statusCommand,

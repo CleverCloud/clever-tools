@@ -1,4 +1,4 @@
-import { promises as fs } from 'node:fs';
+import { promises as fs, readFileSync } from 'node:fs';
 import path from 'node:path';
 import xdg from 'xdg';
 import { Logger } from '../logger.js';
@@ -7,6 +7,7 @@ const CONFIG_FILES = {
   MAIN: 'clever-tools.json',
   IDS_CACHE: 'ids-cache.json',
   EXPERIMENTAL_FEATURES_FILE: 'clever-tools-experimental-features.json',
+  THIRD_PARTY_ZONE: 'clever-tools-3rd-party-zone.json',
 };
 
 function getConfigDir() {
@@ -122,6 +123,7 @@ const defaultConf = {
   APP_CONFIGURATION_FILE: path.resolve('.', '.clever.json'),
   CONFIGURATION_FILE: getConfigPath(CONFIG_FILES.MAIN),
   EXPERIMENTAL_FEATURES_FILE: getConfigPath(CONFIG_FILES.EXPERIMENTAL_FEATURES_FILE),
+  THIRD_PARTY_ZONE_FILE: getConfigPath(CONFIG_FILES.THIRD_PARTY_ZONE),
 
   API_DOC_URL: 'https://www.clever.cloud/developers/api',
   DOC_URL: 'https://www.clever.cloud/developers/doc',
@@ -130,7 +132,7 @@ const defaultConf = {
   GOTO_URL: 'https://console.clever-cloud.com/goto',
 };
 
-export const conf = Object.fromEntries(
+const confWithEnv = Object.fromEntries(
   Object.entries(defaultConf).map(([name, value]) => {
     if (process.env[name] != null) {
       return [name, process.env[name]];
@@ -138,3 +140,26 @@ export const conf = Object.fromEntries(
     return [name, value];
   }),
 );
+
+export const conf = (() => {
+  try {
+    const configFile = readFileSync(confWithEnv.THIRD_PARTY_ZONE_FILE, 'utf8');
+    const configData = JSON.parse(configFile);
+
+    const overrides = {};
+    if (configData.API_HOST) overrides.API_HOST = configData.API_HOST;
+    if (configData.CONSOLE_TOKEN_URL) overrides.CONSOLE_TOKEN_URL = configData.CONSOLE_TOKEN_URL;
+    if (configData.OAUTH_CONSUMER_KEY) overrides.OAUTH_CONSUMER_KEY = configData.OAUTH_CONSUMER_KEY;
+    if (configData.OAUTH_CONSUMER_SECRET) overrides.OAUTH_CONSUMER_SECRET = configData.OAUTH_CONSUMER_SECRET;
+
+    return { ...confWithEnv, ...overrides };
+  } catch (error) {
+    // If the file does not exist, we just return the conf with env variables
+    if (error.code === 'ENOENT') {
+      return confWithEnv;
+    }
+    throw new Error(
+      `Can't read third party zone configuration from ${confWithEnv.THIRD_PARTY_ZONE_FILE}\n${error.message}`,
+    );
+  }
+})();
