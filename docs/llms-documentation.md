@@ -1,4 +1,4 @@
-This document is automatically generated from Clever Tools `4.3.0` and Clever Cloud API. It covers all Clever Tools commands and options. Use it to better understand this CLI and its capabilities or to train/use LLMs, AI-assisted IDEs.
+This document is automatically generated from Clever Tools `4.4.0` and Clever Cloud API. It covers all Clever Tools commands and options. Use it to better understand this CLI and its capabilities or to train/use LLMs, AI-assisted IDEs.
 
 To use Clever Tools, you need:
 - A Clever Cloud account, create one at https://console.clever-cloud.com/
@@ -195,7 +195,7 @@ Applications deployment zones (region): `par`, `parhds`, `fr-north-hds`, `grahds
   - zones: `par`, `rbx`, `scw`, `sgp`, `wsw`, `mtl`, `syd`
 
 - `postgresql-addon`:
-  - plans: `xs_sml`, `xl_hug`, `xxs_sml`, `xl_sml`, `xs_big`, `xs_tny`, `xxl_sml`, `xxs_med`, `l_big`, `m_sml`, `l_sml`, `xxxl_sml`, `m_big`, `s_hug`, `xxxl_med`, `xxxl_big`, `s_sml`, `l_gnt`, `xxl_hug`, `xxl_med`, `s_med`, `m_med`, `xxl_big`, `xxs_big`, `l_med`, `xl_med`, `s_big`, `xl_gnt`, `dev`, `xl_big`, `xs_med`
+  - plans: `xs_sml`, `xl_hug`, `xxs_sml`, `xl_sml`, `xs_big`, `xs_tny`, `3xl_cpu_tit`, `xxl_sml`, `xxs_med`, `l_big`, `m_sml`, `l_sml`, `xxxl_sml`, `m_big`, `s_hug`, `xxxl_med`, `xxxl_big`, `s_sml`, `l_gnt`, `xxl_hug`, `xxl_med`, `s_med`, `m_med`, `xxl_big`, `xxs_big`, `l_med`, `xl_med`, `s_big`, `xl_gnt`, `dev`, `xl_big`, `xs_med`
   - zones: `par`, `parhds`, `rbx`, `rbxhds`, `scw`, `ldn`, `sgp`, `grahds`, `wsw`, `mtl`, `syd`
 
 - `azimutt`:
@@ -774,7 +774,6 @@ Usage: drain
 ```
 [--alias, -a] ALIAS       Short name for the application
 [--app] ID_OR_NAME        Application to manage by its ID (or name, if unambiguous)
-[--addon] ADDON_ID        Add-on ID
 [--format, -F] FORMAT     Output format (human, json) (default: human)
 ```
 
@@ -790,12 +789,26 @@ Usage: create DRAIN-TYPE DRAIN-URL
 ```
 [--alias, -a] ALIAS                   Short name for the application
 [--app] ID_OR_NAME                    Application to manage by its ID (or name, if unambiguous)
-[--addon] ADDON_ID                    Add-on ID
-[--username, -u] USERNAME             (HTTP drains) basic auth username
-[--password, -p] PASSWORD             (HTTP drains) basic auth password
-[--api-key, -k] API_KEY               (NewRelic drains) API key
-[--index-prefix, -i] INDEX_PREFIX     (ElasticSearch drains) optional index prefix. `logstash` value is used if not set
-[--sd-params, -s] SD_PARAMS           (TCP and UDP drains) sd-params string (e.g.: `X-OVH-TOKEN=\"REDACTED\"`)
+[--username, -u] USERNAME             Basic auth username (for elasticsearch or raw-http)
+[--password, -p] PASSWORD             Basic auth password (for elasticsearch or raw-http)
+[--api-key, -k] API_KEY               API key (for newrelic)
+[--index-prefix, -i] INDEX_PREFIX     Optional index prefix (for elasticsearch), `logstash` value is used if not set
+[--sd-params, -s] SD_PARAMS           RFC5424 structured data parameters (for ovh-tcp), e.g.: `X-OVH-TOKEN=\"REDACTED\"`
+```
+
+### drain get
+
+```
+Usage: get DRAIN-ID
+```
+
+**Description:** Get drain info
+
+**Options:**
+```
+[--alias, -a] ALIAS       Short name for the application
+[--app] ID_OR_NAME        Application to manage by its ID (or name, if unambiguous)
+[--format, -F] FORMAT     Output format (human, json) (default: human)
 ```
 
 ### drain remove
@@ -810,7 +823,6 @@ Usage: remove DRAIN-ID
 ```
 [--alias, -a] ALIAS     Short name for the application
 [--app] ID_OR_NAME      Application to manage by its ID (or name, if unambiguous)
-[--addon] ADDON_ID      Add-on ID
 ```
 
 ### drain enable
@@ -825,7 +837,6 @@ Usage: enable DRAIN-ID
 ```
 [--alias, -a] ALIAS     Short name for the application
 [--app] ID_OR_NAME      Application to manage by its ID (or name, if unambiguous)
-[--addon] ADDON_ID      Add-on ID
 ```
 
 ### drain disable
@@ -840,7 +851,6 @@ Usage: disable DRAIN-ID
 ```
 [--alias, -a] ALIAS     Short name for the application
 [--app] ID_OR_NAME      Application to manage by its ID (or name, if unambiguous)
-[--addon] ADDON_ID      Add-on ID
 ```
 
 ## emails
@@ -1715,6 +1725,14 @@ Usage: get ADDON-ID
 ```
 [--format, -F] FORMAT     Output format (human, json) (default: human)
 ```
+
+### otoroshi get-config
+
+```
+Usage: get-config ADDON-ID
+```
+
+**Description:** Get configuration of a deployed Otoroshi in otoroshictl format
 
 ### otoroshi enable-ng
 
