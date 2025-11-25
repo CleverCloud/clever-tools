@@ -15,9 +15,9 @@ import { parse as parseDomain } from 'tldts';
 import { styleText } from '../lib/style-text.js';
 import { Logger } from '../logger.js';
 import * as Application from '../models/application.js';
+import { getDomainObject, getFavouriteDomain } from '../models/domain.js';
 import { DnsResolver } from '../models/node-dns-resolver.js';
 import { sendToApi } from '../models/send-to-api.js';
-import { getDomainObject, getFavouriteDomain } from '../models/domain.js';
 
 /**
  * @typedef {import('@clevercloud/client/esm/utils/diag-domain-config.types.js').DomainInfo} DomainInfo

@@ -3,9 +3,9 @@ import {
   getFavouriteDomain as getFavouriteDomainWithError,
 } from '@clevercloud/client/esm/api/v2/application.js';
 import _ from 'lodash';
+import { parse as parseDomain } from 'tldts';
 import { Logger } from '../logger.js';
 import { sendToApi } from './send-to-api.js';
-import { parse as parseDomain } from 'tldts';
 
 export async function getBest(appId, orgaId) {
   Logger.debug('Trying to get the favourite vhost for ' + appId);
