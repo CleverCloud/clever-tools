@@ -1,5 +1,7 @@
 import { EventsStream } from '@clevercloud/client/esm/streams/events.js';
 import { formatTable } from '../../format-table.js';
+import { defineCommand } from '../../lib/define-command.js';
+import { defineOption } from '../../lib/define-option.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
 import * as Activity from '../../models/activity.js';
@@ -152,13 +154,13 @@ function getEventHandler(format, follow) {
   }
 }
 
-export const activityCommand = {
+export const activityCommand = defineCommand({
   name: 'activity',
   description: 'Show last deployments of an application',
   experimental: false,
   featureFlag: null,
   opts: {
-    follow: {
+    follow: defineOption({
       name: 'follow',
       description: 'Track new deployments in activity list',
       type: 'flag',
@@ -168,8 +170,8 @@ export const activityCommand = {
       required: null,
       parser: null,
       complete: null,
-    },
-    'show-all': {
+    }),
+    'show-all': defineOption({
       name: 'show-all',
       description: 'Show all activity',
       type: 'flag',
@@ -179,8 +181,8 @@ export const activityCommand = {
       required: null,
       parser: null,
       complete: null,
-    },
-    format: {
+    }),
+    format: defineOption({
       name: 'format',
       description: 'Output format (${...})',
       type: 'option',
@@ -190,7 +192,7 @@ export const activityCommand = {
       required: null,
       parser: null,
       complete: null,
-    },
+    }),
     color: colorOpt,
     'update-notifier': updateNotifierOpt,
     verbose: verboseOpt,
@@ -238,4 +240,4 @@ export const activityCommand = {
 
     return deferred.promise;
   },
-};
+});

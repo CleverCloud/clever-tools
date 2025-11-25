@@ -1,8 +1,9 @@
+import { defineArgument } from '../../lib/define-argument.js';
 import { commaSeparated as commaSeparatedParser } from '../../parsers.js';
 
-export const featuresArg = {
+export const featuresArg = defineArgument({
   name: 'features',
   description: 'Comma-separated list of experimental features to manage',
   parser: commaSeparatedParser,
   complete: null,
-};
+});

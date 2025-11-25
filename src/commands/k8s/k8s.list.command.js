@@ -1,9 +1,10 @@
+import { defineCommand } from '../../lib/define-command.js';
 import { k8sList } from '../../lib/k8s.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
 import { colorOpt, humanJsonOutputFormatOpt, orgaIdOrNameOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
 
-export const k8sListCommand = {
+export const k8sListCommand = defineCommand({
   name: 'list',
   description: 'List Kubernetes clusters',
   experimental: false,
@@ -39,4 +40,4 @@ export const k8sListCommand = {
         break;
     }
   },
-};
+});

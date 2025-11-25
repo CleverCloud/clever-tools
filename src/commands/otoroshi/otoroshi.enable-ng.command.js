@@ -1,8 +1,9 @@
+import { defineCommand } from '../../lib/define-command.js';
 import { operatorNgEnable } from '../../lib/operator-commands.js';
 import { addonIdOrNameArg } from '../global.args.js';
 import { colorOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
 
-export const otoroshiEnableNgCommand = {
+export const otoroshiEnableNgCommand = defineCommand({
   name: 'enable-ng',
   description: 'Link Otoroshi to a Network Group',
   experimental: false,
@@ -17,4 +18,4 @@ export const otoroshiEnableNgCommand = {
     const [addonIdOrName] = params.args;
     await operatorNgEnable('otoroshi', addonIdOrName);
   },
-};
+});

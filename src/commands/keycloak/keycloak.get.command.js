@@ -1,8 +1,9 @@
+import { defineCommand } from '../../lib/define-command.js';
 import { operatorPrint } from '../../lib/operator-commands.js';
 import { addonIdOrNameArg } from '../global.args.js';
 import { colorOpt, humanJsonOutputFormatOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
 
-export const keycloakGetCommand = {
+export const keycloakGetCommand = defineCommand({
   name: 'get',
   description: 'Get information about a deployed Keycloak',
   experimental: false,
@@ -19,4 +20,4 @@ export const keycloakGetCommand = {
     const { format } = params.options;
     await operatorPrint('keycloak', addonIdOrName, format);
   },
-};
+});

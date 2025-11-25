@@ -1,10 +1,11 @@
 import { undeploy as stopApplication } from '@clevercloud/client/esm/api/v2/application.js';
+import { defineCommand } from '../../lib/define-command.js';
 import { Logger } from '../../logger.js';
 import * as Application from '../../models/application.js';
 import { sendToApi } from '../../models/send-to-api.js';
 import { aliasOpt, appIdOrNameOpt, colorOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
 
-export const stopCommand = {
+export const stopCommand = defineCommand({
   name: 'stop',
   description: 'Stop a running application',
   experimental: false,
@@ -24,4 +25,4 @@ export const stopCommand = {
     await stopApplication({ id: ownerId, appId }).then(sendToApi);
     Logger.printSuccess('Application successfully stopped!');
   },
-};
+});

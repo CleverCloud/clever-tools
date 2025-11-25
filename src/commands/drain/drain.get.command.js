@@ -1,4 +1,5 @@
 import { getDrain } from '../../clever-client/drains.js';
+import { defineCommand } from '../../lib/define-command.js';
 import { Logger } from '../../logger.js';
 import * as Application from '../../models/application.js';
 import { formatDrain } from '../../models/drain.js';
@@ -13,7 +14,7 @@ import {
 } from '../global.opts.js';
 import { drainIdArg } from './drain.args.js';
 
-export const drainGetCommand = {
+export const drainGetCommand = defineCommand({
   name: 'get',
   description: 'Get drain info',
   experimental: false,
@@ -47,4 +48,4 @@ export const drainGetCommand = {
       }
     }
   },
-};
+});

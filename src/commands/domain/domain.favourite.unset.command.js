@@ -1,10 +1,11 @@
 import { unmarkFavouriteDomain } from '@clevercloud/client/esm/api/v2/application.js';
+import { defineCommand } from '../../lib/define-command.js';
 import { Logger } from '../../logger.js';
 import * as Application from '../../models/application.js';
 import { sendToApi } from '../../models/send-to-api.js';
 import { aliasOpt, appIdOrNameOpt, colorOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
 
-export const domainFavouriteUnsetCommand = {
+export const domainFavouriteUnsetCommand = defineCommand({
   name: 'unset',
   description: 'Unset the favourite domain for an application',
   experimental: false,
@@ -24,4 +25,4 @@ export const domainFavouriteUnsetCommand = {
     await unmarkFavouriteDomain({ id: ownerId, appId }).then(sendToApi);
     Logger.println('Favourite domain has been successfully unset');
   },
-};
+});

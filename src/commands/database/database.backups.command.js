@@ -1,5 +1,6 @@
 import { getBackups } from '@clevercloud/client/esm/api/v2/backups.js';
 import { formatTable } from '../../format-table.js';
+import { defineCommand } from '../../lib/define-command.js';
 import { Logger } from '../../logger.js';
 import { findOwnerId } from '../../models/addon.js';
 import { resolveAddonId, resolveRealId } from '../../models/ids-resolver.js';
@@ -7,7 +8,7 @@ import { sendToApi } from '../../models/send-to-api.js';
 import { colorOpt, humanJsonOutputFormatOpt, orgaIdOrNameOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
 import { databaseIdArg } from './database.args.js';
 
-export const databaseBackupsCommand = {
+export const databaseBackupsCommand = defineCommand({
   name: 'backups',
   description: 'List available database backups',
   experimental: false,
@@ -62,4 +63,4 @@ export const databaseBackupsCommand = {
       }
     }
   },
-};
+});

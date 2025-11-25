@@ -1,10 +1,11 @@
 import { EXPERIMENTAL_FEATURES } from '../../experimental-features.js';
 import { formatTable } from '../../format-table.js';
+import { defineCommand } from '../../lib/define-command.js';
 import { Logger } from '../../logger.js';
 import { getFeatures } from '../../models/configuration.js';
 import { colorOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
 
-export const featuresCommand = {
+export const featuresCommand = defineCommand({
   name: 'features',
   description: 'Manage Clever Tools experimental features',
   experimental: false,
@@ -49,4 +50,4 @@ export const featuresCommand = {
       }
     }
   },
-};
+});

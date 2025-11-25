@@ -1,5 +1,7 @@
 import { getAllDeployments } from '@clevercloud/client/esm/api/v2/application.js';
 import dedent from 'dedent';
+import { defineCommand } from '../../lib/define-command.js';
+import { defineOption } from '../../lib/define-option.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
 import * as AppConfig from '../../models/app_configuration.js';
@@ -40,13 +42,13 @@ async function getBranchToDeploy(branchName, tagName) {
   }
 }
 
-export const deployCommand = {
+export const deployCommand = defineCommand({
   name: 'deploy',
   description: 'Deploy an application',
   experimental: false,
   featureFlag: null,
   opts: {
-    branch: {
+    branch: defineOption({
       name: 'branch',
       description: 'Branch to push (current branch by default)',
       type: 'option',
@@ -56,8 +58,8 @@ export const deployCommand = {
       required: null,
       parser: null,
       complete: 'git.completeBranches()',
-    },
-    tag: {
+    }),
+    tag: defineOption({
       name: 'tag',
       description: 'Tag to push (none by default)',
       type: 'option',
@@ -67,8 +69,8 @@ export const deployCommand = {
       required: null,
       parser: null,
       complete: null,
-    },
-    force: {
+    }),
+    force: defineOption({
       name: 'force',
       description: "Force deploy even if it's not fast-forwardable",
       type: 'flag',
@@ -78,8 +80,8 @@ export const deployCommand = {
       required: null,
       parser: null,
       complete: null,
-    },
-    'same-commit-policy': {
+    }),
+    'same-commit-policy': defineOption({
       name: 'same-commit-policy',
       description: 'What to do when local and remote commit are identical (${...})',
       type: 'option',
@@ -89,7 +91,7 @@ export const deployCommand = {
       required: null,
       parser: null,
       complete: null,
-    },
+    }),
     color: colorOpt,
     'update-notifier': updateNotifierOpt,
     verbose: verboseOpt,
@@ -197,4 +199,4 @@ export const deployCommand = {
       exitStrategy,
     });
   },
-};
+});

@@ -1,11 +1,13 @@
 import { todo_addSshKey as addSshKey } from '@clevercloud/client/esm/api/v2/user.js';
 import fs from 'node:fs';
+import { defineArgument } from '../../lib/define-argument.js';
+import { defineCommand } from '../../lib/define-command.js';
 import { Logger } from '../../logger.js';
 import { sendToApi } from '../../models/send-to-api.js';
 import { colorOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
 import { sshKeyNameArg } from './ssh-keys.args.js';
 
-export const sshKeysAddCommand = {
+export const sshKeysAddCommand = defineCommand({
   name: 'add',
   description: 'Add a new SSH key to the current user',
   experimental: false,
@@ -16,12 +18,12 @@ export const sshKeysAddCommand = {
     verbose: verboseOpt,
   },
   args: [
-    {
+    defineArgument({
       name: 'ssh-key-path',
       description: 'SSH public key path (.pub)',
       parser: null,
       complete: null,
-    },
+    }),
     sshKeyNameArg,
   ],
   async execute(params) {
@@ -45,4 +47,4 @@ export const sshKeysAddCommand = {
 
     Logger.printSuccess(`SSH key ${keyName} added successfully`);
   },
-};
+});

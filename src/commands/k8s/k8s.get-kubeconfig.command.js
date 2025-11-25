@@ -1,10 +1,11 @@
+import { defineCommand } from '../../lib/define-command.js';
 import { isK8sClusterActive, k8sGetConfig } from '../../lib/k8s.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
 import { colorOpt, orgaIdOrNameOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
 import { k8sIdOrNameArg } from './k8s.args.js';
 
-export const k8sGetKubeconfigCommand = {
+export const k8sGetKubeconfigCommand = defineCommand({
   name: 'get-kubeconfig',
   description: 'Get configuration of a Kubernetes cluster',
   experimental: false,
@@ -34,4 +35,4 @@ export const k8sGetKubeconfigCommand = {
 
     console.log(await k8sGetConfig(orgIdOrName, clusterIdOrName));
   },
-};
+});

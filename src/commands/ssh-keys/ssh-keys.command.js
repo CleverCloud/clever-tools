@@ -1,10 +1,11 @@
 import dedent from 'dedent';
+import { defineCommand } from '../../lib/define-command.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
 import { getUserSshKeys } from '../../models/ssh-keys.js';
 import { colorOpt, humanJsonOutputFormatOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
 
-export const sshKeysCommand = {
+export const sshKeysCommand = defineCommand({
   name: 'ssh-keys',
   description: 'Manage SSH keys of the current user',
   experimental: false,
@@ -51,4 +52,4 @@ export const sshKeysCommand = {
       }
     }
   },
-};
+});

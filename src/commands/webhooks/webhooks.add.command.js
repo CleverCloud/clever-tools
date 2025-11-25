@@ -1,4 +1,7 @@
 import { createWebhook } from '@clevercloud/client/esm/api/v2/notification.js';
+import { defineArgument } from '../../lib/define-argument.js';
+import { defineCommand } from '../../lib/define-command.js';
+import { defineOption } from '../../lib/define-option.js';
 import { Logger } from '../../logger.js';
 import { getOwnerAndApp } from '../../models/notification.js';
 import { sendToApi } from '../../models/send-to-api.js';
@@ -13,13 +16,13 @@ import {
   verboseOpt,
 } from '../global.opts.js';
 
-export const webhooksAddCommand = {
+export const webhooksAddCommand = defineCommand({
   name: 'add',
   description: 'Register webhook to be called when events happen',
   experimental: false,
   featureFlag: null,
   opts: {
-    format: {
+    format: defineOption({
       name: 'format',
       description: "Format of the body sent to the webhook ('raw', 'slack', 'gitter', or 'flowdock')",
       type: 'option',
@@ -29,7 +32,7 @@ export const webhooksAddCommand = {
       required: null,
       parser: null,
       complete: null,
-    },
+    }),
     color: colorOpt,
     'update-notifier': updateNotifierOpt,
     verbose: verboseOpt,
@@ -39,12 +42,12 @@ export const webhooksAddCommand = {
     service: notificationScopeOpt,
   },
   args: [
-    {
+    defineArgument({
       name: 'url',
       description: 'Webhook URL',
       parser: null,
       complete: null,
-    },
+    }),
     notificationNameArg,
   ],
   async execute(params) {
@@ -65,4 +68,4 @@ export const webhooksAddCommand = {
 
     Logger.println('The webhook has been added');
   },
-};
+});

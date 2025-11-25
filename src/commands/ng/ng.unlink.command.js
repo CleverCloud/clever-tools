@@ -1,10 +1,11 @@
+import { defineCommand } from '../../lib/define-command.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
 import * as networkGroupResources from '../../models/ng-resources.js';
 import { colorOpt, orgaIdOrNameOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
 import { ngIdOrLabelArg, ngResourceIdArg } from './ng.args.js';
 
-export const ngUnlinkCommand = {
+export const ngUnlinkCommand = defineCommand({
   name: 'unlink',
   description:
     'Unlink a resource by its ID (app_xxx, external_xxx, mysql_xxx, postgresql_xxx, redis_xxx, etc.) from a Network Group',
@@ -27,4 +28,4 @@ export const ngUnlinkCommand = {
       `Member ${styleText('green', resourceId.memberId)} successfully unlinked from Network Group ${styleText('green', ngText)}`,
     );
   },
-};
+});

@@ -1,10 +1,11 @@
+import { defineCommand } from '../../lib/define-command.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
 import * as networkGroup from '../../models/ng.js';
 import { colorOpt, orgaIdOrNameOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
 import { ngIdOrLabelArg } from './ng.args.js';
 
-export const ngDeleteCommand = {
+export const ngDeleteCommand = defineCommand({
   name: 'delete',
   description: 'Delete a Network Group',
   experimental: false,
@@ -24,4 +25,4 @@ export const ngDeleteCommand = {
     const ngText = ngIdOrLabel.ngResourceLabel ?? ngIdOrLabel.ngId;
     Logger.printSuccess(`Network Group ${styleText('green', ngText)} successfully deleted!`);
   },
-};
+});

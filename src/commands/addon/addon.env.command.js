@@ -1,12 +1,13 @@
 import { getAllEnvVars } from '@clevercloud/client/esm/api/v2/addon.js';
 import { toNameEqualsValueString } from '@clevercloud/client/esm/utils/env-vars.js';
+import { defineCommand } from '../../lib/define-command.js';
 import { Logger } from '../../logger.js';
 import { findOwnerId } from '../../models/addon.js';
 import { resolveAddonId } from '../../models/ids-resolver.js';
 import { sendToApi } from '../../models/send-to-api.js';
 import { colorOpt, envFormatOpt, orgaIdOrNameOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
 
-export const addonEnvCommand = {
+export const addonEnvCommand = defineCommand({
   name: 'env',
   description: 'List environment variables for an add-on',
   experimental: false,
@@ -44,4 +45,4 @@ export const addonEnvCommand = {
         Logger.println(toNameEqualsValueString(envFromAddon, { addExports: false }));
     }
   },
-};
+});

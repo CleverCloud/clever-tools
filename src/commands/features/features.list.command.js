@@ -1,10 +1,11 @@
 import { EXPERIMENTAL_FEATURES } from '../../experimental-features.js';
 import { formatTable } from '../../format-table.js';
+import { defineCommand } from '../../lib/define-command.js';
 import { Logger } from '../../logger.js';
 import { getFeatures } from '../../models/configuration.js';
 import { colorOpt, humanJsonOutputFormatOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
 
-export const featuresListCommand = {
+export const featuresListCommand = defineCommand({
   name: 'list',
   description: 'List available experimental features',
   experimental: false,
@@ -50,4 +51,4 @@ export const featuresListCommand = {
       }
     }
   },
-};
+});

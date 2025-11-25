@@ -1,8 +1,9 @@
+import { defineCommand } from '../../lib/define-command.js';
 import * as Application from '../../models/application.js';
 import * as ApplicationConfiguration from '../../models/application_configuration.js';
 import { aliasOpt, appIdOrNameOpt, colorOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
 
-export const configUpdateCommand = {
+export const configUpdateCommand = defineCommand({
   name: 'update',
   description: 'Edit multiple configuration settings at once',
   experimental: false,
@@ -28,4 +29,4 @@ export const configUpdateCommand = {
 
     ApplicationConfiguration.printAllValues(app);
   },
-};
+});

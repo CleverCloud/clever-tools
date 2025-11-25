@@ -1,3 +1,4 @@
+import { defineCommand } from '../../lib/define-command.js';
 import { Logger } from '../../logger.js';
 import * as Addon from '../../models/addon.js';
 import * as Organisation from '../../models/organisation.js';
@@ -5,7 +6,7 @@ import { addonIdOrNameArg } from '../global.args.js';
 import { colorOpt, orgaIdOrNameOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
 import { addonNameArg } from './addon.args.js';
 
-export const addonRenameCommand = {
+export const addonRenameCommand = defineCommand({
   name: 'rename',
   description: 'Rename an add-on',
   experimental: false,
@@ -26,4 +27,4 @@ export const addonRenameCommand = {
 
     Logger.println(`Addon ${addon.addon_id || addon.addon_name} successfully renamed to ${newName}`);
   },
-};
+});

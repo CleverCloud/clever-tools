@@ -1,19 +1,22 @@
 import { getBackups } from '@clevercloud/client/esm/api/v2/backups.js';
 import fs from 'node:fs';
 import { Writable } from 'node:stream';
+import { defineArgument } from '../../lib/define-argument.js';
+import { defineCommand } from '../../lib/define-command.js';
+import { defineOption } from '../../lib/define-option.js';
 import { findOwnerId } from '../../models/addon.js';
 import { resolveRealId } from '../../models/ids-resolver.js';
 import { sendToApi } from '../../models/send-to-api.js';
 import { colorOpt, humanJsonOutputFormatOpt, orgaIdOrNameOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
 import { databaseIdArg } from './database.args.js';
 
-export const databaseBackupsDownloadCommand = {
+export const databaseBackupsDownloadCommand = defineCommand({
   name: 'download',
   description: 'Download a database backup',
   experimental: false,
   featureFlag: null,
   opts: {
-    output: {
+    output: defineOption({
       name: 'output',
       description: 'Redirect the output of the command in a file',
       type: 'option',
@@ -23,7 +26,7 @@ export const databaseBackupsDownloadCommand = {
       required: null,
       parser: null,
       complete: null,
-    },
+    }),
     color: colorOpt,
     'update-notifier': updateNotifierOpt,
     verbose: verboseOpt,
@@ -31,12 +34,12 @@ export const databaseBackupsDownloadCommand = {
     format: humanJsonOutputFormatOpt,
   },
   args: [
-    {
+    defineArgument({
       name: 'backup-id',
       description: 'A Database backup ID (format: UUID)',
       parser: null,
       complete: null,
-    },
+    }),
     databaseIdArg,
   ],
   async execute(params) {
@@ -60,4 +63,4 @@ export const databaseBackupsDownloadCommand = {
 
     await response.body.pipeTo(Writable.toWeb(output ? fs.createWriteStream(output) : process.stdout));
   },
-};
+});

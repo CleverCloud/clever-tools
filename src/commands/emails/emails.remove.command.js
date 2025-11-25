@@ -1,11 +1,12 @@
 import { todo_removeEmailAddress as removeEmailAddress } from '@clevercloud/client/esm/api/v2/user.js';
+import { defineCommand } from '../../lib/define-command.js';
 import { Logger } from '../../logger.js';
 import { getUserEmailAddresses } from '../../models/emails.js';
 import { sendToApi } from '../../models/send-to-api.js';
 import { colorOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
 import { emailArg } from './emails.args.js';
 
-export const emailsRemoveCommand = {
+export const emailsRemoveCommand = defineCommand({
   name: 'remove',
   description: 'Remove a secondary email address from the current user',
   experimental: false,
@@ -30,4 +31,4 @@ export const emailsRemoveCommand = {
 
     Logger.printSuccess(`Secondary address ${addressToRemove} removed successfully`);
   },
-};
+});

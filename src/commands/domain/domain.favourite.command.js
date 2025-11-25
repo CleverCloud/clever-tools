@@ -1,3 +1,4 @@
+import { defineCommand } from '../../lib/define-command.js';
 import { Logger } from '../../logger.js';
 import * as Application from '../../models/application.js';
 import { getDomainObject, getFavouriteDomain } from '../../models/domain.js';
@@ -10,7 +11,7 @@ import {
   verboseOpt,
 } from '../global.opts.js';
 
-export const domainFavouriteCommand = {
+export const domainFavouriteCommand = defineCommand({
   name: 'favourite',
   description: 'Manage the favourite domain name for an application',
   experimental: false,
@@ -43,4 +44,4 @@ export const domainFavouriteCommand = {
         break;
     }
   },
-};
+});

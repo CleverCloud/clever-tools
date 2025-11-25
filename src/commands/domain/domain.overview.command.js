@@ -2,6 +2,8 @@ import { getAllDomains } from '@clevercloud/client/esm/api/v2/application.js';
 import { getSummary } from '@clevercloud/client/esm/api/v2/user.js';
 import _ from 'lodash';
 import { parse as parseDomain } from 'tldts';
+import { defineCommand } from '../../lib/define-command.js';
+import { defineOption } from '../../lib/define-option.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
 import { sendToApi } from '../../models/send-to-api.js';
@@ -45,13 +47,13 @@ function recursiveDisplay(obj, indentLevel = 0) {
   }
 }
 
-export const domainOverviewCommand = {
+export const domainOverviewCommand = defineCommand({
   name: 'overview',
   description: 'Get an overview of all your domains (all orgas, all apps)',
   experimental: false,
   featureFlag: null,
   opts: {
-    filter: {
+    filter: defineOption({
       name: 'filter',
       description: 'Get only domains containing the provided text',
       type: 'option',
@@ -61,7 +63,7 @@ export const domainOverviewCommand = {
       required: null,
       parser: null,
       complete: null,
-    },
+    }),
     color: colorOpt,
     'update-notifier': updateNotifierOpt,
     verbose: verboseOpt,
@@ -161,4 +163,4 @@ export const domainOverviewCommand = {
         break;
     }
   },
-};
+});

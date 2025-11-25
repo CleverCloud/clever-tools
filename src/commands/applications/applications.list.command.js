@@ -1,4 +1,5 @@
 import { formatTable } from '../../format-table.js';
+import { defineCommand } from '../../lib/define-command.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
 import * as AppConfig from '../../models/app_configuration.js';
@@ -11,7 +12,7 @@ function getPropertyMaxWidth(array, propertyName) {
   return Math.max(...array.map((o) => o[propertyName].length));
 }
 
-export const applicationsListCommand = {
+export const applicationsListCommand = defineCommand({
   name: 'list',
   description: 'List all applications',
   experimental: false,
@@ -100,4 +101,4 @@ export const applicationsListCommand = {
       }
     }
   },
-};
+});

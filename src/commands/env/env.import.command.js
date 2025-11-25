@@ -1,4 +1,5 @@
 import { updateAllEnvVars } from '@clevercloud/client/esm/api/v2/application.js';
+import { defineCommand } from '../../lib/define-command.js';
 import { Logger } from '../../logger.js';
 import * as Application from '../../models/application.js';
 import { sendToApi } from '../../models/send-to-api.js';
@@ -6,7 +7,7 @@ import * as variables from '../../models/variables.js';
 import { aliasOpt, appIdOrNameOpt, colorOpt, importAsJsonOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
 import { sourceableEnvVarsListOpt } from './env.opts.js';
 
-export const envImportCommand = {
+export const envImportCommand = defineCommand({
   name: 'import',
   description:
     'Load environment variables from STDIN\n(WARNING: this deletes all current variables and replace them with the new list loaded from STDIN)',
@@ -32,4 +33,4 @@ export const envImportCommand = {
 
     Logger.println('Environment variables have been set');
   },
-};
+});

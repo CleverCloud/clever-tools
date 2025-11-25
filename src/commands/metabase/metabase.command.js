@@ -1,7 +1,8 @@
+import { defineCommand } from '../../lib/define-command.js';
 import { operatorList } from '../../lib/operator-commands.js';
 import { colorOpt, humanJsonOutputFormatOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
 
-export const metabaseCommand = {
+export const metabaseCommand = defineCommand({
   name: 'metabase',
   description: 'Manage Clever Cloud Metabase services',
   experimental: true,
@@ -16,4 +17,4 @@ export const metabaseCommand = {
   async execute(params) {
     await operatorList('metabase', params.options.format);
   },
-};
+});

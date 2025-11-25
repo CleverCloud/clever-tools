@@ -1,9 +1,10 @@
+import { defineCommand } from '../../lib/define-command.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
 import * as networkGroup from '../../models/ng.js';
 import { colorOpt, humanJsonOutputFormatOpt, orgaIdOrNameOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
 
-export const ngCommand = {
+export const ngCommand = defineCommand({
   name: 'ng',
   description: 'List Network Groups',
   experimental: true,
@@ -44,4 +45,4 @@ export const ngCommand = {
       }
     }
   },
-};
+});

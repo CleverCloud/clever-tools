@@ -1,5 +1,6 @@
 import { getAllInstances, get as getApplication } from '@clevercloud/client/esm/api/v2/application.js';
 import _ from 'lodash';
+import { defineCommand } from '../../lib/define-command.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
 import * as Application from '../../models/application.js';
@@ -74,7 +75,7 @@ function groupInstances(instances) {
     .value();
 }
 
-export const statusCommand = {
+export const statusCommand = defineCommand({
   name: 'status',
   description: 'See the status of an application',
   experimental: false,
@@ -130,4 +131,4 @@ export const statusCommand = {
       }
     }
   },
-};
+});

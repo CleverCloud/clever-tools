@@ -1,8 +1,9 @@
+import { defineCommand } from '../../lib/define-command.js';
 import { operatorUpdateVersion } from '../../lib/operator-commands.js';
 import { addonIdOrNameArg } from '../global.args.js';
 import { colorOpt, targetVersionOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
 
-export const keycloakVersionUpdateCommand = {
+export const keycloakVersionUpdateCommand = defineCommand({
   name: 'update',
   description: 'Update Keycloak deployed version',
   experimental: false,
@@ -19,4 +20,4 @@ export const keycloakVersionUpdateCommand = {
     const { target } = params.options;
     await operatorUpdateVersion('keycloak', target, addonIdOrName);
   },
-};
+});

@@ -1,4 +1,5 @@
 import { removeEnvVar } from '@clevercloud/client/esm/api/v2/application.js';
+import { defineCommand } from '../../lib/define-command.js';
 import { Logger } from '../../logger.js';
 import * as Application from '../../models/application.js';
 import { sendToApi } from '../../models/send-to-api.js';
@@ -6,7 +7,7 @@ import { envVariableNameArg } from '../global.args.js';
 import { aliasOpt, appIdOrNameOpt, colorOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
 import { sourceableEnvVarsListOpt } from './env.opts.js';
 
-export const envRmCommand = {
+export const envRmCommand = defineCommand({
   name: 'rm',
   description: 'Remove an environment variable from an application',
   experimental: false,
@@ -29,4 +30,4 @@ export const envRmCommand = {
 
     Logger.println('Your environment variable has been successfully removed');
   },
-};
+});

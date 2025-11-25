@@ -1,10 +1,11 @@
+import { defineCommand } from '../../lib/define-command.js';
 import { Logger } from '../../logger.js';
 import * as Application from '../../models/application.js';
 import { appIdOrNameArg } from '../global.args.js';
 import { aliasOpt, appIdOrNameOpt, colorOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
 import { onlyAddonsOpt, onlyAppsOpt, showAllOpt } from './service.opts.js';
 
-export const serviceLinkAppCommand = {
+export const serviceLinkAppCommand = defineCommand({
   name: 'link-app',
   description: 'Add an existing app as a dependency',
   experimental: false,
@@ -28,4 +29,4 @@ export const serviceLinkAppCommand = {
     await Application.link(ownerId, appId, dependency);
     Logger.println(`App ${dependency.app_id || dependency.app_name} successfully linked`);
   },
-};
+});

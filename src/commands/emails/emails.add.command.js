@@ -1,10 +1,11 @@
 import { todo_addEmailAddress as addEmailAddress } from '@clevercloud/client/esm/api/v2/user.js';
+import { defineCommand } from '../../lib/define-command.js';
 import { Logger } from '../../logger.js';
 import { sendToApi } from '../../models/send-to-api.js';
 import { colorOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
 import { emailArg } from './emails.args.js';
 
-export const emailsAddCommand = {
+export const emailsAddCommand = defineCommand({
   name: 'add',
   description: 'Add a new secondary email address to the current user',
   experimental: false,
@@ -37,4 +38,4 @@ export const emailsAddCommand = {
       }
     }
   },
-};
+});

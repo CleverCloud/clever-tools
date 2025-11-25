@@ -1,5 +1,6 @@
 import { ApplicationAccessLogStream } from '@clevercloud/client/esm/streams/access-logs.js';
 import { formatTable } from '../../format-table.js';
+import { defineCommand } from '../../lib/define-command.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
 import * as Application from '../../models/application.js';
@@ -71,7 +72,7 @@ function colorStatusCode(code) {
   return codeString;
 }
 
-export const accesslogsCommand = {
+export const accesslogsCommand = defineCommand({
   name: 'accesslogs',
   description: 'Fetch access logs',
   experimental: false,
@@ -161,4 +162,4 @@ export const accesslogsCommand = {
 
     Logger.debug(`stream closed: ${closeReason?.type}`);
   },
-};
+});

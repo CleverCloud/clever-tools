@@ -1,9 +1,10 @@
+import { defineCommand } from '../../lib/define-command.js';
 import * as Application from '../../models/application.js';
 import * as ApplicationConfiguration from '../../models/application_configuration.js';
 import { aliasOpt, appIdOrNameOpt, colorOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
 import { configurationNameArg } from './config.args.js';
 
-export const configGetCommand = {
+export const configGetCommand = defineCommand({
   name: 'get',
   description: 'Display the current configuration',
   experimental: false,
@@ -23,4 +24,4 @@ export const configGetCommand = {
     const app = await Application.get(ownerId, appId);
     ApplicationConfiguration.printValue(app, configurationName);
   },
-};
+});

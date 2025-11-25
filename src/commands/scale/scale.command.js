@@ -1,3 +1,5 @@
+import { defineCommand } from '../../lib/define-command.js';
+import { defineOption } from '../../lib/define-option.js';
 import { Logger } from '../../logger.js';
 import * as Application from '../../models/application.js';
 import {
@@ -51,13 +53,13 @@ function validateOptions(options) {
   return { minFlavor, maxFlavor, minInstances, maxInstances, buildFlavor };
 }
 
-export const scaleCommand = {
+export const scaleCommand = defineCommand({
   name: 'scale',
   description: 'Change scalability of an application',
   experimental: false,
   featureFlag: null,
   opts: {
-    flavor: {
+    flavor: defineOption({
       name: 'flavor',
       description: 'The instance size of your application',
       type: 'option',
@@ -67,8 +69,8 @@ export const scaleCommand = {
       required: null,
       parser: flavorParser,
       complete: 'cliparse.autocomplete.words(Application.listAvailableFlavors())',
-    },
-    'min-flavor': {
+    }),
+    'min-flavor': defineOption({
       name: 'min-flavor',
       description: 'The minimum scale size of your application',
       type: 'option',
@@ -78,8 +80,8 @@ export const scaleCommand = {
       required: null,
       parser: flavorParser,
       complete: 'cliparse.autocomplete.words(Application.listAvailableFlavors())',
-    },
-    'max-flavor': {
+    }),
+    'max-flavor': defineOption({
       name: 'max-flavor',
       description: 'The maximum instance size of your application',
       type: 'option',
@@ -89,8 +91,8 @@ export const scaleCommand = {
       required: null,
       parser: flavorParser,
       complete: 'cliparse.autocomplete.words(Application.listAvailableFlavors())',
-    },
-    instances: {
+    }),
+    instances: defineOption({
       name: 'instances',
       description: 'The number of parallel instances',
       type: 'option',
@@ -100,8 +102,8 @@ export const scaleCommand = {
       required: null,
       parser: instancesParser,
       complete: null,
-    },
-    'min-instances': {
+    }),
+    'min-instances': defineOption({
       name: 'min-instances',
       description: 'The minimum number of parallel instances',
       type: 'option',
@@ -111,8 +113,8 @@ export const scaleCommand = {
       required: null,
       parser: instancesParser,
       complete: null,
-    },
-    'max-instances': {
+    }),
+    'max-instances': defineOption({
       name: 'max-instances',
       description: 'The maximum number of parallel instances',
       type: 'option',
@@ -122,8 +124,8 @@ export const scaleCommand = {
       required: null,
       parser: instancesParser,
       complete: null,
-    },
-    'build-flavor': {
+    }),
+    'build-flavor': defineOption({
       name: 'build-flavor',
       description: "The size of the build instance, or 'disabled' if you want to disable dedicated build instances",
       type: 'option',
@@ -133,7 +135,7 @@ export const scaleCommand = {
       required: null,
       parser: buildFlavorParser,
       complete: null,
-    },
+    }),
     color: colorOpt,
     'update-notifier': updateNotifierOpt,
     verbose: verboseOpt,
@@ -160,4 +162,4 @@ export const scaleCommand = {
 
     Logger.println('App rescaled successfully');
   },
-};
+});

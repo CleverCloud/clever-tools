@@ -1,7 +1,8 @@
+import { defineCommand } from '../../lib/define-command.js';
 import { operatorList } from '../../lib/operator-commands.js';
 import { colorOpt, humanJsonOutputFormatOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
 
-export const matomoCommand = {
+export const matomoCommand = defineCommand({
   name: 'matomo',
   description: 'Manage Clever Cloud Matomo services',
   experimental: true,
@@ -16,4 +17,4 @@ export const matomoCommand = {
   async execute(params) {
     await operatorList('addon-matomo', params.options.format);
   },
-};
+});

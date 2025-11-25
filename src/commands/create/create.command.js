@@ -1,4 +1,7 @@
 import path from 'node:path';
+import { defineArgument } from '../../lib/define-argument.js';
+import { defineCommand } from '../../lib/define-command.js';
+import { defineOption } from '../../lib/define-option.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
 import * as AppConfig from '../../models/app_configuration.js';
@@ -95,13 +98,13 @@ function printFieldsAsTable(indent, fields) {
   });
 }
 
-export const createCommand = {
+export const createCommand = defineCommand({
   name: 'create',
   description: 'Create an application',
   experimental: false,
   featureFlag: null,
   opts: {
-    type: {
+    type: defineOption({
       name: 'type',
       description: 'Instance type',
       type: 'option',
@@ -111,8 +114,8 @@ export const createCommand = {
       required: true,
       parser: null,
       complete: listAvailableTypes,
-    },
-    region: {
+    }),
+    region: defineOption({
       name: 'region',
       description: 'Region, can be ${...}',
       type: 'option',
@@ -122,8 +125,8 @@ export const createCommand = {
       required: null,
       parser: null,
       complete: listAvailableZones,
-    },
-    github: {
+    }),
+    github: defineOption({
       name: 'github',
       description: 'GitHub application to use for deployments',
       type: 'option',
@@ -133,8 +136,8 @@ export const createCommand = {
       required: null,
       parser: null,
       complete: null,
-    },
-    task: {
+    }),
+    task: defineOption({
       name: 'task',
       description: 'The application launch as a task executing the given command, then stopped',
       type: 'option',
@@ -144,7 +147,7 @@ export const createCommand = {
       required: null,
       parser: nonEmptyStringParser,
       complete: null,
-    },
+    }),
     color: colorOpt,
     'update-notifier': updateNotifierOpt,
     verbose: verboseOpt,
@@ -153,12 +156,12 @@ export const createCommand = {
     format: humanJsonOutputFormatOpt,
   },
   args: [
-    {
+    defineArgument({
       name: 'app-name',
       description: 'Application name (optional, current directory name is used if not specified)',
       parser: null,
       complete: null,
-    },
+    }),
   ],
   async execute(params) {
     const { type: typeName } = params.options;
@@ -195,4 +198,4 @@ export const createCommand = {
         await displayAppCreation(app, alias, github, taskCommand);
     }
   },
-};
+});

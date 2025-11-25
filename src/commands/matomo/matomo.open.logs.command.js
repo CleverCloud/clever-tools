@@ -1,8 +1,9 @@
+import { defineCommand } from '../../lib/define-command.js';
 import { operatorOpenLogs } from '../../lib/operator-commands.js';
 import { addonIdOrNameArg } from '../global.args.js';
 import { colorOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
 
-export const matomoOpenLogsCommand = {
+export const matomoOpenLogsCommand = defineCommand({
   name: 'logs',
   description: 'Open the Matomo application logs in Clever Cloud Console',
   experimental: false,
@@ -17,4 +18,4 @@ export const matomoOpenLogsCommand = {
     const [addonIdOrName] = params.args;
     await operatorOpenLogs('matomo', addonIdOrName);
   },
-};
+});

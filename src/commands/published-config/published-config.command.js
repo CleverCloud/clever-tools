@@ -1,11 +1,12 @@
 import { getAllExposedEnvVars } from '@clevercloud/client/esm/api/v2/application.js';
 import { toNameEqualsValueString } from '@clevercloud/client/esm/utils/env-vars.js';
+import { defineCommand } from '../../lib/define-command.js';
 import { Logger } from '../../logger.js';
 import * as Application from '../../models/application.js';
 import { sendToApi } from '../../models/send-to-api.js';
 import { aliasOpt, appIdOrNameOpt, colorOpt, envFormatOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
 
-export const publishedConfigCommand = {
+export const publishedConfigCommand = defineCommand({
   name: 'published-config',
   description: 'Manage the configuration made available to other applications by this application',
   experimental: false,
@@ -41,4 +42,4 @@ export const publishedConfigCommand = {
       }
     }
   },
-};
+});

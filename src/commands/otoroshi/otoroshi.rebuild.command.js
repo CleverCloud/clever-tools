@@ -1,8 +1,9 @@
+import { defineCommand } from '../../lib/define-command.js';
 import { operatorRebuild } from '../../lib/operator-commands.js';
 import { addonIdOrNameArg } from '../global.args.js';
 import { colorOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
 
-export const otoroshiRebuildCommand = {
+export const otoroshiRebuildCommand = defineCommand({
   name: 'rebuild',
   description: 'Rebuild Otoroshi',
   experimental: false,
@@ -17,4 +18,4 @@ export const otoroshiRebuildCommand = {
     const [addonIdOrName] = params.args;
     await operatorRebuild('otoroshi', addonIdOrName);
   },
-};
+});

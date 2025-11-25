@@ -1,10 +1,11 @@
+import { defineCommand } from '../../lib/define-command.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
 import * as Addon from '../../models/addon.js';
 import { colorOpt, humanJsonOutputFormatOpt, orgaIdOrNameOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
 import { addonProviderArg } from './addon.args.js';
 
-export const addonProvidersShowCommand = {
+export const addonProvidersShowCommand = defineCommand({
   name: 'show',
   description: 'Show information about an add-on provider',
   experimental: false,
@@ -102,4 +103,4 @@ export const addonProvidersShowCommand = {
       }
     }
   },
-};
+});

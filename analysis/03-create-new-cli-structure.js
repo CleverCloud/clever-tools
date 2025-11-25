@@ -431,6 +431,9 @@ function generateCommandFile(command) {
   const commandName = getCommandNameForUsage(commandPath);
   const usage = usageByCommand.get(commandName);
 
+  // Track if we need defineCommand import
+  const needsDefineCommand = true;
+
   // Collect inline args and options
   const inlineArgs = [];
   const inlineOpts = [];
@@ -464,6 +467,21 @@ function generateCommandFile(command) {
   const parserImports = new Set();
   const completeImports = new Map();
   const mainCommand = getMainCommand(commandPath);
+
+  // Add defineCommand import
+  if (needsDefineCommand) {
+    imports.push(`import { defineCommand } from '../../lib/define-command.js';`);
+  }
+
+  // Add defineArgument import if we have inline args
+  if (inlineArgs.length > 0) {
+    imports.push(`import { defineArgument } from '../../lib/define-argument.js';`);
+  }
+
+  // Add defineOption import if we have inline opts
+  if (inlineOpts.length > 0) {
+    imports.push(`import { defineOption } from '../../lib/define-option.js';`);
+  }
 
   // Get legacy file info and parse it using AST
   let legacyImports = [];
@@ -629,7 +647,7 @@ function generateCommandFile(command) {
   }
 
   // 4. Command object with inlined execute
-  content += `export const ${exportName} = {\n`;
+  content += `export const ${exportName} = defineCommand({\n`;
   content += `  name: '${escapeString(command.name)}',\n`;
   content += `  description: '${escapeString(command.description)}',\n`;
   content += `  experimental: ${command.experimental ? 'true' : 'false'},\n`;
@@ -653,7 +671,7 @@ function generateCommandFile(command) {
       } else {
         optName = opt.name;
         const quotedOptName = optName.includes('-') ? `'${optName}'` : optName;
-        content += `    ${quotedOptName}: {\n`;
+        content += `    ${quotedOptName}: defineOption({\n`;
         content += `      name: '${escapeString(opt.name)}',\n`;
         content += `      description: '${opt.description}',\n`;
         content += `      type: '${opt.type || 'option'}'`;
@@ -671,7 +689,7 @@ function generateCommandFile(command) {
             content += `,\n      complete: ${opt.complete.__functionRef}`;
           }
         }
-        content += `\n    }`;
+        content += `\n    })`;
       }
       content += index < optsArray.length - 1 ? ',\n' : '\n';
     });
@@ -687,7 +705,7 @@ function generateCommandFile(command) {
       if (typeof arg === 'string') {
         content += `    ${arg},\n`;
       } else {
-        content += `    {\n`;
+        content += `    defineArgument({\n`;
         content += `      name: '${escapeString(arg.name)}',\n`;
         content += `      description: '${arg.description}'`;
         content += `,\n      parser: ${arg.parser !== null ? arg.parser : 'null'}`;
@@ -700,7 +718,7 @@ function generateCommandFile(command) {
             content += `,\n      complete: ${arg.complete.__functionRef}`;
           }
         }
-        content += `\n    },\n`;
+        content += `\n    }),\n`;
       }
     });
     content += `  ],\n`;
@@ -722,7 +740,7 @@ function generateCommandFile(command) {
     content += `  execute: null\n`;
   }
 
-  content += `};\n`;
+  content += `});\n`;
 
   return content;
 }
@@ -756,6 +774,9 @@ function generateArgsFile(mainCommand) {
 
   let content = '';
 
+  // Add defineArgument import
+  content += `import { defineArgument } from '../../lib/define-argument.js';\n`;
+
   if (parserImports.size > 0) {
     const sortedImports = Array.from(parserImports).sort();
     content += `import { ${sortedImports.join(', ')} } from '../../parsers.js';\n`;
@@ -770,13 +791,11 @@ function generateArgsFile(mainCommand) {
     }
   }
 
-  if (parserImports.size > 0 || completeImports.size > 0) {
-    content += '\n';
-  }
+  content += '\n';
 
   for (const { argKey, arg } of argData) {
     const exportName = getArgOptExportName(argKey, 'arg');
-    content += `export const ${exportName} = {\n`;
+    content += `export const ${exportName} = defineArgument({\n`;
     content += `  name: '${escapeString(arg.name)}',\n`;
     content += `  description: '${escapeString(arg.description)}'`;
     content += `,\n  parser: ${arg.parser ? `${toCamelCase(arg.parser)}Parser` : 'null'}`;
@@ -791,7 +810,7 @@ function generateArgsFile(mainCommand) {
       content += `,\n  complete: null`;
     }
 
-    content += `\n};\n\n`;
+    content += `\n});\n\n`;
   }
 
   return content;
@@ -826,6 +845,9 @@ function generateOptsFile(mainCommand) {
 
   let content = '';
 
+  // Add defineOption import
+  content += `import { defineOption } from '../../lib/define-option.js';\n`;
+
   if (parserImports.size > 0) {
     const sortedImports = Array.from(parserImports).sort();
     content += `import { ${sortedImports.join(', ')} } from '../../parsers.js';\n`;
@@ -840,13 +862,11 @@ function generateOptsFile(mainCommand) {
     }
   }
 
-  if (parserImports.size > 0 || completeImports.size > 0) {
-    content += '\n';
-  }
+  content += '\n';
 
   for (const { optKey, opt } of optData) {
     const exportName = getArgOptExportName(optKey, 'opt');
-    content += `export const ${exportName} = {\n`;
+    content += `export const ${exportName} = defineOption({\n`;
     content += `  name: '${escapeString(opt.name)}',\n`;
     content += `  description: '${escapeString(opt.description)}',\n`;
     content += `  type: '${opt.type || 'option'}'`;
@@ -866,7 +886,7 @@ function generateOptsFile(mainCommand) {
       content += `,\n  complete: null`;
     }
 
-    content += `\n};\n\n`;
+    content += `\n});\n\n`;
   }
 
   return content;
@@ -900,6 +920,9 @@ function generateGlobalArgsFile() {
 
   let content = '';
 
+  // Add defineArgument import
+  content += `import { defineArgument } from '../lib/define-argument.js';\n`;
+
   if (parserImports.size > 0) {
     const sortedImports = Array.from(parserImports).sort();
     content += `import { ${sortedImports.join(', ')} } from '../parsers.js';\n`;
@@ -914,13 +937,11 @@ function generateGlobalArgsFile() {
     }
   }
 
-  if (parserImports.size > 0 || completeImports.size > 0) {
-    content += '\n';
-  }
+  content += '\n';
 
   for (const { argKey, arg } of argData) {
     const exportName = getArgOptExportName(argKey, 'arg');
-    content += `export const ${exportName} = {\n`;
+    content += `export const ${exportName} = defineArgument({\n`;
     content += `  name: '${escapeString(arg.name)}',\n`;
     content += `  description: '${escapeString(arg.description)}'`;
     content += `,\n  parser: ${arg.parser ? `${toCamelCase(arg.parser)}Parser` : 'null'}`;
@@ -935,7 +956,7 @@ function generateGlobalArgsFile() {
       content += `,\n  complete: null`;
     }
 
-    content += `\n};\n\n`;
+    content += `\n});\n\n`;
   }
 
   return content;
@@ -969,6 +990,9 @@ function generateGlobalOptsFile() {
 
   let content = '';
 
+  // Add defineOption import
+  content += `import { defineOption } from '../lib/define-option.js';\n`;
+
   if (parserImports.size > 0) {
     const sortedImports = Array.from(parserImports).sort();
     content += `import { ${sortedImports.join(', ')} } from '../parsers.js';\n`;
@@ -983,13 +1007,11 @@ function generateGlobalOptsFile() {
     }
   }
 
-  if (parserImports.size > 0 || completeImports.size > 0) {
-    content += '\n';
-  }
+  content += '\n';
 
   for (const { optKey, opt } of optData) {
     const exportName = getArgOptExportName(optKey, 'opt');
-    content += `export const ${exportName} = {\n`;
+    content += `export const ${exportName} = defineOption({\n`;
     content += `  name: '${escapeString(opt.name)}',\n`;
     content += `  description: '${escapeString(opt.description)}',\n`;
     content += `  type: '${opt.type || 'option'}'`;
@@ -1009,7 +1031,7 @@ function generateGlobalOptsFile() {
       content += `,\n  complete: null`;
     }
 
-    content += `\n};\n\n`;
+    content += `\n});\n\n`;
   }
 
   return content;

@@ -1,3 +1,5 @@
+import { defineCommand } from '../../lib/define-command.js';
+import { defineOption } from '../../lib/define-option.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
 import * as Application from '../../models/application.js';
@@ -17,13 +19,13 @@ import {
   verboseOpt,
 } from '../global.opts.js';
 
-export const logsCommand = {
+export const logsCommand = defineCommand({
   name: 'logs',
   description: 'Fetch application logs, continuously',
   experimental: false,
   featureFlag: null,
   opts: {
-    search: {
+    search: defineOption({
       name: 'search',
       description: 'Fetch logs matching this pattern',
       type: 'option',
@@ -33,8 +35,8 @@ export const logsCommand = {
       required: null,
       parser: null,
       complete: null,
-    },
-    'deployment-id': {
+    }),
+    'deployment-id': defineOption({
       name: 'deployment-id',
       description: 'Fetch logs for a given deployment',
       type: 'option',
@@ -44,7 +46,7 @@ export const logsCommand = {
       required: null,
       parser: null,
       complete: null,
-    },
+    }),
     color: colorOpt,
     'update-notifier': updateNotifierOpt,
     verbose: verboseOpt,
@@ -93,4 +95,4 @@ export const logsCommand = {
     await Log.displayLogs({ ownerId, appId, since, until, filter, deploymentId, format, deferred });
     return deferred.promise;
   },
-};
+});

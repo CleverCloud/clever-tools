@@ -1,11 +1,12 @@
 import { todo_addEmailAddress as addEmailAddress } from '@clevercloud/client/esm/api/v2/user.js';
+import { defineCommand } from '../../lib/define-command.js';
 import { Logger } from '../../logger.js';
 import { getUserEmailAddresses } from '../../models/emails.js';
 import { sendToApi } from '../../models/send-to-api.js';
 import { colorOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
 import { emailArg } from './emails.args.js';
 
-export const emailsPrimaryCommand = {
+export const emailsPrimaryCommand = defineCommand({
   name: 'primary',
   description: 'Set the primary email address of the current user',
   experimental: false,
@@ -34,4 +35,4 @@ export const emailsPrimaryCommand = {
 
     Logger.printSuccess(`Primary address updated to ${newPrimaryAddress} successfully`);
   },
-};
+});

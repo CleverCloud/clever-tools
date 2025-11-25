@@ -1,6 +1,7 @@
+import { defineOption } from '../../lib/define-option.js';
 import { ngValidType as ngValidTypeParser } from '../../parsers.js';
 
-export const ngResourceTypeOpt = {
+export const ngResourceTypeOpt = defineOption({
   name: 'type',
   description: 'Type of resource to look for (NetworkGroup, Member, CleverPeer, ExternalPeer)',
   type: 'option',
@@ -10,4 +11,4 @@ export const ngResourceTypeOpt = {
   required: null,
   parser: ngValidTypeParser,
   complete: null,
-};
+});

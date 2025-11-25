@@ -1,8 +1,9 @@
+import { defineCommand } from '../../lib/define-command.js';
 import { operatorCheckVersion } from '../../lib/operator-commands.js';
 import { addonIdOrNameArg } from '../global.args.js';
 import { colorOpt, humanJsonOutputFormatOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
 
-export const otoroshiVersionCheckCommand = {
+export const otoroshiVersionCheckCommand = defineCommand({
   name: 'check',
   description: 'Check Otoroshi deployed version',
   experimental: false,
@@ -19,4 +20,4 @@ export const otoroshiVersionCheckCommand = {
     const { format } = params.options;
     await operatorCheckVersion('otoroshi', addonIdOrName, format);
   },
-};
+});

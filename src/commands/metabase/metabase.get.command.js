@@ -1,8 +1,9 @@
+import { defineCommand } from '../../lib/define-command.js';
 import { operatorPrint } from '../../lib/operator-commands.js';
 import { addonIdOrNameArg } from '../global.args.js';
 import { colorOpt, humanJsonOutputFormatOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
 
-export const metabaseGetCommand = {
+export const metabaseGetCommand = defineCommand({
   name: 'get',
   description: 'Get information about a deployed Metabase',
   experimental: false,
@@ -19,4 +20,4 @@ export const metabaseGetCommand = {
     const { format } = params.options;
     await operatorPrint('metabase', addonIdOrName, format);
   },
-};
+});

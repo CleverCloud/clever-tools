@@ -1,9 +1,10 @@
+import { defineCommand } from '../../lib/define-command.js';
 import * as AppConfig from '../../models/app_configuration.js';
 import * as Application from '../../models/application.js';
 import { openBrowser } from '../../models/utils.js';
 import { aliasOpt, appIdOrNameOpt, colorOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
 
-export const consoleCommand = {
+export const consoleCommand = defineCommand({
   name: 'console',
   description: 'Open an application in the Console',
   experimental: false,
@@ -32,4 +33,4 @@ export const consoleCommand = {
 
     await openBrowser(consolePath, `Opening the Console in your browser for application ${appId}`);
   },
-};
+});

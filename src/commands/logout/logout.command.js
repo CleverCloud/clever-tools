@@ -1,8 +1,9 @@
+import { defineCommand } from '../../lib/define-command.js';
 import { Logger } from '../../logger.js';
 import { conf, writeOAuthConf } from '../../models/configuration.js';
 import { colorOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
 
-export const logoutCommand = {
+export const logoutCommand = defineCommand({
   name: 'logout',
   description: 'Logout from Clever Cloud',
   experimental: false,
@@ -18,4 +19,4 @@ export const logoutCommand = {
     await writeOAuthConf({});
     Logger.println(`${conf.CONFIGURATION_FILE} has been updated.`);
   },
-};
+});

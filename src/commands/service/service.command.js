@@ -1,3 +1,4 @@
+import { defineCommand } from '../../lib/define-command.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
 import * as Addon from '../../models/addon.js';
@@ -12,7 +13,7 @@ import {
 } from '../global.opts.js';
 import { onlyAddonsOpt, onlyAppsOpt, showAllOpt } from './service.opts.js';
 
-export const serviceCommand = {
+export const serviceCommand = defineCommand({
   name: 'service',
   description: 'Manage service dependencies',
   experimental: false,
@@ -93,4 +94,4 @@ export const serviceCommand = {
       }
     }
   },
-};
+});

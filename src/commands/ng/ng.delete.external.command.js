@@ -1,10 +1,11 @@
+import { defineCommand } from '../../lib/define-command.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
 import * as networkGroupResources from '../../models/ng-resources.js';
 import { colorOpt, orgaIdOrNameOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
 import { ngExternalIdOrLabelArg, ngIdOrLabelArg } from './ng.args.js';
 
-export const ngDeleteExternalCommand = {
+export const ngDeleteExternalCommand = defineCommand({
   name: 'external',
   description: 'Delete an external peer from a Network Group',
   experimental: false,
@@ -27,4 +28,4 @@ export const ngDeleteExternalCommand = {
       `External peer ${styleText('green', peerText)} successfully deleted from Network Group ${styleText('green', ngText)}`,
     );
   },
-};
+});

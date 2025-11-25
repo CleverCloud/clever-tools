@@ -1,16 +1,18 @@
+import { defineCommand } from '../../lib/define-command.js';
+import { defineOption } from '../../lib/define-option.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
 import * as AppConfig from '../../models/app_configuration.js';
 import * as Application from '../../models/application.js';
 import { aliasOpt, appIdOrNameOpt, colorOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
 
-export const deleteCommand = {
+export const deleteCommand = defineCommand({
   name: 'delete',
   description: 'Delete an application',
   experimental: false,
   featureFlag: null,
   opts: {
-    yes: {
+    yes: defineOption({
       name: 'yes',
       description: 'Skip confirmation and delete the application directly',
       type: 'flag',
@@ -20,7 +22,7 @@ export const deleteCommand = {
       required: null,
       parser: null,
       complete: null,
-    },
+    }),
     color: colorOpt,
     'update-notifier': updateNotifierOpt,
     verbose: verboseOpt,
@@ -47,4 +49,4 @@ export const deleteCommand = {
       Logger.println(`  ${styleText('blue', '→')} Local alias ${styleText('blue', alias || app.name)} unlinked`);
     }
   },
-};
+});

@@ -1,8 +1,9 @@
+import { defineCommand } from '../../lib/define-command.js';
 import { operatorOpenWebUi } from '../../lib/operator-commands.js';
 import { addonIdOrNameArg } from '../global.args.js';
 import { colorOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
 
-export const otoroshiOpenWebuiCommand = {
+export const otoroshiOpenWebuiCommand = defineCommand({
   name: 'webui',
   description: 'Open the Otoroshi admin console in your browser',
   experimental: false,
@@ -17,4 +18,4 @@ export const otoroshiOpenWebuiCommand = {
     const [addonIdOrName] = params.args;
     await operatorOpenWebUi('otoroshi', addonIdOrName);
   },
-};
+});

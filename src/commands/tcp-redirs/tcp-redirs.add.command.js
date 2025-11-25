@@ -1,11 +1,12 @@
 import { addTcpRedir } from '@clevercloud/client/esm/api/v2/application.js';
+import { defineCommand } from '../../lib/define-command.js';
 import { Logger } from '../../logger.js';
 import * as Application from '../../models/application.js';
 import { sendToApi } from '../../models/send-to-api.js';
 import { aliasOpt, appIdOrNameOpt, colorOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
 import { namespaceOpt } from './tcp-redirs.opts.js';
 
-export const tcpRedirsAddCommand = {
+export const tcpRedirsAddCommand = defineCommand({
   name: 'add',
   description: 'Add a new TCP redirection to the application',
   experimental: false,
@@ -25,4 +26,4 @@ export const tcpRedirsAddCommand = {
     const { port } = await addTcpRedir({ id: ownerId, appId }, { namespace }).then(sendToApi);
     Logger.println('Successfully added tcp redirection on port: ' + port);
   },
-};
+});

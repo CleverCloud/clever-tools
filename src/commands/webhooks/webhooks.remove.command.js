@@ -1,11 +1,12 @@
 import { deleteWebhook } from '@clevercloud/client/esm/api/v2/notification.js';
+import { defineCommand } from '../../lib/define-command.js';
 import { Logger } from '../../logger.js';
 import { getOrgaIdOrUserId } from '../../models/notification.js';
 import { sendToApi } from '../../models/send-to-api.js';
 import { notificationIdArg } from '../global.args.js';
 import { colorOpt, listAllNotificationsOpt, orgaIdOrNameOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
 
-export const webhooksRemoveCommand = {
+export const webhooksRemoveCommand = defineCommand({
   name: 'remove',
   description: 'Remove an existing webhook',
   experimental: false,
@@ -27,4 +28,4 @@ export const webhooksRemoveCommand = {
 
     Logger.println('The notification has been successfully removed');
   },
-};
+});

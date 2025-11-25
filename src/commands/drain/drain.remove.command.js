@@ -1,4 +1,5 @@
 import { deleteDrain } from '../../clever-client/drains.js';
+import { defineCommand } from '../../lib/define-command.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
 import * as Application from '../../models/application.js';
@@ -6,7 +7,7 @@ import { sendToApi } from '../../models/send-to-api.js';
 import { aliasOpt, appIdOrNameOpt, colorOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
 import { drainIdArg } from './drain.args.js';
 
-export const drainRemoveCommand = {
+export const drainRemoveCommand = defineCommand({
   name: 'remove',
   description: 'Remove a drain',
   experimental: false,
@@ -28,4 +29,4 @@ export const drainRemoveCommand = {
     await deleteDrain({ ownerId, applicationId, drainId }).then(sendToApi);
     Logger.printSuccess(`Drain ${styleText(['bold', 'green'], drainId)} has been successfully removed!`);
   },
-};
+});

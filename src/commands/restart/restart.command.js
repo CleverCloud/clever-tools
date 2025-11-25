@@ -1,3 +1,5 @@
+import { defineCommand } from '../../lib/define-command.js';
+import { defineOption } from '../../lib/define-option.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
 import * as Application from '../../models/application.js';
@@ -15,13 +17,13 @@ import {
   verboseOpt,
 } from '../global.opts.js';
 
-export const restartCommand = {
+export const restartCommand = defineCommand({
   name: 'restart',
   description: 'Start or restart an application',
   experimental: false,
   featureFlag: null,
   opts: {
-    commit: {
+    commit: defineOption({
       name: 'commit',
       description: 'Restart the application with a specific commit ID',
       type: 'option',
@@ -31,8 +33,8 @@ export const restartCommand = {
       required: null,
       parser: null,
       complete: null,
-    },
-    'without-cache': {
+    }),
+    'without-cache': defineOption({
       name: 'without-cache',
       description: 'Restart the application without using cache',
       type: 'flag',
@@ -42,7 +44,7 @@ export const restartCommand = {
       required: null,
       parser: null,
       complete: null,
-    },
+    }),
     color: colorOpt,
     'update-notifier': updateNotifierOpt,
     verbose: verboseOpt,
@@ -98,4 +100,4 @@ export const restartCommand = {
       exitStrategy,
     });
   },
-};
+});

@@ -1,15 +1,17 @@
 import { spawn } from 'node:child_process';
+import { defineCommand } from '../../lib/define-command.js';
+import { defineOption } from '../../lib/define-option.js';
 import * as Application from '../../models/application.js';
 import { conf } from '../../models/configuration.js';
 import { aliasOpt, appIdOrNameOpt, colorOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
 
-export const sshCommand = {
+export const sshCommand = defineCommand({
   name: 'ssh',
   description: 'Connect to running instances through SSH',
   experimental: false,
   featureFlag: null,
   opts: {
-    'identity-file': {
+    'identity-file': defineOption({
       name: 'identity-file',
       description: 'SSH identity file',
       type: 'option',
@@ -19,7 +21,7 @@ export const sshCommand = {
       required: null,
       parser: null,
       complete: null,
-    },
+    }),
     color: colorOpt,
     'update-notifier': updateNotifierOpt,
     verbose: verboseOpt,
@@ -43,4 +45,4 @@ export const sshCommand = {
       sshProcess.on('error', reject);
     });
   },
-};
+});

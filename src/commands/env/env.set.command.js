@@ -1,5 +1,6 @@
 import { updateEnvVar } from '@clevercloud/client/esm/api/v2/application.js';
 import { validateName } from '@clevercloud/client/esm/utils/env-vars.js';
+import { defineCommand } from '../../lib/define-command.js';
 import { Logger } from '../../logger.js';
 import * as Application from '../../models/application.js';
 import { sendToApi } from '../../models/send-to-api.js';
@@ -7,7 +8,7 @@ import { envVariableNameArg, envVariableValueArg } from '../global.args.js';
 import { aliasOpt, appIdOrNameOpt, colorOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
 import { sourceableEnvVarsListOpt } from './env.opts.js';
 
-export const envSetCommand = {
+export const envSetCommand = defineCommand({
   name: 'set',
   description: 'Add or update an environment variable named <variable-name> with the value <variable-value>',
   experimental: false,
@@ -36,4 +37,4 @@ export const envSetCommand = {
 
     Logger.println('Your environment variable has been successfully saved');
   },
-};
+});

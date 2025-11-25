@@ -1,3 +1,4 @@
+import { defineCommand } from '../../lib/define-command.js';
 import { k8sDelete } from '../../lib/k8s.js';
 import { confirm } from '../../lib/prompts.js';
 import { styleText } from '../../lib/style-text.js';
@@ -5,7 +6,7 @@ import { Logger } from '../../logger.js';
 import { colorOpt, confirmAddonDeletionOpt, orgaIdOrNameOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
 import { k8sIdOrNameArg } from './k8s.args.js';
 
-export const k8sDeleteCommand = {
+export const k8sDeleteCommand = defineCommand({
   name: 'delete',
   description: 'Delete a Kubernetes cluster',
   experimental: false,
@@ -42,4 +43,4 @@ export const k8sDeleteCommand = {
       );
     }
   },
-};
+});

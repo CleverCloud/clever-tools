@@ -1,3 +1,4 @@
+import { defineCommand } from '../../lib/define-command.js';
 import { Logger } from '../../logger.js';
 import * as Application from '../../models/application.js';
 import * as Namespaces from '../../models/namespaces.js';
@@ -10,7 +11,7 @@ import {
   verboseOpt,
 } from '../global.opts.js';
 
-export const tcpRedirsListNamespacesCommand = {
+export const tcpRedirsListNamespacesCommand = defineCommand({
   name: 'list-namespaces',
   description: 'List the namespaces in which you can create new TCP redirections',
   experimental: false,
@@ -56,4 +57,4 @@ export const tcpRedirsListNamespacesCommand = {
       }
     }
   },
-};
+});

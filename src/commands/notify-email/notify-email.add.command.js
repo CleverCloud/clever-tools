@@ -1,4 +1,6 @@
 import { createEmailhook } from '@clevercloud/client/esm/api/v2/notification.js';
+import { defineCommand } from '../../lib/define-command.js';
+import { defineOption } from '../../lib/define-option.js';
 import { Logger } from '../../logger.js';
 import { getOwnerAndApp } from '../../models/notification.js';
 import { sendToApi } from '../../models/send-to-api.js';
@@ -14,13 +16,13 @@ import {
   verboseOpt,
 } from '../global.opts.js';
 
-export const notifyEmailAddCommand = {
+export const notifyEmailAddCommand = defineCommand({
   name: 'add',
   description: 'Add a new email notification',
   experimental: false,
   featureFlag: null,
   opts: {
-    notify: {
+    notify: defineOption({
       name: 'notify',
       description:
         'Notify a user, a specific email address or the whole organisation (multiple values allowed, comma separated)',
@@ -31,7 +33,7 @@ export const notifyEmailAddCommand = {
       required: true,
       parser: commaSeparatedParser,
       complete: null,
-    },
+    }),
     color: colorOpt,
     'update-notifier': updateNotifierOpt,
     verbose: verboseOpt,
@@ -59,4 +61,4 @@ export const notifyEmailAddCommand = {
 
     Logger.println('The webhook has been added');
   },
-};
+});

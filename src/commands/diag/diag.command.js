@@ -1,6 +1,7 @@
 import { releaseInfo as getLinuxInfos } from 'linux-release-info';
 import os from 'node:os';
 import pkg from '../../../package.json' with { type: 'json' };
+import { defineCommand } from '../../lib/define-command.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
 import { conf, loadOAuthConf } from '../../models/configuration.js';
@@ -36,7 +37,7 @@ function getTerminal() {
   return process.env.TERM_PROGRAM || process.env.TERMINAL_EMULATOR || process.env.TERM;
 }
 
-export const diagCommand = {
+export const diagCommand = defineCommand({
   name: 'diag',
   description: 'Diagnose the current installation (prints various informations for support)',
   experimental: false,
@@ -137,4 +138,4 @@ export const diagCommand = {
       }
     }
   },
-};
+});

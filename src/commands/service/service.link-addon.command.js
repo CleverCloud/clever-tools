@@ -1,3 +1,4 @@
+import { defineCommand } from '../../lib/define-command.js';
 import { Logger } from '../../logger.js';
 import * as Addon from '../../models/addon.js';
 import * as Application from '../../models/application.js';
@@ -5,7 +6,7 @@ import { addonIdOrNameArg } from '../global.args.js';
 import { aliasOpt, appIdOrNameOpt, colorOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
 import { onlyAddonsOpt, onlyAppsOpt, showAllOpt } from './service.opts.js';
 
-export const serviceLinkAddonCommand = {
+export const serviceLinkAddonCommand = defineCommand({
   name: 'link-addon',
   description: 'Link an existing add-on to this application',
   experimental: false,
@@ -29,4 +30,4 @@ export const serviceLinkAddonCommand = {
     await Addon.link(ownerId, appId, addon);
     Logger.println(`Addon ${addon.addon_id || addon.addon_name} successfully linked`);
   },
-};
+});

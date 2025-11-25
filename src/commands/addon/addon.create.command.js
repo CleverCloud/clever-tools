@@ -1,5 +1,7 @@
 import dedent from 'dedent';
 import { getOperator } from '../../clever-client/operators.js';
+import { defineCommand } from '../../lib/define-command.js';
+import { defineOption } from '../../lib/define-option.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
 import * as Addon from '../../models/addon.js';
@@ -53,13 +55,13 @@ const ADDON_PROVIDERS = {
   },
 };
 
-export const addonCreateCommand = {
+export const addonCreateCommand = defineCommand({
   name: 'create',
   description: 'Create an add-on',
   experimental: false,
   featureFlag: null,
   opts: {
-    link: {
+    link: defineOption({
       name: 'link',
       description: 'Link the created add-on to the app with the specified alias',
       type: 'option',
@@ -69,8 +71,8 @@ export const addonCreateCommand = {
       required: null,
       parser: null,
       complete: listAvailableAliases,
-    },
-    yes: {
+    }),
+    yes: defineOption({
       name: 'yes',
       description: 'Skip confirmation even if the add-on is not free',
       type: 'flag',
@@ -80,8 +82,8 @@ export const addonCreateCommand = {
       required: null,
       parser: null,
       complete: null,
-    },
-    plan: {
+    }),
+    plan: defineOption({
       name: 'plan',
       description: 'Add-on plan, depends on the provider',
       type: 'option',
@@ -91,8 +93,8 @@ export const addonCreateCommand = {
       required: null,
       parser: null,
       complete: completePlan,
-    },
-    region: {
+    }),
+    region: defineOption({
       name: 'region',
       description: 'Region to provision the add-on in, depends on the provider',
       type: 'option',
@@ -102,8 +104,8 @@ export const addonCreateCommand = {
       required: null,
       parser: null,
       complete: completeRegion,
-    },
-    'addon-version': {
+    }),
+    'addon-version': defineOption({
       name: 'addon-version',
       description: 'The version to use for the add-on',
       type: 'option',
@@ -113,8 +115,8 @@ export const addonCreateCommand = {
       required: null,
       parser: null,
       complete: null,
-    },
-    option: {
+    }),
+    option: defineOption({
       name: 'option',
       description:
         'Option to enable for the add-on. Multiple --option argument can be passed to enable multiple options',
@@ -125,7 +127,7 @@ export const addonCreateCommand = {
       required: null,
       parser: addonOptionsParser,
       complete: null,
-    },
+    }),
     color: colorOpt,
     'update-notifier': updateNotifierOpt,
     verbose: verboseOpt,
@@ -260,4 +262,4 @@ export const addonCreateCommand = {
       }
     }
   },
-};
+});

@@ -3,6 +3,8 @@ import { getDefaultLoadBalancersDnsInfo } from '@clevercloud/client/esm/api/v4/l
 import { diagDomainConfig } from '@clevercloud/client/esm/utils/diag-domain-config.js';
 import { sortDomains } from '@clevercloud/client/esm/utils/domains.js';
 import { parse as parseDomain } from 'tldts';
+import { defineCommand } from '../../lib/define-command.js';
+import { defineOption } from '../../lib/define-option.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
 import * as Application from '../../models/application.js';
@@ -127,13 +129,13 @@ function getParsedDomains(vhosts) {
   });
 }
 
-export const domainDiagCommand = {
+export const domainDiagCommand = defineCommand({
   name: 'diag',
   description: 'Check if domains associated to a specific app are properly configured',
   experimental: false,
   featureFlag: null,
   opts: {
-    filter: {
+    filter: defineOption({
       name: 'filter',
       description: 'Check only domains containing the provided text',
       type: 'option',
@@ -143,7 +145,7 @@ export const domainDiagCommand = {
       required: null,
       parser: null,
       complete: null,
-    },
+    }),
     color: colorOpt,
     'update-notifier': updateNotifierOpt,
     verbose: verboseOpt,
@@ -215,4 +217,4 @@ export const domainDiagCommand = {
       throw new Error('At least one of the domains is misconfigured');
     }
   },
-};
+});

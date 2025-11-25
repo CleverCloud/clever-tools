@@ -1,4 +1,6 @@
 import { removeTcpRedir } from '@clevercloud/client/esm/api/v2/application.js';
+import { defineArgument } from '../../lib/define-argument.js';
+import { defineCommand } from '../../lib/define-command.js';
 import { Logger } from '../../logger.js';
 import * as Application from '../../models/application.js';
 import { sendToApi } from '../../models/send-to-api.js';
@@ -6,7 +8,7 @@ import { integer as integerParser } from '../../parsers.js';
 import { aliasOpt, appIdOrNameOpt, colorOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
 import { namespaceOpt } from './tcp-redirs.opts.js';
 
-export const tcpRedirsRemoveCommand = {
+export const tcpRedirsRemoveCommand = defineCommand({
   name: 'remove',
   description: 'Remove a TCP redirection from the application',
   experimental: false,
@@ -20,12 +22,12 @@ export const tcpRedirsRemoveCommand = {
     app: appIdOrNameOpt,
   },
   args: [
-    {
+    defineArgument({
       name: 'port',
       description: 'port identifying the TCP redirection',
       parser: integerParser,
       complete: null,
-    },
+    }),
   ],
   async execute(params) {
     const [port] = params.args;
@@ -36,4 +38,4 @@ export const tcpRedirsRemoveCommand = {
 
     Logger.println('Successfully removed tcp redirection.');
   },
-};
+});

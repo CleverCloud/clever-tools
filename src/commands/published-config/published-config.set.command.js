@@ -1,12 +1,13 @@
 import { getAllExposedEnvVars, updateAllExposedEnvVars } from '@clevercloud/client/esm/api/v2/application.js';
 import { validateName } from '@clevercloud/client/esm/utils/env-vars.js';
+import { defineCommand } from '../../lib/define-command.js';
 import { Logger } from '../../logger.js';
 import * as Application from '../../models/application.js';
 import { sendToApi } from '../../models/send-to-api.js';
 import { envVariableNameArg, envVariableValueArg } from '../global.args.js';
 import { aliasOpt, appIdOrNameOpt, colorOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
 
-export const publishedConfigSetCommand = {
+export const publishedConfigSetCommand = defineCommand({
   name: 'set',
   description: 'Add or update a published configuration item named <variable-name> with the value <variable-value>',
   experimental: false,
@@ -36,4 +37,4 @@ export const publishedConfigSetCommand = {
 
     Logger.println('Your published config item has been successfully saved');
   },
-};
+});

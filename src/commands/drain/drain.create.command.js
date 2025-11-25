@@ -1,4 +1,7 @@
 import { createDrain } from '../../clever-client/drains.js';
+import { defineArgument } from '../../lib/define-argument.js';
+import { defineCommand } from '../../lib/define-command.js';
+import { defineOption } from '../../lib/define-option.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
 import * as Application from '../../models/application.js';
@@ -6,13 +9,13 @@ import { DRAIN_TYPE_CLI_CODES, DRAIN_TYPES } from '../../models/drain.js';
 import { sendToApi } from '../../models/send-to-api.js';
 import { aliasOpt, appIdOrNameOpt, colorOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
 
-export const drainCreateCommand = {
+export const drainCreateCommand = defineCommand({
   name: 'create',
   description: 'Create a drain',
   experimental: false,
   featureFlag: null,
   opts: {
-    username: {
+    username: defineOption({
       name: 'username',
       description: 'Basic auth username (for elasticsearch or raw-http)',
       type: 'option',
@@ -22,8 +25,8 @@ export const drainCreateCommand = {
       required: null,
       parser: null,
       complete: null,
-    },
-    password: {
+    }),
+    password: defineOption({
       name: 'password',
       description: 'Basic auth password (for elasticsearch or raw-http)',
       type: 'option',
@@ -33,8 +36,8 @@ export const drainCreateCommand = {
       required: null,
       parser: null,
       complete: null,
-    },
-    'api-key': {
+    }),
+    'api-key': defineOption({
       name: 'api-key',
       description: 'API key (for newrelic)',
       type: 'option',
@@ -44,8 +47,8 @@ export const drainCreateCommand = {
       required: null,
       parser: null,
       complete: null,
-    },
-    'index-prefix': {
+    }),
+    'index-prefix': defineOption({
       name: 'index-prefix',
       description: 'Optional index prefix (for elasticsearch), `logstash` value is used if not set',
       type: 'option',
@@ -55,8 +58,8 @@ export const drainCreateCommand = {
       required: null,
       parser: null,
       complete: null,
-    },
-    'sd-params': {
+    }),
+    'sd-params': defineOption({
       name: 'sd-params',
       description: 'RFC5424 structured data parameters (for ovh-tcp), e.g.: `X-OVH-TOKEN=\\\"REDACTED\\\"`',
       type: 'option',
@@ -66,7 +69,7 @@ export const drainCreateCommand = {
       required: null,
       parser: null,
       complete: null,
-    },
+    }),
     color: colorOpt,
     'update-notifier': updateNotifierOpt,
     verbose: verboseOpt,
@@ -74,18 +77,18 @@ export const drainCreateCommand = {
     app: appIdOrNameOpt,
   },
   args: [
-    {
+    defineArgument({
       name: 'drain-type',
       description: 'No description available',
       parser: null,
       complete: DRAIN_TYPE_CLI_CODES,
-    },
-    {
+    }),
+    defineArgument({
       name: 'drain-url',
       description: 'Drain URL',
       parser: null,
       complete: null,
-    },
+    }),
   ],
   async execute(params) {
     const { alias, app: appIdOrName } = params.options;
@@ -154,4 +157,4 @@ export const drainCreateCommand = {
     const drain = await createDrain({ ownerId, applicationId, body }).then(sendToApi);
     Logger.printSuccess(`Drain ${styleText(['bold', 'green'], drain.id)} has been successfully created and enabled!`);
   },
-};
+});

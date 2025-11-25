@@ -1,8 +1,9 @@
+import { defineCommand } from '../../lib/define-command.js';
 import { operatorRebuild } from '../../lib/operator-commands.js';
 import { addonIdOrNameArg } from '../global.args.js';
 import { colorOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
 
-export const matomoRebuildCommand = {
+export const matomoRebuildCommand = defineCommand({
   name: 'rebuild',
   description: 'Rebuild Matomo',
   experimental: false,
@@ -17,4 +18,4 @@ export const matomoRebuildCommand = {
     const [addonIdOrName] = params.args;
     await operatorRebuild('matomo', addonIdOrName);
   },
-};
+});

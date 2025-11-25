@@ -1,8 +1,9 @@
+import { defineCommand } from '../../lib/define-command.js';
 import { operatorPrint } from '../../lib/operator-commands.js';
 import { addonIdOrNameArg } from '../global.args.js';
 import { colorOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
 
-export const otoroshiGetConfigCommand = {
+export const otoroshiGetConfigCommand = defineCommand({
   name: 'get-config',
   description: 'Get configuration of a deployed Otoroshi in otoroshictl format',
   experimental: false,
@@ -18,4 +19,4 @@ export const otoroshiGetConfigCommand = {
     const { format } = params.options;
     await operatorPrint('otoroshi', addonIdOrName, 'otoroshictl');
   },
-};
+});

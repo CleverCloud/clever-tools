@@ -1,4 +1,6 @@
-export const sourceableEnvVarsListOpt = {
+import { defineOption } from '../../lib/define-option.js';
+
+export const sourceableEnvVarsListOpt = defineOption({
   name: 'add-export',
   description: 'Display sourceable env variables setting',
   type: 'flag',
@@ -8,4 +10,4 @@ export const sourceableEnvVarsListOpt = {
   required: null,
   parser: null,
   complete: null,
-};
+});

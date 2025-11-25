@@ -1,11 +1,12 @@
 import { updateAllExposedEnvVars } from '@clevercloud/client/esm/api/v2/application.js';
+import { defineCommand } from '../../lib/define-command.js';
 import { Logger } from '../../logger.js';
 import * as Application from '../../models/application.js';
 import { sendToApi } from '../../models/send-to-api.js';
 import * as variables from '../../models/variables.js';
 import { aliasOpt, appIdOrNameOpt, colorOpt, importAsJsonOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
 
-export const publishedConfigImportCommand = {
+export const publishedConfigImportCommand = defineCommand({
   name: 'import',
   description:
     'Load published configuration from STDIN\n(WARNING: this deletes all current variables and replace them with the new list loaded from STDIN)',
@@ -30,4 +31,4 @@ export const publishedConfigImportCommand = {
 
     Logger.println('Your published configs have been set');
   },
-};
+});

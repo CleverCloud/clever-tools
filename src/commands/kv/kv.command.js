@@ -1,5 +1,7 @@
 import { getAllEnvVars } from '@clevercloud/client/esm/api/v2/addon.js';
 import Redis from 'ioredis';
+import { defineArgument } from '../../lib/define-argument.js';
+import { defineCommand } from '../../lib/define-command.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
 import { findAddonsByNameOrId } from '../../models/ids-resolver.js';
@@ -36,7 +38,7 @@ async function sendCommand(url, command) {
   }
 }
 
-export const kvCommand = {
+export const kvCommand = defineCommand({
   name: 'kv',
   description: 'Send a raw command to a Materia KV or Redis® add-on',
   experimental: true,
@@ -49,18 +51,18 @@ export const kvCommand = {
     format: humanJsonOutputFormatOpt,
   },
   args: [
-    {
+    defineArgument({
       name: 'kv-id',
       description: 'Add-on/Real ID (or name, if unambiguous) of a Materia KV or Redis® add-on',
       parser: null,
       complete: null,
-    },
-    {
+    }),
+    defineArgument({
       name: 'command',
       description: 'The raw command to send to the Materia KV or Redis® add-on',
       parser: null,
       complete: null,
-    },
+    }),
   ],
   async execute(params) {
     const [addonIdOrRealIdOrName] = params.args;
@@ -99,4 +101,4 @@ export const kvCommand = {
       }
     }
   },
-};
+});

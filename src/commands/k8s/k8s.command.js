@@ -1,6 +1,7 @@
+import { defineCommand } from '../../lib/define-command.js';
 import { colorOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
 
-export const k8sCommand = {
+export const k8sCommand = defineCommand({
   name: 'k8s',
   description: 'Manage Kubernetes clusters',
   experimental: true,
@@ -12,4 +13,4 @@ export const k8sCommand = {
   },
   args: [],
   execute: null,
-};
+});

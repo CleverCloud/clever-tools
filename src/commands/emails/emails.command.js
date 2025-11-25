@@ -1,9 +1,10 @@
+import { defineCommand } from '../../lib/define-command.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
 import { getUserEmailAddresses } from '../../models/emails.js';
 import { colorOpt, humanJsonOutputFormatOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
 
-export const emailsCommand = {
+export const emailsCommand = defineCommand({
   name: 'emails',
   description: 'Manage email addresses of the current user',
   experimental: false,
@@ -36,4 +37,4 @@ export const emailsCommand = {
       }
     }
   },
-};
+});

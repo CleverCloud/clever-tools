@@ -1,3 +1,6 @@
+import { defineArgument } from '../../lib/define-argument.js';
+import { defineCommand } from '../../lib/define-command.js';
+import { defineOption } from '../../lib/define-option.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
 import * as networkGroup from '../../models/ng.js';
@@ -8,13 +11,13 @@ import {
 } from '../../parsers.js';
 import { colorOpt, orgaIdOrNameOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
 
-export const ngCreateCommand = {
+export const ngCreateCommand = defineCommand({
   name: 'create',
   description: 'Create a Network Group',
   experimental: false,
   featureFlag: null,
   opts: {
-    link: {
+    link: defineOption({
       name: 'link',
       description:
         'Comma separated list of members IDs to link to a Network Group (app_xxx, external_xxx, mysql_xxx, postgresql_xxx, redis_xxx, etc.)',
@@ -25,8 +28,8 @@ export const ngCreateCommand = {
       required: null,
       parser: commaSeparatedParser,
       complete: null,
-    },
-    description: {
+    }),
+    description: defineOption({
       name: 'description',
       description: 'Network Group description',
       type: 'option',
@@ -36,8 +39,8 @@ export const ngCreateCommand = {
       required: null,
       parser: null,
       complete: null,
-    },
-    tags: {
+    }),
+    tags: defineOption({
       name: 'tags',
       description: 'List of tags, separated by a comma',
       type: 'option',
@@ -47,19 +50,19 @@ export const ngCreateCommand = {
       required: null,
       parser: tagsParser,
       complete: null,
-    },
+    }),
     color: colorOpt,
     'update-notifier': updateNotifierOpt,
     verbose: verboseOpt,
     org: orgaIdOrNameOpt,
   },
   args: [
-    {
+    defineArgument({
       name: 'ng-label',
       description: 'Network Group label',
       parser: ngResourceTypeParser,
       complete: null,
-    },
+    }),
   ],
   async execute(params) {
     const [ngLabel] = params.args;
@@ -76,4 +79,4 @@ export const ngCreateCommand = {
       Logger.println(membersIds.map((id) => styleText('grey', `  - ${id}`)).join('\n'));
     }
   },
-};
+});

@@ -1,9 +1,10 @@
+import { defineCommand } from '../../lib/define-command.js';
 import { Logger } from '../../logger.js';
 import * as networkGroup from '../../models/ng.js';
 import { colorOpt, humanJsonOutputFormatOpt, orgaIdOrNameOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
 import { ngExternalIdOrLabelArg, ngIdOrLabelArg } from './ng.args.js';
 
-export const ngGetConfigCommand = {
+export const ngGetConfigCommand = defineCommand({
   name: 'get-config',
   description: 'Get the WireGuard configuration of a peer in a Network Group',
   experimental: false,
@@ -34,4 +35,4 @@ export const ngGetConfigCommand = {
       }
     }
   },
-};
+});

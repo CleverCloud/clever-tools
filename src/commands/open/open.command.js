@@ -1,9 +1,10 @@
+import { defineCommand } from '../../lib/define-command.js';
 import * as Application from '../../models/application.js';
 import * as Domain from '../../models/domain.js';
 import { openBrowser } from '../../models/utils.js';
 import { aliasOpt, appIdOrNameOpt, colorOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
 
-export const openCommand = {
+export const openCommand = defineCommand({
   name: 'open',
   description: 'Open an application in the Console',
   experimental: false,
@@ -25,4 +26,4 @@ export const openCommand = {
 
     await openBrowser(url, 'Opening the application in your browser');
   },
-};
+});

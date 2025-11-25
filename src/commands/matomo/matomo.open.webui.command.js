@@ -1,8 +1,9 @@
+import { defineCommand } from '../../lib/define-command.js';
 import { operatorOpenWebUi } from '../../lib/operator-commands.js';
 import { addonIdOrNameArg } from '../global.args.js';
 import { colorOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
 
-export const matomoOpenWebuiCommand = {
+export const matomoOpenWebuiCommand = defineCommand({
   name: 'webui',
   description: 'Open the Matomo admin console in your browser',
   experimental: false,
@@ -17,4 +18,4 @@ export const matomoOpenWebuiCommand = {
     const [addonIdOrName] = params.args;
     await operatorOpenWebUi('matomo', addonIdOrName);
   },
-};
+});

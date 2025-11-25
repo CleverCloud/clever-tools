@@ -2,6 +2,8 @@ import crypto from 'node:crypto';
 import { setTimeout as delay } from 'node:timers/promises';
 import open from 'open';
 import pkg from '../../../package.json' with { type: 'json' };
+import { defineCommand } from '../../lib/define-command.js';
+import { defineOption } from '../../lib/define-option.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
 import { conf, writeOAuthConf } from '../../models/configuration.js';
@@ -56,13 +58,13 @@ async function loginViaConsole() {
   return pollOauthData(cliPollUrl.toString());
 }
 
-export const loginCommand = {
+export const loginCommand = defineCommand({
   name: 'login',
   description: 'Login to Clever Cloud',
   experimental: false,
   featureFlag: null,
   opts: {
-    token: {
+    token: defineOption({
       name: 'token',
       description: 'Directly give an existing token',
       type: 'option',
@@ -72,8 +74,8 @@ export const loginCommand = {
       required: null,
       parser: null,
       complete: null,
-    },
-    secret: {
+    }),
+    secret: defineOption({
       name: 'secret',
       description: 'Directly give an existing secret',
       type: 'option',
@@ -83,7 +85,7 @@ export const loginCommand = {
       required: null,
       parser: null,
       complete: null,
-    },
+    }),
     color: colorOpt,
     'update-notifier': updateNotifierOpt,
     verbose: verboseOpt,
@@ -108,4 +110,4 @@ export const loginCommand = {
 
     throw new Error('Both `--token` and `--secret` have to be defined');
   },
-};
+});

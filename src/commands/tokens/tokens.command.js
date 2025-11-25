@@ -1,11 +1,12 @@
 import { listApiTokens } from '../../clever-client/auth-bridge.js';
+import { defineCommand } from '../../lib/define-command.js';
 import { formatDate } from '../../lib/format-date.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
 import { sendToAuthBridge } from '../../models/send-to-api.js';
 import { colorOpt, humanJsonOutputFormatOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
 
-export const tokensCommand = {
+export const tokensCommand = defineCommand({
   name: 'tokens',
   description: 'Manage API tokens to query Clever Cloud API from ${...}',
   experimental: false,
@@ -43,4 +44,4 @@ export const tokensCommand = {
       }
     }
   },
-};
+});

@@ -1,4 +1,5 @@
 import { get as getApp } from '@clevercloud/client/esm/api/v2/application.js';
+import { defineCommand } from '../../lib/define-command.js';
 import { Logger } from '../../logger.js';
 import * as Application from '../../models/application.js';
 import { getDomainObject, getFavouriteDomain } from '../../models/domain.js';
@@ -12,7 +13,7 @@ import {
   verboseOpt,
 } from '../global.opts.js';
 
-export const domainCommand = {
+export const domainCommand = defineCommand({
   name: 'domain',
   description: 'Manage domain names for an application',
   experimental: false,
@@ -46,4 +47,4 @@ export const domainCommand = {
         break;
     }
   },
-};
+});

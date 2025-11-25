@@ -4,6 +4,7 @@ import {
   getAllEnvVarsForDependencies,
 } from '@clevercloud/client/esm/api/v2/application.js';
 import { toNameEqualsValueString } from '@clevercloud/client/esm/utils/env-vars.js';
+import { defineCommand } from '../../lib/define-command.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
 import * as Application from '../../models/application.js';
@@ -11,7 +12,7 @@ import { sendToApi } from '../../models/send-to-api.js';
 import { aliasOpt, appIdOrNameOpt, colorOpt, envFormatOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
 import { sourceableEnvVarsListOpt } from './env.opts.js';
 
-export const envCommand = {
+export const envCommand = defineCommand({
   name: 'env',
   description: 'Manage environment variables of an application',
   experimental: false,
@@ -77,4 +78,4 @@ export const envCommand = {
       }
     }
   },
-};
+});

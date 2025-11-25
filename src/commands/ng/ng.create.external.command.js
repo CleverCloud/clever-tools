@@ -1,3 +1,5 @@
+import { defineArgument } from '../../lib/define-argument.js';
+import { defineCommand } from '../../lib/define-command.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
 import * as networkGroupResources from '../../models/ng-resources.js';
@@ -5,7 +7,7 @@ import { ngResourceType as ngResourceTypeParser } from '../../parsers.js';
 import { colorOpt, orgaIdOrNameOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
 import { ngIdOrLabelArg } from './ng.args.js';
 
-export const ngCreateExternalCommand = {
+export const ngCreateExternalCommand = defineCommand({
   name: 'external',
   description: 'Create an external peer in a Network Group',
   experimental: false,
@@ -17,18 +19,18 @@ export const ngCreateExternalCommand = {
     org: orgaIdOrNameOpt,
   },
   args: [
-    {
+    defineArgument({
       name: 'external-peer-label',
       description: 'External peer label',
       parser: ngResourceTypeParser,
       complete: null,
-    },
-    {
+    }),
+    defineArgument({
       name: 'public-key',
       description: 'WireGuard public key of the external peer to link to a Network Group',
       parser: null,
       complete: null,
-    },
+    }),
     ngIdOrLabelArg,
   ],
   async execute(params) {
@@ -46,4 +48,4 @@ export const ngCreateExternalCommand = {
       `External peer ${styleText('green', peerIdOrLabel.ngResourceLabel)} successfully created in Network Group ${styleText('green', ngText)}`,
     );
   },
-};
+});

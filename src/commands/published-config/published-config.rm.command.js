@@ -1,11 +1,12 @@
 import { getAllExposedEnvVars, updateAllExposedEnvVars } from '@clevercloud/client/esm/api/v2/application.js';
+import { defineCommand } from '../../lib/define-command.js';
 import { Logger } from '../../logger.js';
 import * as Application from '../../models/application.js';
 import { sendToApi } from '../../models/send-to-api.js';
 import { envVariableNameArg } from '../global.args.js';
 import { aliasOpt, appIdOrNameOpt, colorOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
 
-export const publishedConfigRmCommand = {
+export const publishedConfigRmCommand = defineCommand({
   name: 'rm',
   description: 'Remove a published configuration variable from an application',
   experimental: false,
@@ -29,4 +30,4 @@ export const publishedConfigRmCommand = {
 
     Logger.println('Your published config item has been successfully removed');
   },
-};
+});

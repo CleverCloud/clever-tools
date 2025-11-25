@@ -1,8 +1,9 @@
+import { defineCommand } from '../../lib/define-command.js';
 import { operatorPrint } from '../../lib/operator-commands.js';
 import { addonIdOrNameArg } from '../global.args.js';
 import { colorOpt, humanJsonOutputFormatOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
 
-export const matomoGetCommand = {
+export const matomoGetCommand = defineCommand({
   name: 'get',
   description: 'Get information about a deployed Matomo',
   experimental: false,
@@ -19,4 +20,4 @@ export const matomoGetCommand = {
     const { format } = params.options;
     await operatorPrint('matomo', addonIdOrName, format);
   },
-};
+});

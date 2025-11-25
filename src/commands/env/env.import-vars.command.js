@@ -1,5 +1,7 @@
 import { updateEnvVar } from '@clevercloud/client/esm/api/v2/application.js';
 import { validateName } from '@clevercloud/client/esm/utils/env-vars.js';
+import { defineArgument } from '../../lib/define-argument.js';
+import { defineCommand } from '../../lib/define-command.js';
 import { Logger } from '../../logger.js';
 import * as Application from '../../models/application.js';
 import { sendToApi } from '../../models/send-to-api.js';
@@ -7,7 +9,7 @@ import { commaSeparated as commaSeparatedParser } from '../../parsers.js';
 import { aliasOpt, appIdOrNameOpt, colorOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
 import { sourceableEnvVarsListOpt } from './env.opts.js';
 
-export const envImportVarsCommand = {
+export const envImportVarsCommand = defineCommand({
   name: 'import-vars',
   description:
     'Add or update environment variables named <variable-names> (comma-separated), taking their values from the current environment',
@@ -22,12 +24,12 @@ export const envImportVarsCommand = {
     app: appIdOrNameOpt,
   },
   args: [
-    {
+    defineArgument({
       name: 'variable-names',
       description: 'Comma separated list of names of the environment variables',
       parser: commaSeparatedParser,
       complete: null,
-    },
+    }),
   ],
   async execute(params) {
     const [envNames] = params.args;
@@ -49,4 +51,4 @@ export const envImportVarsCommand = {
 
     Logger.println('Your environment variables have been successfully saved');
   },
-};
+});

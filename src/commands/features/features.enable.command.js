@@ -1,10 +1,11 @@
 import { EXPERIMENTAL_FEATURES } from '../../experimental-features.js';
+import { defineCommand } from '../../lib/define-command.js';
 import { Logger } from '../../logger.js';
 import { setFeature } from '../../models/configuration.js';
 import { colorOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
 import { featuresArg } from './features.args.js';
 
-export const featuresEnableCommand = {
+export const featuresEnableCommand = defineCommand({
   name: 'enable',
   description: 'Enable experimental features',
   experimental: false,
@@ -36,4 +37,4 @@ export const featuresEnableCommand = {
       Logger.println("To learn more about these experimental features, use 'clever features info FEATURE_NAME'");
     }
   },
-};
+});

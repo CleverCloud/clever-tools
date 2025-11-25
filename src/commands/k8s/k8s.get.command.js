@@ -1,10 +1,11 @@
+import { defineCommand } from '../../lib/define-command.js';
 import { getK8sCluster } from '../../lib/k8s.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
 import { colorOpt, humanJsonOutputFormatOpt, orgaIdOrNameOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
 import { k8sIdOrNameArg } from './k8s.args.js';
 
-export const k8sGetCommand = {
+export const k8sGetCommand = defineCommand({
   name: 'get',
   description: 'Get information about a Kubernetes cluster',
   experimental: false,
@@ -45,4 +46,4 @@ export const k8sGetCommand = {
         break;
     }
   },
-};
+});

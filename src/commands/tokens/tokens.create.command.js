@@ -1,5 +1,8 @@
 import dedent from 'dedent';
 import { createApiToken } from '../../clever-client/auth-bridge.js';
+import { defineArgument } from '../../lib/define-argument.js';
+import { defineCommand } from '../../lib/define-command.js';
+import { defineOption } from '../../lib/define-option.js';
 import { formatDate } from '../../lib/format-date.js';
 import { promptSecret } from '../../lib/prompts.js';
 import { styleText } from '../../lib/style-text.js';
@@ -10,13 +13,13 @@ import { getCurrent as getCurrentUser } from '../../models/user.js';
 import { futureDateOrDuration as futureDateOrDurationParser } from '../../parsers.js';
 import { colorOpt, humanJsonOutputFormatOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
 
-export const tokensCreateCommand = {
+export const tokensCreateCommand = defineCommand({
   name: 'create',
   description: 'Create an API token',
   experimental: false,
   featureFlag: null,
   opts: {
-    expiration: {
+    expiration: defineOption({
       name: 'expiration',
       description: 'Duration until API token expiration (e.g.: 1h, 4d, 2w, 6M), default 1y',
       type: 'option',
@@ -26,19 +29,19 @@ export const tokensCreateCommand = {
       required: null,
       parser: futureDateOrDurationParser,
       complete: null,
-    },
+    }),
     color: colorOpt,
     'update-notifier': updateNotifierOpt,
     verbose: verboseOpt,
     format: humanJsonOutputFormatOpt,
   },
   args: [
-    {
+    defineArgument({
       name: 'api-token-name',
       description: 'API token name',
       parser: null,
       complete: null,
-    },
+    }),
   ],
   async execute(params) {
     const [apiTokenName] = params.args;
@@ -118,4 +121,4 @@ export const tokensCreateCommand = {
           `);
     }
   },
-};
+});

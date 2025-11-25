@@ -1,6 +1,7 @@
+import { defineCommand } from '../../lib/define-command.js';
 import { colorOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
 
-export const helpCommand = {
+export const helpCommand = defineCommand({
   name: 'help',
   description: 'Display help about the Clever Cloud CLI',
   experimental: false,
@@ -12,4 +13,4 @@ export const helpCommand = {
   },
   args: [],
   execute: null,
-};
+});

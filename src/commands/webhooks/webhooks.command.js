@@ -1,4 +1,5 @@
 import { getWebhooks } from '@clevercloud/client/esm/api/v2/notification.js';
+import { defineCommand } from '../../lib/define-command.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
 import { getOwnerAndApp } from '../../models/notification.js';
@@ -12,7 +13,7 @@ import {
   verboseOpt,
 } from '../global.opts.js';
 
-export const webhooksCommand = {
+export const webhooksCommand = defineCommand({
   name: 'webhooks',
   description: 'Manage webhooks',
   experimental: false,
@@ -65,4 +66,4 @@ export const webhooksCommand = {
       }
     }
   },
-};
+});

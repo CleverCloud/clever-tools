@@ -1,10 +1,11 @@
 import { formatTable } from '../../format-table.js';
+import { defineCommand } from '../../lib/define-command.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
 import * as Addon from '../../models/addon.js';
 import { colorOpt, humanJsonOutputFormatOpt, orgaIdOrNameOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
 
-export const addonProvidersCommand = {
+export const addonProvidersCommand = defineCommand({
   name: 'providers',
   description: 'List available add-on providers',
   experimental: false,
@@ -47,4 +48,4 @@ export const addonProvidersCommand = {
       }
     }
   },
-};
+});

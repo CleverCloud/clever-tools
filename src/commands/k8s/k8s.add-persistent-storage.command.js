@@ -1,10 +1,11 @@
+import { defineCommand } from '../../lib/define-command.js';
 import { isK8sClusterActive, k8sAddPersistentStorage } from '../../lib/k8s.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
 import { colorOpt, orgaIdOrNameOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
 import { k8sIdOrNameArg } from './k8s.args.js';
 
-export const k8sAddPersistentStorageCommand = {
+export const k8sAddPersistentStorageCommand = defineCommand({
   name: 'add-persistent-storage',
   description: 'Activate persistent storage to a deployed Kubernetes cluster',
   experimental: false,
@@ -41,4 +42,4 @@ export const k8sAddPersistentStorageCommand = {
       Logger.error("Failed to add persistent storage, check if it's not already activated");
     }
   },
-};
+});

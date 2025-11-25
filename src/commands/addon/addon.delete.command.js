@@ -1,10 +1,11 @@
+import { defineCommand } from '../../lib/define-command.js';
 import { Logger } from '../../logger.js';
 import * as Addon from '../../models/addon.js';
 import * as Organisation from '../../models/organisation.js';
 import { addonIdOrNameArg } from '../global.args.js';
 import { colorOpt, confirmAddonDeletionOpt, orgaIdOrNameOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
 
-export const addonDeleteCommand = {
+export const addonDeleteCommand = defineCommand({
   name: 'delete',
   description: 'Delete an add-on',
   experimental: false,
@@ -34,4 +35,4 @@ export const addonDeleteCommand = {
 
     Logger.println(`Addon ${addon.addon_id || addon.addon_name} successfully deleted`);
   },
-};
+});

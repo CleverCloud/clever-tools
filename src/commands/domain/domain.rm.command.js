@@ -1,11 +1,12 @@
 import { removeDomain } from '@clevercloud/client/esm/api/v2/application.js';
+import { defineCommand } from '../../lib/define-command.js';
 import { Logger } from '../../logger.js';
 import * as Application from '../../models/application.js';
 import { sendToApi } from '../../models/send-to-api.js';
 import { aliasOpt, appIdOrNameOpt, colorOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
 import { fqdnArg } from './domain.args.js';
 
-export const domainRmCommand = {
+export const domainRmCommand = defineCommand({
   name: 'rm',
   description: 'Remove a domain name from an application',
   experimental: false,
@@ -27,4 +28,4 @@ export const domainRmCommand = {
     await removeDomain({ id: ownerId, appId, domain: encodedFqdn }).then(sendToApi);
     Logger.println('Your domain has been successfully removed');
   },
-};
+});

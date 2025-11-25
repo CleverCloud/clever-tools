@@ -1,8 +1,9 @@
+import { defineCommand } from '../../lib/define-command.js';
 import { operatorUpdateVersion } from '../../lib/operator-commands.js';
 import { addonIdOrNameArg } from '../global.args.js';
 import { colorOpt, targetVersionOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
 
-export const metabaseVersionUpdateCommand = {
+export const metabaseVersionUpdateCommand = defineCommand({
   name: 'update',
   description: 'Update Metabase deployed version',
   experimental: false,
@@ -19,4 +20,4 @@ export const metabaseVersionUpdateCommand = {
     const { target } = params.options;
     await operatorUpdateVersion('metabase', target, addonIdOrName);
   },
-};
+});

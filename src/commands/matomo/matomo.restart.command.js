@@ -1,8 +1,9 @@
+import { defineCommand } from '../../lib/define-command.js';
 import { operatorReboot } from '../../lib/operator-commands.js';
 import { addonIdOrNameArg } from '../global.args.js';
 import { colorOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
 
-export const matomoRestartCommand = {
+export const matomoRestartCommand = defineCommand({
   name: 'restart',
   description: 'Restart Matomo',
   experimental: false,
@@ -17,4 +18,4 @@ export const matomoRestartCommand = {
     const [addonIdOrName] = params.args;
     await operatorReboot('matomo', addonIdOrName);
   },
-};
+});

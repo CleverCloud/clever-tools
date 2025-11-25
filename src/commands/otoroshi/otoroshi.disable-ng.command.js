@@ -1,8 +1,9 @@
+import { defineCommand } from '../../lib/define-command.js';
 import { operatorNgDisable } from '../../lib/operator-commands.js';
 import { addonIdOrNameArg } from '../global.args.js';
 import { colorOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
 
-export const otoroshiDisableNgCommand = {
+export const otoroshiDisableNgCommand = defineCommand({
   name: 'disable-ng',
   description: 'Unlink Otoroshi from its Network Group',
   experimental: false,
@@ -17,4 +18,4 @@ export const otoroshiDisableNgCommand = {
     const [addonIdOrName] = params.args;
     await operatorNgDisable('otoroshi', addonIdOrName);
   },
-};
+});

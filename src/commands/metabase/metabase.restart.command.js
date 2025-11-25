@@ -1,8 +1,9 @@
+import { defineCommand } from '../../lib/define-command.js';
 import { operatorReboot } from '../../lib/operator-commands.js';
 import { addonIdOrNameArg } from '../global.args.js';
 import { colorOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
 
-export const metabaseRestartCommand = {
+export const metabaseRestartCommand = defineCommand({
   name: 'restart',
   description: 'Restart Metabase',
   experimental: false,
@@ -17,4 +18,4 @@ export const metabaseRestartCommand = {
     const [addonIdOrName] = params.args;
     await operatorReboot('metabase', addonIdOrName);
   },
-};
+});

@@ -1,17 +1,19 @@
 import { todo_removeSshKey as removeSshKey } from '@clevercloud/client/esm/api/v2/user.js';
+import { defineCommand } from '../../lib/define-command.js';
+import { defineOption } from '../../lib/define-option.js';
 import { confirm } from '../../lib/prompts.js';
 import { Logger } from '../../logger.js';
 import { sendToApi } from '../../models/send-to-api.js';
 import { getUserSshKeys } from '../../models/ssh-keys.js';
 import { colorOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
 
-export const sshKeysRemoveAllCommand = {
+export const sshKeysRemoveAllCommand = defineCommand({
   name: 'remove-all',
   description: 'Remove all SSH keys from the current user',
   experimental: false,
   featureFlag: null,
   opts: {
-    yes: {
+    yes: defineOption({
       name: 'yes',
       description: 'Skip confirmation and remove all SSH keys directly',
       type: 'flag',
@@ -21,7 +23,7 @@ export const sshKeysRemoveAllCommand = {
       required: null,
       parser: null,
       complete: null,
-    },
+    }),
     color: colorOpt,
     'update-notifier': updateNotifierOpt,
     verbose: verboseOpt,
@@ -59,4 +61,4 @@ export const sshKeysRemoveAllCommand = {
       throw new Error(`Some errors occured while removing these SSH keys: ${keyNamesWithErrors}`);
     }
   },
-};
+});

@@ -1,3 +1,5 @@
+import { defineCommand } from '../../lib/define-command.js';
+import { defineOption } from '../../lib/define-option.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
 import * as AppConfig from '../../models/app_configuration.js';
@@ -29,13 +31,13 @@ function formatApps(apps, onlyAliases, json) {
   }
 }
 
-export const applicationsCommand = {
+export const applicationsCommand = defineCommand({
   name: 'applications',
   description: 'List linked applications',
   experimental: false,
   featureFlag: null,
   opts: {
-    'only-aliases': {
+    'only-aliases': defineOption({
       name: 'only-aliases',
       description: 'List only application aliases',
       type: 'flag',
@@ -45,8 +47,8 @@ export const applicationsCommand = {
       required: null,
       parser: null,
       complete: null,
-    },
-    json: {
+    }),
+    json: defineOption({
       name: 'json',
       description: 'Show result in JSON format',
       type: 'flag',
@@ -56,7 +58,7 @@ export const applicationsCommand = {
       required: null,
       parser: null,
       complete: null,
-    },
+    }),
     color: colorOpt,
     'update-notifier': updateNotifierOpt,
     verbose: verboseOpt,
@@ -70,4 +72,4 @@ export const applicationsCommand = {
     const formattedApps = formatApps(apps, onlyAliases, json);
     Logger.println(formattedApps);
   },
-};
+});

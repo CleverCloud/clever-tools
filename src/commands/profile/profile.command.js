@@ -1,10 +1,11 @@
 import dedent from 'dedent';
+import { defineCommand } from '../../lib/define-command.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
 import * as User from '../../models/user.js';
 import { colorOpt, humanJsonOutputFormatOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
 
-export const profileCommand = {
+export const profileCommand = defineCommand({
   name: 'profile',
   description: 'Display the profile of the current user',
   experimental: false,
@@ -61,4 +62,4 @@ export const profileCommand = {
       }
     }
   },
-};
+});

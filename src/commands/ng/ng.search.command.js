@@ -1,9 +1,10 @@
+import { defineCommand } from '../../lib/define-command.js';
 import { printResults } from '../../lib/ng-print.js';
 import { colorOpt, humanJsonOutputFormatOpt, orgaIdOrNameOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
 import { ngAnyIdOrLabelArg } from './ng.args.js';
 import { ngResourceTypeOpt } from './ng.opts.js';
 
-export const ngSearchCommand = {
+export const ngSearchCommand = defineCommand({
   name: 'search',
   description: 'Search Network Groups, members or peers and get their details',
   experimental: false,
@@ -24,4 +25,4 @@ export const ngSearchCommand = {
 
     await printResults(idOrLabel, org, format, 'search', type);
   },
-};
+});

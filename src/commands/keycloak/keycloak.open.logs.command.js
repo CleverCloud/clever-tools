@@ -1,8 +1,9 @@
+import { defineCommand } from '../../lib/define-command.js';
 import { operatorOpenLogs } from '../../lib/operator-commands.js';
 import { addonIdOrNameArg } from '../global.args.js';
 import { colorOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
 
-export const keycloakOpenLogsCommand = {
+export const keycloakOpenLogsCommand = defineCommand({
   name: 'logs',
   description: 'Open the Keycloak application logs in Clever Cloud Console',
   experimental: false,
@@ -17,4 +18,4 @@ export const keycloakOpenLogsCommand = {
     const [addonIdOrName] = params.args;
     await operatorOpenLogs('keycloak', addonIdOrName);
   },
-};
+});
