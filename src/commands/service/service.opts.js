@@ -7,7 +7,7 @@ export const onlyAppsOpt = {
   default: null,
   required: null,
   parser: null,
-  complete: null
+  complete: null,
 };
 
 export const onlyAddonsOpt = {
@@ -19,7 +19,7 @@ export const onlyAddonsOpt = {
   default: null,
   required: null,
   parser: null,
-  complete: null
+  complete: null,
 };
 
 export const showAllOpt = {
@@ -31,6 +31,5 @@ export const showAllOpt = {
   default: null,
   required: null,
   parser: null,
-  complete: null
+  complete: null,
 };
-

@@ -1,9 +1,5 @@
-import { colorOpt, updateNotifierOpt, verboseOpt, humanJsonOutputFormatOpt } from '../global.opts.js';
-import dedent from 'dedent';
-import { styleText } from '../../lib/style-text.js';
-import { Logger } from '../../logger.js';
-import * as User from '../../models/user.js';
 import { openBrowser } from '../../models/utils.js';
+import { colorOpt, humanJsonOutputFormatOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
 
 export const profileOpenCommand = {
   name: 'open',
@@ -14,10 +10,10 @@ export const profileOpenCommand = {
     color: colorOpt,
     'update-notifier': updateNotifierOpt,
     verbose: verboseOpt,
-    format: humanJsonOutputFormatOpt
+    format: humanJsonOutputFormatOpt,
   },
   args: [],
   async execute() {
     await openBrowser('/users/me/information', 'Opening the profile page in your browser');
-  }
+  },
 };

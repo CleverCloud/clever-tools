@@ -1,8 +1,6 @@
-import { colorOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
 import { EXPERIMENTAL_FEATURES } from '../../experimental-features.js';
-import { formatTable } from '../../format-table.js';
 import { Logger } from '../../logger.js';
-import { getFeatures, setFeature } from '../../models/configuration.js';
+import { colorOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
 
 export const featuresInfoCommand = {
   name: 'info',
@@ -12,24 +10,24 @@ export const featuresInfoCommand = {
   opts: {
     color: colorOpt,
     'update-notifier': updateNotifierOpt,
-    verbose: verboseOpt
+    verbose: verboseOpt,
   },
   args: [
     {
       name: 'feature',
       description: 'Experimental feature to manage',
       parser: null,
-      complete: null
+      complete: null,
     },
   ],
   async execute(params) {
     const { feature } = params.namedArgs;
-      const availableFeatures = Object.keys(EXPERIMENTAL_FEATURES);
-    
-      if (!availableFeatures.includes(feature)) {
-        throw new Error(`Unavailable feature: ${feature}`);
-      }
-    
-      Logger.println(EXPERIMENTAL_FEATURES[feature].instructions);
-  }
+    const availableFeatures = Object.keys(EXPERIMENTAL_FEATURES);
+
+    if (!availableFeatures.includes(feature)) {
+      throw new Error(`Unavailable feature: ${feature}`);
+    }
+
+    Logger.println(EXPERIMENTAL_FEATURES[feature].instructions);
+  },
 };

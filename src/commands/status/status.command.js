@@ -1,10 +1,17 @@
-import { colorOpt, updateNotifierOpt, verboseOpt, aliasOpt, appIdOrNameOpt, humanJsonOutputFormatOpt } from '../global.opts.js';
 import { getAllInstances, get as getApplication } from '@clevercloud/client/esm/api/v2/application.js';
 import _ from 'lodash';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
 import * as Application from '../../models/application.js';
 import { sendToApi } from '../../models/send-to-api.js';
+import {
+  aliasOpt,
+  appIdOrNameOpt,
+  colorOpt,
+  humanJsonOutputFormatOpt,
+  updateNotifierOpt,
+  verboseOpt,
+} from '../global.opts.js';
 
 function displayInstances(instances, commit) {
   return `(${instances.map((instance) => `${instance.count}*${instance.flavor}`)},  Commit: ${commit || 'N/A'})`;
@@ -78,49 +85,49 @@ export const statusCommand = {
     verbose: verboseOpt,
     alias: aliasOpt,
     app: appIdOrNameOpt,
-    format: humanJsonOutputFormatOpt
+    format: humanJsonOutputFormatOpt,
   },
   args: [],
   async execute(params) {
     const { alias, app: appIdOrName, format } = params.options;
-      const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
-    
-      const instances = await getAllInstances({ id: ownerId, appId }).then(sendToApi);
-      const app = await getApplication({ id: ownerId, appId }).then(sendToApi);
-    
-      const status = computeStatus(instances, app);
-    
-      switch (format) {
-        case 'json': {
-          Logger.printJson(status);
-          break;
-        }
-        case 'human':
-        default: {
-          const statusMessage =
-            status.status === 'running'
-              ? `${styleText(['bold', 'green'], 'running')} ${displayInstances(status.instances, status.commit)}`
-              : styleText(['bold', 'red'], 'stopped');
-    
-          Logger.println(`${status.name}: ${statusMessage}`);
-          Logger.println(`Type: ${status.type.name}`);
-          Logger.println(`Executed as: ${styleText('bold', status.lifetime)}`);
-          if (status.deploymentInProgress) {
-            Logger.println(
-              `Deployment in progress ${displayInstances(status.deploymentInProgress.instances, status.deploymentInProgress.commit)}`,
-            );
-          }
-          Logger.println();
-          Logger.println('Scalability:');
-          Logger.println(
-            `  Auto scalability: ${status.scalability.enabled ? styleText('green', 'enabled') : styleText('red', 'disabled')}`,
-          );
-          Logger.println(`  Scalers: ${styleText('bold', formatScalability(status.scalability.horizontal))}`);
-          Logger.println(`  Sizes: ${styleText('bold', formatScalability(status.scalability.vertical))}`);
-          Logger.println(
-            `  Dedicated build: ${status.separateBuild ? styleText('bold', status.buildFlavor) : styleText('red', 'disabled')}`,
-          );
-        }
+    const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
+
+    const instances = await getAllInstances({ id: ownerId, appId }).then(sendToApi);
+    const app = await getApplication({ id: ownerId, appId }).then(sendToApi);
+
+    const status = computeStatus(instances, app);
+
+    switch (format) {
+      case 'json': {
+        Logger.printJson(status);
+        break;
       }
-  }
+      case 'human':
+      default: {
+        const statusMessage =
+          status.status === 'running'
+            ? `${styleText(['bold', 'green'], 'running')} ${displayInstances(status.instances, status.commit)}`
+            : styleText(['bold', 'red'], 'stopped');
+
+        Logger.println(`${status.name}: ${statusMessage}`);
+        Logger.println(`Type: ${status.type.name}`);
+        Logger.println(`Executed as: ${styleText('bold', status.lifetime)}`);
+        if (status.deploymentInProgress) {
+          Logger.println(
+            `Deployment in progress ${displayInstances(status.deploymentInProgress.instances, status.deploymentInProgress.commit)}`,
+          );
+        }
+        Logger.println();
+        Logger.println('Scalability:');
+        Logger.println(
+          `  Auto scalability: ${status.scalability.enabled ? styleText('green', 'enabled') : styleText('red', 'disabled')}`,
+        );
+        Logger.println(`  Scalers: ${styleText('bold', formatScalability(status.scalability.horizontal))}`);
+        Logger.println(`  Sizes: ${styleText('bold', formatScalability(status.scalability.vertical))}`);
+        Logger.println(
+          `  Dedicated build: ${status.separateBuild ? styleText('bold', status.buildFlavor) : styleText('red', 'disabled')}`,
+        );
+      }
+    }
+  },
 };

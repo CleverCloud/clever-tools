@@ -1,13 +1,8 @@
-import { colorOpt, updateNotifierOpt, verboseOpt, humanJsonOutputFormatOpt } from '../global.opts.js';
-import { todo_addSshKey as addSshKey, todo_removeSshKey as removeSshKey } from '@clevercloud/client/esm/api/v2/user.js';
 import dedent from 'dedent';
-import fs from 'node:fs';
-import { confirm } from '../../lib/prompts.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
-import { sendToApi } from '../../models/send-to-api.js';
 import { getUserSshKeys } from '../../models/ssh-keys.js';
-import { openBrowser } from '../../models/utils.js';
+import { colorOpt, humanJsonOutputFormatOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
 
 export const sshKeysCommand = {
   name: 'ssh-keys',
@@ -18,23 +13,23 @@ export const sshKeysCommand = {
     color: colorOpt,
     'update-notifier': updateNotifierOpt,
     verbose: verboseOpt,
-    format: humanJsonOutputFormatOpt
+    format: humanJsonOutputFormatOpt,
   },
   args: [],
   async execute(params) {
     const { format } = params.options;
-    
-      const keys = await getUserSshKeys();
-    
-      switch (format) {
-        case 'json': {
-          Logger.printJson(keys);
-          break;
-        }
-        case 'human':
-        default: {
-          if (keys.length === 0) {
-            Logger.println(dedent`
+
+    const keys = await getUserSshKeys();
+
+    switch (format) {
+      case 'json': {
+        Logger.printJson(keys);
+        break;
+      }
+      case 'human':
+      default: {
+        if (keys.length === 0) {
+          Logger.println(dedent`
               ${styleText('blue', '🔐 No SSH keys')}
               
               To list the SSH keys on your local system, use the following command:
@@ -46,14 +41,14 @@ export const sshKeysCommand = {
               Then add the public key to your Clever Cloud account:
               ${styleText('grey', 'clever ssh-keys add myNewKey ~/.ssh/id_ed25519_clever.pub')}
             `);
-            return;
-          }
-    
-          Logger.println(`🔐 ${keys.length} SSH key(s):`);
-          keys.forEach((key) => {
-            Logger.println(` • ${styleText('blue', key.name)}`, styleText('grey', `(${key.fingerprint})`));
-          });
+          return;
         }
+
+        Logger.println(`🔐 ${keys.length} SSH key(s):`);
+        keys.forEach((key) => {
+          Logger.println(` • ${styleText('blue', key.name)}`, styleText('grey', `(${key.fingerprint})`));
+        });
       }
-  }
+    }
+  },
 };

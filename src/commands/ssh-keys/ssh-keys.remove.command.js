@@ -1,14 +1,10 @@
-import { sshKeyNameArg } from './ssh-keys.args.js';
-import { colorOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
-import { todo_addSshKey as addSshKey, todo_removeSshKey as removeSshKey } from '@clevercloud/client/esm/api/v2/user.js';
-import dedent from 'dedent';
-import fs from 'node:fs';
-import { confirm } from '../../lib/prompts.js';
+import { todo_removeSshKey as removeSshKey } from '@clevercloud/client/esm/api/v2/user.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
 import { sendToApi } from '../../models/send-to-api.js';
 import { getUserSshKeys } from '../../models/ssh-keys.js';
-import { openBrowser } from '../../models/utils.js';
+import { colorOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
+import { sshKeyNameArg } from './ssh-keys.args.js';
 
 export const sshKeysRemoveCommand = {
   name: 'remove',
@@ -18,23 +14,21 @@ export const sshKeysRemoveCommand = {
   opts: {
     color: colorOpt,
     'update-notifier': updateNotifierOpt,
-    verbose: verboseOpt
+    verbose: verboseOpt,
   },
-  args: [
-    sshKeyNameArg,
-  ],
+  args: [sshKeyNameArg],
   async execute(params) {
     const [keyName] = params.args;
-    
-      const keys = await getUserSshKeys();
-    
-      if (keys.find((key) => key.name === keyName) == null) {
-        throw new Error(`SSH key ${styleText('red', keyName)} not found`);
-      }
-    
-      const keyNameEncoded = encodeURIComponent(keyName);
-      await removeSshKey({ key: keyNameEncoded }).then(sendToApi);
-    
-      Logger.printSuccess(`SSH key ${keyName} removed successfully`);
-  }
+
+    const keys = await getUserSshKeys();
+
+    if (keys.find((key) => key.name === keyName) == null) {
+      throw new Error(`SSH key ${styleText('red', keyName)} not found`);
+    }
+
+    const keyNameEncoded = encodeURIComponent(keyName);
+    await removeSshKey({ key: keyNameEncoded }).then(sendToApi);
+
+    Logger.printSuccess(`SSH key ${keyName} removed successfully`);
+  },
 };

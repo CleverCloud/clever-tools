@@ -1,11 +1,10 @@
-import { drainIdArg } from './drain.args.js';
-import { colorOpt, updateNotifierOpt, verboseOpt, aliasOpt, appIdOrNameOpt } from '../global.opts.js';
-import { createDrain, deleteDrain, disableDrain, enableDrain, getDrain, getDrains } from '../../clever-client/drains.js';
+import { enableDrain } from '../../clever-client/drains.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
 import * as Application from '../../models/application.js';
-import { DRAIN_TYPE_CLI_CODES, DRAIN_TYPES, formatDrain } from '../../models/drain.js';
 import { sendToApi } from '../../models/send-to-api.js';
+import { aliasOpt, appIdOrNameOpt, colorOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
+import { drainIdArg } from './drain.args.js';
 
 export const drainEnableCommand = {
   name: 'enable',
@@ -17,19 +16,17 @@ export const drainEnableCommand = {
     'update-notifier': updateNotifierOpt,
     verbose: verboseOpt,
     alias: aliasOpt,
-    app: appIdOrNameOpt
+    app: appIdOrNameOpt,
   },
-  args: [
-    drainIdArg,
-  ],
+  args: [drainIdArg],
   async execute(params) {
     const [drainId] = params.args;
-      const { alias, app: appIdOrName } = params.options;
-    
-      const { ownerId, appId: applicationId } = await Application.resolveId(appIdOrName, alias);
-    
-      await enableDrain({ ownerId, applicationId, drainId }).then(sendToApi);
-    
-      Logger.printSuccess(`Drain ${styleText(['bold', 'green'], drainId)} has been successfully enabled!`);
-  }
+    const { alias, app: appIdOrName } = params.options;
+
+    const { ownerId, appId: applicationId } = await Application.resolveId(appIdOrName, alias);
+
+    await enableDrain({ ownerId, applicationId, drainId }).then(sendToApi);
+
+    Logger.printSuccess(`Drain ${styleText(['bold', 'green'], drainId)} has been successfully enabled!`);
+  },
 };

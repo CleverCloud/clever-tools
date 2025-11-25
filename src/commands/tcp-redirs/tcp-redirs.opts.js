@@ -9,6 +9,5 @@ export const namespaceOpt = {
   default: null,
   required: true,
   parser: null,
-  complete: completeNamespaces
+  complete: completeNamespaces,
 };
-

@@ -1,7 +1,11 @@
-import { colorOpt, updateNotifierOpt, verboseOpt, aliasOpt, appIdOrNameOpt } from '../global.opts.js';
-import { buildFlavor as buildFlavorParser, flavor as flavorParser, instances as instancesParser } from '../../parsers.js';
 import { Logger } from '../../logger.js';
 import * as Application from '../../models/application.js';
+import {
+  buildFlavor as buildFlavorParser,
+  flavor as flavorParser,
+  instances as instancesParser,
+} from '../../parsers.js';
+import { aliasOpt, appIdOrNameOpt, colorOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
 
 function validateOptions(options) {
   let { flavor, 'min-flavor': minFlavor, 'max-flavor': maxFlavor } = options;
@@ -62,7 +66,7 @@ export const scaleCommand = {
       default: null,
       required: null,
       parser: flavorParser,
-      complete: 'cliparse.autocomplete.words(Application.listAvailableFlavors())'
+      complete: 'cliparse.autocomplete.words(Application.listAvailableFlavors())',
     },
     'min-flavor': {
       name: 'min-flavor',
@@ -73,7 +77,7 @@ export const scaleCommand = {
       default: null,
       required: null,
       parser: flavorParser,
-      complete: 'cliparse.autocomplete.words(Application.listAvailableFlavors())'
+      complete: 'cliparse.autocomplete.words(Application.listAvailableFlavors())',
     },
     'max-flavor': {
       name: 'max-flavor',
@@ -84,7 +88,7 @@ export const scaleCommand = {
       default: null,
       required: null,
       parser: flavorParser,
-      complete: 'cliparse.autocomplete.words(Application.listAvailableFlavors())'
+      complete: 'cliparse.autocomplete.words(Application.listAvailableFlavors())',
     },
     instances: {
       name: 'instances',
@@ -95,7 +99,7 @@ export const scaleCommand = {
       default: null,
       required: null,
       parser: instancesParser,
-      complete: null
+      complete: null,
     },
     'min-instances': {
       name: 'min-instances',
@@ -106,7 +110,7 @@ export const scaleCommand = {
       default: null,
       required: null,
       parser: instancesParser,
-      complete: null
+      complete: null,
     },
     'max-instances': {
       name: 'max-instances',
@@ -117,43 +121,43 @@ export const scaleCommand = {
       default: null,
       required: null,
       parser: instancesParser,
-      complete: null
+      complete: null,
     },
     'build-flavor': {
       name: 'build-flavor',
-      description: 'The size of the build instance, or \'disabled\' if you want to disable dedicated build instances',
+      description: "The size of the build instance, or 'disabled' if you want to disable dedicated build instances",
       type: 'option',
       metavar: 'buildflavor',
       aliases: null,
       default: null,
       required: null,
       parser: buildFlavorParser,
-      complete: null
+      complete: null,
     },
     color: colorOpt,
     'update-notifier': updateNotifierOpt,
     verbose: verboseOpt,
     alias: aliasOpt,
-    app: appIdOrNameOpt
+    app: appIdOrNameOpt,
   },
   args: [],
   async execute(params) {
     const { alias, app: appIdOrName } = params.options;
-      const { minFlavor, maxFlavor, minInstances, maxInstances, buildFlavor } = validateOptions(params.options);
-      const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
-    
-      await Application.setScalability(
-        appId,
-        ownerId,
-        {
-          minFlavor,
-          maxFlavor,
-          minInstances,
-          maxInstances,
-        },
-        buildFlavor,
-      );
-    
-      Logger.println('App rescaled successfully');
-  }
+    const { minFlavor, maxFlavor, minInstances, maxInstances, buildFlavor } = validateOptions(params.options);
+    const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
+
+    await Application.setScalability(
+      appId,
+      ownerId,
+      {
+        minFlavor,
+        maxFlavor,
+        minInstances,
+        maxInstances,
+      },
+      buildFlavor,
+    );
+
+    Logger.println('App rescaled successfully');
+  },
 };

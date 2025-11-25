@@ -1,10 +1,10 @@
-import { colorOpt, updateNotifierOpt, verboseOpt, orgaIdOrNameOpt, humanJsonOutputFormatOpt } from '../global.opts.js';
 import { getAllEnvVars } from '@clevercloud/client/esm/api/v2/addon.js';
 import Redis from 'ioredis';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
 import { findAddonsByNameOrId } from '../../models/ids-resolver.js';
 import { sendToApi } from '../../models/send-to-api.js';
+import { colorOpt, humanJsonOutputFormatOpt, orgaIdOrNameOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
 
 const URL_ENV_KEY = 'REDIS_URL';
 
@@ -46,57 +46,57 @@ export const kvCommand = {
     'update-notifier': updateNotifierOpt,
     verbose: verboseOpt,
     org: orgaIdOrNameOpt,
-    format: humanJsonOutputFormatOpt
+    format: humanJsonOutputFormatOpt,
   },
   args: [
     {
       name: 'kv-id',
       description: 'Add-on/Real ID (or name, if unambiguous) of a Materia KV or Redis® add-on',
       parser: null,
-      complete: null
+      complete: null,
     },
     {
       name: 'command',
       description: 'The raw command to send to the Materia KV or Redis® add-on',
       parser: null,
-      complete: null
+      complete: null,
     },
   ],
   async execute(params) {
     const [addonIdOrRealIdOrName] = params.args;
-      const { org, format } = params.options;
-    
-      const addons = await findAddonsByNameOrId(addonIdOrRealIdOrName, org);
-    
-      if (addons.length === 0) {
-        throw new Error(`Add-on ${addonIdOrRealIdOrName} not found`);
+    const { org, format } = params.options;
+
+    const addons = await findAddonsByNameOrId(addonIdOrRealIdOrName, org);
+
+    if (addons.length === 0) {
+      throw new Error(`Add-on ${addonIdOrRealIdOrName} not found`);
+    }
+
+    if (addons.length > 1) {
+      const formattedAddons = addons
+        .map(({ addonId, ownerId }) => `\n${styleText('grey', `- ${addonId} (${ownerId})`)}`)
+        .join('');
+      throw new Error(`Several add-ons found for '${addonIdOrRealIdOrName}', use ID instead:${formattedAddons}`);
+    }
+
+    const { addonId, ownerId } = addons[0];
+
+    const url = await getAddonUrl(ownerId, addonId);
+
+    Logger.debug(`Extracted command: ${params.args.join(' ')}`);
+    const command = params.args.slice(1);
+
+    const result = await sendCommand(url, command);
+
+    switch (format) {
+      case 'json': {
+        Logger.printJson(result);
+        break;
       }
-    
-      if (addons.length > 1) {
-        const formattedAddons = addons
-          .map(({ addonId, ownerId }) => `\n${styleText('grey', `- ${addonId} (${ownerId})`)}`)
-          .join('');
-        throw new Error(`Several add-ons found for '${addonIdOrRealIdOrName}', use ID instead:${formattedAddons}`);
+      case 'human':
+      default: {
+        Logger.println(result);
       }
-    
-      const { addonId, ownerId } = addons[0];
-    
-      const url = await getAddonUrl(ownerId, addonId);
-    
-      Logger.debug(`Extracted command: ${params.args.join(' ')}`);
-      const command = params.args.slice(1);
-    
-      const result = await sendCommand(url, command);
-    
-      switch (format) {
-        case 'json': {
-          Logger.printJson(result);
-          break;
-        }
-        case 'human':
-        default: {
-          Logger.println(result);
-        }
-      }
-  }
+    }
+  },
 };

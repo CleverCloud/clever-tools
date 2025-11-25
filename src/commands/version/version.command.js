@@ -1,6 +1,6 @@
-import { colorOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
 import pkg from '../../../package.json' with { type: 'json' };
 import { Logger } from '../../logger.js';
+import { colorOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
 
 export const versionCommand = {
   name: 'version',
@@ -10,10 +10,10 @@ export const versionCommand = {
   opts: {
     color: colorOpt,
     'update-notifier': updateNotifierOpt,
-    verbose: verboseOpt
+    verbose: verboseOpt,
   },
   args: [],
   async execute() {
     Logger.println(pkg.version);
-  }
+  },
 };

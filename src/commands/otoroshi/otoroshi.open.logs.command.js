@@ -1,18 +1,6 @@
+import { operatorOpenLogs } from '../../lib/operator-commands.js';
 import { addonIdOrNameArg } from '../global.args.js';
 import { colorOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
-import {
-  operatorCheckVersion,
-  operatorList,
-  operatorNgDisable,
-  operatorNgEnable,
-  operatorOpen,
-  operatorOpenLogs,
-  operatorOpenWebUi,
-  operatorPrint,
-  operatorReboot,
-  operatorRebuild,
-  operatorUpdateVersion,
-} from '../../lib/operator-commands.js';
 
 export const otoroshiOpenLogsCommand = {
   name: 'logs',
@@ -22,13 +10,11 @@ export const otoroshiOpenLogsCommand = {
   opts: {
     color: colorOpt,
     'update-notifier': updateNotifierOpt,
-    verbose: verboseOpt
+    verbose: verboseOpt,
   },
-  args: [
-    addonIdOrNameArg,
-  ],
+  args: [addonIdOrNameArg],
   async execute(params) {
     const [addonIdOrName] = params.args;
-      await operatorOpenLogs('otoroshi', addonIdOrName);
-  }
+    await operatorOpenLogs('otoroshi', addonIdOrName);
+  },
 };

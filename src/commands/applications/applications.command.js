@@ -1,11 +1,7 @@
-import { colorOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
 import { styleText } from '../../lib/style-text.js';
-import { formatTable } from '../../format-table.js';
 import { Logger } from '../../logger.js';
 import * as AppConfig from '../../models/app_configuration.js';
-import * as Application from '../../models/application.js';
-import * as Organisation from '../../models/organisation.js';
-import { truncateWithEllipsis } from '../../models/utils.js';
+import { colorOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
 
 function formatApps(apps, onlyAliases, json) {
   if (json) {
@@ -48,7 +44,7 @@ export const applicationsCommand = {
       default: null,
       required: null,
       parser: null,
-      complete: null
+      complete: null,
     },
     json: {
       name: 'json',
@@ -59,19 +55,19 @@ export const applicationsCommand = {
       default: null,
       required: null,
       parser: null,
-      complete: null
+      complete: null,
     },
     color: colorOpt,
     'update-notifier': updateNotifierOpt,
-    verbose: verboseOpt
+    verbose: verboseOpt,
   },
   args: [],
   async execute(params) {
     const { 'only-aliases': onlyAliases, json } = params.options;
-    
-      const { apps } = await AppConfig.loadApplicationConf();
-    
-      const formattedApps = formatApps(apps, onlyAliases, json);
-      Logger.println(formattedApps);
-  }
+
+    const { apps } = await AppConfig.loadApplicationConf();
+
+    const formattedApps = formatApps(apps, onlyAliases, json);
+    Logger.println(formattedApps);
+  },
 };

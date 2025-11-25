@@ -1,9 +1,7 @@
-import { configurationNameArg } from './config.args.js';
-import { colorOpt, updateNotifierOpt, verboseOpt, aliasOpt, appIdOrNameOpt } from '../global.opts.js';
-import { styleText } from '../../lib/style-text.js';
-import { Logger } from '../../logger.js';
 import * as Application from '../../models/application.js';
 import * as ApplicationConfiguration from '../../models/application_configuration.js';
+import { aliasOpt, appIdOrNameOpt, colorOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
+import { configurationNameArg } from './config.args.js';
 
 export const configGetCommand = {
   name: 'get',
@@ -15,16 +13,14 @@ export const configGetCommand = {
     'update-notifier': updateNotifierOpt,
     verbose: verboseOpt,
     alias: aliasOpt,
-    app: appIdOrNameOpt
+    app: appIdOrNameOpt,
   },
-  args: [
-    configurationNameArg,
-  ],
+  args: [configurationNameArg],
   async execute(params) {
     const [configurationName] = params.args;
-      const { alias, app: appIdOrName } = params.options;
-      const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
-      const app = await Application.get(ownerId, appId);
-      ApplicationConfiguration.printValue(app, configurationName);
-  }
+    const { alias, app: appIdOrName } = params.options;
+    const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
+    const app = await Application.get(ownerId, appId);
+    ApplicationConfiguration.printValue(app, configurationName);
+  },
 };

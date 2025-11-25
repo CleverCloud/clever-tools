@@ -7,6 +7,5 @@ export const sourceableEnvVarsListOpt = {
   default: null,
   required: null,
   parser: null,
-  complete: null
+  complete: null,
 };
-

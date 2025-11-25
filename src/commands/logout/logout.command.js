@@ -1,6 +1,6 @@
-import { colorOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
 import { Logger } from '../../logger.js';
 import { conf, writeOAuthConf } from '../../models/configuration.js';
+import { colorOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
 
 export const logoutCommand = {
   name: 'logout',
@@ -10,12 +10,12 @@ export const logoutCommand = {
   opts: {
     color: colorOpt,
     'update-notifier': updateNotifierOpt,
-    verbose: verboseOpt
+    verbose: verboseOpt,
   },
   args: [],
   async execute() {
     // write empty object
-      await writeOAuthConf({});
-      Logger.println(`${conf.CONFIGURATION_FILE} has been updated.`);
-  }
+    await writeOAuthConf({});
+    Logger.println(`${conf.CONFIGURATION_FILE} has been updated.`);
+  },
 };

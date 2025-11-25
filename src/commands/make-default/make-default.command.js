@@ -1,8 +1,8 @@
-import { aliasArg } from '../global.args.js';
-import { colorOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
 import * as AppConfig from '../../models/app_configuration.js';
+import { aliasArg } from '../global.args.js';
+import { colorOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
 
 export const makeDefaultCommand = {
   name: 'make-default',
@@ -12,16 +12,14 @@ export const makeDefaultCommand = {
   opts: {
     color: colorOpt,
     'update-notifier': updateNotifierOpt,
-    verbose: verboseOpt
+    verbose: verboseOpt,
   },
-  args: [
-    aliasArg,
-  ],
+  args: [aliasArg],
   async execute(params) {
     const [alias] = params.args;
-    
-      await AppConfig.setDefault(alias);
-    
-      Logger.printSuccess(`The application ${styleText('green', alias)} has been set as default`);
-  }
+
+    await AppConfig.setDefault(alias);
+
+    Logger.printSuccess(`The application ${styleText('green', alias)} has been set as default`);
+  },
 };

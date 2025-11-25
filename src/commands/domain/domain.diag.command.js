@@ -1,24 +1,21 @@
-import { colorOpt, updateNotifierOpt, verboseOpt, aliasOpt, appIdOrNameOpt, humanJsonOutputFormatOpt } from '../global.opts.js';
-import {
-  addDomain,
-  getAllDomains,
-  get as getApp,
-  markFavouriteDomain,
-  removeDomain,
-  unmarkFavouriteDomain,
-} from '@clevercloud/client/esm/api/v2/application.js';
-import { getSummary } from '@clevercloud/client/esm/api/v2/user.js';
+import { get as getApp } from '@clevercloud/client/esm/api/v2/application.js';
 import { getDefaultLoadBalancersDnsInfo } from '@clevercloud/client/esm/api/v4/load-balancers.js';
 import { diagDomainConfig } from '@clevercloud/client/esm/utils/diag-domain-config.js';
 import { sortDomains } from '@clevercloud/client/esm/utils/domains.js';
-import _ from 'lodash';
 import { parse as parseDomain } from 'tldts';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
 import * as Application from '../../models/application.js';
 import { DnsResolver } from '../../models/node-dns-resolver.js';
 import { sendToApi } from '../../models/send-to-api.js';
-import { getDomainObject, getFavouriteDomain } from '../../models/domain.js';
+import {
+  aliasOpt,
+  appIdOrNameOpt,
+  colorOpt,
+  humanJsonOutputFormatOpt,
+  updateNotifierOpt,
+  verboseOpt,
+} from '../global.opts.js';
 
 function reportDomainDiagnostics({ hostname, pathPrefix, resolvedDnsConfig, diagDetails, diagSummary }) {
   const validDiags = diagDetails.filter((diag) => diag.code === 'valid-a');
@@ -145,77 +142,77 @@ export const domainDiagCommand = {
       default: '',
       required: null,
       parser: null,
-      complete: null
+      complete: null,
     },
     color: colorOpt,
     'update-notifier': updateNotifierOpt,
     verbose: verboseOpt,
     alias: aliasOpt,
     app: appIdOrNameOpt,
-    format: humanJsonOutputFormatOpt
+    format: humanJsonOutputFormatOpt,
   },
   args: [],
   async execute(params) {
     const dnsResolver = new DnsResolver();
-      const allDomainDiagnostics = [];
-      const { alias, app: appIdOrName, format, filter } = params.options;
-      const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
-      const hasDomainFilter = filter.length > 0;
-      let hasError = false;
-    
-      const app = await getApp({ id: ownerId, appId }).then(sendToApi);
-      const expectedDnsForPublicLoadBalancer = await getDefaultLoadBalancersDnsInfo({ ownerId, appId }).then(sendToApi);
-    
-      const loadBalancerDnsConfig = {
-        aRecords: expectedDnsForPublicLoadBalancer[0].dns.a,
-        cnameRecord: expectedDnsForPublicLoadBalancer[0].dns.cname,
+    const allDomainDiagnostics = [];
+    const { alias, app: appIdOrName, format, filter } = params.options;
+    const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
+    const hasDomainFilter = filter.length > 0;
+    let hasError = false;
+
+    const app = await getApp({ id: ownerId, appId }).then(sendToApi);
+    const expectedDnsForPublicLoadBalancer = await getDefaultLoadBalancersDnsInfo({ ownerId, appId }).then(sendToApi);
+
+    const loadBalancerDnsConfig = {
+      aRecords: expectedDnsForPublicLoadBalancer[0].dns.a,
+      cnameRecord: expectedDnsForPublicLoadBalancer[0].dns.cname,
+    };
+
+    const filteredDomains = app.vhosts.filter(({ fqdn }) => fqdn.includes(filter));
+    const domains = getParsedDomains(filteredDomains);
+    const sortedDomains = domains.sort(sortDomains);
+
+    for (const { hostname, pathPrefix, isApex } of sortedDomains) {
+      const resolvedDnsConfig = {
+        aRecords: await dnsResolver.resolveA(hostname),
+        cnameRecords: (await dnsResolver.resolveCname(hostname)) ?? [],
       };
-    
-      const filteredDomains = app.vhosts.filter(({ fqdn }) => fqdn.includes(filter));
-      const domains = getParsedDomains(filteredDomains);
-      const sortedDomains = domains.sort(sortDomains);
-    
-      for (const { hostname, pathPrefix, isApex } of sortedDomains) {
-        const resolvedDnsConfig = {
-          aRecords: await dnsResolver.resolveA(hostname),
-          cnameRecords: (await dnsResolver.resolveCname(hostname)) ?? [],
-        };
-    
-        const diagnosticResults = diagDomainConfig(
-          {
-            hostname,
-            pathPrefix,
-            isApex,
-          },
-          resolvedDnsConfig,
-          loadBalancerDnsConfig,
-        );
-        allDomainDiagnostics.push({ ...diagnosticResults, resolvedDnsConfig });
-    
-        if (diagnosticResults.diagSummary === 'invalid' || diagnosticResults.diagSummary === 'no-config') {
-          hasError = true;
+
+      const diagnosticResults = diagDomainConfig(
+        {
+          hostname,
+          pathPrefix,
+          isApex,
+        },
+        resolvedDnsConfig,
+        loadBalancerDnsConfig,
+      );
+      allDomainDiagnostics.push({ ...diagnosticResults, resolvedDnsConfig });
+
+      if (diagnosticResults.diagSummary === 'invalid' || diagnosticResults.diagSummary === 'no-config') {
+        hasError = true;
+      }
+    }
+
+    switch (format) {
+      case 'json':
+        Logger.printJson(allDomainDiagnostics);
+        break;
+      default: {
+        allDomainDiagnostics.forEach((diag) => reportDomainDiagnostics(diag));
+
+        if (allDomainDiagnostics.length === 0 && !hasDomainFilter) {
+          Logger.println(`\nNo domain associated to the app "${app.name}" (${app.id})`);
+        }
+
+        if (allDomainDiagnostics.length === 0 && hasDomainFilter) {
+          Logger.println(`\nNo domain matches "${filter}" for the app "${app.name}" (${app.id})`);
         }
       }
-    
-      switch (format) {
-        case 'json':
-          Logger.printJson(allDomainDiagnostics);
-          break;
-        default: {
-          allDomainDiagnostics.forEach((diag) => reportDomainDiagnostics(diag));
-    
-          if (allDomainDiagnostics.length === 0 && !hasDomainFilter) {
-            Logger.println(`\nNo domain associated to the app "${app.name}" (${app.id})`);
-          }
-    
-          if (allDomainDiagnostics.length === 0 && hasDomainFilter) {
-            Logger.println(`\nNo domain matches "${filter}" for the app "${app.name}" (${app.id})`);
-          }
-        }
-      }
-    
-      if (hasError) {
-        throw new Error('At least one of the domains is misconfigured');
-      }
-  }
+    }
+
+    if (hasError) {
+      throw new Error('At least one of the domains is misconfigured');
+    }
+  },
 };

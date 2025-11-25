@@ -1,16 +1,6 @@
+import { operatorUpdateVersion } from '../../lib/operator-commands.js';
 import { addonIdOrNameArg } from '../global.args.js';
-import { colorOpt, updateNotifierOpt, verboseOpt, targetVersionOpt } from '../global.opts.js';
-import {
-  operatorCheckVersion,
-  operatorList,
-  operatorOpen,
-  operatorOpenLogs,
-  operatorOpenWebUi,
-  operatorPrint,
-  operatorReboot,
-  operatorRebuild,
-  operatorUpdateVersion,
-} from '../../lib/operator-commands.js';
+import { colorOpt, targetVersionOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
 
 export const metabaseVersionUpdateCommand = {
   name: 'update',
@@ -21,14 +11,12 @@ export const metabaseVersionUpdateCommand = {
     color: colorOpt,
     'update-notifier': updateNotifierOpt,
     verbose: verboseOpt,
-    target: targetVersionOpt
+    target: targetVersionOpt,
   },
-  args: [
-    addonIdOrNameArg,
-  ],
+  args: [addonIdOrNameArg],
   async execute(params) {
     const [addonIdOrName] = params.args;
-      const { target } = params.options;
-      await operatorUpdateVersion('metabase', target, addonIdOrName);
-  }
+    const { target } = params.options;
+    await operatorUpdateVersion('metabase', target, addonIdOrName);
+  },
 };

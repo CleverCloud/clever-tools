@@ -8,8 +8,8 @@ export const helpCommand = {
   opts: {
     color: colorOpt,
     'update-notifier': updateNotifierOpt,
-    verbose: verboseOpt
+    verbose: verboseOpt,
   },
   args: [],
-  execute: null
+  execute: null,
 };

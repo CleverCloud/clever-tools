@@ -1,4 +1,3 @@
-import { colorOpt, updateNotifierOpt, verboseOpt, aliasOpt, appIdOrNameOpt, logsFormatOpt, beforeOpt, afterOpt, addonIdOpt } from '../global.opts.js';
 import { ApplicationAccessLogStream } from '@clevercloud/client/esm/streams/access-logs.js';
 import { formatTable } from '../../format-table.js';
 import { styleText } from '../../lib/style-text.js';
@@ -7,6 +6,17 @@ import * as Application from '../../models/application.js';
 import { JsonArray } from '../../models/json-array.js';
 import { getHostAndTokens } from '../../models/send-to-api.js';
 import { truncateWithEllipsis } from '../../models/utils.js';
+import {
+  addonIdOpt,
+  afterOpt,
+  aliasOpt,
+  appIdOrNameOpt,
+  beforeOpt,
+  colorOpt,
+  logsFormatOpt,
+  updateNotifierOpt,
+  verboseOpt,
+} from '../global.opts.js';
 
 const THROTTLE_ELEMENTS = 2000;
 
@@ -75,80 +85,80 @@ export const accesslogsCommand = {
     format: logsFormatOpt,
     before: beforeOpt,
     after: afterOpt,
-    addon: addonIdOpt
+    addon: addonIdOpt,
   },
   args: [],
   async execute(params) {
     // TODO: drop when add-ons are supported in API
-      if (params.options.addon) {
-        throw new Error('Access Logs are not available for add-ons yet');
-      }
-    
-      const { apiHost, tokens } = await getHostAndTokens();
-      const { alias, app: appIdOrName, format, before: until, after: since } = params.options;
-      const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
-    
-      const stream = new ApplicationAccessLogStream({
-        apiHost,
-        tokens,
-        ownerId,
-        appId,
-        since,
-        until,
-        throttleElements: THROTTLE_ELEMENTS,
-        throttlePerInMilliseconds: THROTTLE_PER_IN_MILLISECONDS,
+    if (params.options.addon) {
+      throw new Error('Access Logs are not available for add-ons yet');
+    }
+
+    const { apiHost, tokens } = await getHostAndTokens();
+    const { alias, app: appIdOrName, format, before: until, after: since } = params.options;
+    const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
+
+    const stream = new ApplicationAccessLogStream({
+      apiHost,
+      tokens,
+      ownerId,
+      appId,
+      since,
+      until,
+      throttleElements: THROTTLE_ELEMENTS,
+      throttlePerInMilliseconds: THROTTLE_PER_IN_MILLISECONDS,
+    });
+
+    if (format === 'human') {
+      Logger.println(styleText('yellow', '/!\\ This feature is in Beta testing phase'));
+    }
+
+    if (format === 'json' && !until) {
+      throw new Error('JSON format only works with a limiting parameter such as `before`');
+    }
+
+    // used for 'json' format
+    const jsonArray = new JsonArray();
+
+    stream
+      .on('open', () => {
+        Logger.debug(styleText('blue', `Logs stream (open) ${JSON.stringify({ appId })}`));
+        if (format === 'json') {
+          jsonArray.open();
+        }
+      })
+      .on('error', (event) => {
+        Logger.debug(styleText('red', `Logs stream (error) ${event.error.message}`));
+      })
+      .onLog((log) => {
+        switch (format) {
+          case 'json':
+            jsonArray.push(log);
+            break;
+          case 'json-stream':
+            Logger.printJson(log);
+            break;
+          case 'human':
+          default:
+            // when the connection is cut too early, or for TCP redirections, we don't have HTTP section
+            if (log.http == null) {
+              break;
+            }
+
+            Logger.println(formatHuman(log));
+            break;
+        }
       });
-    
-      if (format === 'human') {
-        Logger.println(styleText('yellow', '/!\\ This feature is in Beta testing phase'));
-      }
-    
-      if (format === 'json' && !until) {
-        throw new Error('JSON format only works with a limiting parameter such as `before`');
-      }
-    
-      // used for 'json' format
-      const jsonArray = new JsonArray();
-    
-      stream
-        .on('open', () => {
-          Logger.debug(styleText('blue', `Logs stream (open) ${JSON.stringify({ appId })}`));
-          if (format === 'json') {
-            jsonArray.open();
-          }
-        })
-        .on('error', (event) => {
-          Logger.debug(styleText('red', `Logs stream (error) ${event.error.message}`));
-        })
-        .onLog((log) => {
-          switch (format) {
-            case 'json':
-              jsonArray.push(log);
-              break;
-            case 'json-stream':
-              Logger.printJson(log);
-              break;
-            case 'human':
-            default:
-              // when the connection is cut too early, or for TCP redirections, we don't have HTTP section
-              if (log.http == null) {
-                break;
-              }
-    
-              Logger.println(formatHuman(log));
-              break;
-          }
-        });
-    
-      // Properly close the stream
-      process.once('SIGINT', (signal) => stream.close(signal));
-    
-      const closeReason = await stream.start();
-    
-      if (format === 'json') {
-        jsonArray.close();
-      }
-    
-      Logger.debug(`stream closed: ${closeReason?.type}`);
-  }
+
+    // Properly close the stream
+    process.once('SIGINT', (signal) => stream.close(signal));
+
+    const closeReason = await stream.start();
+
+    if (format === 'json') {
+      jsonArray.close();
+    }
+
+    Logger.debug(`stream closed: ${closeReason?.type}`);
+  },
 };

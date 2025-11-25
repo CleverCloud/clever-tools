@@ -1,13 +1,5 @@
-import { colorOpt, updateNotifierOpt, verboseOpt, humanJsonOutputFormatOpt } from '../global.opts.js';
-import {
-  operatorList,
-  operatorOpen,
-  operatorOpenLogs,
-  operatorOpenWebUi,
-  operatorPrint,
-  operatorReboot,
-  operatorRebuild,
-} from '../../lib/operator-commands.js';
+import { operatorList } from '../../lib/operator-commands.js';
+import { colorOpt, humanJsonOutputFormatOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
 
 export const matomoCommand = {
   name: 'matomo',
@@ -18,10 +10,10 @@ export const matomoCommand = {
     color: colorOpt,
     'update-notifier': updateNotifierOpt,
     verbose: verboseOpt,
-    format: humanJsonOutputFormatOpt
+    format: humanJsonOutputFormatOpt,
   },
   args: [],
   async execute(params) {
     await operatorList('addon-matomo', params.options.format);
-  }
+  },
 };

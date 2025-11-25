@@ -1,7 +1,7 @@
-import { colorOpt, updateNotifierOpt, verboseOpt, aliasOpt, appIdOrNameOpt } from '../global.opts.js';
 import * as Application from '../../models/application.js';
 import * as Domain from '../../models/domain.js';
 import { openBrowser } from '../../models/utils.js';
+import { aliasOpt, appIdOrNameOpt, colorOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
 
 export const openCommand = {
   name: 'open',
@@ -13,16 +13,16 @@ export const openCommand = {
     'update-notifier': updateNotifierOpt,
     verbose: verboseOpt,
     alias: aliasOpt,
-    app: appIdOrNameOpt
+    app: appIdOrNameOpt,
   },
   args: [],
   async execute(params) {
     const { alias, app: appIdOrName } = params.options;
-      const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
-    
-      const vhost = await Domain.getBest(appId, ownerId);
-      const url = 'https://' + vhost.fqdn;
-    
-      await openBrowser(url, 'Opening the application in your browser');
-  }
+    const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
+
+    const vhost = await Domain.getBest(appId, ownerId);
+    const url = 'https://' + vhost.fqdn;
+
+    await openBrowser(url, 'Opening the application in your browser');
+  },
 };

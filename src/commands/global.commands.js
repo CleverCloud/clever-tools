@@ -45,8 +45,8 @@ import { emailsPrimaryCommand } from './emails/emails.primary.command.js';
 import { emailsRemoveAllCommand } from './emails/emails.remove-all.command.js';
 import { emailsRemoveCommand } from './emails/emails.remove.command.js';
 import { envCommand } from './env/env.command.js';
-import { envImportCommand } from './env/env.import.command.js';
 import { envImportVarsCommand } from './env/env.import-vars.command.js';
+import { envImportCommand } from './env/env.import.command.js';
 import { envRmCommand } from './env/env.rm.command.js';
 import { envSetCommand } from './env/env.set.command.js';
 import { featuresCommand } from './features/features.command.js';
@@ -59,8 +59,8 @@ import { k8sAddPersistentStorageCommand } from './k8s/k8s.add-persistent-storage
 import { k8sCommand } from './k8s/k8s.command.js';
 import { k8sCreateCommand } from './k8s/k8s.create.command.js';
 import { k8sDeleteCommand } from './k8s/k8s.delete.command.js';
-import { k8sGetCommand } from './k8s/k8s.get.command.js';
 import { k8sGetKubeconfigCommand } from './k8s/k8s.get-kubeconfig.command.js';
+import { k8sGetCommand } from './k8s/k8s.get.command.js';
 import { k8sListCommand } from './k8s/k8s.list.command.js';
 import { keycloakCommand } from './keycloak/keycloak.command.js';
 import { keycloakDisableNgCommand } from './keycloak/keycloak.disable-ng.command.js';
@@ -102,8 +102,8 @@ import { ngCreateCommand } from './ng/ng.create.command.js';
 import { ngCreateExternalCommand } from './ng/ng.create.external.command.js';
 import { ngDeleteCommand } from './ng/ng.delete.command.js';
 import { ngDeleteExternalCommand } from './ng/ng.delete.external.command.js';
-import { ngGetCommand } from './ng/ng.get.command.js';
 import { ngGetConfigCommand } from './ng/ng.get-config.command.js';
+import { ngGetCommand } from './ng/ng.get.command.js';
 import { ngLinkCommand } from './ng/ng.link.command.js';
 import { ngSearchCommand } from './ng/ng.search.command.js';
 import { ngUnlinkCommand } from './ng/ng.unlink.command.js';
@@ -114,8 +114,8 @@ import { openCommand } from './open/open.command.js';
 import { otoroshiCommand } from './otoroshi/otoroshi.command.js';
 import { otoroshiDisableNgCommand } from './otoroshi/otoroshi.disable-ng.command.js';
 import { otoroshiEnableNgCommand } from './otoroshi/otoroshi.enable-ng.command.js';
-import { otoroshiGetCommand } from './otoroshi/otoroshi.get.command.js';
 import { otoroshiGetConfigCommand } from './otoroshi/otoroshi.get-config.command.js';
+import { otoroshiGetCommand } from './otoroshi/otoroshi.get.command.js';
 import { otoroshiOpenCommand } from './otoroshi/otoroshi.open.command.js';
 import { otoroshiOpenLogsCommand } from './otoroshi/otoroshi.open.logs.command.js';
 import { otoroshiOpenWebuiCommand } from './otoroshi/otoroshi.open.webui.command.js';
@@ -137,12 +137,12 @@ import { serviceLinkAddonCommand } from './service/service.link-addon.command.js
 import { serviceLinkAppCommand } from './service/service.link-app.command.js';
 import { serviceUnlinkAddonCommand } from './service/service.unlink-addon.command.js';
 import { serviceUnlinkAppCommand } from './service/service.unlink-app.command.js';
-import { sshCommand } from './ssh/ssh.command.js';
 import { sshKeysAddCommand } from './ssh-keys/ssh-keys.add.command.js';
 import { sshKeysCommand } from './ssh-keys/ssh-keys.command.js';
 import { sshKeysOpenCommand } from './ssh-keys/ssh-keys.open.command.js';
 import { sshKeysRemoveAllCommand } from './ssh-keys/ssh-keys.remove-all.command.js';
 import { sshKeysRemoveCommand } from './ssh-keys/ssh-keys.remove.command.js';
+import { sshCommand } from './ssh/ssh.command.js';
 import { statusCommand } from './status/status.command.js';
 import { stopCommand } from './stop/stop.command.js';
 import { tcpRedirsAddCommand } from './tcp-redirs/tcp-redirs.add.command.js';
@@ -161,196 +161,301 @@ import { webhooksRemoveCommand } from './webhooks/webhooks.remove.command.js';
 export const globalCommands = {
   accesslogs: accesslogsCommand,
   activity: activityCommand,
-  addon: [addonCommand, {
-    create: addonCreateCommand,
-    delete: addonDeleteCommand,
-    env: addonEnvCommand,
-    list: addonListCommand,
-    providers: [addonProvidersCommand, {
-      show: addonProvidersShowCommand
-    }],
-    rename: addonRenameCommand
-  }],
-  applications: [applicationsCommand, {
-    list: applicationsListCommand
-  }],
+  addon: [
+    addonCommand,
+    {
+      create: addonCreateCommand,
+      delete: addonDeleteCommand,
+      env: addonEnvCommand,
+      list: addonListCommand,
+      providers: [
+        addonProvidersCommand,
+        {
+          show: addonProvidersShowCommand,
+        },
+      ],
+      rename: addonRenameCommand,
+    },
+  ],
+  applications: [
+    applicationsCommand,
+    {
+      list: applicationsListCommand,
+    },
+  ],
   'cancel-deploy': cancelDeployCommand,
-  config: [configCommand, {
-    get: configGetCommand,
-    set: configSetCommand,
-    update: configUpdateCommand
-  }],
+  config: [
+    configCommand,
+    {
+      get: configGetCommand,
+      set: configSetCommand,
+      update: configUpdateCommand,
+    },
+  ],
   console: consoleCommand,
   create: createCommand,
   curl: curlCommand,
-  database: [databaseCommand, {
-    backups: [databaseBackupsCommand, {
-      download: databaseBackupsDownloadCommand
-    }]
-  }],
+  database: [
+    databaseCommand,
+    {
+      backups: [
+        databaseBackupsCommand,
+        {
+          download: databaseBackupsDownloadCommand,
+        },
+      ],
+    },
+  ],
   delete: deleteCommand,
   deploy: deployCommand,
   diag: diagCommand,
-  domain: [domainCommand, {
-    add: domainAddCommand,
-    diag: domainDiagCommand,
-    favourite: [domainFavouriteCommand, {
-      set: domainFavouriteSetCommand,
-      unset: domainFavouriteUnsetCommand
-    }],
-    overview: domainOverviewCommand,
-    rm: domainRmCommand
-  }],
-  drain: [drainCommand, {
-    create: drainCreateCommand,
-    disable: drainDisableCommand,
-    enable: drainEnableCommand,
-    get: drainGetCommand,
-    remove: drainRemoveCommand
-  }],
-  emails: [emailsCommand, {
-    add: emailsAddCommand,
-    open: emailsOpenCommand,
-    primary: emailsPrimaryCommand,
-    remove: emailsRemoveCommand,
-    'remove-all': emailsRemoveAllCommand
-  }],
-  env: [envCommand, {
-    import: envImportCommand,
-    'import-vars': envImportVarsCommand,
-    rm: envRmCommand,
-    set: envSetCommand
-  }],
-  features: [featuresCommand, {
-    disable: featuresDisableCommand,
-    enable: featuresEnableCommand,
-    info: featuresInfoCommand,
-    list: featuresListCommand
-  }],
+  domain: [
+    domainCommand,
+    {
+      add: domainAddCommand,
+      diag: domainDiagCommand,
+      favourite: [
+        domainFavouriteCommand,
+        {
+          set: domainFavouriteSetCommand,
+          unset: domainFavouriteUnsetCommand,
+        },
+      ],
+      overview: domainOverviewCommand,
+      rm: domainRmCommand,
+    },
+  ],
+  drain: [
+    drainCommand,
+    {
+      create: drainCreateCommand,
+      disable: drainDisableCommand,
+      enable: drainEnableCommand,
+      get: drainGetCommand,
+      remove: drainRemoveCommand,
+    },
+  ],
+  emails: [
+    emailsCommand,
+    {
+      add: emailsAddCommand,
+      open: emailsOpenCommand,
+      primary: emailsPrimaryCommand,
+      remove: emailsRemoveCommand,
+      'remove-all': emailsRemoveAllCommand,
+    },
+  ],
+  env: [
+    envCommand,
+    {
+      import: envImportCommand,
+      'import-vars': envImportVarsCommand,
+      rm: envRmCommand,
+      set: envSetCommand,
+    },
+  ],
+  features: [
+    featuresCommand,
+    {
+      disable: featuresDisableCommand,
+      enable: featuresEnableCommand,
+      info: featuresInfoCommand,
+      list: featuresListCommand,
+    },
+  ],
   help: helpCommand,
-  k8s: [k8sCommand, {
-    'add-persistent-storage': k8sAddPersistentStorageCommand,
-    create: k8sCreateCommand,
-    delete: k8sDeleteCommand,
-    get: k8sGetCommand,
-    'get-kubeconfig': k8sGetKubeconfigCommand,
-    list: k8sListCommand
-  }],
-  keycloak: [keycloakCommand, {
-    'disable-ng': keycloakDisableNgCommand,
-    'enable-ng': keycloakEnableNgCommand,
-    get: keycloakGetCommand,
-    open: [keycloakOpenCommand, {
-      logs: keycloakOpenLogsCommand,
-      webui: keycloakOpenWebuiCommand
-    }],
-    rebuild: keycloakRebuildCommand,
-    restart: keycloakRestartCommand,
-    version: [keycloakVersionCommand, {
-      check: keycloakVersionCheckCommand,
-      update: keycloakVersionUpdateCommand
-    }]
-  }],
+  k8s: [
+    k8sCommand,
+    {
+      'add-persistent-storage': k8sAddPersistentStorageCommand,
+      create: k8sCreateCommand,
+      delete: k8sDeleteCommand,
+      get: k8sGetCommand,
+      'get-kubeconfig': k8sGetKubeconfigCommand,
+      list: k8sListCommand,
+    },
+  ],
+  keycloak: [
+    keycloakCommand,
+    {
+      'disable-ng': keycloakDisableNgCommand,
+      'enable-ng': keycloakEnableNgCommand,
+      get: keycloakGetCommand,
+      open: [
+        keycloakOpenCommand,
+        {
+          logs: keycloakOpenLogsCommand,
+          webui: keycloakOpenWebuiCommand,
+        },
+      ],
+      rebuild: keycloakRebuildCommand,
+      restart: keycloakRestartCommand,
+      version: [
+        keycloakVersionCommand,
+        {
+          check: keycloakVersionCheckCommand,
+          update: keycloakVersionUpdateCommand,
+        },
+      ],
+    },
+  ],
   kv: kvCommand,
   link: linkCommand,
   login: loginCommand,
   logout: logoutCommand,
   logs: logsCommand,
   'make-default': makeDefaultCommand,
-  matomo: [matomoCommand, {
-    get: matomoGetCommand,
-    open: [matomoOpenCommand, {
-      logs: matomoOpenLogsCommand,
-      webui: matomoOpenWebuiCommand
-    }],
-    rebuild: matomoRebuildCommand,
-    restart: matomoRestartCommand
-  }],
-  metabase: [metabaseCommand, {
-    get: metabaseGetCommand,
-    open: [metabaseOpenCommand, {
-      logs: metabaseOpenLogsCommand,
-      webui: metabaseOpenWebuiCommand
-    }],
-    rebuild: metabaseRebuildCommand,
-    restart: metabaseRestartCommand,
-    version: [metabaseVersionCommand, {
-      check: metabaseVersionCheckCommand,
-      update: metabaseVersionUpdateCommand
-    }]
-  }],
-  ng: [ngCommand, {
-    create: [ngCreateCommand, {
-      external: ngCreateExternalCommand
-    }],
-    delete: [ngDeleteCommand, {
-      external: ngDeleteExternalCommand
-    }],
-    get: ngGetCommand,
-    'get-config': ngGetConfigCommand,
-    link: ngLinkCommand,
-    search: ngSearchCommand,
-    unlink: ngUnlinkCommand
-  }],
-  'notify-email': [notifyEmailCommand, {
-    add: notifyEmailAddCommand,
-    remove: notifyEmailRemoveCommand
-  }],
+  matomo: [
+    matomoCommand,
+    {
+      get: matomoGetCommand,
+      open: [
+        matomoOpenCommand,
+        {
+          logs: matomoOpenLogsCommand,
+          webui: matomoOpenWebuiCommand,
+        },
+      ],
+      rebuild: matomoRebuildCommand,
+      restart: matomoRestartCommand,
+    },
+  ],
+  metabase: [
+    metabaseCommand,
+    {
+      get: metabaseGetCommand,
+      open: [
+        metabaseOpenCommand,
+        {
+          logs: metabaseOpenLogsCommand,
+          webui: metabaseOpenWebuiCommand,
+        },
+      ],
+      rebuild: metabaseRebuildCommand,
+      restart: metabaseRestartCommand,
+      version: [
+        metabaseVersionCommand,
+        {
+          check: metabaseVersionCheckCommand,
+          update: metabaseVersionUpdateCommand,
+        },
+      ],
+    },
+  ],
+  ng: [
+    ngCommand,
+    {
+      create: [
+        ngCreateCommand,
+        {
+          external: ngCreateExternalCommand,
+        },
+      ],
+      delete: [
+        ngDeleteCommand,
+        {
+          external: ngDeleteExternalCommand,
+        },
+      ],
+      get: ngGetCommand,
+      'get-config': ngGetConfigCommand,
+      link: ngLinkCommand,
+      search: ngSearchCommand,
+      unlink: ngUnlinkCommand,
+    },
+  ],
+  'notify-email': [
+    notifyEmailCommand,
+    {
+      add: notifyEmailAddCommand,
+      remove: notifyEmailRemoveCommand,
+    },
+  ],
   open: openCommand,
-  otoroshi: [otoroshiCommand, {
-    'disable-ng': otoroshiDisableNgCommand,
-    'enable-ng': otoroshiEnableNgCommand,
-    get: otoroshiGetCommand,
-    'get-config': otoroshiGetConfigCommand,
-    open: [otoroshiOpenCommand, {
-      logs: otoroshiOpenLogsCommand,
-      webui: otoroshiOpenWebuiCommand
-    }],
-    rebuild: otoroshiRebuildCommand,
-    restart: otoroshiRestartCommand,
-    version: [otoroshiVersionCommand, {
-      check: otoroshiVersionCheckCommand,
-      update: otoroshiVersionUpdateCommand
-    }]
-  }],
-  profile: [profileCommand, {
-    open: profileOpenCommand
-  }],
-  'published-config': [publishedConfigCommand, {
-    import: publishedConfigImportCommand,
-    rm: publishedConfigRmCommand,
-    set: publishedConfigSetCommand
-  }],
+  otoroshi: [
+    otoroshiCommand,
+    {
+      'disable-ng': otoroshiDisableNgCommand,
+      'enable-ng': otoroshiEnableNgCommand,
+      get: otoroshiGetCommand,
+      'get-config': otoroshiGetConfigCommand,
+      open: [
+        otoroshiOpenCommand,
+        {
+          logs: otoroshiOpenLogsCommand,
+          webui: otoroshiOpenWebuiCommand,
+        },
+      ],
+      rebuild: otoroshiRebuildCommand,
+      restart: otoroshiRestartCommand,
+      version: [
+        otoroshiVersionCommand,
+        {
+          check: otoroshiVersionCheckCommand,
+          update: otoroshiVersionUpdateCommand,
+        },
+      ],
+    },
+  ],
+  profile: [
+    profileCommand,
+    {
+      open: profileOpenCommand,
+    },
+  ],
+  'published-config': [
+    publishedConfigCommand,
+    {
+      import: publishedConfigImportCommand,
+      rm: publishedConfigRmCommand,
+      set: publishedConfigSetCommand,
+    },
+  ],
   restart: restartCommand,
   scale: scaleCommand,
-  service: [serviceCommand, {
-    'link-addon': serviceLinkAddonCommand,
-    'link-app': serviceLinkAppCommand,
-    'unlink-addon': serviceUnlinkAddonCommand,
-    'unlink-app': serviceUnlinkAppCommand
-  }],
+  service: [
+    serviceCommand,
+    {
+      'link-addon': serviceLinkAddonCommand,
+      'link-app': serviceLinkAppCommand,
+      'unlink-addon': serviceUnlinkAddonCommand,
+      'unlink-app': serviceUnlinkAppCommand,
+    },
+  ],
   ssh: sshCommand,
-  'ssh-keys': [sshKeysCommand, {
-    add: sshKeysAddCommand,
-    open: sshKeysOpenCommand,
-    remove: sshKeysRemoveCommand,
-    'remove-all': sshKeysRemoveAllCommand
-  }],
+  'ssh-keys': [
+    sshKeysCommand,
+    {
+      add: sshKeysAddCommand,
+      open: sshKeysOpenCommand,
+      remove: sshKeysRemoveCommand,
+      'remove-all': sshKeysRemoveAllCommand,
+    },
+  ],
   status: statusCommand,
   stop: stopCommand,
-  'tcp-redirs': [tcpRedirsCommand, {
-    add: tcpRedirsAddCommand,
-    'list-namespaces': tcpRedirsListNamespacesCommand,
-    remove: tcpRedirsRemoveCommand
-  }],
-  tokens: [tokensCommand, {
-    create: tokensCreateCommand,
-    revoke: tokensRevokeCommand
-  }],
+  'tcp-redirs': [
+    tcpRedirsCommand,
+    {
+      add: tcpRedirsAddCommand,
+      'list-namespaces': tcpRedirsListNamespacesCommand,
+      remove: tcpRedirsRemoveCommand,
+    },
+  ],
+  tokens: [
+    tokensCommand,
+    {
+      create: tokensCreateCommand,
+      revoke: tokensRevokeCommand,
+    },
+  ],
   unlink: unlinkCommand,
   version: versionCommand,
-  webhooks: [webhooksCommand, {
-    add: webhooksAddCommand,
-    remove: webhooksRemoveCommand
-  }]
+  webhooks: [
+    webhooksCommand,
+    {
+      add: webhooksAddCommand,
+      remove: webhooksRemoveCommand,
+    },
+  ],
 };

@@ -1,11 +1,7 @@
+import { printResults } from '../../lib/ng-print.js';
+import { colorOpt, humanJsonOutputFormatOpt, orgaIdOrNameOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
 import { ngAnyIdOrLabelArg } from './ng.args.js';
 import { ngResourceTypeOpt } from './ng.opts.js';
-import { colorOpt, updateNotifierOpt, verboseOpt, orgaIdOrNameOpt, humanJsonOutputFormatOpt } from '../global.opts.js';
-import { printResults } from '../../lib/ng-print.js';
-import { styleText } from '../../lib/style-text.js';
-import { Logger } from '../../logger.js';
-import * as networkGroupResources from '../../models/ng-resources.js';
-import * as networkGroup from '../../models/ng.js';
 
 export const ngSearchCommand = {
   name: 'search',
@@ -18,16 +14,14 @@ export const ngSearchCommand = {
     'update-notifier': updateNotifierOpt,
     verbose: verboseOpt,
     org: orgaIdOrNameOpt,
-    format: humanJsonOutputFormatOpt
+    format: humanJsonOutputFormatOpt,
   },
-  args: [
-    ngAnyIdOrLabelArg,
-  ],
+  args: [ngAnyIdOrLabelArg],
   async execute(params) {
     const [idOrLabel] = params.args;
-      const { org, format } = params.options;
-      const type = params.options.type;
-    
-      await printResults(idOrLabel, org, format, 'search', type);
-  }
+    const { org, format } = params.options;
+    const type = params.options.type;
+
+    await printResults(idOrLabel, org, format, 'search', type);
+  },
 };

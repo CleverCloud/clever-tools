@@ -1,4 +1,3 @@
-import { colorOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
 import crypto from 'node:crypto';
 import { setTimeout as delay } from 'node:timers/promises';
 import open from 'open';
@@ -7,6 +6,7 @@ import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
 import { conf, writeOAuthConf } from '../../models/configuration.js';
 import * as User from '../../models/user.js';
+import { colorOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
 
 function randomToken() {
   return crypto.randomBytes(20).toString('base64').replace(/\//g, '-').replace(/\+/g, '_').replace(/=/g, '');
@@ -71,7 +71,7 @@ export const loginCommand = {
       default: null,
       required: null,
       parser: null,
-      complete: null
+      complete: null,
     },
     secret: {
       name: 'secret',
@@ -82,30 +82,30 @@ export const loginCommand = {
       default: null,
       required: null,
       parser: null,
-      complete: null
+      complete: null,
     },
     color: colorOpt,
     'update-notifier': updateNotifierOpt,
-    verbose: verboseOpt
+    verbose: verboseOpt,
   },
   args: [],
   async execute(params) {
     const { token, secret } = params.options;
-      const isLoginWithArgs = token != null && secret != null;
-      const isInteractiveLogin = token == null && secret == null;
-    
-      if (isLoginWithArgs) {
-        return writeOAuthConf({ token, secret });
-      }
-    
-      if (isInteractiveLogin) {
-        const oauthData = await loginViaConsole();
-        await writeOAuthConf(oauthData);
-        const { name, email } = await User.getCurrent();
-        const formattedName = name || styleText(['red', 'bold'], '[unspecified name]');
-        return Logger.println(`Login successful as ${formattedName} <${email}>`);
-      }
-    
-      throw new Error('Both `--token` and `--secret` have to be defined');
-  }
+    const isLoginWithArgs = token != null && secret != null;
+    const isInteractiveLogin = token == null && secret == null;
+
+    if (isLoginWithArgs) {
+      return writeOAuthConf({ token, secret });
+    }
+
+    if (isInteractiveLogin) {
+      const oauthData = await loginViaConsole();
+      await writeOAuthConf(oauthData);
+      const { name, email } = await User.getCurrent();
+      const formattedName = name || styleText(['red', 'bold'], '[unspecified name]');
+      return Logger.println(`Login successful as ${formattedName} <${email}>`);
+    }
+
+    throw new Error('Both `--token` and `--secret` have to be defined');
+  },
 };

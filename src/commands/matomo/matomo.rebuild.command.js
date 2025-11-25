@@ -1,14 +1,6 @@
+import { operatorRebuild } from '../../lib/operator-commands.js';
 import { addonIdOrNameArg } from '../global.args.js';
 import { colorOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
-import {
-  operatorList,
-  operatorOpen,
-  operatorOpenLogs,
-  operatorOpenWebUi,
-  operatorPrint,
-  operatorReboot,
-  operatorRebuild,
-} from '../../lib/operator-commands.js';
 
 export const matomoRebuildCommand = {
   name: 'rebuild',
@@ -18,13 +10,11 @@ export const matomoRebuildCommand = {
   opts: {
     color: colorOpt,
     'update-notifier': updateNotifierOpt,
-    verbose: verboseOpt
+    verbose: verboseOpt,
   },
-  args: [
-    addonIdOrNameArg,
-  ],
+  args: [addonIdOrNameArg],
   async execute(params) {
     const [addonIdOrName] = params.args;
-      await operatorRebuild('matomo', addonIdOrName);
-  }
+    await operatorRebuild('matomo', addonIdOrName);
+  },
 };

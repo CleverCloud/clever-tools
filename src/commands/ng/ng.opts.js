@@ -9,6 +9,5 @@ export const ngResourceTypeOpt = {
   default: null,
   required: null,
   parser: ngValidTypeParser,
-  complete: null
+  complete: null,
 };
-

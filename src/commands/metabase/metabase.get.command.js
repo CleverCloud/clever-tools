@@ -1,16 +1,6 @@
+import { operatorPrint } from '../../lib/operator-commands.js';
 import { addonIdOrNameArg } from '../global.args.js';
-import { colorOpt, updateNotifierOpt, verboseOpt, humanJsonOutputFormatOpt } from '../global.opts.js';
-import {
-  operatorCheckVersion,
-  operatorList,
-  operatorOpen,
-  operatorOpenLogs,
-  operatorOpenWebUi,
-  operatorPrint,
-  operatorReboot,
-  operatorRebuild,
-  operatorUpdateVersion,
-} from '../../lib/operator-commands.js';
+import { colorOpt, humanJsonOutputFormatOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
 
 export const metabaseGetCommand = {
   name: 'get',
@@ -21,14 +11,12 @@ export const metabaseGetCommand = {
     color: colorOpt,
     'update-notifier': updateNotifierOpt,
     verbose: verboseOpt,
-    format: humanJsonOutputFormatOpt
+    format: humanJsonOutputFormatOpt,
   },
-  args: [
-    addonIdOrNameArg,
-  ],
+  args: [addonIdOrNameArg],
   async execute(params) {
     const [addonIdOrName] = params.args;
-      const { format } = params.options;
-      await operatorPrint('metabase', addonIdOrName, format);
-  }
+    const { format } = params.options;
+    await operatorPrint('metabase', addonIdOrName, format);
+  },
 };

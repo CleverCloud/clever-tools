@@ -1,4 +1,3 @@
-import { colorOpt, updateNotifierOpt, verboseOpt, aliasOpt, quietOpt, followDeployLogsOpt, exitOnDeployOpt } from '../global.opts.js';
 import { getAllDeployments } from '@clevercloud/client/esm/api/v2/application.js';
 import dedent from 'dedent';
 import { styleText } from '../../lib/style-text.js';
@@ -9,6 +8,15 @@ import * as ExitStrategy from '../../models/exit-strategy-option.js';
 import * as git from '../../models/git.js';
 import * as Log from '../../models/log-v4.js';
 import { sendToApi } from '../../models/send-to-api.js';
+import {
+  aliasOpt,
+  colorOpt,
+  exitOnDeployOpt,
+  followDeployLogsOpt,
+  quietOpt,
+  updateNotifierOpt,
+  verboseOpt,
+} from '../global.opts.js';
 
 async function restartOnSameCommit(ownerId, appId, commitIdToPush, quiet, withoutCache, exitStrategy) {
   const cacheSuffix = withoutCache ? ' without using cache' : '';
@@ -47,7 +55,7 @@ export const deployCommand = {
       default: '',
       required: null,
       parser: null,
-      complete: 'git.completeBranches()'
+      complete: 'git.completeBranches()',
     },
     tag: {
       name: 'tag',
@@ -58,18 +66,18 @@ export const deployCommand = {
       default: '',
       required: null,
       parser: null,
-      complete: null
+      complete: null,
     },
     force: {
       name: 'force',
-      description: 'Force deploy even if it\'s not fast-forwardable',
+      description: "Force deploy even if it's not fast-forwardable",
       type: 'flag',
       metavar: null,
       aliases: ['f'],
       default: null,
       required: null,
       parser: null,
-      complete: null
+      complete: null,
     },
     'same-commit-policy': {
       name: 'same-commit-policy',
@@ -80,7 +88,7 @@ export const deployCommand = {
       default: 'error',
       required: null,
       parser: null,
-      complete: null
+      complete: null,
     },
     color: colorOpt,
     'update-notifier': updateNotifierOpt,
@@ -88,105 +96,105 @@ export const deployCommand = {
     alias: aliasOpt,
     quiet: quietOpt,
     follow: followDeployLogsOpt,
-    'exit-on': exitOnDeployOpt
+    'exit-on': exitOnDeployOpt,
   },
   args: [],
   async execute(params) {
     const {
-        alias,
-        branch: branchName,
-        tag: tagName,
-        quiet,
-        force,
-        follow,
-        'same-commit-policy': sameCommitPolicy,
-        'exit-on': exitOnDeploy,
-      } = params.options;
-    
-      const exitStrategy = ExitStrategy.get(follow, exitOnDeploy);
-    
-      const appData = await AppConfig.getAppDetails({ alias });
-      const { ownerId, appId } = appData;
-    
-      const branchRefspec = await getBranchToDeploy(branchName, tagName);
-      const commitIdToPush = await git.getBranchCommit(branchRefspec);
-      const remoteHeadCommitId = await git.getRemoteCommit(appData.deployUrl);
-      const deployedCommitId = await Application.get(ownerId, appId).then(({ commitId }) => commitId);
-    
-      await git.addRemote(appData.alias, appData.deployUrl);
-    
-      if (commitIdToPush === remoteHeadCommitId) {
-        switch (sameCommitPolicy) {
-          case 'ignore':
-            Logger.printSuccess(`The application is up-to-date (${styleText('grey', remoteHeadCommitId)})`);
-            return;
-          case 'restart':
-            return restartOnSameCommit(ownerId, appId, commitIdToPush, quiet, false, exitStrategy);
-          case 'rebuild':
-            return restartOnSameCommit(ownerId, appId, commitIdToPush, quiet, true, exitStrategy);
-          case 'error':
-          default: {
-            const restartCommand =
-              commitIdToPush !== deployedCommitId ? `clever restart --commit ${commitIdToPush}` : 'clever restart';
-            throw new Error(dedent`
+      alias,
+      branch: branchName,
+      tag: tagName,
+      quiet,
+      force,
+      follow,
+      'same-commit-policy': sameCommitPolicy,
+      'exit-on': exitOnDeploy,
+    } = params.options;
+
+    const exitStrategy = ExitStrategy.get(follow, exitOnDeploy);
+
+    const appData = await AppConfig.getAppDetails({ alias });
+    const { ownerId, appId } = appData;
+
+    const branchRefspec = await getBranchToDeploy(branchName, tagName);
+    const commitIdToPush = await git.getBranchCommit(branchRefspec);
+    const remoteHeadCommitId = await git.getRemoteCommit(appData.deployUrl);
+    const deployedCommitId = await Application.get(ownerId, appId).then(({ commitId }) => commitId);
+
+    await git.addRemote(appData.alias, appData.deployUrl);
+
+    if (commitIdToPush === remoteHeadCommitId) {
+      switch (sameCommitPolicy) {
+        case 'ignore':
+          Logger.printSuccess(`The application is up-to-date (${styleText('grey', remoteHeadCommitId)})`);
+          return;
+        case 'restart':
+          return restartOnSameCommit(ownerId, appId, commitIdToPush, quiet, false, exitStrategy);
+        case 'rebuild':
+          return restartOnSameCommit(ownerId, appId, commitIdToPush, quiet, true, exitStrategy);
+        case 'error':
+        default: {
+          const restartCommand =
+            commitIdToPush !== deployedCommitId ? `clever restart --commit ${commitIdToPush}` : 'clever restart';
+          throw new Error(dedent`
               Remote HEAD has the same commit as the one to push ${styleText('grey', `(${remoteHeadCommitId})`)}, your application is up-to-date.
               Create a new commit, use ${styleText('blue', restartCommand)} or the ${styleText('blue', '--same-commit-policy')} option.
             `);
-          }
         }
       }
-    
-      // It's sometimes tricky to figure out the deployment ID for the current git push.
-      // We on have the commit ID but there in a situation where the last deployment was cancelled, it may have the same commit ID.
-      // So before pushing, we get the last deployments so we can after the push figure out which deployment is new…
-      const knownDeployments = await getAllDeployments({ id: ownerId, appId, limit: 5 }).then(sendToApi);
-    
-      Logger.println(dedent`
+    }
+
+    // It's sometimes tricky to figure out the deployment ID for the current git push.
+    // We on have the commit ID but there in a situation where the last deployment was cancelled, it may have the same commit ID.
+    // So before pushing, we get the last deployments so we can after the push figure out which deployment is new…
+    const knownDeployments = await getAllDeployments({ id: ownerId, appId, limit: 5 }).then(sendToApi);
+
+    Logger.println(dedent`
         ${styleText('bold', `🚀 Deploying ${styleText('green', appData.name)}`)}
            Application ID  ${styleText('grey', `${appId}`)}
            Organisation ID ${styleText('grey', `${ownerId}`)}
       `);
-    
-      Logger.println();
-    
-      Logger.println(styleText('bold', '🔀 Git information'));
-      if (remoteHeadCommitId == null || deployedCommitId == null) {
-        Logger.println(`   ${styleText('yellow', '!')} App is brand new, no commits on remote yet`);
-      } else {
-        Logger.println(`   Remote head     ${styleText('yellow', remoteHeadCommitId)} (${branchRefspec})`);
-        Logger.println(`   Deployed commit ${styleText('yellow', deployedCommitId)}`);
-      }
-      Logger.println(
-        `   Local commit    ${styleText('yellow', commitIdToPush)} ${styleText('blue', '[will be deployed]')}`,
-      );
-    
-      Logger.println();
-    
-      Logger.println(dedent`
+
+    Logger.println();
+
+    Logger.println(styleText('bold', '🔀 Git information'));
+    if (remoteHeadCommitId == null || deployedCommitId == null) {
+      Logger.println(`   ${styleText('yellow', '!')} App is brand new, no commits on remote yet`);
+    } else {
+      Logger.println(`   Remote head     ${styleText('yellow', remoteHeadCommitId)} (${branchRefspec})`);
+      Logger.println(`   Deployed commit ${styleText('yellow', deployedCommitId)}`);
+    }
+    Logger.println(
+      `   Local commit    ${styleText('yellow', commitIdToPush)} ${styleText('blue', '[will be deployed]')}`,
+    );
+
+    Logger.println();
+
+    Logger.println(dedent`
         ${styleText('bold', '🔄 Deployment progress')}
            ${styleText('blue', '→ Pushing source code to Clever Cloud…')}
       `);
-    
-      await git.push(appData.deployUrl, commitIdToPush, force).catch(async (e) => {
-        const isShallow = await git.isShallow();
-        if (isShallow) {
-          throw new Error(
-            'Failed to push your source code because your repository is shallow and therefore cannot be pushed to the Clever Cloud remote.',
-          );
-        } else {
-          throw e;
-        }
-      });
-    
-      await Logger.println(`   ${styleText('green', '✓ Code pushed to Clever Cloud')}`);
-    
-      return Log.watchDeploymentAndDisplayLogs({
-        ownerId,
-        appId,
-        commitId: commitIdToPush,
-        knownDeployments,
-        quiet,
-        exitStrategy,
-      });
-  }
+
+    await git.push(appData.deployUrl, commitIdToPush, force).catch(async (e) => {
+      const isShallow = await git.isShallow();
+      if (isShallow) {
+        throw new Error(
+          'Failed to push your source code because your repository is shallow and therefore cannot be pushed to the Clever Cloud remote.',
+        );
+      } else {
+        throw e;
+      }
+    });
+
+    await Logger.println(`   ${styleText('green', '✓ Code pushed to Clever Cloud')}`);
+
+    return Log.watchDeploymentAndDisplayLogs({
+      ownerId,
+      appId,
+      commitId: commitIdToPush,
+      knownDeployments,
+      quiet,
+      exitStrategy,
+    });
+  },
 };

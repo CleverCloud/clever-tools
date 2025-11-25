@@ -1,17 +1,8 @@
-import { colorOpt, updateNotifierOpt, verboseOpt, orgaIdOrNameOpt } from '../global.opts.js';
 import { typewriterLogo } from '../../lib/ascii.js';
-import {
-  getK8sCluster,
-  isK8sClusterActive,
-  k8sAddPersistentStorage,
-  k8sCreate,
-  k8sDelete,
-  k8sGetConfig,
-  k8sList,
-} from '../../lib/k8s.js';
-import { confirm } from '../../lib/prompts.js';
+import { getK8sCluster, k8sCreate } from '../../lib/k8s.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
+import { colorOpt, orgaIdOrNameOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
 
 const DEPLOY_POLL_DELAY_MS = 10000;
 
@@ -30,73 +21,73 @@ export const k8sCreateCommand = {
       default: null,
       required: null,
       parser: null,
-      complete: null
+      complete: null,
     },
     color: colorOpt,
     'update-notifier': updateNotifierOpt,
     verbose: verboseOpt,
-    org: orgaIdOrNameOpt
+    org: orgaIdOrNameOpt,
   },
   args: [
     {
       name: 'cluster-name',
       description: 'Kubernetes cluster name',
       parser: null,
-      complete: null
+      complete: null,
     },
   ],
   async execute(params) {
     const clusterName = params.args[0];
-      const orgIdOrName = params.options.org;
-    
-      try {
-        const cluster = await k8sCreate(clusterName, orgIdOrName);
-    
-        if (params.options.watch) {
-          await typewriterLogo();
-    
-          let deployedCluster = cluster;
-          while (deployedCluster.status !== 'ACTIVE' && deployedCluster.status !== 'FAILED') {
-            Logger.println(
-              `⏳ Cluster status: ${styleText('yellow', deployedCluster.status)}. Waiting for ${DEPLOY_POLL_DELAY_MS / 1000}s before checking again...`,
-            );
-            await new Promise((resolve) => setTimeout(resolve, DEPLOY_POLL_DELAY_MS));
-    
-            deployedCluster = await getK8sCluster(orgIdOrName, cluster.id);
-          }
-    
-          Logger.println('');
-          switch (deployedCluster.status) {
-            case 'ACTIVE':
-              Logger.printSuccess(
-                `Cluster ${styleText('green', `${deployedCluster.name} (${deployedCluster.id})`)} deployed successfully`,
-              );
-              break;
-            case 'FAILED':
-              throw new Error(
-                `Cluster ${styleText('red', `${deployedCluster.name} (${deployedCluster.id})`)} deployment failed`,
-              );
-            default:
-              throw new Error(`Unexpected cluster status: ${deployedCluster.status}`);
-          }
-        } else {
-          Logger.println(`🚀 Cluster ${styleText('white', `${cluster.name} (${cluster.id})`)} is being deployed`);
-        }
-    
-        const orgMessageComplement = orgIdOrName ? `--org "${orgIdOrName.orga_id || orgIdOrName.orga_name}"` : '';
-    
-        Logger.println('');
-        Logger.println(
-          `You can get its information with ${styleText('blue', `clever k8s get ${cluster.id} ${orgMessageComplement}`)}`,
-        );
-      } catch (error) {
-        if (error.responseBody?.code === 'clever.core.quota-exceeded') {
-          throw new Error(
-            'Failed to create Kubernetes cluster: your quota exceeded, contact support to increase your quota',
+    const orgIdOrName = params.options.org;
+
+    try {
+      const cluster = await k8sCreate(clusterName, orgIdOrName);
+
+      if (params.options.watch) {
+        await typewriterLogo();
+
+        let deployedCluster = cluster;
+        while (deployedCluster.status !== 'ACTIVE' && deployedCluster.status !== 'FAILED') {
+          Logger.println(
+            `⏳ Cluster status: ${styleText('yellow', deployedCluster.status)}. Waiting for ${DEPLOY_POLL_DELAY_MS / 1000}s before checking again...`,
           );
-        } else {
-          throw new Error(error.message);
+          await new Promise((resolve) => setTimeout(resolve, DEPLOY_POLL_DELAY_MS));
+
+          deployedCluster = await getK8sCluster(orgIdOrName, cluster.id);
         }
+
+        Logger.println('');
+        switch (deployedCluster.status) {
+          case 'ACTIVE':
+            Logger.printSuccess(
+              `Cluster ${styleText('green', `${deployedCluster.name} (${deployedCluster.id})`)} deployed successfully`,
+            );
+            break;
+          case 'FAILED':
+            throw new Error(
+              `Cluster ${styleText('red', `${deployedCluster.name} (${deployedCluster.id})`)} deployment failed`,
+            );
+          default:
+            throw new Error(`Unexpected cluster status: ${deployedCluster.status}`);
+        }
+      } else {
+        Logger.println(`🚀 Cluster ${styleText('white', `${cluster.name} (${cluster.id})`)} is being deployed`);
       }
-  }
+
+      const orgMessageComplement = orgIdOrName ? `--org "${orgIdOrName.orga_id || orgIdOrName.orga_name}"` : '';
+
+      Logger.println('');
+      Logger.println(
+        `You can get its information with ${styleText('blue', `clever k8s get ${cluster.id} ${orgMessageComplement}`)}`,
+      );
+    } catch (error) {
+      if (error.responseBody?.code === 'clever.core.quota-exceeded') {
+        throw new Error(
+          'Failed to create Kubernetes cluster: your quota exceeded, contact support to increase your quota',
+        );
+      } else {
+        throw new Error(error.message);
+      }
+    }
+  },
 };

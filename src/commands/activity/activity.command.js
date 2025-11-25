@@ -1,12 +1,12 @@
-import { colorOpt, updateNotifierOpt, verboseOpt, aliasOpt, appIdOrNameOpt } from '../global.opts.js';
-import { styleText } from '../../lib/style-text.js';
 import { EventsStream } from '@clevercloud/client/esm/streams/events.js';
 import { formatTable } from '../../format-table.js';
+import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
 import * as Activity from '../../models/activity.js';
 import * as Application from '../../models/application.js';
 import { getHostAndTokens } from '../../models/send-to-api.js';
 import { Deferred } from '../../models/utils.js';
+import { aliasOpt, appIdOrNameOpt, colorOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
 
 const dtf = new Intl.DateTimeFormat('en', {
   year: 'numeric',
@@ -167,7 +167,7 @@ export const activityCommand = {
       default: null,
       required: null,
       parser: null,
-      complete: null
+      complete: null,
     },
     'show-all': {
       name: 'show-all',
@@ -178,7 +178,7 @@ export const activityCommand = {
       default: null,
       required: null,
       parser: null,
-      complete: null
+      complete: null,
     },
     format: {
       name: 'format',
@@ -189,53 +189,53 @@ export const activityCommand = {
       default: 'human',
       required: null,
       parser: null,
-      complete: null
+      complete: null,
     },
     color: colorOpt,
     'update-notifier': updateNotifierOpt,
     verbose: verboseOpt,
     alias: aliasOpt,
-    app: appIdOrNameOpt
+    app: appIdOrNameOpt,
   },
   args: [],
   async execute(params) {
     const { alias, app: appIdOrName, 'show-all': showAll, follow, format } = params.options;
-      const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
-      const events = await Activity.list(ownerId, appId, showAll);
-      const reversedArrayWithIndex = events.reverse().map((event, index, all) => {
-        const isLast = index === all.length - 1;
-        return { ...event, isLast };
-      });
-    
-      const handler = getEventHandler(format, follow);
-    
-      let lastEvent = reversedArrayWithIndex.reduce(
-        (previousEvent, newEvent) => handleEvent(previousEvent, newEvent, handler),
-        {},
-      );
-    
-      if (!follow) {
-        handler.end();
+    const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
+    const events = await Activity.list(ownerId, appId, showAll);
+    const reversedArrayWithIndex = events.reverse().map((event, index, all) => {
+      const isLast = index === all.length - 1;
+      return { ...event, isLast };
+    });
+
+    const handler = getEventHandler(format, follow);
+
+    let lastEvent = reversedArrayWithIndex.reduce(
+      (previousEvent, newEvent) => handleEvent(previousEvent, newEvent, handler),
+      {},
+    );
+
+    if (!follow) {
+      handler.end();
+      return lastEvent;
+    }
+
+    const { apiHost, tokens } = await getHostAndTokens();
+    const eventsStream = new EventsStream({ apiHost, tokens, appId });
+
+    const deferred = new Deferred();
+
+    eventsStream
+      .on('open', () => Logger.debug('WS for events (open) ' + JSON.stringify({ appId })))
+      .on('event', (event) => {
+        lastEvent = onEvent(lastEvent, event, handler);
         return lastEvent;
-      }
-    
-      const { apiHost, tokens } = await getHostAndTokens();
-      const eventsStream = new EventsStream({ apiHost, tokens, appId });
-    
-      const deferred = new Deferred();
-    
-      eventsStream
-        .on('open', () => Logger.debug('WS for events (open) ' + JSON.stringify({ appId })))
-        .on('event', (event) => {
-          lastEvent = onEvent(lastEvent, event, handler);
-          return lastEvent;
-        })
-        .on('ping', () => Logger.debug('WS for events (ping)'))
-        .on('close', ({ reason }) => Logger.debug('WS for events (close) ' + reason))
-        .on('error', deferred.reject);
-    
-      eventsStream.open({ autoRetry: true, maxRetryCount: 6 });
-    
-      return deferred.promise;
-  }
+      })
+      .on('ping', () => Logger.debug('WS for events (ping)'))
+      .on('close', ({ reason }) => Logger.debug('WS for events (close) ' + reason))
+      .on('error', deferred.reject);
+
+    eventsStream.open({ autoRetry: true, maxRetryCount: 6 });
+
+    return deferred.promise;
+  },
 };

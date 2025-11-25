@@ -1,10 +1,8 @@
-import { appIdOrNameArg } from '../global.args.js';
-import { onlyAppsOpt, onlyAddonsOpt, showAllOpt } from './service.opts.js';
-import { colorOpt, updateNotifierOpt, verboseOpt, aliasOpt, appIdOrNameOpt } from '../global.opts.js';
-import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
-import * as Addon from '../../models/addon.js';
 import * as Application from '../../models/application.js';
+import { appIdOrNameArg } from '../global.args.js';
+import { aliasOpt, appIdOrNameOpt, colorOpt, updateNotifierOpt, verboseOpt } from '../global.opts.js';
+import { onlyAddonsOpt, onlyAppsOpt, showAllOpt } from './service.opts.js';
 
 export const serviceUnlinkAppCommand = {
   name: 'unlink-app',
@@ -19,17 +17,15 @@ export const serviceUnlinkAppCommand = {
     'update-notifier': updateNotifierOpt,
     verbose: verboseOpt,
     alias: aliasOpt,
-    app: appIdOrNameOpt
+    app: appIdOrNameOpt,
   },
-  args: [
-    appIdOrNameArg,
-  ],
+  args: [appIdOrNameArg],
   async execute(params) {
     const { alias, app: appIdOrName } = params.options;
-      const [dependency] = params.args;
-      const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
-    
-      await Application.unlink(ownerId, appId, dependency);
-      Logger.println(`App ${dependency.app_id || dependency.app_name} successfully unlinked`);
-  }
+    const [dependency] = params.args;
+    const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
+
+    await Application.unlink(ownerId, appId, dependency);
+    Logger.println(`App ${dependency.app_id || dependency.app_name} successfully unlinked`);
+  },
 };

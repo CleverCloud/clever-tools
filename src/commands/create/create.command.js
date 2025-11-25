@@ -1,13 +1,20 @@
-import { colorOpt, updateNotifierOpt, verboseOpt, orgaIdOrNameOpt, aliasCreationOpt, humanJsonOutputFormatOpt } from '../global.opts.js';
-import { nonEmptyString as nonEmptyStringParser } from '../../parsers.js';
-import { listAvailableTypes, listAvailableZones } from '../../models/application.js';
 import path from 'node:path';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
 import * as AppConfig from '../../models/app_configuration.js';
 import * as Application from '../../models/application.js';
+import { listAvailableTypes, listAvailableZones } from '../../models/application.js';
 import { conf } from '../../models/configuration.js';
 import { isGitWorkingDirectoryClean, isInsideGitRepo } from '../../models/git.js';
+import { nonEmptyString as nonEmptyStringParser } from '../../parsers.js';
+import {
+  aliasCreationOpt,
+  colorOpt,
+  humanJsonOutputFormatOpt,
+  orgaIdOrNameOpt,
+  updateNotifierOpt,
+  verboseOpt,
+} from '../global.opts.js';
 
 function getGithubDetails(githubOwnerRepo) {
   if (githubOwnerRepo != null) {
@@ -103,7 +110,7 @@ export const createCommand = {
       default: null,
       required: true,
       parser: null,
-      complete: listAvailableTypes
+      complete: listAvailableTypes,
     },
     region: {
       name: 'region',
@@ -114,7 +121,7 @@ export const createCommand = {
       default: 'par',
       required: null,
       parser: null,
-      complete: listAvailableZones
+      complete: listAvailableZones,
     },
     github: {
       name: 'github',
@@ -125,7 +132,7 @@ export const createCommand = {
       default: null,
       required: null,
       parser: null,
-      complete: null
+      complete: null,
     },
     task: {
       name: 'task',
@@ -136,56 +143,56 @@ export const createCommand = {
       default: null,
       required: null,
       parser: nonEmptyStringParser,
-      complete: null
+      complete: null,
     },
     color: colorOpt,
     'update-notifier': updateNotifierOpt,
     verbose: verboseOpt,
     org: orgaIdOrNameOpt,
     alias: aliasCreationOpt,
-    format: humanJsonOutputFormatOpt
+    format: humanJsonOutputFormatOpt,
   },
   args: [
     {
       name: 'app-name',
       description: 'Application name (optional, current directory name is used if not specified)',
       parser: null,
-      complete: null
+      complete: null,
     },
   ],
   async execute(params) {
     const { type: typeName } = params.options;
-      const [rawName] = params.args;
-      const { org: orgaIdOrName, alias, region, github: githubOwnerRepo, format, task: taskCommand } = params.options;
-      const { apps } = await AppConfig.loadApplicationConf();
-    
-      // Application name is optionnal, use current directory name if not specified (empty string)
-      const name = rawName !== '' ? rawName : getCurrentDirectoryName();
-    
-      const isTask = taskCommand != null;
-      const envVars = isTask ? { CC_RUN_COMMAND: taskCommand } : {};
-    
-      AppConfig.checkAlreadyLinked(apps, name, alias);
-    
-      const github = getGithubDetails(githubOwnerRepo);
-      const app = await Application.create(name, typeName, region, orgaIdOrName, github, isTask, envVars);
-      await AppConfig.addLinkedApplication(app, alias);
-    
-      switch (format) {
-        case 'json': {
-          Logger.printJson({
-            id: app.id,
-            name: app.name,
-            executedAs: app.instance.lifetime,
-            env: app.env,
-            deployUrl: app.deployUrl,
-          });
-          break;
-        }
-    
-        case 'human':
-        default:
-          await displayAppCreation(app, alias, github, taskCommand);
+    const [rawName] = params.args;
+    const { org: orgaIdOrName, alias, region, github: githubOwnerRepo, format, task: taskCommand } = params.options;
+    const { apps } = await AppConfig.loadApplicationConf();
+
+    // Application name is optionnal, use current directory name if not specified (empty string)
+    const name = rawName !== '' ? rawName : getCurrentDirectoryName();
+
+    const isTask = taskCommand != null;
+    const envVars = isTask ? { CC_RUN_COMMAND: taskCommand } : {};
+
+    AppConfig.checkAlreadyLinked(apps, name, alias);
+
+    const github = getGithubDetails(githubOwnerRepo);
+    const app = await Application.create(name, typeName, region, orgaIdOrName, github, isTask, envVars);
+    await AppConfig.addLinkedApplication(app, alias);
+
+    switch (format) {
+      case 'json': {
+        Logger.printJson({
+          id: app.id,
+          name: app.name,
+          executedAs: app.instance.lifetime,
+          env: app.env,
+          deployUrl: app.deployUrl,
+        });
+        break;
       }
-  }
+
+      case 'human':
+      default:
+        await displayAppCreation(app, alias, github, taskCommand);
+    }
+  },
 };

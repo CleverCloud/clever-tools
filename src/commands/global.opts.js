@@ -1,6 +1,11 @@
-import { appIdOrName as appIdOrNameParser, commaSeparated as commaSeparatedParser, date as dateParser, orgaIdOrName as orgaIdOrNameParser } from '../parsers.js';
 import { listAvailableAliases } from '../models/application.js';
 import { listMetaEvents } from '../models/notification.js';
+import {
+  appIdOrName as appIdOrNameParser,
+  commaSeparated as commaSeparatedParser,
+  date as dateParser,
+  orgaIdOrName as orgaIdOrNameParser,
+} from '../parsers.js';
 
 export const colorOpt = {
   name: 'color',
@@ -11,7 +16,7 @@ export const colorOpt = {
   default: true,
   required: null,
   parser: null,
-  complete: null
+  complete: null,
 };
 
 export const updateNotifierOpt = {
@@ -23,7 +28,7 @@ export const updateNotifierOpt = {
   default: true,
   required: null,
   parser: null,
-  complete: null
+  complete: null,
 };
 
 export const verboseOpt = {
@@ -35,7 +40,7 @@ export const verboseOpt = {
   default: null,
   required: null,
   parser: null,
-  complete: null
+  complete: null,
 };
 
 export const aliasOpt = {
@@ -47,7 +52,7 @@ export const aliasOpt = {
   default: null,
   required: null,
   parser: null,
-  complete: listAvailableAliases
+  complete: listAvailableAliases,
 };
 
 export const appIdOrNameOpt = {
@@ -59,7 +64,7 @@ export const appIdOrNameOpt = {
   default: null,
   required: null,
   parser: appIdOrNameParser,
-  complete: null
+  complete: null,
 };
 
 export const logsFormatOpt = {
@@ -71,7 +76,7 @@ export const logsFormatOpt = {
   default: 'human',
   required: null,
   parser: null,
-  complete: null
+  complete: null,
 };
 
 export const beforeOpt = {
@@ -83,7 +88,7 @@ export const beforeOpt = {
   default: null,
   required: null,
   parser: dateParser,
-  complete: null
+  complete: null,
 };
 
 export const afterOpt = {
@@ -95,7 +100,7 @@ export const afterOpt = {
   default: null,
   required: null,
   parser: dateParser,
-  complete: null
+  complete: null,
 };
 
 export const addonIdOpt = {
@@ -107,7 +112,7 @@ export const addonIdOpt = {
   default: null,
   required: null,
   parser: null,
-  complete: null
+  complete: null,
 };
 
 export const orgaIdOrNameOpt = {
@@ -119,7 +124,7 @@ export const orgaIdOrNameOpt = {
   default: null,
   required: null,
   parser: orgaIdOrNameParser,
-  complete: null
+  complete: null,
 };
 
 export const humanJsonOutputFormatOpt = {
@@ -131,7 +136,7 @@ export const humanJsonOutputFormatOpt = {
   default: 'human',
   required: null,
   parser: null,
-  complete: null
+  complete: null,
 };
 
 export const confirmAddonDeletionOpt = {
@@ -143,7 +148,7 @@ export const confirmAddonDeletionOpt = {
   default: null,
   required: null,
   parser: null,
-  complete: null
+  complete: null,
 };
 
 export const envFormatOpt = {
@@ -155,7 +160,7 @@ export const envFormatOpt = {
   default: 'human',
   required: null,
   parser: null,
-  complete: null
+  complete: null,
 };
 
 export const aliasCreationOpt = {
@@ -167,19 +172,19 @@ export const aliasCreationOpt = {
   default: null,
   required: null,
   parser: null,
-  complete: null
+  complete: null,
 };
 
 export const quietOpt = {
   name: 'quiet',
-  description: 'Don\'t show logs during deployment',
+  description: "Don't show logs during deployment",
   type: 'flag',
   metavar: null,
   aliases: ['q'],
   default: null,
   required: null,
   parser: null,
-  complete: null
+  complete: null,
 };
 
 export const followDeployLogsOpt = {
@@ -191,7 +196,7 @@ export const followDeployLogsOpt = {
   default: null,
   required: null,
   parser: null,
-  complete: null
+  complete: null,
 };
 
 export const exitOnDeployOpt = {
@@ -203,7 +208,7 @@ export const exitOnDeployOpt = {
   default: 'deploy-end',
   required: null,
   parser: null,
-  complete: null
+  complete: null,
 };
 
 export const importAsJsonOpt = {
@@ -215,7 +220,7 @@ export const importAsJsonOpt = {
   default: null,
   required: null,
   parser: null,
-  complete: null
+  complete: null,
 };
 
 export const targetVersionOpt = {
@@ -227,19 +232,19 @@ export const targetVersionOpt = {
   default: null,
   required: null,
   parser: null,
-  complete: null
+  complete: null,
 };
 
 export const listAllNotificationsOpt = {
   name: 'list-all',
-  description: 'List all notifications for your user or for an organisation with the \'--org\' option',
+  description: "List all notifications for your user or for an organisation with the '--org' option",
   type: 'flag',
   metavar: null,
   aliases: null,
   default: null,
   required: null,
   parser: null,
-  complete: null
+  complete: null,
 };
 
 export const notificationEventTypeOpt = {
@@ -251,7 +256,7 @@ export const notificationEventTypeOpt = {
   default: null,
   required: null,
   parser: commaSeparatedParser,
-  complete: listMetaEvents
+  complete: listMetaEvents,
 };
 
 export const notificationScopeOpt = {
@@ -263,6 +268,5 @@ export const notificationScopeOpt = {
   default: null,
   required: null,
   parser: commaSeparatedParser,
-  complete: null
+  complete: null,
 };
-

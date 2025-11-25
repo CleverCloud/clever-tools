@@ -4,6 +4,5 @@ export const emailArg = {
   name: 'email',
   description: 'Email address',
   parser: emailParser,
-  complete: null
+  complete: null,
 };
-
