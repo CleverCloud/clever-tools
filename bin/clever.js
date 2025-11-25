@@ -206,9 +206,6 @@ async function run() {
       aliases: ['w'],
       description: 'Watch the deployment until the cluster is deployed',
     }),
-    kubeConfigForceDownload: cliparse.flag('force', {
-      description: 'Force the download of the kubeconfig file, even if it already exists',
-    }),
     targetVersion: cliparse.option('target', {
       metavar: 'version',
       description: 'Target version to upgrade to (e.g.: 24, 2.4, 2.4.1)',
