@@ -2,7 +2,6 @@ import {
   addDomain,
   getAllDomains,
   get as getApp,
-  getFavouriteDomain as getFavouriteDomainWithError,
   markFavouriteDomain,
   removeDomain,
   unmarkFavouriteDomain,
@@ -18,25 +17,13 @@ import { Logger } from '../logger.js';
 import * as Application from '../models/application.js';
 import { DnsResolver } from '../models/node-dns-resolver.js';
 import { sendToApi } from '../models/send-to-api.js';
+import { getDomainObject, getFavouriteDomain } from '../models/domain.js';
 
 /**
  * @typedef {import('@clevercloud/client/esm/utils/diag-domain-config.types.js').DomainInfo} DomainInfo
  * @typedef {import('@clevercloud/client/esm/utils/diag-domain-config.types.js').ResolveDnsResult} ResolveDnsResult
  * @typedef {import('@clevercloud/client/esm/utils/diag-domain-config.types.js').DomainDiag} DomainDiag
  */
-
-function getFavouriteDomain({ ownerId, appId }) {
-  return getFavouriteDomainWithError({ id: ownerId, appId })
-    .then(sendToApi)
-    .then(({ fqdn }) => fqdn)
-    .catch((error) => {
-      if (error.id === 4021) {
-        // No favourite vhost
-        return null;
-      }
-      throw error;
-    });
-}
 
 export async function list(params) {
   const { alias, app: appIdOrName, format } = params.options;
@@ -272,21 +259,6 @@ export async function overview(params) {
       }
       break;
   }
-}
-
-function getDomainObject(domainWithPathPrefix, favouriteDomain) {
-  const parsed = parseDomain(domainWithPathPrefix, { validateHostname: false });
-  return {
-    domainWithPathPrefix,
-    domain: parsed.domain,
-    domainWithoutSuffix: parsed.domainWithoutSuffix,
-    hostname: parsed.hostname,
-    publicSuffix: parsed.publicSuffix,
-    subdomain: parsed.subdomain,
-    isApex: parsed.subdomain === '',
-    pathPrefix: new URL('https://' + domainWithPathPrefix).pathname,
-    isFavourite: domainWithPathPrefix === favouriteDomain,
-  };
 }
 
 /** @param {DomainDiag & { resolvedDnsConfig: ResolveDnsResult }} domainDiag */
