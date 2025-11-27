@@ -40,9 +40,6 @@ import { ArgumentError, runCommand } from './lib/command.js';
 
 const COMMANDS_DIR = path.resolve(import.meta.dirname, '../src/commands2');
 
-// Global flags that should be excluded from the flags table
-const GLOBAL_FLAGS = new Set(['color', 'update-notifier', 'verbose']);
-
 /**
  * @typedef {Object} CommandDef
  * @property {string} name
@@ -320,8 +317,7 @@ function formatDescription(description, defaultValue, isRequired) {
 function generateFlagsTable(flags) {
   if (!flags) return null;
 
-  // Filter out global flags - now name comes from object key
-  const flagEntries = Object.entries(flags).filter(([name]) => !GLOBAL_FLAGS.has(name));
+  const flagEntries = Object.entries(flags);
 
   if (flagEntries.length === 0) {
     return null;
