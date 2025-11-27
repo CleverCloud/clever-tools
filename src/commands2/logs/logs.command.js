@@ -1,0 +1,73 @@
+import { z } from 'zod';
+import { defineCommand } from '../../lib/define-command.js';
+import { defineFlag } from '../../lib/define-flag.js';
+import { styleText } from '../../lib/style-text.js';
+import { Logger } from '../../logger.js';
+import * as Application from '../../models/application.js';
+import { resolveAddonId } from '../../models/ids-resolver.js';
+import * as Log from '../../models/log-v4.js';
+import * as LogV2 from '../../models/log.js';
+import { Deferred } from '../../models/utils.js';
+import { addonIdFlag, afterFlag, aliasFlag, appIdOrNameFlag, beforeFlag, logsFormatFlag } from '../global.flags.js';
+
+export const logsCommand = defineCommand({
+  description: 'Fetch application logs, continuously',
+  flags: {
+    search: defineFlag({
+      name: 'search',
+      schema: z.string().optional(),
+      description: 'Fetch logs matching this pattern',
+      placeholder: 'search',
+    }),
+    'deployment-id': defineFlag({
+      name: 'deployment-id',
+      schema: z.string().optional(),
+      description: 'Fetch logs for a given deployment',
+      placeholder: 'deployment_id',
+    }),
+    alias: aliasFlag,
+    app: appIdOrNameFlag,
+    before: beforeFlag,
+    after: afterFlag,
+    addon: addonIdFlag,
+    format: logsFormatFlag,
+  },
+  args: [],
+  async handler(flags) {
+    const {
+      alias,
+      app: appIdOrName,
+      addon: addonIdOrRealId,
+      after: since,
+      before: until,
+      search,
+      'deployment-id': deploymentId,
+      format,
+    } = flags;
+
+    // ignore --search ""
+    const filter = search !== '' ? search : null;
+    const isForHuman = format === 'human';
+
+    // TODO: drop when addons are migrated to the v4 API
+    if (addonIdOrRealId != null) {
+      const addonId = await resolveAddonId(addonIdOrRealId);
+      if (isForHuman) {
+        Logger.println(styleText('blue', 'Waiting for addon logs…'));
+      } else {
+        throw new Error(`"${format}" format is not yet available for add-on logs`);
+      }
+      return LogV2.displayLogs({ appAddonId: addonId, since, until, filter, deploymentId });
+    }
+
+    const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
+
+    if (isForHuman) {
+      Logger.println(styleText('blue', 'Waiting for application logs…'));
+    }
+
+    const deferred = new Deferred();
+    await Log.displayLogs({ ownerId, appId, since, until, filter, deploymentId, format, deferred });
+    return deferred.promise;
+  },
+});
