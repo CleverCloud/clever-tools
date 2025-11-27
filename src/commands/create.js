@@ -6,10 +6,10 @@ import * as Application from '../models/application.js';
 import { conf } from '../models/configuration.js';
 import { isGitWorkingDirectoryClean, isInsideGitRepo } from '../models/git.js';
 
-export async function create(params) {
-  const { type: typeName } = params.options;
-  const [rawName] = params.args;
-  const { org: orgaIdOrName, alias, region, github: githubOwnerRepo, format, task: taskCommand } = params.options;
+export async function create(flags, rawName) {
+  const { type: typeName } = flags;
+
+  const { org: orgaIdOrName, alias, region, github: githubOwnerRepo, format, task: taskCommand } = flags;
   const { apps } = await AppConfig.loadApplicationConf();
 
   // Application name is optionnal, use current directory name if not specified (empty string)

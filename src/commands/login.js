@@ -55,8 +55,8 @@ async function loginViaConsole() {
   return pollOauthData(cliPollUrl.toString());
 }
 
-export async function login(params) {
-  const { token, secret } = params.options;
+export async function login(flags) {
+  const { token, secret } = flags;
   const isLoginWithArgs = token != null && secret != null;
   const isInteractiveLogin = token == null && secret == null;
 

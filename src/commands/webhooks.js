@@ -4,8 +4,8 @@ import { Logger } from '../logger.js';
 import { getOrgaIdOrUserId, getOwnerAndApp } from '../models/notification.js';
 import { sendToApi } from '../models/send-to-api.js';
 
-export async function list(params) {
-  const { org, 'list-all': listAll, format } = params.options;
+export async function list(flags) {
+  const { org, 'list-all': listAll, format } = flags;
 
   // TODO: fix alias option
   const { ownerId, appId } = await getOwnerAndApp(null, org, !listAll);
@@ -44,9 +44,8 @@ export async function list(params) {
   }
 }
 
-export async function add(params) {
-  const { org, format, event: events, service } = params.options;
-  const [name, hookUrl] = params.args;
+export async function add(flags, name, hookUrl) {
+  const { org, format, event: events, service } = flags;
 
   // TODO: fix alias option
   const { ownerId, appId } = await getOwnerAndApp(null, org, !org && !service);
@@ -63,9 +62,8 @@ export async function add(params) {
   Logger.println('The webhook has been added');
 }
 
-export async function remove(params) {
-  const { org } = params.options;
-  const [notificationId] = params.args;
+export async function remove(flags, notificationId) {
+  const { org } = flags;
 
   const ownerId = await getOrgaIdOrUserId(org);
   await deleteWebhook({ ownerId, id: notificationId }).then(sendToApi);
