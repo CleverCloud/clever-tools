@@ -58,7 +58,6 @@ export async function get(params) {
  */
 export async function getConfig(params) {
   const [addonIdOrName] = params.args;
-  const { format } = params.options;
   await operatorPrint('otoroshi', addonIdOrName, 'otoroshictl');
 }
 

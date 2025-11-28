@@ -42,7 +42,7 @@ export async function k8sCreate(name, ownerId) {
  * @param {string} format The output format
  * @returns {Promise<void>}
  */
-export async function k8sList(orgIdOrName, format) {
+export async function k8sList(orgIdOrName) {
   const ownerId = await getOwnerIdFromOrgIdOrName(orgIdOrName);
   const deployed = await listK8sClusters({ ownerId }).then(sendToApi);
 

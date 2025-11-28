@@ -73,7 +73,7 @@ export async function del(params) {
   const [clusterIdOrName] = params.args;
   const { org: orgIdOrName, yes: confirmDeletion } = params.options;
 
-  let proceedDeletion = false;
+  let proceedDeletion;
   if (confirmDeletion) {
     proceedDeletion = true;
   } else {

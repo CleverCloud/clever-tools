@@ -15,15 +15,6 @@ export function listApiTokens() {
   });
 }
 
-export function updateApiToken(apiTokenId, { name, description }) {
-  return Promise.resolve({
-    method: 'put',
-    url: `/api-tokens/${apiTokenId}`,
-    headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
-    body: { name, description },
-  });
-}
-
 export function deleteApiToken(apiTokenId) {
   return Promise.resolve({
     method: 'delete',
