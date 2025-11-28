@@ -17,20 +17,36 @@ function wrapParser(parser) {
   };
 }
 
-// Patch cliparse.option to wrap parser functions
+// Wrap complete functions to allow returning plain arrays
+// instead of cliparse.autocomplete.words(array)
+function wrapComplete(complete) {
+  return (word) => {
+    // Support both functions and static arrays (e.g. complete: Drain.DRAIN_TYPE_CLI_CODES)
+    const result = typeof complete === 'function' ? complete(word) : complete;
+    return Promise.resolve(result).then(cliparse.autocomplete.words);
+  };
+}
+
+// Patch cliparse.option to wrap parser and complete functions
 const cliparseOption = cliparse.option;
 cliparse.option = function (name, options) {
   if (options?.parser) {
     options = { ...options, parser: wrapParser(options.parser) };
   }
+  if (options?.complete) {
+    options = { ...options, complete: wrapComplete(options.complete) };
+  }
   return cliparseOption(name, options);
 };
 
-// Patch cliparse.argument to wrap parser functions
+// Patch cliparse.argument to wrap parser and complete functions
 const cliparseArgument = cliparse.argument;
 cliparse.argument = function (name, options) {
   if (options?.parser) {
     options = { ...options, parser: wrapParser(options.parser) };
+  }
+  if (options?.complete) {
+    options = { ...options, complete: wrapComplete(options.complete) };
   }
   return cliparseArgument(name, options);
 };

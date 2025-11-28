@@ -1,4 +1,3 @@
-import cliparse from 'cliparse';
 import * as git from 'isomorphic-git';
 import _ from 'lodash';
 import fs from 'node:fs';
@@ -111,9 +110,7 @@ export async function push(remoteUrl, branchRefspec, force) {
 }
 
 export function completeBranches() {
-  return getRepo()
-    .then((repo) => git.listBranches(repo))
-    .then(cliparse.autocomplete.words);
+  return getRepo().then((repo) => git.listBranches(repo));
 }
 
 export async function isShallow() {
