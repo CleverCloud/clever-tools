@@ -154,25 +154,6 @@ export function tags(string) {
   return cliparse.parsers.success(tags);
 }
 
-export const ipAddressRegex =
-  /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9]?[0-9])\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9]?[0-9])$/;
-
-export function ipAddress(string) {
-  if (string.match(ipAddressRegex)) {
-    return cliparse.parsers.success(string);
-  }
-  return cliparse.parsers.error(`Invalid IP address '${string}'. Should match ${ipAddressRegex}`);
-}
-
-export const portNumberRegex = /^\d{1,5}$/;
-
-export function portNumber(number) {
-  if (String(number).match(portNumberRegex)) {
-    return cliparse.parsers.success(number);
-  }
-  return cliparse.parsers.error(`Invalid port number '${number}'. Should match ${portNumberRegex}`);
-}
-
 /**
  * Parse a duration into seconds
  * A Zero seconds duration is allowed

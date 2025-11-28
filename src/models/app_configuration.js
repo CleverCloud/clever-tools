@@ -131,27 +131,6 @@ function findDefaultApp(config) {
   );
 }
 
-async function getAppDetailsForId(appId) {
-  const config = await loadApplicationConf();
-
-  if (_.isEmpty(config.apps)) {
-    throw new Error('There is no linked or targeted application. Use `--app` option or `clever link` command.');
-  }
-
-  const [appById, secondAppById] = _.filter(config.apps, { app_id: appId });
-  if (appById == null) {
-    throw new Error(`There are no applications matching id '${appId}'`);
-  }
-  if (secondAppById != null) {
-    throw new Error(
-      `There are several applications matching id '${appId}'.` +
-        'This should not happen, your `.clever.json` should be fixed.',
-    );
-  }
-
-  return appById;
-}
-
 export async function getAppDetails({ alias }) {
   const config = await loadApplicationConf();
   const app = findApp(config, alias);
@@ -163,15 +142,6 @@ export async function getAppDetails({ alias }) {
     name: app.name,
     alias: app.alias,
   };
-}
-
-export async function getMostNaturalName(appId) {
-  try {
-    const details = await getAppDetailsForId(appId);
-    return details.alias || details.name || appId;
-  } catch {
-    return appId;
-  }
 }
 
 function persistConfig(modifiedConfig) {

@@ -228,22 +228,6 @@ export function completePlan() {
   return cliparse.autocomplete.words(['dev', 's', 'm', 'l', 'xl', 'xxl']);
 }
 
-export async function findById(addonId) {
-  const { user, organisations } = await getSummary({}).then(sendToApi);
-  for (const orga of [user, ...organisations]) {
-    for (const simpleAddon of orga.addons) {
-      if (simpleAddon.id === addonId) {
-        const addon = await getAddon({ id: orga.id, addonId }).then(sendToApi);
-        return {
-          ...addon,
-          orgaId: orga.id,
-        };
-      }
-    }
-  }
-  throw new Error(`Could not find add-on with ID: ${addonId}`);
-}
-
 export async function findByName(addonName) {
   const { user, organisations } = await getSummary({}).then(sendToApi);
   for (const orga of [user, ...organisations]) {

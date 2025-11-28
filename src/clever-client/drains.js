@@ -108,20 +108,3 @@ export function enableDrain(params) {
     // no body
   });
 }
-
-/**
- * PATCH /v4/drains/organisations/{ownerId}/applications/{applicationId}/drains/{drainId}/reset-cursor
- * @param {Object} params
- * @param {String} params.ownerId
- * @param {String} params.applicationId
- * @param {String} params.drainId
- */
-export function resetDrainCursor(params) {
-  // no multipath for /self or /organisations/{id}
-  return Promise.resolve({
-    method: 'patch',
-    url: `/v4/drains/organisations/${params.ownerId}/applications/${params.applicationId}/drains/${params.drainId}/reset-cursor`,
-    headers: { Accept: 'application/json' },
-    // no body
-  });
-}
