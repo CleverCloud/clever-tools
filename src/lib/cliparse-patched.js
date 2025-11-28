@@ -4,6 +4,36 @@ import semver from 'semver';
 import pkg from '../../package.json' with { type: 'json' };
 import { Logger } from '../logger.js';
 
+// Wrap parser functions to allow them to simply return values or throw errors
+// instead of using cliparse.parsers.success/error
+function wrapParser(parser) {
+  return (value) => {
+    try {
+      return cliparse.parsers.success(parser(value));
+    } catch (error) {
+      return cliparse.parsers.error(error.message);
+    }
+  };
+}
+
+// Patch cliparse.option to wrap parser functions
+const cliparseOption = cliparse.option;
+cliparse.option = function (name, options) {
+  if (options?.parser) {
+    options = { ...options, parser: wrapParser(options.parser) };
+  }
+  return cliparseOption(name, options);
+};
+
+// Patch cliparse.argument to wrap parser functions
+const cliparseArgument = cliparse.argument;
+cliparse.argument = function (name, options) {
+  if (options?.parser) {
+    options = { ...options, parser: wrapParser(options.parser) };
+  }
+  return cliparseArgument(name, options);
+};
+
 // Patch cliparse.command so we can catch errors and process.exit(1)
 const cliparseCommand = cliparse.command;
 cliparse.command = function (name, options, commandFunction) {
