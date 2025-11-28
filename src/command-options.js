@@ -6,9 +6,10 @@ export function getOutputFormatOption(formats = []) {
     aliases: ['F'],
     metavar: 'format',
     parser: (format) => {
-      return availableFormats.includes(format)
-        ? cliparse.parsers.success(format)
-        : cliparse.parsers.error('The output format must be one of ' + availableFormats.join(', '));
+      if (!availableFormats.includes(format)) {
+        throw new Error('The output format must be one of ' + availableFormats.join(', '));
+      }
+      return format;
     },
     default: 'human',
     description: `Output format (${availableFormats.join(', ')})`,
@@ -24,9 +25,10 @@ export function getSameCommitPolicyOption() {
     aliases: ['p'],
     metavar: 'policy',
     parser: (policy) => {
-      return availablePolicies.includes(policy)
-        ? cliparse.parsers.success(policy)
-        : cliparse.parsers.error(`the policy must be one of ${availablePolicies.join(', ')}`);
+      if (!availablePolicies.includes(policy)) {
+        throw new Error(`the policy must be one of ${availablePolicies.join(', ')}`);
+      }
+      return policy;
     },
     default: 'error',
     description: `What to do when local and remote commit are identical (${availablePolicies.join(', ')})`,
@@ -42,9 +44,10 @@ export function getExitOnOption() {
     aliases: ['e'],
     metavar: 'step',
     parser: (exitOnStrategy) => {
-      return availableExitOn.includes(exitOnStrategy)
-        ? cliparse.parsers.success(exitOnStrategy)
-        : cliparse.parsers.error(`The exit-on strategy must be one of ${availableExitOn.join(', ')}`);
+      if (!availableExitOn.includes(exitOnStrategy)) {
+        throw new Error(`The exit-on strategy must be one of ${availableExitOn.join(', ')}`);
+      }
+      return exitOnStrategy;
     },
     default: 'deploy-end',
     description: `Step at which the logs streaming is ended, steps are: ${availableExitOn.join(', ')}`,
