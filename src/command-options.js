@@ -13,9 +13,7 @@ export function getOutputFormatOption(formats = []) {
     },
     default: 'human',
     description: `Output format (${availableFormats.join(', ')})`,
-    complete() {
-      return cliparse.autocomplete.words(availableFormats);
-    },
+    complete: availableFormats,
   });
 }
 
@@ -32,9 +30,7 @@ export function getSameCommitPolicyOption() {
     },
     default: 'error',
     description: `What to do when local and remote commit are identical (${availablePolicies.join(', ')})`,
-    complete() {
-      return cliparse.autocomplete.words(availablePolicies);
-    },
+    complete: availablePolicies,
   });
 }
 
@@ -51,8 +47,6 @@ export function getExitOnOption() {
     },
     default: 'deploy-end',
     description: `Step at which the logs streaming is ended, steps are: ${availableExitOn.join(', ')}`,
-    complete() {
-      return cliparse.autocomplete.words(availableExitOn);
-    },
+    complete: availableExitOn,
   });
 }
