@@ -177,9 +177,7 @@ async function run() {
     }),
     configurationName: cliparse.argument('configuration-name', {
       description: `Configuration to manage: ${ApplicationConfiguration.listAvailableIds(true)}`,
-      complete() {
-        return cliparse.autocomplete.words(ApplicationConfiguration.listAvailableIds());
-      },
+      complete: ApplicationConfiguration.listAvailableIds,
     }),
     configurationValue: cliparse.argument('configuration-value', { description: 'The new value of the configuration' }),
   };
@@ -262,9 +260,7 @@ async function run() {
       default: '',
       metavar: 'branch',
       description: 'Branch to push (current branch by default)',
-      complete() {
-        return git.completeBranches();
-      },
+      complete: git.completeBranches,
     }),
     commit: cliparse.option('commit', {
       metavar: 'commit-id',
@@ -296,9 +292,7 @@ async function run() {
       metavar: 'flavor',
       parser: Parsers.flavor,
       description: 'The instance size of your application',
-      complete() {
-        return cliparse.autocomplete.words(Application.listAvailableFlavors());
-      },
+      complete: Application.listAvailableFlavors,
     }),
     follow: cliparse.flag('follow', {
       aliases: ['f'],
@@ -342,9 +336,7 @@ async function run() {
       metavar: 'maxflavor',
       parser: Parsers.flavor,
       description: 'The maximum instance size of your application',
-      complete() {
-        return cliparse.autocomplete.words(Application.listAvailableFlavors());
-      },
+      complete: Application.listAvailableFlavors,
     }),
     buildFlavor: cliparse.option('build-flavor', {
       metavar: 'buildflavor',
@@ -360,9 +352,7 @@ async function run() {
       metavar: 'minflavor',
       parser: Parsers.flavor,
       description: 'The minimum scale size of your application',
-      complete() {
-        return cliparse.autocomplete.words(Application.listAvailableFlavors());
-      },
+      complete: Application.listAvailableFlavors,
     }),
     minInstances: cliparse.option('min-instances', {
       metavar: 'mininstances',
