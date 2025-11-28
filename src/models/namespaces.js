@@ -1,5 +1,4 @@
 import { getNamespaces as getTcpRedirNamespaces } from '@clevercloud/client/esm/api/v2/organisation.js';
-import cliparse from 'cliparse';
 import * as Application from './application.js';
 import { sendToApi } from './send-to-api.js';
 
@@ -11,5 +10,5 @@ export async function completeNamespaces() {
   // Sadly we do not have access to current params in complete as of now
   const { ownerId } = await Application.resolveId(null, null);
 
-  return getNamespaces(ownerId).then(cliparse.autocomplete.words);
+  return getNamespaces(ownerId);
 }

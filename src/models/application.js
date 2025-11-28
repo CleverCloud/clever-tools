@@ -11,7 +11,6 @@ import {
 } from '@clevercloud/client/esm/api/v2/application.js';
 import { getAvailableInstances } from '@clevercloud/client/esm/api/v2/product.js';
 import { getSummary } from '@clevercloud/client/esm/api/v2/user.js';
-import cliparse from 'cliparse';
 import _ from 'lodash';
 import { confirmAnswer } from '../lib/prompts.js';
 import { styleText } from '../lib/style-text.js';
@@ -23,7 +22,7 @@ import { sendToApi } from './send-to-api.js';
 import * as User from './user.js';
 
 export function listAvailableTypes() {
-  return cliparse.autocomplete.words([
+  return [
     'docker',
     'elixir',
     'frankenphp',
@@ -46,17 +45,17 @@ export function listAvailableTypes() {
     'static-apache',
     'v',
     'war',
-  ]);
+  ];
 }
 
 export const AVAILABLE_ZONES = ['par', 'parhds', 'grahds', 'rbx', 'rbxhds', 'scw', 'ldn', 'mtl', 'sgp', 'syd', 'wsw'];
 
 export function listAvailableZones() {
-  return cliparse.autocomplete.words(AVAILABLE_ZONES);
+  return AVAILABLE_ZONES;
 }
 
 export function listAvailableAliases() {
-  return AppConfiguration.loadApplicationConf().then(({ apps }) => cliparse.autocomplete.words(_.map(apps, 'alias')));
+  return AppConfiguration.loadApplicationConf().then(({ apps }) => _.map(apps, 'alias'));
 }
 
 export function listAvailableFlavors() {
