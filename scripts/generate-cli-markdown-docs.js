@@ -37,6 +37,16 @@ import { unified } from 'unified';
 import { globalCommands } from '../src/commands2/global.commands.js';
 import { styleText } from '../src/lib/style-text.js';
 import { ArgumentError, runCommand } from './lib/command.js';
+import {
+  flattenCommands,
+  groupByRoot,
+  getSchemaDefault,
+  isSchemaRequired,
+  isBooleanFlag,
+  escapeTableCell,
+  formatDefault,
+  formatDescription,
+} from './lib/command-helpers.js';
 
 const COMMANDS_DIR = path.resolve(import.meta.dirname, '../src/commands2');
 
@@ -70,82 +80,8 @@ const COMMANDS_DIR = path.resolve(import.meta.dirname, '../src/commands2');
  */
 
 /**
- * @typedef {Object} FlatCommand
- * @property {string} path - Full command path (e.g., "addon create")
- * @property {string} id - Kebab-case id (e.g., "addon-create")
- * @property {CommandDef} command
+ * @typedef {import('./lib/command-helpers.js').FlatCommand} FlatCommand
  */
-
-/**
- * Flattens the command tree into a list of commands with their full paths.
- * @param {Object} commands - The globalCommands object or subcommands
- * @param {string} [prefix=''] - Current command path prefix
- * @returns {FlatCommand[]}
- */
-function flattenCommands(commands, prefix = '') {
-  const result = [];
-
-  for (const [name, entry] of Object.entries(commands)) {
-    const currentPath = prefix ? `${prefix} ${name}` : name;
-    const currentId = currentPath.replace(/ /g, '-');
-
-    if (Array.isArray(entry)) {
-      // [command, {subcommands}] format
-      const [command, subcommands] = entry;
-      result.push({ path: currentPath, id: currentId, command });
-
-      if (subcommands) {
-        result.push(...flattenCommands(subcommands, currentPath));
-      }
-    } else {
-      // Plain command object
-      result.push({ path: currentPath, id: currentId, command: entry });
-    }
-  }
-
-  return result;
-}
-
-/**
- * Groups flattened commands by their root command name.
- * @param {FlatCommand[]} commands
- * @returns {Map<string, FlatCommand[]>}
- */
-function groupByRoot(commands) {
-  const groups = new Map();
-
-  for (const cmd of commands) {
-    const root = cmd.path.split(' ')[0];
-    if (!groups.has(root)) {
-      groups.set(root, []);
-    }
-    groups.get(root).push(cmd);
-  }
-
-  return groups;
-}
-
-/**
- * Escapes pipe characters for markdown tables.
- * @param {string} str
- * @returns {string}
- */
-function escapeTableCell(str) {
-  if (str == null) return '-';
-  return String(str).replace(/\|/g, '\\|').replace(/\n/g, ' ');
-}
-
-/**
- * Formats a default value for display.
- * @param {*} value
- * @returns {string}
- */
-function formatDefault(value) {
-  if (value === null || value === undefined) return 'none';
-  if (value === '') return '`""`';
-  if (typeof value === 'boolean') return `\`${String(value)}\``;
-  return `\`${escapeTableCell(String(value))}\``;
-}
 
 /**
  * Formats name with aliases for display (e.g., `-l, --link <string>`).
@@ -202,111 +138,6 @@ function generateArgsTable(args) {
 
   lines.push('');
   return lines.join('\n');
-}
-
-/**
- * Extracts the default value from a Zod schema.
- * @param {object} schema - Zod schema
- * @returns {*} The default value or undefined
- */
-function getSchemaDefault(schema) {
-  if (!schema) return undefined;
-
-  let current = schema;
-  while (current) {
-    const schemaType = current.def?.type || current.type;
-
-    if (schemaType === 'default') {
-      return current.def?.defaultValue;
-    }
-
-    // Check for wrapper types (optional, nullable) and unwrap
-    if (schemaType === 'optional' || schemaType === 'nullable') {
-      current = current.def?.innerType || current.innerType;
-      continue;
-    }
-
-    break;
-  }
-
-  return undefined;
-}
-
-/**
- * Determines if a schema is required (not optional/nullable and no default).
- * @param {object} schema - Zod schema
- * @returns {boolean}
- */
-function isSchemaRequired(schema) {
-  if (!schema) return false;
-
-  let current = schema;
-  while (current) {
-    const schemaType = current.def?.type || current.type;
-
-    // If it has a default, it's not required
-    if (schemaType === 'default') {
-      return false;
-    }
-
-    // If it's optional or nullable, it's not required
-    if (schemaType === 'optional' || schemaType === 'nullable') {
-      return false;
-    }
-
-    break;
-  }
-
-  return true;
-}
-
-/**
- * Determines if a flag is a boolean flag from its Zod schema.
- * Handles nested structures like z.boolean().default(false) and z.boolean().optional().
- * @param {FlagDef} flag
- * @returns {boolean}
- */
-function isBooleanFlag(flag) {
-  if (!flag.schema) return false;
-
-  // Navigate through the schema structure to find the innermost type
-  let current = flag.schema;
-  while (current) {
-    const schemaType = current.def?.type || current.type;
-
-    if (schemaType === 'boolean') {
-      return true;
-    }
-
-    // Check for wrapper types (default, optional, nullable) and unwrap
-    if (schemaType === 'default' || schemaType === 'optional' || schemaType === 'nullable') {
-      current = current.def?.innerType || current.innerType;
-      continue;
-    }
-
-    break;
-  }
-
-  return false;
-}
-
-/**
- * Formats the description with optional default value and required marker.
- * @param {string} description
- * @param {*} defaultValue
- * @param {boolean} isRequired
- * @returns {string}
- */
-function formatDescription(description, defaultValue, isRequired) {
-  const parts = [escapeTableCell(description)];
-
-  if (isRequired) {
-    parts.push(' **(required)**');
-  } else if (defaultValue !== null && defaultValue !== undefined && defaultValue !== '' && defaultValue !== false) {
-    parts.push(` (default: ${formatDefault(defaultValue)})`);
-  }
-
-  return parts.join('');
 }
 
 /**
