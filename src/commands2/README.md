@@ -34,6 +34,7 @@ These flags are available for all commands:
 | [`clever emails`](./emails/emails.docs.md) | Manage email addresses of the current user |
 | [`clever env`](./env/env.docs.md) | Manage environment variables of an application |
 | [`clever features`](./features/features.docs.md) | Manage Clever Tools experimental features |
+| [`clever hello`](./hello/hello.docs.md) | Say hello to someone |
 | [`clever k8s`](./k8s/k8s.docs.md) | Manage Kubernetes clusters |
 | [`clever keycloak`](./keycloak/keycloak.docs.md) | Manage Clever Cloud Keycloak services |
 | [`clever kv`](./kv/kv.docs.md) | Send a raw command to a Materia KV or Redis® add-on |

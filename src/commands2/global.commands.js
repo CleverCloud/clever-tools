@@ -263,6 +263,7 @@ export const globalCommands = {
       list: featuresListCommand,
     },
   ],
+  hello: helloCommand,
   k8s: [
     k8sCommand,
     {
