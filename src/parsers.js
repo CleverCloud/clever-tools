@@ -2,8 +2,21 @@ import ISO8601 from 'iso8601-duration';
 import * as Application from './models/application.js';
 import { NG_MEMBER_PREFIXES } from './models/ng.js';
 
+/**
+ * @typedef {import('./parsers.types.d.ts').AppIdOrName} AppIdOrName
+ * @typedef {import('./parsers.types.d.ts').OrgaIdOrName} OrgaIdOrName
+ * @typedef {import('./parsers.types.d.ts').AddonIdOrName} AddonIdOrName
+ * @typedef {import('./parsers.types.d.ts').NgResourceType} NgResourceType
+ * @typedef {import('./parsers.types.d.ts').NgValidType} NgValidType
+ */
+
 const addonOptionsRegex = /^[\w-]+=.+$/;
 
+/**
+ * Parse addon options in the format key=value
+ * @param {string | string[]} options
+ * @returns {string}
+ */
 export function addonOptions(options) {
   const optionsArray = typeof options === 'string' ? [options] : options;
   for (const option of optionsArray) {
@@ -14,6 +27,11 @@ export function addonOptions(options) {
   return optionsArray.join(',');
 }
 
+/**
+ * Validate a flavor string
+ * @param {string} flavor
+ * @returns {string}
+ */
 export function flavor(flavor) {
   const flavors = Application.listAvailableFlavors();
   if (flavors.includes(flavor)) {
@@ -22,6 +40,11 @@ export function flavor(flavor) {
   throw new Error('Invalid value: ' + flavor);
 }
 
+/**
+ * Validate a build flavor string (flavor or 'disabled')
+ * @param {string} flavorOrDisabled
+ * @returns {string}
+ */
 export function buildFlavor(flavorOrDisabled) {
   if (flavorOrDisabled === 'disabled') {
     return flavorOrDisabled;
@@ -29,6 +52,11 @@ export function buildFlavor(flavorOrDisabled) {
   return flavor(flavorOrDisabled);
 }
 
+/**
+ * Parse and validate an instance count (1-20)
+ * @param {string} instances
+ * @returns {number}
+ */
 export function instances(instances) {
   const parsedInstances = parseInt(instances, 10);
   if (isNaN(parsedInstances)) {
@@ -40,6 +68,11 @@ export function instances(instances) {
   return parsedInstances;
 }
 
+/**
+ * Parse a date string or duration (relative to now, in the past)
+ * @param {string} dateString
+ * @returns {Date}
+ */
 export function date(dateString) {
   const date = new Date(dateString);
   if (isNaN(dateString) && !isNaN(date.getTime())) {
@@ -50,6 +83,11 @@ export function date(dateString) {
   return new Date(Date.now() - seconds * 1000);
 }
 
+/**
+ * Parse a date string or duration (relative to now, in the future)
+ * @param {string} dateString
+ * @returns {Date}
+ */
 export function futureDateOrDuration(dateString) {
   const date = new Date(dateString);
   if (isNaN(dateString) && !isNaN(date.getTime())) {
@@ -63,6 +101,11 @@ export function futureDateOrDuration(dateString) {
 // This simple regex is enough for our use cases
 const emailRegex = /^\S+@\S+\.\S+$/g;
 
+/**
+ * Validate an email string
+ * @param {string} string
+ * @returns {string}
+ */
 export function email(string) {
   if (string.match(emailRegex)) {
     return string;
@@ -72,6 +115,11 @@ export function email(string) {
 
 const appIdRegex = /^app_[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
+/**
+ * Parse an app ID or name string
+ * @param {string} string
+ * @returns {AppIdOrName}
+ */
 export function appIdOrName(string) {
   if (string.match(appIdRegex)) {
     return { app_id: string };
@@ -81,6 +129,11 @@ export function appIdOrName(string) {
 
 const orgaIdRegex = /^(user_|orga_)[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
+/**
+ * Parse an organization ID or name string
+ * @param {string} string
+ * @returns {OrgaIdOrName}
+ */
 export function orgaIdOrName(string) {
   if (string.match(orgaIdRegex)) {
     return { orga_id: string };
@@ -93,6 +146,11 @@ const operatorIdRegex =
   /^(keycloak|otoroshi|matomo|metabase)_[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const ulidRegex = /^(kubernetes)_[0-9A-HJ-NP-TV-Z]{26}$/i;
 
+/**
+ * Parse an addon ID, operator ID, or name string
+ * @param {string} string
+ * @returns {AddonIdOrName}
+ */
 export function addonIdOrName(string) {
   if (string.match(addonIdRegex)) {
     return { addon_id: string };
@@ -103,10 +161,20 @@ export function addonIdOrName(string) {
   return { addon_name: string };
 }
 
+/**
+ * Split a comma-separated string into an array
+ * @param {string} string
+ * @returns {string[]}
+ */
 export function commaSeparated(string) {
   return string.split(',');
 }
 
+/**
+ * Parse a string to an integer
+ * @param {string} string
+ * @returns {number}
+ */
 export function integer(string) {
   const integer = parseInt(string);
   if (isNaN(integer)) {
@@ -115,6 +183,11 @@ export function integer(string) {
   return integer;
 }
 
+/**
+ * Validate that a string is not empty
+ * @param {string} string
+ * @returns {string}
+ */
 export function nonEmptyString(string) {
   if (typeof string !== 'string' || string === '') {
     throw new Error('Invalid string, it should not be empty');
@@ -125,6 +198,11 @@ export function nonEmptyString(string) {
 // /^[a-z0-9](?:[a-z0-9_-]*[a-z0-9])?$/i;
 const tagRegex = /^[^,\s]+$/;
 
+/**
+ * Validate a tag string
+ * @param {string} string
+ * @returns {string}
+ */
 export function tag(string) {
   if (string.match(tagRegex)) {
     return string;
@@ -132,6 +210,11 @@ export function tag(string) {
   throw new Error(`Invalid tag '${string}'. Should match ${tagRegex}`);
 }
 
+/**
+ * Parse and validate a comma-separated list of tags
+ * @param {string} string
+ * @returns {string[]}
+ */
 export function tags(string) {
   if (String(string).length === 0) {
     return [];
@@ -194,6 +277,12 @@ function parseSimpleDuration(durationStr) {
 }
 
 // Network Groups parsers
+
+/**
+ * Parse a Network Group resource type (ngId, memberId, or label)
+ * @param {string} string
+ * @returns {NgResourceType}
+ */
 export function ngResourceType(string) {
   if (string.startsWith('ng_')) {
     return { ngId: string };
@@ -204,6 +293,11 @@ export function ngResourceType(string) {
   return { ngResourceLabel: string };
 }
 
+/**
+ * Validate a Network Group type string
+ * @param {string} string
+ * @returns {NgValidType}
+ */
 export function ngValidType(string) {
   if (string === 'NetworkGroup' || string === 'Member' || string === 'CleverPeer' || string === 'ExternalPeer') {
     return string;
