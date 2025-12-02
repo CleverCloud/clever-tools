@@ -15,9 +15,8 @@ import {
  * @param {string} params.options.format The output format
  * @returns {Promise<void>}
  */
-export async function get(params) {
-  const [addonIdOrName] = params.args;
-  const { format } = params.options;
+export async function get(flags, addonIdOrName) {
+  const { format } = flags;
   await operatorPrint('matomo', addonIdOrName, format);
 }
 
@@ -25,8 +24,8 @@ export async function get(params) {
  * List all Matomo operators
  * @returns {Promise<void>}
  */
-export async function list(params) {
-  await operatorList('addon-matomo', params.options.format);
+export async function list(flags) {
+  await operatorList('addon-matomo', flags.format);
 }
 
 /**
@@ -35,8 +34,7 @@ export async function list(params) {
  * @param {string} params.args[0] The operator's name or ID
  * @returns {Promise<void>}
  */
-export async function open(params) {
-  const [addonIdOrName] = params.args;
+export async function open(_flags, addonIdOrName) {
   await operatorOpen('matomo', addonIdOrName);
 }
 
@@ -46,8 +44,7 @@ export async function open(params) {
  * @param {string} params.args[0] The operator's name or ID
  * @returns {Promise<void>}
  */
-export async function openLogs(params) {
-  const [addonIdOrName] = params.args;
+export async function openLogs(_flags, addonIdOrName) {
   await operatorOpenLogs('matomo', addonIdOrName);
 }
 
@@ -57,8 +54,7 @@ export async function openLogs(params) {
  * @param {string} params.args[0] The operator's name or ID
  * @returns {Promise<void>}
  */
-export async function openWebUi(params) {
-  const [addonIdOrName] = params.args;
+export async function openWebUi(_flags, addonIdOrName) {
   await operatorOpenWebUi('matomo', addonIdOrName);
 }
 
@@ -68,8 +64,7 @@ export async function openWebUi(params) {
  * @param {string} params.args[0] The operator's name or ID
  * @returns {Promise<void>}
  */
-export async function reboot(params) {
-  const [addonIdOrName] = params.args;
+export async function reboot(_flags, addonIdOrName) {
   await operatorReboot('matomo', addonIdOrName);
 }
 
@@ -79,7 +74,6 @@ export async function reboot(params) {
  * @param {string} params.args[0] The operator's name or ID
  * @returns {Promise<void>}
  */
-export async function rebuild(params) {
-  const [addonIdOrName] = params.args;
+export async function rebuild(_flags, addonIdOrName) {
   await operatorRebuild('matomo', addonIdOrName);
 }

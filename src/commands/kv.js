@@ -16,9 +16,8 @@ const MAX_RETRIES_PER_REQUEST = 1;
  * @param {string} params.options.format
  * @returns {Promise<void>}
  */
-export async function sendRawCommand(params) {
-  const [addonIdOrRealIdOrName] = params.args;
-  const { org, format } = params.options;
+export async function sendRawCommand(flags, addonIdOrRealIdOrName, ...restArgs) {
+  const { org, format } = flags;
 
   const addons = await findAddonsByNameOrId(addonIdOrRealIdOrName, org);
 
@@ -37,8 +36,8 @@ export async function sendRawCommand(params) {
 
   const url = await getAddonUrl(ownerId, addonId);
 
-  Logger.debug(`Extracted command: ${params.args.join(' ')}`);
-  const command = params.args.slice(1);
+  Logger.debug(`Extracted command: ${restArgs.join(' ')}`);
+  const command = restArgs;
 
   const result = await sendCommand(url, command);
 

@@ -1,0 +1,16 @@
+import { defineCommand } from '../../lib/define-command.js';
+import { operatorPrint } from '../../lib/operator-commands.js';
+import { addonIdOrNameArg } from '../global.args.js';
+import { humanJsonOutputFormatFlag } from '../global.flags.js';
+
+export const otoroshiGetCommand = defineCommand({
+  description: 'Get information about a deployed Otoroshi',
+  flags: {
+    format: humanJsonOutputFormatFlag,
+  },
+  args: [addonIdOrNameArg],
+  async handler(flags, addonIdOrName) {
+    const { format } = flags;
+    await operatorPrint('otoroshi', addonIdOrName, format);
+  },
+});
