@@ -75,6 +75,7 @@
     "@rollup/plugin-json": "6.1.0",
     "@rollup/plugin-node-resolve": "16.0.3",
     "@types/mime-types": "3.0.1",
+    "@types/picomatch": "4.0.2",
     "@yao-pkg/pkg": "6.10.1",
     "eslint": "9.39.1",
     "globals": "16.5.0",
