@@ -1,4 +1,5 @@
 import { ApplicationLogStream } from '@clevercloud/client/esm/streams/application-logs.js';
+import { ResourceLogStream } from '@clevercloud/client/esm/streams/resource-logs.js';
 import { styleText } from '../lib/style-text.js';
 import { Logger } from '../logger.js';
 import { conf } from './configuration.js';
@@ -66,6 +67,77 @@ export async function displayLogs(params) {
           return;
         case 'json-stream':
           Logger.println(JSON.stringify(log));
+          return;
+        case 'human':
+        default:
+          if (log.message === RESET_COLOR) {
+            return;
+          }
+          Logger.println(formatLogLine(log));
+      }
+    });
+
+  // start() is blocking until end of stream
+  logStream
+    .start()
+    .then(() => {
+      if (format === 'json') {
+        jsonArray.close();
+      }
+      return deferred.resolve();
+    })
+    .catch(processError)
+    .catch((error) => deferred.reject(error));
+
+  return logStream;
+}
+
+export async function displayAddonLogs(params) {
+  const deferred = params.deferred || new Deferred();
+  const { apiHost, tokens } = await getHostAndTokens();
+  const { ownerId, addonId, filter, since, until, deploymentId, format } = params;
+
+  if (format === 'json' && until == null) {
+    throw new Error('"json" format is only applicable with a limiting parameter such as `--until`');
+  }
+
+  const logStream = new ResourceLogStream({
+    apiHost,
+    tokens,
+    ownerId,
+    addonId,
+    connectionTimeout: 10_000,
+    retryConfiguration,
+    since,
+    until,
+    deploymentId,
+    filter,
+    service: 'all',
+    throttleElements: THROTTLE_ELEMENTS,
+    throttlePerInMilliseconds: THROTTLE_PER_IN_MILLISECONDS,
+  });
+
+  // Properly close the stream
+  process.once('SIGINT', (signal) => logStream.close(signal));
+  const jsonArray = new JsonArray();
+
+  logStream
+    .on('open', () => {
+      Logger.debug(styleText('blue', `Logs stream (open) ${JSON.stringify({ addonId, filter, deploymentId })}`));
+      if (format === 'json') {
+        jsonArray.open();
+      }
+    })
+    .on('error', (event) => {
+      Logger.debug(styleText('red', `Logs stream (error) ${event.error.message}`));
+    })
+    .onLog((log) => {
+      switch (format) {
+        case 'json':
+          jsonArray.push(log);
+          return;
+        case 'json-stream':
+          Logger.printJson(log);
           return;
         case 'human':
         default:
