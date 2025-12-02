@@ -26,6 +26,12 @@ Load environment variables from STDIN
 clever env import [FLAGS]
 ```
 
+## Tips
+
+```bash
+cat .env | clever env import
+```
+
 ### 🚩 Flags
 
 | Name | Description |
