@@ -4,12 +4,8 @@
 import '../src/initial-setup.js';
 import '../src/initial-update-notifier.js';
 // Other imports
-import cliparse from 'cliparse';
-import cliparseCommands from 'cliparse/src/command.js';
-import _sortBy from 'lodash/sortBy.js';
 import pkg from '../package.json' with { type: 'json' };
 import { getExitOnOption, getOutputFormatOption, getSameCommitPolicyOption } from '../src/command-options.js';
-import { handleCommandPromise } from '../src/command-promise-handler.js';
 import * as accesslogsModule from '../src/commands/accesslogs.js';
 import * as activity from '../src/commands/activity.js';
 import * as addon from '../src/commands/addon.js';
@@ -57,6 +53,7 @@ import * as unlink from '../src/commands/unlink.js';
 import * as version from '../src/commands/version.js';
 import * as webhooks from '../src/commands/webhooks.js';
 import { EXPERIMENTAL_FEATURES } from '../src/experimental-features.js';
+import cliparse from '../src/lib/cliparse-patched.js';
 import { styleText } from '../src/lib/style-text.js';
 import * as Addon from '../src/models/addon.js';
 import * as Application from '../src/models/application.js';
@@ -75,20 +72,6 @@ process.stdout.on('error', (error) => {
     process.exit(0);
   }
 });
-
-// Patch cliparse.command so we can catch errors
-const cliparseCommand = cliparse.command;
-
-cliparse.command = function (name, options, commandFunction) {
-  if (commandFunction == null) {
-    return cliparseCommand(name, options);
-  }
-
-  return cliparseCommand(name, options, (...args) => {
-    const promise = commandFunction(...args);
-    handleCommandPromise(promise);
-  });
-};
 
 // Add a yellow color and status tag to the description of an experimental command
 function colorizeExperimentalCommand(command, id) {
@@ -193,9 +176,7 @@ async function run() {
     }),
     configurationName: cliparse.argument('configuration-name', {
       description: `Configuration to manage: ${ApplicationConfiguration.listAvailableIds(true)}`,
-      complete() {
-        return cliparse.autocomplete.words(ApplicationConfiguration.listAvailableIds());
-      },
+      complete: ApplicationConfiguration.listAvailableIds,
     }),
     configurationValue: cliparse.argument('configuration-value', { description: 'The new value of the configuration' }),
   };
@@ -278,9 +259,7 @@ async function run() {
       default: '',
       metavar: 'branch',
       description: 'Branch to push (current branch by default)',
-      complete() {
-        return git.completeBranches();
-      },
+      complete: git.completeBranches,
     }),
     commit: cliparse.option('commit', {
       metavar: 'commit id',
@@ -312,9 +291,7 @@ async function run() {
       metavar: 'flavor',
       parser: Parsers.flavor,
       description: 'The instance size of your application',
-      complete() {
-        return cliparse.autocomplete.words(Application.listAvailableFlavors());
-      },
+      complete: Application.listAvailableFlavors,
     }),
     follow: cliparse.flag('follow', {
       aliases: ['f'],
@@ -358,9 +335,7 @@ async function run() {
       metavar: 'maxflavor',
       parser: Parsers.flavor,
       description: 'The maximum instance size of your application',
-      complete() {
-        return cliparse.autocomplete.words(Application.listAvailableFlavors());
-      },
+      complete: Application.listAvailableFlavors,
     }),
     buildFlavor: cliparse.option('build-flavor', {
       metavar: 'buildflavor',
@@ -376,9 +351,7 @@ async function run() {
       metavar: 'minflavor',
       parser: Parsers.flavor,
       description: 'The minimum scale size of your application',
-      complete() {
-        return cliparse.autocomplete.words(Application.listAvailableFlavors());
-      },
+      complete: Application.listAvailableFlavors,
     }),
     minInstances: cliparse.option('min-instances', {
       metavar: 'mininstances',
@@ -2087,9 +2060,6 @@ async function run() {
     commands: [backupsCommand],
   });
 
-  // Patch help command description
-  cliparseCommands.helpCommand.description = 'Display help about the Clever Cloud CLI';
-
   const commands = [
     accesslogsCommand,
     activityCommand,
@@ -2111,7 +2081,6 @@ async function run() {
     emailsCommands,
     envCommands,
     featuresCommands,
-    cliparseCommands.helpCommand,
     loginCommand,
     logoutCommand,
     logsCommand,
@@ -2161,8 +2130,8 @@ async function run() {
     description: "CLI tool to manage Clever Cloud's data and products",
     version: pkg.version,
     options: [opts.color, opts.updateNotifier, opts.verbose],
-    helpCommand: false,
-    commands: _sortBy(commands, 'name'),
+    helpCommandDescription: 'Display help about the Clever Cloud CLI',
+    commands,
   });
 
   // Make sure argv[0] is always "node"
