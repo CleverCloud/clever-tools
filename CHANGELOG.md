@@ -1,6 +1,14 @@
 # clever-tools changelog
 
 
+## [4.4.1](https://github.com/CleverCloud/clever-tools/compare/4.4.0...4.4.1) (2025-12-02)
+
+
+### 🐛 Bug Fixes
+
+* don't fail deployment if an application has no domain ([64cd902](https://github.com/CleverCloud/clever-tools/commit/64cd902ed1d87b3370cb14575cb1fa9adb8a770e)), closes [#998](https://github.com/CleverCloud/clever-tools/issues/998)
+* **operators:** add Accept header to get-config ([bc54787](https://github.com/CleverCloud/clever-tools/commit/bc547870c49add7b3141d1ed65e5ba94590bd699))
+
 ## [4.4.0](https://github.com/CleverCloud/clever-tools/compare/4.3.0...4.4.0) (2025-11-13)
 
 
