@@ -2,9 +2,8 @@ import { styleText } from '../lib/style-text.js';
 import { Logger } from '../logger.js';
 import * as Application from '../models/application.js';
 
-export async function link(params) {
-  const [app] = params.args;
-  const { org: orgaIdOrName, alias } = params.options;
+export async function link(options, app) {
+  const { org: orgaIdOrName, alias } = options;
 
   let appConfigEntry;
   if (app.app_id != null && orgaIdOrName != null) {

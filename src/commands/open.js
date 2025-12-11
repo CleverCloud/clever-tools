@@ -2,8 +2,8 @@ import * as Application from '../models/application.js';
 import * as Domain from '../models/domain.js';
 import { openBrowser } from '../models/utils.js';
 
-export async function open(params) {
-  const { alias, app: appIdOrName } = params.options;
+export async function open(options) {
+  const { alias, app: appIdOrName } = options;
   const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
 
   const vhost = await Domain.getBest(appId, ownerId);

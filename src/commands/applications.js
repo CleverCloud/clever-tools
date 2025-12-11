@@ -7,8 +7,8 @@ import * as Application from '../models/application.js';
 import * as Organisation from '../models/organisation.js';
 import { truncateWithEllipsis } from '../models/utils.js';
 
-export async function list(params) {
-  const { 'only-aliases': onlyAliases, json } = params.options;
+export async function list(options) {
+  const { 'only-aliases': onlyAliases, json } = options;
 
   const { apps } = await AppConfig.loadApplicationConf();
 
@@ -42,8 +42,8 @@ function formatApps(apps, onlyAliases, json) {
   }
 }
 
-export async function listAll(params) {
-  const { org: orgaIdOrName, format } = params.options;
+export async function listAll(options) {
+  const { org: orgaIdOrName, format } = options;
 
   const linkedApps = await AppConfig.loadApplicationConf().then((conf) => conf.apps);
 
@@ -107,6 +107,7 @@ export async function listAll(params) {
                   app.alias,
                 ]),
               ],
+
               columnWidths,
             ),
           );

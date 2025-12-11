@@ -14,8 +14,8 @@ import { openBrowser } from '../models/utils.js';
  * @param {object} params The command parameters
  * @param {string} params.options.format The output format
  */
-export async function list(params) {
-  const { format } = params.options;
+export async function list(options) {
+  const { format } = options;
   const addresses = await getUserEmailAddresses();
 
   switch (format) {
@@ -41,9 +41,7 @@ export async function list(params) {
  * @param {object} params The command parameters
  * @param {Array<string>} params.args
  */
-export async function addSecondary(params) {
-  const [secondaryAddress] = params.args;
-
+export async function addSecondary(_options, secondaryAddress) {
   const secondaryAddressEncoded = encodeURIComponent(secondaryAddress);
   try {
     await addEmailAddress({ email: secondaryAddressEncoded }).then(sendToApi);
@@ -69,9 +67,7 @@ export async function addSecondary(params) {
  * @param {object} params The command parameters
  * @param {Array<string>} params.args
  */
-export async function setPrimary(params) {
-  const [newPrimaryAddress] = params.args;
-
+export async function setPrimary(_options, newPrimaryAddress) {
   const addresses = await getUserEmailAddresses();
 
   if (addresses.primary === newPrimaryAddress) {
@@ -93,9 +89,7 @@ export async function setPrimary(params) {
  * @param {object} params The command parameters
  * @param {Array<string>} params.args
  */
-export async function removeSecondary(params) {
-  const [addressToRemove] = params.args;
-
+export async function removeSecondary(_options, addressToRemove) {
   const addresses = await getUserEmailAddresses();
 
   if (!addresses.secondary.includes(addressToRemove)) {
@@ -114,8 +108,8 @@ export async function removeSecondary(params) {
  * @param {object} params.options The command options
  * @param {boolean} params.options.yes The user confirmation
  */
-export async function removeAllSecondary(params) {
-  if (!params.options.yes) {
+export async function removeAllSecondary(options) {
+  if (!options.yes) {
     await confirm('Are you sure you want to remove all your secondary addresses?', 'No secondary addresses removed');
   }
 

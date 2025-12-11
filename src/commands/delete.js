@@ -3,8 +3,8 @@ import { Logger } from '../logger.js';
 import * as AppConfig from '../models/app_configuration.js';
 import * as Application from '../models/application.js';
 
-export async function deleteApp(params) {
-  const { alias, app: appIdOrName, yes: skipConfirmation } = params.options;
+export async function deleteApp(options) {
+  const { alias, app: appIdOrName, yes: skipConfirmation } = options;
   const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
 
   const app = await Application.get(ownerId, appId);

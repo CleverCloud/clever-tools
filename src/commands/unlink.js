@@ -3,8 +3,7 @@ import { Logger } from '../logger.js';
 import * as AppConfig from '../models/app_configuration.js';
 import * as Application from '../models/application.js';
 
-export async function unlink(params) {
-  const [alias] = params.args;
+export async function unlink(_options, alias) {
   const app = await AppConfig.getAppDetails({ alias });
 
   await Application.unlinkRepo(app.alias);

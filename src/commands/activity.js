@@ -75,6 +75,7 @@ function formatActivityLine(event) {
         event.cause,
       ],
     ],
+
     ACTIVITY_TABLE_COLUMN_WIDTHS,
   );
 }
@@ -153,8 +154,8 @@ function getEventHandler(format, follow) {
   }
 }
 
-export async function activity(params) {
-  const { alias, app: appIdOrName, 'show-all': showAll, follow, format } = params.options;
+export async function activity(options) {
+  const { alias, app: appIdOrName, 'show-all': showAll, follow, format } = options;
   const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
   const events = await Activity.list(ownerId, appId, showAll);
   const reversedArrayWithIndex = events.reverse().map((event, index, all) => {

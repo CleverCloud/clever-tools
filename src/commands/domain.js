@@ -25,8 +25,8 @@ import { sendToApi } from '../models/send-to-api.js';
  * @typedef {import('@clevercloud/client/esm/utils/diag-domain-config.types.js').DomainDiag} DomainDiag
  */
 
-export async function list(params) {
-  const { alias, app: appIdOrName, format } = params.options;
+export async function list(options) {
+  const { alias, app: appIdOrName, format } = options;
   const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
 
   const app = await getApp({ id: ownerId, appId }).then(sendToApi);
@@ -46,9 +46,8 @@ export async function list(params) {
   }
 }
 
-export async function add(params) {
-  const [fqdn] = params.args;
-  const { alias, app: appIdOrName } = params.options;
+export async function add(options, fqdn) {
+  const { alias, app: appIdOrName } = options;
   const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
   const encodedFqdn = encodeURIComponent(fqdn);
 
@@ -56,8 +55,8 @@ export async function add(params) {
   Logger.println('Your domain has been successfully saved');
 }
 
-export async function getFavourite(params) {
-  const { alias, app: appIdOrName, format } = params.options;
+export async function getFavourite(options) {
+  const { alias, app: appIdOrName, format } = options;
   const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
 
   const favouriteDomain = await getFavouriteDomain({ ownerId, appId });
@@ -76,26 +75,24 @@ export async function getFavourite(params) {
   }
 }
 
-export async function setFavourite(params) {
-  const [fqdn] = params.args;
-  const { alias, app: appIdOrName } = params.options;
+export async function setFavourite(options, fqdn) {
+  const { alias, app: appIdOrName } = options;
   const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
 
   await markFavouriteDomain({ id: ownerId, appId }, { fqdn }).then(sendToApi);
   Logger.println('Your favourite domain has been successfully set');
 }
 
-export async function unsetFavourite(params) {
-  const { alias, app: appIdOrName } = params.options;
+export async function unsetFavourite(options) {
+  const { alias, app: appIdOrName } = options;
   const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
 
   await unmarkFavouriteDomain({ id: ownerId, appId }).then(sendToApi);
   Logger.println('Favourite domain has been successfully unset');
 }
 
-export async function rm(params) {
-  const [fqdn] = params.args;
-  const { alias, app: appIdOrName } = params.options;
+export async function rm(options, fqdn) {
+  const { alias, app: appIdOrName } = options;
   const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
   const encodedFqdn = encodeURIComponent(fqdn);
 
@@ -103,10 +100,10 @@ export async function rm(params) {
   Logger.println('Your domain has been successfully removed');
 }
 
-export async function diagApplication(params) {
+export async function diagApplication(options) {
   const dnsResolver = new DnsResolver();
   const allDomainDiagnostics = [];
-  const { alias, app: appIdOrName, format, filter } = params.options;
+  const { alias, app: appIdOrName, format, filter } = options;
   const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
   const hasDomainFilter = filter.length > 0;
   let hasError = false;
@@ -167,8 +164,8 @@ export async function diagApplication(params) {
   }
 }
 
-export async function overview(params) {
-  const { format, filter } = params.options;
+export async function overview(options) {
+  const { format, filter } = options;
 
   const summary = await getSummary().then(sendToApi);
   const consoleUrl = summary.user.partnerConsoleUrl;

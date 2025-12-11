@@ -2,8 +2,8 @@ import * as AppConfig from '../models/app_configuration.js';
 import * as Application from '../models/application.js';
 import { openBrowser } from '../models/utils.js';
 
-export async function openConsole(params) {
-  const { alias, app: appIdOrName } = params.options;
+export async function openConsole(options) {
+  const { alias, app: appIdOrName } = options;
 
   const { apps } = await AppConfig.loadApplicationConf();
   // If no app is linked or asked, open the Console without any context

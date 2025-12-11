@@ -4,8 +4,8 @@ import { Logger } from '../logger.js';
 import * as User from '../models/user.js';
 import { openBrowser } from '../models/utils.js';
 
-export async function profile(params) {
-  const { format } = params.options;
+export async function profile(options) {
+  const { format } = options;
 
   const user = await User.getCurrent();
   const currentToken = await User.getCurrentToken();

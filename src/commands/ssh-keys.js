@@ -13,8 +13,8 @@ import { openBrowser } from '../models/utils.js';
  * @param {object} params The command parameters
  * @param {string} params.options.format The output format
  */
-export async function list(params) {
-  const { format } = params.options;
+export async function list(options) {
+  const { format } = options;
 
   const keys = await getUserSshKeys();
 
@@ -54,9 +54,7 @@ export async function list(params) {
  * @param {object} params The command parameters
  * @param {Array<string>} params.args
  */
-export async function add(params) {
-  const [keyName, filePath] = params.args;
-
+export async function add(_options, keyName, filePath) {
   if (!fs.existsSync(filePath)) {
     throw new Error(`File ${filePath} does not exist`);
   }
@@ -81,9 +79,7 @@ export async function add(params) {
  * @param {object} params The command parameters
  * @param {Array<string>} params.args
  */
-export async function remove(params) {
-  const [keyName] = params.args;
-
+export async function remove(_options, keyName) {
   const keys = await getUserSshKeys();
 
   if (keys.find((key) => key.name === keyName) == null) {
@@ -102,8 +98,8 @@ export async function remove(params) {
  * @param {object} params.options The command options
  * @param {boolean} params.options.yes The user confirmation
  */
-export async function removeAll(params) {
-  if (!params.options.yes) {
+export async function removeAll(options) {
+  if (!options.yes) {
     await confirm('Are you sure you want to remove all your SSH keys?', 'No SSH keys removed');
   }
 

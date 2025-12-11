@@ -6,8 +6,8 @@ import { Logger } from '../logger.js';
 import { conf, loadOAuthConf } from '../models/configuration.js';
 import * as User from '../models/user.js';
 
-export async function diag(params) {
-  const { format } = params.options;
+export async function diag(options) {
+  const { format } = options;
 
   /** @type {string} */
   const userId = await User.getCurrentId().catch(() => null);

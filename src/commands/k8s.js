@@ -14,14 +14,14 @@ import { Logger } from '../logger.js';
 
 const DEPLOY_POLL_DELAY_MS = 10000;
 
-export async function create(params) {
-  const clusterName = params.args[0];
-  const orgIdOrName = params.options.org;
+export async function create(options, ...args) {
+  const clusterName = args[0];
+  const orgIdOrName = options.org;
 
   try {
     const cluster = await k8sCreate(clusterName, orgIdOrName);
 
-    if (params.options.watch) {
+    if (options.watch) {
       await typewriterLogo();
 
       let deployedCluster = cluster;
@@ -69,9 +69,8 @@ export async function create(params) {
   }
 }
 
-export async function del(params) {
-  const [clusterIdOrName] = params.args;
-  const { org: orgIdOrName, yes: confirmDeletion } = params.options;
+export async function del(options, clusterIdOrName) {
+  const { org: orgIdOrName, yes: confirmDeletion } = options;
 
   let proceedDeletion;
   if (confirmDeletion) {
@@ -94,8 +93,8 @@ export async function del(params) {
   }
 }
 
-export async function list(params) {
-  const { format, org: orgIdOrName } = params.options;
+export async function list(options) {
+  const { format, org: orgIdOrName } = options;
   const clusters = await k8sList(orgIdOrName, format);
 
   switch (format) {
@@ -118,9 +117,8 @@ export async function list(params) {
   }
 }
 
-export async function get(params) {
-  const [clusterIdOrName] = params.args;
-  const { format, org: orgIdOrName } = params.options;
+export async function get(options, clusterIdOrName) {
+  const { format, org: orgIdOrName } = options;
 
   const k8sInfo = await getK8sCluster(orgIdOrName, clusterIdOrName);
 
@@ -147,9 +145,8 @@ export async function get(params) {
   }
 }
 
-export async function addPersistentStorage(params) {
-  const [clusterIdOrName] = params.args;
-  const orgIdOrName = params.options.org;
+export async function addPersistentStorage(options, clusterIdOrName) {
+  const orgIdOrName = options.org;
 
   if ((await isK8sClusterActive(orgIdOrName, clusterIdOrName)) === false) {
     Logger.printInfo(
@@ -173,9 +170,8 @@ export async function addPersistentStorage(params) {
   }
 }
 
-export async function getConfig(params) {
-  const [clusterIdOrName] = params.args;
-  const orgIdOrName = params.options.org;
+export async function getConfig(options, clusterIdOrName) {
+  const orgIdOrName = options.org;
 
   if ((await isK8sClusterActive(orgIdOrName, clusterIdOrName)) !== true) {
     Logger.printInfo(
