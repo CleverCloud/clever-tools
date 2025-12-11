@@ -121,7 +121,6 @@ async function run() {
       parser: Parsers.ngResourceType,
     }),
     wgPublicKey: cliparse.argument('public-key', {
-      metavar: 'public-key',
       description: 'WireGuard public key of the external peer to link to a Network Group',
     }),
     email: cliparse.argument('email', {
