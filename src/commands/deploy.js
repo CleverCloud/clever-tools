@@ -11,7 +11,7 @@ import { sendToApi } from '../models/send-to-api.js';
 
 // Once the API call to redeploy() has been triggered successfully,
 // the rest (waiting for deployment state to evolve and displaying logs) is done with auto retry (resilient to network failures)
-export async function deploy(params) {
+export async function deploy(options) {
   const {
     alias,
     branch: branchName,
@@ -21,7 +21,7 @@ export async function deploy(params) {
     follow,
     'same-commit-policy': sameCommitPolicy,
     'exit-on': exitOnDeploy,
-  } = params.options;
+  } = options;
 
   const exitStrategy = ExitStrategy.get(follow, exitOnDeploy);
 

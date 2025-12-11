@@ -15,8 +15,8 @@ import * as Organisation from '../models/organisation.js';
 import { sendToApi } from '../models/send-to-api.js';
 import * as User from '../models/user.js';
 
-export async function list(params) {
-  const { org: orgaIdOrName, format } = params.options;
+export async function list(options) {
+  const { org: orgaIdOrName, format } = options;
 
   const ownerId = await Organisation.getId(orgaIdOrName);
   const addons = await Addon.list(ownerId);
@@ -93,8 +93,7 @@ const ADDON_PROVIDERS = {
   },
 };
 
-export async function create(params) {
-  const [providerName, name] = params.args;
+export async function create(options, providerName, name) {
   const {
     link: linkedAppAlias,
     plan: planName,
@@ -104,7 +103,7 @@ export async function create(params) {
     format,
     'addon-version': version,
     option: addonOptions,
-  } = params.options;
+  } = options;
 
   const addonToCreate = {
     name,
@@ -219,9 +218,8 @@ export async function create(params) {
   }
 }
 
-export async function deleteAddon(params) {
-  const { yes: skipConfirmation, org: orgaIdOrName } = params.options;
-  const [addon] = params.args;
+export async function deleteAddon(options, addon) {
+  const { yes: skipConfirmation, org: orgaIdOrName } = options;
 
   let ownerId = await Organisation.getId(orgaIdOrName);
   if (ownerId == null && addon.addon_id != null) {
@@ -237,9 +235,8 @@ export async function deleteAddon(params) {
   Logger.println(`Addon ${addon.addon_id || addon.addon_name} successfully deleted`);
 }
 
-export async function rename(params) {
-  const [addon, newName] = params.args;
-  const { org: orgaIdOrName } = params.options;
+export async function rename(options, addon, newName) {
+  const { org: orgaIdOrName } = options;
 
   const ownerId = await Organisation.getId(orgaIdOrName);
   await Addon.rename(ownerId, addon, newName);
@@ -247,8 +244,8 @@ export async function rename(params) {
   Logger.println(`Addon ${addon.addon_id || addon.addon_name} successfully renamed to ${newName}`);
 }
 
-export async function listProviders(params) {
-  const { format } = params.options;
+export async function listProviders(options) {
+  const { format } = options;
 
   const providers = await Addon.listProviders();
 
@@ -278,9 +275,8 @@ export async function listProviders(params) {
   }
 }
 
-export async function showProvider(params) {
-  const [providerName] = params.args;
-  const { format } = params.options;
+export async function showProvider(options, providerName) {
+  const { format } = options;
 
   const provider = await Addon.getProvider(providerName);
   const providerInfos = await Addon.getProviderInfos(providerName);
@@ -310,7 +306,7 @@ export async function showProvider(params) {
             return {
               version,
               isDefault: version === providerInfos.defaultDedicatedVersion,
-              options: providerInfos.dedicated[version].features.map((feature) => ({
+              features: providerInfos.dedicated[version].features.map((feature) => ({
                 name: feature.name,
                 enabledByDefault: feature.enabled,
               })),
@@ -352,9 +348,9 @@ export async function showProvider(params) {
           Logger.println(
             `  Available versions: ${plan.versions.map(({ version, isDefault }) => (isDefault ? `${version} (default)` : version)).join(', ')}`,
           );
-          plan.versions.forEach(({ version, options }) => {
+          plan.versions.forEach(({ version, features }) => {
             Logger.println(`  Options for version ${version}:`);
-            options.forEach(({ name, enabledByDefault }) => {
+            features.forEach(({ name, enabledByDefault }) => {
               Logger.println(`    ${name}: default=${enabledByDefault}`);
             });
           });
@@ -364,9 +360,8 @@ export async function showProvider(params) {
   }
 }
 
-export async function env(params) {
-  const { org, format } = params.options;
-  const [addonIdOrRealId] = params.args;
+export async function env(options, addonIdOrRealId) {
+  const { org, format } = options;
 
   const addonId = await resolveAddonId(addonIdOrRealId);
   const ownerId = await findOwnerId(org, addonId);

@@ -5,8 +5,8 @@ import * as Application from '../models/application.js';
 import { DRAIN_TYPE_CLI_CODES, DRAIN_TYPES, formatDrain } from '../models/drain.js';
 import { sendToApi } from '../models/send-to-api.js';
 
-export async function list(params) {
-  const { alias, app: appIdOrName, format } = params.options;
+export async function list(options) {
+  const { alias, app: appIdOrName, format } = options;
 
   const { ownerId, appId: applicationId } = await Application.resolveId(appIdOrName, alias);
 
@@ -44,16 +44,15 @@ export async function list(params) {
   }
 }
 
-export async function create(params) {
-  const { alias, app: appIdOrName } = params.options;
+export async function create(options, drainTypeCliCode, url) {
+  const { alias, app: appIdOrName } = options;
   const {
     username,
     password,
     'api-key': apiKey,
     'index-prefix': indexPrefix,
     'sd-params': rfc5424StructuredDataParameters,
-  } = params.options;
-  const [drainTypeCliCode, url] = params.args;
+  } = options;
 
   const drainType = Object.values(DRAIN_TYPES).find((drainType) => drainType.cliCode === drainTypeCliCode);
   if (!drainType) {
@@ -110,9 +109,8 @@ export async function create(params) {
   Logger.printSuccess(`Drain ${styleText(['bold', 'green'], drain.id)} has been successfully created and enabled!`);
 }
 
-export async function get(params) {
-  const [drainId] = params.args;
-  const { alias, app: appIdOrName, format } = params.options;
+export async function get(options, drainId) {
+  const { alias, app: appIdOrName, format } = options;
 
   const { ownerId, appId: applicationId } = await Application.resolveId(appIdOrName, alias);
 
@@ -131,9 +129,8 @@ export async function get(params) {
   }
 }
 
-export async function remove(params) {
-  const [drainId] = params.args;
-  const { alias, app: appIdOrName } = params.options;
+export async function remove(options, drainId) {
+  const { alias, app: appIdOrName } = options;
 
   const { ownerId, appId: applicationId } = await Application.resolveId(appIdOrName, alias);
 
@@ -141,9 +138,8 @@ export async function remove(params) {
   Logger.printSuccess(`Drain ${styleText(['bold', 'green'], drainId)} has been successfully removed!`);
 }
 
-export async function enable(params) {
-  const [drainId] = params.args;
-  const { alias, app: appIdOrName } = params.options;
+export async function enable(options, drainId) {
+  const { alias, app: appIdOrName } = options;
 
   const { ownerId, appId: applicationId } = await Application.resolveId(appIdOrName, alias);
 
@@ -152,9 +148,8 @@ export async function enable(params) {
   Logger.printSuccess(`Drain ${styleText(['bold', 'green'], drainId)} has been successfully enabled!`);
 }
 
-export async function disable(params) {
-  const [drainId] = params.args;
-  const { alias, app: appIdOrName } = params.options;
+export async function disable(options, drainId) {
+  const { alias, app: appIdOrName } = options;
 
   const { ownerId, appId: applicationId } = await Application.resolveId(appIdOrName, alias);
 
