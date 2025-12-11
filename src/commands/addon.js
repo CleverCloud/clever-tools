@@ -310,7 +310,7 @@ export async function showProvider(params) {
             return {
               version,
               isDefault: version === providerInfos.defaultDedicatedVersion,
-              options: providerInfos.dedicated[version].features.map((feature) => ({
+              features: providerInfos.dedicated[version].features.map((feature) => ({
                 name: feature.name,
                 enabledByDefault: feature.enabled,
               })),
@@ -352,9 +352,9 @@ export async function showProvider(params) {
           Logger.println(
             `  Available versions: ${plan.versions.map(({ version, isDefault }) => (isDefault ? `${version} (default)` : version)).join(', ')}`,
           );
-          plan.versions.forEach(({ version, options }) => {
+          plan.versions.forEach(({ version, features }) => {
             Logger.println(`  Options for version ${version}:`);
-            options.forEach(({ name, enabledByDefault }) => {
+            features.forEach(({ name, enabledByDefault }) => {
               Logger.println(`    ${name}: default=${enabledByDefault}`);
             });
           });
