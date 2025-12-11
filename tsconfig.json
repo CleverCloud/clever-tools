@@ -18,6 +18,6 @@
     "lib": ["ES2024", "ESNext.Collection"],
     "useUnknownInCatchVariables": false
   },
-  "include": ["scripts"],
+  "include": ["scripts", "src/lib/define-**"],
   "exclude": ["build", "docs", "node_modules"]
 }
