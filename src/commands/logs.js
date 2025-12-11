@@ -6,7 +6,7 @@ import * as Log from '../models/log-v4.js';
 import * as LogV2 from '../models/log.js';
 import { Deferred } from '../models/utils.js';
 
-export async function appLogs(params) {
+export async function appLogs(options) {
   const {
     alias,
     app: appIdOrName,
@@ -16,7 +16,7 @@ export async function appLogs(params) {
     search,
     'deployment-id': deploymentId,
     format,
-  } = params.options;
+  } = options;
 
   // ignore --search ""
   const filter = search !== '' ? search : null;

@@ -7,7 +7,7 @@ import * as Log from '../models/log-v4.js';
 
 // Once the API call to redeploy() has been triggerred successfully,
 // the rest (waiting for deployment state to evolve and displaying logs) is done with auto retry (resilient to network pb)
-export async function restart(params) {
+export async function restart(options) {
   const {
     alias,
     app: appIdOrName,
@@ -16,7 +16,7 @@ export async function restart(params) {
     'without-cache': withoutCache,
     follow,
     'exit-on': exitOnDeploy,
-  } = params.options;
+  } = options;
 
   const exitStrategy = ExitStrategy.get(follow, exitOnDeploy);
 

@@ -17,9 +17,8 @@ import {
  * @param {string} params.options.format The output format
  * @returns {Promise<void>}
  */
-export async function checkVersion(params) {
-  const [addonIdOrName] = params.args;
-  const { format } = params.options;
+export async function checkVersion(options, addonIdOrName) {
+  const { format } = options;
   await operatorCheckVersion('metabase', addonIdOrName, format);
 }
 
@@ -29,9 +28,8 @@ export async function checkVersion(params) {
  * @param {string} params.args[0] The operator's name or ID
  * @returns {Promise<void>}
  */
-export async function updateVersion(params) {
-  const [addonIdOrName] = params.args;
-  const { target } = params.options;
+export async function updateVersion(options, addonIdOrName) {
+  const { target } = options;
   await operatorUpdateVersion('metabase', target, addonIdOrName);
 }
 
@@ -42,9 +40,8 @@ export async function updateVersion(params) {
  * @param {string} params.options.format The output format
  * @returns {Promise<void>}
  */
-export async function get(params) {
-  const [addonIdOrName] = params.args;
-  const { format } = params.options;
+export async function get(options, addonIdOrName) {
+  const { format } = options;
   await operatorPrint('metabase', addonIdOrName, format);
 }
 
@@ -52,8 +49,8 @@ export async function get(params) {
  * List all Metabase operators
  * @returns {Promise<void>}
  */
-export async function list(params) {
-  await operatorList('metabase', params.options.format);
+export async function list(options) {
+  await operatorList('metabase', options.format);
 }
 
 /**
@@ -62,8 +59,7 @@ export async function list(params) {
  * @param {string} params.args[0] The operator's name or ID
  * @returns {Promise<void>}
  */
-export async function open(params) {
-  const [addonIdOrName] = params.args;
+export async function open(_options, addonIdOrName) {
   await operatorOpen('metabase', addonIdOrName);
 }
 
@@ -73,8 +69,7 @@ export async function open(params) {
  * @param {string} params.args[0] The operator's name or ID
  * @returns {Promise<void>}
  */
-export async function openLogs(params) {
-  const [addonIdOrName] = params.args;
+export async function openLogs(_options, addonIdOrName) {
   await operatorOpenLogs('metabase', addonIdOrName);
 }
 
@@ -84,8 +79,7 @@ export async function openLogs(params) {
  * @param {string} params.args[0] The operator's name or ID
  * @returns {Promise<void>}
  */
-export async function openWebUi(params) {
-  const [addonIdOrName] = params.args;
+export async function openWebUi(_options, addonIdOrName) {
   await operatorOpenWebUi('metabase', addonIdOrName);
 }
 
@@ -95,8 +89,7 @@ export async function openWebUi(params) {
  * @param {string} params.args[0] The operator's name or ID
  * @returns {Promise<void>}
  */
-export async function reboot(params) {
-  const [addonIdOrName] = params.args;
+export async function reboot(_options, addonIdOrName) {
   await operatorReboot('metabase', addonIdOrName);
 }
 
@@ -106,7 +99,6 @@ export async function reboot(params) {
  * @param {string} params.args[0] The operator's name or ID
  * @returns {Promise<void>}
  */
-export async function rebuild(params) {
-  const [addonIdOrName] = params.args;
+export async function rebuild(_options, addonIdOrName) {
   await operatorRebuild('metabase', addonIdOrName);
 }

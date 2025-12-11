@@ -5,8 +5,8 @@ import * as Application from '../models/application.js';
 import { sendToApi } from '../models/send-to-api.js';
 import * as variables from '../models/variables.js';
 
-export async function list(params) {
-  const { alias, app: appIdOrName, format } = params.options;
+export async function list(options) {
+  const { alias, app: appIdOrName, format } = options;
   const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
 
   const publishedConfigs = await getAllExposedEnvVars({ id: ownerId, appId }).then(sendToApi);
@@ -28,9 +28,8 @@ export async function list(params) {
   }
 }
 
-export async function set(params) {
-  const [varName, varValue] = params.args;
-  const { alias, app: appIdOrName } = params.options;
+export async function set(options, varName, varValue) {
+  const { alias, app: appIdOrName } = options;
 
   const nameIsValid = validateName(varName);
   if (!nameIsValid) {
@@ -46,9 +45,8 @@ export async function set(params) {
   Logger.println('Your published config item has been successfully saved');
 }
 
-export async function rm(params) {
-  const [varName] = params.args;
-  const { alias, app: appIdOrName } = params.options;
+export async function rm(options, varName) {
+  const { alias, app: appIdOrName } = options;
   const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
 
   const publishedConfigs = await getAllExposedEnvVars({ id: ownerId, appId }).then(sendToApi);
@@ -58,8 +56,8 @@ export async function rm(params) {
   Logger.println('Your published config item has been successfully removed');
 }
 
-export async function importEnv(params) {
-  const { alias, app: appIdOrName, json } = params.options;
+export async function importEnv(options) {
+  const { alias, app: appIdOrName, json } = options;
   const format = json ? 'json' : 'name-equals-value';
   const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
 

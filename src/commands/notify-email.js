@@ -4,8 +4,8 @@ import { Logger } from '../logger.js';
 import { getOrgaIdOrUserId, getOwnerAndApp } from '../models/notification.js';
 import { sendToApi } from '../models/send-to-api.js';
 
-export async function list(params) {
-  const { org, 'list-all': listAll, format } = params.options;
+export async function list(options) {
+  const { org, 'list-all': listAll, format } = options;
 
   // TODO: fix alias option
   const { ownerId, appId } = await getOwnerAndApp(null, org, !listAll);
@@ -69,9 +69,8 @@ export function getEmailNotificationTargets(notifTargets) {
     .filter((e) => e != null);
 }
 
-export async function add(params) {
-  const { org, event: events, service, notify: notifTargets } = params.options;
-  const [name] = params.args;
+export async function add(options, name) {
+  const { org, event: events, service, notify: notifTargets } = options;
 
   // TODO: fix alias option
   const { ownerId, appId } = await getOwnerAndApp(null, org, !org && !service);
@@ -88,9 +87,8 @@ export async function add(params) {
   Logger.println('The webhook has been added');
 }
 
-export async function remove(params) {
-  const { org } = params.options;
-  const [notificationId] = params.args;
+export async function remove(options, notificationId) {
+  const { org } = options;
 
   const ownerId = await getOrgaIdOrUserId(org);
   await deleteEmailhook({ ownerId, id: notificationId }).then(sendToApi);

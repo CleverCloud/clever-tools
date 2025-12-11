@@ -12,14 +12,14 @@ const THROTTLE_ELEMENTS = 2000;
 const THROTTLE_PER_IN_MILLISECONDS = 100;
 const CITY_MAX_LENGTH = 20;
 
-export async function accessLogs(params) {
+export async function accessLogs(options) {
   // TODO: drop when add-ons are supported in API
-  if (params.options.addon) {
+  if (options.addon) {
     throw new Error('Access Logs are not available for add-ons yet');
   }
 
   const { apiHost, tokens } = await getHostAndTokens();
-  const { alias, app: appIdOrName, format, before: until, after: since } = params.options;
+  const { alias, app: appIdOrName, format, before: until, after: since } = options;
   const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
 
   const stream = new ApplicationAccessLogStream({
@@ -101,6 +101,7 @@ function formatHuman(log) {
         http.request.method.toString().padEnd(4, ' ') + ' ' + http.request.path,
       ],
     ],
+
     ACCESSLOG_COLUMN_WIDTHS,
   );
 }

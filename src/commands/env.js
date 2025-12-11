@@ -13,8 +13,8 @@ import * as Application from '../models/application.js';
 import { sendToApi } from '../models/send-to-api.js';
 import * as variables from '../models/variables.js';
 
-export async function list(params) {
-  const { alias, app: appIdOrName, 'add-export': addExportsOption, format } = params.options;
+export async function list(options) {
+  const { alias, app: appIdOrName, 'add-export': addExportsOption, format } = options;
   const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
 
   const [envFromApp, envFromAddons, envFromDeps] = await Promise.all([
@@ -65,9 +65,8 @@ export async function list(params) {
   }
 }
 
-export async function set(params) {
-  const [envName, value] = params.args;
-  const { alias, app: appIdOrName } = params.options;
+export async function set(options, envName, value) {
+  const { alias, app: appIdOrName } = options;
 
   const nameIsValid = validateName(envName);
   if (!nameIsValid) {
@@ -81,9 +80,8 @@ export async function set(params) {
   Logger.println('Your environment variable has been successfully saved');
 }
 
-export async function rm(params) {
-  const [envName] = params.args;
-  const { alias, app: appIdOrName } = params.options;
+export async function rm(options, envName) {
+  const { alias, app: appIdOrName } = options;
   const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
 
   await removeEnvVar({ id: ownerId, appId, envName }).then(sendToApi);
@@ -91,8 +89,8 @@ export async function rm(params) {
   Logger.println('Your environment variable has been successfully removed');
 }
 
-export async function importEnv(params) {
-  const { alias, app: appIdOrName, json } = params.options;
+export async function importEnv(options) {
+  const { alias, app: appIdOrName, json } = options;
   const format = json ? 'json' : 'name-equals-value';
   const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
 
@@ -102,9 +100,8 @@ export async function importEnv(params) {
   Logger.println('Environment variables have been set');
 }
 
-export async function importVarsFromLocalEnv(params) {
-  const [envNames] = params.args;
-  const { alias, app: appIdOrName } = params.options;
+export async function importVarsFromLocalEnv(options, envNames) {
+  const { alias, app: appIdOrName } = options;
 
   for (const envName of envNames) {
     const nameIsValid = validateName(envName);
