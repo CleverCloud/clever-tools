@@ -1,9 +1,50 @@
 import cliparse from 'cliparse';
 import cliparseCommands from 'cliparse/src/command.js';
+import cliparseArgumentModule from 'cliparse/src/argument.js';
+import cliparseOptionModule from 'cliparse/src/option.js';
 import semver from 'semver';
 import pkg from '../../package.json' with { type: 'json' };
 import { Logger } from '../logger.js';
 import { styleText } from './style-text.js';
+
+// Patch option.help and option.usage to NOT uppercase metavar
+// We want to keep placeholders as defined (lowercase kebab-case)
+const originalOptionHelp = cliparseOptionModule.help;
+cliparseOptionModule.help = function (opt) {
+  const result = originalOptionHelp(opt);
+  // Replace uppercased metavar with original
+  if (opt.metavar) {
+    result[0] = result[0].replace(opt.metavar.toUpperCase(), opt.metavar);
+  }
+  return result;
+};
+
+const originalOptionUsage = cliparseOptionModule.usage;
+cliparseOptionModule.usage = function (opt) {
+  let result = originalOptionUsage(opt);
+  // Replace uppercased metavar with original
+  if (opt.metavar) {
+    result = result.replace(opt.metavar.toUpperCase(), opt.metavar);
+  }
+  return result;
+};
+
+// Patch argument.usage and argument.help to NOT uppercase argument name
+cliparseArgumentModule.usage = function (arg) {
+  if (arg.default !== null) {
+    return '[' + arg.name + ']';
+  } else {
+    return '<' + arg.name + '>';
+  }
+};
+
+const originalArgumentHelp = cliparseArgumentModule.help;
+cliparseArgumentModule.help = function (arg) {
+  const result = originalArgumentHelp(arg);
+  // Replace uppercased name with original
+  result[0] = cliparseArgumentModule.usage(arg);
+  return result;
+};
 
 // Wrap parser functions to allow them to simply return values or throw errors
 // instead of using cliparse.parsers.success/error
