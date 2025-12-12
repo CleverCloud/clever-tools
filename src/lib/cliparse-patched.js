@@ -1,5 +1,4 @@
 import cliparse from 'cliparse';
-import cliparseCommands from 'cliparse/src/command.js';
 import cliparseArgumentModule from 'cliparse/src/argument.js';
 import cliparseOptionModule from 'cliparse/src/option.js';
 import semver from 'semver';
