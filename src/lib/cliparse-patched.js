@@ -9,6 +9,7 @@ import { styleText } from './style-text.js';
 
 // Patch option.help and option.usage to NOT uppercase metavar
 // We want to keep placeholders as defined (lowercase kebab-case)
+// Also style the default value in dim/gray
 const originalOptionHelp = cliparseOptionModule.help;
 cliparseOptionModule.help = function (opt) {
   const result = originalOptionHelp(opt);
