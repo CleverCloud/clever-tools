@@ -32,8 +32,8 @@ const PROJECT_ROOT = resolve(__dirname, '../..');
 export async function runCli(args, options = {}) {
   const { env = {}, cwd = PROJECT_ROOT, timeout = 30000 } = options;
 
-  // const cliBin = resolve(PROJECT_ROOT, 'bin/clever2.js');
-  const cliBin = 'clever';
+  const cliBin = resolve(PROJECT_ROOT, 'bin/clever2.js');
+  // const cliBin = 'clever';
 
   try {
     delete process.env.FORCE_COLOR;

@@ -139,4 +139,51 @@ describe('emails command', () => {
         assert.strictEqual(calls.count, 2);
       });
   });
+
+  it('should return primary and secondary email addresses (json)', async () => {
+    await apiMockCtrl
+      .mock()
+      .when({ method: 'GET', path: '/v2/self' })
+      .respond({
+        status: 200,
+        body: {
+          id: 'user_00000000-0000-0000-0000-000000000001',
+          email: 'test.user@example.com',
+          name: 'Test User',
+          phone: '+33600000000',
+          address: '1 rue de Test',
+          city: 'Paris',
+          zipcode: '75001',
+          country: 'FRANCE',
+          avatar: 'https://www.gravatar.com/avatar/00000000000000000000000000000000.jpg',
+          creationDate: 1700000000000,
+          lang: 'EN',
+          emailValidated: true,
+          oauthApps: ['github'],
+          admin: false,
+          canPay: true,
+          preferredMFA: 'TOTP',
+          hasPassword: true,
+          partnerId: '00000000-0000-0000-0000-000000000000',
+          partnerName: 'default',
+          partnerConsoleUrl: 'https://console.clever-cloud.com',
+        },
+      })
+      .when({ method: 'GET', path: '/v2/self/emails' })
+      .respond({ status: 200, body: ['test.user+secondary@example.com'] })
+      .thenCall(async () => {
+        const result = await runCli(['emails', '--format', 'json'], {
+          env: { API_HOST: apiMockCtrl.mockClient.baseUrl },
+        });
+
+        const output = JSON.parse(result.stdout);
+        assert.deepStrictEqual(output, {
+          primary: 'test.user@example.com',
+          secondary: ['test.user+secondary@example.com'],
+        });
+      })
+      .verify((calls) => {
+        assert.strictEqual(calls.count, 2);
+      });
+  });
 });

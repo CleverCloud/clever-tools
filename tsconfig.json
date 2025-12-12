@@ -16,7 +16,8 @@
     "declarationMap": false,
     "sourceMap": false,
     "lib": ["ES2024", "ESNext.Collection"],
-    "useUnknownInCatchVariables": false
+    "useUnknownInCatchVariables": false,
+    "allowImportingTsExtensions": true
   },
   "include": ["scripts", "src/lib/define-**"],
   "exclude": ["build", "docs", "node_modules", "scripts/generate-docs-reference.js", "scripts/generate-docs-llm.js"]

@@ -121,8 +121,8 @@ cliparse.command = function (name, options, commandFunction) {
     return cliparseCommand(name, options);
   }
 
-  return cliparseCommand(name, options, (...args) => {
-    commandFunction(...args).catch((error) => {
+  return cliparseCommand(name, options, (params) => {
+    commandFunction(params.options, ...params.args).catch((error) => {
       Logger.error(error);
       const semverIsOk = semver.satisfies(process.version, pkg.engines.node);
       if (!semverIsOk) {
