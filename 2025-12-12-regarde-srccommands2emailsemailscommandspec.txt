@@ -1,0 +1,375 @@
+
+ * ▐▛███▜▌ *   Claude Code v2.0.67
+* ▝▜█████▛▘ *  Haiku 4.5 · Claude Max
+ *  ▘▘ ▝▝  *   ~/dev/clever-tools
+
+> regarde @src/commands2/emails/emails.command.spec.ts
+
+J'ai besoin que tu regardes très en détail ce fichier et la manière dont on 
+a testé la commande email.
+On s'est servi d'un système de mock pour on veut complètement moquer l'API, 
+par contre on test très exactement la CLI comme si c'était un programme.
+On la teste pas comme si on savait qu'elle était codée en eau, c'est 
+vraiment une boîte noire.
+En fait ce que j'aimerais c'est généraliser ce système de test sur toutes 
+les commandes. Par contre c'est un énorme travail.
+Pour ça, pour chaque commande, il va falloir se rendre compte de quelle API 
+la commande utilise, potentiellement identifier les différents cas de 
+figure.
+Il va falloir trouver probablement des idées pour mutualiser les moques, ou 
+tu sais, les fixtures.Pour tout ce qui est données, c'est probablement 
+nécessaire. On le voit déjà dans la commande email.
+Donc en gros j'ai besoin que tu me fasses des suggestions et que tu me 
+donnes ta vision de comment on pourrait organiser au mieux ces fichiers de 
+test et quelles étapes il faudrait qu'on ait pour créer la suite de test 
+pour toutes les commandes en fait. 
+  ⎿  Read src/commands2/emails/emails.command.spec.ts (190 lines)
+
+● Je vais analyser le fichier de test en détail et te donner une vision complète de comment organiser les tests pour toutes les commandes.
+
+● Read(~/dev/clever-tools)
+  ⎿  Error: EISDIR: illegal operation on a directory, read
+
+● Search(pattern: "src/commands2/**/*.spec.ts")
+  ⎿  Found 1 file (ctrl+o to expand)
+
+● Search(pattern: "src/commands2/**/")
+  ⎿  Found 0 files 
+
+● Laisse-moi explorer la structure du projet pour bien comprendre le contexte:
+
+● Bash(find /home/h/dev/clever-tools/src/commands2 -type f -name "*.ts" | head
+      -20)
+  ⎿  /home/h/dev/clever-tools/src/commands2/emails/emails.command.spec.ts
+
+● Bash(ls -la /home/h/dev/clever-tools/src/commands2/)
+  ⎿  total 40                                
+     drwxr-xr-x 1 h h   740 12 déc.  14:26 .
+     drwxr-xr-x 1 h h   402 12 déc.  14:14 ..
+     … +51 lines (ctrl+o to expand)
+
+● Read(test/lib)
+  ⎿  Error: EISDIR: illegal operation on a directory, read
+
+● Bash(find /home/h/dev/clever-tools/test/lib -type f -name "*.ts" -o -name
+      "*.js" | sort)
+  ⎿ /home/h/dev/clever-tools/test/lib/cli-runner.js                        
+    /home/h/dev/clever-tools/test/lib/deep-equal-in-any-order/deep-equal-in
+    -any-order.js
+    … +19 lines (ctrl+o to expand)
+
+
+● Bash(ls -la /home/h/dev/clever-tools/src/commands2/emails/)
+  ⎿  total 40                               
+     drwxr-xr-x 1 h h  374 12 déc.  16:38 .
+     drwxr-xr-x 1 h h  740 12 déc.  14:26 ..
+     … +9 lines (ctrl+o to expand)
+
+● Maintenant laisse-moi regarder quelques autres commandes pour comprendre les patterns:
+
+● Read(src/commands2/emails/emails.command.js)
+  ⎿  Read 46 lines
+
+● Read(src/commands2/addon)
+  ⎿  Error: EISDIR: illegal operation on a directory, read
+
+● Bash(ls -la /home/h/dev/clever-tools/src/commands2/addon/ | head -20)
+  ⎿  total 48                               
+     drwxr-xr-x 1 h h  418 12 déc.  14:13 .
+     drwxr-xr-x 1 h h  740 12 déc.  14:26 ..
+     … +10 lines (ctrl+o to expand)
+
+● Read(test/lib/cli-runner.js)
+  ⎿  Read 58 lines
+
+● Read(test/lib/mock-api/mock-start.js)
+  ⎿  Read 27 lines
+
+● Bash(find /home/h/dev/clever-tools/src/commands2 -name "*.command.js" | wc -l)
+  ⎿  159
+
+● Read(test/lib/mock-api/mock-ctrl.js)
+  ⎿  Read 67 lines
+
+● Bash(find /home/h/dev/clever-tools/src/commands2 -name "*.command.spec.ts" |
+      wc -l)
+  ⎿  1
+
+● Read(src/commands2/addon/addon.command.js)
+  ⎿  Read 57 lines
+
+● Read(src/commands2/applications/applications.command.js)
+  ⎿  Read 61 lines
+
+● Bash(grep -r "getApiClient\|send\(new" /home/h/dev/clever-tools/src/commands2
+      --include="*.js" | head -20)
+  ⎿  grep: Échec de l’appairage de ( ou de \(
+
+● Bash(grep -r "getApiClient" /home/h/dev/clever-tools/src/commands2
+      --include="*.js" | wc -l)
+  ⎿  2
+
+● Bash(grep -r
+      "ListProfileEmailAddressCommand\|ListAppsCommand\|ListAddonsCommand"
+      /home/h/dev/clever-tools/src --include="*.js" | cut -d: -f1 | sort -u)
+  ⎿  /home/h/dev/clever-tools/src/commands2/emails/emails.command.js
+
+● Parfait! Maintenant je vais créer une analyse détaillée et te présenter mon plan pour organiser les tests. Laisse-moi créer un document complet:
+
+  Analyse et Recommandations pour les Tests E2E des Commandes CLI
+
+  Basé sur mon analyse du code, voici ma vision complète pour généraliser le système de test au-delà des emails.
+
+  1. État Actuel
+
+  Positif :
+  - emails.command.spec.ts utilise un pattern excellent : test de la CLI en boîte noire
+  - Infrastructure de mock API mature (MockCtrl, MockStub, MockClient)
+  - Test du vrai binaire CLI via runCli() avec variables d'env
+  - Tests de comportement sans dépendre de l'implémentation interne
+
+  Problèmes :
+  - 1 seul test spec sur 159 commandes CLI
+  - Données répétées (fixtures utilisateur identiques dans chaque test)
+  - Maquettes API définies inline (pas de réutilisabilité)
+  - Aucune organisation pour catégoriser les commandes par API endpoint
+  - Pas de stratégie pour mutualiser les réponses API
+
+  2. Catégorisation des Commandes par Domaine API
+
+  En analysant la structure, les commandes utilisent principalement :
+
+  API Endpoints principaux :
+  ├── /v2/self/* (Utilisateur)
+  │   └── emails command
+  ├── /v2/organisations/* (Organisations)
+  │   ├── addon command
+  │   └── applications command
+  ├── /v2/addons/* (Add-ons)
+  ├── /v2/apps/* (Applications)
+  ├── /v2/events/* (Événements/Logs)
+  └── /v2/services/* (Services)
+
+  3. Arborescence Proposée
+
+  test/
+  ├── lib/
+  │   ├── cli-runner.js (✓ existe déjà)
+  │   ├── mock-api/
+  │   │   └── (✓ existe déjà)
+  │   └── fixtures/                    [NOUVEAU]
+  │       ├── users.fixture.ts         - Données utilisateurs
+  │       ├── organisations.fixture.ts - Données orgas
+  │       ├── addons.fixture.ts        - Données add-ons
+  │       ├── apps.fixture.ts          - Données apps
+  │       ├── domains.fixture.ts       - Données domaines
+  │       └── index.ts                 - Exports centralisés
+  │
+  ├── integration/                     [NOUVEAU]
+  │   ├── profile/                    - Commandes /v2/self
+  │   │   ├── emails.spec.ts          - ✓ Déplacer depuis commands2/
+  │   │   └── profile.spec.ts         - À créer
+  │   │
+  │   ├── addons/                     - Commandes add-ons
+  │   │   ├── addon-list.spec.ts
+  │   │   ├── addon-create.spec.ts
+  │   │   └── addon-delete.spec.ts
+  │   │
+  │   ├── applications/               - Commandes applications
+  │   │   ├── apps-list.spec.ts
+  │   │   └── apps-link.spec.ts
+  │   │
+  │   └── domains/                    - Commandes domaines
+  │       ├── domain-list.spec.ts
+  │       ├── domain-create.spec.ts
+  │       └── domain-delete.spec.ts
+  │
+  └── setup/                          [NOUVEAU]
+      └── test-helpers.ts             - Utilitaires partagés
+
+  4. Pattern pour les Fixtures
+
+  Exemple users.fixture.ts:
+
+  export const DEFAULT_USER = {
+    id: 'user_00000000-0000-0000-0000-000000000001',
+    email: 'test.user@example.com',
+    name: 'Test User',
+    phone: '+33600000000',
+    address: '1 rue de Test',
+    city: 'Paris',
+    zipcode: '75001',
+    country: 'FRANCE',
+    avatar: 'https://www.gravatar.com/avatar/00000000000000000000000000000000.jpg',
+    creationDate: 1700000000000,
+    lang: 'EN',
+    emailValidated: true,
+    oauthApps: ['github'],
+    admin: false,
+    canPay: true,
+    preferredMFA: 'TOTP',
+    hasPassword: true,
+    partnerId: '00000000-0000-0000-0000-000000000000',
+    partnerName: 'default',
+    partnerConsoleUrl: 'https://console.clever-cloud.com',
+  };
+
+  export const SECONDARY_EMAIL = 'test.user+secondary@example.com';
+
+  export function createUserWith(overrides = {}) {
+    return { ...DEFAULT_USER, ...overrides };
+  }
+
+  5. Pattern pour les Tests
+
+  Exemple structure recommandée:
+
+  import { describe, it, before, after, afterEach } from 'node:test';
+  import * as assert from 'node:assert';
+  import { runCli } from '../../../test/lib/cli-runner.js';
+  import { mockStart } from '../../../test/lib/mock-api/mock-start.js';
+  import { DEFAULT_USER } from '../../fixtures/users.fixture.ts';
+
+  describe('emails command - profile APIs', () => {
+    let apiMockCtrl: MockCtrl;
+    let stopServer: () => Promise<void>;
+
+    before(async () => {
+      const mockServer = await mockStart();
+      stopServer = mockServer.stop;
+      apiMockCtrl = mockServer.ctrl;
+    });
+
+    after(async () => {
+      await stopServer();
+    });
+
+    afterEach(async () => {
+      await apiMockCtrl.mockClient.reset();
+    });
+
+    describe('without secondary emails', () => {
+      it('should display only primary email', async () => {
+        await apiMockCtrl
+          .mock()
+          .when({ method: 'GET', path: '/v2/self/emails' })
+          .respond({ status: 200, body: [] })
+          .thenCall(async () => {
+            const result = await runCli(['emails'], {
+              env: { API_HOST: apiMockCtrl.mockClient.baseUrl },
+            });
+
+            assert.match(result.stdout, /test.user@example.com/);
+          });
+      });
+    });
+  });
+
+  6. Étapes pour Généraliser le Système
+
+  Phase 1: Fondations (1 sprint)
+  1. Créer la structure /test/fixtures
+  2. Créer les fixtures de base (users, organisations, addons)
+  3. Créer /test/setup/test-helpers.ts avec utilitaires
+  4. Créer /test/integration avec première commande (profile)
+
+  Phase 2: Coverage des Commandes Simples (2-3 sprints)
+  1. Identifier commandes "lecture seule" (liste, affichage)
+    - emails, addon list, applications, domains list
+  2. Créer tests pour 5 commandes simples
+  3. Identifier patterns manquants, affiner les fixtures
+
+  Phase 3: Coverage des Commandes Complexes (2-3 sprints)
+  1. Tests create/update/delete
+    - addon create, domain create, etc.
+  2. Tester les validations et erreurs
+  3. Tester les interactions multi-step
+
+  Phase 4: Coverage Complet (itératif)
+  1. Wrapper chaque commande progressivement
+  2. Maintenir et enrichir fixtures au fur et à mesure
+
+  7. Mutualisation des Mock API Responses
+
+  Créer /test/lib/mock-api/responses.helper.ts:
+
+  export function mockUserSelfEndpoint(mockCtrl, user = DEFAULT_USER) {
+    return mockCtrl
+      .mock()
+      .when({ method: 'GET', path: '/v2/self' })
+      .respond({ status: 200, body: user });
+  }
+
+  export function mockAddonsList(mockCtrl, addons = []) {
+    return mockCtrl
+      .mock()
+      .when({ method: 'GET', path: '/v2/organisations/*/addons' })
+      .respond({ status: 200, body: addons });
+  }
+
+  // Usage dans les tests:
+  await mockUserSelfEndpoint(apiMockCtrl)
+    .when({ method: 'GET', path: '/v2/self/emails' })
+    .respond({ status: 200, body: [] })
+    .thenCall(...);
+
+  8. Gestion des Différents Cas de Figure
+
+  Pour chaque commande, tester :
+
+  describe('addon list', () => {
+    describe('success cases', () => {
+      it('should display addons when present');
+      it('should handle empty list');
+      it('should format correctly in JSON mode');
+    });
+
+    describe('error cases', () => {
+      it('should handle 401 unauthorized');
+      it('should handle 404 not found');
+      it('should handle 500 server error');
+      it('should handle network timeout');
+    });
+
+    describe('edge cases', () => {
+      it('should handle very long addon names');
+      it('should handle special characters in output');
+    });
+  });
+
+  9. Recommandations Immédiates
+
+  À faire en priorité :
+  1. Créer /test/fixtures/ avec users.fixture.ts (30 min)
+  2. Créer /test/integration/profile/ (réutiliser emails.command.spec.ts)
+  3. Créer /test/lib/mock-api/responses.helper.ts (45 min)
+  4. Documenter le pattern dans un fichier TESTING.md
+
+  Coût d'un test supplémentaire : ~1-2h (si fixtures et helpers en place)
+
+  ROI : À la fin de la phase 1, chaque nouveau test sera 10x plus rapide à écrire
+
+  10. Commandes à Prioriser
+
+  Faciles (2-3 commandes) :
+  - emails (✓ déjà fait)
+  - addon list
+  - applications list
+
+  Moyennes (5-7 commandes) :
+  - addon create (validation, erreurs)
+  - domain list/create
+  - profile show
+
+  Complexes (10+ commandes) :
+  - deploy (interactions git)
+  - logs (streaming)
+  - ssh (pseudo-terminal)
+
+  ---
+  Verdict : C'est un travail de structuration (1-2 semaines) suivi d'une application itérative. Une fois les foundations en place, ça devient très efficace. Le système est déjà mature au niveau infra; c'est juste une question d'organisation et de factorisation.
+
+  Tu veux que je commenceau implémentation des foundations (fixtures + helpers) ?
+
+
+
