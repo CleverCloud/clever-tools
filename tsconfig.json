@@ -19,5 +19,5 @@
     "useUnknownInCatchVariables": false
   },
   "include": ["scripts", "src/lib/define-**"],
-  "exclude": ["build", "docs", "node_modules"]
+  "exclude": ["build", "docs", "node_modules", "scripts/generate-docs-reference.js", "scripts/generate-docs-llm.js"]
 }
