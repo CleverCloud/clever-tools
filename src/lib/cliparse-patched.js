@@ -56,6 +56,15 @@ cliparseArgumentModule.help = function (arg) {
   const result = originalArgumentHelp(arg);
   // Replace uppercased name with original
   result[0] = cliparseArgumentModule.usage(arg);
+  // Style the default value in dim/gray
+  // If default is empty string, show "(optional)" instead
+  if (arg.default !== null) {
+    if (arg.default === '') {
+      result[1] = result[1].replace('(default: )', styleText('dim', '(optional)'));
+    } else {
+      result[1] = result[1].replace(`(default: ${arg.default})`, styleText('dim', `(default: ${arg.default})`));
+    }
+  }
   return result;
 };
 
