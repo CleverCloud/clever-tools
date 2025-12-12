@@ -17,6 +17,18 @@ cliparseOptionModule.help = function (opt) {
   if (opt.metavar) {
     result[0] = result[0].replace(opt.metavar.toUpperCase(), opt.metavar);
   }
+  // Style the default value in dim/gray
+  // If default is empty string, show "(optional)" instead
+  // If default is false (flag), hide it entirely (redundant)
+  if (opt.default !== null) {
+    if (opt.default === false) {
+      result[1] = result[1].replace(' (default: false)', '');
+    } else if (opt.default === '') {
+      result[1] = result[1].replace('(default: )', styleText('dim', '(optional)'));
+    } else {
+      result[1] = result[1].replace(`(default: ${opt.default})`, styleText('dim', `(default: ${opt.default})`));
+    }
+  }
   return result;
 };
 
