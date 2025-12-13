@@ -7,7 +7,7 @@ import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
 import * as AppConfig from '../../models/app_configuration.js';
 import * as Application from '../../models/application.js';
-import { listAvailableTypes, listAvailableZones } from '../../models/application.js';
+import { AVAILABLE_ZONES, listAvailableTypes, listAvailableZones } from '../../models/application.js';
 import { conf } from '../../models/configuration.js';
 import { isGitWorkingDirectoryClean, isInsideGitRepo } from '../../models/git.js';
 import { aliasCreationOption, humanJsonOutputFormatOption, orgaIdOrNameOption } from '../global.options.js';
@@ -106,7 +106,7 @@ export const createCommand = defineCommand({
     region: defineOption({
       name: 'region',
       schema: z.string().default('par'),
-      description: 'Region, can be ${...}',
+      description: `Region, can be ${AVAILABLE_ZONES.map((name) => `'${name}'`).join(', ')}`,
       aliases: ['r'],
       placeholder: 'zone',
       complete: listAvailableZones,
@@ -119,7 +119,7 @@ export const createCommand = defineCommand({
     }),
     task: defineOption({
       name: 'task',
-      schema: z.string().optional(),
+      schema: z.string().min(1).optional(),
       description: 'The application launch as a task executing the given command, then stopped',
       aliases: ['T'],
       placeholder: 'command',

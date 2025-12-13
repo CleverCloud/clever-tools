@@ -4,7 +4,7 @@ import { listAvailableIds } from '../../models/application_configuration.js';
 
 export const configurationNameArg = defineArgument({
   schema: z.string(),
-  description: 'Configuration to manage: ${...}',
+  description: `Configuration to manage: ${listAvailableIds(true)}`,
   placeholder: 'configuration-name',
   complete: listAvailableIds,
 });

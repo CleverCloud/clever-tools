@@ -63,8 +63,8 @@ export const deployCommand = defineCommand({
     }),
     'same-commit-policy': defineOption({
       name: 'same-commit-policy',
-      schema: z.string().default('error'),
-      description: 'What to do when local and remote commit are identical (${...})',
+      schema: z.enum(['error', 'ignore', 'restart', 'rebuild']).default('error'),
+      description: 'What to do when local and remote commit are identical (error, ignore, restart, rebuild)',
       aliases: ['p'],
       placeholder: 'policy',
     }),

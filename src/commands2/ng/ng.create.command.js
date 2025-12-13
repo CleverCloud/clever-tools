@@ -5,7 +5,7 @@ import { defineOption } from '../../lib/define-option.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
 import * as networkGroup from '../../models/ng.js';
-import { ngResourceType } from '../../parsers.js';
+import { ngResourceType, tags } from '../../parsers.js';
 import { orgaIdOrNameOption } from '../global.options.js';
 
 export const ngCreateCommand = defineCommand({
@@ -30,7 +30,7 @@ export const ngCreateCommand = defineCommand({
     }),
     tags: defineOption({
       name: 'tags',
-      schema: z.string().optional(),
+      schema: z.string().transform(tags).optional(),
       description: 'List of tags, separated by a comma',
       placeholder: 'tags',
     }),
