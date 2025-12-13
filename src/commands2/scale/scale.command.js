@@ -78,19 +78,19 @@ export const scaleCommand = defineCommand({
     }),
     instances: defineOption({
       name: 'instances',
-      schema: z.coerce.number().int().positive().optional(),
+      schema: z.coerce.number().int().min(1).max(20).optional(),
       description: 'The number of parallel instances',
       placeholder: 'instances',
     }),
     'min-instances': defineOption({
       name: 'min-instances',
-      schema: z.coerce.number().int().positive().optional(),
+      schema: z.coerce.number().int().min(1).max(20).optional(),
       description: 'The minimum number of parallel instances',
       placeholder: 'mininstances',
     }),
     'max-instances': defineOption({
       name: 'max-instances',
-      schema: z.coerce.number().int().positive().optional(),
+      schema: z.coerce.number().int().min(1).max(20).optional(),
       description: 'The maximum number of parallel instances',
       placeholder: 'maxinstances',
     }),

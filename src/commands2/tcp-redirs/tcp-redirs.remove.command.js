@@ -18,7 +18,7 @@ export const tcpRedirsRemoveCommand = defineCommand({
   },
   args: [
     defineArgument({
-      schema: z.coerce.number().int(),
+      schema: z.coerce.number().int().min(1025, 65535),
       description: 'port identifying the TCP redirection',
       placeholder: 'port',
     }),

@@ -173,8 +173,8 @@ export const activityCommand = defineCommand({
     }),
     format: defineOption({
       name: 'format',
-      schema: z.string().default('human'),
-      description: 'Output format (${...})',
+      schema: z.enum(['human', 'json', 'json-stream']).default('human'),
+      description: 'Output format (human, json, json-stream)',
       aliases: ['F'],
       placeholder: 'format',
     }),

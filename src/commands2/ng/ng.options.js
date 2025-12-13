@@ -3,7 +3,7 @@ import { defineOption } from '../../lib/define-option.js';
 
 export const ngResourceTypeOption = defineOption({
   name: 'type',
-  schema: z.string().optional(),
+  schema: z.enum(['NetworkGroup', 'Member', 'CleverPeer', 'ExternalPeer']).optional(),
   description: 'Type of resource to look for (NetworkGroup, Member, CleverPeer, ExternalPeer)',
   placeholder: 'resource-type',
 });
