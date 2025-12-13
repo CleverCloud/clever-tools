@@ -3,12 +3,15 @@ import { formatTable } from '../../format-table.js';
 import { defineCommand } from '../../lib/define-command.js';
 import { Logger } from '../../logger.js';
 import { getFeatures } from '../../models/configuration.js';
+import { humanJsonOutputFormatOption } from '../global.options.js';
 
 export const featuresCommand = defineCommand({
   description: 'Manage Clever Tools experimental features',
   since: '3.11.0',
   sinceDate: '2024-12-18',
-  options: {},
+  options: {
+    format: humanJsonOutputFormatOption,
+  },
   args: [],
   async handler(options) {
     const { format } = options;
