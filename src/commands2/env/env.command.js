@@ -7,7 +7,6 @@ import { toNameEqualsValueString } from '@clevercloud/client/esm/utils/env-vars.
 import { z } from 'zod';
 import { defineCommand } from '../../lib/define-command.js';
 import { defineOption } from '../../lib/define-option.js';
-import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
 import * as Application from '../../models/application.js';
 import { sendToApi } from '../../models/send-to-api.js';
@@ -21,6 +20,7 @@ export const envCommand = defineCommand({
       name: 'add-export',
       schema: z.boolean().default(false),
       description: 'Display sourceable env variables setting',
+      deprecated: 'use `--format shell` instead',
     }),
     alias: aliasOption,
     app: appIdOrNameOption,
@@ -57,10 +57,6 @@ export const envCommand = defineCommand({
       case 'shell':
       case 'human':
       default: {
-        if (addExportsOption) {
-          Logger.println(styleText('yellow', '`--add-export` option is deprecated. Use `--format shell` instead.'));
-        }
-
         const addExports = addExportsOption || format === 'shell';
 
         Logger.println('# Manually set env variables');
