@@ -28,7 +28,7 @@ export const logsCommand = defineCommand({
       description: 'Fetch logs matching this pattern',
       placeholder: 'search',
     }),
-    'deployment-id': defineOption({
+    deploymentId: defineOption({
       name: 'deployment-id',
       schema: z.string().optional(),
       description: 'Fetch logs for a given deployment',
@@ -50,7 +50,7 @@ export const logsCommand = defineCommand({
       after: since,
       before: until,
       search,
-      'deployment-id': deploymentId,
+      deploymentId,
       format,
     } = options;
 

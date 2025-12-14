@@ -11,7 +11,7 @@ export const sshCommand = defineCommand({
   since: '0.7.0',
   sinceDate: '2017-02-07',
   options: {
-    'identity-file': defineOption({
+    identityFile: defineOption({
       name: 'identity-file',
       schema: z.string().optional(),
       description: 'SSH identity file',
@@ -23,7 +23,7 @@ export const sshCommand = defineCommand({
   },
   args: [],
   async handler(options) {
-    const { alias, app: appIdOrName, 'identity-file': identityFile } = options;
+    const { alias, app: appIdOrName, identityFile } = options;
 
     const { appId } = await Application.resolveId(appIdOrName, alias);
     const sshParams = ['-t', conf.SSH_GATEWAY, appId];

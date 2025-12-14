@@ -36,7 +36,7 @@ export const applicationsCommand = defineCommand({
   since: '0.3.0',
   sinceDate: '2015-09-23',
   options: {
-    'only-aliases': defineOption({
+    onlyAliases: defineOption({
       name: 'only-aliases',
       schema: z.boolean().default(false),
       description: 'List only application aliases',
@@ -50,7 +50,7 @@ export const applicationsCommand = defineCommand({
   },
   args: [],
   async handler(options) {
-    const { 'only-aliases': onlyAliases, json } = options;
+    const { onlyAliases, json } = options;
 
     const { apps } = await AppConfig.loadApplicationConf();
 
