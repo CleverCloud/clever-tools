@@ -4,19 +4,24 @@ import {
   getAllEnvVarsForDependencies,
 } from '@clevercloud/client/esm/api/v2/application.js';
 import { toNameEqualsValueString } from '@clevercloud/client/esm/utils/env-vars.js';
+import { z } from 'zod';
 import { defineCommand } from '../../lib/define-command.js';
+import { defineOption } from '../../lib/define-option.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
 import * as Application from '../../models/application.js';
 import { sendToApi } from '../../models/send-to-api.js';
 import { aliasOption, appIdOrNameOption, envFormatOption } from '../global.options.js';
-import { sourceableEnvVarsListOption } from './env.options.js';
 
 export const envCommand = defineCommand({
   description: 'Manage environment variables of an application',
   since: '0.2.0',
   options: {
-    addExportsOption: sourceableEnvVarsListOption,
+    addExportsOption: defineOption({
+      name: 'add-export',
+      schema: z.boolean().default(false),
+      description: 'Display sourceable env variables setting',
+    }),
     alias: aliasOption,
     app: appIdOrNameOption,
     format: envFormatOption,

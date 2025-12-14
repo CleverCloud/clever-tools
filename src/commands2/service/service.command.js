@@ -1,18 +1,31 @@
+import { z } from 'zod';
 import { defineCommand } from '../../lib/define-command.js';
+import { defineOption } from '../../lib/define-option.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
 import * as Addon from '../../models/addon.js';
 import * as Application from '../../models/application.js';
 import { aliasOption, appIdOrNameOption, humanJsonOutputFormatOption } from '../global.options.js';
-import { onlyAddonsOption, onlyAppsOption, showAllOption } from './service.options.js';
 
 export const serviceCommand = defineCommand({
   description: 'Manage service dependencies',
   since: '0.5.0',
   options: {
-    onlyApps: onlyAppsOption,
-    onlyAddons: onlyAddonsOption,
-    showAll: showAllOption,
+    onlyApps: defineOption({
+      name: 'only-apps',
+      schema: z.boolean().default(false),
+      description: 'Only show app dependencies',
+    }),
+    onlyAddons: defineOption({
+      name: 'only-addons',
+      schema: z.boolean().default(false),
+      description: 'Only show add-on dependencies',
+    }),
+    showAll: defineOption({
+      name: 'show-all',
+      schema: z.boolean().default(false),
+      description: 'Show all available add-ons and applications',
+    }),
     alias: aliasOption,
     app: appIdOrNameOption,
     format: humanJsonOutputFormatOption,
