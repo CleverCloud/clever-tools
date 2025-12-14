@@ -61,7 +61,7 @@ export const deployCommand = defineCommand({
       description: "Force deploy even if it's not fast-forwardable",
       aliases: ['f'],
     }),
-    'same-commit-policy': defineOption({
+    sameCommitPolicy: defineOption({
       name: 'same-commit-policy',
       schema: z.enum(['error', 'ignore', 'restart', 'rebuild']).default('error'),
       description: 'What to do when local and remote commit are identical (error, ignore, restart, rebuild)',
@@ -71,20 +71,11 @@ export const deployCommand = defineCommand({
     alias: aliasOption,
     quiet: quietOption,
     follow: followDeployLogsOption,
-    'exit-on': exitOnDeployOption,
+    exitOnDeploy: exitOnDeployOption,
   },
   args: [],
   async handler(options) {
-    const {
-      alias,
-      branch: branchName,
-      tag: tagName,
-      quiet,
-      force,
-      follow,
-      'same-commit-policy': sameCommitPolicy,
-      'exit-on': exitOnDeploy,
-    } = options;
+    const { alias, branch: branchName, tag: tagName, quiet, force, follow, sameCommitPolicy, exitOnDeploy } = options;
 
     const exitStrategy = ExitStrategy.get(follow, exitOnDeploy);
 

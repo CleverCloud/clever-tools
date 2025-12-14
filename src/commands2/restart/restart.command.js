@@ -25,7 +25,7 @@ export const restartCommand = defineCommand({
       description: 'Restart the application with a specific commit ID',
       placeholder: 'commit-id',
     }),
-    'without-cache': defineOption({
+    withoutCache: defineOption({
       name: 'without-cache',
       schema: z.boolean().default(false),
       description: 'Restart the application without using cache',
@@ -34,19 +34,11 @@ export const restartCommand = defineCommand({
     app: appIdOrNameOption,
     quiet: quietOption,
     follow: followDeployLogsOption,
-    'exit-on': exitOnDeployOption,
+    exitOnDeploy: exitOnDeployOption,
   },
   args: [],
   async handler(options) {
-    const {
-      alias,
-      app: appIdOrName,
-      quiet,
-      commit,
-      'without-cache': withoutCache,
-      follow,
-      'exit-on': exitOnDeploy,
-    } = options;
+    const { alias, app: appIdOrName, quiet, commit, withoutCache, follow, exitOnDeploy } = options;
 
     const exitStrategy = ExitStrategy.get(follow, exitOnDeploy);
 

@@ -28,21 +28,21 @@ export const drainCreateCommand = defineCommand({
       aliases: ['p'],
       placeholder: 'password',
     }),
-    'api-key': defineOption({
+    apiKey: defineOption({
       name: 'api-key',
       schema: z.string().optional(),
       description: 'API key (for newrelic)',
       aliases: ['k'],
       placeholder: 'api-key',
     }),
-    'index-prefix': defineOption({
+    indexPrefix: defineOption({
       name: 'index-prefix',
       schema: z.string().optional(),
       description: 'Optional index prefix (for elasticsearch), `logstash` value is used if not set',
       aliases: ['i'],
       placeholder: 'index-prefix',
     }),
-    'sd-params': defineOption({
+    rfc5424StructuredDataParameters: defineOption({
       name: 'sd-params',
       schema: z.string().optional(),
       description: 'RFC5424 structured data parameters (for ovh-tcp), e.g.: `X-OVH-TOKEN=\\\"REDACTED\\\"`',
@@ -67,13 +67,7 @@ export const drainCreateCommand = defineCommand({
   ],
   async handler(options, drainTypeCliCode, url) {
     const { alias, app: appIdOrName } = options;
-    const {
-      username,
-      password,
-      'api-key': apiKey,
-      'index-prefix': indexPrefix,
-      'sd-params': rfc5424StructuredDataParameters,
-    } = options;
+    const { username, password, apiKey, indexPrefix, rfc5424StructuredDataParameters } = options;
 
     const drainType = Object.values(DRAIN_TYPES).find((drainType) => drainType.cliCode === drainTypeCliCode);
     if (!drainType) {

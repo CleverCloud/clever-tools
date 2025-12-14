@@ -166,7 +166,7 @@ export const activityCommand = defineCommand({
       description: 'Track new deployments in activity list',
       aliases: ['f'],
     }),
-    'show-all': defineOption({
+    showAll: defineOption({
       name: 'show-all',
       schema: z.boolean().default(false),
       description: 'Show all activity',
@@ -183,7 +183,7 @@ export const activityCommand = defineCommand({
   },
   args: [],
   async handler(options) {
-    const { alias, app: appIdOrName, 'show-all': showAll, follow, format } = options;
+    const { alias, app: appIdOrName, showAll, follow, format } = options;
     const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
     const events = await Activity.list(ownerId, appId, showAll);
     const reversedArrayWithIndex = events.reverse().map((event, index, all) => {

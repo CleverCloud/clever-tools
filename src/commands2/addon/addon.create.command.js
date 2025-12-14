@@ -90,7 +90,7 @@ export const addonCreateCommand = defineCommand({
       placeholder: 'region',
       complete: completeRegion,
     }),
-    'addon-version': defineOption({
+    version: defineOption({
       name: 'addon-version',
       schema: z.string().optional(),
       description: 'The version to use for the add-on',
@@ -115,7 +115,7 @@ export const addonCreateCommand = defineCommand({
       yes: skipConfirmation,
       org: orgaIdOrName,
       format,
-      'addon-version': version,
+      version,
       option: addonOptions,
     } = options;
 
@@ -125,7 +125,7 @@ export const addonCreateCommand = defineCommand({
       planName,
       region,
       skipConfirmation,
-      version,
+      version: version,
       addonOptions: parseAddonOptions(addonOptions),
     };
 

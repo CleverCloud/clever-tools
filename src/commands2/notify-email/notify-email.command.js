@@ -11,12 +11,12 @@ export const notifyEmailCommand = defineCommand({
   since: '0.6.1',
   options: {
     org: orgaIdOrNameOption,
-    'list-all': listAllNotificationsOption,
+    listAll: listAllNotificationsOption,
     format: humanJsonOutputFormatOption,
   },
   args: [],
   async handler(options) {
-    const { org, 'list-all': listAll, format } = options;
+    const { org, listAll, format } = options;
 
     // TODO: fix alias option
     const { ownerId, appId } = await getOwnerAndApp(null, org, !listAll);
