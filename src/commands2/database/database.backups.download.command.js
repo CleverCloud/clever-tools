@@ -8,7 +8,7 @@ import { defineOption } from '../../lib/define-option.js';
 import { findOwnerId } from '../../models/addon.js';
 import { resolveRealId } from '../../models/ids-resolver.js';
 import { sendToApi } from '../../models/send-to-api.js';
-import { humanJsonOutputFormatOption, orgaIdOrNameOption } from '../global.options.js';
+import { orgaIdOrNameOption } from '../global.options.js';
 import { databaseIdArg } from './database.args.js';
 
 export const databaseBackupsDownloadCommand = defineCommand({
@@ -23,7 +23,6 @@ export const databaseBackupsDownloadCommand = defineCommand({
       placeholder: 'file-path',
     }),
     org: orgaIdOrNameOption,
-    format: humanJsonOutputFormatOption,
   },
   args: [
     databaseIdArg,

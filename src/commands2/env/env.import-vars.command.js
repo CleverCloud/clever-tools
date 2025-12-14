@@ -7,14 +7,12 @@ import { Logger } from '../../logger.js';
 import * as Application from '../../models/application.js';
 import { sendToApi } from '../../models/send-to-api.js';
 import { aliasOption, appIdOrNameOption } from '../global.options.js';
-import { sourceableEnvVarsListOption } from './env.options.js';
 
 export const envImportVarsCommand = defineCommand({
   description:
     'Add or update environment variables named <variable-names> (comma-separated), taking their values from the current environment',
   since: '2.0.0',
   options: {
-    'add-export': sourceableEnvVarsListOption,
     alias: aliasOption,
     app: appIdOrNameOption,
   },

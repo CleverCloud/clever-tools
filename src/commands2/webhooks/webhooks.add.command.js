@@ -7,12 +7,7 @@ import { Logger } from '../../logger.js';
 import { getOwnerAndApp } from '../../models/notification.js';
 import { sendToApi } from '../../models/send-to-api.js';
 import { notificationNameArg } from '../global.args.js';
-import {
-  listAllNotificationsOption,
-  notificationEventTypeOption,
-  notificationScopeOption,
-  orgaIdOrNameOption,
-} from '../global.options.js';
+import { notificationEventTypeOption, notificationScopeOption, orgaIdOrNameOption } from '../global.options.js';
 
 export const webhooksAddCommand = defineCommand({
   description: 'Register webhook to be called when events happen',
@@ -25,7 +20,6 @@ export const webhooksAddCommand = defineCommand({
       placeholder: 'format',
     }),
     org: orgaIdOrNameOption,
-    'list-all': listAllNotificationsOption,
     event: notificationEventTypeOption,
     service: notificationScopeOption,
   },

@@ -4,15 +4,11 @@ import * as Addon from '../../models/addon.js';
 import * as Application from '../../models/application.js';
 import { addonIdOrNameArg } from '../global.args.js';
 import { aliasOption, appIdOrNameOption } from '../global.options.js';
-import { onlyAddonsOption, onlyAppsOption, showAllOption } from './service.options.js';
 
 export const serviceLinkAddonCommand = defineCommand({
   description: 'Link an existing add-on to this application',
   since: '0.5.0',
   options: {
-    'only-apps': onlyAppsOption,
-    'only-addons': onlyAddonsOption,
-    'show-all': showAllOption,
     alias: aliasOption,
     app: appIdOrNameOption,
   },

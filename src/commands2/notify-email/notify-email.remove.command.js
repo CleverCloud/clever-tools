@@ -4,14 +4,13 @@ import { Logger } from '../../logger.js';
 import { getOrgaIdOrUserId } from '../../models/notification.js';
 import { sendToApi } from '../../models/send-to-api.js';
 import { notificationIdArg } from '../global.args.js';
-import { listAllNotificationsOption, orgaIdOrNameOption } from '../global.options.js';
+import { orgaIdOrNameOption } from '../global.options.js';
 
 export const notifyEmailRemoveCommand = defineCommand({
   description: 'Remove an existing email notification',
   since: '0.6.1',
   options: {
     org: orgaIdOrNameOption,
-    'list-all': listAllNotificationsOption,
   },
   args: [notificationIdArg],
   async handler(options, notificationId) {
