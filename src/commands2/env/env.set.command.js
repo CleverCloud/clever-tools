@@ -6,13 +6,11 @@ import * as Application from '../../models/application.js';
 import { sendToApi } from '../../models/send-to-api.js';
 import { envVariableNameArg, envVariableValueArg } from '../global.args.js';
 import { aliasOption, appIdOrNameOption } from '../global.options.js';
-import { sourceableEnvVarsListOption } from './env.options.js';
 
 export const envSetCommand = defineCommand({
   description: 'Add or update an environment variable named <variable-name> with the value <variable-value>',
   since: '0.3.0',
   options: {
-    'add-export': sourceableEnvVarsListOption,
     alias: aliasOption,
     app: appIdOrNameOption,
   },

@@ -3,15 +3,11 @@ import { Logger } from '../../logger.js';
 import * as Application from '../../models/application.js';
 import { appIdOrNameArg } from '../global.args.js';
 import { aliasOption, appIdOrNameOption } from '../global.options.js';
-import { onlyAddonsOption, onlyAppsOption, showAllOption } from './service.options.js';
 
 export const serviceLinkAppCommand = defineCommand({
   description: 'Add an existing app as a dependency',
   since: '0.5.0',
   options: {
-    'only-apps': onlyAppsOption,
-    'only-addons': onlyAddonsOption,
-    'show-all': showAllOption,
     alias: aliasOption,
     app: appIdOrNameOption,
   },

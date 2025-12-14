@@ -5,13 +5,11 @@ import * as Application from '../../models/application.js';
 import { sendToApi } from '../../models/send-to-api.js';
 import { envVariableNameArg } from '../global.args.js';
 import { aliasOption, appIdOrNameOption } from '../global.options.js';
-import { sourceableEnvVarsListOption } from './env.options.js';
 
 export const envRmCommand = defineCommand({
   description: 'Remove an environment variable from an application',
   since: '0.3.0',
   options: {
-    'add-export': sourceableEnvVarsListOption,
     alias: aliasOption,
     app: appIdOrNameOption,
   },
