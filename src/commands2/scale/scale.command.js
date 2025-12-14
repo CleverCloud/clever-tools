@@ -8,13 +8,8 @@ import { buildFlavor, flavor } from '../../parsers.js';
 import { aliasOption, appIdOrNameOption } from '../global.options.js';
 
 function validateOptions(options) {
-  let { flavor, 'min-flavor': minFlavor, 'max-flavor': maxFlavor } = options;
-  let {
-    instances,
-    'min-instances': minInstances,
-    'max-instances': maxInstances,
-    'build-flavor': buildFlavor,
-  } = options;
+  let { flavor, minFlavor, maxFlavor } = options;
+  let { instances, minInstances, maxInstances, buildFlavor } = options;
 
   if ([flavor, minFlavor, maxFlavor, instances, minInstances, maxInstances, buildFlavor].every((v) => v == null)) {
     throw new Error('You should provide at least 1 option');
@@ -62,14 +57,14 @@ export const scaleCommand = defineCommand({
       placeholder: 'flavor',
       complete: listAvailableFlavors,
     }),
-    'min-flavor': defineOption({
+    minFlavor: defineOption({
       name: 'min-flavor',
       schema: z.string().transform(flavor).optional(),
       description: 'The minimum scale size of your application',
       placeholder: 'minflavor',
       complete: listAvailableFlavors,
     }),
-    'max-flavor': defineOption({
+    maxFlavor: defineOption({
       name: 'max-flavor',
       schema: z.string().transform(flavor).optional(),
       description: 'The maximum instance size of your application',
@@ -82,19 +77,19 @@ export const scaleCommand = defineCommand({
       description: 'The number of parallel instances',
       placeholder: 'instances',
     }),
-    'min-instances': defineOption({
+    minInstances: defineOption({
       name: 'min-instances',
       schema: z.coerce.number().int().min(1).max(20).optional(),
       description: 'The minimum number of parallel instances',
       placeholder: 'mininstances',
     }),
-    'max-instances': defineOption({
+    maxInstances: defineOption({
       name: 'max-instances',
       schema: z.coerce.number().int().min(1).max(20).optional(),
       description: 'The maximum number of parallel instances',
       placeholder: 'maxinstances',
     }),
-    'build-flavor': defineOption({
+    buildFlavor: defineOption({
       name: 'build-flavor',
       schema: z.string().transform(buildFlavor).optional(),
       description: "The size of the build instance, or 'disabled' if you want to disable dedicated build instances",

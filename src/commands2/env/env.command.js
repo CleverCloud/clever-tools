@@ -16,14 +16,14 @@ export const envCommand = defineCommand({
   description: 'Manage environment variables of an application',
   since: '0.2.0',
   options: {
-    'add-export': sourceableEnvVarsListOption,
+    addExportsOption: sourceableEnvVarsListOption,
     alias: aliasOption,
     app: appIdOrNameOption,
     format: envFormatOption,
   },
   args: [],
   async handler(options) {
-    const { alias, app: appIdOrName, 'add-export': addExportsOption, format } = options;
+    const { alias, app: appIdOrName, addExportsOption, format } = options;
     const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
 
     const [envFromApp, envFromAddons, envFromDeps] = await Promise.all([

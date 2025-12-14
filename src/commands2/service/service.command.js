@@ -10,23 +10,16 @@ export const serviceCommand = defineCommand({
   description: 'Manage service dependencies',
   since: '0.5.0',
   options: {
-    'only-apps': onlyAppsOption,
-    'only-addons': onlyAddonsOption,
-    'show-all': showAllOption,
+    onlyApps: onlyAppsOption,
+    onlyAddons: onlyAddonsOption,
+    showAll: showAllOption,
     alias: aliasOption,
     app: appIdOrNameOption,
     format: humanJsonOutputFormatOption,
   },
   args: [],
   async handler(options) {
-    const {
-      alias,
-      app: appIdOrName,
-      'show-all': showAll,
-      'only-apps': onlyApps,
-      'only-addons': onlyAddons,
-      format,
-    } = options;
+    const { alias, app: appIdOrName, showAll, onlyApps, onlyAddons, format } = options;
     if (onlyApps && onlyAddons) {
       throw new Error('--only-apps and --only-addons are mutually exclusive');
     }

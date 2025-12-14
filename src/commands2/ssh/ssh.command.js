@@ -10,7 +10,7 @@ export const sshCommand = defineCommand({
   description: 'Connect to running instances through SSH',
   since: '0.7.0',
   options: {
-    'identity-file': defineOption({
+    identityFile: defineOption({
       name: 'identity-file',
       schema: z.string().optional(),
       description: 'SSH identity file',
@@ -22,7 +22,7 @@ export const sshCommand = defineCommand({
   },
   args: [],
   async handler(options) {
-    const { alias, app: appIdOrName, 'identity-file': identityFile } = options;
+    const { alias, app: appIdOrName, identityFile } = options;
 
     const { appId } = await Application.resolveId(appIdOrName, alias);
     const sshParams = ['-t', conf.SSH_GATEWAY, appId];
