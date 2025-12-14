@@ -3,14 +3,13 @@ import { defineCommand } from '../../lib/define-command.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
 import * as Addon from '../../models/addon.js';
-import { humanJsonOutputFormatOption, orgaIdOrNameOption } from '../global.options.js';
+import { humanJsonOutputFormatOption } from '../global.options.js';
 
 export const addonProvidersCommand = defineCommand({
   description: 'List available add-on providers',
   since: '0.2.3',
   sinceDate: '2015-08-25',
   options: {
-    org: orgaIdOrNameOption,
     format: humanJsonOutputFormatOption,
   },
   args: [],

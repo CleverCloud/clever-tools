@@ -6,12 +6,7 @@ import { Logger } from '../../logger.js';
 import { getOwnerAndApp } from '../../models/notification.js';
 import { sendToApi } from '../../models/send-to-api.js';
 import { notificationNameArg } from '../global.args.js';
-import {
-  listAllNotificationsOption,
-  notificationEventTypeOption,
-  notificationScopeOption,
-  orgaIdOrNameOption,
-} from '../global.options.js';
+import { notificationEventTypeOption, notificationScopeOption, orgaIdOrNameOption } from '../global.options.js';
 
 export const notifyEmailAddCommand = defineCommand({
   description: 'Add a new email notification',
@@ -26,7 +21,6 @@ export const notifyEmailAddCommand = defineCommand({
       placeholder: 'email-address|user-id|organisation',
     }),
     org: orgaIdOrNameOption,
-    'list-all': listAllNotificationsOption,
     event: notificationEventTypeOption,
     service: notificationScopeOption,
   },

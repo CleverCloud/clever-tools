@@ -4,7 +4,7 @@ import { Logger } from '../../logger.js';
 import { getOrgaIdOrUserId } from '../../models/notification.js';
 import { sendToApi } from '../../models/send-to-api.js';
 import { notificationIdArg } from '../global.args.js';
-import { listAllNotificationsOption, orgaIdOrNameOption } from '../global.options.js';
+import { orgaIdOrNameOption } from '../global.options.js';
 
 export const webhooksRemoveCommand = defineCommand({
   description: 'Remove an existing webhook',
@@ -12,7 +12,6 @@ export const webhooksRemoveCommand = defineCommand({
   sinceDate: '2016-10-06',
   options: {
     org: orgaIdOrNameOption,
-    'list-all': listAllNotificationsOption,
   },
   args: [notificationIdArg],
   async handler(options, notificationId) {

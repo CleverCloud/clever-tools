@@ -5,7 +5,6 @@ import * as Application from '../../models/application.js';
 import { sendToApi } from '../../models/send-to-api.js';
 import * as variables from '../../models/variables.js';
 import { aliasOption, appIdOrNameOption, importAsJsonOption } from '../global.options.js';
-import { sourceableEnvVarsListOption } from './env.options.js';
 
 export const envImportCommand = defineCommand({
   description:
@@ -13,7 +12,6 @@ export const envImportCommand = defineCommand({
   since: '0.3.0',
   sinceDate: '2015-09-23',
   options: {
-    'add-export': sourceableEnvVarsListOption,
     alias: aliasOption,
     app: appIdOrNameOption,
     json: importAsJsonOption,
