@@ -101,6 +101,7 @@ export const followDeployLogsOption = defineOption({
   name: 'follow',
   schema: z.boolean().default(false),
   description: 'Continue to follow logs after deployment has ended',
+  deprecated: 'use `--exit-on never` instead',
 });
 
 export const exitOnDeployOption = defineOption({

@@ -1,17 +1,8 @@
-import { styleText } from '../lib/style-text.js';
-import { Logger } from '../logger.js';
-
 export function get(follow, exitOnDeploy) {
   if (follow) {
     if (exitOnDeploy === 'deploy-start') {
       throw new Error('The `follow` and `exit-on` set to "deploy-start" options are not compatible');
     }
-    Logger.println(
-      styleText(
-        'yellow',
-        'The `follow` option is deprecated and will be removed in an upcoming major, use --exit-on set to "never" instead',
-      ),
-    );
     return 'never';
   }
   return exitOnDeploy;
