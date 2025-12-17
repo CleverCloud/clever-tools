@@ -152,6 +152,20 @@ export const notificationScopeOption = defineOption({
   placeholder: 'service-id',
 });
 
+export const helpOption = defineOption({
+  name: 'help',
+  schema: z.boolean().optional(),
+  description: 'Display help about this program',
+  aliases: ['?'],
+});
+
+export const versionOption = defineOption({
+  name: 'version',
+  schema: z.boolean().optional(),
+  description: 'Display the version of this program',
+  aliases: ['V'],
+});
+
 export const colorOption = defineOption({
   name: 'color',
   schema: z.boolean().default(true),
