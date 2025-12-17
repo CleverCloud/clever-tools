@@ -1,5 +1,7 @@
 import { getAllEnvVars } from '@clevercloud/client/esm/api/v2/addon.js';
 import { toNameEqualsValueString } from '@clevercloud/client/esm/utils/env-vars.js';
+import { z } from 'zod';
+import { defineArgument } from '../../lib/define-argument.js';
 import { defineCommand } from '../../lib/define-command.js';
 import { Logger } from '../../logger.js';
 import { findOwnerId } from '../../models/addon.js';
@@ -14,7 +16,13 @@ export const addonEnvCommand = defineCommand({
     org: orgaIdOrNameOption,
     format: envFormatOption,
   },
-  args: [],
+  args: [
+    defineArgument({
+      schema: z.string(),
+      description: 'Add-on ID or real ID',
+      placeholder: 'addon-id',
+    }),
+  ],
   async handler(options, addonIdOrRealId) {
     const { org, format } = options;
 
