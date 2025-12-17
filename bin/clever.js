@@ -411,6 +411,7 @@ async function run() {
     }),
     output: cliparse.option('output', {
       aliases: ['out'],
+      metavar: 'file-path',
       description: 'Redirect the output of the command in a file',
     }),
     drainPassword: cliparse.option('password', {
