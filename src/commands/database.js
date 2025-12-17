@@ -7,9 +7,8 @@ import { findOwnerId } from '../models/addon.js';
 import { resolveAddonId, resolveRealId } from '../models/ids-resolver.js';
 import { sendToApi } from '../models/send-to-api.js';
 
-export async function listBackups(params) {
-  const { org, format } = params.options;
-  const [addonIdOrRealId] = params.args;
+export async function listBackups(options, addonIdOrRealId) {
+  const { org, format } = options;
 
   const realId = await resolveRealId(addonIdOrRealId);
   const addonId = await resolveAddonId(addonIdOrRealId);
@@ -50,9 +49,8 @@ export async function listBackups(params) {
   }
 }
 
-export async function downloadBackups(params) {
-  const { org, output } = params.options;
-  const [addonIdOrRealId, backupId] = params.args;
+export async function downloadBackups(options, addonIdOrRealId, backupId) {
+  const { org, output } = options;
 
   const addonId = await resolveRealId(addonIdOrRealId);
   const ownerId = await findOwnerId(org, addonId);

@@ -3,8 +3,8 @@ import { formatTable } from '../format-table.js';
 import { Logger } from '../logger.js';
 import { getFeatures, setFeature } from '../models/configuration.js';
 
-export async function list(params) {
-  const { format } = params.options;
+export async function list(options) {
+  const { format } = options;
 
   const featuresConf = await getFeatures();
   // Add status from configuration file and remove instructions
@@ -38,8 +38,7 @@ export async function list(params) {
   }
 }
 
-export async function info(params) {
-  const { feature } = params.namedArgs;
+export async function info(_options, feature) {
   const availableFeatures = Object.keys(EXPERIMENTAL_FEATURES);
 
   if (!availableFeatures.includes(feature)) {
@@ -49,8 +48,7 @@ export async function info(params) {
   Logger.println(EXPERIMENTAL_FEATURES[feature].instructions);
 }
 
-export async function enable(params) {
-  const { features } = params.namedArgs;
+export async function enable(_options, features) {
   const availableFeatures = Object.keys(EXPERIMENTAL_FEATURES);
 
   const unknownFeatures = features.filter((feature) => !availableFeatures.includes(feature));
@@ -71,8 +69,7 @@ export async function enable(params) {
   }
 }
 
-export async function disable(params) {
-  const { features } = params.namedArgs;
+export async function disable(_options, features) {
   const availableFeatures = Object.keys(EXPERIMENTAL_FEATURES);
 
   const unknownFeatures = features.filter((feature) => !availableFeatures.includes(feature));

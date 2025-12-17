@@ -4,8 +4,8 @@ import * as Application from '../models/application.js';
 import * as Namespaces from '../models/namespaces.js';
 import { sendToApi } from '../models/send-to-api.js';
 
-export async function listNamespaces(params) {
-  const { alias, app: appIdOrName, format } = params.options;
+export async function listNamespaces(options) {
+  const { alias, app: appIdOrName, format } = options;
   const { ownerId } = await Application.resolveId(appIdOrName, alias);
 
   const namespaces = await Namespaces.getNamespaces(ownerId);
@@ -37,8 +37,8 @@ export async function listNamespaces(params) {
   }
 }
 
-export async function list(params) {
-  const { alias, app: appIdOrName, format } = params.options;
+export async function list(options) {
+  const { alias, app: appIdOrName, format } = options;
   const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
 
   const redirs = await getTcpRedirs({ id: ownerId, appId }).then(sendToApi);
@@ -62,16 +62,15 @@ export async function list(params) {
   }
 }
 
-export async function add(params) {
-  const { alias, app: appIdOrName, namespace } = params.options;
+export async function add(options) {
+  const { alias, app: appIdOrName, namespace } = options;
   const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
   const { port } = await addTcpRedir({ id: ownerId, appId }, { namespace }).then(sendToApi);
   Logger.println('Successfully added tcp redirection on port: ' + port);
 }
 
-export async function remove(params) {
-  const [port] = params.args;
-  const { alias, app: appIdOrName, namespace } = params.options;
+export async function remove(options, port) {
+  const { alias, app: appIdOrName, namespace } = options;
   const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
 
   await removeTcpRedir({ id: ownerId, appId, sourcePort: port, namespace }).then(sendToApi);
