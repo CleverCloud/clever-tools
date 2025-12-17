@@ -1,7 +1,10 @@
 import cliparseOriginal from 'cliparse';
+import cliparseCommandModule from 'cliparse/src/command.js';
 import semver from 'semver';
 import pkg from '../../package.json' with { type: 'json' };
 import { Logger } from '../logger.js';
+import { getCommandInfo } from './get-command-info.js';
+import { styleText } from './style-text.js';
 
 // Patch cliparse.command so we can catch errors
 const cliparseCommand = cliparseOriginal.command;
@@ -57,6 +60,87 @@ function mapOptionsToDefinitionKeys(options, definition) {
   }
 
   return mappedOptions;
+}
+
+/**
+ * Patched help function for cliparse commands.
+ * Called internally by cliparse when --help is used.
+ * Generates formatted help output with usage, arguments, options, and subcommands.
+ * @param {Array<{name: string, description: string, commands: Array, _definition: CommandDefinition}>} context - Command context stack
+ * @returns {string} Formatted help text
+ */
+cliparseCommandModule.help = function (context) {
+  const cmd = context.at(-1);
+  const path = context.slice(1).map((c) => c.name);
+  const commandInfo = getCommandInfo(path, cmd._definition);
+
+  const allRows = [];
+
+  let argumentsRows;
+  if (commandInfo.args) {
+    argumentsRows = commandInfo.args.map((arg) => {
+      let description = arg.description;
+      if (arg.optional) description += ` ${styleText('dim', arg.optional)}`;
+      return [arg.name, description];
+    });
+    allRows.push(...argumentsRows);
+  }
+
+  let optionsRows;
+  if (commandInfo.options) {
+    optionsRows = commandInfo.options.map((opt) => {
+      const placeholder = opt.placeholder ? ` ${opt.placeholder}` : '';
+      const aliasesPadding = opt.aliases[0].length === 2 ? '' : '    ';
+      const aliases = aliasesPadding + opt.aliases.join(', ') + placeholder;
+      let description = opt.description;
+      if (opt.deprecated) description += ` ${styleText('dim', opt.deprecated)}`;
+      if (opt.required) description += ` ${styleText('dim', opt.required)}`;
+      if (opt.default) description += ` ${styleText('dim', opt.default)}`;
+      return [aliases, description];
+    });
+    allRows.push(...optionsRows);
+  }
+
+  const availableCommandsRows = cmd.commands.map((cmd) => [cmd.name, cmd.description.split('\n')[0]]);
+  allRows.push(...availableCommandsRows);
+
+  const firstColumnWith = Math.max(...allRows.map(([cell]) => cell.length));
+
+  const parts = [cmd._definition.description];
+
+  parts.push(formatSection('USAGE', [commandInfo.usage]));
+  if (availableCommandsRows.length > 0) {
+    parts.push(formatSectionWithColumns('COMMANDS', availableCommandsRows, firstColumnWith));
+  }
+  if (argumentsRows) {
+    parts.push(formatSectionWithColumns('ARGUMENTS', argumentsRows, firstColumnWith));
+  }
+  if (optionsRows) {
+    parts.push(formatSectionWithColumns('OPTIONS', optionsRows, firstColumnWith));
+  }
+  if (cmd._definition.examples?.length > 0) {
+    parts.push(formatSection('EXAMPLES', cmd._definition.examples));
+  }
+
+  return parts.join('\n\n');
+};
+
+/**
+ * @param {string} title
+ * @param {Array<string>} lines
+ */
+function formatSection(title, lines) {
+  return [styleText('bold', title), ...lines.map((l) => `  ${l}`)].join('\n');
+}
+
+/**
+ * @param {string} title
+ * @param {string[][]} rows
+ * @param {number} firstColumnWidth
+ */
+function formatSectionWithColumns(title, rows, firstColumnWidth) {
+  const lines = rows.map(([firstColumn, otherColumn]) => firstColumn.padEnd(firstColumnWidth + 4, ' ') + otherColumn);
+  return formatSection(title, lines);
 }
 
 // Wrap parser functions to allow them to simply return values or throw errors
