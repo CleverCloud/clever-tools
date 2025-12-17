@@ -11,7 +11,8 @@ cliparseOriginal.command = function (name, options, commandFunction) {
   }
 
   return cliparseCommand(name, options, (params) => {
-    const promise = commandFunction(params);
+    const args = params.args ?? [];
+    const promise = commandFunction(params.options, ...args);
     promise.catch((error) => {
       Logger.error(error);
       const semverIsOk = semver.satisfies(process.version, pkg.engines.node);
