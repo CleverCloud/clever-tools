@@ -10,8 +10,12 @@ cliparseOriginal.command = function (name, options, commandFunction) {
     return cliparseCommand(name, options);
   }
 
-  return cliparseCommand(name, options, (params) => {
-    const promise = commandFunction(params);
+  const command = cliparseCommand(name, options, (params) => {
+    const args = params.args ?? [];
+    // Map options from cliparse format (using option.name as key, e.g. 'index-prefix')
+    // to the original keys from the command definition (e.g. 'indexPrefix')
+    const mappedOptions = mapOptionsToDefinitionKeys(params.options, command._definition);
+    const promise = commandFunction(mappedOptions, ...args);
     promise.catch((error) => {
       Logger.error(error);
       const semverIsOk = semver.satisfies(process.version, pkg.engines.node);
@@ -23,7 +27,37 @@ cliparseOriginal.command = function (name, options, commandFunction) {
       process.exit(1);
     });
   });
+  return command;
 };
+
+/**
+ * Map options from cliparse format (using option.name) to the original definition keys.
+ * For example, { theOptionName: defineOption({ name: 'the-option-name', ... }) },
+ * cliparse will return { 'the-option-name': value }, and we need to convert it to { theOptionName: value }.
+ * @param {Record<string, unknown>} options - Options object from cliparse with option.name as keys
+ * @param {CommandDefinition} definition - Command definition
+ * @returns {Record<string, unknown>} Options object with original definition keys
+ */
+function mapOptionsToDefinitionKeys(options, definition) {
+  if (!definition?.options) {
+    return options;
+  }
+
+  // Build a reverse map: option.name -> definition key
+  const nameToKey = new Map();
+  for (const [key, optionDef] of Object.entries(definition.options)) {
+    nameToKey.set(optionDef.name, key);
+  }
+
+  // Map options to use definition keys
+  const mappedOptions = {};
+  for (const [name, value] of Object.entries(options)) {
+    const key = nameToKey.get(name) ?? name;
+    mappedOptions[key] = value;
+  }
+
+  return mappedOptions;
+}
 
 // Wrap parser functions to allow them to simply return values or throw errors
 // instead of using cliparse.parsers.success/error
