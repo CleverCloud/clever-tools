@@ -5,15 +5,15 @@ import '../src/initial-setup.js';
 import '../src/initial-update-notifier.js';
 // Other imports
 import pkg from '../package.json' with { type: 'json' };
-import { curl } from '../src/commands2/curl/curl.command.js';
-import { globalCommands } from '../src/commands2/global.commands.js';
+import { curl } from '../src/commands/curl/curl.command.js';
+import { globalCommands } from '../src/commands/global.commands.js';
 import {
   colorOption,
   helpOption,
   updateNotifierOption,
   verboseOption,
   versionOption,
-} from '../src/commands2/global.options.js';
+} from '../src/commands/global.options.js';
 import { EXPERIMENTAL_FEATURES } from '../src/experimental-features.js';
 import { cliparse } from '../src/lib/cliparse-patched.js';
 import { styleText } from '../src/lib/style-text.js';
@@ -128,7 +128,7 @@ function buildCommand(name, commandEntry, featuresFromConf) {
   }
 
   // Build the command
-  let command = convertCommand(name, commandDef, subcommands);
+  const command = convertCommand(name, commandDef, subcommands);
 
   // Add experimental styling if needed
   if (commandDef.isExperimental && commandDef.featureFlag) {
