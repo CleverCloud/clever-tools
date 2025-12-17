@@ -131,7 +131,7 @@ export const createCommand = defineCommand({
   args: [
     defineArgument({
       schema: z.string().optional(),
-      description: 'Application name (optional, current directory name is used if not specified)',
+      description: 'Application name (current directory name is used if not specified)',
       placeholder: 'app-name',
     }),
   ],
