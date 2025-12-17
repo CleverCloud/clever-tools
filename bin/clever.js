@@ -222,13 +222,13 @@ async function run() {
       description: 'Network Group description',
     }),
     ngMembersIdsToLink: cliparse.option('link', {
-      metavar: 'members_ids',
+      metavar: 'members-ids',
       description:
         'Comma separated list of members IDs to link to a Network Group (app_xxx, external_xxx, mysql_xxx, postgresql_xxx, redis_xxx, etc.)',
       parser: Parsers.commaSeparated,
     }),
     ngResourceType: cliparse.option('type', {
-      metavar: 'type',
+      metavar: 'resource-type',
       description: 'Type of resource to look for (NetworkGroup, Member, CleverPeer, ExternalPeer)',
       parser: Parsers.ngValidType,
     }),
@@ -239,7 +239,7 @@ async function run() {
     importAsJson: cliparse.flag('json', {
       description: 'Import variables as JSON (an array of { "name": "THE_NAME", "value": "THE_VALUE" } objects)',
     }),
-    addonId: cliparse.option('addon', { metavar: 'addon_id', description: 'Add-on ID' }),
+    addonId: cliparse.option('addon', { metavar: 'addon-id', description: 'Add-on ID' }),
     after: cliparse.option('after', {
       metavar: 'after',
       aliases: ['since'],
@@ -259,12 +259,12 @@ async function run() {
     }),
     domain: cliparse.option('filter', {
       default: '',
-      metavar: 'TEXT',
+      metavar: 'text',
       description: 'Check only domains containing the provided text',
     }),
     domainOverviewFilter: cliparse.option('filter', {
       default: '',
-      metavar: 'TEXT',
+      metavar: 'text',
       description: 'Get only domains containing the provided text',
     }),
     before: cliparse.option('before', {
@@ -283,7 +283,7 @@ async function run() {
       },
     }),
     commit: cliparse.option('commit', {
-      metavar: 'commit id',
+      metavar: 'commit-id',
       description: 'Restart the application with a specific commit ID',
     }),
     gitTag: cliparse.option('tag', {
@@ -293,7 +293,7 @@ async function run() {
       description: 'Tag to push (none by default)',
     }),
     deploymentId: cliparse.option('deployment-id', {
-      metavar: 'deployment_id',
+      metavar: 'deployment-id',
       description: 'Fetch logs for a given deployment',
     }),
     namespace: cliparse.option('namespace', {
@@ -303,7 +303,7 @@ async function run() {
       complete: Namespaces.completeNamespaces,
     }),
     notificationEventType: cliparse.option('event', {
-      metavar: 'type',
+      metavar: 'event-type',
       description: 'Restrict notifications to specific event types',
       complete: Notification.listMetaEvents,
       parser: Parsers.commaSeparated,
@@ -332,7 +332,7 @@ async function run() {
       description: "Format of the body sent to the webhook ('raw', 'slack', 'gitter', or 'flowdock')",
     }),
     github: cliparse.option('github', {
-      metavar: 'OWNER/REPO',
+      metavar: 'owner/repo',
       description: 'GitHub application to use for deployments',
     }),
     sshIdentityFile: cliparse.option('identity-file', {
@@ -390,7 +390,7 @@ async function run() {
       default: true,
     }),
     emailNotificationTarget: cliparse.option('notify', {
-      metavar: '<email_address>|<user_id>|"organisation"',
+      metavar: 'email-address|user-id|organisation',
       description:
         'Notify a user, a specific email address or the whole organisation (multiple values allowed, comma separated)',
       required: true,
@@ -400,12 +400,12 @@ async function run() {
     onlyAliases: cliparse.flag('only-aliases', { description: 'List only application aliases' }),
     onlyApps: cliparse.flag('only-apps', { description: 'Only show app dependencies' }),
     appIdOrName: cliparse.option('app', {
-      metavar: 'ID_OR_NAME',
+      metavar: 'app-id|app-name',
       description: 'Application to manage by its ID (or name, if unambiguous)',
       parser: Parsers.appIdOrName,
     }),
     orgaIdOrName: cliparse.option('org', {
-      metavar: 'ID_OR_NAME',
+      metavar: 'org-id|org-name',
       aliases: ['o', 'owner'],
       description: 'Organisation to target by its ID (or name, if unambiguous)',
       parser: Parsers.orgaIdOrName,
@@ -463,7 +463,7 @@ async function run() {
       description: 'Directly give an existing secret',
     }),
     notificationScope: cliparse.option('service', {
-      metavar: 'service_id',
+      metavar: 'service-id',
       description: 'Restrict notifications to specific applications and add-ons',
       parser: Parsers.commaSeparated,
     }),
@@ -482,7 +482,7 @@ async function run() {
     instanceType: cliparse.option('type', {
       aliases: ['t'],
       required: true,
-      metavar: 'type',
+      metavar: 'instance-type',
       description: 'Instance type',
       complete: Application.listAvailableTypes,
     }),
@@ -493,17 +493,17 @@ async function run() {
     }),
     drainApiKey: cliparse.option('api-key', {
       aliases: ['k'],
-      metavar: 'api_key',
+      metavar: 'api-key',
       description: 'API key (for newrelic)',
     }),
     drainIndexPrefix: cliparse.option('index-prefix', {
       aliases: ['i'],
-      metavar: 'index_prefix',
+      metavar: 'index-prefix',
       description: 'Optional index prefix (for elasticsearch), `logstash` value is used if not set',
     }),
     drainSdParameters: cliparse.option('sd-params', {
       aliases: ['s'],
-      metavar: 'sd_params',
+      metavar: 'sd-params',
       description: 'RFC5424 structured data parameters (for ovh-tcp), e.g.: `X-OVH-TOKEN=\\"REDACTED\\"`',
     }),
     verbose: cliparse.flag('verbose', { aliases: ['v'], description: 'Verbose output' }),
