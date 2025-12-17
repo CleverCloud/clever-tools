@@ -16,9 +16,8 @@ import { getCurrent as getCurrentUser } from '../models/user.js';
  * @param {'json'|'human'} params.options.format - Output format
  * @param {number} params.options.expiration - Expiration date as timestamp
  */
-export async function create(params) {
-  const [apiTokenName] = params.args;
-  const { expiration, format } = params.options;
+export async function create(options, apiTokenName) {
+  const { expiration, format } = options;
   const user = await getCurrentUser();
 
   if (!user.hasPassword) {
@@ -102,8 +101,8 @@ export async function create(params) {
  * @param {Object} params.options.format - Output format
  * @returns {Promise<void>}
  */
-export async function list(params) {
-  const { format } = params.options;
+export async function list(options) {
+  const { format } = options;
 
   const tokens = await listApiTokens().then(sendToAuthBridge);
 
@@ -135,9 +134,7 @@ export async function list(params) {
  * @param {string[]} params.args - Command line arguments, token ID to revoke is expected as first argument
  * @returns {Promise<void>}
  */
-export async function revoke(params) {
-  const [apiTokenId] = params.args;
-
+export async function revoke(_options, apiTokenId) {
   await deleteApiToken(apiTokenId).then(sendToAuthBridge);
 
   Logger.println(styleText('green', '✔'), 'API token successfully revoked!');

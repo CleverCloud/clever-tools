@@ -5,8 +5,8 @@ import { Logger } from '../logger.js';
 import * as Application from '../models/application.js';
 import { sendToApi } from '../models/send-to-api.js';
 
-export async function status(params) {
-  const { alias, app: appIdOrName, format } = params.options;
+export async function status(options) {
+  const { alias, app: appIdOrName, format } = options;
   const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
 
   const instances = await getAllInstances({ id: ownerId, appId }).then(sendToApi);

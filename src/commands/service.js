@@ -3,7 +3,7 @@ import { Logger } from '../logger.js';
 import * as Addon from '../models/addon.js';
 import * as Application from '../models/application.js';
 
-export async function list(params) {
+export async function list(options) {
   const {
     alias,
     app: appIdOrName,
@@ -11,7 +11,7 @@ export async function list(params) {
     'only-apps': onlyApps,
     'only-addons': onlyAddons,
     format,
-  } = params.options;
+  } = options;
   if (onlyApps && onlyAddons) {
     throw new Error('--only-apps and --only-addons are mutually exclusive');
   }
@@ -68,36 +68,36 @@ export async function list(params) {
   }
 }
 
-export async function linkApp(params) {
-  const { alias, app: appIdOrName } = params.options;
-  const [dependency] = params.args;
+export async function linkApp(options, dependency) {
+  const { alias, app: appIdOrName } = options;
+
   const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
 
   await Application.link(ownerId, appId, dependency);
   Logger.println(`App ${dependency.app_id || dependency.app_name} successfully linked`);
 }
 
-export async function unlinkApp(params) {
-  const { alias, app: appIdOrName } = params.options;
-  const [dependency] = params.args;
+export async function unlinkApp(options, dependency) {
+  const { alias, app: appIdOrName } = options;
+
   const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
 
   await Application.unlink(ownerId, appId, dependency);
   Logger.println(`App ${dependency.app_id || dependency.app_name} successfully unlinked`);
 }
 
-export async function linkAddon(params) {
-  const { alias, app: appIdOrName } = params.options;
-  const [addon] = params.args;
+export async function linkAddon(options, addon) {
+  const { alias, app: appIdOrName } = options;
+
   const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
 
   await Addon.link(ownerId, appId, addon);
   Logger.println(`Addon ${addon.addon_id || addon.addon_name} successfully linked`);
 }
 
-export async function unlinkAddon(params) {
-  const { alias, app: appIdOrName } = params.options;
-  const [addon] = params.args;
+export async function unlinkAddon(options, addon) {
+  const { alias, app: appIdOrName } = options;
+
   const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
 
   await Addon.unlink(ownerId, appId, addon);

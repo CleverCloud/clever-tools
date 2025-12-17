@@ -13,10 +13,9 @@ import * as networkGroup from '../models/ng.js';
  * @param {Object} params.options.org Organisation ID or name
  * @param {string} params.options.tags Comma-separated list of tags
  */
-export async function createNg(params) {
-  const [ngLabel] = params.args;
+export async function createNg(options, ngLabel) {
   const label = ngLabel.ngResourceLabel;
-  const { description, link: membersIds, org, tags } = params.options;
+  const { description, link: membersIds, org, tags } = options;
 
   await networkGroup.create(label, description, tags, membersIds, org);
 
@@ -34,9 +33,8 @@ export async function createNg(params) {
  * @param {Object} params.args[0] Network Group ID or label
  * @param {Object} params.options.org Organisation ID or name
  */
-export async function deleteNg(params) {
-  const [ngIdOrLabel] = params.args;
-  const { org } = params.options;
+export async function deleteNg(options, ngIdOrLabel) {
+  const { org } = options;
 
   await networkGroup.destroy(ngIdOrLabel, org);
   const ngText = ngIdOrLabel.ngResourceLabel ?? ngIdOrLabel.ngId;
@@ -50,9 +48,8 @@ export async function deleteNg(params) {
  * @param {string} params.args[2] WireGuard public key
  * @param {Object} params.options.org Organisation ID or name
  */
-export async function createExternalPeer(params) {
-  const [peerIdOrLabel, ngIdOrLabel, publicKey] = params.args;
-  const { org } = params.options;
+export async function createExternalPeer(options, peerIdOrLabel, ngIdOrLabel, publicKey) {
+  const { org } = options;
 
   await networkGroupResources.createExternalPeerWithParent(ngIdOrLabel, peerIdOrLabel.ngResourceLabel, publicKey, org);
   const ngText = ngIdOrLabel.ngResourceLabel ?? ngIdOrLabel.ngId;
@@ -67,9 +64,8 @@ export async function createExternalPeer(params) {
  * @param {Object} params.args[1] Network Group ID or label
  * @param {Object} params.options.org Organisation ID or name
  */
-export async function deleteExternalPeer(params) {
-  const [peerIdOrLabel, ngIdOrLabel] = params.args;
-  const { org } = params.options;
+export async function deleteExternalPeer(options, peerIdOrLabel, ngIdOrLabel) {
+  const { org } = options;
 
   const peerText = peerIdOrLabel.ngResourceLabel ?? peerIdOrLabel.memberId;
   const ngText = ngIdOrLabel.ngResourceLabel ?? ngIdOrLabel.ngId;
@@ -85,9 +81,8 @@ export async function deleteExternalPeer(params) {
  * @param {Object} params.args[1] Network Group ID or label
  * @param {Object} params.options.org Organisation ID or name
  */
-export async function linkToNg(params) {
-  const [resourceId, ngIdOrLabel] = params.args;
-  const { org } = params.options;
+export async function linkToNg(options, resourceId, ngIdOrLabel) {
+  const { org } = options;
 
   await networkGroupResources.linkMember(ngIdOrLabel, resourceId.memberId, org);
   const ngText = ngIdOrLabel.ngResourceLabel ?? ngIdOrLabel.ngId;
@@ -102,9 +97,8 @@ export async function linkToNg(params) {
  * @param {Object} params.args[1] Network Group ID or label
  * @param {Object} params.options.org Organisation ID or name
  */
-export async function unlinkFromNg(params) {
-  const [resourceId, ngIdOrLabel] = params.args;
-  const { org } = params.options;
+export async function unlinkFromNg(options, resourceId, ngIdOrLabel) {
+  const { org } = options;
 
   await networkGroupResources.unlinkMember(ngIdOrLabel, resourceId.memberId, org);
   const ngText = ngIdOrLabel.ngResourceLabel ?? ngIdOrLabel.ngId;
@@ -120,9 +114,8 @@ export async function unlinkFromNg(params) {
  * @param {Object} params.options.org Organisation ID or name
  * @param {string} params.options.format Output format
  */
-export async function getPeerConfig(params) {
-  const [peerIdOrLabel, ngIdOrLabel] = params.args;
-  const { org, format } = params.options;
+export async function getPeerConfig(options, peerIdOrLabel, ngIdOrLabel) {
+  const { org, format } = options;
 
   const config = await networkGroup.getPeerConfig(peerIdOrLabel, ngIdOrLabel, org);
 
@@ -144,8 +137,8 @@ export async function getPeerConfig(params) {
  * @param {Object} params.options.orgaIdOrName Organisation ID or name
  * @param {string} params.options.format Output format
  */
-export async function listNg(params) {
-  const { org, format } = params.options;
+export async function listNg(options) {
+  const { org, format } = options;
 
   const ngs = await networkGroup.getAllNGs(org);
 
@@ -179,10 +172,9 @@ export async function listNg(params) {
  * @param {Object} params.options.org Organisation ID or name
  * @param {string} params.options.format Output format
  */
-export async function get(params) {
-  const [idOrLabel] = params.args;
-  const { org, format } = params.options;
-  const type = params.options.type ?? 'single';
+export async function get(options, idOrLabel) {
+  const { org, format } = options;
+  const type = options.type ?? 'single';
 
   await printResults(idOrLabel, org, format, 'get', type);
 }
@@ -193,10 +185,9 @@ export async function get(params) {
  * @param {Object} params.options.org Organisation ID or name
  * @param {string} params.options.format Output format
  */
-export async function search(params) {
-  const [idOrLabel] = params.args;
-  const { org, format } = params.options;
-  const type = params.options.type;
+export async function search(options, idOrLabel) {
+  const { org, format } = options;
+  const type = options.type;
 
   await printResults(idOrLabel, org, format, 'search', type);
 }

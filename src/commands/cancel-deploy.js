@@ -4,8 +4,8 @@ import { Logger } from '../logger.js';
 import * as Application from '../models/application.js';
 import { sendToApi } from '../models/send-to-api.js';
 
-export async function cancelDeploy(params) {
-  const { alias, app: appIdOrName } = params.options;
+export async function cancelDeploy(options) {
+  const { alias, app: appIdOrName } = options;
   const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
 
   const deployments = await getAllDeployments({ id: ownerId, appId, limit: 1 }).then(sendToApi);
