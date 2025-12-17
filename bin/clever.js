@@ -101,14 +101,14 @@ async function run() {
   // ARGUMENTS
   const args = {
     k8sClusterName: cliparse.argument('cluster-name', { description: 'Kubernetes cluster name' }),
-    k8sIdOrName: cliparse.argument('id-or-name', {
+    k8sIdOrName: cliparse.argument('cluster-id|cluster-name', {
       description: 'Kubernetes cluster ID or name',
       parser: Parsers.addonIdOrName,
     }),
     kvRawCommand: cliparse.argument('command', {
       description: 'The raw command to send to the Materia KV or Redis® add-on',
     }),
-    kvIdOrName: cliparse.argument('kv-id', {
+    kvIdOrName: cliparse.argument('kv-id|addon-id|addon-name', {
       description: 'Add-on/Real ID (or name, if unambiguous) of a Materia KV or Redis® add-on',
     }),
     apiTokenId: cliparse.argument('api-token-id', { description: 'API token ID' }),
@@ -117,7 +117,7 @@ async function run() {
       description: 'Network Group label',
       parser: Parsers.ngResourceType,
     }),
-    ngIdOrLabel: cliparse.argument('ng-id-or-label', {
+    ngIdOrLabel: cliparse.argument('ng-id|ng-label', {
       description: 'Network Group ID or label',
       parser: Parsers.ngResourceType,
     }),
@@ -125,11 +125,11 @@ async function run() {
       description: 'External peer label',
       parser: Parsers.ngResourceType,
     }),
-    ngExternalIdOrLabel: cliparse.argument('external-peer-id-or-label', {
+    ngExternalIdOrLabel: cliparse.argument('peer-id|peer-label', {
       description: 'External peer ID or label',
       parser: Parsers.ngResourceType,
     }),
-    ngAnyIdOrLabel: cliparse.argument('id-or-label', {
+    ngAnyIdOrLabel: cliparse.argument('id|label', {
       description: 'ID or Label of a Network Group, a member or an (external) peer',
       parser: Parsers.ngResourceType,
     }),
@@ -147,14 +147,14 @@ async function run() {
     }),
     sshKeyName: cliparse.argument('ssh-key-name', { description: 'SSH key name' }),
     sshKeyPath: cliparse.argument('ssh-key-path', { description: 'SSH public key path (.pub)' }),
-    addonIdOrName: cliparse.argument('addon-id', {
+    addonIdOrName: cliparse.argument('addon-id|addon-name', {
       description: 'Add-on ID (or name, if unambiguous)',
       parser: Parsers.addonIdOrName,
     }),
     addonName: cliparse.argument('addon-name', { description: 'Add-on name' }),
     addonProvider: cliparse.argument('addon-provider', { description: 'Add-on provider' }),
     alias: cliparse.argument('app-alias', { description: 'Application alias' }),
-    appIdOrName: cliparse.argument('app-id', {
+    appIdOrName: cliparse.argument('app-id|app-name', {
       description: 'Application ID (or name, if unambiguous)',
       parser: Parsers.appIdOrName,
     }),
@@ -163,7 +163,7 @@ async function run() {
       default: '',
     }),
     backupId: cliparse.argument('backup-id', { description: 'A Database backup ID (format: UUID)' }),
-    databaseId: cliparse.argument('database-id', {
+    databaseId: cliparse.argument('database-id|addon-id', {
       description: 'Any database ID (format: addon_UUID, postgresql_UUID, mysql_UUID, ...)',
     }),
     drainId: cliparse.argument('drain-id', { description: 'Drain ID' }),
