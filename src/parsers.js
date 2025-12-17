@@ -29,17 +29,6 @@ export function buildFlavor(flavorOrDisabled) {
   return flavor(flavorOrDisabled);
 }
 
-export function instances(instances) {
-  const parsedInstances = parseInt(instances, 10);
-  if (isNaN(parsedInstances)) {
-    throw new Error('Invalid number: ' + instances);
-  }
-  if (parsedInstances < 1 || parsedInstances > 20) {
-    throw new Error('The number of instances must be between 1 and 20');
-  }
-  return parsedInstances;
-}
-
 export function date(dateString) {
   const date = new Date(dateString);
   if (isNaN(dateString) && !isNaN(date.getTime())) {
@@ -58,16 +47,6 @@ export function futureDateOrDuration(dateString) {
 
   const seconds = durationInSeconds(dateString);
   return new Date(Date.now() + seconds * 1000);
-}
-
-// This simple regex is enough for our use cases
-const emailRegex = /^\S+@\S+\.\S+$/g;
-
-export function email(string) {
-  if (string.match(emailRegex)) {
-    return string;
-  }
-  throw new Error('Invalid email');
 }
 
 const appIdRegex = /^app_[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -105,21 +84,6 @@ export function addonIdOrName(string) {
 
 export function commaSeparated(string) {
   return string.split(',');
-}
-
-export function integer(string) {
-  const integer = parseInt(string);
-  if (isNaN(integer)) {
-    throw new Error('Invalid number: ' + string);
-  }
-  return integer;
-}
-
-export function nonEmptyString(string) {
-  if (typeof string !== 'string' || string === '') {
-    throw new Error('Invalid string, it should not be empty');
-  }
-  return string;
 }
 
 // /^[a-z0-9](?:[a-z0-9_-]*[a-z0-9])?$/i;
@@ -202,11 +166,4 @@ export function ngResourceType(string) {
     return { memberId: string };
   }
   return { ngResourceLabel: string };
-}
-
-export function ngValidType(string) {
-  if (string === 'NetworkGroup' || string === 'Member' || string === 'CleverPeer' || string === 'ExternalPeer') {
-    return string;
-  }
-  throw new Error(`Invalid Network Group resource type: ${string}`);
 }
