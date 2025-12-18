@@ -25,12 +25,12 @@ export const webhooksAddCommand = defineCommand({
     service: notificationScopeOption,
   },
   args: [
+    notificationNameArg,
     defineArgument({
       schema: z.string(),
       description: 'Webhook URL',
       placeholder: 'url',
     }),
-    notificationNameArg,
   ],
   async handler(options, name, hookUrl) {
     const { org, format, event: events, service } = options;

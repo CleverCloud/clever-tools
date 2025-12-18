@@ -17,12 +17,12 @@ export const configSetCommand = defineCommand({
     app: appIdOrNameOption,
   },
   args: [
+    configurationNameArg,
     defineArgument({
       schema: z.string(),
       description: 'The new value of the configuration',
       placeholder: 'configuration-value',
     }),
-    configurationNameArg,
   ],
   async handler(options, configurationName, configurationValue) {
     const { alias, app: appIdOrName } = options;

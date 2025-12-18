@@ -13,7 +13,7 @@ export const addonRenameCommand = defineCommand({
   options: {
     org: orgaIdOrNameOption,
   },
-  args: [addonNameArg, addonIdOrNameArg],
+  args: [addonIdOrNameArg, addonNameArg],
   async handler(options, addon, newName) {
     const { org: orgaIdOrName } = options;
 

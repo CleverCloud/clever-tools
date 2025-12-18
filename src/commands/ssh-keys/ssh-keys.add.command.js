@@ -13,12 +13,12 @@ export const sshKeysAddCommand = defineCommand({
   sinceDate: '2025-06-10',
   options: {},
   args: [
+    sshKeyNameArg,
     defineArgument({
       schema: z.string(),
       description: 'SSH public key path (.pub)',
       placeholder: 'ssh-key-path',
     }),
-    sshKeyNameArg,
   ],
   async handler(_options, keyName, filePath) {
     if (!fs.existsSync(filePath)) {
