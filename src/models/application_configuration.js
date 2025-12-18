@@ -1,4 +1,3 @@
-import cliparse from 'cliparse';
 import dedent from 'dedent';
 import { Logger } from '../logger.js';
 
@@ -80,29 +79,12 @@ export function parse(config, value) {
   }
 }
 
-export function getUpdateOptions() {
-  return CONFIG_KEYS.map((config) => getConfigOptions(config)).reduce((a, b) => [...a, ...b], []);
-}
-
-function getConfigOptions(config) {
-  switch (config.kind) {
-    case 'bool':
-    case 'inverted-bool':
-    case 'force-https':
-    case 'task': {
-      return [
-        cliparse.flag(`enable-${config.id}`, { description: `Enable ${config.id}` }),
-        cliparse.flag(`disable-${config.id}`, { description: `Disable ${config.id}` }),
-      ];
-    }
-    default: {
-      return [cliparse.option(`${config.id}`, { description: `Set ${config.id}` })];
-    }
-  }
-}
-
 export function parseOptions(options) {
-  const newOptions = CONFIG_KEYS.map((config) => parseConfigOption(config, options)).filter((a) => a != null);
+  const newOptions = CONFIG_KEYS.map((config) => {
+    return parseConfigOption(config, options);
+  }).filter((a) => {
+    return a != null && a[1] != null;
+  });
   return Object.fromEntries(newOptions);
 }
 

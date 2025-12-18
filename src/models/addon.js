@@ -10,7 +10,6 @@ import { getAllLinkedAddons, linkAddon, unlinkAddon } from '@clevercloud/client/
 import { getAllAddonProviders } from '@clevercloud/client/esm/api/v2/product.js';
 import { getSummary } from '@clevercloud/client/esm/api/v2/user.js';
 import { getAddonProvider } from '@clevercloud/client/esm/api/v4/addon-providers.js';
-import cliparse from 'cliparse';
 import { confirm } from '../lib/prompts.js';
 import { Logger } from '../logger.js';
 import { resolveOwnerId } from './ids-resolver.js';
@@ -220,12 +219,12 @@ export async function rename(ownerId, addon, name) {
 }
 
 export function completeRegion() {
-  return cliparse.autocomplete.words(['par', 'mtl']);
+  return ['par', 'mtl'];
 }
 
 // TODO: We need to fix this
 export function completePlan() {
-  return cliparse.autocomplete.words(['dev', 's', 'm', 'l', 'xl', 'xxl']);
+  return ['dev', 's', 'm', 'l', 'xl', 'xxl'];
 }
 
 export async function findByName(addonName) {
