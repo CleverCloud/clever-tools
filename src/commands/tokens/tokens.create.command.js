@@ -20,8 +20,8 @@ export const tokensCreateCommand = defineCommand({
   options: {
     expiration: defineOption({
       name: 'expiration',
-      schema: z.string().transform(futureDateOrDuration).optional(),
-      description: 'Duration until API token expiration (e.g.: 1h, 4d, 2w, 6M), default 1y',
+      schema: z.string().default('1y').transform(futureDateOrDuration),
+      description: 'Duration until API token expiration (e.g.: 1h, 4d, 2w, 6M)',
       aliases: ['e'],
       placeholder: 'expiration',
     }),
@@ -46,20 +46,14 @@ export const tokensCreateCommand = defineCommand({
         `);
     }
 
-    // Expire in 1 year
-    const dateObject = new Date();
-    dateObject.setFullYear(dateObject.getFullYear() + 1);
-    const maxExpirationDate = dateObject;
+    // Max expiration is 1 year from now
+    const maxExpirationDate = new Date();
+    maxExpirationDate.setFullYear(maxExpirationDate.getFullYear() + 1);
 
-    let expirationDate;
-    if (expiration != null) {
-      if (expiration > maxExpirationDate.getTime()) {
-        throw new Error('You cannot set an expiration date greater than 1 year');
-      }
-      expirationDate = new Date(expiration);
-    } else {
-      expirationDate = maxExpirationDate;
+    if (expiration > maxExpirationDate) {
+      throw new Error('You cannot set an expiration date greater than 1 year');
     }
+    const expirationDate = expiration;
 
     const password = await promptSecret('Enter your password:');
 
