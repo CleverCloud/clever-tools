@@ -37,16 +37,19 @@
     "scripts/*.sh"
   ],
   "scripts": {
-    "fix-all": "npm run lint:fix && npm run format",
+    "docs": "node scripts/generate-docs.js",
+    "docs:check": "node scripts/generate-docs.js --check",
+    "fix-all": "npm run lint:fix && npm run docs && npm run format",
     "format": "prettier . --write",
     "format:check": "prettier . --check",
     "install-local:cliparse": "(cd ../cliparse-node && npm pack) && mv ../cliparse-node/cliparse-*.tgz . && npm i -f ./cliparse-*.tgz",
     "lint": "eslint",
     "lint:fix": "eslint --fix",
-    "validate": "npm run lint && npm run format:check && npm run typecheck",
+    "validate": "npm run lint && npm run format:check && npm run typecheck && npm run docs:check",
     "typecheck": "tsc -p tsconfig.json"
   },
   "dependencies": {
+    "@babel/traverse": "7.28.5",
     "@clevercloud/client": "11.3.0",
     "@inquirer/prompts": "7.8.4",
     "char-regex": "2.0.2",
@@ -63,7 +66,8 @@
     "slugify": "1.6.6",
     "tldts": "7.0.19",
     "update-notifier": "7.3.1",
-    "xdg": "0.1.1"
+    "xdg": "0.1.1",
+    "zod": "4.1.13"
   },
   "devDependencies": {
     "@aws-sdk/client-s3": "3.940.0",
@@ -82,10 +86,13 @@
     "mime-types": "3.0.2",
     "prettier": "3.7.3",
     "prettier-plugin-organize-imports": "4.3.0",
+    "remark-parse": "11.0.0",
+    "remark-stringify": "11.0.0",
     "rollup": "4.53.3",
     "simple-git": "3.30.0",
     "tinyglobby": "0.2.15",
-    "typescript": "5.9.3"
+    "typescript": "5.9.3",
+    "unified": "11.0.5"
   },
   "engines": {
     "node": ">=22"
