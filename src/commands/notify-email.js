@@ -48,7 +48,7 @@ export async function list(params) {
   }
 }
 
-export function getEmailNotificationTargets(notifTargets) {
+function getEmailNotificationTargets(notifTargets) {
   if (notifTargets == null) {
     return [];
   }
