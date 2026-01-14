@@ -1,6 +1,13 @@
 # clever-tools changelog
 
 
+## [4.5.1](https://github.com/CleverCloud/clever-tools/compare/4.5.0...4.5.1) (2026-01-14)
+
+
+### 🐛 Bug Fixes
+
+* **ci:** use lowercase options in AUR PKGBUILD template ([cd5febe](https://github.com/CleverCloud/clever-tools/commit/cd5febe04d8d36c2e4606dac71b9fc57ae7b979d)), closes [#708](https://github.com/CleverCloud/clever-tools/issues/708)
+
 ## [4.5.0](https://github.com/CleverCloud/clever-tools/compare/4.4.1...4.5.0) (2026-01-14)
 
 
