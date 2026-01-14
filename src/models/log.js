@@ -133,6 +133,11 @@ export async function watchDeploymentAndDisplayLogs({
     logsStream.close();
   }
 
+  // deploymentEnded can be undefined if deferred resolved (e.g., stream closed via SIGINT)
+  if (deploymentEnded == null) {
+    return;
+  }
+
   if (deploymentEnded.state === 'OK') {
     Logger.println(styleText(['bold', 'green'], 'Deployment successful'));
   } else if (deploymentEnded.state === 'CANCELLED') {

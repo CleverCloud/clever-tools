@@ -133,6 +133,11 @@ export async function watchDeploymentAndDisplayLogs(options) {
     logsStream.close(quiet ? 'quiet' : 'follow');
   }
 
+  // deploymentEnded can be undefined if deferred resolved (e.g., stream closed via SIGINT)
+  if (deploymentEnded == null) {
+    return;
+  }
+
   if (deploymentEnded.state === 'OK') {
     Logger.println('');
 
