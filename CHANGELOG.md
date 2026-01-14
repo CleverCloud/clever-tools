@@ -1,6 +1,18 @@
 # clever-tools changelog
 
 
+## [4.5.0](https://github.com/CleverCloud/clever-tools/compare/4.4.1...4.5.0) (2026-01-14)
+
+
+### 🚀 Features
+
+* improve --help display ([4007100](https://github.com/CleverCloud/clever-tools/commit/4007100bc7e934074f1ecf03021231dad89a6f2a))
+
+
+### 🐛 Bug Fixes
+
+* handle undefined deploymentEnded in log watchers ([646aa3b](https://github.com/CleverCloud/clever-tools/commit/646aa3b07b218d52a87615a7c13819c07fc85c39))
+
 ## [4.4.1](https://github.com/CleverCloud/clever-tools/compare/4.4.0...4.4.1) (2025-12-02)
 
 
