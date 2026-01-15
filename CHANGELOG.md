@@ -1,6 +1,14 @@
 # clever-tools changelog
 
 
+## [4.5.2](https://github.com/CleverCloud/clever-tools/compare/4.5.1...4.5.2) (2026-01-15)
+
+
+### 🐛 Bug Fixes
+
+* **addon:** fix --addon-version option conflict with global --version flag ([17e91a1](https://github.com/CleverCloud/clever-tools/commit/17e91a11b380f3c78529f03e4b71a17b5b85e92c))
+* **webhooks:** require --org when using --service for webhooks and email notifications ([b4be4a0](https://github.com/CleverCloud/clever-tools/commit/b4be4a0aab41a5fdcf1143559bbc23f291290aab))
+
 ## [4.5.1](https://github.com/CleverCloud/clever-tools/compare/4.5.0...4.5.1) (2026-01-14)
 
 
