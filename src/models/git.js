@@ -1,3 +1,4 @@
+import { Logger } from '../logger.js';
 import { isFeatureEnabled } from './configuration.js';
 
 /**
@@ -7,6 +8,16 @@ import { isFeatureEnabled } from './configuration.js';
 export class Git {
   /** @type {Git | null} */
   static #instance = null;
+
+  /** @type {string} */
+  #name;
+
+  /**
+   * @param {string} name - Backend name for logging purposes
+   */
+  constructor(name) {
+    this.#name = name;
+  }
 
   /**
    * Get the git implementation based on the feature flag.
@@ -25,6 +36,17 @@ export class Git {
       }
     }
     return Git.#instance;
+  }
+
+  /**
+   * Log a debug message for git operations
+   * @protected
+   * @param {string} operation - The operation name
+   * @param {...string} args - Additional arguments to log
+   */
+  _debug(operation, ...args) {
+    const argsStr = args.length > 0 ? ` ${args.join(' ')}` : '';
+    Logger.debug(`git(${this.#name}): ${operation}${argsStr}`);
   }
 
   /**

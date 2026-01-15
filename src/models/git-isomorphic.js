@@ -9,6 +9,10 @@ import { Git } from './git.js';
 import * as http from './isomorphic-http-with-agent.js';
 
 export class GitIsomorphic extends Git {
+  constructor() {
+    super('isomorphic');
+  }
+
   async #getRepo() {
     try {
       const dir = await findPath('.', '.git');
@@ -27,6 +31,7 @@ export class GitIsomorphic extends Git {
   }
 
   async addRemote(remoteName, url) {
+    this._debug('addRemote', remoteName, url);
     const repo = await this.#getRepo();
     const safeRemoteName = slugify(remoteName);
     const allRemotes = await git.listRemotes({ ...repo });
@@ -38,6 +43,7 @@ export class GitIsomorphic extends Git {
   }
 
   async resolveFullCommitId(commitId) {
+    this._debug('resolveFullCommitId', commitId);
     if (commitId == null) {
       return null;
     }
@@ -53,6 +59,7 @@ export class GitIsomorphic extends Git {
   }
 
   async getRemoteCommit(remoteUrl) {
+    this._debug('getRemoteCommit', remoteUrl);
     const repo = await this.#getRepo();
     const remoteInfos = await git.getRemoteInfo({
       ...repo,
@@ -63,6 +70,7 @@ export class GitIsomorphic extends Git {
   }
 
   async getFullBranch(branchName) {
+    this._debug('getFullBranch', branchName);
     const repo = await this.#getRepo();
     if (branchName === '') {
       const currentBranch = await git.currentBranch({ ...repo, fullname: true });
@@ -72,6 +80,7 @@ export class GitIsomorphic extends Git {
   }
 
   async getBranchCommit(refspec) {
+    this._debug('getBranchCommit', refspec);
     const repo = await this.#getRepo();
     const oid = await git.resolveRef({ ...repo, ref: refspec });
     // When a refspec refers to an annotated tag, the OID ref represents the annotation and not the commit directly,
@@ -81,6 +90,7 @@ export class GitIsomorphic extends Git {
   }
 
   async isExistingTag(tag) {
+    this._debug('isExistingTag', tag);
     const repo = await this.#getRepo();
     const tags = await git.listTags({
       ...repo,
@@ -89,6 +99,8 @@ export class GitIsomorphic extends Git {
   }
 
   async push(remoteUrl, branchRefspec, force) {
+    const refspec = `${branchRefspec}:refs/heads/master`;
+    this._debug('push', remoteUrl, refspec, force ? '--force' : '');
     const repo = await this.#getRepo();
     try {
       const push = await git.push({
@@ -112,10 +124,12 @@ export class GitIsomorphic extends Git {
   }
 
   async completeBranches() {
+    this._debug('completeBranches');
     return this.#getRepo().then((repo) => git.listBranches(repo));
   }
 
   async isShallow() {
+    this._debug('isShallow');
     const { dir } = await this.#getRepo();
     try {
       await fs.promises.access(path.join(dir, '.git', 'shallow'));
@@ -130,6 +144,7 @@ export class GitIsomorphic extends Git {
    * @returns {Promise<boolean>}
    */
   async isInsideGitRepo() {
+    this._debug('isInsideGitRepo');
     return this.#getRepo()
       .then(() => true)
       .catch(() => false);
@@ -140,6 +155,7 @@ export class GitIsomorphic extends Git {
    * @returns {Promise<boolean>}
    */
   async isGitWorkingDirectoryClean() {
+    this._debug('isGitWorkingDirectoryClean');
     const repo = await this.#getRepo();
     const status = await git.statusMatrix({ ...repo });
     const isStatusEmpty =

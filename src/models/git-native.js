@@ -9,7 +9,12 @@ import { Git } from './git.js';
 export class GitNative extends Git {
   #gitAvailabilityChecked = false;
 
+  constructor() {
+    super('native');
+  }
+
   async addRemote(remoteName, url) {
+    this._debug('addRemote', remoteName, url);
     const git = await this.#getSimpleGit();
     const safeRemoteName = slugify(remoteName);
     const remotes = await git.getRemotes();
@@ -46,6 +51,7 @@ export class GitNative extends Git {
   }
 
   async resolveFullCommitId(commitId) {
+    this._debug('resolveFullCommitId', commitId);
     if (commitId == null) {
       return null;
     }
@@ -64,6 +70,7 @@ export class GitNative extends Git {
   async getRemoteCommit(remoteUrl) {
     const git = await this.#getSimpleGit();
     const authUrl = await this.#buildAuthenticatedUrl(remoteUrl);
+    this._debug('getRemoteCommit', this.#redactUrl(authUrl));
     try {
       const result = await git.listRemote(['--refs', authUrl.toString()]);
       // Parse output: "<sha>\trefs/heads/master"
@@ -89,6 +96,7 @@ export class GitNative extends Git {
   }
 
   async getFullBranch(branchName) {
+    this._debug('getFullBranch', branchName);
     const git = await this.#getSimpleGit();
     if (branchName === '') {
       const branch = await git.branch();
@@ -108,6 +116,7 @@ export class GitNative extends Git {
   }
 
   async getBranchCommit(refspec) {
+    this._debug('getBranchCommit', refspec);
     const git = await this.#getSimpleGit();
     // Use rev-parse with ^{commit} to dereference tags to their commit
     const oid = await git.revparse([`${refspec}^{commit}`]);
@@ -115,15 +124,25 @@ export class GitNative extends Git {
   }
 
   async isExistingTag(tag) {
+    this._debug('isExistingTag', tag);
     const git = await this.#getSimpleGit();
     const tags = await git.tags();
     return tags.all.includes(tag);
+  }
+
+  #redactUrl(url) {
+    const urlObj = typeof url === 'string' ? new URL(url) : url;
+    const redacted = new URL(urlObj.toString());
+    if (redacted.username) redacted.username = '***';
+    if (redacted.password) redacted.password = '***';
+    return redacted.toString();
   }
 
   async push(remoteUrl, branchRefspec, force) {
     const git = await this.#getSimpleGit();
     const authUrl = await this.#buildAuthenticatedUrl(remoteUrl);
     const refspec = `${branchRefspec}:refs/heads/master`;
+    this._debug('push', this.#redactUrl(authUrl), refspec, force ? '--force' : '');
     const options = ['--porcelain'];
     if (force) {
       options.push('--force');
@@ -140,12 +159,14 @@ export class GitNative extends Git {
   }
 
   async completeBranches() {
+    this._debug('completeBranches');
     const git = await this.#getSimpleGit();
     const branches = await git.branchLocal();
     return branches.all;
   }
 
   async isShallow() {
+    this._debug('isShallow');
     const dir = await this.#getRepoDir();
     try {
       await fs.promises.access(path.join(dir, '.git', 'shallow'));
@@ -156,6 +177,7 @@ export class GitNative extends Git {
   }
 
   async isInsideGitRepo() {
+    this._debug('isInsideGitRepo');
     try {
       await this.#getRepoDir();
       return true;
@@ -165,6 +187,7 @@ export class GitNative extends Git {
   }
 
   async isGitWorkingDirectoryClean() {
+    this._debug('isGitWorkingDirectoryClean');
     const git = await this.#getSimpleGit();
     const status = await git.status();
     return status.isClean();
