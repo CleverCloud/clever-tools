@@ -37,7 +37,7 @@ clever notify-email add --notify <email-address|user-id|organisation> <name> [op
 |`--notify` `<email-address\|user-id\|organisation>`|Notify a user, a specific email address or the whole organisation (multiple values allowed, comma separated) **(required)**|
 |`--event` `<event-type>`|Restrict notifications to specific event types|
 |`-o`, `--org`, `--owner` `<org-id\|org-name>`|Organisation to target by its ID (or name, if unambiguous)|
-|`--service` `<service-id>`|Restrict notifications to specific applications and add-ons|
+|`--service` `<service-id>`|Restrict notifications to specific applications and add-ons (requires --org)|
 
 ## ➡️ `clever notify-email remove` <kbd>Since 0.6.1</kbd>
 

@@ -148,7 +148,7 @@ export const notificationScopeOption = defineOption({
     .string()
     .transform((v) => v.split(','))
     .optional(),
-  description: 'Restrict notifications to specific applications and add-ons',
+  description: 'Restrict notifications to specific applications and add-ons (requires --org)',
   placeholder: 'service-id',
 });
 

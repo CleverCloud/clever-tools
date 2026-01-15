@@ -48,8 +48,11 @@ export const notifyEmailAddCommand = defineCommand({
   async handler(options, name) {
     const { org, event: events, service, notify: notifTargets } = options;
 
-    // TODO: fix alias option
-    const { ownerId, appId } = await getOwnerAndApp(null, org, !org && !service);
+    if (service != null && org == null) {
+      throw new Error('--org is required when using --service');
+    }
+
+    const { ownerId, appId } = await getOwnerAndApp(org, org == null && service == null);
 
     const body = {
       name,

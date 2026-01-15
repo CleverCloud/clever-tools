@@ -1605,7 +1605,7 @@ name                                                 Notification name
     --notify <email-address|user-id|organisation>    Notify a user, a specific email address or the whole organisation (multiple values allowed, comma separated) (required)
     --event <event-type>                             Restrict notifications to specific event types
 -o, --org, --owner <org-id|org-name>                 Organisation to target by its ID (or name, if unambiguous)
-    --service <service-id>                           Restrict notifications to specific applications and add-ons
+    --service <service-id>                           Restrict notifications to specific applications and add-ons (requires --org)
 
 ### notify-email remove
 
@@ -2161,7 +2161,7 @@ url                                     Webhook URL
     --event <event-type>                Restrict notifications to specific event types
     --format <format>                   Format of the body sent to the webhook ('raw', 'slack', 'gitter', or 'flowdock') (default: raw)
 -o, --org, --owner <org-id|org-name>    Organisation to target by its ID (or name, if unambiguous)
-    --service <service-id>              Restrict notifications to specific applications and add-ons
+    --service <service-id>              Restrict notifications to specific applications and add-ons (requires --org)
 
 ### webhooks remove
 

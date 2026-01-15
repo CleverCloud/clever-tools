@@ -18,8 +18,7 @@ export const webhooksCommand = defineCommand({
   async handler(options) {
     const { org, listAll, format } = options;
 
-    // TODO: fix alias option
-    const { ownerId, appId } = await getOwnerAndApp(null, org, !listAll);
+    const { ownerId, appId } = await getOwnerAndApp(org, org == null && !listAll);
     const hooks = await getWebhooks({ ownerId }).then(sendToApi);
 
     const formattedHooks = hooks

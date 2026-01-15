@@ -10,11 +10,12 @@ export function getOrgaIdOrUserId(orgIdOrName) {
   return orgIdOrName == null ? User.getCurrentId() : Organisation.getId(orgIdOrName);
 }
 
-export async function getOwnerAndApp(alias, org, useLinkedApp) {
-  if (!useLinkedApp) {
-    const ownerId = await getOrgaIdOrUserId(org);
-    return { ownerId };
+export async function getOwnerAndApp(org, useLinkedApp) {
+  if (org != null) {
+    return { ownerId: await Organisation.getId(org) };
   }
-
-  return AppConfig.getAppDetails({ alias });
+  if (useLinkedApp) {
+    return AppConfig.getAppDetails({});
+  }
+  return { ownerId: await User.getCurrentId() };
 }

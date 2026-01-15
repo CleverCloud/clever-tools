@@ -34,8 +34,11 @@ export const webhooksAddCommand = defineCommand({
   async handler(options, name, hookUrl) {
     const { org, format, event: events, service } = options;
 
-    // TODO: fix alias option
-    const { ownerId, appId } = await getOwnerAndApp(null, org, !org && !service);
+    if (service != null && org == null) {
+      throw new Error('--org is required when using --service');
+    }
+
+    const { ownerId, appId } = await getOwnerAndApp(org, org == null && service == null);
 
     const body = {
       name,

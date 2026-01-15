@@ -38,7 +38,7 @@ clever webhooks add <name> <url> [options]
 |`--event` `<event-type>`|Restrict notifications to specific event types|
 |`--format` `<format>`|Format of the body sent to the webhook ('raw', 'slack', 'gitter', or 'flowdock') (default: raw)|
 |`-o`, `--org`, `--owner` `<org-id\|org-name>`|Organisation to target by its ID (or name, if unambiguous)|
-|`--service` `<service-id>`|Restrict notifications to specific applications and add-ons|
+|`--service` `<service-id>`|Restrict notifications to specific applications and add-ons (requires --org)|
 
 ## ➡️ `clever webhooks remove` <kbd>Since 0.6.0</kbd>
 
