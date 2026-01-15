@@ -9,7 +9,7 @@ import { Logger } from '../../logger.js';
 import * as AppConfig from '../../models/app_configuration.js';
 import * as Application from '../../models/application.js';
 import * as ExitStrategy from '../../models/exit-strategy-option.js';
-import { GitIsomorphic } from '../../models/git-isomorphic.js';
+import { Git } from '../../models/git.js';
 import * as Log from '../../models/log-v4.js';
 import { sendToApi } from '../../models/send-to-api.js';
 import { aliasOption, exitOnDeployOption, followDeployLogsOption, quietOption } from '../global.options.js';
@@ -46,7 +46,10 @@ export const deployCommand = defineCommand({
       description: 'Branch to push (current branch by default)',
       aliases: ['b'],
       placeholder: 'branch',
-      complete: () => new GitIsomorphic().completeBranches(),
+      complete: async () => {
+        const git = await Git.get();
+        return git.completeBranches();
+      },
     }),
     tag: defineOption({
       name: 'tag',
@@ -78,7 +81,7 @@ export const deployCommand = defineCommand({
     const { alias, branch: branchName, tag: tagName, quiet, force, follow, sameCommitPolicy, exitOnDeploy } = options;
 
     const exitStrategy = ExitStrategy.get(follow, exitOnDeploy);
-    const git = new GitIsomorphic();
+    const git = await Git.get();
 
     const appData = await AppConfig.getAppDetails({ alias });
     const { ownerId, appId } = appData;

@@ -1,20 +1,15 @@
 import * as git from 'isomorphic-git';
 import _ from 'lodash';
 import fs from 'node:fs';
-import path from 'node:path';
 import { slugify } from '../lib/slugify.js';
 import { loadOAuthConf } from './configuration.js';
-import { findPath } from './fs-utils.js';
+import { Git } from './git.js';
 import * as http from './isomorphic-http-with-agent.js';
 
-export class GitIsomorphic {
+export class GitIsomorphic extends Git {
   async #getRepo() {
-    try {
-      const dir = await findPath('.', '.git');
-      return { fs, dir, http };
-    } catch {
-      throw new Error('Could not find the .git folder.');
-    }
+    const dir = await this._getRepoDir();
+    return { fs, dir, http };
   }
 
   async #onAuth() {
@@ -113,16 +108,6 @@ export class GitIsomorphic {
 
   async completeBranches() {
     return this.#getRepo().then((repo) => git.listBranches(repo));
-  }
-
-  async isShallow() {
-    const { dir } = await this.#getRepo();
-    try {
-      await fs.promises.access(path.join(dir, '.git', 'shallow'));
-      return true;
-    } catch {
-      return false;
-    }
   }
 
   /**
