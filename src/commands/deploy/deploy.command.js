@@ -145,6 +145,7 @@ export const deployCommand = defineCommand({
            ${styleText('blue', '→ Pushing source code to Clever Cloud…')}
       `);
 
+    const pushStart = Date.now();
     await git.push(appData.deployUrl, commitIdToPush, force, slugify(appData.alias)).catch(async (e) => {
       const isShallow = await git.isShallow();
       if (isShallow) {
@@ -155,8 +156,9 @@ export const deployCommand = defineCommand({
         throw e;
       }
     });
+    const pushDuration = ((Date.now() - pushStart) / 1000).toFixed(1);
 
-    await Logger.println(`   ${styleText('green', '✓ Code pushed to Clever Cloud')}`);
+    await Logger.println(`   ${styleText('green', `✓ Code pushed to Clever Cloud (${pushDuration}s)`)}`);
 
     return Log.watchDeploymentAndDisplayLogs({
       ownerId,
