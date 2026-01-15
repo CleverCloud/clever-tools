@@ -110,11 +110,18 @@ async function generateLlmsDocs(commands, checkMode) {
   const existingLlmsDocumentation = await fs.readFile(llmsDocumentationPath, 'utf-8').catch(() => null);
   const rawSetupContent = await fs.readFile(setupDocsPath, 'utf8').catch(() => '');
 
-  const [deploymentZones, addonProviders, instances] = await Promise.all([
+  const [deploymentZones, rawAddonProviders, instances] = await Promise.all([
     apiClient.send(new ListZoneCommand()),
     apiClient.send(new ListProductAddonCommand({ withVersions: false })),
     apiClient.send(new ListProductRuntimeCommand()),
   ]);
+
+  // Filter addon provider zones to only include public zones
+  const publicZoneNames = new Set(deploymentZones.map((zone) => zone.name));
+  const addonProviders = rawAddonProviders.map((provider) => ({
+    ...provider,
+    zones: provider.zones?.filter((zone) => publicZoneNames.has(zone)),
+  }));
 
   const newLlmsDocumentation =
     getLlmsDocumentation(commands, {
