@@ -7,7 +7,7 @@ import { loadOAuthConf } from './configuration.js';
 import { findPath } from './fs-utils.js';
 import * as http from './isomorphic-http-with-agent.js';
 
-export class Git {
+export class GitIsomorphic {
   async #getRepo() {
     try {
       const dir = await findPath('.', '.git');

@@ -9,7 +9,7 @@ import * as AppConfig from '../../models/app_configuration.js';
 import * as Application from '../../models/application.js';
 import { AVAILABLE_ZONES, listAvailableTypes, listAvailableZones } from '../../models/application.js';
 import { conf } from '../../models/configuration.js';
-import { Git } from '../../models/git.js';
+import { GitIsomorphic } from '../../models/git-isomorphic.js';
 import { aliasCreationOption, humanJsonOutputFormatOption, orgaIdOrNameOption } from '../global.options.js';
 
 function getGithubDetails(githubOwnerRepo) {
@@ -45,7 +45,7 @@ async function displayAppCreation(app, alias, github, taskCommand) {
   Logger.println('  ' + styleText('bold', 'Next steps:'));
 
   if (!github) {
-    const git = new Git();
+    const git = new GitIsomorphic();
     const isInsideGitRepo = await git.isInsideGitRepo();
     if (!isInsideGitRepo) {
       Logger.println(`  ${styleText('yellow', '!')} Initialize a git repository first, for example:`);
