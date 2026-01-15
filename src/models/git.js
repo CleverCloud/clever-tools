@@ -7,146 +7,148 @@ import { loadOAuthConf } from './configuration.js';
 import { findPath } from './fs-utils.js';
 import * as http from './isomorphic-http-with-agent.js';
 
-async function getRepo() {
-  try {
-    const dir = await findPath('.', '.git');
-    return { fs, dir, http };
-  } catch {
-    throw new Error('Could not find the .git folder.');
-  }
-}
-
-async function onAuth() {
-  const tokens = await loadOAuthConf();
-  return {
-    username: tokens.token,
-    password: tokens.secret,
-  };
-}
-
-export async function addRemote(remoteName, url) {
-  const repo = await getRepo();
-  const safeRemoteName = slugify(remoteName);
-  const allRemotes = await git.listRemotes({ ...repo });
-  const existingRemote = _.find(allRemotes, { remote: safeRemoteName });
-  if (existingRemote == null) {
-    // In some situations, we may end up with race conditions so we force it
-    return git.addRemote({ ...repo, remote: safeRemoteName, url, force: true });
-  }
-}
-
-export async function resolveFullCommitId(commitId) {
-  if (commitId == null) {
-    return null;
-  }
-  try {
-    const repo = await getRepo();
-    return await git.expandOid({ ...repo, oid: commitId });
-  } catch (e) {
-    if (e.code === 'ShortOidNotFound') {
-      throw new Error(`Commit id ${commitId} is ambiguous`);
+export class Git {
+  async #getRepo() {
+    try {
+      const dir = await findPath('.', '.git');
+      return { fs, dir, http };
+    } catch {
+      throw new Error('Could not find the .git folder.');
     }
-    throw e;
   }
-}
 
-export async function getRemoteCommit(remoteUrl) {
-  const repo = await getRepo();
-  const remoteInfos = await git.getRemoteInfo({
-    ...repo,
-    onAuth,
-    url: remoteUrl,
-  });
-  return _.get(remoteInfos, 'refs.heads.master');
-}
-
-export async function getFullBranch(branchName) {
-  const repo = await getRepo();
-  if (branchName === '') {
-    const currentBranch = await git.currentBranch({ ...repo, fullname: true });
-    return currentBranch || 'HEAD';
+  async #onAuth() {
+    const tokens = await loadOAuthConf();
+    return {
+      username: tokens.token,
+      password: tokens.secret,
+    };
   }
-  return git.expandRef({ ...repo, ref: branchName });
-}
 
-export async function getBranchCommit(refspec) {
-  const repo = await getRepo();
-  const oid = await git.resolveRef({ ...repo, ref: refspec });
-  // When a refspec refers to an annotated tag, the OID ref represents the annotation and not the commit directly,
-  // that's why we need a call to `readCommit`.
-  const res = await git.readCommit({ ...repo, ref: refspec, oid });
-  return res.oid;
-}
+  async addRemote(remoteName, url) {
+    const repo = await this.#getRepo();
+    const safeRemoteName = slugify(remoteName);
+    const allRemotes = await git.listRemotes({ ...repo });
+    const existingRemote = _.find(allRemotes, { remote: safeRemoteName });
+    if (existingRemote == null) {
+      // In some situations, we may end up with race conditions so we force it
+      return git.addRemote({ ...repo, remote: safeRemoteName, url, force: true });
+    }
+  }
 
-export async function isExistingTag(tag) {
-  const repo = await getRepo();
-  const tags = await git.listTags({
-    ...repo,
-  });
-  return tags.includes(tag);
-}
+  async resolveFullCommitId(commitId) {
+    if (commitId == null) {
+      return null;
+    }
+    try {
+      const repo = await this.#getRepo();
+      return await git.expandOid({ ...repo, oid: commitId });
+    } catch (e) {
+      if (e.code === 'ShortOidNotFound') {
+        throw new Error(`Commit id ${commitId} is ambiguous`);
+      }
+      throw e;
+    }
+  }
 
-export async function push(remoteUrl, branchRefspec, force, remoteName) {
-  const repo = await getRepo();
-  try {
-    const push = await git.push({
+  async getRemoteCommit(remoteUrl) {
+    const repo = await this.#getRepo();
+    const remoteInfos = await git.getRemoteInfo({
       ...repo,
-      onAuth,
+      onAuth: this.#onAuth,
       url: remoteUrl,
-      ref: branchRefspec,
-      remoteRef: 'master',
-      remote: remoteName,
-      force,
     });
-    if (push.errors != null) {
-      throw new Error(push.errors.join(', '));
-    }
-    return push;
-  } catch (e) {
-    if (e.code === 'PushRejectedNonFastForward') {
-      throw new Error('Push rejected because it was not a simple fast-forward. Use "--force" to override.');
-    }
-    throw e;
+    return _.get(remoteInfos, 'refs.heads.master');
   }
-}
 
-export function completeBranches() {
-  return getRepo().then((repo) => git.listBranches(repo));
-}
-
-export async function isShallow() {
-  const { dir } = await getRepo();
-  try {
-    await fs.promises.access(path.join(dir, '.git', 'shallow'));
-    return true;
-  } catch {
-    return false;
+  async getFullBranch(branchName) {
+    const repo = await this.#getRepo();
+    if (branchName === '') {
+      const currentBranch = await git.currentBranch({ ...repo, fullname: true });
+      return currentBranch || 'HEAD';
+    }
+    return git.expandRef({ ...repo, ref: branchName });
   }
-}
 
-/**
- * Check if the current directory is a git repository
- * @returns {Promise<boolean>}
- */
-export async function isInsideGitRepo() {
-  return getRepo()
-    .then(() => true)
-    .catch(() => false);
-}
+  async getBranchCommit(refspec) {
+    const repo = await this.#getRepo();
+    const oid = await git.resolveRef({ ...repo, ref: refspec });
+    // When a refspec refers to an annotated tag, the OID ref represents the annotation and not the commit directly,
+    // that's why we need a call to `readCommit`.
+    const res = await git.readCommit({ ...repo, ref: refspec, oid });
+    return res.oid;
+  }
 
-/**
- * Check if the current git working directory is clean
- * @returns {Promise<boolean>}
- */
-export async function isGitWorkingDirectoryClean() {
-  const repo = await getRepo();
-  const status = await git.statusMatrix({ ...repo });
-  const isStatusEmpty =
-    status.filter(([filepath, head, workdir]) => {
-      // WARNING: isomorphic-git does not support global gitignore so we filter hidden files and dirs to reduce the amount of false positives
-      const isHidden = filepath.startsWith('.');
-      const isCleverJson = filepath === '.clever.json';
-      return (!isHidden || isCleverJson) && head !== workdir;
-    }).length === 0;
-  return isStatusEmpty;
+  async isExistingTag(tag) {
+    const repo = await this.#getRepo();
+    const tags = await git.listTags({
+      ...repo,
+    });
+    return tags.includes(tag);
+  }
+
+  async push(remoteUrl, branchRefspec, force, remoteName) {
+    const repo = await this.#getRepo();
+    try {
+      const push = await git.push({
+        ...repo,
+        onAuth: this.#onAuth,
+        url: remoteUrl,
+        ref: branchRefspec,
+        remoteRef: 'master',
+        remote: remoteName,
+        force,
+      });
+      if (push.errors != null) {
+        throw new Error(push.errors.join(', '));
+      }
+      return push;
+    } catch (e) {
+      if (e.code === 'PushRejectedNonFastForward') {
+        throw new Error('Push rejected because it was not a simple fast-forward. Use "--force" to override.');
+      }
+      throw e;
+    }
+  }
+
+  async completeBranches() {
+    return this.#getRepo().then((repo) => git.listBranches(repo));
+  }
+
+  async isShallow() {
+    const { dir } = await this.#getRepo();
+    try {
+      await fs.promises.access(path.join(dir, '.git', 'shallow'));
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  /**
+   * Check if the current directory is a git repository
+   * @returns {Promise<boolean>}
+   */
+  async isInsideGitRepo() {
+    return this.#getRepo()
+      .then(() => true)
+      .catch(() => false);
+  }
+
+  /**
+   * Check if the current git working directory is clean
+   * @returns {Promise<boolean>}
+   */
+  async isGitWorkingDirectoryClean() {
+    const repo = await this.#getRepo();
+    const status = await git.statusMatrix({ ...repo });
+    const isStatusEmpty =
+      status.filter(([filepath, head, workdir]) => {
+        // WARNING: isomorphic-git does not support global gitignore so we filter hidden files and dirs to reduce the amount of false positives
+        const isHidden = filepath.startsWith('.');
+        const isCleverJson = filepath === '.clever.json';
+        return (!isHidden || isCleverJson) && head !== workdir;
+      }).length === 0;
+    return isStatusEmpty;
+  }
 }

@@ -9,8 +9,7 @@ import { Logger } from '../../logger.js';
 import * as AppConfig from '../../models/app_configuration.js';
 import * as Application from '../../models/application.js';
 import * as ExitStrategy from '../../models/exit-strategy-option.js';
-import * as git from '../../models/git.js';
-import { completeBranches } from '../../models/git.js';
+import { Git } from '../../models/git.js';
 import * as Log from '../../models/log-v4.js';
 import { sendToApi } from '../../models/send-to-api.js';
 import { aliasOption, exitOnDeployOption, followDeployLogsOption, quietOption } from '../global.options.js';
@@ -23,7 +22,7 @@ async function restartOnSameCommit(ownerId, appId, commitIdToPush, quiet, withou
   return Log.watchDeploymentAndDisplayLogs({ ownerId, appId, deploymentId: restart.deploymentId, quiet, exitStrategy });
 }
 
-async function getBranchToDeploy(branchName, tagName) {
+async function getBranchToDeploy(git, branchName, tagName) {
   if (tagName) {
     const useTag = await git.isExistingTag(tagName);
     if (useTag) {
@@ -47,7 +46,7 @@ export const deployCommand = defineCommand({
       description: 'Branch to push (current branch by default)',
       aliases: ['b'],
       placeholder: 'branch',
-      complete: completeBranches,
+      complete: () => new Git().completeBranches(),
     }),
     tag: defineOption({
       name: 'tag',
@@ -79,11 +78,12 @@ export const deployCommand = defineCommand({
     const { alias, branch: branchName, tag: tagName, quiet, force, follow, sameCommitPolicy, exitOnDeploy } = options;
 
     const exitStrategy = ExitStrategy.get(follow, exitOnDeploy);
+    const git = new Git();
 
     const appData = await AppConfig.getAppDetails({ alias });
     const { ownerId, appId } = appData;
 
-    const branchRefspec = await getBranchToDeploy(branchName, tagName);
+    const branchRefspec = await getBranchToDeploy(git, branchName, tagName);
     const commitIdToPush = await git.getBranchCommit(branchRefspec);
     const remoteHeadCommitId = await git.getRemoteCommit(appData.deployUrl);
     const deployedCommitId = await Application.get(ownerId, appId).then(({ commitId }) => commitId);
