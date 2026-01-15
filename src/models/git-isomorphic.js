@@ -5,9 +5,10 @@ import path from 'node:path';
 import { slugify } from '../lib/slugify.js';
 import { loadOAuthConf } from './configuration.js';
 import { findPath } from './fs-utils.js';
+import { Git } from './git.js';
 import * as http from './isomorphic-http-with-agent.js';
 
-export class GitIsomorphic {
+export class GitIsomorphic extends Git {
   async #getRepo() {
     try {
       const dir = await findPath('.', '.git');
