@@ -20,3 +20,23 @@ clever deploy [options]
 |`-q`, `--quiet`|Don't show logs during deployment|
 |`-p`, `--same-commit-policy` `<policy>`|What to do when local and remote commit are identical (error, ignore, restart, rebuild) (default: error)|
 |`-t`, `--tag` `<tag>`|Tag to push (none by default)|
+
+### 🧪 Experimental: Native Git backend
+
+By default, Clever Tools uses a built-in JavaScript git implementation (`isomorphic-git`) for git operations. This works out of the box without requiring git to be installed, but has some limitations:
+
+* **Slow performance** on repositories with rewritten history (rebases, squashes)
+* **Connection timeouts** on large repositories or when pushing big files, due to HTTP-based transfers
+* **HTTP-only**: cannot use SSH-based git protocols
+
+If you experience these issues, you can enable the **native git backend** which uses the `git` command installed on your system. It requires git to be available in your PATH.
+
+```bash
+clever features enable native-git
+```
+
+To disable and return to the built-in implementation:
+
+```bash
+clever features disable native-git
+```
