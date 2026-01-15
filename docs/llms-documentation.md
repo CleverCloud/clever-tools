@@ -1,4 +1,4 @@
-This document is automatically generated from Clever Tools `4.4.1` and Clever Cloud API. It covers all Clever Tools commands and options. Use it to better understand this CLI and its capabilities or to train/use LLMs, AI-assisted IDEs.
+This document is automatically generated from Clever Tools `4.5.1` and Clever Cloud API. It covers all Clever Tools commands and options. Use it to better understand this CLI and its capabilities or to train/use LLMs, AI-assisted IDEs.
 
 To use Clever Tools, you need:
 - A Clever Cloud account, create one at https://console.clever-cloud.com/
@@ -174,7 +174,7 @@ Applications deployment zones (region): `par`, `parhds`, `fr-north-hds`, `grahds
 
 - `addon-matomo`:
   - plans: `beta`
-  - zones: `par`, `mtl`, `nqz`, `rbx`, `scw`, `sgp`, `syd`, `wsw`
+  - zones: `par`, `mtl`, `rbx`, `scw`, `sgp`, `syd`, `wsw`
 
 - `addon-pulsar`:
   - plans: `beta`
@@ -182,31 +182,31 @@ Applications deployment zones (region): `par`, `parhds`, `fr-north-hds`, `grahds
 
 - `azimutt`:
   - plans: `free`, `solo`, `team`, `team-2`, `team-3`, `team-4`, `team-5`, `enterprise`
-  - zones: `par`, `nqz`
+  - zones: `par`
 
 - `cellar-addon`:
   - plans: `S`
-  - zones: `par`, `parhds`, `fr-north-hds`, `nqz`, `numspot`, `rbxhds`
+  - zones: `par`, `parhds`, `fr-north-hds`, `rbxhds`
 
 - `config-provider`:
   - plans: `std`
-  - zones: `par`, `parhds`, `nqz`
+  - zones: `par`, `parhds`
 
 - `es-addon`:
   - plans: `xs`, `s`, `m`, `l`, `xl`, `xxl`, `xxxl`, `4xl`, `5xl`
-  - zones: `par`, `parhds`, `gov`, `grahds`, `ldn`, `lux`, `mea`, `mtl`, `nqz`, `numspot`, `rbx`, `rbxhds`, `scw`, `sgp`, `syd`, `wsw`
+  - zones: `par`, `parhds`, `grahds`, `ldn`, `mtl`, `rbx`, `rbxhds`, `scw`, `sgp`, `syd`, `wsw`
 
 - `fs-bucket`:
   - plans: `s`
-  - zones: `par`, `faumepar`, `gov`, `ldn`, `lux`, `mea`, `mtl`, `nqz`, `numspot`, `rbx`, `scw`, `sgp`, `syd`, `utocat`, `wiseband`, `wsw`
+  - zones: `par`, `ldn`, `mtl`, `rbx`, `scw`, `sgp`, `syd`, `wsw`
 
 - `jenkins`:
   - plans: `XS`, `S`, `M`, `L`, `XL`
-  - zones: `par`, `gov`, `grahds`, `ldn`, `lux`, `mea`, `nqz`, `numspot`, `rbxhds`, `scw`
+  - zones: `par`, `grahds`, `ldn`, `rbxhds`, `scw`
 
 - `keycloak`:
   - plans: `base`
-  - zones: `par`, `mtl`, `nqz`, `rbx`, `scw`, `sgp`, `syd`, `wsw`
+  - zones: `par`, `mtl`, `rbx`, `scw`, `sgp`, `syd`, `wsw`
 
 - `kv`:
   - plans: `base`
@@ -214,31 +214,31 @@ Applications deployment zones (region): `par`, `parhds`, `fr-north-hds`, `grahds
 
 - `mailpace`:
   - plans: `clever_solo`, `clever_scaling_10`, `clever_scaling_20`, `clever_scaling_30`, `clever_scaling_40`, `clever_scaling_50`, `clever_scaling_70`, `clever_scaling_100`
-  - zones: `par`, `nqz`
+  - zones: `par`
 
 - `metabase`:
   - plans: `base`
-  - zones: `par`, `fr-north-hds`, `grahds`, `mtl`, `nqz`, `rbx`, `rbxhds`, `scw`, `sgp`, `syd`, `wsw`
+  - zones: `par`, `fr-north-hds`, `grahds`, `mtl`, `rbx`, `rbxhds`, `scw`, `sgp`, `syd`, `wsw`
 
 - `mongodb-addon`:
   - plans: `xs_sml`, `xs_med`, `xs_big`, `s_sml`, `s_med`, `s_big`, `s_hug`, `m_sml`, `m_med`, `m_big`, `m_hug`, `l_sml`, `l_med`, `l_big`, `xl_sml`, `xl_med`, `xl_big`, `xxl_sml`, `xxl_med`, `xxl_big`
-  - zones: `par`, `gov`, `ihc`, `ldn`, `ledgy`, `lux`, `mea`, `mtl`, `nqz`, `numspot`, `rbx`, `scw`, `sgp`, `syd`, `wsw`, `yaakadev`
+  - zones: `par`, `ldn`, `mtl`, `rbx`, `scw`, `sgp`, `syd`, `wsw`
 
 - `mysql-addon`:
   - plans: `dev`, `xxs_sml`, `xxs_med`, `xxs_big`, `xs_tny`, `xs_sml`, `xs_med`, `xs_big`, `s_sml`, `s_med`, `s_big`, `m_sml`, `m_med`, `m_big`, `l_sml`, `l_med`, `l_big`, `xl_sml`, `xl_med`, `xl_big`, `xxl_sml`, `xxl_med`, `xxl_big`, `xxl_hug`
-  - zones: `par`, `parhds`, `faumepar`, `gov`, `grahds`, `intuiti`, `ldn`, `lux`, `maj-digital`, `mea`, `mtl`, `nqz`, `numspot`, `rbx`, `rbxhds`, `scw`, `sgp`, `syd`, `wsw`
+  - zones: `par`, `parhds`, `grahds`, `ldn`, `mtl`, `rbx`, `rbxhds`, `scw`, `sgp`, `syd`, `wsw`
 
 - `otoroshi`:
   - plans: `base`
-  - zones: `par`, `fr-north-hds`, `grahds`, `mtl`, `nqz`, `rbx`, `rbxhds`, `scw`, `sgp`, `syd`, `wsw`
+  - zones: `par`, `fr-north-hds`, `grahds`, `mtl`, `rbx`, `rbxhds`, `scw`, `sgp`, `syd`, `wsw`
 
 - `postgresql-addon`:
   - plans: `dev`, `xxs_sml`, `xxs_med`, `xxs_big`, `xs_tny`, `xs_sml`, `xs_med`, `xs_big`, `s_sml`, `s_med`, `s_big`, `s_hug`, `m_sml`, `m_med`, `m_big`, `l_sml`, `l_med`, `l_big`, `xl_sml`, `l_gnt`, `xl_med`, `xl_big`, `xl_hug`, `xl_gnt`, `xxl_sml`, `xxl_med`, `xxl_big`, `xxl_hug`, `xxxl_sml`, `xxxl_med`, `xxxl_big`, `3xl_cpu_tit`
-  - zones: `par`, `parhds`, `boxraiser`, `clevercloud-postgresql-internal`, `gov`, `grahds`, `graviteesource`, `ldn`, `lux`, `mea`, `mtl`, `navalgroup`, `navalgroupblue`, `nqz`, `numspot`, `rbx`, `rbxhds`, `scw`, `sgp`, `syd`, `wsw`
+  - zones: `par`, `parhds`, `grahds`, `ldn`, `mtl`, `rbx`, `rbxhds`, `scw`, `sgp`, `syd`, `wsw`
 
 - `redis-addon`:
   - plans: `s_mono`, `m_mono`, `l_mono`, `xl_mono`, `xxl_mono`, `xxxl_mono`, `xxxxl_mono`
-  - zones: `par`, `parhds`, `gov`, `grahds`, `ldn`, `lux`, `mea`, `mtl`, `nqz`, `numspot`, `rbx`, `rbxhds`, `scw`, `sgp`, `syd`, `wsw`
+  - zones: `par`, `parhds`, `grahds`, `ldn`, `mtl`, `rbx`, `rbxhds`, `scw`, `sgp`, `syd`, `wsw`
 
 Default deployment zone is `par`, default plan is the lowest available.
 

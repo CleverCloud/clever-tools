@@ -178,11 +178,7 @@ function getAddonsSection(addonProviders) {
         lines.push(`  - plans: ${formatCodeList(plans)}`);
       }
 
-      const zones =
-        provider.zones
-          // Remove clevergrid
-          ?.filter((zone) => zone !== 'clevergrid')
-          ?.sort(sortZones) ?? [];
+      const zones = provider.zones?.sort(sortZones) ?? [];
       if (zones.length > 0) {
         lines.push(`  - zones: ${formatCodeList(zones)}`);
       }
