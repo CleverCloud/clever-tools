@@ -76,9 +76,7 @@ function validateAddonVersionAndOptions(region, version, addonOptions, providerI
         const availableVersions = Object.keys(providerInfos.dedicated);
         const hasVersion = availableVersions.find((availableVersion) => availableVersion === version);
         if (hasVersion == null) {
-          throw new Error(
-            `Invalid version ${addonOptions.version}, available versions are: ${availableVersions.join(', ')}`,
-          );
+          throw new Error(`Invalid version ${version}, available versions are: ${availableVersions.join(', ')}`);
         }
       }
     }
