@@ -7,6 +7,7 @@ export default defineConfig({
   input: 'bin/clever.js',
   output: {
     format: 'cjs',
+    inlineDynamicImports: true,
   },
   plugins: [
     // Rollup replaces "fileURLToPath(import.meta.url)"
