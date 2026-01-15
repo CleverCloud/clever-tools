@@ -9,7 +9,7 @@ import * as AppConfig from '../../models/app_configuration.js';
 import * as Application from '../../models/application.js';
 import { AVAILABLE_ZONES, listAvailableTypes, listAvailableZones } from '../../models/application.js';
 import { conf } from '../../models/configuration.js';
-import { isGitWorkingDirectoryClean, isInsideGitRepo } from '../../models/git.js';
+import { Git } from '../../models/git.js';
 import { aliasCreationOption, humanJsonOutputFormatOption, orgaIdOrNameOption } from '../global.options.js';
 
 function getGithubDetails(githubOwnerRepo) {
@@ -45,15 +45,16 @@ async function displayAppCreation(app, alias, github, taskCommand) {
   Logger.println('  ' + styleText('bold', 'Next steps:'));
 
   if (!github) {
-    const isInsideGit = await isInsideGitRepo();
-    if (!isInsideGit) {
+    const git = await Git.get();
+    const isInsideGitRepo = await git.isInsideGitRepo();
+    if (!isInsideGitRepo) {
       Logger.println(`  ${styleText('yellow', '!')} Initialize a git repository first, for example:`);
       Logger.println(`    ${shellCommand('git init')}`);
       Logger.println(`    ${shellCommand('git add .')}`);
       Logger.println(`    ${shellCommand('git commit -m "Initial commit"')}`);
       Logger.println();
     } else {
-      const isClean = await isGitWorkingDirectoryClean();
+      const isClean = await git.isGitWorkingDirectoryClean();
       if (!isClean) {
         Logger.println(`  ${styleText('yellow', '!')} Commit your changes first:`);
         Logger.println(`    ${shellCommand('git add .')}`);

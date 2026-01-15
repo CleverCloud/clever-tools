@@ -1,4 +1,4 @@
-This document is automatically generated from Clever Tools `4.5.1` and Clever Cloud API. It covers all Clever Tools commands and options. Use it to better understand this CLI and its capabilities or to train/use LLMs, AI-assisted IDEs.
+This document is automatically generated from Clever Tools `4.5.2` and Clever Cloud API. It covers all Clever Tools commands and options. Use it to better understand this CLI and its capabilities or to train/use LLMs, AI-assisted IDEs.
 
 To use Clever Tools, you need:
 - A Clever Cloud account, create one at https://console.clever-cloud.com/
