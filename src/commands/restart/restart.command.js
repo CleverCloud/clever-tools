@@ -5,7 +5,7 @@ import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
 import * as Application from '../../models/application.js';
 import * as ExitStrategy from '../../models/exit-strategy-option.js';
-import { Git } from '../../models/git.js';
+import { GitIsomorphic } from '../../models/git-isomorphic.js';
 import * as Log from '../../models/log-v4.js';
 import {
   aliasOption,
@@ -43,7 +43,7 @@ export const restartCommand = defineCommand({
     const exitStrategy = ExitStrategy.get(follow, exitOnDeploy);
 
     const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
-    const git = new Git();
+    const git = new GitIsomorphic();
     const fullCommitId = await git.resolveFullCommitId(commit);
     const app = await Application.get(ownerId, appId);
 
