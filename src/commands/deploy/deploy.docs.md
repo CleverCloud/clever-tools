@@ -20,3 +20,23 @@ clever deploy [options]
 |`-q`, `--quiet`|Don't show logs during deployment|
 |`-p`, `--same-commit-policy` `<policy>`|What to do when local and remote commit are identical (error, ignore, restart, rebuild) (default: error)|
 |`-t`, `--tag` `<tag>`|Tag to push (none by default)|
+
+### 🧪 Experimental: System git backend
+
+Clever Tools uses a current JS implementation for git operations. This works without requiring git to be installed on your system, but has some limitations:
+
+* **HTTP-only**: cannot use SSH-based git protocols
+* **Slow performance** on repositories with rewritten history (rebases, squashes)
+* **Connection timeouts** on large repositories or when pushing big files, due to HTTP-based transfers
+
+If you experience any of these issues, you can enable the **system git backend** which uses the `git` command installed on your system (it must be in your `PATH` environment variable).
+
+```bash
+clever features enable system-git
+```
+
+To disable and return to the current JS implementation:
+
+```bash
+clever features disable system-git
+```
