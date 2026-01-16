@@ -30,21 +30,30 @@ export async function loadApplicationConf(ignoreParentConfig = false, pathToFold
 export async function addLinkedApplication(appData, alias, ignoreParentConfig) {
   const currentConfig = await loadApplicationConf(ignoreParentConfig);
 
+  const generatedAlias = alias || slugify(appData.name);
+
+  const existingApp = currentConfig.apps.find((app) => app.app_id === appData.id);
+  if (existingApp != null) {
+    throw new Error(
+      `Application ${styleText('red', appData.id)} is already linked with alias ${styleText('red', existingApp.alias)}`,
+    );
+  }
+
+  const aliasConflict = currentConfig.apps.find((app) => app.alias === generatedAlias);
+  if (aliasConflict != null) {
+    throw new Error(
+      `An application with alias ${styleText('red', generatedAlias)} is already linked. Please specify a different alias with ${styleText('blue', '--alias')}.`,
+    );
+  }
+
   const appEntry = {
     app_id: appData.id,
     org_id: appData.ownerId,
     deploy_url: appData.deployment.httpUrl || appData.deployment.url,
     git_ssh_url: appData.deployment.url,
     name: appData.name,
-    alias: alias || slugify(appData.name),
+    alias: generatedAlias,
   };
-
-  const isPresent = currentConfig.apps.find((app) => app.app_id === appEntry.app_id) != null;
-  if (isPresent) {
-    throw new Error(
-      `Application ${styleText('red', appEntry.app_id)} is already linked with alias ${styleText('red', appEntry.alias)}`,
-    );
-  }
 
   currentConfig.apps.push(appEntry);
 
