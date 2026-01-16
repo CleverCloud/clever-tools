@@ -3,6 +3,7 @@ import dedent from 'dedent';
 import { z } from 'zod';
 import { defineCommand } from '../../lib/define-command.js';
 import { defineOption } from '../../lib/define-option.js';
+import { slugify } from '../../lib/slugify.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
 import * as AppConfig from '../../models/app_configuration.js';
@@ -141,7 +142,7 @@ export const deployCommand = defineCommand({
            ${styleText('blue', '→ Pushing source code to Clever Cloud…')}
       `);
 
-    await git.push(appData.deployUrl, commitIdToPush, force).catch(async (e) => {
+    await git.push(appData.deployUrl, commitIdToPush, force, slugify(appData.alias)).catch(async (e) => {
       const isShallow = await git.isShallow();
       if (isShallow) {
         throw new Error(
