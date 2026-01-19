@@ -141,7 +141,7 @@ export class GitSystem extends Git {
       return {};
     } catch (e) {
       if (e.message.includes('non-fast-forward') || e.message.includes('[rejected]')) {
-        throw new Error('Push rejected because it was not a simple fast-forward. Use "--force" to override.');
+        throw new Error('Push rejected because it was not a simple fast-forward, use --force to override');
       }
       throw e;
     }

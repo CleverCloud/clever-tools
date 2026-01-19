@@ -112,7 +112,7 @@ export class GitIsomorphic extends Git {
       return push;
     } catch (e) {
       if (e.code === 'PushRejectedNonFastForward') {
-        throw new Error('Push rejected because it was not a simple fast-forward. Use "--force" to override.');
+        throw new Error('Push rejected because it was not a simple fast-forward, use --force to override');
       }
       throw e;
     }

@@ -62,7 +62,7 @@ export class Git {
     try {
       return await findPath('.', '.git');
     } catch {
-      throw new Error('Not in a git repository');
+      throw new Error('Could not find the .git folder');
     }
   }
 
