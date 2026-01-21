@@ -1,5 +1,8 @@
 # clever-tools changelog
 
+## [4.5.3](https://github.com/CleverCloud/clever-tools/compare/4.5.2...4.5.3) (2026-01-19)
+
+This release does not contain any changes and claims to be `4.5.2` with the `diag` and `version` commands.
 
 ## [4.5.2](https://github.com/CleverCloud/clever-tools/compare/4.5.1...4.5.2) (2026-01-15)
 
