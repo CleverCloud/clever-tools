@@ -247,6 +247,11 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - uses: ./.github/actions/setup-node
+      - name: 'Sync winget-pkgs fork with upstream'
+        shell: bash
+        run: gh repo sync clevercloud-ci/winget-pkgs --source microsoft/winget-pkgs
+        env:
+          GH_TOKEN: ${{ secrets.CI_TOKEN }}
       - name: 'Install WingetCreate'
         shell: powershell
         run: |
