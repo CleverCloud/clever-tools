@@ -265,7 +265,7 @@ function getCommandSection(heading, path, definition) {
   const firstColumnWith = Math.max(...allRows.map(([cell]) => cell.length));
 
   const parts = [heading];
-  parts.push(`Description:** ${definition.description}`);
+  parts.push(`**Description:** ${definition.description}`);
 
   parts.push(formatSection('Usage', [commandInfo.usage]));
   if (argumentsRows) {
