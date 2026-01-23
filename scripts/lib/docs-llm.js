@@ -283,7 +283,7 @@ function getCommandSection(heading, path, definition) {
  * @param {Array<string>} lines
  */
 function formatSection(title, lines) {
-  return [`**${title}**`, ...lines].join('\n');
+  return [`**${title}**`, '```', ...lines, '```'].join('\n');
 }
 
 /**
