@@ -11,6 +11,13 @@ import { addonRenameCommand } from './addon/addon.rename.command.js';
 import { applicationsCommand } from './applications/applications.command.js';
 import { applicationsListCommand } from './applications/applications.list.command.js';
 import { cancelDeployCommand } from './cancel-deploy/cancel-deploy.command.js';
+import { configProviderCommand } from './config-provider/config-provider.command.js';
+import { configProviderGetCommand } from './config-provider/config-provider.get.command.js';
+import { configProviderImportCommand } from './config-provider/config-provider.import.command.js';
+import { configProviderListCommand } from './config-provider/config-provider.list.command.js';
+import { configProviderOpenCommand } from './config-provider/config-provider.open.command.js';
+import { configProviderRmCommand } from './config-provider/config-provider.rm.command.js';
+import { configProviderSetCommand } from './config-provider/config-provider.set.command.js';
 import { configCommand } from './config/config.command.js';
 import { configGetCommand } from './config/config.get.command.js';
 import { configSetCommand } from './config/config.set.command.js';
@@ -190,6 +197,17 @@ export const globalCommands = {
       get: configGetCommand,
       set: configSetCommand,
       update: configUpdateCommand,
+    },
+  ],
+  'config-provider': [
+    configProviderCommand,
+    {
+      get: configProviderGetCommand,
+      import: configProviderImportCommand,
+      list: configProviderListCommand,
+      open: configProviderOpenCommand,
+      rm: configProviderRmCommand,
+      set: configProviderSetCommand,
     },
   ],
   console: consoleCommand,

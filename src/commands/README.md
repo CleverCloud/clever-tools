@@ -22,6 +22,7 @@ These options are available for all commands:
 |[`clever applications`](./applications/applications.docs.md)|List linked applications|
 |[`clever cancel-deploy`](./cancel-deploy/cancel-deploy.docs.md)|Cancel an ongoing deployment|
 |[`clever config`](./config/config.docs.md)|Display or edit the configuration of your application|
+|[`clever config-provider`](./config-provider/config-provider.docs.md)|Manage configuration providers|
 |[`clever console`](./console/console.docs.md)|Open an application in the Console|
 |[`clever create`](./create/create.docs.md)|Create an application|
 |[`clever curl`](./curl/curl.docs.md)|Query Clever Cloud's API using Clever Tools credentials|
