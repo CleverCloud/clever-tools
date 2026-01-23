@@ -11,6 +11,12 @@ import { addonRenameCommand } from './addon/addon.rename.command.js';
 import { applicationsCommand } from './applications/applications.command.js';
 import { applicationsListCommand } from './applications/applications.list.command.js';
 import { cancelDeployCommand } from './cancel-deploy/cancel-deploy.command.js';
+import { configProviderCommand } from './config-provider/config-provider.command.js';
+import { configProviderEnvCommand } from './config-provider/config-provider.env.command.js';
+import { configProviderEnvImportCommand } from './config-provider/config-provider.env.import.command.js';
+import { configProviderEnvRmCommand } from './config-provider/config-provider.env.rm.command.js';
+import { configProviderEnvSetCommand } from './config-provider/config-provider.env.set.command.js';
+import { configProviderOpenCommand } from './config-provider/config-provider.open.command.js';
 import { configCommand } from './config/config.command.js';
 import { configGetCommand } from './config/config.get.command.js';
 import { configSetCommand } from './config/config.set.command.js';
@@ -190,6 +196,20 @@ export const globalCommands = {
       get: configGetCommand,
       set: configSetCommand,
       update: configUpdateCommand,
+    },
+  ],
+  'config-provider': [
+    configProviderCommand,
+    {
+      env: [
+        configProviderEnvCommand,
+        {
+          import: configProviderEnvImportCommand,
+          rm: configProviderEnvRmCommand,
+          set: configProviderEnvSetCommand,
+        },
+      ],
+      open: configProviderOpenCommand,
     },
   ],
   console: consoleCommand,
