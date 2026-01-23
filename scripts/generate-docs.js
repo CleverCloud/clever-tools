@@ -20,7 +20,6 @@ import { ListProductRuntimeCommand } from '@clevercloud/client/cc-api-commands/p
 import { ListZoneCommand } from '@clevercloud/client/cc-api-commands/zone/list-zone-command.js';
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import pkg from '../package.json' with { type: 'json' };
 import { globalCommands } from '../src/commands/global.commands.js';
 import { colorOption, updateNotifierOption, verboseOption } from '../src/commands/global.options.js';
 import { styleText } from '../src/lib/style-text.js';
@@ -125,7 +124,6 @@ async function generateLlmsDocs(commands, checkMode) {
 
   const newLlmsDocumentation =
     getLlmsDocumentation(commands, {
-      version: pkg.version,
       rawSetupContent,
       deploymentZones,
       addonProviders,
