@@ -5,7 +5,7 @@ import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
 import * as Application from '../../models/application.js';
 import { resolveOwnerId, resolveRealId } from '../../models/ids-resolver.js';
-import * as Log from '../../models/log-v4.js';
+import * as Log from '../../models/log.js';
 import { Deferred } from '../../models/utils.js';
 import {
   addonIdOption,
