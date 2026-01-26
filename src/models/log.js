@@ -49,7 +49,7 @@ export async function displayLogs(params) {
 
   const logStream =
     addonId != null
-      ? new ResourceLogStream({ ...commonStreamParams, addonId })
+      ? new ResourceLogStream({ ...commonStreamParams, addonId, service: 'all' })
       : new ApplicationLogStream({ ...commonStreamParams, appId });
 
   // Properly close the stream
