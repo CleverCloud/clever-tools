@@ -1,4 +1,5 @@
 import { ApplicationLogStream } from '@clevercloud/client/esm/streams/application-logs.js';
+import { ResourceLogStream } from '@clevercloud/client/esm/streams/resource-logs.js';
 import { config } from '../config/config.js';
 import { styleText } from '../lib/style-text.js';
 import { Logger } from '../logger.js';
@@ -24,17 +25,18 @@ const retryConfiguration = {
 export async function displayLogs(params) {
   const deferred = params.deferred || new Deferred();
   const { apiHost, tokens } = await getHostAndTokens();
-  const { ownerId, appId, filter, since, until, deploymentId, format } = params;
+  const { ownerId, appId, addonId, filter, since, until, format } = params;
+  // deploymentId only applies to apps
+  const deploymentId = addonId != null ? undefined : params.deploymentId;
 
   if (format === 'json' && until == null) {
     throw new Error('"json" format is only applicable with a limiting parameter such as `--until`');
   }
 
-  const logStream = new ApplicationLogStream({
+  const commonStreamParams = {
     apiHost,
     tokens,
     ownerId,
-    appId,
     connectionTimeout: 10_000,
     retryConfiguration,
     since,
@@ -43,15 +45,23 @@ export async function displayLogs(params) {
     filter,
     throttleElements: THROTTLE_ELEMENTS,
     throttlePerInMilliseconds: THROTTLE_PER_IN_MILLISECONDS,
-  });
+  };
+
+  const logStream =
+    addonId != null
+      ? new ResourceLogStream({ ...commonStreamParams, addonId })
+      : new ApplicationLogStream({ ...commonStreamParams, appId });
 
   // Properly close the stream
-  process.once('SIGINT', (signal) => logStream.close(signal));
+  process.once('SIGINT', (signal) => {
+    logStream.close(signal);
+    process.kill(process.pid, 'SIGINT');
+  });
   const jsonArray = new JsonArray();
 
   logStream
     .on('open', () => {
-      Logger.debug(styleText('blue', `Logs stream (open) ${JSON.stringify({ appId, filter, deploymentId })}`));
+      Logger.debug(styleText('blue', `Logs stream (open) ${JSON.stringify({ appId, addonId, filter, deploymentId })}`));
       if (format === 'json') {
         jsonArray.open();
       }
