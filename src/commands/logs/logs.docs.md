@@ -12,7 +12,7 @@ clever logs [options]
 
 |Name|Description|
 |---|---|
-|`--addon` `<addon-id>`|Add-on ID|
+|`--addon` `<addon-id>`|Add-on ID or real ID|
 |`--after`, `--since` `<after>`|Fetch logs after this date/time (ISO8601 date, positive number in seconds or duration, e.g.: 1h)|
 |`-a`, `--alias` `<alias>`|Short name for the application|
 |`--app` `<app-id\|app-name>`|Application to manage by its ID (or name, if unambiguous)|
