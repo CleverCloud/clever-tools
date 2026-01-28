@@ -3,10 +3,10 @@ import { prefixUrl } from '@clevercloud/client/esm/prefix-url.js';
 import { request } from '@clevercloud/client/esm/request.fetch.js';
 import { subtle as cryptoSuble } from 'node:crypto';
 import { addOauthHeaderPlaintext } from '../clever-client/auth-bridge.js';
+import { loadOAuthConf } from '../config/auth.js';
 import { conf } from '../config/config.js';
 import { styleText } from '../lib/style-text.js';
 import { Logger } from '../logger.js';
-import { loadOAuthConf } from './configuration.js';
 
 // Required for @clevercloud/client with "old" Node.js
 if (globalThis.crypto == null) {
