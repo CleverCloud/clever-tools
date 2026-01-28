@@ -6,26 +6,34 @@ import { getConfigPath } from './paths.js';
  * Configuration schema with default values.
  * Each value can be overridden by setting an environment variable with the same name.
  */
-const CleverToolsConfigSchema = z.object({
-  API_HOST: z.url().default('https://api.clever-cloud.com'),
-  AUTH_BRIDGE_HOST: z.url().default('https://api-bridge.clever-cloud.com'),
-  SSH_GATEWAY: z.string().default('ssh@sshgateway-clevercloud-customers.services.clever-cloud.com'),
+const CleverToolsConfigSchema = z
+  .object({
+    API_HOST: z.url().default('https://api.clever-cloud.com'),
+    AUTH_BRIDGE_HOST: z.url().default('https://api-bridge.clever-cloud.com'),
+    SSH_GATEWAY: z.string().default('ssh@sshgateway-clevercloud-customers.services.clever-cloud.com'),
 
-  // The disclosure of these tokens is not considered as a vulnerability.
-  // Do not report this to our security service.
-  OAUTH_CONSUMER_KEY: z.string().default('T5nFjKeHH4AIlEveuGhB5S3xg8T19e'),
-  OAUTH_CONSUMER_SECRET: z.string().default('MgVMqTr6fWlf2M0tkC2MXOnhfqBWDT'),
+    // The disclosure of these tokens is not considered as a vulnerability.
+    // Do not report this to our security service.
+    OAUTH_CONSUMER_KEY: z.string().default('T5nFjKeHH4AIlEveuGhB5S3xg8T19e'),
+    OAUTH_CONSUMER_SECRET: z.string().default('MgVMqTr6fWlf2M0tkC2MXOnhfqBWDT'),
 
-  APP_CONFIGURATION_FILE: z.string().default(path.resolve('.', '.clever.json')),
-  CONFIGURATION_FILE: z.string().default(getConfigPath('clever-tools.json')),
-  EXPERIMENTAL_FEATURES_FILE: z.string().default(getConfigPath('clever-tools-experimental-features.json')),
+    APP_CONFIGURATION_FILE: z.string().default(path.resolve('.', '.clever.json')),
+    CONFIGURATION_FILE: z.string().default(getConfigPath('clever-tools.json')),
+    EXPERIMENTAL_FEATURES_FILE: z.string().default(getConfigPath('clever-tools-experimental-features.json')),
 
-  API_DOC_URL: z.url().default('https://www.clever.cloud/developers/api'),
-  DOC_URL: z.url().default('https://www.clever.cloud/developers/doc'),
-  CONSOLE_URL: z.url().default('https://console.clever-cloud.com'),
-  CONSOLE_TOKEN_URL: z.url().default('https://console.clever-cloud.com/cli-oauth'),
-  GOTO_URL: z.url().default('https://console.clever-cloud.com/goto'),
-});
+    API_DOC_URL: z.url().default('https://www.clever.cloud/developers/api'),
+    DOC_URL: z.url().default('https://www.clever.cloud/developers/doc'),
+    CONSOLE_URL: z.url().default('https://console.clever-cloud.com'),
+    CONSOLE_TOKEN_URL: z.url().optional(),
+    GOTO_URL: z.url().optional(),
+  })
+  .transform((config) => ({
+    ...config,
+    // This way, you can "just set" config.CONSOLE_URL and have config.CONSOLE_TOKEN_URL and GOTO_URL computed
+    // Or you can override them directly
+    CONSOLE_TOKEN_URL: config.CONSOLE_TOKEN_URL ?? `${config.CONSOLE_URL}/cli-oauth`,
+    GOTO_URL: config.GOTO_URL ?? `${config.CONSOLE_URL}/goto`,
+  }));
 
 /**
  * Configuration with environment variable overrides applied.
