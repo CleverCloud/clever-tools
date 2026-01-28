@@ -4,20 +4,10 @@ import xdg from 'xdg';
 import { conf } from '../config/config.js';
 import { Logger } from '../logger.js';
 
-const CONFIG_FILES = {
-  MAIN: 'clever-tools.json',
-  IDS_CACHE: 'ids-cache.json',
-  EXPERIMENTAL_FEATURES_FILE: 'clever-tools-experimental-features.json',
-};
-
 function getConfigDir() {
   return process.platform === 'win32'
     ? path.resolve(process.env.APPDATA, 'clever-cloud')
     : xdg.basedir.configPath('clever-cloud');
-}
-
-function getConfigPath(configFile) {
-  return path.resolve(getConfigDir(), configFile);
 }
 
 // Every function which need 'clever-cloud' directory, need to call it before
@@ -58,31 +48,6 @@ export async function writeOAuthConf(oauthData) {
     await fs.writeFile(conf.CONFIGURATION_FILE, JSON.stringify(oauthData));
   } catch (error) {
     throw new Error(`Cannot write configuration to ${conf.CONFIGURATION_FILE}\n${error.message}`);
-  }
-}
-
-export async function loadIdsCache() {
-  const cachePath = getConfigPath(CONFIG_FILES.IDS_CACHE);
-  try {
-    const rawFile = await fs.readFile(cachePath);
-    return JSON.parse(rawFile);
-  } catch (error) {
-    Logger.info(`Cannot load IDs cache from ${cachePath}\n${error.message}`);
-    return {
-      owners: {},
-      addons: {},
-    };
-  }
-}
-
-export async function writeIdsCache(ids) {
-  const cachePath = getConfigPath(CONFIG_FILES.IDS_CACHE);
-  const idsJson = JSON.stringify(ids);
-  try {
-    await ensureConfigDirExists();
-    await fs.writeFile(cachePath, idsJson);
-  } catch (error) {
-    throw new Error(`Cannot write IDs cache to ${cachePath}\n${error.message}`);
   }
 }
 
