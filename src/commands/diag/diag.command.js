@@ -1,10 +1,11 @@
 import { releaseInfo as getLinuxInfos } from 'linux-release-info';
 import os from 'node:os';
 import pkg from '../../../package.json' with { type: 'json' };
+import { conf } from '../../config/config.js';
 import { defineCommand } from '../../lib/define-command.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
-import { conf, loadOAuthConf } from '../../models/configuration.js';
+import { loadOAuthConf } from '../../models/configuration.js';
 import * as User from '../../models/user.js';
 import { humanJsonOutputFormatOption } from '../global.options.js';
 

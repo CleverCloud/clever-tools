@@ -1,6 +1,7 @@
 import dedent from 'dedent';
 import { z } from 'zod';
 import { createApiToken } from '../../clever-client/auth-bridge.js';
+import { conf } from '../../config/config.js';
 import { defineArgument } from '../../lib/define-argument.js';
 import { defineCommand } from '../../lib/define-command.js';
 import { defineOption } from '../../lib/define-option.js';
@@ -8,7 +9,6 @@ import { formatDate } from '../../lib/format-date.js';
 import { promptSecret } from '../../lib/prompts.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
-import { conf } from '../../models/configuration.js';
 import { sendToAuthBridge } from '../../models/send-to-api.js';
 import { getCurrent as getCurrentUser } from '../../models/user.js';
 import { futureDateOrDuration } from '../../parsers.js';

@@ -1,5 +1,5 @@
 import dedent from 'dedent';
-import { conf } from './models/configuration.js';
+import { conf } from './config/config.js';
 
 export const EXPERIMENTAL_FEATURES = {
   k8s: {

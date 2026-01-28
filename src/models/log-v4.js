@@ -1,7 +1,7 @@
 import { ApplicationLogStream } from '@clevercloud/client/esm/streams/application-logs.js';
+import { conf } from '../config/config.js';
 import { styleText } from '../lib/style-text.js';
 import { Logger } from '../logger.js';
-import { conf } from './configuration.js';
 import { waitForDeploymentEnd, waitForDeploymentStart } from './deployments.js';
 import { getBest } from './domain.js';
 import * as ExitStrategy from './exit-strategy-option.js';

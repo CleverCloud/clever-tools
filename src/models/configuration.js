@@ -1,6 +1,7 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import xdg from 'xdg';
+import { conf } from '../config/config.js';
 import { Logger } from '../logger.js';
 
 const CONFIG_FILES = {
@@ -109,32 +110,3 @@ export async function setFeature(feature, value) {
     throw new Error(`Cannot write experimental features configuration to ${conf.EXPERIMENTAL_FEATURES_FILE}`);
   }
 }
-
-const defaultConf = {
-  API_HOST: 'https://api.clever-cloud.com',
-  AUTH_BRIDGE_HOST: 'https://api-bridge.clever-cloud.com',
-  SSH_GATEWAY: 'ssh@sshgateway-clevercloud-customers.services.clever-cloud.com',
-
-  // the disclosure of these tokens is not considered as a vulnerability. Do not report this to our security service.
-  OAUTH_CONSUMER_KEY: 'T5nFjKeHH4AIlEveuGhB5S3xg8T19e',
-  OAUTH_CONSUMER_SECRET: 'MgVMqTr6fWlf2M0tkC2MXOnhfqBWDT',
-
-  APP_CONFIGURATION_FILE: path.resolve('.', '.clever.json'),
-  CONFIGURATION_FILE: getConfigPath(CONFIG_FILES.MAIN),
-  EXPERIMENTAL_FEATURES_FILE: getConfigPath(CONFIG_FILES.EXPERIMENTAL_FEATURES_FILE),
-
-  API_DOC_URL: 'https://www.clever.cloud/developers/api',
-  DOC_URL: 'https://www.clever.cloud/developers/doc',
-  CONSOLE_URL: 'https://console.clever-cloud.com',
-  CONSOLE_TOKEN_URL: 'https://console.clever-cloud.com/cli-oauth',
-  GOTO_URL: 'https://console.clever-cloud.com/goto',
-};
-
-export const conf = Object.fromEntries(
-  Object.entries(defaultConf).map(([name, value]) => {
-    if (process.env[name] != null) {
-      return [name, process.env[name]];
-    }
-    return [name, value];
-  }),
-);
