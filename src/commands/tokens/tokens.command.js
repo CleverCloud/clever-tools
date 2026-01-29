@@ -1,14 +1,14 @@
 import { listApiTokens } from '../../clever-client/auth-bridge.js';
+import { config } from '../../config/config.js';
 import { defineCommand } from '../../lib/define-command.js';
 import { formatDate } from '../../lib/format-date.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
-import { conf } from '../../models/configuration.js';
 import { sendToAuthBridge } from '../../models/send-to-api.js';
 import { humanJsonOutputFormatOption } from '../global.options.js';
 
 export const tokensCommand = defineCommand({
-  description: `Manage API tokens to query Clever Cloud API from ${conf.AUTH_BRIDGE_HOST}`,
+  description: `Manage API tokens to query Clever Cloud API from ${config.AUTH_BRIDGE_HOST}`,
   since: '3.12.0',
   options: {
     format: humanJsonOutputFormatOption,

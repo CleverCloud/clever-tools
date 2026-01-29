@@ -2,8 +2,8 @@ import * as git from 'isomorphic-git';
 import _ from 'lodash';
 import fs from 'node:fs';
 import path from 'node:path';
+import { config } from '../config/config.js';
 import { slugify } from '../lib/slugify.js';
-import { loadOAuthConf } from './configuration.js';
 import { findPath } from './fs-utils.js';
 import * as http from './isomorphic-http-with-agent.js';
 
@@ -16,11 +16,10 @@ async function getRepo() {
   }
 }
 
-async function onAuth() {
-  const tokens = await loadOAuthConf();
+function onAuth() {
   return {
-    username: tokens.token,
-    password: tokens.secret,
+    username: config.token,
+    password: config.secret,
   };
 }
 

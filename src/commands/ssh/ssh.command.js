@@ -1,9 +1,9 @@
 import { spawn } from 'node:child_process';
 import { z } from 'zod';
+import { config } from '../../config/config.js';
 import { defineCommand } from '../../lib/define-command.js';
 import { defineOption } from '../../lib/define-option.js';
 import * as Application from '../../models/application.js';
-import { conf } from '../../models/configuration.js';
 import { aliasOption, appIdOrNameOption } from '../global.options.js';
 
 export const sshCommand = defineCommand({
@@ -25,7 +25,7 @@ export const sshCommand = defineCommand({
     const { alias, app: appIdOrName, identityFile } = options;
 
     const { appId } = await Application.resolveId(appIdOrName, alias);
-    const sshParams = ['-t', conf.SSH_GATEWAY, appId];
+    const sshParams = ['-t', config.SSH_GATEWAY, appId];
     if (identityFile != null) {
       sshParams.push('-i', identityFile);
     }

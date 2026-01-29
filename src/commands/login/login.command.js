@@ -3,11 +3,11 @@ import { setTimeout as delay } from 'node:timers/promises';
 import open from 'open';
 import { z } from 'zod';
 import pkg from '../../../package.json' with { type: 'json' };
+import { config, updateConfig } from '../../config/config.js';
 import { defineCommand } from '../../lib/define-command.js';
 import { defineOption } from '../../lib/define-option.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
-import { conf, writeOAuthConf } from '../../models/configuration.js';
 import * as User from '../../models/user.js';
 
 function randomToken() {
@@ -43,11 +43,11 @@ function pollOauthData(url, tryCount = 0) {
 async function loginViaConsole() {
   const cliToken = randomToken();
 
-  const consoleUrl = new URL(conf.CONSOLE_TOKEN_URL);
+  const consoleUrl = new URL(config.CONSOLE_TOKEN_URL);
   consoleUrl.searchParams.set('cli_version', pkg.version);
   consoleUrl.searchParams.set('cli_token', cliToken);
 
-  const cliPollUrl = new URL(conf.API_HOST);
+  const cliPollUrl = new URL(config.API_HOST);
   cliPollUrl.pathname = '/v2/self/cli_tokens';
   cliPollUrl.searchParams.set('cli_token', cliToken);
 
@@ -82,12 +82,12 @@ export const loginCommand = defineCommand({
     const isInteractiveLogin = token == null && secret == null;
 
     if (isLoginWithArgs) {
-      return writeOAuthConf({ token, secret });
+      return updateConfig({ token, secret });
     }
 
     if (isInteractiveLogin) {
       const oauthData = await loginViaConsole();
-      await writeOAuthConf(oauthData);
+      await updateConfig(oauthData);
       const { name, email } = await User.getCurrent();
       const formattedName = name || styleText(['red', 'bold'], '[unspecified name]');
       return Logger.println(`Login successful as ${formattedName} <${email}>`);
