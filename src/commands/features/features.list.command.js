@@ -1,8 +1,7 @@
-import { EXPERIMENTAL_FEATURES } from '../../experimental-features.js';
+import { EXPERIMENTAL_FEATURES, getFeatures } from '../../config/features.js';
 import { formatTable } from '../../format-table.js';
 import { defineCommand } from '../../lib/define-command.js';
 import { Logger } from '../../logger.js';
-import { getFeatures } from '../../models/configuration.js';
 import { humanJsonOutputFormatOption } from '../global.options.js';
 
 export const featuresListCommand = defineCommand({

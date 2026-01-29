@@ -1,10 +1,10 @@
 import { releaseInfo as getLinuxInfos } from 'linux-release-info';
 import os from 'node:os';
 import pkg from '../../../package.json' with { type: 'json' };
+import { config } from '../../config/config.js';
 import { defineCommand } from '../../lib/define-command.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
-import { conf, loadOAuthConf } from '../../models/configuration.js';
 import * as User from '../../models/user.js';
 import { humanJsonOutputFormatOption } from '../global.options.js';
 
@@ -49,10 +49,9 @@ export const diagCommand = defineCommand({
 
     /** @type {string} */
     const userId = await User.getCurrentId().catch(() => null);
-    const authDetails = await loadOAuthConf();
 
     function getAuthState() {
-      if (authDetails.token == null) {
+      if (config.token == null) {
         return 'not connected';
       }
       if (userId == null) {
@@ -72,9 +71,9 @@ export const diagCommand = defineCommand({
       terminal: getTerminal(),
       isPackaged: process.pkg != null,
       execPath: process.execPath,
-      configFile: conf.CONFIGURATION_FILE,
-      authSource: authDetails.source,
-      oAuthToken: authDetails.token,
+      configFile: config.CONFIGURATION_FILE,
+      authSource: config.authSource,
+      oAuthToken: config.token,
       authState: getAuthState(),
       userId,
     };

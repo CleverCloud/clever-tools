@@ -1,6 +1,6 @@
 import openPage from 'open';
+import { config } from '../config/config.js';
 import { Logger } from '../logger.js';
-import { conf } from './configuration.js';
 
 // Inspirations:
 // https://github.com/sindresorhus/p-defer/blob/master/index.js
@@ -23,7 +23,7 @@ export class Deferred {
  * @returns {Promise<void>} A promise that resolves when the URL is opened
  */
 export function openBrowser(urlOrPath, message) {
-  const url = urlOrPath.startsWith('/') ? `${conf.CONSOLE_URL}${urlOrPath}` : urlOrPath;
+  const url = urlOrPath.startsWith('/') ? `${config.CONSOLE_URL}${urlOrPath}` : urlOrPath;
 
   Logger.debug(`Opening URL "${url}" in browser`);
   Logger.println(message);

@@ -1,25 +1,24 @@
 import _ from 'lodash';
-import { promises as fs } from 'node:fs';
 import path from 'node:path';
+import { config } from '../config/config.js';
+import { readJson, writeJson } from '../lib/fs.js';
 import { slugify } from '../lib/slugify.js';
 import { styleText } from '../lib/style-text.js';
 import { Logger } from '../logger.js';
-import { conf } from './configuration.js';
 import * as User from './user.js';
 
 // TODO: Maybe use fs-utils findPath()
 export async function loadApplicationConf(ignoreParentConfig = false, pathToFolder) {
   if (pathToFolder == null) {
-    pathToFolder = path.dirname(conf.APP_CONFIGURATION_FILE);
+    pathToFolder = path.dirname(config.APP_CONFIGURATION_FILE);
   }
-  const fileName = path.basename(conf.APP_CONFIGURATION_FILE);
+  const fileName = path.basename(config.APP_CONFIGURATION_FILE);
   const fullPath = path.join(pathToFolder, fileName);
   Logger.debug('Loading app configuration from ' + fullPath);
   try {
-    const contents = await fs.readFile(fullPath);
-    return JSON.parse(contents);
+    return await readJson(fullPath);
   } catch (error) {
-    Logger.info('Cannot load app configuration from ' + conf.APP_CONFIGURATION_FILE + ' (' + error + ')');
+    Logger.info('Cannot load app configuration from ' + config.APP_CONFIGURATION_FILE + ' (' + error + ')');
     if (ignoreParentConfig || path.parse(pathToFolder).root === pathToFolder) {
       return { apps: [] };
     }
@@ -57,7 +56,7 @@ export async function addLinkedApplication(appData, alias, ignoreParentConfig) {
 
   currentConfig.apps.push(appEntry);
 
-  return persistConfig(currentConfig).then(() => {
+  return writeJson(config.APP_CONFIGURATION_FILE, currentConfig).then(() => {
     return appEntry;
   });
 }
@@ -78,7 +77,7 @@ export async function removeLinkedApplication({ appId, alias }) {
     delete newConfig.default;
   }
 
-  await persistConfig(newConfig);
+  await writeJson(config.APP_CONFIGURATION_FILE, newConfig);
   return true;
 }
 
@@ -153,14 +152,9 @@ export async function getAppDetails({ alias }) {
   };
 }
 
-function persistConfig(modifiedConfig) {
-  const jsonContents = JSON.stringify(modifiedConfig, null, 2);
-  return fs.writeFile(conf.APP_CONFIGURATION_FILE, jsonContents);
-}
-
 export async function setDefault(alias) {
   const config = await loadApplicationConf();
   const app = findApp(config, alias);
   const newConfig = { ...config, default: app.app_id };
-  return persistConfig(newConfig);
+  return writeJson(config.APP_CONFIGURATION_FILE, newConfig);
 }
