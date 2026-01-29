@@ -1,6 +1,6 @@
-import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import xdg from 'xdg';
+import { readJson, writeJson } from '../lib/fs.js';
 import { Logger } from '../logger.js';
 
 const CONFIG_FILES = {
@@ -19,11 +19,6 @@ function getConfigPath(configFile) {
   return path.resolve(getConfigDir(), configFile);
 }
 
-// Every function which need 'clever-cloud' directory, need to call it before
-async function ensureConfigDirExists() {
-  await fs.mkdir(getConfigDir(), { mode: 0o700, recursive: true });
-}
-
 export async function loadOAuthConf() {
   Logger.debug('Load configuration from environment variables');
   if (process.env.CLEVER_TOKEN != null && process.env.CLEVER_SECRET != null) {
@@ -35,8 +30,7 @@ export async function loadOAuthConf() {
   }
   Logger.debug('Load configuration from ' + conf.CONFIGURATION_FILE);
   try {
-    const rawFile = await fs.readFile(conf.CONFIGURATION_FILE);
-    const { token, secret } = JSON.parse(rawFile);
+    const { token, secret } = await readJson(conf.CONFIGURATION_FILE);
     return {
       source: 'configuration file',
       token,
@@ -53,8 +47,7 @@ export async function loadOAuthConf() {
 export async function writeOAuthConf(oauthData) {
   Logger.debug('Write the tokens in the configuration file…');
   try {
-    await ensureConfigDirExists();
-    await fs.writeFile(conf.CONFIGURATION_FILE, JSON.stringify(oauthData));
+    await writeJson(conf.CONFIGURATION_FILE, oauthData);
   } catch (error) {
     throw new Error(`Cannot write configuration to ${conf.CONFIGURATION_FILE}\n${error.message}`);
   }
@@ -63,8 +56,7 @@ export async function writeOAuthConf(oauthData) {
 export async function loadIdsCache() {
   const cachePath = getConfigPath(CONFIG_FILES.IDS_CACHE);
   try {
-    const rawFile = await fs.readFile(cachePath);
-    return JSON.parse(rawFile);
+    return readJson(cachePath);
   } catch (error) {
     Logger.info(`Cannot load IDs cache from ${cachePath}\n${error.message}`);
     return {
@@ -76,10 +68,8 @@ export async function loadIdsCache() {
 
 export async function writeIdsCache(ids) {
   const cachePath = getConfigPath(CONFIG_FILES.IDS_CACHE);
-  const idsJson = JSON.stringify(ids);
   try {
-    await ensureConfigDirExists();
-    await fs.writeFile(cachePath, idsJson);
+    await writeJson(cachePath, ids);
   } catch (error) {
     throw new Error(`Cannot write IDs cache to ${cachePath}\n${error.message}`);
   }
@@ -88,8 +78,7 @@ export async function writeIdsCache(ids) {
 export async function getFeatures() {
   Logger.debug('Get features configuration from ' + conf.EXPERIMENTAL_FEATURES_FILE);
   try {
-    const rawFile = await fs.readFile(conf.EXPERIMENTAL_FEATURES_FILE);
-    return JSON.parse(rawFile);
+    return readJson(conf.EXPERIMENTAL_FEATURES_FILE);
   } catch (error) {
     if (error.code !== 'ENOENT') {
       throw new Error(`Cannot get experimental features configuration from ${conf.EXPERIMENTAL_FEATURES_FILE}`);
@@ -103,8 +92,7 @@ export async function setFeature(feature, value) {
   const newFeatures = { ...currentFeatures, ...{ [feature]: value } };
 
   try {
-    await ensureConfigDirExists();
-    await fs.writeFile(conf.EXPERIMENTAL_FEATURES_FILE, JSON.stringify(newFeatures, null, 2));
+    await writeJson(conf.EXPERIMENTAL_FEATURES_FILE, newFeatures);
   } catch {
     throw new Error(`Cannot write experimental features configuration to ${conf.EXPERIMENTAL_FEATURES_FILE}`);
   }
