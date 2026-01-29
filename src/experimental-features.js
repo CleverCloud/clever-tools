@@ -2,6 +2,17 @@ import dedent from 'dedent';
 import { conf } from './models/configuration.js';
 
 export const EXPERIMENTAL_FEATURES = {
+  'native-git': {
+    status: 'alpha',
+    description: 'Use native git command instead of built-in JS implementation for git operations',
+    instructions: dedent`
+      This feature switches from the built-in JavaScript git implementation to using
+      the native git command installed on your system.
+
+      Requirements:
+        - git must be installed and available in your PATH
+    `,
+  },
   k8s: {
     status: 'beta',
     description: 'Deploy and manage Kubernetes clusters on Clever Cloud',
