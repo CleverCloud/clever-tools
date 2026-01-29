@@ -14,11 +14,10 @@ import {
   verboseOption,
   versionOption,
 } from '../src/commands/global.options.js';
-import { EXPERIMENTAL_FEATURES } from '../src/experimental-features.js';
+import { EXPERIMENTAL_FEATURES, getFeatures } from '../src/config/features.js';
 import { cliparse } from '../src/lib/cliparse-patched.js';
 import { styleText } from '../src/lib/style-text.js';
 import { getDefault, isBoolean, isRequired } from '../src/lib/zod-utils.js';
-import { getFeatures } from '../src/models/configuration.js';
 
 /**
  * @typedef {import('../src/lib/define-command.types.js').CommandDefinition} CommandDefinition
