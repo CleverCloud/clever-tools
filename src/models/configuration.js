@@ -1,5 +1,5 @@
 import path from 'node:path';
-import xdg from 'xdg';
+import { getConfigPath } from '../config/paths.js';
 import { readJson, writeJson } from '../lib/fs.js';
 import { Logger } from '../logger.js';
 
@@ -8,16 +8,6 @@ const CONFIG_FILES = {
   IDS_CACHE: 'ids-cache.json',
   EXPERIMENTAL_FEATURES_FILE: 'clever-tools-experimental-features.json',
 };
-
-function getConfigDir() {
-  return process.platform === 'win32'
-    ? path.resolve(process.env.APPDATA, 'clever-cloud')
-    : xdg.basedir.configPath('clever-cloud');
-}
-
-function getConfigPath(configFile) {
-  return path.resolve(getConfigDir(), configFile);
-}
 
 export async function loadOAuthConf() {
   Logger.debug('Load configuration from environment variables');
@@ -90,7 +80,6 @@ export async function getFeatures() {
 export async function setFeature(feature, value) {
   const currentFeatures = await getFeatures();
   const newFeatures = { ...currentFeatures, ...{ [feature]: value } };
-
   try {
     await writeJson(conf.EXPERIMENTAL_FEATURES_FILE, newFeatures);
   } catch {

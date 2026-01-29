@@ -18,6 +18,6 @@
     "lib": ["ES2024", "ESNext.Collection"],
     "useUnknownInCatchVariables": false
   },
-  "include": ["scripts", "src/lib/define-**", "src/logger.js", "src/lib/fs.js"],
+  "include": ["scripts", "src/lib/define-**", "src/logger.js", "src/lib/fs.js", "src/config/*"],
   "exclude": ["build", "docs", "node_modules", "scripts/generate-docs.js"]
 }
