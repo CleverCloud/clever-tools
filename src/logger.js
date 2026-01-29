@@ -1,85 +1,139 @@
-import _ from 'lodash';
 import { format } from 'node:util';
 import { styleText } from './lib/style-text.js';
 
-function getPrefix(severity) {
+/**
+ * @typedef {import('./logger.types.js').ApiError} ApiError
+ */
+
+const IS_QUIET = Boolean(process.env.CLEVER_QUIET);
+const IS_VERBOSE = Boolean(process.env.CLEVER_VERBOSE);
+
+export const Logger = {
+  /**
+   * @param {string} message
+   */
+  debug(message) {
+    consoleLog('debug', message);
+  },
+
+  /**
+   * @param {string} message
+   */
+  info(message) {
+    consoleLog('info', message);
+  },
+
+  /**
+   * @param {string} message
+   */
+  warn(message) {
+    consoleLog('warn', message);
+  },
+
+  /**
+   * @param {Error|string} error
+   */
+  error(error) {
+    if (IS_QUIET) {
+      return;
+    }
+
+    const prefix = '[ERROR] ';
+    const styledPrefix = styleText(['bold', 'red'], prefix);
+    const message = error instanceof Error ? error.message : error;
+    const formatted = formatLines(prefix.length, processApiError(message));
+
+    if (IS_VERBOSE) {
+      writeStderr('[STACKTRACE]');
+      writeStderr(error);
+      writeStderr('[/STACKTRACE]');
+    }
+    writeStderr(`${styledPrefix}${formatted}`);
+  },
+
+  println: console.log,
+
+  /**
+   * @param {string} text
+   * @param {number} indentLevel
+   */
+  printlnWithIndent(text, indentLevel) {
+    console.log(' '.repeat(indentLevel) + text);
+  },
+
+  /** @param {string} message */
+  printSuccess(message) {
+    console.log(`${styleText(['bold', 'green'], '✓')} ${message}`);
+  },
+
+  /** @param {string} message */
+  printInfo(message) {
+    console.log(`${styleText('blue', 'i')} ${message}`);
+  },
+
+  /** @param {unknown} obj */
+  printJson(obj) {
+    console.log(JSON.stringify(obj, null, 2));
+  },
+
+  printErrorLine: writeStderr,
+};
+
+/**
+ * Logs a message to the console with severity prefix.
+ * @param {'debug'|'info'|'warn'} severity
+ * @param {string} message
+ * @returns {void}
+ */
+function consoleLog(severity, message) {
+  if (IS_QUIET) {
+    return;
+  }
+  if (!IS_VERBOSE && severity !== 'warn') {
+    return;
+  }
   const prefix = `[${severity.toUpperCase()}] `;
-  const prefixLength = prefix.length;
-  if (severity === 'error') {
-    return { prefix: styleText(['bold', 'red'], prefix), prefixLength };
-  }
-  return { prefix, prefixLength };
+  console.log(`${prefix}${formatLines(prefix.length, message)}`);
 }
 
-function processApiError(error) {
-  if (error.id == null || error.message == null) {
-    return error;
-  }
-  const fields = _.map(error.fields, (msg, field) => `${field}: ${msg}`);
-  return [`${error.message} [${error.id}]`, ...fields].join('\n');
+/**
+ * Writes a formatted line to stderr.
+ * @param {Error|string} value
+ * @returns {void}
+ */
+function writeStderr(value) {
+  process.stderr.write(format(value) + '\n');
 }
 
-function formatLines(prefixLength, lines) {
-  const blankPrefix = _.repeat(' ', prefixLength);
-  return (lines || '')
+/**
+ * Formats a multiline message with indentation for continuation lines.
+ * @param {number} prefixLength
+ * @param {string} message
+ * @returns {string}
+ */
+function formatLines(prefixLength, message) {
+  const indent = ' '.repeat(prefixLength);
+  return message
     .split('\n')
-    .map((line, i) => (i === 0 ? line : `${blankPrefix}${line}`))
+    .map((line, i) => (i === 0 ? line : indent + line))
     .join('\n');
 }
 
-function consoleErrorWithoutColor(line) {
-  process.stderr.write(format(line) + '\n');
-}
-
-export const Logger = _(['debug', 'info', 'warn', 'error'])
-  .map((severity) => {
-    if (process.env.CLEVER_QUIET || (!process.env.CLEVER_VERBOSE && (severity === 'debug' || severity === 'info'))) {
-      return [severity, _.noop];
-    }
-    const consoleFn = severity === 'error' ? consoleErrorWithoutColor : console.log;
-    const { prefix, prefixLength } = getPrefix(severity);
-    return [
-      severity,
-      (err) => {
-        const message = _.get(err, 'message', err);
-        const formattedMsg = formatLines(prefixLength, processApiError(message));
-        if (process.env.CLEVER_VERBOSE && severity === 'error') {
-          consoleErrorWithoutColor('[STACKTRACE]');
-          consoleErrorWithoutColor(err);
-          consoleErrorWithoutColor('[/STACKTRACE]');
-        }
-        return consoleFn(`${prefix}${formattedMsg}`);
-      },
-    ];
-  })
-  .fromPairs()
-  .value();
-
-// No decoration for Logger.println
-Logger.println = console.log;
-
 /**
- * Prints a line of text with specified indentation.
- *
- * @param {string} text - The text to be printed.
- * @param {number} indentLevel - The number of spaces to indent the text.
+ * Transforms an API error object into a formatted message string.
+ * @param {ApiError|string} error
+ * @returns {string}
  */
-Logger.printlnWithIndent = (text, indentLevel) => {
-  Logger.println(' '.repeat(indentLevel) + text);
-};
+function processApiError(error) {
+  if (typeof error === 'string') {
+    return error;
+  }
 
-// Logger for success with a green check before the message
-Logger.printSuccess = (message) => console.log(`${styleText(['bold', 'green'], '✓')} ${message}`);
+  const { id, message, fields } = error;
+  if (id == null || message == null) {
+    return String(error);
+  }
 
-// Logger for information with a blue 'i' before the message
-Logger.printInfo = (message) => console.log(`${styleText('blue', 'i')} ${message}`);
-
-// No decoration for Logger.println
-Logger.printJson = (obj) => {
-  console.log(JSON.stringify(obj, null, 2));
-};
-
-Logger.printErrorLine = consoleErrorWithoutColor;
-
-// Only exported for testing, shouldn't be used directly
-Logger.processApiError = processApiError;
+  const fieldLines = Object.entries(fields ?? {}).map(([name, msg]) => `${name}: ${msg}`);
+  return [`${message} [${id}]`, ...fieldLines].join('\n');
+}
