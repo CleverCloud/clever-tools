@@ -1,10 +1,10 @@
 import _ from 'lodash';
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
+import { conf } from '../config/config.js';
 import { slugify } from '../lib/slugify.js';
 import { styleText } from '../lib/style-text.js';
 import { Logger } from '../logger.js';
-import { conf } from './configuration.js';
 import * as User from './user.js';
 
 // TODO: Maybe use fs-utils findPath()

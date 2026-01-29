@@ -9,8 +9,8 @@ import {
   versionCheck,
   versionUpdate,
 } from '../clever-client/operators.js';
+import { conf } from '../config/config.js';
 import { Logger } from '../logger.js';
-import { conf } from '../models/configuration.js';
 import { findAddonsByAddonProvider } from '../models/ids-resolver.js';
 import * as Operator from '../models/operator.js';
 import { sendToApi } from '../models/send-to-api.js';

@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { EXPERIMENTAL_FEATURES } from '../../experimental-features.js';
+import { EXPERIMENTAL_FEATURES } from '../../config/features.js';
 import { defineArgument } from '../../lib/define-argument.js';
 import { defineCommand } from '../../lib/define-command.js';
 import { Logger } from '../../logger.js';

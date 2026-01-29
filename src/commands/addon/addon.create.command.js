@@ -1,6 +1,7 @@
 import dedent from 'dedent';
 import { z } from 'zod';
 import { getOperator } from '../../clever-client/operators.js';
+import { conf } from '../../config/config.js';
 import { defineCommand } from '../../lib/define-command.js';
 import { defineOption } from '../../lib/define-option.js';
 import { styleText } from '../../lib/style-text.js';
@@ -9,7 +10,6 @@ import * as Addon from '../../models/addon.js';
 import { completePlan, completeRegion, parseAddonOptions } from '../../models/addon.js';
 import * as AppConfig from '../../models/app_configuration.js';
 import { listAvailableAliases } from '../../models/application.js';
-import { conf } from '../../models/configuration.js';
 import * as Organisation from '../../models/organisation.js';
 import { sendToApi } from '../../models/send-to-api.js';
 import * as User from '../../models/user.js';

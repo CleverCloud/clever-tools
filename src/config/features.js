@@ -1,5 +1,8 @@
 import dedent from 'dedent';
-import { conf } from './models/configuration.js';
+import { z } from 'zod';
+import { Logger } from '../logger.js';
+import { conf } from './config.js';
+import { readJson, writeJson } from './paths.js';
 
 export const EXPERIMENTAL_FEATURES = {
   k8s: {
@@ -89,3 +92,52 @@ export const EXPERIMENTAL_FEATURES = {
     `,
   },
 };
+
+const FeaturesConfigSchema = z
+  .object(Object.fromEntries(Object.keys(EXPERIMENTAL_FEATURES).map((key) => [key, z.boolean()])))
+  .partial();
+
+/** @typedef {z.infer<typeof FeaturesConfigSchema>} FeaturesConfig */
+
+/**
+ * Gets the current experimental features configuration.
+ * Returns an empty object if the features file doesn't exist or is invalid.
+ * @returns {Promise<FeaturesConfig>} The features configuration object
+ */
+export async function getFeatures() {
+  Logger.debug(`Get features configuration from ${conf.EXPERIMENTAL_FEATURES_FILE}`);
+  try {
+    const json = await readJson(conf.EXPERIMENTAL_FEATURES_FILE);
+    const parsed = FeaturesConfigSchema.safeParse(json);
+    if (!parsed.success) {
+      Logger.info(`Invalid features format in ${conf.EXPERIMENTAL_FEATURES_FILE}`);
+      return {};
+    }
+    return parsed.data;
+  } catch (error) {
+    if (error.code !== 'ENOENT') {
+      throw new Error(`Cannot get experimental features configuration from ${conf.EXPERIMENTAL_FEATURES_FILE}`);
+    }
+    return {};
+  }
+}
+
+/**
+ * Sets an experimental feature to the specified value.
+ * Creates the configuration directory and features file if they don't exist.
+ * @param {string} feature - The name of the feature to set
+ * @param {boolean} value - The value to set for the feature
+ * @returns {Promise<void>}
+ * @throws {Error} If the features file cannot be written
+ */
+export async function setFeature(feature, value) {
+  const currentFeatures = await getFeatures();
+  const newFeatures = { ...currentFeatures, [feature]: value };
+  try {
+    await writeJson(conf.EXPERIMENTAL_FEATURES_FILE, newFeatures);
+  } catch (error) {
+    throw new Error(
+      `Cannot write experimental features configuration to ${conf.EXPERIMENTAL_FEATURES_FILE}\n${error.message}`,
+    );
+  }
+}

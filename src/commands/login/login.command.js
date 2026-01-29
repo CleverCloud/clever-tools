@@ -3,11 +3,12 @@ import { setTimeout as delay } from 'node:timers/promises';
 import open from 'open';
 import { z } from 'zod';
 import pkg from '../../../package.json' with { type: 'json' };
+import { writeOAuthConf } from '../../config/auth.js';
+import { conf } from '../../config/config.js';
 import { defineCommand } from '../../lib/define-command.js';
 import { defineOption } from '../../lib/define-option.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
-import { conf, writeOAuthConf } from '../../models/configuration.js';
 import * as User from '../../models/user.js';
 
 function randomToken() {

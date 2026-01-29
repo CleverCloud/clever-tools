@@ -1,6 +1,6 @@
 import openPage from 'open';
+import { conf } from '../config/config.js';
 import { Logger } from '../logger.js';
-import { conf } from './configuration.js';
 
 // Inspirations:
 // https://github.com/sindresorhus/p-defer/blob/master/index.js

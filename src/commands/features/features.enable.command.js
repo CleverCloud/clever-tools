@@ -1,7 +1,6 @@
-import { EXPERIMENTAL_FEATURES } from '../../experimental-features.js';
+import { EXPERIMENTAL_FEATURES, setFeature } from '../../config/features.js';
 import { defineCommand } from '../../lib/define-command.js';
 import { Logger } from '../../logger.js';
-import { setFeature } from '../../models/configuration.js';
 import { featuresArg } from './features.args.js';
 
 export const featuresEnableCommand = defineCommand({

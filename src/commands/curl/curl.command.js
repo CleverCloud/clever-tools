@@ -1,10 +1,11 @@
 import { addOauthHeader } from '@clevercloud/client/esm/oauth.js';
 import dedent from 'dedent';
 import { spawn } from 'node:child_process';
+import { loadOAuthConf } from '../../config/auth.js';
+import { conf } from '../../config/config.js';
 import { defineCommand } from '../../lib/define-command.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
-import { conf, loadOAuthConf } from '../../models/configuration.js';
 
 async function loadTokens() {
   const tokens = await loadOAuthConf();

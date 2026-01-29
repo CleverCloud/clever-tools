@@ -1,9 +1,9 @@
 import { spawn } from 'node:child_process';
 import { z } from 'zod';
+import { conf } from '../../config/config.js';
 import { defineCommand } from '../../lib/define-command.js';
 import { defineOption } from '../../lib/define-option.js';
 import * as Application from '../../models/application.js';
-import { conf } from '../../models/configuration.js';
 import { aliasOption, appIdOrNameOption } from '../global.options.js';
 
 export const sshCommand = defineCommand({
