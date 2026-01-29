@@ -1,5 +1,13 @@
 # clever-tools changelog
 
+## [4.5.4](https://github.com/CleverCloud/clever-tools/compare/4.5.3...4.5.4) (2026-01-29)
+
+
+### 🐛 Bug Fixes
+
+* **deploy:** prevent unwanted refs/remotes/origin/master creation ([c1da628](https://github.com/CleverCloud/clever-tools/commit/c1da6288940d567bde79fbc8f407669c63b5f0dc)), closes [#933](https://github.com/CleverCloud/clever-tools/issues/933)
+* **link:** error when linking apps with duplicate alias ([0adbfad](https://github.com/CleverCloud/clever-tools/commit/0adbfad1631112db3b0fbb158aa6379429b570cd)), closes [#222](https://github.com/CleverCloud/clever-tools/issues/222)
+
 ## [4.5.3](https://github.com/CleverCloud/clever-tools/compare/4.5.2...4.5.3) (2026-01-19)
 
 This release does not contain any changes and claims to be `4.5.2` with the `diag` and `version` commands.
