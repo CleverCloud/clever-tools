@@ -1,7 +1,7 @@
 import { getSummary } from '@clevercloud/client/esm/api/v2/user.js';
+import { loadIdsCache, writeIdsCache } from '../config/cache.js';
 import { Logger } from '../logger.js';
 import * as User from '../models/user.js';
-import { loadIdsCache, writeIdsCache } from './configuration.js';
 import * as Organisation from './organisation.js';
 import { sendToApi } from './send-to-api.js';
 

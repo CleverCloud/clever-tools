@@ -24,7 +24,8 @@
     "src/logger.js",
     "src/lib/fs.js",
     "src/config/paths.js",
-    "src/config/config.js"
+    "src/config/config.js",
+    "src/config/cache.js"
   ],
   "exclude": ["build", "docs", "node_modules", "scripts/generate-docs.js"]
 }
