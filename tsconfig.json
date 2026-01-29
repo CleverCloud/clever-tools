@@ -25,7 +25,8 @@
     "src/lib/fs.js",
     "src/config/paths.js",
     "src/config/config.js",
-    "src/config/cache.js"
+    "src/config/cache.js",
+    "src/config/features.js"
   ],
   "exclude": ["build", "docs", "node_modules", "scripts/generate-docs.js"]
 }
