@@ -86,7 +86,7 @@ export async function isExistingTag(tag) {
   return tags.includes(tag);
 }
 
-export async function push(remoteUrl, branchRefspec, force) {
+export async function push(remoteUrl, branchRefspec, force, remoteName) {
   const repo = await getRepo();
   try {
     const push = await git.push({
@@ -95,6 +95,7 @@ export async function push(remoteUrl, branchRefspec, force) {
       url: remoteUrl,
       ref: branchRefspec,
       remoteRef: 'master',
+      remote: remoteName,
       force,
     });
     if (push.errors != null) {
