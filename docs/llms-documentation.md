@@ -475,6 +475,76 @@ clever config update [options]
     --enable-zero-downtime         Enable zero-downtime deployment
     --name <name>                  Set application name
 
+## config-provider
+
+Description:** List configuration providers
+
+**Usage**
+clever config-provider [options]
+
+**Options**
+-F, --format <format>    Output format (human, json) (default: human)
+
+### config-provider env
+
+Description:** List environment variables of a configuration provider
+
+**Usage**
+clever config-provider env <addon-id|config-provider-id|addon-name> [options]
+
+**Arguments**
+addon-id|config-provider-id|addon-name    Add-on ID, real ID (config_xxx) or name (if unambiguous)
+
+**Options**
+-F, --format <format>                     Output format (human, json, shell) (default: human)
+
+#### config-provider env import
+
+Description:** Load environment variables from STDIN
+(WARNING: this deletes all current variables and replaces them with the new list loaded from STDIN)
+
+**Usage**
+clever config-provider env import <addon-id|config-provider-id|addon-name> [options]
+
+**Arguments**
+addon-id|config-provider-id|addon-name    Add-on ID, real ID (config_xxx) or name (if unambiguous)
+
+**Options**
+-F, --format <format>                     Input format (name-equals-value, json) (default: name-equals-value)
+
+#### config-provider env rm
+
+Description:** Remove an environment variable from a configuration provider
+
+**Usage**
+clever config-provider env rm <addon-id|config-provider-id|addon-name> <variable-name>
+
+**Arguments**
+addon-id|config-provider-id|addon-name    Add-on ID, real ID (config_xxx) or name (if unambiguous)
+variable-name                             Name of the environment variable
+
+#### config-provider env set
+
+Description:** Add or update an environment variable named <variable-name> with the value <variable-value>
+
+**Usage**
+clever config-provider env set <addon-id|config-provider-id|addon-name> <variable-name> <variable-value>
+
+**Arguments**
+addon-id|config-provider-id|addon-name    Add-on ID, real ID (config_xxx) or name (if unambiguous)
+variable-name                             Name of the environment variable
+variable-value                            Value of the environment variable
+
+### config-provider open
+
+Description:** Open the configuration provider in Clever Cloud Console
+
+**Usage**
+clever config-provider open <addon-id|config-provider-id|addon-name>
+
+**Arguments**
+addon-id|config-provider-id|addon-name    Add-on ID, real ID (config_xxx) or name (if unambiguous)
+
 ## console
 
 Description:** Open an application in the Console
