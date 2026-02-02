@@ -26,13 +26,13 @@ export const configSetCommand = defineCommand({
   async handler(options, configurationName, configurationValue) {
     const { alias, app: appIdOrName } = options;
     const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
-    const config = ApplicationConfiguration.getById(configurationName);
+    const appConfig = ApplicationConfiguration.getById(configurationName);
     const newOptions = {
-      [config.name]: ApplicationConfiguration.parse(config, configurationValue),
+      [appConfig.name]: ApplicationConfiguration.parse(appConfig, configurationValue),
     };
     const app = await Application.updateOptions(ownerId, appId, newOptions);
     Logger.printSuccess(
-      `Config ${styleText('green', config.id)} successfully updated to ${styleText('green', ApplicationConfiguration.formatValue(config, app[config.name]).toString())}!`,
+      `Config ${styleText('green', appConfig.id)} successfully updated to ${styleText('green', ApplicationConfiguration.formatValue(appConfig, app[appConfig.name]).toString())}!`,
     );
   },
 });

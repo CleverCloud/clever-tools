@@ -150,25 +150,25 @@ function buildCommand(name, commandEntry, featuresFromConf) {
  * @returns {Object} cliparse command
  */
 function convertCommand(name, commandDef, subcommands = []) {
-  const config = {
+  const cliparseConfig = {
     description: commandDef.description,
   };
 
   if (commandDef.options != null) {
-    config.privateOptions = Object.values(commandDef.options).map(convertOption);
+    cliparseConfig.privateOptions = Object.values(commandDef.options).map(convertOption);
   }
 
   // Convert arguments
   if (commandDef.args != null && commandDef.args.length > 0) {
-    config.args = commandDef.args.map(convertArgument);
+    cliparseConfig.args = commandDef.args.map(convertArgument);
   }
 
   // Add subcommands
   if (subcommands.length > 0) {
-    config.commands = subcommands;
+    cliparseConfig.commands = subcommands;
   }
 
-  const command = cliparse.command(name, config, commandDef.handler);
+  const command = cliparse.command(name, cliparseConfig, commandDef.handler);
 
   // Attach the original definition so cliparse-patched.js can use it for --help display
   command._definition = commandDef;
@@ -182,26 +182,26 @@ function convertCommand(name, commandDef, subcommands = []) {
  * @returns {Object} cliparse option
  */
 function convertOption(option) {
-  const config = {
+  const cliparseConfig = {
     description: option.description,
   };
 
   if (option.aliases != null) {
-    config.aliases = option.aliases;
+    cliparseConfig.aliases = option.aliases;
   }
   const optionDefault = getDefault(option.schema);
   if (optionDefault != null) {
-    config.default = optionDefault;
+    cliparseConfig.default = optionDefault;
   }
   if (option.placeholder != null) {
-    config.metavar = option.placeholder;
+    cliparseConfig.metavar = option.placeholder;
   }
   if (option.complete != null) {
-    config.complete = option.complete;
+    cliparseConfig.complete = option.complete;
   }
 
   // Use Zod's safeParse for validation (handles coercion, enums, refinements, etc.)
-  config.parser = (value) => {
+  cliparseConfig.parser = (value) => {
     // Log deprecation warning if option is deprecated
     if (option.deprecated) {
       const message = typeof option.deprecated === 'string' ? `, ${option.deprecated}.` : '';
@@ -217,16 +217,16 @@ function convertOption(option) {
 
   // Mark as required if schema has no default and is not optional
   if (isRequired(option.schema)) {
-    config.required = true;
+    cliparseConfig.required = true;
   }
 
   // Boolean schemas: use cliparse.option with expects_value: false (like cliparse.flag does)
   if (isBoolean(option.schema)) {
     // eslint-disable-next-line camelcase -- cliparse API uses snake_case
-    config.expects_value = false;
+    cliparseConfig.expects_value = false;
   }
 
-  return cliparse.option(option.name, config);
+  return cliparse.option(option.name, cliparseConfig);
 }
 
 /**
@@ -235,16 +235,16 @@ function convertOption(option) {
  * @returns {Object} cliparse argument
  */
 function convertArgument(arg) {
-  const config = {
+  const cliparseConfig = {
     description: arg.description,
   };
 
   if (arg.complete) {
-    config.complete = arg.complete;
+    cliparseConfig.complete = arg.complete;
   }
 
   // Use Zod's safeParse for validation (handles coercion, enums, refinements, etc.)
-  config.parser = (value) => {
+  cliparseConfig.parser = (value) => {
     const result = arg.schema.safeParse(value);
     if (!result.success) {
       throw new Error(result.error.issues.map((i) => i.message).join(', '));
@@ -254,10 +254,10 @@ function convertArgument(arg) {
 
   const argDefault = getDefault(arg.schema);
   if (argDefault != null) {
-    config.default = argDefault;
+    cliparseConfig.default = argDefault;
   } else if (!isRequired(arg.schema)) {
-    config.default = '';
+    cliparseConfig.default = '';
   }
 
-  return cliparse.argument(arg.placeholder, config);
+  return cliparse.argument(arg.placeholder, cliparseConfig);
 }

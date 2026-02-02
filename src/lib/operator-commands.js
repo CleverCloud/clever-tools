@@ -251,9 +251,9 @@ export async function operatorPrint(provider, addonIdOrName, format = 'human') {
   const operator = await Operator.getDetails(provider, addonIdOrName);
 
   if (provider === 'otoroshi' && format === 'otoroshictl') {
-    const config = await getOtoroshiConfig({ realId: operator.resourceId }).then(sendToApi);
+    const otoroshiConfig = await getOtoroshiConfig({ realId: operator.resourceId }).then(sendToApi);
 
-    Logger.println(config);
+    Logger.println(otoroshiConfig);
     return;
   }
 

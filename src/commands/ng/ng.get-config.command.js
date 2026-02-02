@@ -15,16 +15,16 @@ export const ngGetConfigCommand = defineCommand({
   async handler(options, peerIdOrLabel, ngIdOrLabel) {
     const { org, format } = options;
 
-    const config = await networkGroup.getPeerConfig(peerIdOrLabel, ngIdOrLabel, org);
+    const peerConfig = await networkGroup.getPeerConfig(peerIdOrLabel, ngIdOrLabel, org);
 
     switch (format) {
       case 'json': {
-        Logger.printJson(config);
+        Logger.printJson(peerConfig);
         break;
       }
       case 'human':
       default: {
-        const decodedConfiguration = Buffer.from(config.configuration, 'base64').toString('utf8');
+        const decodedConfiguration = Buffer.from(peerConfig.configuration, 'base64').toString('utf8');
         Logger.println(decodedConfiguration);
       }
     }
