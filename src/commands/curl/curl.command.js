@@ -54,11 +54,11 @@ export async function curl() {
   }
 
   const lastCurlArg = curlArgs.at(-1);
-  const lastCurlArgIsHelp = lastCurlArg !== '--help' && lastCurlArg !== '-h';
+  const lastCurlArgIsNotHelp = lastCurlArg !== '--help' && lastCurlArg !== '-h';
 
   // Add OAuth header, only if last cURL arg is not help
   // We do this because cURL's help arg expect a category
-  if (lastCurlArgIsHelp) {
+  if (lastCurlArgIsNotHelp) {
     const tokens = getTokens();
     const oauthHeader = await Promise.resolve({})
       .then(addOauthHeader(tokens))
