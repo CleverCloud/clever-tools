@@ -12,7 +12,6 @@ import { formatCodeList, parseMarkdown } from './markdown.js';
 
 /**
  * @typedef {object} LlmsDocumentationData
- * @property {string} version - CLI version string
  * @property {string} rawSetupContent - Raw markdown content for setup instructions
  * @property {ProductRuntime[]} instances - Application instances from API
  * @property {Zone[]} deploymentZones - Available deployment zones from API
@@ -25,13 +24,10 @@ import { formatCodeList, parseMarkdown } from './markdown.js';
  * @param {LlmsDocumentationData} data - Data for generating documentation
  * @return {string} Generated markdown documentation
  */
-export function getLlmsDocumentation(
-  commands,
-  { version, rawSetupContent, instances, deploymentZones, addonProviders },
-) {
+export function getLlmsDocumentation(commands, { rawSetupContent, instances, deploymentZones, addonProviders }) {
   const parts = [
     dedent`
-      This document is automatically generated from Clever Tools \`${version}\` and Clever Cloud API. It covers all Clever Tools commands and options. Use it to better understand this CLI and its capabilities or to train/use LLMs, AI-assisted IDEs.
+      This document is automatically generated from Clever Tools and Clever Cloud API. It covers all Clever Tools commands and options. Use it to better understand this CLI and its capabilities or to train/use LLMs, AI-assisted IDEs.
 
       To use Clever Tools, you need:
       - A Clever Cloud account, create one at https://console.clever-cloud.com/
@@ -269,7 +265,8 @@ function getCommandSection(heading, path, definition) {
   const firstColumnWith = Math.max(...allRows.map(([cell]) => cell.length));
 
   const parts = [heading];
-  parts.push(`Description:** ${definition.description}`);
+  parts.push(`**Description:** ${definition.description}`);
+  parts.push(`**Since:** ${definition.since}`);
 
   parts.push(formatSection('Usage', [commandInfo.usage]));
   if (argumentsRows) {
@@ -287,7 +284,7 @@ function getCommandSection(heading, path, definition) {
  * @param {Array<string>} lines
  */
 function formatSection(title, lines) {
-  return [`**${title}**`, ...lines].join('\n');
+  return [`**${title}**`, '```', ...lines, '```'].join('\n');
 }
 
 /**
