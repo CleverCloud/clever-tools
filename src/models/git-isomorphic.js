@@ -1,8 +1,8 @@
 import * as git from 'isomorphic-git';
 import _ from 'lodash';
 import fs from 'node:fs';
+import { config } from '../config/config.js';
 import { slugify } from '../lib/slugify.js';
-import { loadOAuthConf } from './configuration.js';
 import { Git } from './git.js';
 import * as http from './isomorphic-http-with-agent.js';
 
@@ -16,11 +16,10 @@ export class GitIsomorphic extends Git {
     return { fs, dir, http };
   }
 
-  async #onAuth() {
-    const tokens = await loadOAuthConf();
+  #onAuth() {
     return {
-      username: tokens.token,
-      password: tokens.secret,
+      username: config.token,
+      password: config.secret,
     };
   }
 

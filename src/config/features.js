@@ -1,5 +1,11 @@
 import dedent from 'dedent';
-import { conf } from './models/configuration.js';
+import z from 'zod';
+import { readJson, writeJson } from '../lib/fs.js';
+import { Logger } from '../logger.js';
+import { config } from './config.js';
+import { getConfigPath } from './paths.js';
+
+const EXPERIMENTAL_FEATURES_FILEPATH = getConfigPath('clever-tools-experimental-features.json');
 
 export const EXPERIMENTAL_FEATURES = {
   'system-git': {
@@ -37,7 +43,7 @@ export const EXPERIMENTAL_FEATURES = {
       - Delete a Kubernetes cluster:
           clever k8s delete my-cluster
 
-      Learn more about Clever Kubernetes: ${conf.DOC_URL}/kubernetes/
+      Learn more about Clever Kubernetes: ${config.DOC_URL}/kubernetes/
     `,
   },
   kv: {
@@ -53,7 +59,7 @@ export const EXPERIMENTAL_FEATURES = {
           clever kv myMateriaKV -o myOrg TTL myTempKey
           clever kv redis_xxxxx --org org_xxxxx PING
 
-      Learn more about Materia KV: ${conf.DOC_URL}/addons/materia-kv/
+      Learn more about Materia KV: ${config.DOC_URL}/addons/materia-kv/
     `,
   },
   ng: {
@@ -81,7 +87,7 @@ export const EXPERIMENTAL_FEATURES = {
       - Search Network Groups, members or peers:
           clever ng search myQuery
 
-      Learn more about Network Groups: ${conf.DOC_URL}/develop/network-groups/
+      Learn more about Network Groups: ${config.DOC_URL}/develop/network-groups/
     `,
   },
   operators: {
@@ -100,3 +106,62 @@ export const EXPERIMENTAL_FEATURES = {
     `,
   },
 };
+
+const FeaturesConfigSchema = z
+  .object(Object.fromEntries(Object.keys(EXPERIMENTAL_FEATURES).map((key) => [key, z.boolean()])))
+  .partial();
+
+/**
+ * @typedef {z.infer<typeof FeaturesConfigSchema>} FeaturesConfig
+ */
+
+/**
+ * Gets the current experimental features configuration.
+ * Returns an empty object if the features file doesn't exist or is invalid.
+ * @returns {Promise<FeaturesConfig>} The features configuration object
+ */
+export async function getFeatures() {
+  Logger.debug(`Get features configuration from ${EXPERIMENTAL_FEATURES_FILEPATH}`);
+  try {
+    const rawFeatures = await readJson(EXPERIMENTAL_FEATURES_FILEPATH);
+    const parsed = FeaturesConfigSchema.safeParse(rawFeatures);
+    if (!parsed.success) {
+      Logger.info(`Invalid features format in ${EXPERIMENTAL_FEATURES_FILEPATH}`);
+      return {};
+    }
+    return parsed.data;
+  } catch (error) {
+    if (error.code !== 'ENOENT') {
+      throw new Error(`Cannot get experimental features configuration from ${EXPERIMENTAL_FEATURES_FILEPATH}`);
+    }
+    return {};
+  }
+}
+
+/**
+ * Sets an experimental feature to the specified value.
+ * Creates the configuration directory and features file if they don't exist.
+ * @param {string} feature - The name of the feature to set
+ * @param {boolean} value - The value to set for the feature
+ * @returns {Promise<void>}
+ * @throws {Error} If the features file cannot be written
+ */
+export async function setFeature(feature, value) {
+  const currentFeatures = await getFeatures();
+  const newFeatures = { ...currentFeatures, [feature]: value };
+  try {
+    await writeJson(EXPERIMENTAL_FEATURES_FILEPATH, newFeatures, { mode: 0o700 });
+  } catch (error) {
+    throw new Error(`Cannot write experimental features configuration to ${EXPERIMENTAL_FEATURES_FILEPATH}`);
+  }
+}
+
+/**
+ * Checks if an experimental feature is enabled.
+ * @param {string} feature - The name of the feature to check
+ * @returns {Promise<boolean>} True if the feature is explicitly enabled, false otherwise
+ */
+export async function isFeatureEnabled(feature) {
+  const features = await getFeatures();
+  return features[feature] === true;
+}

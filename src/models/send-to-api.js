@@ -3,9 +3,9 @@ import { prefixUrl } from '@clevercloud/client/esm/prefix-url.js';
 import { request } from '@clevercloud/client/esm/request.fetch.js';
 import { subtle as cryptoSuble } from 'node:crypto';
 import { addOauthHeaderPlaintext } from '../clever-client/auth-bridge.js';
+import { config } from '../config/config.js';
 import { styleText } from '../lib/style-text.js';
 import { Logger } from '../logger.js';
-import { conf, loadOAuthConf } from './configuration.js';
 
 // Required for @clevercloud/client with "old" Node.js
 if (globalThis.crypto == null) {
@@ -14,20 +14,19 @@ if (globalThis.crypto == null) {
   };
 }
 
-async function loadTokens() {
-  const tokens = await loadOAuthConf();
+function getTokens() {
   return {
-    OAUTH_CONSUMER_KEY: conf.OAUTH_CONSUMER_KEY,
-    OAUTH_CONSUMER_SECRET: conf.OAUTH_CONSUMER_SECRET,
-    API_OAUTH_TOKEN: tokens.token,
-    API_OAUTH_TOKEN_SECRET: tokens.secret,
+    OAUTH_CONSUMER_KEY: config.OAUTH_CONSUMER_KEY,
+    OAUTH_CONSUMER_SECRET: config.OAUTH_CONSUMER_SECRET,
+    API_OAUTH_TOKEN: config.token,
+    API_OAUTH_TOKEN_SECRET: config.secret,
   };
 }
 
-export async function sendToApi(requestParams) {
-  const tokens = await loadTokens();
+export function sendToApi(requestParams) {
+  const tokens = getTokens();
   return Promise.resolve(requestParams)
-    .then(prefixUrl(conf.API_HOST))
+    .then(prefixUrl(config.API_HOST))
     .then(addOauthHeader(tokens))
     .then((requestParams) => {
       Logger.debug(
@@ -39,10 +38,10 @@ export async function sendToApi(requestParams) {
     .catch(processError);
 }
 
-export async function sendToAuthBridge(requestParams) {
-  const tokens = await loadTokens();
+export function sendToAuthBridge(requestParams) {
+  const tokens = getTokens();
   return Promise.resolve(requestParams)
-    .then(prefixUrl(conf.AUTH_BRIDGE_HOST))
+    .then(prefixUrl(config.AUTH_BRIDGE_HOST))
     .then(addOauthHeaderPlaintext(tokens))
     .then((requestParams) => {
       Logger.debug(
@@ -71,10 +70,10 @@ export function processError(error) {
   throw error;
 }
 
-export async function getHostAndTokens() {
-  const tokens = await loadTokens();
+export function getHostAndTokens() {
+  const tokens = getTokens();
   return {
-    apiHost: conf.API_HOST,
+    apiHost: config.API_HOST,
     tokens,
   };
 }

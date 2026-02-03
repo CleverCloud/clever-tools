@@ -1,25 +1,24 @@
 import _ from 'lodash';
-import { promises as fs } from 'node:fs';
 import path from 'node:path';
+import { config } from '../config/config.js';
+import { readJson, writeJson } from '../lib/fs.js';
 import { slugify } from '../lib/slugify.js';
 import { styleText } from '../lib/style-text.js';
 import { Logger } from '../logger.js';
-import { conf } from './configuration.js';
 import * as User from './user.js';
 
 // TODO: Maybe use fs-utils findPath()
 export async function loadApplicationConf(ignoreParentConfig = false, pathToFolder) {
   if (pathToFolder == null) {
-    pathToFolder = path.dirname(conf.APP_CONFIGURATION_FILE);
+    pathToFolder = path.dirname(config.APP_CONFIGURATION_FILE);
   }
-  const fileName = path.basename(conf.APP_CONFIGURATION_FILE);
+  const fileName = path.basename(config.APP_CONFIGURATION_FILE);
   const fullPath = path.join(pathToFolder, fileName);
   Logger.debug('Loading app configuration from ' + fullPath);
   try {
-    const contents = await fs.readFile(fullPath);
-    return JSON.parse(contents);
+    return await readJson(fullPath);
   } catch (error) {
-    Logger.info('Cannot load app configuration from ' + conf.APP_CONFIGURATION_FILE + ' (' + error + ')');
+    Logger.info('Cannot load app configuration from ' + config.APP_CONFIGURATION_FILE + ' (' + error + ')');
     if (ignoreParentConfig || path.parse(pathToFolder).root === pathToFolder) {
       return { apps: [] };
     }
@@ -57,7 +56,7 @@ export async function addLinkedApplication(appData, alias, ignoreParentConfig) {
 
   currentConfig.apps.push(appEntry);
 
-  return persistConfig(currentConfig).then(() => {
+  return writeJson(config.APP_CONFIGURATION_FILE, currentConfig).then(() => {
     return appEntry;
   });
 }
@@ -78,17 +77,17 @@ export async function removeLinkedApplication({ appId, alias }) {
     delete newConfig.default;
   }
 
-  await persistConfig(newConfig);
+  await writeJson(config.APP_CONFIGURATION_FILE, newConfig);
   return true;
 }
 
-export function findApp(config, alias) {
-  if (_.isEmpty(config.apps)) {
+export function findApp(appConfig, alias) {
+  if (_.isEmpty(appConfig.apps)) {
     throw new Error('There is no linked or targeted application. Use `--app` option or `clever link` command.');
   }
 
   if (alias != null) {
-    const [appByAlias, secondAppByAlias] = _.filter(config.apps, { alias });
+    const [appByAlias, secondAppByAlias] = _.filter(appConfig.apps, { alias });
     if (appByAlias == null) {
       throw new Error(`There are no applications matching alias ${alias}`);
     }
@@ -100,7 +99,7 @@ export function findApp(config, alias) {
     return appByAlias;
   }
 
-  return findDefaultApp(config);
+  return findDefaultApp(appConfig);
 }
 
 export function checkAlreadyLinked(apps, name, alias) {
@@ -115,13 +114,13 @@ export function checkAlreadyLinked(apps, name, alias) {
   }
 }
 
-function findDefaultApp(config) {
-  if (_.isEmpty(config.apps)) {
+function findDefaultApp(appConfig) {
+  if (_.isEmpty(appConfig.apps)) {
     throw new Error('There is no linked or targeted application. Use `--app` option or `clever link` command.');
   }
 
-  if (config.default != null) {
-    const defaultApp = _.find(config.apps, { app_id: config.default });
+  if (appConfig.default != null) {
+    const defaultApp = _.find(appConfig.apps, { app_id: appConfig.default });
     if (defaultApp == null) {
       throw new Error(
         'The default application is not listed anymore. This should not happen, your `.clever.json` should be fixed.',
@@ -130,19 +129,19 @@ function findDefaultApp(config) {
     return defaultApp;
   }
 
-  if (config.apps.length === 1) {
-    return config.apps[0];
+  if (appConfig.apps.length === 1) {
+    return appConfig.apps[0];
   }
 
-  const aliases = _.map(config.apps, 'alias').join(', ');
+  const aliases = _.map(appConfig.apps, 'alias').join(', ');
   throw new Error(
     `Several applications are linked. You can specify one with the "--alias" option. Run "clever applications" to list linked applications. Available aliases: ${aliases}`,
   );
 }
 
 export async function getAppDetails({ alias }) {
-  const config = await loadApplicationConf();
-  const app = findApp(config, alias);
+  const appConfig = await loadApplicationConf();
+  const app = findApp(appConfig, alias);
   const ownerId = app.org_id != null ? app.org_id : await User.getCurrentId();
   return {
     appId: app.app_id,
@@ -153,14 +152,9 @@ export async function getAppDetails({ alias }) {
   };
 }
 
-function persistConfig(modifiedConfig) {
-  const jsonContents = JSON.stringify(modifiedConfig, null, 2);
-  return fs.writeFile(conf.APP_CONFIGURATION_FILE, jsonContents);
-}
-
 export async function setDefault(alias) {
-  const config = await loadApplicationConf();
-  const app = findApp(config, alias);
-  const newConfig = { ...config, default: app.app_id };
-  return persistConfig(newConfig);
+  const appConfig = await loadApplicationConf();
+  const app = findApp(appConfig, alias);
+  const newConfig = { ...appConfig, default: app.app_id };
+  return writeJson(config.APP_CONFIGURATION_FILE, newConfig);
 }

@@ -1,8 +1,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
+import { isFeatureEnabled } from '../config/features.js';
 import { Logger } from '../logger.js';
-import { isFeatureEnabled } from './configuration.js';
 import { findPath } from './fs-utils.js';
 
 /**

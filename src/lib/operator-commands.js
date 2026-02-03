@@ -9,8 +9,8 @@ import {
   versionCheck,
   versionUpdate,
 } from '../clever-client/operators.js';
+import { config } from '../config/config.js';
 import { Logger } from '../logger.js';
-import { conf } from '../models/configuration.js';
 import { findAddonsByAddonProvider } from '../models/ids-resolver.js';
 import * as Operator from '../models/operator.js';
 import { sendToApi } from '../models/send-to-api.js';
@@ -179,7 +179,7 @@ export async function operatorList(provider, format) {
 export async function operatorOpen(provider, addonIdOrName) {
   const operator = await Operator.getDetails(provider, addonIdOrName);
   await openBrowser(
-    `${conf.GOTO_URL}/${operator.addonId}`,
+    `${config.GOTO_URL}/${operator.addonId}`,
     `🌐 Opening ${styleText('blue', operator.addonId)} in the browser…`,
   );
 }
@@ -251,9 +251,9 @@ export async function operatorPrint(provider, addonIdOrName, format = 'human') {
   const operator = await Operator.getDetails(provider, addonIdOrName);
 
   if (provider === 'otoroshi' && format === 'otoroshictl') {
-    const config = await getOtoroshiConfig({ realId: operator.resourceId }).then(sendToApi);
+    const otoroshiConfig = await getOtoroshiConfig({ realId: operator.resourceId }).then(sendToApi);
 
-    Logger.println(config);
+    Logger.println(otoroshiConfig);
     return;
   }
 
