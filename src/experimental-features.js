@@ -2,6 +2,17 @@ import dedent from 'dedent';
 import { conf } from './models/configuration.js';
 
 export const EXPERIMENTAL_FEATURES = {
+  'system-git': {
+    status: 'beta',
+    description: 'Use system git instead of current JS implementation for git operations',
+    instructions: dedent`
+      This feature switches from the current JS implementation to using
+      the git installed on your system.
+
+      Requirements:
+        - git must be installed and available in your PATH
+    `,
+  },
   k8s: {
     status: 'beta',
     description: 'Deploy and manage Kubernetes clusters on Clever Cloud',

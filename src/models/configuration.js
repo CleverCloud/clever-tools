@@ -110,6 +110,11 @@ export async function setFeature(feature, value) {
   }
 }
 
+export async function isFeatureEnabled(feature) {
+  const features = await getFeatures();
+  return features[feature] === true;
+}
+
 const defaultConf = {
   API_HOST: 'https://api.clever-cloud.com',
   AUTH_BRIDGE_HOST: 'https://api-bridge.clever-cloud.com',
