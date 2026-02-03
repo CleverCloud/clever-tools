@@ -1,18 +1,17 @@
 import { addOauthHeader } from '@clevercloud/client/esm/oauth.js';
 import dedent from 'dedent';
 import { spawn } from 'node:child_process';
+import { config } from '../../config/config.js';
 import { defineCommand } from '../../lib/define-command.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
-import { conf, loadOAuthConf } from '../../models/configuration.js';
 
-async function loadTokens() {
-  const tokens = await loadOAuthConf();
+function getTokens() {
   return {
-    OAUTH_CONSUMER_KEY: conf.OAUTH_CONSUMER_KEY,
-    OAUTH_CONSUMER_SECRET: conf.OAUTH_CONSUMER_SECRET,
-    API_OAUTH_TOKEN: tokens.token,
-    API_OAUTH_TOKEN_SECRET: tokens.secret,
+    OAUTH_CONSUMER_KEY: config.OAUTH_CONSUMER_KEY,
+    OAUTH_CONSUMER_SECRET: config.OAUTH_CONSUMER_SECRET,
+    API_OAUTH_TOKEN: config.token,
+    API_OAUTH_TOKEN_SECRET: config.secret,
   };
 }
 
@@ -21,16 +20,16 @@ function printCleverCurlHelp() {
     Usage: clever curl
     Query Clever Cloud's API using Clever Tools credentials. For example:
     
-      clever curl ${conf.API_HOST}/v2/self
-      clever curl ${conf.API_HOST}/v2/summary
-      clever curl ${conf.API_HOST}/v4/products/zones
-      clever curl ${conf.API_HOST}/v2/organisations/<ORGANISATION_ID>/applications | jq '.[].id'
-      clever curl ${conf.API_HOST}/v4/billing/organisations/<ORGANISATION_ID>/<INVOICE_NUMBER>.pdf > invoice.pdf
+      clever curl ${config.API_HOST}/v2/self
+      clever curl ${config.API_HOST}/v2/summary
+      clever curl ${config.API_HOST}/v4/products/zones
+      clever curl ${config.API_HOST}/v2/organisations/<ORGANISATION_ID>/applications | jq '.[].id'
+      clever curl ${config.API_HOST}/v4/billing/organisations/<ORGANISATION_ID>/<INVOICE_NUMBER>.pdf > invoice.pdf
     
     Our API documentation is available here :
     
-      ${conf.API_DOC_URL}/v2/
-      ${conf.API_DOC_URL}/v4/
+      ${config.API_DOC_URL}/v2/
+      ${config.API_DOC_URL}/v4/
   `);
 }
 
@@ -46,11 +45,11 @@ export async function curl() {
     return;
   }
 
-  const curlUrl = curlArgs.find((part) => part.startsWith(conf.API_HOST));
+  const curlUrl = curlArgs.find((part) => part.startsWith(config.API_HOST));
 
   // We only allow request to the respective API_HOST
   if (curlUrl == null) {
-    Logger.error('"clever curl" command must be used with ' + styleText('blue', conf.API_HOST));
+    Logger.error('"clever curl" command must be used with ' + styleText('blue', config.API_HOST));
     process.exit(1);
   }
 
@@ -60,7 +59,7 @@ export async function curl() {
   // Add OAuth header, only if last cURL arg is not help
   // We do this because cURL's help arg expect a category
   if (lastCurlArgIsHelp) {
-    const tokens = await loadTokens();
+    const tokens = getTokens();
     const oauthHeader = await Promise.resolve({})
       .then(addOauthHeader(tokens))
       .then((request) => request.headers.authorization);

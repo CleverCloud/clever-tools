@@ -1,7 +1,7 @@
 import { ApplicationLogStream } from '@clevercloud/client/esm/streams/application-logs.js';
+import { config } from '../config/config.js';
 import { styleText } from '../lib/style-text.js';
 import { Logger } from '../logger.js';
-import { conf } from './configuration.js';
 import { waitForDeploymentEnd, waitForDeploymentStart } from './deployments.js';
 import { getBest } from './domain.js';
 import * as ExitStrategy from './exit-strategy-option.js';
@@ -151,7 +151,7 @@ export async function watchDeploymentAndDisplayLogs(options) {
     }
 
     Logger.println(
-      `${styleText(['bold', 'blue'], '→ Manage your application:')} ${styleText(['underline', 'bold'], `${conf.GOTO_URL}/${appId}`)}`,
+      `${styleText(['bold', 'blue'], '→ Manage your application:')} ${styleText(['underline', 'bold'], `${config.GOTO_URL}/${appId}`)}`,
     );
   } else if (deploymentEnded.state === 'CANCELLED') {
     throw new Error('Deployment was cancelled. Please check the activity');

@@ -1,5 +1,7 @@
-import { promises as fs } from 'node:fs';
+import { promises as fs, readFileSync } from 'node:fs';
 import path from 'node:path';
+
+import { Logger } from '../logger.js';
 
 /**
  * Reads and parses a JSON file asynchronously.
@@ -10,6 +12,21 @@ import path from 'node:path';
 export async function readJson(filePath) {
   const rawFile = await fs.readFile(filePath, 'utf-8');
   return JSON.parse(rawFile);
+}
+
+/**
+ * Reads and parses a JSON file synchronously.
+ * @param {string} filePath - The absolute path to the JSON file
+ * @returns {unknown | null} The parsed JSON content, or null if file is absent or invalid
+ */
+export function readJsonSync(filePath) {
+  try {
+    const rawFile = readFileSync(filePath, 'utf-8');
+    return JSON.parse(rawFile);
+  } catch (error) {
+    Logger.debug(`Failed to read JSON from ${filePath}: ${error.message}`);
+    return null;
+  }
 }
 
 /**

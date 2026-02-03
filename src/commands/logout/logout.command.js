@@ -1,6 +1,6 @@
+import { config, updateConfig } from '../../config/config.js';
 import { defineCommand } from '../../lib/define-command.js';
 import { Logger } from '../../logger.js';
-import { conf, writeOAuthConf } from '../../models/configuration.js';
 
 export const logoutCommand = defineCommand({
   description: 'Logout from Clever Cloud',
@@ -9,7 +9,7 @@ export const logoutCommand = defineCommand({
   args: [],
   async handler() {
     // write empty object
-    await writeOAuthConf({});
-    Logger.println(`${conf.CONFIGURATION_FILE} has been updated.`);
+    await updateConfig({});
+    Logger.println(`${config.CONFIGURATION_FILE} has been updated.`);
   },
 });

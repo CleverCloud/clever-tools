@@ -1,6 +1,6 @@
 import { simpleGit } from 'simple-git';
+import { config } from '../config/config.js';
 import { slugify } from '../lib/slugify.js';
-import { loadOAuthConf } from './configuration.js';
 import { Git } from './git.js';
 
 export class GitSystem extends Git {
@@ -58,7 +58,7 @@ export class GitSystem extends Git {
 
   async getRemoteCommit(remoteUrl) {
     const git = await this.#getSimpleGit();
-    const authUrl = await this.#buildAuthenticatedUrl(remoteUrl);
+    const authUrl = this.#buildAuthenticatedUrl(remoteUrl);
     this._debug('getRemoteCommit', this.#redactUrl(authUrl));
     try {
       const result = await git.listRemote(['--refs', authUrl.toString()]);
@@ -76,11 +76,10 @@ export class GitSystem extends Git {
     }
   }
 
-  async #buildAuthenticatedUrl(url) {
-    const tokens = await loadOAuthConf();
+  #buildAuthenticatedUrl(url) {
     const urlObj = new URL(url);
-    urlObj.username = tokens.token;
-    urlObj.password = tokens.secret;
+    urlObj.username = config.token;
+    urlObj.password = config.secret;
     return urlObj;
   }
 
@@ -129,7 +128,7 @@ export class GitSystem extends Git {
 
   async push(remoteUrl, branchRefspec, force) {
     const git = await this.#getSimpleGit();
-    const authUrl = await this.#buildAuthenticatedUrl(remoteUrl);
+    const authUrl = this.#buildAuthenticatedUrl(remoteUrl);
     const refspec = `${branchRefspec}:refs/heads/master`;
     this._debug('push', this.#redactUrl(authUrl), refspec, force ? '--force' : '');
     const options = ['--porcelain'];

@@ -1,5 +1,5 @@
 import dedent from 'dedent';
-import { conf } from './models/configuration.js';
+import { config } from './config/config.js';
 
 export const EXPERIMENTAL_FEATURES = {
   'system-git': {
@@ -37,7 +37,7 @@ export const EXPERIMENTAL_FEATURES = {
       - Delete a Kubernetes cluster:
           clever k8s delete my-cluster
 
-      Learn more about Clever Kubernetes: ${conf.DOC_URL}/kubernetes/
+      Learn more about Clever Kubernetes: ${config.DOC_URL}/kubernetes/
     `,
   },
   kv: {
@@ -53,7 +53,7 @@ export const EXPERIMENTAL_FEATURES = {
           clever kv myMateriaKV -o myOrg TTL myTempKey
           clever kv redis_xxxxx --org org_xxxxx PING
 
-      Learn more about Materia KV: ${conf.DOC_URL}/addons/materia-kv/
+      Learn more about Materia KV: ${config.DOC_URL}/addons/materia-kv/
     `,
   },
   ng: {
@@ -81,7 +81,7 @@ export const EXPERIMENTAL_FEATURES = {
       - Search Network Groups, members or peers:
           clever ng search myQuery
 
-      Learn more about Network Groups: ${conf.DOC_URL}/develop/network-groups/
+      Learn more about Network Groups: ${config.DOC_URL}/develop/network-groups/
     `,
   },
   operators: {

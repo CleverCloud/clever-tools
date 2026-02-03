@@ -1,6 +1,7 @@
 import dedent from 'dedent';
 import { z } from 'zod';
 import { getOperator } from '../../clever-client/operators.js';
+import { config } from '../../config/config.js';
 import { defineCommand } from '../../lib/define-command.js';
 import { defineOption } from '../../lib/define-option.js';
 import { styleText } from '../../lib/style-text.js';
@@ -9,7 +10,6 @@ import * as Addon from '../../models/addon.js';
 import { completePlan, completeRegion, parseAddonOptions } from '../../models/addon.js';
 import * as AppConfig from '../../models/app_configuration.js';
 import { listAvailableAliases } from '../../models/application.js';
-import { conf } from '../../models/configuration.js';
 import * as Organisation from '../../models/organisation.js';
 import { sendToApi } from '../../models/send-to-api.js';
 import * as User from '../../models/user.js';
@@ -21,7 +21,7 @@ const ADDON_PROVIDERS = {
   keycloak: {
     name: 'Keycloak',
     isOperator: true,
-    postCreateInstructions: `Learn more about Keycloak on Clever Cloud: ${conf.DOC_URL}/addons/keycloak/`,
+    postCreateInstructions: `Learn more about Keycloak on Clever Cloud: ${config.DOC_URL}/addons/keycloak/`,
   },
   kv: {
     name: 'Materia KV',
@@ -31,28 +31,28 @@ const ADDON_PROVIDERS = {
       ${styleText('yellow', "You can easily use Materia KV with 'redis-cli', with such commands:")}
       ${styleText('blue', `source <(clever addon env ${addonId} -F shell)`)}
       ${styleText('blue', 'redis-cli -h $KV_HOST -p $KV_PORT --tls')}
-      Learn more about Materia KV on Clever Cloud: ${conf.DOC_URL}/addons/materia-kv/
+      Learn more about Materia KV on Clever Cloud: ${config.DOC_URL}/addons/materia-kv/
     `,
   },
   'addon-matomo': {
     name: 'Matomo',
     isOperator: true,
-    postCreateInstructions: `Learn more about Matomo on Clever Cloud: ${conf.DOC_URL}/addons/matomo/`,
+    postCreateInstructions: `Learn more about Matomo on Clever Cloud: ${config.DOC_URL}/addons/matomo/`,
   },
   metabase: {
     name: 'Metabase',
     isOperator: true,
-    postCreateInstructions: `Learn more about Metabase on Clever Cloud: ${conf.DOC_URL}/addons/metabase/`,
+    postCreateInstructions: `Learn more about Metabase on Clever Cloud: ${config.DOC_URL}/addons/metabase/`,
   },
   otoroshi: {
     name: 'Otoroshi with LLM',
     isOperator: true,
-    postCreateInstructions: `Learn more about Otoroshi with LLM on Clever Cloud: ${conf.DOC_URL}/addons/otoroshi/`,
+    postCreateInstructions: `Learn more about Otoroshi with LLM on Clever Cloud: ${config.DOC_URL}/addons/otoroshi/`,
   },
   'addon-pulsar': {
     name: 'Pulsar',
     isOperator: false,
-    postCreateInstructions: `Learn more about Pulsar on Clever Cloud: ${conf.DOC_URL}/addons/pulsar/`,
+    postCreateInstructions: `Learn more about Pulsar on Clever Cloud: ${config.DOC_URL}/addons/pulsar/`,
   },
 };
 
@@ -196,7 +196,7 @@ export const addonCreateCommand = defineCommand({
         Logger.println();
         Logger.println(`Your ${ADDON_PROVIDERS[providerName].name} is starting:`);
         Logger.println(` - Access it: ${operator.accessUrl}`);
-        Logger.println(` - Manage it: ${conf.GOTO_URL}/${newAddon.id}`);
+        Logger.println(` - Manage it: ${config.GOTO_URL}/${newAddon.id}`);
       }
 
       if (operator.initialCredentials) {

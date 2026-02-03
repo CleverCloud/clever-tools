@@ -1,5 +1,6 @@
 import path from 'node:path';
 import { z } from 'zod';
+import { config } from '../../config/config.js';
 import { defineArgument } from '../../lib/define-argument.js';
 import { defineCommand } from '../../lib/define-command.js';
 import { defineOption } from '../../lib/define-option.js';
@@ -8,7 +9,6 @@ import { Logger } from '../../logger.js';
 import * as AppConfig from '../../models/app_configuration.js';
 import * as Application from '../../models/application.js';
 import { AVAILABLE_ZONES, listAvailableTypes, listAvailableZones } from '../../models/application.js';
-import { conf } from '../../models/configuration.js';
 import { Git } from '../../models/git.js';
 import { aliasCreationOption, humanJsonOutputFormatOption, orgaIdOrNameOption } from '../global.options.js';
 
@@ -75,7 +75,7 @@ async function displayAppCreation(app, alias, github, taskCommand) {
   }
 
   Logger.println(
-    `  ${styleText('blue', '→')} Manage your application at: ${styleText('underline', `${conf.GOTO_URL}/${app.id}`)}`,
+    `  ${styleText('blue', '→')} Manage your application at: ${styleText('underline', `${config.GOTO_URL}/${app.id}`)}`,
   );
   Logger.println('');
 }
