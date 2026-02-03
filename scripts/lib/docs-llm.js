@@ -266,6 +266,7 @@ function getCommandSection(heading, path, definition) {
 
   const parts = [heading];
   parts.push(`**Description:** ${definition.description}`);
+  parts.push(`**Since:** ${definition.since}`);
 
   parts.push(formatSection('Usage', [commandInfo.usage]));
   if (argumentsRows) {

@@ -246,6 +246,8 @@ Default deployment zone is `par`, default plan is the lowest available.
 
 **Description:** Fetch access logs
 
+**Since:** 2.1.0
+
 **Usage**
 ```
 clever accesslogs [options]
@@ -265,6 +267,8 @@ clever accesslogs [options]
 
 **Description:** Show last deployments of an application
 
+**Since:** 0.2.3
+
 **Usage**
 ```
 clever activity [options]
@@ -283,6 +287,8 @@ clever activity [options]
 
 **Description:** Manage add-ons
 
+**Since:** 0.2.3
+
 **Usage**
 ```
 clever addon [options]
@@ -297,6 +303,8 @@ clever addon [options]
 ### addon create
 
 **Description:** Create an add-on
+
+**Since:** 0.2.3
 
 **Usage**
 ```
@@ -325,6 +333,8 @@ addon-name                              Add-on name
 
 **Description:** Delete an add-on
 
+**Since:** 0.2.3
+
 **Usage**
 ```
 clever addon delete <addon-id|addon-name> [options]
@@ -344,6 +354,8 @@ addon-id|addon-name                     Add-on ID (or name, if unambiguous)
 ### addon env
 
 **Description:** List environment variables for an add-on
+
+**Since:** 2.11.0
 
 **Usage**
 ```
@@ -365,6 +377,8 @@ addon-id                                Add-on ID or real ID
 
 **Description:** List available add-ons
 
+**Since:** 0.2.3
+
 **Usage**
 ```
 clever addon list [options]
@@ -380,6 +394,8 @@ clever addon list [options]
 
 **Description:** List available add-on providers
 
+**Since:** 0.2.3
+
 **Usage**
 ```
 clever addon providers [options]
@@ -393,6 +409,8 @@ clever addon providers [options]
 #### addon providers show
 
 **Description:** Show information about an add-on provider
+
+**Since:** 0.2.3
 
 **Usage**
 ```
@@ -412,6 +430,8 @@ addon-provider           Add-on provider
 ### addon rename
 
 **Description:** Rename an add-on
+
+**Since:** 0.3.0
 
 **Usage**
 ```
@@ -433,6 +453,8 @@ addon-name                              Add-on name
 
 **Description:** List linked applications
 
+**Since:** 0.3.0
+
 **Usage**
 ```
 clever applications [options]
@@ -447,6 +469,8 @@ clever applications [options]
 ### applications list
 
 **Description:** List all applications
+
+**Since:** 3.8.0
 
 **Usage**
 ```
@@ -463,6 +487,8 @@ clever applications list [options]
 
 **Description:** Cancel an ongoing deployment
 
+**Since:** 0.2.0
+
 **Usage**
 ```
 clever cancel-deploy [options]
@@ -478,6 +504,8 @@ clever cancel-deploy [options]
 
 **Description:** Display or edit the configuration of your application
 
+**Since:** 2.5.0
+
 **Usage**
 ```
 clever config [options]
@@ -492,6 +520,8 @@ clever config [options]
 ### config get
 
 **Description:** Display the current configuration
+
+**Since:** 2.5.0
 
 **Usage**
 ```
@@ -513,6 +543,8 @@ configuration-name             Configuration to manage: name, description, zero-
 
 **Description:** Edit one configuration setting
 
+**Since:** 2.5.0
+
 **Usage**
 ```
 clever config set <configuration-name> <configuration-value> [options]
@@ -533,6 +565,8 @@ configuration-value            The new value of the configuration
 ### config update
 
 **Description:** Edit multiple configuration settings at once
+
+**Since:** 2.5.0
 
 **Usage**
 ```
@@ -561,6 +595,8 @@ clever config update [options]
 
 **Description:** Open an application in the Console
 
+**Since:** 1.0.0
+
 **Usage**
 ```
 clever console [options]
@@ -575,6 +611,8 @@ clever console [options]
 ## create
 
 **Description:** Create an application
+
+**Since:** 0.2.0
 
 **Usage**
 ```
@@ -601,6 +639,8 @@ app-name                                Application name (current directory name
 
 **Description:** Query Clever Cloud's API using Clever Tools credentials
 
+**Since:** 2.10.0
+
 **Usage**
 ```
 clever curl
@@ -610,6 +650,8 @@ clever curl
 
 **Description:** Manage databases and backups
 
+**Since:** 2.10.0
+
 **Usage**
 ```
 clever database
@@ -618,6 +660,8 @@ clever database
 ### database backups
 
 **Description:** List available database backups
+
+**Since:** 2.10.0
 
 **Usage**
 ```
@@ -638,6 +682,8 @@ database-id|addon-id                    Any database ID (format: addon_UUID, pos
 #### database backups download
 
 **Description:** Download a database backup
+
+**Since:** 2.10.0
 
 **Usage**
 ```
@@ -660,6 +706,8 @@ backup-id                               A Database backup ID (format: UUID)
 
 **Description:** Delete an application
 
+**Since:** 0.7.0
+
 **Usage**
 ```
 clever delete [options]
@@ -675,6 +723,8 @@ clever delete [options]
 ## deploy
 
 **Description:** Deploy an application
+
+**Since:** 0.2.0
 
 **Usage**
 ```
@@ -697,6 +747,8 @@ clever deploy [options]
 
 **Description:** Diagnose the current installation (prints various informations for support)
 
+**Since:** 1.6.0
+
 **Usage**
 ```
 clever diag [options]
@@ -710,6 +762,8 @@ clever diag [options]
 ## domain
 
 **Description:** Manage domain names for an application
+
+**Since:** 0.2.0
 
 **Usage**
 ```
@@ -726,6 +780,8 @@ clever domain [options]
 ### domain add
 
 **Description:** Add a domain name to an application
+
+**Since:** 0.2.0
 
 **Usage**
 ```
@@ -747,6 +803,8 @@ fqdn                           Domain name of the application
 
 **Description:** Check if domains associated to a specific app are properly configured
 
+**Since:** 3.9.0
+
 **Usage**
 ```
 clever domain diag [options]
@@ -764,6 +822,8 @@ clever domain diag [options]
 
 **Description:** Manage the favourite domain name for an application
 
+**Since:** 2.7.0
+
 **Usage**
 ```
 clever domain favourite [options]
@@ -779,6 +839,8 @@ clever domain favourite [options]
 #### domain favourite set
 
 **Description:** Set the favourite domain for an application
+
+**Since:** 2.7.0
 
 **Usage**
 ```
@@ -800,6 +862,8 @@ fqdn                           Domain name of the application
 
 **Description:** Unset the favourite domain for an application
 
+**Since:** 2.7.0
+
 **Usage**
 ```
 clever domain favourite unset [options]
@@ -815,6 +879,8 @@ clever domain favourite unset [options]
 
 **Description:** Get an overview of all your domains (all orgas, all apps)
 
+**Since:** 3.9.0
+
 **Usage**
 ```
 clever domain overview [options]
@@ -829,6 +895,8 @@ clever domain overview [options]
 ### domain rm
 
 **Description:** Remove a domain name from an application
+
+**Since:** 0.2.0
 
 **Usage**
 ```
@@ -850,6 +918,8 @@ fqdn                           Domain name of the application
 
 **Description:** Manage drains
 
+**Since:** 0.9.0
+
 **Usage**
 ```
 clever drain [options]
@@ -865,6 +935,8 @@ clever drain [options]
 ### drain create
 
 **Description:** Create a drain
+
+**Since:** 0.9.0
 
 **Usage**
 ```
@@ -892,6 +964,8 @@ drain-url                            Drain URL
 
 **Description:** Disable a drain
 
+**Since:** 0.9.0
+
 **Usage**
 ```
 clever drain disable <drain-id> [options]
@@ -912,6 +986,8 @@ drain-id                       Drain ID
 
 **Description:** Enable a drain
 
+**Since:** 0.9.0
+
 **Usage**
 ```
 clever drain enable <drain-id> [options]
@@ -931,6 +1007,8 @@ drain-id                       Drain ID
 ### drain get
 
 **Description:** Get drain info
+
+**Since:** 0.9.0
 
 **Usage**
 ```
@@ -953,6 +1031,8 @@ drain-id                       Drain ID
 
 **Description:** Remove a drain
 
+**Since:** 0.9.0
+
 **Usage**
 ```
 clever drain remove <drain-id> [options]
@@ -973,6 +1053,8 @@ drain-id                       Drain ID
 
 **Description:** Manage email addresses of the current user
 
+**Since:** 3.13.0
+
 **Usage**
 ```
 clever emails [options]
@@ -986,6 +1068,8 @@ clever emails [options]
 ### emails add
 
 **Description:** Add a new secondary email address to the current user
+
+**Since:** 3.13.0
 
 **Usage**
 ```
@@ -1001,6 +1085,8 @@ email    Email address
 
 **Description:** Open the email addresses management page in the Console
 
+**Since:** 3.13.0
+
 **Usage**
 ```
 clever emails open
@@ -1009,6 +1095,8 @@ clever emails open
 ### emails primary
 
 **Description:** Set the primary email address of the current user
+
+**Since:** 3.13.0
 
 **Usage**
 ```
@@ -1024,6 +1112,8 @@ email    Email address
 
 **Description:** Remove a secondary email address from the current user
 
+**Since:** 3.13.0
+
 **Usage**
 ```
 clever emails remove <email>
@@ -1038,6 +1128,8 @@ email    Email address
 
 **Description:** Remove all secondary email addresses from the current user
 
+**Since:** 3.13.0
+
 **Usage**
 ```
 clever emails remove-all [options]
@@ -1051,6 +1143,8 @@ clever emails remove-all [options]
 ## env
 
 **Description:** Manage environment variables of an application
+
+**Since:** 0.2.0
 
 **Usage**
 ```
@@ -1070,6 +1164,8 @@ clever env [options]
 **Description:** Load environment variables from STDIN
 (WARNING: this deletes all current variables and replace them with the new list loaded from STDIN)
 
+**Since:** 0.3.0
+
 **Usage**
 ```
 clever env import [options]
@@ -1085,6 +1181,8 @@ clever env import [options]
 ### env import-vars
 
 **Description:** Add or update environment variables named <variable-names> (comma-separated), taking their values from the current environment
+
+**Since:** 2.0.0
 
 **Usage**
 ```
@@ -1106,6 +1204,8 @@ variable-names                 Comma separated list of names of the environment 
 
 **Description:** Remove an environment variable from an application
 
+**Since:** 0.3.0
+
 **Usage**
 ```
 clever env rm <variable-name> [options]
@@ -1125,6 +1225,8 @@ variable-name                  Name of the environment variable
 ### env set
 
 **Description:** Add or update an environment variable named <variable-name> with the value <variable-value>
+
+**Since:** 0.3.0
 
 **Usage**
 ```
@@ -1147,6 +1249,8 @@ variable-value                 Value of the environment variable
 
 **Description:** Manage Clever Tools experimental features
 
+**Since:** 3.11.0
+
 **Usage**
 ```
 clever features [options]
@@ -1160,6 +1264,8 @@ clever features [options]
 ### features disable
 
 **Description:** Disable experimental features
+
+**Since:** 3.11.0
 
 **Usage**
 ```
@@ -1175,6 +1281,8 @@ features    Comma-separated list of experimental features to manage
 
 **Description:** Enable experimental features
 
+**Since:** 3.11.0
+
 **Usage**
 ```
 clever features enable <features>
@@ -1188,6 +1296,8 @@ features    Comma-separated list of experimental features to manage
 ### features info
 
 **Description:** Display info about an experimental feature
+
+**Since:** 3.11.0
 
 **Usage**
 ```
@@ -1203,6 +1313,8 @@ feature    Experimental feature to manage
 
 **Description:** List available experimental features
 
+**Since:** 3.11.0
+
 **Usage**
 ```
 clever features list [options]
@@ -1217,6 +1329,8 @@ clever features list [options]
 
 **Description:** Display help about the Clever Cloud CLI
 
+**Since:** 0.1.0
+
 **Usage**
 ```
 clever help
@@ -1226,6 +1340,8 @@ clever help
 
 **Description:** Manage Kubernetes clusters
 
+**Since:** 4.3.0
+
 **Usage**
 ```
 clever k8s
@@ -1234,6 +1350,8 @@ clever k8s
 ### k8s add-persistent-storage
 
 **Description:** Activate persistent storage to a deployed Kubernetes cluster
+
+**Since:** 4.3.0
 
 **Usage**
 ```
@@ -1253,6 +1371,8 @@ cluster-id|cluster-name                 Kubernetes cluster ID or name
 ### k8s create
 
 **Description:** Create a Kubernetes cluster
+
+**Since:** 4.3.0
 
 **Usage**
 ```
@@ -1274,6 +1394,8 @@ cluster-name                            Kubernetes cluster name
 
 **Description:** Delete a Kubernetes cluster
 
+**Since:** 4.3.0
+
 **Usage**
 ```
 clever k8s delete <cluster-id|cluster-name> [options]
@@ -1293,6 +1415,8 @@ cluster-id|cluster-name                 Kubernetes cluster ID or name
 ### k8s get
 
 **Description:** Get information about a Kubernetes cluster
+
+**Since:** 4.3.0
 
 **Usage**
 ```
@@ -1314,6 +1438,8 @@ cluster-id|cluster-name                 Kubernetes cluster ID or name
 
 **Description:** Get configuration of a Kubernetes cluster
 
+**Since:** 4.3.0
+
 **Usage**
 ```
 clever k8s get-kubeconfig <cluster-id|cluster-name> [options]
@@ -1333,6 +1459,8 @@ cluster-id|cluster-name                 Kubernetes cluster ID or name
 
 **Description:** List Kubernetes clusters
 
+**Since:** 4.3.0
+
 **Usage**
 ```
 clever k8s list [options]
@@ -1348,6 +1476,8 @@ clever k8s list [options]
 
 **Description:** Manage Clever Cloud Keycloak services
 
+**Since:** 3.13.0
+
 **Usage**
 ```
 clever keycloak [options]
@@ -1361,6 +1491,8 @@ clever keycloak [options]
 ### keycloak disable-ng
 
 **Description:** Unlink Keycloak from its Network Group
+
+**Since:** 3.13.0
 
 **Usage**
 ```
@@ -1376,6 +1508,8 @@ addon-id|addon-name    Add-on ID (or name, if unambiguous)
 
 **Description:** Link Keycloak to a Network Group, used for multi-instances secure communication
 
+**Since:** 3.13.0
+
 **Usage**
 ```
 clever keycloak enable-ng <addon-id|addon-name>
@@ -1389,6 +1523,8 @@ addon-id|addon-name    Add-on ID (or name, if unambiguous)
 ### keycloak get
 
 **Description:** Get information about a deployed Keycloak
+
+**Since:** 3.13.0
 
 **Usage**
 ```
@@ -1409,6 +1545,8 @@ addon-id|addon-name      Add-on ID (or name, if unambiguous)
 
 **Description:** Open the Keycloak dashboard in Clever Cloud Console
 
+**Since:** 3.13.0
+
 **Usage**
 ```
 clever keycloak open <addon-id|addon-name>
@@ -1422,6 +1560,8 @@ addon-id|addon-name    Add-on ID (or name, if unambiguous)
 #### keycloak open logs
 
 **Description:** Open the Keycloak application logs in Clever Cloud Console
+
+**Since:** 3.13.0
 
 **Usage**
 ```
@@ -1437,6 +1577,8 @@ addon-id|addon-name    Add-on ID (or name, if unambiguous)
 
 **Description:** Open the Keycloak admin console in your browser
 
+**Since:** 3.13.0
+
 **Usage**
 ```
 clever keycloak open webui <addon-id|addon-name>
@@ -1450,6 +1592,8 @@ addon-id|addon-name    Add-on ID (or name, if unambiguous)
 ### keycloak rebuild
 
 **Description:** Rebuild Keycloak
+
+**Since:** 3.13.0
 
 **Usage**
 ```
@@ -1465,6 +1609,8 @@ addon-id|addon-name    Add-on ID (or name, if unambiguous)
 
 **Description:** Restart Keycloak
 
+**Since:** 3.13.0
+
 **Usage**
 ```
 clever keycloak restart <addon-id|addon-name>
@@ -1478,6 +1624,8 @@ addon-id|addon-name    Add-on ID (or name, if unambiguous)
 ### keycloak version
 
 **Description:** Check Keycloak deployed version
+
+**Since:** 3.13.0
 
 **Usage**
 ```
@@ -1498,6 +1646,8 @@ addon-id|addon-name      Add-on ID (or name, if unambiguous)
 
 **Description:** Check Keycloak deployed version
 
+**Since:** 3.13.0
+
 **Usage**
 ```
 clever keycloak version check <addon-id|addon-name> [options]
@@ -1517,6 +1667,8 @@ addon-id|addon-name      Add-on ID (or name, if unambiguous)
 
 **Description:** Update Keycloak deployed version
 
+**Since:** 3.13.0
+
 **Usage**
 ```
 clever keycloak version update <addon-id|addon-name> [options]
@@ -1535,6 +1687,8 @@ addon-id|addon-name       Add-on ID (or name, if unambiguous)
 ## kv
 
 **Description:** Send a raw command to a Materia KV or Redis® add-on
+
+**Since:** 3.11.0
 
 **Usage**
 ```
@@ -1557,6 +1711,8 @@ command                                 The raw command to send to the Materia K
 
 **Description:** Link this repo to an existing application
 
+**Since:** 0.2.0
+
 **Usage**
 ```
 clever link <app-id|app-name> [options]
@@ -1577,6 +1733,8 @@ app-id|app-name                         Application ID (or name, if unambiguous)
 
 **Description:** Login to Clever Cloud
 
+**Since:** 0.2.0
+
 **Usage**
 ```
 clever login [options]
@@ -1592,6 +1750,8 @@ clever login [options]
 
 **Description:** Logout from Clever Cloud
 
+**Since:** 1.0.0
+
 **Usage**
 ```
 clever logout
@@ -1600,6 +1760,8 @@ clever logout
 ## logs
 
 **Description:** Fetch application logs, continuously
+
+**Since:** 0.2.0
 
 **Usage**
 ```
@@ -1622,6 +1784,8 @@ clever logs [options]
 
 **Description:** Make a linked application the default one
 
+**Since:** 0.5.0
+
 **Usage**
 ```
 clever make-default <app-alias>
@@ -1636,6 +1800,8 @@ app-alias    Application alias
 
 **Description:** Manage Clever Cloud Matomo services
 
+**Since:** 3.13.0
+
 **Usage**
 ```
 clever matomo [options]
@@ -1649,6 +1815,8 @@ clever matomo [options]
 ### matomo get
 
 **Description:** Get information about a deployed Matomo
+
+**Since:** 3.13.0
 
 **Usage**
 ```
@@ -1669,6 +1837,8 @@ addon-id|addon-name      Add-on ID (or name, if unambiguous)
 
 **Description:** Open the Matomo dashboard in Clever Cloud Console
 
+**Since:** 3.13.0
+
 **Usage**
 ```
 clever matomo open <addon-id|addon-name>
@@ -1682,6 +1852,8 @@ addon-id|addon-name    Add-on ID (or name, if unambiguous)
 #### matomo open logs
 
 **Description:** Open the Matomo application logs in Clever Cloud Console
+
+**Since:** 3.13.0
 
 **Usage**
 ```
@@ -1697,6 +1869,8 @@ addon-id|addon-name    Add-on ID (or name, if unambiguous)
 
 **Description:** Open the Matomo admin console in your browser
 
+**Since:** 3.13.0
+
 **Usage**
 ```
 clever matomo open webui <addon-id|addon-name>
@@ -1710,6 +1884,8 @@ addon-id|addon-name    Add-on ID (or name, if unambiguous)
 ### matomo rebuild
 
 **Description:** Rebuild Matomo
+
+**Since:** 3.13.0
 
 **Usage**
 ```
@@ -1725,6 +1901,8 @@ addon-id|addon-name    Add-on ID (or name, if unambiguous)
 
 **Description:** Restart Matomo
 
+**Since:** 3.13.0
+
 **Usage**
 ```
 clever matomo restart <addon-id|addon-name>
@@ -1739,6 +1917,8 @@ addon-id|addon-name    Add-on ID (or name, if unambiguous)
 
 **Description:** Manage Clever Cloud Metabase services
 
+**Since:** 3.13.0
+
 **Usage**
 ```
 clever metabase [options]
@@ -1752,6 +1932,8 @@ clever metabase [options]
 ### metabase get
 
 **Description:** Get information about a deployed Metabase
+
+**Since:** 3.13.0
 
 **Usage**
 ```
@@ -1772,6 +1954,8 @@ addon-id|addon-name      Add-on ID (or name, if unambiguous)
 
 **Description:** Open the Metabase dashboard in Clever Cloud Console
 
+**Since:** 3.13.0
+
 **Usage**
 ```
 clever metabase open <addon-id|addon-name>
@@ -1785,6 +1969,8 @@ addon-id|addon-name    Add-on ID (or name, if unambiguous)
 #### metabase open logs
 
 **Description:** Open the Metabase application logs in Clever Cloud Console
+
+**Since:** 3.13.0
 
 **Usage**
 ```
@@ -1800,6 +1986,8 @@ addon-id|addon-name    Add-on ID (or name, if unambiguous)
 
 **Description:** Open the Metabase admin console in your browser
 
+**Since:** 3.13.0
+
 **Usage**
 ```
 clever metabase open webui <addon-id|addon-name>
@@ -1813,6 +2001,8 @@ addon-id|addon-name    Add-on ID (or name, if unambiguous)
 ### metabase rebuild
 
 **Description:** Rebuild Metabase
+
+**Since:** 3.13.0
 
 **Usage**
 ```
@@ -1828,6 +2018,8 @@ addon-id|addon-name    Add-on ID (or name, if unambiguous)
 
 **Description:** Restart Metabase
 
+**Since:** 3.13.0
+
 **Usage**
 ```
 clever metabase restart <addon-id|addon-name>
@@ -1841,6 +2033,8 @@ addon-id|addon-name    Add-on ID (or name, if unambiguous)
 ### metabase version
 
 **Description:** Manage Metabase deployed version
+
+**Since:** 3.13.0
 
 **Usage**
 ```
@@ -1861,6 +2055,8 @@ addon-id|addon-name      Add-on ID (or name, if unambiguous)
 
 **Description:** Check Metabase deployed version
 
+**Since:** 3.13.0
+
 **Usage**
 ```
 clever metabase version check <addon-id|addon-name> [options]
@@ -1879,6 +2075,8 @@ addon-id|addon-name      Add-on ID (or name, if unambiguous)
 #### metabase version update
 
 **Description:** Update Metabase deployed version
+
+**Since:** 3.13.0
 
 **Usage**
 ```
@@ -1899,6 +2097,8 @@ addon-id|addon-name       Add-on ID (or name, if unambiguous)
 
 **Description:** List Network Groups
 
+**Since:** 3.12.0
+
 **Usage**
 ```
 clever ng [options]
@@ -1913,6 +2113,8 @@ clever ng [options]
 ### ng create
 
 **Description:** Create a Network Group
+
+**Since:** 3.12.0
 
 **Usage**
 ```
@@ -1936,6 +2138,8 @@ ng-label                                Network Group label
 
 **Description:** Create an external peer in a Network Group
 
+**Since:** 3.12.0
+
 **Usage**
 ```
 clever ng create external <external-peer-label> <ng-id|ng-label> <public-key> [options]
@@ -1957,6 +2161,8 @@ public-key                              WireGuard public key of the external pee
 
 **Description:** Delete a Network Group
 
+**Since:** 3.12.0
+
 **Usage**
 ```
 clever ng delete <ng-id|ng-label> [options]
@@ -1975,6 +2181,8 @@ ng-id|ng-label                          Network Group ID or label
 #### ng delete external
 
 **Description:** Delete an external peer from a Network Group
+
+**Since:** 3.12.0
 
 **Usage**
 ```
@@ -1995,6 +2203,8 @@ ng-id|ng-label                          Network Group ID or label
 ### ng get
 
 **Description:** Get details about a Network Group, a member or a peer
+
+**Since:** 3.12.0
 
 **Usage**
 ```
@@ -2017,6 +2227,8 @@ id|label                                ID or Label of a Network Group, a member
 
 **Description:** Get the WireGuard configuration of a peer in a Network Group
 
+**Since:** 3.12.0
+
 **Usage**
 ```
 clever ng get-config <peer-id|peer-label> <ng-id|ng-label> [options]
@@ -2038,6 +2250,8 @@ ng-id|ng-label                          Network Group ID or label
 
 **Description:** Link a resource by its ID (app_xxx, external_xxx, mysql_xxx, postgresql_xxx, redis_xxx, etc.) to a Network Group
 
+**Since:** 3.12.0
+
 **Usage**
 ```
 clever ng link <id> <ng-id|ng-label> [options]
@@ -2057,6 +2271,8 @@ ng-id|ng-label                          Network Group ID or label
 ### ng search
 
 **Description:** Search Network Groups, members or peers and get their details
+
+**Since:** 3.12.0
 
 **Usage**
 ```
@@ -2079,6 +2295,8 @@ id|label                                ID or Label of a Network Group, a member
 
 **Description:** Unlink a resource by its ID (app_xxx, external_xxx, mysql_xxx, postgresql_xxx, redis_xxx, etc.) from a Network Group
 
+**Since:** 3.12.0
+
 **Usage**
 ```
 clever ng unlink <id> <ng-id|ng-label> [options]
@@ -2099,6 +2317,8 @@ ng-id|ng-label                          Network Group ID or label
 
 **Description:** Manage email notifications
 
+**Since:** 0.6.1
+
 **Usage**
 ```
 clever notify-email [options]
@@ -2114,6 +2334,8 @@ clever notify-email [options]
 ### notify-email add
 
 **Description:** Add a new email notification
+
+**Since:** 0.6.1
 
 **Usage**
 ```
@@ -2137,6 +2359,8 @@ name                                                 Notification name
 
 **Description:** Remove an existing email notification
 
+**Since:** 0.6.1
+
 **Usage**
 ```
 clever notify-email remove <notification-id> [options]
@@ -2156,6 +2380,8 @@ notification-id                         Notification ID
 
 **Description:** Open an application in the Console
 
+**Since:** 0.5.0
+
 **Usage**
 ```
 clever open [options]
@@ -2171,6 +2397,8 @@ clever open [options]
 
 **Description:** Manage Clever Cloud Otoroshi services
 
+**Since:** 3.13.0
+
 **Usage**
 ```
 clever otoroshi [options]
@@ -2184,6 +2412,8 @@ clever otoroshi [options]
 ### otoroshi disable-ng
 
 **Description:** Unlink Otoroshi from its Network Group
+
+**Since:** 3.13.0
 
 **Usage**
 ```
@@ -2199,6 +2429,8 @@ addon-id|addon-name    Add-on ID (or name, if unambiguous)
 
 **Description:** Link Otoroshi to a Network Group
 
+**Since:** 3.13.0
+
 **Usage**
 ```
 clever otoroshi enable-ng <addon-id|addon-name>
@@ -2212,6 +2444,8 @@ addon-id|addon-name    Add-on ID (or name, if unambiguous)
 ### otoroshi get
 
 **Description:** Get information about a deployed Otoroshi
+
+**Since:** 3.13.0
 
 **Usage**
 ```
@@ -2232,6 +2466,8 @@ addon-id|addon-name      Add-on ID (or name, if unambiguous)
 
 **Description:** Get configuration of a deployed Otoroshi in otoroshictl format
 
+**Since:** 4.4.0
+
 **Usage**
 ```
 clever otoroshi get-config <addon-id|addon-name>
@@ -2245,6 +2481,8 @@ addon-id|addon-name    Add-on ID (or name, if unambiguous)
 ### otoroshi open
 
 **Description:** Open the Otoroshi dashboard in Clever Cloud Console
+
+**Since:** 3.13.0
 
 **Usage**
 ```
@@ -2260,6 +2498,8 @@ addon-id|addon-name    Add-on ID (or name, if unambiguous)
 
 **Description:** Open the Otoroshi application logs in Clever Cloud Console
 
+**Since:** 3.13.0
+
 **Usage**
 ```
 clever otoroshi open logs <addon-id|addon-name>
@@ -2273,6 +2513,8 @@ addon-id|addon-name    Add-on ID (or name, if unambiguous)
 #### otoroshi open webui
 
 **Description:** Open the Otoroshi admin console in your browser
+
+**Since:** 3.13.0
 
 **Usage**
 ```
@@ -2288,6 +2530,8 @@ addon-id|addon-name    Add-on ID (or name, if unambiguous)
 
 **Description:** Rebuild Otoroshi
 
+**Since:** 3.13.0
+
 **Usage**
 ```
 clever otoroshi rebuild <addon-id|addon-name>
@@ -2302,6 +2546,8 @@ addon-id|addon-name    Add-on ID (or name, if unambiguous)
 
 **Description:** Restart Otoroshi
 
+**Since:** 3.13.0
+
 **Usage**
 ```
 clever otoroshi restart <addon-id|addon-name>
@@ -2315,6 +2561,8 @@ addon-id|addon-name    Add-on ID (or name, if unambiguous)
 ### otoroshi version
 
 **Description:** Manage Otoroshi deployed version
+
+**Since:** 3.13.0
 
 **Usage**
 ```
@@ -2335,6 +2583,8 @@ addon-id|addon-name      Add-on ID (or name, if unambiguous)
 
 **Description:** Check Otoroshi deployed version
 
+**Since:** 3.13.0
+
 **Usage**
 ```
 clever otoroshi version check <addon-id|addon-name> [options]
@@ -2353,6 +2603,8 @@ addon-id|addon-name      Add-on ID (or name, if unambiguous)
 #### otoroshi version update
 
 **Description:** Update Otoroshi deployed version
+
+**Since:** 3.13.0
 
 **Usage**
 ```
@@ -2373,6 +2625,8 @@ addon-id|addon-name       Add-on ID (or name, if unambiguous)
 
 **Description:** Display the profile of the current user
 
+**Since:** 0.10.1
+
 **Usage**
 ```
 clever profile [options]
@@ -2387,6 +2641,8 @@ clever profile [options]
 
 **Description:** Open your profile in the Console
 
+**Since:** 3.11.0
+
 **Usage**
 ```
 clever profile open
@@ -2395,6 +2651,8 @@ clever profile open
 ## published-config
 
 **Description:** Manage the configuration made available to other applications by this application
+
+**Since:** 0.5.0
 
 **Usage**
 ```
@@ -2413,6 +2671,8 @@ clever published-config [options]
 **Description:** Load published configuration from STDIN
 (WARNING: this deletes all current variables and replace them with the new list loaded from STDIN)
 
+**Since:** 0.5.0
+
 **Usage**
 ```
 clever published-config import [options]
@@ -2428,6 +2688,8 @@ clever published-config import [options]
 ### published-config rm
 
 **Description:** Remove a published configuration variable from an application
+
+**Since:** 0.5.0
 
 **Usage**
 ```
@@ -2448,6 +2710,8 @@ variable-name                  Name of the environment variable
 ### published-config set
 
 **Description:** Add or update a published configuration item named <variable-name> with the value <variable-value>
+
+**Since:** 0.5.0
 
 **Usage**
 ```
@@ -2470,6 +2734,8 @@ variable-value                 Value of the environment variable
 
 **Description:** Start or restart an application
 
+**Since:** 0.4.0
+
 **Usage**
 ```
 clever restart [options]
@@ -2489,6 +2755,8 @@ clever restart [options]
 ## scale
 
 **Description:** Change scalability of an application
+
+**Since:** 0.4.0
 
 **Usage**
 ```
@@ -2512,6 +2780,8 @@ clever scale [options]
 
 **Description:** Manage service dependencies
 
+**Since:** 0.5.0
+
 **Usage**
 ```
 clever service [options]
@@ -2530,6 +2800,8 @@ clever service [options]
 ### service link-addon
 
 **Description:** Link an existing add-on to this application
+
+**Since:** 0.5.0
 
 **Usage**
 ```
@@ -2551,6 +2823,8 @@ addon-id|addon-name            Add-on ID (or name, if unambiguous)
 
 **Description:** Add an existing app as a dependency
 
+**Since:** 0.5.0
+
 **Usage**
 ```
 clever service link-app <app-id|app-name> [options]
@@ -2570,6 +2844,8 @@ app-id|app-name                Application ID (or name, if unambiguous)
 ### service unlink-addon
 
 **Description:** Unlink an add-on from this application
+
+**Since:** 0.5.0
 
 **Usage**
 ```
@@ -2591,6 +2867,8 @@ addon-id|addon-name            Add-on ID (or name, if unambiguous)
 
 **Description:** Remove an app from the dependencies
 
+**Since:** 0.5.0
+
 **Usage**
 ```
 clever service unlink-app <app-id|app-name> [options]
@@ -2611,6 +2889,8 @@ app-id|app-name                Application ID (or name, if unambiguous)
 
 **Description:** Connect to running instances through SSH
 
+**Since:** 0.7.0
+
 **Usage**
 ```
 clever ssh [options]
@@ -2627,6 +2907,8 @@ clever ssh [options]
 
 **Description:** Manage SSH keys of the current user
 
+**Since:** 3.13.0
+
 **Usage**
 ```
 clever ssh-keys [options]
@@ -2640,6 +2922,8 @@ clever ssh-keys [options]
 ### ssh-keys add
 
 **Description:** Add a new SSH key to the current user
+
+**Since:** 3.13.0
 
 **Usage**
 ```
@@ -2656,6 +2940,8 @@ ssh-key-path    SSH public key path (.pub)
 
 **Description:** Open the SSH keys management page in the Console
 
+**Since:** 3.13.0
+
 **Usage**
 ```
 clever ssh-keys open
@@ -2664,6 +2950,8 @@ clever ssh-keys open
 ### ssh-keys remove
 
 **Description:** Remove a SSH key from the current user
+
+**Since:** 3.13.0
 
 **Usage**
 ```
@@ -2679,6 +2967,8 @@ ssh-key-name    SSH key name
 
 **Description:** Remove all SSH keys from the current user
 
+**Since:** 3.13.0
+
 **Usage**
 ```
 clever ssh-keys remove-all [options]
@@ -2692,6 +2982,8 @@ clever ssh-keys remove-all [options]
 ## status
 
 **Description:** See the status of an application
+
+**Since:** 0.2.0
 
 **Usage**
 ```
@@ -2709,6 +3001,8 @@ clever status [options]
 
 **Description:** Stop a running application
 
+**Since:** 0.2.0
+
 **Usage**
 ```
 clever stop [options]
@@ -2723,6 +3017,8 @@ clever stop [options]
 ## tcp-redirs
 
 **Description:** Control the TCP redirections from reverse proxies to your application
+
+**Since:** 2.3.0
 
 **Usage**
 ```
@@ -2740,6 +3036,8 @@ clever tcp-redirs [options]
 
 **Description:** Add a new TCP redirection to the application
 
+**Since:** 2.3.0
+
 **Usage**
 ```
 clever tcp-redirs add --namespace <namespace> [options]
@@ -2756,6 +3054,8 @@ clever tcp-redirs add --namespace <namespace> [options]
 
 **Description:** List the namespaces in which you can create new TCP redirections
 
+**Since:** 2.3.0
+
 **Usage**
 ```
 clever tcp-redirs list-namespaces [options]
@@ -2771,6 +3071,8 @@ clever tcp-redirs list-namespaces [options]
 ### tcp-redirs remove
 
 **Description:** Remove a TCP redirection from the application
+
+**Since:** 2.3.0
 
 **Usage**
 ```
@@ -2793,6 +3095,8 @@ port                           port identifying the TCP redirection
 
 **Description:** Manage API tokens to query Clever Cloud API from https://api-bridge.clever-cloud.com
 
+**Since:** 3.12.0
+
 **Usage**
 ```
 clever tokens [options]
@@ -2806,6 +3110,8 @@ clever tokens [options]
 ### tokens create
 
 **Description:** Create an API token
+
+**Since:** 3.12.0
 
 **Usage**
 ```
@@ -2827,6 +3133,8 @@ api-token-name                   API token name
 
 **Description:** Revoke an API token
 
+**Since:** 3.12.0
+
 **Usage**
 ```
 clever tokens revoke <api-token-id>
@@ -2840,6 +3148,8 @@ api-token-id    API token ID
 ## unlink
 
 **Description:** Unlink this repo from an existing application
+
+**Since:** 0.2.0
 
 **Usage**
 ```
@@ -2855,6 +3165,8 @@ app-alias    Application alias
 
 **Description:** Display the clever-tools version
 
+**Since:** 1.0.0
+
 **Usage**
 ```
 clever version
@@ -2863,6 +3175,8 @@ clever version
 ## webhooks
 
 **Description:** Manage webhooks
+
+**Since:** 0.6.0
 
 **Usage**
 ```
@@ -2879,6 +3193,8 @@ clever webhooks [options]
 ### webhooks add
 
 **Description:** Register webhook to be called when events happen
+
+**Since:** 0.6.0
 
 **Usage**
 ```
@@ -2902,6 +3218,8 @@ url                                     Webhook URL
 ### webhooks remove
 
 **Description:** Remove an existing webhook
+
+**Since:** 0.6.0
 
 **Usage**
 ```
