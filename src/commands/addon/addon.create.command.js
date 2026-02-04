@@ -20,12 +20,11 @@ import { addonNameArg, addonProviderArg } from './addon.args.js';
 const ADDON_PROVIDERS = {
   keycloak: {
     name: 'Keycloak',
-    isOperator: true,
+    operatorProvider: 'keycloak',
     postCreateInstructions: `Learn more about Keycloak on Clever Cloud: ${config.DOC_URL}/addons/keycloak/`,
   },
   kv: {
     name: 'Materia KV',
-    isOperator: false,
     status: 'beta',
     postCreateInstructions: (addonId) => dedent`
       ${styleText('yellow', "You can easily use Materia KV with 'redis-cli', with such commands:")}
@@ -36,22 +35,21 @@ const ADDON_PROVIDERS = {
   },
   'addon-matomo': {
     name: 'Matomo',
-    isOperator: true,
+    operatorProvider: 'matomo',
     postCreateInstructions: `Learn more about Matomo on Clever Cloud: ${config.DOC_URL}/addons/matomo/`,
   },
   metabase: {
     name: 'Metabase',
-    isOperator: true,
+    operatorProvider: 'metabase',
     postCreateInstructions: `Learn more about Metabase on Clever Cloud: ${config.DOC_URL}/addons/metabase/`,
   },
   otoroshi: {
     name: 'Otoroshi with LLM',
-    isOperator: true,
+    operatorProvider: 'otoroshi',
     postCreateInstructions: `Learn more about Otoroshi with LLM on Clever Cloud: ${config.DOC_URL}/addons/otoroshi/`,
   },
   'addon-pulsar': {
     name: 'Pulsar',
-    isOperator: false,
     postCreateInstructions: `Learn more about Pulsar on Clever Cloud: ${config.DOC_URL}/addons/pulsar/`,
   },
 };
@@ -187,12 +185,14 @@ export const addonCreateCommand = defineCommand({
     Logger.println(`Real ID: ${newAddon.realId}`);
     Logger.println(`Name: ${newAddon.name}`);
 
-    const operator = ADDON_PROVIDERS[providerName]?.isOperator
-      ? await getOperator({ provider: providerName, realId: newAddon.realId }).then(sendToApi)
-      : null;
+    const operatorProvider = ADDON_PROVIDERS[providerName]?.operatorProvider;
+    const operator =
+      operatorProvider != null
+        ? await getOperator({ provider: operatorProvider, realId: newAddon.realId }).then(sendToApi)
+        : null;
 
-    if (operator) {
-      if (operator.accessUrl) {
+    if (operator != null) {
+      if (operator.accessUrl != null) {
         Logger.println();
         Logger.println(`Your ${ADDON_PROVIDERS[providerName].name} is starting:`);
         Logger.println(` - Access it: ${operator.accessUrl}`);
