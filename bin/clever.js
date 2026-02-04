@@ -190,7 +190,9 @@ function convertOption(option) {
   }
   const optionDefault = getDefault(option.schema);
   if (optionDefault != null) {
-    cliparseConfig.default = optionDefault;
+    // Parse the default value through the schema to apply transforms
+    const parsed = option.schema.safeParse(optionDefault);
+    cliparseConfig.default = parsed.success ? parsed.data : optionDefault;
   }
   if (option.placeholder != null) {
     cliparseConfig.metavar = option.placeholder;
@@ -253,7 +255,9 @@ function convertArgument(arg) {
 
   const argDefault = getDefault(arg.schema);
   if (argDefault != null) {
-    cliparseConfig.default = argDefault;
+    // Parse the default value through the schema to apply transforms
+    const parsed = arg.schema.safeParse(argDefault);
+    cliparseConfig.default = parsed.success ? parsed.data : argDefault;
   } else if (!isRequired(arg.schema)) {
     cliparseConfig.default = '';
   }
