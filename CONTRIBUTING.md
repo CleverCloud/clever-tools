@@ -79,17 +79,6 @@ All communication with Clever Cloud's platform uses the [@clevercloud/client](ht
 
 We provide several utility scripts to streamline development (located in `/scripts`):
 
-#### Profile Management
-
-- **`scripts/switch-profile.js`**: Interactive tool for managing multiple Clever Cloud accounts
-  ```bash
-  # Interactive profile selection
-  node scripts/switch-profile.js
-
-  # Direct profile switching
-  node scripts/switch-profile.js "user_id"
-  ```
-
 #### GitHub Actions Validation
 
 - **`scripts/check-github-actions.js`**: Validates CI/CD configuration
@@ -196,7 +185,7 @@ We use TypeScript through JSDoc comments for type safety without transpilation.
 The project supports multiple development approaches:
 - **Local debugging**: Use Node.js remote debugger with `--inspect` flag
 - **Script development**: All `/scripts` files support `--help` for usage information
-- **Profile switching**: Use the profile utility for testing with different Clever Cloud accounts
+
 
 ### Commit Guidelines
 
