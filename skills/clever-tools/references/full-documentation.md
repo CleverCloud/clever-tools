@@ -2764,6 +2764,22 @@ clever profile [options]
 -F, --format <format>    Output format (human, json) (default: human)
 ```
 
+### profile list
+
+**Description:** List all configured profiles
+
+**Since:** unreleased
+
+**Usage**
+```
+clever profile list [options]
+```
+
+**Options**
+```
+-F, --format <format>    Output format (human, json) (default: human)
+```
+
 ### profile open
 
 **Description:** Open your profile in the Console
