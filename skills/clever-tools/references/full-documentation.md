@@ -162,83 +162,51 @@ If you are using Nix on NixOS or any other compatible system, the package is ava
 
 ## Application types and zones
 
-You can deploy applications on Clever Cloud with the following runtimes type: `docker`, `dotnet`, `elixir`, `frankenphp`, `go`, `gradle`, `haskell`, `jar`, `linux`, `maven`, `meteor`, `node`, `php`, `play1`, `play2`, `python`, `ruby`, `rust`, `sbt`, `static`, `static-apache`, `v`, `war`
+You can deploy applications on Clever Cloud with the following runtimes type: `docker`, `docker`, `dotnet`, `elixir`, `go`, `gradle`, `haskell`, `maven`, `meteor`, `node`, `php`, `php`, `python`, `ruby`, `rust`, `sbt`, `swift`, `war`
 
-Available flavors: `pico`, `nano`, `XS`, `S`, `M`, `L`, `XL`, `2XL`, `3XL`
+Available flavors: `pico`, `nano`, `XS`, `S`, `M`, `L`, `XL`
 
-Flavor `pico` is not available for: `docker`, `frankenphp`, `php`, `static-apache`
+Flavor `pico` is not available for: `docker`, `docker`, `dotnet`, `elixir`, `go`, `gradle`, `haskell`, `maven`, `meteor`, `node`, `ruby`, `rust`, `sbt`, `swift`, `war`
+Flavor `nano` is not available for: `docker`, `docker`, `dotnet`, `elixir`, `go`, `gradle`, `haskell`, `maven`, `meteor`, `node`, `ruby`, `rust`, `sbt`, `swift`, `war`
+Flavor `S` is not available for: `ruby`
+Flavor `L` is not available for: `docker`, `docker`, `dotnet`, `elixir`, `meteor`, `node`, `php`, `php`, `ruby`, `rust`
+Flavor `XL` is not available for: `docker`, `docker`, `elixir`, `php`, `php`, `ruby`, `rust`
 
-Applications deployment zones (region): `par`, `parhds`, `fr-north-hds`, `grahds`, `ldn`, `mtl`, `rbx`, `rbxhds`, `scw`, `sgp`, `syd`, `wsw`
+Applications deployment zones (region): `par`, `par0`
 
 ## Add-on providers, plans and zones (region)
 
-- `addon-matomo`:
-  - plans: `beta`
-  - zones: `par`, `mtl`, `rbx`, `scw`, `sgp`, `syd`, `wsw`
-
 - `addon-pulsar`:
   - plans: `beta`
-  - zones: `par`, `parhds`
-
-- `azimutt`:
-  - plans: `free`, `solo`, `team`, `team-2`, `team-3`, `team-4`, `team-5`, `enterprise`
-  - zones: `par`
+  - zones: `par0`
 
 - `cellar-addon`:
   - plans: `S`
-  - zones: `par`, `parhds`, `fr-north-hds`, `rbxhds`
-
-- `config-provider`:
-  - plans: `std`
-  - zones: `par`, `parhds`
+  - zones: `par`
 
 - `es-addon`:
-  - plans: `xs`, `s`, `m`, `l`, `xl`, `xxl`, `xxxl`, `4xl`, `5xl`
-  - zones: `par`, `parhds`, `grahds`, `ldn`, `mtl`, `rbx`, `rbxhds`, `scw`, `sgp`, `syd`, `wsw`
-
-- `fs-bucket`:
-  - plans: `s`
-  - zones: `par`, `ldn`, `mtl`, `rbx`, `scw`, `sgp`, `syd`, `wsw`
+  - plans: `xs`, `s`, `m`, `xxxl`, `test65465`, `rocketraccoon`, `antman`, `blackwidow`
+  - zones: `par0`
 
 - `jenkins`:
-  - plans: `XS`, `S`, `M`, `L`, `XL`
-  - zones: `par`, `grahds`, `ldn`, `rbxhds`, `scw`
-
-- `keycloak`:
-  - plans: `base`
-  - zones: `par`, `mtl`, `rbx`, `scw`, `sgp`, `syd`, `wsw`
-
-- `kv`:
-  - plans: `base`
-  - zones: `par`
-
-- `mailpace`:
-  - plans: `clever_solo`, `clever_scaling_10`, `clever_scaling_20`, `clever_scaling_30`, `clever_scaling_40`, `clever_scaling_50`, `clever_scaling_70`, `clever_scaling_100`
-  - zones: `par`
-
-- `metabase`:
-  - plans: `base`
-  - zones: `par`, `fr-north-hds`, `grahds`, `mtl`, `rbx`, `rbxhds`, `scw`, `sgp`, `syd`, `wsw`
+  - plans: `S`
+  - zones: `par0`
 
 - `mongodb-addon`:
-  - plans: `xs_sml`, `xs_med`, `xs_big`, `s_sml`, `s_med`, `s_big`, `s_hug`, `m_sml`, `m_med`, `m_big`, `m_hug`, `l_sml`, `l_med`, `l_big`, `xl_sml`, `xl_med`, `xl_big`, `xxl_sml`, `xxl_med`, `xxl_big`
-  - zones: `par`, `ldn`, `mtl`, `rbx`, `scw`, `sgp`, `syd`, `wsw`
+  - plans: `m_sml`, `s_sml`, `m_sml_old`, `xs_sml`, `hazelnut`
+  - zones: `par0`
 
 - `mysql-addon`:
-  - plans: `dev`, `xxs_sml`, `xxs_med`, `xxs_big`, `xs_tny`, `xs_sml`, `xs_med`, `xs_big`, `s_sml`, `s_med`, `s_big`, `m_sml`, `m_med`, `m_big`, `l_sml`, `l_med`, `l_big`, `xl_sml`, `xl_med`, `xl_big`, `xxl_sml`, `xxl_med`, `xxl_big`, `xxl_hug`
-  - zones: `par`, `parhds`, `grahds`, `ldn`, `mtl`, `rbx`, `rbxhds`, `scw`, `sgp`, `syd`, `wsw`
-
-- `otoroshi`:
-  - plans: `base`
-  - zones: `par`, `fr-north-hds`, `grahds`, `mtl`, `rbx`, `rbxhds`, `scw`, `sgp`, `syd`, `wsw`
+  - plans: `xxs_sml`, `xs_sml`, `M_SML`, `s_sml`, `dev`, `m`
+  - zones: `par0`
 
 - `postgresql-addon`:
-  - plans: `dev`, `xxs_sml`, `xxs_med`, `xxs_big`, `xs_tny`, `xs_sml`, `xs_med`, `xs_big`, `s_sml`, `s_med`, `s_big`, `s_hug`, `m_sml`, `m_med`, `m_big`, `l_sml`, `l_med`, `l_big`, `xl_sml`, `l_gnt`, `xl_med`, `xl_big`, `xl_hug`, `xl_gnt`, `xxl_sml`, `xxl_med`, `xxl_big`, `xxl_hug`, `xxxl_sml`, `xxxl_med`, `xxxl_big`, `3xl_cpu_tit`
-  - zones: `par`, `parhds`, `grahds`, `ldn`, `mtl`, `rbx`, `rbxhds`, `scw`, `sgp`, `syd`, `wsw`
+  - plans: `xxs_sml`, `m`, `m_sml`, `xs_sml`, `s_sml`, `dev`, `xm`, `m`
+  - zones: `par0`
 
 - `redis-addon`:
-  - plans: `s_mono`, `m_mono`, `l_mono`, `xl_mono`, `xxl_mono`, `xxxl_mono`, `xxxxl_mono`, `5xl_mono`, `6xl_mono`, `7xl_mono`
-  - zones: `par`, `parhds`, `grahds`, `ldn`, `mtl`, `rbx`, `rbxhds`, `scw`, `sgp`, `syd`, `wsw`
+  - plans: `s`, `test7485`
+  - zones: `par0`
 
 Default deployment zone is `par`, default plan is the lowest available.
 
@@ -1863,9 +1831,15 @@ clever login [options]
 
 **Options**
 ```
--a, --alias <alias>      Profile alias for this login (default: default)
-    --secret <secret>    Provide an existing secret
-    --token <token>      Provide an existing token
+-a, --alias <alias>                     Profile alias (default: default)
+    --api-host <url>                    API host URL override
+    --auth-bridge-host <url>            Auth bridge URL override
+    --console-url <url>                 Console URL override
+    --oauth-consumer-key <key>          OAuth consumer key override
+    --oauth-consumer-secret <secret>    OAuth consumer secret override
+    --secret <secret>                   Provide an existing secret
+    --ssh-gateway <address>             SSH gateway override
+    --token <token>                     Provide an existing token
 ```
 
 ## logout
