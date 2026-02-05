@@ -1,8 +1,7 @@
-import dedent from 'dedent';
+import { config } from '../../config/config.js';
 import { defineCommand } from '../../lib/define-command.js';
-import { styleText } from '../../lib/style-text.js';
+import { formatProfileDetails, getProfileDetails } from '../../lib/profile.js';
 import { Logger } from '../../logger.js';
-import * as User from '../../models/user.js';
 import { humanJsonOutputFormatOption } from '../global.options.js';
 
 export const profileCommand = defineCommand({
@@ -11,49 +10,25 @@ export const profileCommand = defineCommand({
   options: {
     format: humanJsonOutputFormatOption,
   },
-  args: [],
   async handler(options) {
-    const { format } = options;
+    const [activeProfile] = config.profiles;
+    if (activeProfile == null) {
+      throw new Error('No profile found, please login with clever login');
+    }
 
-    const user = await User.getCurrent();
-    const currentToken = await User.getCurrentToken();
-    const tokenExpiration = new Date(currentToken.expirationDate).toLocaleString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: 'numeric',
-      minute: 'numeric',
-      hour12: false,
-      timeZone: 'UTC',
-      timeZoneName: 'short',
-    });
+    const details = await getProfileDetails({ profile: activeProfile, isActive: true });
+    if (!details.isTokenValid) {
+      throw new Error('Your token is invalid or has expired, please login again with clever login');
+    }
 
-    const formattedUser = {
-      id: user.id,
-      email: user.email,
-      name: user.name,
-      avatar: user.avatar,
-      creationDate: new Date(user.creationDate),
-      tokenExpiration: new Date(currentToken.expirationDate).toISOString(),
-      lang: user.lang,
-      has2FA: user.preferredMFA != null && user.preferredMFA !== 'NONE',
-    };
-
-    switch (format) {
+    switch (options.format) {
       case 'json': {
-        Logger.printJson(formattedUser);
+        Logger.printJson(details);
         break;
       }
       case 'human':
       default: {
-        Logger.println(dedent`
-            You're currently logged in as:
-            User id           ${formattedUser.id}
-            Name              ${formattedUser.name ?? styleText(['red', 'bold'], '[not specified]')}
-            Email             ${formattedUser.email}
-            Token expiration  ${tokenExpiration}
-            Two factor auth   ${formattedUser.has2FA ? 'yes' : 'no'}
-          `);
+        Logger.println(formatProfileDetails(details));
       }
     }
   },
