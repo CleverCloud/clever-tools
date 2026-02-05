@@ -2791,6 +2791,22 @@ clever profile list [options]
 clever profile open
 ```
 
+### profile switch
+
+**Description:** Switch to a different profile
+
+**Since:** unreleased
+
+**Usage**
+```
+clever profile switch [options]
+```
+
+**Options**
+```
+-a, --alias <alias>    Alias of the profile to switch to
+```
+
 ## published-config
 
 **Description:** Manage the configuration made available to other applications by this application
