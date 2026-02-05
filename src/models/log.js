@@ -176,7 +176,7 @@ function formatLogLine(log) {
     return `${date.toISOString()}: ${styleText(['bold', 'green'], message)}`;
   } else if (isDeploymentFailedMessage(log)) {
     return `${date.toISOString()}: ${styleText(['bold', 'red'], message)}`;
-  } else if (isBuildSucessMessage(log)) {
+  } else if (isBuildSuccessMessage(log)) {
     return `${date.toISOString()}: ${styleText(['bold', 'blue'], message)}`;
   }
   return `${date.toISOString()}: ${message}${RESET_COLOR}`;
@@ -194,6 +194,6 @@ function isDeploymentFailedMessage(log) {
   return isCleverMessage(log) && log.message.toLowerCase().startsWith('deploy failed in');
 }
 
-function isBuildSucessMessage(log) {
+function isBuildSuccessMessage(log) {
   return isCleverMessage(log) && log.message.toLowerCase().startsWith('build succeeded in');
 }
