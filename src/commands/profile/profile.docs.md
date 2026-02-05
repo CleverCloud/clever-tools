@@ -14,6 +14,20 @@ clever profile [options]
 |---|---|
 |`-F`, `--format` `<format>`|Output format (human, json) (default: human)|
 
+## ➡️ `clever profile list` <kbd>Since unreleased</kbd>
+
+List all configured profiles
+
+```bash
+clever profile list [options]
+```
+
+### ⚙️ Options
+
+|Name|Description|
+|---|---|
+|`-F`, `--format` `<format>`|Output format (human, json) (default: human)|
+
 ## ➡️ `clever profile open` <kbd>Since 3.11.0</kbd>
 
 Open your profile in the Console
