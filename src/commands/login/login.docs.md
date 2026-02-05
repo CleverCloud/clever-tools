@@ -12,5 +12,6 @@ clever login [options]
 
 |Name|Description|
 |---|---|
-|`--secret` `<secret>`|Directly give an existing secret|
-|`--token` `<token>`|Directly give an existing token|
+|`-a`, `--alias` `<alias>`|Profile alias for this login (default: default)|
+|`--secret` `<secret>`|Provide an existing secret|
+|`--token` `<token>`|Provide an existing token|

@@ -1,14 +1,16 @@
+import { get as getUser } from '@clevercloud/client/esm/api/v2/organisation.js';
 import crypto from 'node:crypto';
 import { setTimeout as delay } from 'node:timers/promises';
 import open from 'open';
 import { z } from 'zod';
 import pkg from '../../../package.json' with { type: 'json' };
-import { config, updateConfig } from '../../config/config.js';
+import { config, saveProfile } from '../../config/config.js';
 import { defineCommand } from '../../lib/define-command.js';
 import { defineOption } from '../../lib/define-option.js';
+import { formatProfile } from '../../lib/profile.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
-import * as User from '../../models/user.js';
+import { sendToApiWithConfig } from '../../models/send-to-api.js';
 
 function randomToken() {
   return crypto.randomBytes(20).toString('base64').replace(/\//g, '-').replace(/\+/g, '_').replace(/=/g, '');
@@ -52,7 +54,7 @@ async function loginViaConsole() {
   cliPollUrl.searchParams.set('cli_token', cliToken);
 
   Logger.debug('Try to login to Clever Cloud…');
-  Logger.println(`Opening ${styleText('green', consoleUrl.toString())} in your browser to log you in…`);
+  Logger.println(`Opening ${styleText('blue', consoleUrl.toString())} in your browser to log you in…`);
   await open(consoleUrl.toString(), { wait: false });
 
   return pollOauthData(cliPollUrl.toString());
@@ -65,34 +67,52 @@ export const loginCommand = defineCommand({
     token: defineOption({
       name: 'token',
       schema: z.string().optional(),
-      description: 'Directly give an existing token',
+      description: 'Provide an existing token',
       placeholder: 'token',
     }),
     secret: defineOption({
       name: 'secret',
       schema: z.string().optional(),
-      description: 'Directly give an existing secret',
+      description: 'Provide an existing secret',
       placeholder: 'secret',
     }),
+    alias: defineOption({
+      name: 'alias',
+      aliases: ['a'],
+      schema: z
+        .string()
+        .min(1, { message: 'Profile alias cannot be empty' })
+        .regex(/^[a-zA-Z0-9_-]+$/, { message: 'Alias must only contain letters, numbers, hyphens and underscores' })
+        .refine((a) => a !== '$env', { message: '"$env" is reserved auth via environment variables' })
+        .default('default'),
+      description: 'Profile alias for this login',
+      placeholder: 'alias',
+    }),
   },
-  args: [],
   async handler(options) {
     const { token, secret } = options;
-    const isLoginWithArgs = token != null && secret != null;
-    const isInteractiveLogin = token == null && secret == null;
+    const hasToken = token != null;
+    const hasSecret = secret != null;
 
-    if (isLoginWithArgs) {
-      return updateConfig({ token, secret });
+    if (hasToken !== hasSecret) {
+      throw new Error('Both `--token` and `--secret` have to be defined');
     }
 
-    if (isInteractiveLogin) {
-      const oauthData = await loginViaConsole();
-      await updateConfig(oauthData);
-      const { name, email } = await User.getCurrent();
-      const formattedName = name || styleText(['red', 'bold'], '[unspecified name]');
-      return Logger.println(`Login successful as ${formattedName} <${email}>`);
-    }
+    const oauthData = hasToken ? { token, secret } : await loginViaConsole();
 
-    throw new Error('Both `--token` and `--secret` have to be defined');
+    const user = await getUser({}).then(sendToApiWithConfig(oauthData));
+
+    const profile = {
+      alias: options.alias,
+      token: oauthData.token,
+      secret: oauthData.secret,
+      expirationDate: oauthData.expirationDate,
+      userId: user.id,
+      email: user.email,
+    };
+
+    await saveProfile(profile);
+
+    Logger.printSuccess(`Login successful as ${styleText('green', formatProfile(profile))}`);
   },
 });

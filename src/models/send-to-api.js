@@ -22,6 +22,21 @@ export async function sendToAuthBridge(requestParams) {
 }
 
 /**
+ * Creates an API request function with a custom config.
+ * @param {object} customConfig
+ * @param {string} customConfig.token - OAuth token
+ * @param {string} customConfig.secret - OAuth secret
+ * @returns {(requestParams: object) => Promise<unknown>}
+ */
+export function sendToApiWithConfig(customConfig) {
+  return (requestParams) =>
+    executeRequest(requestParams, {
+      API_OAUTH_TOKEN: customConfig.token,
+      API_OAUTH_TOKEN_SECRET: customConfig.secret,
+    });
+}
+
+/**
  * Executes the request pipeline with the given configuration.
  * @param {object} requestParams - The request parameters
  * @param {object} [customConfig] - Optional configuration overrides

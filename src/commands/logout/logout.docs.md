@@ -5,5 +5,11 @@
 Logout from Clever Cloud
 
 ```bash
-clever logout
+clever logout [options]
 ```
+
+### ⚙️ Options
+
+|Name|Description|
+|---|---|
+|`-a`, `--alias` `<alias>`|Alias of the profile to log out|
