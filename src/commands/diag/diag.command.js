@@ -72,7 +72,7 @@ export const diagCommand = defineCommand({
       isPackaged: process.pkg != null,
       execPath: process.execPath,
       configFile: config.CONFIGURATION_FILE,
-      authSource: config.authSource,
+      authSource: config.profiles[0]?.alias === '$env' ? 'environment variables' : 'configuration file',
       oAuthToken: config.token,
       authState: getAuthState(),
       userId,

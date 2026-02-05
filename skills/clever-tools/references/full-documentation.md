@@ -1863,8 +1863,9 @@ clever login [options]
 
 **Options**
 ```
-    --secret <secret>    Directly give an existing secret
-    --token <token>      Directly give an existing token
+-a, --alias <alias>      Profile alias for this login (default: default)
+    --secret <secret>    Provide an existing secret
+    --token <token>      Provide an existing token
 ```
 
 ## logout
@@ -1875,7 +1876,12 @@ clever login [options]
 
 **Usage**
 ```
-clever logout
+clever logout [options]
+```
+
+**Options**
+```
+-a, --alias <alias>    Alias of the profile to log out
 ```
 
 ## logs
