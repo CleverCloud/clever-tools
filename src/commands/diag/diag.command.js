@@ -56,7 +56,9 @@ export const diagCommand = defineCommand({
   },
   async handler(options) {
     const activeProfile = config.profiles[0];
-    const user = await getUser({}).then(sendToApi).catch(() => null);
+    const user = await getUser({})
+      .then(sendToApi)
+      .catch(() => null);
 
     const formattedDiag = {
       version: pkg.version,
@@ -75,6 +77,7 @@ export const diagCommand = defineCommand({
       authSource: activeProfile?.alias === '$env' ? 'environment variables' : 'configuration file',
       oAuthToken: config.token,
       loggedIn: user != null,
+      profileOverrides: activeProfile?.overrides ?? null,
       // Not longer useful but kept for compatibility reasons
       authState: getAuthState({ hasToken: config.token != null, apiUser: user }),
     };
@@ -126,6 +129,19 @@ export const diagCommand = defineCommand({
           Logger.println('Auth state    ' + styleText('green', 'valid token'));
         } else {
           Logger.println('Auth state    ' + styleText('red', 'expired or revoked token'));
+        }
+
+        if (formattedDiag.profileOverrides != null) {
+          const overrideEntries = Object.entries(formattedDiag.profileOverrides).filter(([k, v]) => v != null);
+          if (overrideEntries.length > 0) {
+            const maxKeyLength = Math.max(...overrideEntries.map(([key]) => key.length));
+            const pad = maxKeyLength + 2;
+            Logger.println('');
+            Logger.println('Profile overrides:');
+            for (const [key, value] of overrideEntries) {
+              Logger.println('  ' + key.padEnd(pad) + styleText('green', value));
+            }
+          }
         }
       }
     }

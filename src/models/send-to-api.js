@@ -26,11 +26,17 @@ export async function sendToAuthBridge(requestParams) {
  * @param {object} customConfig
  * @param {string} customConfig.token - OAuth token
  * @param {string} customConfig.secret - OAuth secret
+ * @param {string} customConfig.apiHost - API host
+ * @param {string} customConfig.consumerKey - OAuth consumer key
+ * @param {string} customConfig.consumerSecret - OAuth consumer secret
  * @returns {(requestParams: object) => Promise<unknown>}
  */
 export function sendToApiWithConfig(customConfig) {
   return (requestParams) =>
     executeRequest(requestParams, {
+      API_HOST: customConfig.apiHost,
+      OAUTH_CONSUMER_KEY: customConfig.consumerKey,
+      OAUTH_CONSUMER_SECRET: customConfig.consumerSecret,
       API_OAUTH_TOKEN: customConfig.token,
       API_OAUTH_TOKEN_SECRET: customConfig.secret,
     });

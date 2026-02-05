@@ -4,7 +4,7 @@ import { setTimeout as delay } from 'node:timers/promises';
 import open from 'open';
 import { z } from 'zod';
 import pkg from '../../../package.json' with { type: 'json' };
-import { config, saveProfile } from '../../config/config.js';
+import { baseConfig, saveProfile } from '../../config/config.js';
 import { defineCommand } from '../../lib/define-command.js';
 import { defineOption } from '../../lib/define-option.js';
 import { formatProfile } from '../../lib/profile.js';
@@ -42,14 +42,14 @@ function pollOauthData(url, tryCount = 0) {
     });
 }
 
-async function loginViaConsole() {
+async function loginViaConsole(apiHost, consoleTokenUrl) {
   const cliToken = randomToken();
 
-  const consoleUrl = new URL(config.CONSOLE_TOKEN_URL);
+  const consoleUrl = new URL(consoleTokenUrl);
   consoleUrl.searchParams.set('cli_version', pkg.version);
   consoleUrl.searchParams.set('cli_token', cliToken);
 
-  const cliPollUrl = new URL(config.API_HOST);
+  const cliPollUrl = new URL(apiHost);
   cliPollUrl.pathname = '/v2/self/cli_tokens';
   cliPollUrl.searchParams.set('cli_token', cliToken);
 
@@ -88,6 +88,42 @@ export const loginCommand = defineCommand({
       description: 'Profile alias for this login',
       placeholder: 'alias',
     }),
+    apiHost: defineOption({
+      name: 'api-host',
+      schema: z.string().url().optional(),
+      description: 'API host URL override for this profile',
+      placeholder: 'url',
+    }),
+    consoleUrl: defineOption({
+      name: 'console-url',
+      schema: z.string().url().optional(),
+      description: 'Console URL override for this profile',
+      placeholder: 'url',
+    }),
+    authBridgeHost: defineOption({
+      name: 'auth-bridge-host',
+      schema: z.string().url().optional(),
+      description: 'Auth bridge URL override for this profile',
+      placeholder: 'url',
+    }),
+    sshGateway: defineOption({
+      name: 'ssh-gateway',
+      schema: z.string().optional(),
+      description: 'SSH gateway override for this profile',
+      placeholder: 'address',
+    }),
+    consumerKey: defineOption({
+      name: 'oauth-consumer-key',
+      schema: z.string().optional(),
+      description: 'OAuth consumer key override for this profile',
+      placeholder: 'key',
+    }),
+    consumerSecret: defineOption({
+      name: 'oauth-consumer-secret',
+      schema: z.string().optional(),
+      description: 'OAuth consumer secret override for this profile',
+      placeholder: 'secret',
+    }),
   },
   async handler(options) {
     const { token, secret } = options;
@@ -98,9 +134,28 @@ export const loginCommand = defineCommand({
       throw new Error('Both `--token` and `--secret` have to be defined');
     }
 
-    const oauthData = hasToken ? { token, secret } : await loginViaConsole();
+    const apiHost = options.apiHost ?? baseConfig.API_HOST;
+    const consoleUrl = options.consoleUrl ? `${options.consoleUrl}/cli-oauth` : baseConfig.CONSOLE_TOKEN_URL;
+    const oauthData = hasToken ? { token, secret } : await loginViaConsole(apiHost, consoleUrl);
 
-    const user = await getUser({}).then(sendToApiWithConfig(oauthData));
+    const user = await getUser({}).then(
+      sendToApiWithConfig({
+        token: oauthData.token,
+        secret: oauthData.secret,
+        apiHost,
+        consumerKey: options.consumerKey ?? baseConfig.OAUTH_CONSUMER_KEY,
+        consumerSecret: options.consumerSecret ?? baseConfig.OAUTH_CONSUMER_SECRET,
+      }),
+    );
+
+    const overrideEntries = Object.entries({
+      API_HOST: options.apiHost,
+      CONSOLE_URL: options.consoleUrl,
+      AUTH_BRIDGE_HOST: options.authBridgeHost,
+      SSH_GATEWAY: options.sshGateway,
+      OAUTH_CONSUMER_KEY: options.consumerKey,
+      OAUTH_CONSUMER_SECRET: options.consumerSecret,
+    }).filter(([, v]) => v != null);
 
     const profile = {
       alias: options.alias,
@@ -109,6 +164,7 @@ export const loginCommand = defineCommand({
       expirationDate: oauthData.expirationDate,
       userId: user.id,
       email: user.email,
+      overrides: overrideEntries.length > 0 ? Object.fromEntries(overrideEntries) : undefined,
     };
 
     await saveProfile(profile);

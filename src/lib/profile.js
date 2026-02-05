@@ -1,5 +1,6 @@
 import { get as getUser } from '@clevercloud/client/esm/api/v2/organisation.js';
 import { getCurrentTokenInfo } from '@clevercloud/client/esm/api/v2/self.js';
+import { baseConfig } from '../config/config.js';
 import { sendToApiWithConfig } from '../models/send-to-api.js';
 import { formatDateLocalized, toDate } from './date-utils.js';
 import { styleText } from './style-text.js';
@@ -21,6 +22,7 @@ import { styleText } from './style-text.js';
  * @property {string} [lang]
  * @property {boolean} isProfileActive
  * @property {boolean} isTokenValid
+ * @property {Record<string, string>} [overrides]
  */
 
 /**
@@ -46,8 +48,13 @@ export function formatProfile(profile) {
  * @returns {Promise<ProfileDetails>}
  */
 export async function getProfileDetails({ profile, isActive }) {
-  const oauthData = { token: profile.token, secret: profile.secret };
-  const sendWithCredentials = sendToApiWithConfig(oauthData);
+  const sendWithCredentials = sendToApiWithConfig({
+    token: profile.token,
+    secret: profile.secret,
+    apiHost: profile.overrides?.API_HOST ?? baseConfig.API_HOST,
+    consumerKey: profile.overrides?.OAUTH_CONSUMER_KEY ?? baseConfig.OAUTH_CONSUMER_KEY,
+    consumerSecret: profile.overrides?.OAUTH_CONSUMER_SECRET ?? baseConfig.OAUTH_CONSUMER_SECRET,
+  });
 
   const [user, token] = await Promise.all([
     getUser({}).then(sendWithCredentials),
@@ -66,6 +73,7 @@ export async function getProfileDetails({ profile, isActive }) {
     alias: profile.alias,
     isProfileActive: isActive,
     isTokenValid: user != null,
+    overrides: profile.overrides,
   };
 }
 
@@ -92,6 +100,13 @@ export function formatProfileDetails(profile) {
   }
 
   lines.push(`2FA ${profile.has2FA ? styleText('green', 'enabled ✓') : styleText('red', 'disabled ✗')}`);
+
+  if (profile.overrides != null) {
+    const overrideEntries = Object.entries(profile.overrides).filter(([, v]) => v != null);
+    for (const [key, value] of overrideEntries) {
+      lines.push(`${key}: ${styleText('gray', value)}`);
+    }
+  }
 
   return lines
     .map((line, index) => {

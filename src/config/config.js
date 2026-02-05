@@ -4,7 +4,14 @@ import { readJsonSync, writeJson } from '../lib/fs.js';
 import { Logger } from '../logger.js';
 import { getConfigPath } from './paths.js';
 
-const CONFIGURATION_FILE = process.env.CONFIGURATION_FILE ?? getConfigPath('clever-tools.json');
+const OverridesSchema = z.object({
+  API_HOST: z.string().url().optional(),
+  CONSOLE_URL: z.string().url().optional(),
+  AUTH_BRIDGE_HOST: z.string().url().optional(),
+  SSH_GATEWAY: z.string().optional(),
+  OAUTH_CONSUMER_KEY: z.string().optional(),
+  OAUTH_CONSUMER_SECRET: z.string().optional(),
+});
 
 const ProfileSchema = z.object({
   alias: z.string(),
@@ -13,6 +20,7 @@ const ProfileSchema = z.object({
   expirationDate: z.string().optional(),
   userId: z.string().optional(),
   email: z.string().optional(),
+  overrides: OverridesSchema.optional(),
 });
 
 /** @typedef {z.infer<typeof ProfileSchema>} Profile */
@@ -34,8 +42,8 @@ const ConfigFileSchema = z.object({
 
 const ConfigSchema = z
   .object({
-    CONFIGURATION_FILE: z.string(),
-    EXPERIMENTAL_FEATURES_FILE: z.string(),
+    CONFIGURATION_FILE: z.string().default(getConfigPath('clever-tools.json')),
+    EXPERIMENTAL_FEATURES_FILE: z.string().default(getConfigPath('clever-tools-experimental-features.json')),
     APP_CONFIGURATION_FILE: z.string().default(() => path.resolve('.', '.clever.json')),
 
     API_HOST: z.url().default('https://api.clever-cloud.com'),
@@ -67,8 +75,30 @@ const ConfigSchema = z
   }));
 
 /**
+ * Base configuration: environment variables + Zod schema defaults, without any profile overrides.
+ * Use this as fallback when operating on a specific profile (login, profile list)
+ * to avoid being affected by the active profile's overrides.
+ */
+export const baseConfig = loadBaseConfig();
+
+/**
+ * @returns {z.output<typeof ConfigSchema>}
+ */
+function loadBaseConfig() {
+  const result = ConfigSchema.safeParse(process.env);
+
+  if (!result.success) {
+    const errors = result.error.issues.map((issue) => `- ${issue.path.join('.')}: ${issue.message}`).join('\n');
+    Logger.error(`Invalid configuration:\n${errors}`);
+    process.exit(1);
+  }
+
+  return result.data;
+}
+
+/**
  * The complete configuration object, loaded synchronously at startup.
- * Priority: environment variables > config file > Zod schema defaults.
+ * Priority: environment variables > active profile overrides > Zod schema defaults.
  */
 export const config = loadConfig();
 
@@ -76,7 +106,7 @@ export const config = loadConfig();
  * @returns {z.output<typeof ConfigSchema>}
  */
 function loadConfig() {
-  Logger.debug(`Load configuration from ${CONFIGURATION_FILE}`);
+  Logger.debug(`Load configuration from ${baseConfig.CONFIGURATION_FILE}`);
   const configFromFile = loadConfigFile();
 
   // If CLEVER_TOKEN and CLEVER_SECRET are set, inject a virtual "$env" profile as the active one
@@ -88,12 +118,14 @@ function loadConfig() {
         ]
       : configFromFile.profiles;
 
+  const activeProfile = profiles[0];
+
   /** @type {z.input<typeof ConfigSchema>} */
   const rawConfig = {
-    ...profiles[0],
+    ...activeProfile,
+    // Profile overrides (e.g. custom API_HOST) applied after profile auth data, before env vars
+    ...activeProfile?.overrides,
     profiles,
-    CONFIGURATION_FILE,
-    EXPERIMENTAL_FEATURES_FILE: getConfigPath('clever-tools-experimental-features.json'),
     ...process.env,
   };
 
@@ -113,7 +145,7 @@ function loadConfig() {
  * @returns {ConfigFile}
  */
 function loadConfigFile() {
-  const data = readJsonSync(CONFIGURATION_FILE);
+  const data = readJsonSync(baseConfig.CONFIGURATION_FILE);
 
   // Try parsing as current format
   const result = ConfigFileSchema.safeParse(data);
@@ -180,10 +212,10 @@ export async function removeProfile(alias) {
 async function updateConfigFile(newConfig) {
   Logger.debug('Write the new config in the configuration file…');
   try {
-    await writeJson(CONFIGURATION_FILE, newConfig, { mode: 0o700 });
+    await writeJson(baseConfig.CONFIGURATION_FILE, newConfig, { mode: 0o700 });
     reloadConfig();
   } catch (error) {
-    throw new Error(`Cannot write configuration to ${CONFIGURATION_FILE}\n${error.message}`);
+    throw new Error(`Cannot write configuration to ${baseConfig.CONFIGURATION_FILE}\n${error.message}`);
   }
 }
 
