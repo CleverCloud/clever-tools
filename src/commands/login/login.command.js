@@ -1,10 +1,11 @@
 import { get as getUser } from '@clevercloud/client/esm/api/v2/organisation.js';
+import dedent from 'dedent';
 import crypto from 'node:crypto';
 import { setTimeout as delay } from 'node:timers/promises';
 import open from 'open';
 import { z } from 'zod';
 import pkg from '../../../package.json' with { type: 'json' };
-import { baseConfig, saveProfile } from '../../config/config.js';
+import { baseConfig, config, saveProfile } from '../../config/config.js';
 import { defineCommand } from '../../lib/define-command.js';
 import { defineOption } from '../../lib/define-option.js';
 import { formatProfile } from '../../lib/profile.js';
@@ -58,6 +59,15 @@ async function loginViaConsole(apiHost, consoleTokenUrl) {
   await open(consoleUrl.toString(), { wait: false });
 
   return pollOauthData(cliPollUrl.toString());
+}
+
+/**
+ * Find an existing profile matching the target alias.
+ * @param {string} alias
+ * @returns {import('../../config/config.js').Profile | undefined}
+ */
+function getExistingTargetProfile(alias) {
+  return config.profiles.find((profile) => profile.alias === alias);
 }
 
 export const loginCommand = defineCommand({
@@ -129,6 +139,7 @@ export const loginCommand = defineCommand({
     const { token, secret } = options;
     const hasToken = token != null;
     const hasSecret = secret != null;
+    const existingTargetProfile = getExistingTargetProfile(options.alias);
 
     if (hasToken !== hasSecret) {
       throw new Error('Both `--token` and `--secret` have to be defined');
@@ -136,6 +147,18 @@ export const loginCommand = defineCommand({
 
     const apiHost = options.apiHost ?? baseConfig.API_HOST;
     const consoleUrl = options.consoleUrl ? `${options.consoleUrl}/cli-oauth` : baseConfig.CONSOLE_TOKEN_URL;
+
+    if (!hasToken && existingTargetProfile != null) {
+      // KO fallback wording (3 lines):
+      // Press Ctrl+C to cancel this login if you do not want to overwrite this profile.
+      // Then run clever login --alias <another-alias> to login with a different alias.
+      Logger.println(dedent`
+        You are already logged in with profile ${styleText('gray', formatProfile(existingTargetProfile))}; this login may overwrite it.
+        Press ${styleText('gray', 'Ctrl+C')} to cancel, then run ${styleText('gray', 'clever login --alias <another-alias>')}.
+      `);
+      Logger.println();
+    }
+
     const oauthData = hasToken ? { token, secret } : await loginViaConsole(apiHost, consoleUrl);
 
     const user = await getUser({}).then(
