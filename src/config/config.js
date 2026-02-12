@@ -4,7 +4,7 @@ import { readJsonSync, writeJson } from '../lib/fs.js';
 import { Logger } from '../logger.js';
 import { getConfigPath } from './paths.js';
 
-const CONFIGURATION_FILE = getConfigPath('clever-tools.json');
+const CONFIGURATION_FILE = process.env.CONFIGURATION_FILE ?? getConfigPath('clever-tools.json');
 
 const ConfigSchema = z
   .object({
@@ -56,9 +56,9 @@ function loadConfig() {
   /** @type {z.input<typeof ConfigSchema>} */
   const rawConfig = {
     ...configFromFile,
-    ...process.env,
     CONFIGURATION_FILE,
     EXPERIMENTAL_FEATURES_FILE: getConfigPath('clever-tools-experimental-features.json'),
+    ...process.env,
   };
 
   if (process.env.CLEVER_TOKEN != null && process.env.CLEVER_SECRET != null) {
