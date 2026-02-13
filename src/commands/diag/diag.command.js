@@ -1,3 +1,4 @@
+import { get as getUser } from '@clevercloud/client/esm/api/v2/organisation.js';
 import { releaseInfo as getLinuxInfos } from 'linux-release-info';
 import os from 'node:os';
 import pkg from '../../../package.json' with { type: 'json' };
@@ -5,7 +6,7 @@ import { config } from '../../config/config.js';
 import { defineCommand } from '../../lib/define-command.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
-import * as User from '../../models/user.js';
+import { sendToApi } from '../../models/send-to-api.js';
 import { humanJsonOutputFormatOption } from '../global.options.js';
 
 function getShell() {
@@ -37,28 +38,27 @@ function getTerminal() {
   return process.env.TERM_PROGRAM || process.env.TERMINAL_EMULATOR || process.env.TERM;
 }
 
+function getAuthState({ hasToken, apiUser }) {
+  if (!hasToken) {
+    return 'not connected';
+  }
+  if (apiUser == null) {
+    return 'authentication failed';
+  }
+  return 'authenticated';
+}
+
 export const diagCommand = defineCommand({
   description: 'Diagnose the current installation (prints various informations for support)',
   since: '1.6.0',
   options: {
     format: humanJsonOutputFormatOption,
   },
-  args: [],
   async handler(options) {
-    const { format } = options;
-
-    /** @type {string} */
-    const userId = await User.getCurrentId().catch(() => null);
-
-    function getAuthState() {
-      if (config.token == null) {
-        return 'not connected';
-      }
-      if (userId == null) {
-        return 'authentication failed';
-      }
-      return 'authenticated';
-    }
+    const activeProfile = config.profiles[0];
+    const user = await getUser({})
+      .then(sendToApi)
+      .catch(() => null);
 
     const formattedDiag = {
       version: pkg.version,
@@ -72,10 +72,14 @@ export const diagCommand = defineCommand({
       isPackaged: process.pkg != null,
       execPath: process.execPath,
       configFile: config.CONFIGURATION_FILE,
-      authSource: config.authSource,
+      profile: activeProfile?.alias ?? null,
+      userId: activeProfile?.userId ?? user?.id ?? null,
+      authSource: activeProfile?.alias === '$env' ? 'environment variables' : 'configuration file',
       oAuthToken: config.token,
-      authState: getAuthState(),
-      userId,
+      loggedIn: user != null,
+      profileOverrides: activeProfile?.overrides ?? null,
+      // Not longer useful but kept for compatibility reasons
+      authState: getAuthState({ hasToken: config.token != null, apiUser: user }),
     };
 
     const linuxInfos = await getLinuxInfos()
@@ -85,7 +89,7 @@ export const diagCommand = defineCommand({
       formattedDiag.linuxInfos = linuxInfos;
     }
 
-    switch (format) {
+    switch (options.format) {
       case 'json': {
         Logger.printJson(formattedDiag);
         break;
@@ -110,23 +114,33 @@ export const diagCommand = defineCommand({
         Logger.println('Exec path     ' + styleText('green', formattedDiag.execPath));
         Logger.println('Config file   ' + styleText('green', formattedDiag.configFile));
 
-        Logger.println('Auth source   ' + styleText('green', formattedDiag.authSource));
-
-        const token =
-          formattedDiag.oAuthToken == null ? styleText('red', '(none)') : styleText('green', formattedDiag.oAuthToken);
-        Logger.println('oAuth token   ' + token);
-
-        switch (formattedDiag.authState) {
-          case 'authenticated': {
+        if (formattedDiag.profile != null) {
+          Logger.println('Profile       ' + styleText('green', formattedDiag.profile));
+          if (formattedDiag.userId != null) {
             Logger.println('User ID       ' + styleText('green', formattedDiag.userId));
-            break;
           }
-          case 'authentication failed': {
-            Logger.println('User ID       ' + styleText('red', 'Authentication failed'));
-            break;
-          }
-          case 'not connected': {
-            Logger.println('User ID       ' + styleText('red', 'Not connected'));
+          Logger.println('Auth source   ' + styleText('green', formattedDiag.authSource));
+          Logger.println('Auth token    ' + styleText('green', formattedDiag.oAuthToken));
+        }
+
+        if (formattedDiag.profile == null) {
+          Logger.println('Auth state    ' + styleText('red', 'not connected'));
+        } else if (formattedDiag.loggedIn) {
+          Logger.println('Auth state    ' + styleText('green', 'valid token'));
+        } else {
+          Logger.println('Auth state    ' + styleText('red', 'expired or revoked token'));
+        }
+
+        if (formattedDiag.profileOverrides != null) {
+          const overrideEntries = Object.entries(formattedDiag.profileOverrides).filter(([k, v]) => v != null);
+          if (overrideEntries.length > 0) {
+            const maxKeyLength = Math.max(...overrideEntries.map(([key]) => key.length));
+            const pad = maxKeyLength + 2;
+            Logger.println('');
+            Logger.println('Profile overrides:');
+            for (const [key, value] of overrideEntries) {
+              Logger.println('  ' + key.padEnd(pad) + styleText('green', value));
+            }
           }
         }
       }

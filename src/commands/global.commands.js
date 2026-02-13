@@ -132,7 +132,9 @@ import { otoroshiVersionCheckCommand } from './otoroshi/otoroshi.version.check.c
 import { otoroshiVersionCommand } from './otoroshi/otoroshi.version.command.js';
 import { otoroshiVersionUpdateCommand } from './otoroshi/otoroshi.version.update.command.js';
 import { profileCommand } from './profile/profile.command.js';
+import { profileListCommand } from './profile/profile.list.command.js';
 import { profileOpenCommand } from './profile/profile.open.command.js';
+import { profileSwitchCommand } from './profile/profile.switch.command.js';
 import { publishedConfigCommand } from './published-config/published-config.command.js';
 import { publishedConfigImportCommand } from './published-config/published-config.import.command.js';
 import { publishedConfigRmCommand } from './published-config/published-config.rm.command.js';
@@ -418,7 +420,9 @@ export const globalCommands = {
   profile: [
     profileCommand,
     {
+      list: profileListCommand,
       open: profileOpenCommand,
+      switch: profileSwitchCommand,
     },
   ],
   'published-config': [

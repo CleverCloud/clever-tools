@@ -10,14 +10,3 @@ export function getCurrentId() {
     .then(sendToApi)
     .then(({ id }) => id);
 }
-
-// TODO move to clever client
-export function getCurrentToken() {
-  return Promise.resolve({
-    method: 'get',
-    url: '/v2/self/tokens/current',
-    headers: { Accept: 'application/json' },
-    // no query params
-    // no body
-  }).then(sendToApi);
-}

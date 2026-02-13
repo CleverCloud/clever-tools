@@ -20,6 +20,7 @@ npm exec -- clever-tools@3.14 profile --format json
 
 You'll find below the first commands to know to connect Clever Tools to your account, get its information and manage some options. Others are developed in dedicated pages:
 
+- [Profiles and overrides](/docs/profiles.md)
 - [Materia KV](/docs/kv.md)
 - [Network Groups](/docs/ng.md)
 - [Operators](/docs/operators.md)
@@ -123,6 +124,8 @@ clever profile
 clever profile open
 clever profile -F json
 ```
+
+To manage multiple profiles or configure per-profile overrides, see: [/docs/profiles.md](/docs/profiles.md)
 
 ## emails
 

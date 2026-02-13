@@ -1863,8 +1863,15 @@ clever login [options]
 
 **Options**
 ```
-    --secret <secret>    Directly give an existing secret
-    --token <token>      Directly give an existing token
+-a, --alias <alias>                     Profile alias for this login (default: default)
+    --api-host <url>                    API host URL override for this profile
+    --auth-bridge-host <url>            Auth bridge URL override for this profile
+    --console-url <url>                 Console URL override for this profile
+    --oauth-consumer-key <key>          OAuth consumer key override for this profile
+    --oauth-consumer-secret <secret>    OAuth consumer secret override for this profile
+    --secret <secret>                   Provide an existing secret
+    --ssh-gateway <address>             SSH gateway override for this profile
+    --token <token>                     Provide an existing token
 ```
 
 ## logout
@@ -1875,7 +1882,12 @@ clever login [options]
 
 **Usage**
 ```
-clever logout
+clever logout [options]
+```
+
+**Options**
+```
+-a, --alias <alias>    Alias of the profile to log out
 ```
 
 ## logs
@@ -2758,6 +2770,22 @@ clever profile [options]
 -F, --format <format>    Output format (human, json) (default: human)
 ```
 
+### profile list
+
+**Description:** List all configured profiles
+
+**Since:** unreleased
+
+**Usage**
+```
+clever profile list [options]
+```
+
+**Options**
+```
+-F, --format <format>    Output format (human, json) (default: human)
+```
+
 ### profile open
 
 **Description:** Open your profile in the Console
@@ -2767,6 +2795,22 @@ clever profile [options]
 **Usage**
 ```
 clever profile open
+```
+
+### profile switch
+
+**Description:** Switch to a different profile
+
+**Since:** unreleased
+
+**Usage**
+```
+clever profile switch [options]
+```
+
+**Options**
+```
+-a, --alias <alias>    Alias of the profile to switch to
 ```
 
 ## published-config
