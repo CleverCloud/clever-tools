@@ -103,7 +103,10 @@ async function generateCommandDocs(commands, checkMode) {
  * @return {Promise<FileResult>}
  */
 async function generateLlmsDocs(commands, checkMode) {
-  const llmsDocumentationPath = path.resolve(import.meta.dirname, '../docs/llms-documentation.md');
+  const llmsDocumentationPath = path.resolve(
+    import.meta.dirname,
+    '../skills/clever-tools/references/full-documentation.md',
+  );
   const setupDocsPath = path.resolve(import.meta.dirname, '../docs/setup-systems.md');
 
   const existingLlmsDocumentation = await fs.readFile(llmsDocumentationPath, 'utf-8').catch(() => null);
