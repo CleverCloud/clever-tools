@@ -1,7 +1,7 @@
 import { listApiTokens } from '../../clever-client/auth-bridge.js';
 import { config } from '../../config/config.js';
+import { formatDate } from '../../lib/date-utils.js';
 import { defineCommand } from '../../lib/define-command.js';
-import { formatDate } from '../../lib/format-date.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
 import { sendToAuthBridge } from '../../models/send-to-api.js';

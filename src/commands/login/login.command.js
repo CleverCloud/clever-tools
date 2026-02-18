@@ -1,14 +1,17 @@
+import { get as getUser } from '@clevercloud/client/esm/api/v2/organisation.js';
+import dedent from 'dedent';
 import crypto from 'node:crypto';
 import { setTimeout as delay } from 'node:timers/promises';
 import open from 'open';
 import { z } from 'zod';
 import pkg from '../../../package.json' with { type: 'json' };
-import { config, updateConfig } from '../../config/config.js';
+import { baseConfig, config, saveProfile } from '../../config/config.js';
 import { defineCommand } from '../../lib/define-command.js';
 import { defineOption } from '../../lib/define-option.js';
+import { formatProfile } from '../../lib/profile.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
-import * as User from '../../models/user.js';
+import { sendToApiWithConfig } from '../../models/send-to-api.js';
 
 function randomToken() {
   return crypto.randomBytes(20).toString('base64').replace(/\//g, '-').replace(/\+/g, '_').replace(/=/g, '');
@@ -40,22 +43,31 @@ function pollOauthData(url, tryCount = 0) {
     });
 }
 
-async function loginViaConsole() {
+async function loginViaConsole(apiHost, consoleTokenUrl) {
   const cliToken = randomToken();
 
-  const consoleUrl = new URL(config.CONSOLE_TOKEN_URL);
+  const consoleUrl = new URL(consoleTokenUrl);
   consoleUrl.searchParams.set('cli_version', pkg.version);
   consoleUrl.searchParams.set('cli_token', cliToken);
 
-  const cliPollUrl = new URL(config.API_HOST);
+  const cliPollUrl = new URL(apiHost);
   cliPollUrl.pathname = '/v2/self/cli_tokens';
   cliPollUrl.searchParams.set('cli_token', cliToken);
 
   Logger.debug('Try to login to Clever Cloud…');
-  Logger.println(`Opening ${styleText('green', consoleUrl.toString())} in your browser to log you in…`);
+  Logger.println(`Opening ${styleText('blue', consoleUrl.toString())} in your browser to log you in…`);
   await open(consoleUrl.toString(), { wait: false });
 
   return pollOauthData(cliPollUrl.toString());
+}
+
+/**
+ * Find an existing profile matching the target alias.
+ * @param {string} alias
+ * @returns {import('../../config/config.js').Profile | undefined}
+ */
+function getExistingTargetProfile(alias) {
+  return config.profiles.find((profile) => profile.alias === alias);
 }
 
 export const loginCommand = defineCommand({
@@ -65,34 +77,121 @@ export const loginCommand = defineCommand({
     token: defineOption({
       name: 'token',
       schema: z.string().optional(),
-      description: 'Directly give an existing token',
+      description: 'Provide an existing token',
       placeholder: 'token',
     }),
     secret: defineOption({
       name: 'secret',
       schema: z.string().optional(),
-      description: 'Directly give an existing secret',
+      description: 'Provide an existing secret',
+      placeholder: 'secret',
+    }),
+    alias: defineOption({
+      name: 'alias',
+      aliases: ['a'],
+      schema: z
+        .string()
+        .min(1, { message: 'Profile alias cannot be empty' })
+        .regex(/^[a-zA-Z0-9_-]+$/, { message: 'Alias must only contain letters, numbers, hyphens and underscores' })
+        .refine((a) => a !== '$env', { message: '"$env" is reserved auth via environment variables' })
+        .default('default'),
+      description: 'Profile alias',
+      placeholder: 'alias',
+    }),
+    apiHost: defineOption({
+      name: 'api-host',
+      schema: z.string().url().optional(),
+      description: 'API host URL override',
+      placeholder: 'url',
+    }),
+    consoleUrl: defineOption({
+      name: 'console-url',
+      schema: z.string().url().optional(),
+      description: 'Console URL override',
+      placeholder: 'url',
+    }),
+    authBridgeHost: defineOption({
+      name: 'auth-bridge-host',
+      schema: z.string().url().optional(),
+      description: 'Auth bridge URL override',
+      placeholder: 'url',
+    }),
+    sshGateway: defineOption({
+      name: 'ssh-gateway',
+      schema: z.string().optional(),
+      description: 'SSH gateway override',
+      placeholder: 'address',
+    }),
+    consumerKey: defineOption({
+      name: 'oauth-consumer-key',
+      schema: z.string().optional(),
+      description: 'OAuth consumer key override',
+      placeholder: 'key',
+    }),
+    consumerSecret: defineOption({
+      name: 'oauth-consumer-secret',
+      schema: z.string().optional(),
+      description: 'OAuth consumer secret override',
       placeholder: 'secret',
     }),
   },
-  args: [],
   async handler(options) {
     const { token, secret } = options;
-    const isLoginWithArgs = token != null && secret != null;
-    const isInteractiveLogin = token == null && secret == null;
+    const hasToken = token != null;
+    const hasSecret = secret != null;
+    const existingTargetProfile = getExistingTargetProfile(options.alias);
 
-    if (isLoginWithArgs) {
-      return updateConfig({ token, secret });
+    if (hasToken !== hasSecret) {
+      throw new Error('Both `--token` and `--secret` must be defined');
     }
 
-    if (isInteractiveLogin) {
-      const oauthData = await loginViaConsole();
-      await updateConfig(oauthData);
-      const { name, email } = await User.getCurrent();
-      const formattedName = name || styleText(['red', 'bold'], '[unspecified name]');
-      return Logger.println(`Login successful as ${formattedName} <${email}>`);
+    const apiHost = options.apiHost ?? baseConfig.API_HOST;
+    const consoleUrl = options.consoleUrl ? `${options.consoleUrl}/cli-oauth` : baseConfig.CONSOLE_TOKEN_URL;
+
+    if (!hasToken && existingTargetProfile != null) {
+      // KO fallback wording (3 lines):
+      // Press Ctrl+C to cancel this login if you do not want to overwrite this profile.
+      // Then run clever login --alias <another-alias> to login with a different alias.
+      Logger.println(dedent`
+        You are already logged in with profile ${styleText('gray', formatProfile(existingTargetProfile))}; this login may overwrite it.
+        Press ${styleText('gray', 'Ctrl+C')} to cancel, then run ${styleText('gray', 'clever login --alias <another-alias>')}.
+      `);
+      Logger.println();
     }
 
-    throw new Error('Both `--token` and `--secret` have to be defined');
+    const oauthData = hasToken ? { token, secret } : await loginViaConsole(apiHost, consoleUrl);
+
+    const user = await getUser({}).then(
+      sendToApiWithConfig({
+        token: oauthData.token,
+        secret: oauthData.secret,
+        apiHost,
+        consumerKey: options.consumerKey ?? baseConfig.OAUTH_CONSUMER_KEY,
+        consumerSecret: options.consumerSecret ?? baseConfig.OAUTH_CONSUMER_SECRET,
+      }),
+    );
+
+    const overrideEntries = Object.entries({
+      API_HOST: options.apiHost,
+      CONSOLE_URL: options.consoleUrl,
+      AUTH_BRIDGE_HOST: options.authBridgeHost,
+      SSH_GATEWAY: options.sshGateway,
+      OAUTH_CONSUMER_KEY: options.consumerKey,
+      OAUTH_CONSUMER_SECRET: options.consumerSecret,
+    }).filter(([, v]) => v != null);
+
+    const profile = {
+      alias: options.alias,
+      token: oauthData.token,
+      secret: oauthData.secret,
+      expirationDate: oauthData.expirationDate,
+      userId: user.id,
+      email: user.email,
+      overrides: overrideEntries.length > 0 ? Object.fromEntries(overrideEntries) : undefined,
+    };
+
+    await saveProfile(profile);
+
+    Logger.printSuccess(`Login successful as ${styleText('green', formatProfile(profile))}`);
   },
 });
