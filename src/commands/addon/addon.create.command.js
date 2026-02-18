@@ -96,7 +96,10 @@ export const addonCreateCommand = defineCommand({
     }),
     option: defineOption({
       name: 'option',
-      schema: z.string().transform(addonOptions).optional(),
+      schema: z
+        .union([z.string(), z.array(z.string())])
+        .transform(addonOptions)
+        .optional(),
       description:
         'Option to enable for the add-on. Multiple --option argument can be passed to enable multiple options',
       placeholder: 'option',
