@@ -22,7 +22,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { globalCommands } from '../src/commands/global.commands.js';
 import { colorOption, updateNotifierOption, verboseOption } from '../src/commands/global.options.js';
-import { config } from '../src/config/config.js';
+import { baseConfig } from '../src/config/config.js';
 import { styleText } from '../src/lib/style-text.js';
 import { runCommand } from './lib/command.js';
 import { getLlmsDocumentation } from './lib/docs-llm.js';
@@ -35,7 +35,7 @@ import { parseMarkdown } from './lib/markdown.js';
 
 const typedGlobalCommands = globalCommands;
 
-const apiClient = new CcApiClient({ baseUrl: config.API_HOST });
+const apiClient = new CcApiClient({ baseUrl: baseConfig.API_HOST });
 
 runCommand(async () => {
   const checkMode = process.argv.includes('--check');
