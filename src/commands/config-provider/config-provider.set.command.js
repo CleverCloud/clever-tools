@@ -9,7 +9,7 @@ import { configProviderIdOrNameArg } from './config-provider.args.js';
 
 export const configProviderSetCommand = defineCommand({
   description: 'Add or update an environment variable named <variable-name> with the value <variable-value>',
-  since: 'unreleased',
+  since: '4.6.0',
   options: {},
   args: [configProviderIdOrNameArg, envVariableNameArg, envVariableValueArg],
   async handler(_options, addonIdOrRealIdOrName, varName, varValue) {

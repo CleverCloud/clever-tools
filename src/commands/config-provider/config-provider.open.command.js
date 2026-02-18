@@ -7,7 +7,7 @@ import { configProviderIdOrNameArg } from './config-provider.args.js';
 
 export const configProviderOpenCommand = defineCommand({
   description: 'Open the configuration provider in Clever Cloud Console',
-  since: 'unreleased',
+  since: '4.6.0',
   options: {},
   args: [configProviderIdOrNameArg],
   async handler(_options, addonIdOrRealIdOrName) {

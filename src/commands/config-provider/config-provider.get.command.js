@@ -9,7 +9,7 @@ import { configProviderIdOrNameArg } from './config-provider.args.js';
 
 export const configProviderGetCommand = defineCommand({
   description: 'List environment variables of a configuration provider',
-  since: 'unreleased',
+  since: '4.6.0',
   options: {
     format: envFormatOption,
   },
