@@ -6,7 +6,7 @@ import { Logger } from '../../logger.js';
 import * as Application from '../../models/application.js';
 import * as ExitStrategy from '../../models/exit-strategy-option.js';
 import { Git } from '../../models/git.js';
-import * as Log from '../../models/log-v4.js';
+import * as Log from '../../models/log.js';
 import {
   aliasOption,
   appIdOrNameOption,

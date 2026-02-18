@@ -145,7 +145,10 @@ export const accesslogsCommand = defineCommand({
       });
 
     // Properly close the stream
-    process.once('SIGINT', (signal) => stream.close(signal));
+    process.once('SIGINT', (signal) => {
+      stream.close(signal);
+      process.kill(process.pid, 'SIGINT');
+    });
 
     const closeReason = await stream.start();
 
