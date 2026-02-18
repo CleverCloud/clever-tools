@@ -6,7 +6,7 @@ import { humanJsonOutputFormatOption } from '../global.options.js';
 
 export const configProviderListCommand = defineCommand({
   description: 'List configuration providers',
-  since: 'unreleased',
+  since: '4.6.0',
   options: {
     format: humanJsonOutputFormatOption,
   },

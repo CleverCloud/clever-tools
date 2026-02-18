@@ -1,5 +1,27 @@
 # clever-tools changelog
 
+## [4.6.0](https://github.com/CleverCloud/clever-tools/compare/4.5.3...4.6.0) (2026-02-18)
+
+
+### 🚀 Features
+
+* **profile:** add multi-profile support with profile listing/switching and improved profile display ([9ab4ec0](https://github.com/CleverCloud/clever-tools/commit/9ab4ec065c3658eba451af388ce67842f949ddda), [81d88e6](https://github.com/CleverCloud/clever-tools/commit/81d88e6a1c5f1b72d9812b7473fa1bfca8114e2f), [a6c4e0f](https://github.com/CleverCloud/clever-tools/commit/a6c4e0f7fbf6d9ff78afbb7094fe7f86a0c66dd3), [42c3902](https://github.com/CleverCloud/clever-tools/commit/42c3902c1c167b6d1f4904432e21da61c9e2c461))
+* **login:** add per-profile endpoint/OAuth overrides ([4bf584a](https://github.com/CleverCloud/clever-tools/commit/4bf584ad6c6516e11cf76b198d7270788b13fd01))
+* **deploy:** add optional system Git support behind a feature flag ([037ce42](https://github.com/CleverCloud/clever-tools/commit/037ce42093e030ff91e824acd4126d6e1c566954))
+* **config-provider:** add config-provider commands ([1cd696f](https://github.com/CleverCloud/clever-tools/commit/1cd696fd389ee774b9ea64dfc78fde1ed18fea5e)), closes [#1027](https://github.com/CleverCloud/clever-tools/issues/1027)
+* **logs:** migrate addon logs to v4 API ([943e698](https://github.com/CleverCloud/clever-tools/commit/943e69818427e83b0ba6c4d3973c14d455efbf54))
+* **skill:** package clever-tools as an AI assistant skill ([4eca249](https://github.com/CleverCloud/clever-tools/commit/4eca24997715b0b6dabd4545204194b5c7a7d5e2))
+
+
+### 🐛 Bug Fixes
+
+* **accesslogs:** re-raise SIGINT after closing log stream ([de81d6e](https://github.com/CleverCloud/clever-tools/commit/de81d6e04a477331afc5f6b29778ff49194749b8))
+* **addon:** fix Matomo add-on creation ([3f20b65](https://github.com/CleverCloud/clever-tools/commit/3f20b659ff4b65440f00fd5ff84ac6ec768a42e8))
+* **addon:** fix schema validation for multiple add-on options ([4c18511](https://github.com/CleverCloud/clever-tools/commit/4c185117f4ba86df53800121982e1ee11e2fdb4d))
+* **deploy:** prevent unwanted refs/remotes/origin/master creation ([c1da628](https://github.com/CleverCloud/clever-tools/commit/c1da6288940d567bde79fbc8f407669c63b5f0dc)), closes [#933](https://github.com/CleverCloud/clever-tools/issues/933)
+* **link:** fix error when linking apps with duplicate alias ([0adbfad](https://github.com/CleverCloud/clever-tools/commit/0adbfad1631112db3b0fbb158aa6379429b570cd)), closes [#222](https://github.com/CleverCloud/clever-tools/issues/222)
+* **tokens:** fix token creation with default value (1y) ([e4cf46c](https://github.com/CleverCloud/clever-tools/commit/e4cf46ca931d6afec86b3630e981a70ab2e78cc4))
+
 ## [4.5.3](https://github.com/CleverCloud/clever-tools/compare/4.5.2...4.5.3) (2026-01-19)
 
 This release does not contain any changes and claims to be `4.5.2` with the `diag` and `version` commands.

@@ -563,7 +563,7 @@ clever config update [options]
 
 **Description:** Manage configuration providers
 
-**Since:** unreleased
+**Since:** 4.6.0
 
 **Usage**
 ```
@@ -574,7 +574,7 @@ clever config-provider
 
 **Description:** List environment variables of a configuration provider
 
-**Since:** unreleased
+**Since:** 4.6.0
 
 **Usage**
 ```
@@ -596,7 +596,7 @@ addon-id|config-provider-id|addon-name    Add-on ID, real ID (config_xxx) or nam
 **Description:** Load environment variables from STDIN
 (WARNING: this deletes all current variables and replaces them with the new list loaded from STDIN)
 
-**Since:** unreleased
+**Since:** 4.6.0
 
 **Usage**
 ```
@@ -617,7 +617,7 @@ addon-id|config-provider-id|addon-name    Add-on ID, real ID (config_xxx) or nam
 
 **Description:** List configuration providers
 
-**Since:** unreleased
+**Since:** 4.6.0
 
 **Usage**
 ```
@@ -633,7 +633,7 @@ clever config-provider list [options]
 
 **Description:** Open the configuration provider in Clever Cloud Console
 
-**Since:** unreleased
+**Since:** 4.6.0
 
 **Usage**
 ```
@@ -649,7 +649,7 @@ addon-id|config-provider-id|addon-name    Add-on ID, real ID (config_xxx) or nam
 
 **Description:** Remove an environment variable from a configuration provider
 
-**Since:** unreleased
+**Since:** 4.6.0
 
 **Usage**
 ```
@@ -666,7 +666,7 @@ variable-name                             Name of the environment variable
 
 **Description:** Add or update an environment variable named <variable-name> with the value <variable-value>
 
-**Since:** unreleased
+**Since:** 4.6.0
 
 **Usage**
 ```
@@ -2742,7 +2742,7 @@ clever profile [options]
 
 **Description:** List all configured profiles
 
-**Since:** unreleased
+**Since:** 4.6.0
 
 **Usage**
 ```
@@ -2769,7 +2769,7 @@ clever profile open
 
 **Description:** Switch to a different profile
 
-**Since:** unreleased
+**Since:** 4.6.0
 
 **Usage**
 ```

@@ -6,7 +6,7 @@ import { humanJsonOutputFormatOption } from '../global.options.js';
 
 export const profileListCommand = defineCommand({
   description: 'List all configured profiles',
-  since: 'unreleased',
+  since: '4.6.0',
   options: {
     format: humanJsonOutputFormatOption,
   },

@@ -19,7 +19,7 @@ const importFormatOption = defineOption({
 export const configProviderImportCommand = defineCommand({
   description:
     'Load environment variables from STDIN\n(WARNING: this deletes all current variables and replaces them with the new list loaded from STDIN)',
-  since: 'unreleased',
+  since: '4.6.0',
   options: {
     format: importFormatOption,
   },

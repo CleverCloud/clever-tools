@@ -11,7 +11,7 @@ import { Logger } from '../../logger.js';
 
 export const profileSwitchCommand = defineCommand({
   description: 'Switch to a different profile',
-  since: 'unreleased',
+  since: '4.6.0',
   options: {
     alias: defineOption({
       name: 'alias',

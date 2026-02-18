@@ -14,7 +14,7 @@ clever profile [options]
 |---|---|
 |`-F`, `--format` `<format>`|Output format (human, json) (default: human)|
 
-## ➡️ `clever profile list` <kbd>Since unreleased</kbd>
+## ➡️ `clever profile list` <kbd>Since 4.6.0</kbd>
 
 List all configured profiles
 
@@ -36,7 +36,7 @@ Open your profile in the Console
 clever profile open
 ```
 
-## ➡️ `clever profile switch` <kbd>Since unreleased</kbd>
+## ➡️ `clever profile switch` <kbd>Since 4.6.0</kbd>
 
 Switch to a different profile
 

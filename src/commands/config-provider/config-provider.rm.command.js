@@ -8,7 +8,7 @@ import { configProviderIdOrNameArg } from './config-provider.args.js';
 
 export const configProviderRmCommand = defineCommand({
   description: 'Remove an environment variable from a configuration provider',
-  since: 'unreleased',
+  since: '4.6.0',
   options: {},
   args: [configProviderIdOrNameArg, envVariableNameArg],
   async handler(_options, addonIdOrRealIdOrName, varName) {
