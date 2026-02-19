@@ -1,5 +1,12 @@
 # clever-tools changelog
 
+## [4.6.1](https://github.com/CleverCloud/clever-tools/compare/4.6.0...4.6.1) (2026-02-19)
+
+
+### 🐛 Bug Fixes
+
+* change file mode in config update ([32aca3d](https://github.com/CleverCloud/clever-tools/commit/32aca3df749bd642ceb2b937cb20fd18cac6c508)), closes [#1054](https://github.com/CleverCloud/clever-tools/issues/1054)
+
 ## [4.6.0](https://github.com/CleverCloud/clever-tools/compare/4.5.3...4.6.0) (2026-02-18)
 
 
