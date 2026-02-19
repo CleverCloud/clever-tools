@@ -212,7 +212,7 @@ export async function removeProfile(alias) {
 async function updateConfigFile(newConfig) {
   Logger.debug('Write the new config in the configuration file…');
   try {
-    await writeJson(baseConfig.CONFIGURATION_FILE, newConfig, { mode: 0o600 });
+    await writeJson(baseConfig.CONFIGURATION_FILE, newConfig, { mode: 0o700 });
     reloadConfig();
   } catch (error) {
     throw new Error(`Cannot write configuration to ${baseConfig.CONFIGURATION_FILE}\n${error.message}`);
