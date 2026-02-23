@@ -86,20 +86,13 @@ export class GitSystem extends Git {
   async getFullBranch(branchName) {
     this._debug('getFullBranch', branchName);
     const git = await this.#getSimpleGit();
-    if (branchName === '') {
-      const branch = await git.branch();
-      if (branch.current) {
-        return `refs/heads/${branch.current}`;
-      }
-      return 'HEAD';
-    }
-    // Try to expand the ref
+    const ref = branchName === '' ? 'HEAD' : branchName;
     try {
-      const fullRef = await git.revparse(['--symbolic-full-name', branchName]);
+      const fullRef = await git.revparse(['--symbolic-full-name', ref]);
       return fullRef.trim();
     } catch {
-      // If it fails, it might be a commit hash, return as-is
-      return branchName;
+      // Not a symbolic ref (e.g. a commit hash), return as-is
+      return ref;
     }
   }
 
