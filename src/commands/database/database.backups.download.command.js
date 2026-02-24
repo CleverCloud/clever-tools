@@ -1,6 +1,7 @@
 import { getBackups } from '@clevercloud/client/esm/api/v2/backups.js';
 import fs from 'node:fs';
-import { Writable } from 'node:stream';
+import { Readable } from 'node:stream';
+import { pipeline } from 'node:stream/promises';
 import { z } from 'zod';
 import { defineArgument } from '../../lib/define-argument.js';
 import { defineCommand } from '../../lib/define-command.js';
@@ -50,6 +51,7 @@ export const databaseBackupsDownloadCommand = defineCommand({
       throw new Error('Failed to download backup');
     }
 
-    await response.body.pipeTo(Writable.toWeb(output ? fs.createWriteStream(output) : process.stdout));
+    const nodeReadable = Readable.fromWeb(response.body);
+    await pipeline(nodeReadable, output ? fs.createWriteStream(output) : process.stdout);
   },
 });
