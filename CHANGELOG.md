@@ -1,5 +1,17 @@
 # clever-tools changelog
 
+## [4.7.0](https://github.com/CleverCloud/clever-tools/compare/4.6.1...4.7.0) (2026-02-26)
+
+
+### 🚀 Features
+
+* **drain:** improve drain info display with dynamic units and retry fields ([a447bc0](https://github.com/CleverCloud/clever-tools/commit/a447bc0f48445d152b19622850ea83b46901adc8))
+
+
+### 🐛 Bug Fixes
+
+* **deploy:** handle detached HEAD in system git implementation ([b7ac511](https://github.com/CleverCloud/clever-tools/commit/b7ac511df39b4b5302694b381882fffe376614e5))
+
 ## [4.6.1](https://github.com/CleverCloud/clever-tools/compare/4.6.0...4.6.1) (2026-02-19)
 
 
