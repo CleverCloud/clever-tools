@@ -3065,6 +3065,7 @@ clever ssh [options]
 ```
 -a, --alias <alias>                    Short name for the application
     --app <app-id|app-name>            Application to manage by its ID (or name, if unambiguous)
+-c, --command <command>                Execute a command on the instance and exit
 -i, --identity-file <identity-file>    SSH identity file
 ```
 
