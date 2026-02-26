@@ -10,6 +10,26 @@ export const DRAIN_TYPES = {
 
 export const DRAIN_TYPE_CLI_CODES = Object.values(DRAIN_TYPES).map(({ cliCode }) => cliCode);
 
+function formatRate(messagesPerSecond) {
+  if (messagesPerSecond < 1) {
+    return Math.floor(messagesPerSecond * 3600) + ' messages/hour';
+  }
+  if (messagesPerSecond < 60) {
+    return Math.floor(messagesPerSecond * 60) + ' messages/minute';
+  }
+  return Math.floor(messagesPerSecond) + ' messages/second';
+}
+
+function formatThroughput(bytesPerSecond) {
+  if (bytesPerSecond < 1024) {
+    return Math.floor(bytesPerSecond) + ' bytes/second';
+  }
+  if (bytesPerSecond < 1024 * 1024) {
+    return (bytesPerSecond / 1024).toFixed(2) + ' KiB/second';
+  }
+  return (bytesPerSecond / (1024 * 1024)).toFixed(2) + ' MiB/second';
+}
+
 export function formatDrain(rawDrain) {
   const drainType = DRAIN_TYPES[rawDrain.recipient.type];
   const drainDetails = [
@@ -20,9 +40,18 @@ export function formatDrain(rawDrain) {
     ['Type', drainType.label],
     ['Custom index', rawDrain.recipient.index],
     ['SD parameters', rawDrain.recipient.rfc5424StructuredDataParameters],
-    ['Message output rate', Math.floor(rawDrain.backlog.msgRateOut * 60) + ' messages/minute'],
-    ['Message throughput', Math.floor(rawDrain.backlog.msgRateOut) + ' bytes/second'],
+    ['Message output rate', formatRate(rawDrain.backlog.msgRateOut)],
+    ['Message throughput', formatThroughput(rawDrain.backlog.msgThroughputOut)],
     ['Backlog', rawDrain.backlog.msgBacklog + ' pending messages'],
+    [
+      'Retry attempts',
+      rawDrain.execution.attempt != null && rawDrain.execution.maxAttempt != null
+        ? `${rawDrain.execution.attempt}/${rawDrain.execution.maxAttempt}`
+        : null,
+    ],
+    ['Last attempt at', rawDrain.execution.lastAttemptAt],
+    ['Next attempt at', rawDrain.execution.nextAttemptAt],
+    ['Retrying since', rawDrain.execution.retryingSince],
     ['Last error', rawDrain.execution.lastError],
   ];
   return Object.fromEntries(drainDetails.filter(([_name, value]) => value != null));
