@@ -89,7 +89,7 @@
     "prettier-plugin-organize-imports": "4.3.0",
     "remark-parse": "11.0.0",
     "remark-stringify": "11.0.0",
-    "rollup": "4.53.3",
+    "rollup": "4.59.0",
     "tinyglobby": "0.2.15",
     "typescript": "5.9.3",
     "unified": "11.0.5"
