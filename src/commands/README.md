@@ -61,6 +61,7 @@ These options are available for all commands:
 |[`clever status`](./status/status.docs.md)|See the status of an application|
 |[`clever stop`](./stop/stop.docs.md)|Stop a running application|
 |[`clever tcp-redirs`](./tcp-redirs/tcp-redirs.docs.md)|Control the TCP redirections from reverse proxies to your application|
+|[`clever terraform`](./terraform/terraform.docs.md)|Terraform commands|
 |[`clever tokens`](./tokens/tokens.docs.md)|Manage API tokens to query Clever Cloud API from https://api-bridge.clever-cloud.com|
 |[`clever unlink`](./unlink/unlink.docs.md)|Unlink this repo from an existing application|
 |[`clever version`](./version/version.docs.md)|Display the clever-tools version|

@@ -3963,6 +3963,35 @@ port                           port identifying the TCP redirection
     --app <app-id|app-name>    Application to manage by its ID (or name, if unambiguous)
 ```
 
+## terraform
+
+**Description:** Terraform commands
+
+**Since:** 5.1.0
+
+**Usage**
+```
+clever terraform
+```
+
+### terraform generate
+
+**Description:** Generate terraform import file
+
+**Since:** 5.1.0
+
+**Usage**
+```
+clever terraform generate [options]
+```
+
+**Options**
+```
+    --app <app-id|app-name>             Application to manage by its ID (or name, if unambiguous)
+-o, --org, --owner <org-id|org-name>    Organisation to target by its ID (or name, if unambiguous)
+-t, --tag <tag>                         Filter resources by tag
+```
+
 ## tokens
 
 **Description:** Manage API tokens to query Clever Cloud API from https://api-bridge.clever-cloud.com
