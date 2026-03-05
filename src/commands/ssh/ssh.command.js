@@ -1,5 +1,6 @@
 import { getAllInstances } from '@clevercloud/client/esm/api/v2/application.js';
 import { spawn } from 'node:child_process';
+import { randomUUID } from 'node:crypto';
 import { z } from 'zod';
 import { config } from '../../config/config.js';
 import { defineCommand } from '../../lib/define-command.js';
@@ -20,12 +21,19 @@ export const sshCommand = defineCommand({
       aliases: ['i'],
       placeholder: 'identity-file',
     }),
+    command: defineOption({
+      name: 'command',
+      schema: z.string().optional(),
+      description: 'Execute a command on the remote instance and exit',
+      aliases: ['c'],
+      placeholder: 'command',
+    }),
     alias: aliasOption,
     app: appIdOrNameOption,
   },
   args: [],
   async handler(options) {
-    const { alias, app: appIdOrName, identityFile } = options;
+    const { alias, app: appIdOrName, identityFile, command } = options;
     const { appId, ownerId } = await Application.resolveId(appIdOrName, alias);
 
     const instances = await getAllInstances({ id: ownerId, appId }).then(sendToApi);
@@ -51,16 +59,64 @@ export const sshCommand = defineCommand({
 
     const sshParams = [];
     // -t: force PTY allocation (SSH skips it by default because appId is passed as a command for gateway routing)
-    sshParams.push('-t');
+    if (command == null) {
+      sshParams.push('-t');
+    }
     if (identityFile != null) {
       sshParams.push('-i', identityFile);
     }
     sshParams.push(config.SSH_GATEWAY, sshTarget);
 
-    return new Promise((resolve, reject) => {
-      const sshProcess = spawn('ssh', sshParams, { stdio: 'inherit' });
-      sshProcess.on('exit', resolve);
-      sshProcess.on('error', reject);
+    // Interactive session mode (spawn SSH with inherited stdio)
+    if (command == null) {
+      return new Promise((resolve, reject) => {
+        const sshProcess = spawn('ssh', sshParams, { stdio: 'inherit' });
+        sshProcess.on('exit', resolve);
+        sshProcess.on('error', reject);
+      });
+    }
+
+    // Single command mode (pipe stdio to filter gateway noise via a marker)
+    const sshProcess = spawn('ssh', sshParams, { stdio: 'pipe' });
+
+    // We can't pass the command directly via `ssh gateway 'cmd'` because appId already occupies
+    // the remote command slot (used by the gateway for routing). So we write into stdin and use
+    // a marker to delimit the start of real output from gateway/login noise.
+    const marker = `__CLEVER_${randomUUID()}__`;
+    sshProcess.stdin.write(`echo '${marker}'\n`);
+
+    // `exec $SHELL --login -c` ensures the full login environment is loaded (.bashrc, env vars)
+    // while keeping stdout clean (no PTY = no prompt/ANSI noise).
+    const escapedCommand = command.replaceAll("'", "'\\''");
+    sshProcess.stdin.write(`exec $SHELL --login -c '${escapedCommand}'\n`);
+    sshProcess.stdin.end();
+
+    // Skip gateway/login noise on both stdout and stderr, stream after the marker
+    let started = false;
+    let buf = '';
+    sshProcess.stdout.on('data', (chunk) => {
+      if (started) {
+        process.stdout.write(chunk);
+        return;
+      }
+      buf += chunk.toString();
+      const idx = buf.indexOf(marker + '\n');
+      if (idx !== -1) {
+        started = true;
+        const rest = buf.slice(idx + marker.length + 1);
+        if (rest) process.stdout.write(rest);
+        buf = '';
+      }
     });
+
+    // Discard stderr noise before the marker, forward after
+    sshProcess.stderr.on('data', (chunk) => {
+      if (started) {
+        process.stderr.write(chunk);
+      }
+    });
+
+    const exitCode = await new Promise((resolve) => sshProcess.on('exit', resolve));
+    process.exit(exitCode);
   },
 });
