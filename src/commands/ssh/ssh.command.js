@@ -23,15 +23,19 @@ export const sshCommand = defineCommand({
   args: [],
   async handler(options) {
     const { alias, app: appIdOrName, identityFile } = options;
-
     const { appId } = await Application.resolveId(appIdOrName, alias);
-    const sshParams = ['-t', config.SSH_GATEWAY, appId];
+
+    const sshTarget = appId;
+
+    const sshParams = [];
+    // -t: force PTY allocation (SSH skips it by default because appId is passed as a command for gateway routing)
+    sshParams.push('-t');
     if (identityFile != null) {
       sshParams.push('-i', identityFile);
     }
+    sshParams.push(config.SSH_GATEWAY, sshTarget);
 
-    await new Promise((resolve, reject) => {
-      // TODO: we should catch errors
+    return new Promise((resolve, reject) => {
       const sshProcess = spawn('ssh', sshParams, { stdio: 'inherit' });
       sshProcess.on('exit', resolve);
       sshProcess.on('error', reject);
