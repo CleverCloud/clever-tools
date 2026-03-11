@@ -1048,9 +1048,10 @@ clever drain [options]
 
 **Options**
 ```
--a, --alias <alias>            Short name for the application
-    --app <app-id|app-name>    Application to manage by its ID (or name, if unambiguous)
--F, --format <format>          Output format (human, json) (default: human)
+-a, --alias <alias>                           Short name for the application
+    --app <app-id|app-name>                   Application to manage by its ID (or name, if unambiguous)
+-F, --format <format>                         Output format (human, json) (default: human)
+-r, --resource <resource-id|resource-name>    Application or add-on to target by its ID (or name, if unambiguous)
 ```
 
 ### drain create
@@ -1066,19 +1067,20 @@ clever drain create <drain-type> <drain-url> [options]
 
 **Arguments**
 ```
-drain-type                           No description available
-drain-url                            Drain URL
+drain-type                                    No description available
+drain-url                                     Drain URL
 ```
 
 **Options**
 ```
--a, --alias <alias>                  Short name for the application
--k, --api-key <api-key>              API key (for newrelic)
-    --app <app-id|app-name>          Application to manage by its ID (or name, if unambiguous)
--i, --index-prefix <index-prefix>    Optional index prefix (for elasticsearch), `logstash` value is used if not set
--p, --password <password>            Basic auth password (for elasticsearch or raw-http)
--s, --sd-params <sd-params>          RFC5424 structured data parameters (for ovh-tcp), e.g.: `X-OVH-TOKEN=\"REDACTED\"`
--u, --username <username>            Basic auth username (for elasticsearch or raw-http)
+-a, --alias <alias>                           Short name for the application
+-k, --api-key <api-key>                       API key (for newrelic)
+    --app <app-id|app-name>                   Application to manage by its ID (or name, if unambiguous)
+-i, --index-prefix <index-prefix>             Optional index prefix (for elasticsearch), `logstash` value is used if not set
+-p, --password <password>                     Basic auth password (for elasticsearch or raw-http)
+-r, --resource <resource-id|resource-name>    Application or add-on to target by its ID (or name, if unambiguous)
+-s, --sd-params <sd-params>                   RFC5424 structured data parameters (for ovh-tcp), e.g.: `X-OVH-TOKEN=\"REDACTED\"`
+-u, --username <username>                     Basic auth username (for elasticsearch or raw-http)
 ```
 
 ### drain disable
@@ -1094,13 +1096,14 @@ clever drain disable <drain-id> [options]
 
 **Arguments**
 ```
-drain-id                       Drain ID
+drain-id                                      Drain ID
 ```
 
 **Options**
 ```
--a, --alias <alias>            Short name for the application
-    --app <app-id|app-name>    Application to manage by its ID (or name, if unambiguous)
+-a, --alias <alias>                           Short name for the application
+    --app <app-id|app-name>                   Application to manage by its ID (or name, if unambiguous)
+-r, --resource <resource-id|resource-name>    Application or add-on to target by its ID (or name, if unambiguous)
 ```
 
 ### drain enable
@@ -1116,13 +1119,14 @@ clever drain enable <drain-id> [options]
 
 **Arguments**
 ```
-drain-id                       Drain ID
+drain-id                                      Drain ID
 ```
 
 **Options**
 ```
--a, --alias <alias>            Short name for the application
-    --app <app-id|app-name>    Application to manage by its ID (or name, if unambiguous)
+-a, --alias <alias>                           Short name for the application
+    --app <app-id|app-name>                   Application to manage by its ID (or name, if unambiguous)
+-r, --resource <resource-id|resource-name>    Application or add-on to target by its ID (or name, if unambiguous)
 ```
 
 ### drain get
@@ -1138,14 +1142,15 @@ clever drain get <drain-id> [options]
 
 **Arguments**
 ```
-drain-id                       Drain ID
+drain-id                                      Drain ID
 ```
 
 **Options**
 ```
--a, --alias <alias>            Short name for the application
-    --app <app-id|app-name>    Application to manage by its ID (or name, if unambiguous)
--F, --format <format>          Output format (human, json) (default: human)
+-a, --alias <alias>                           Short name for the application
+    --app <app-id|app-name>                   Application to manage by its ID (or name, if unambiguous)
+-F, --format <format>                         Output format (human, json) (default: human)
+-r, --resource <resource-id|resource-name>    Application or add-on to target by its ID (or name, if unambiguous)
 ```
 
 ### drain remove
@@ -1161,13 +1166,14 @@ clever drain remove <drain-id> [options]
 
 **Arguments**
 ```
-drain-id                       Drain ID
+drain-id                                      Drain ID
 ```
 
 **Options**
 ```
--a, --alias <alias>            Short name for the application
-    --app <app-id|app-name>    Application to manage by its ID (or name, if unambiguous)
+-a, --alias <alias>                           Short name for the application
+    --app <app-id|app-name>                   Application to manage by its ID (or name, if unambiguous)
+-r, --resource <resource-id|resource-name>    Application or add-on to target by its ID (or name, if unambiguous)
 ```
 
 ## emails

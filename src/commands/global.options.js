@@ -20,6 +20,14 @@ export const appIdOrNameOption = defineOption({
   placeholder: 'app-id|app-name',
 });
 
+export const resourceIdOrNameOption = defineOption({
+  name: 'resource',
+  schema: z.string().optional(),
+  description: 'Application or add-on to target by its ID (or name, if unambiguous)',
+  aliases: ['r'],
+  placeholder: 'resource-id|resource-name',
+});
+
 export const logsFormatOption = defineOption({
   name: 'format',
   schema: z.enum(['human', 'json', 'json-stream']).default('human'),
