@@ -1,5 +1,20 @@
 # clever-tools changelog
 
+## [4.7.0](https://github.com/CleverCloud/clever-tools/compare/4.6.1...4.7.0) (2026-03-11)
+
+
+### 🚀 Features
+
+* **drain:** improve drain info display with dynamic units and retry fields ([a447bc0](https://github.com/CleverCloud/clever-tools/commit/a447bc0f48445d152b19622850ea83b46901adc8))
+* **ssh:** add --command option for remote command execution ([bf1f199](https://github.com/CleverCloud/clever-tools/commit/bf1f1990fed50e52b0504e81eadaddd8e37a77ba))
+* **ssh:** add interactive instance selection prompt ([9fdf552](https://github.com/CleverCloud/clever-tools/commit/9fdf55290a4475b5afd6af3f3f5d699f50a87ad2))
+
+
+### 🐛 Bug Fixes
+
+* **database:** use Node.js pipeline for backup download streaming ([f3068c1](https://github.com/CleverCloud/clever-tools/commit/f3068c1c6374b0271216269474a55e75ab5ca86a))
+* **deploy:** handle detached HEAD in system git implementation ([b7ac511](https://github.com/CleverCloud/clever-tools/commit/b7ac511df39b4b5302694b381882fffe376614e5))
+
 ## [4.6.1](https://github.com/CleverCloud/clever-tools/compare/4.6.0...4.6.1) (2026-02-19)
 
 
