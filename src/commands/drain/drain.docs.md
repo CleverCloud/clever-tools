@@ -15,6 +15,7 @@ clever drain [options]
 |`-a`, `--alias` `<alias>`|Short name for the application|
 |`--app` `<app-id\|app-name>`|Application to manage by its ID (or name, if unambiguous)|
 |`-F`, `--format` `<format>`|Output format (human, json) (default: human)|
+|`-r`, `--resource` `<resource-id\|resource-name>`|Application or add-on to target by its ID (or name, if unambiguous)|
 
 ## ➡️ `clever drain create` <kbd>Since 0.9.0</kbd>
 
@@ -40,6 +41,7 @@ clever drain create <drain-type> <drain-url> [options]
 |`--app` `<app-id\|app-name>`|Application to manage by its ID (or name, if unambiguous)|
 |`-i`, `--index-prefix` `<index-prefix>`|Optional index prefix (for elasticsearch), `logstash` value is used if not set|
 |`-p`, `--password` `<password>`|Basic auth password (for elasticsearch or raw-http)|
+|`-r`, `--resource` `<resource-id\|resource-name>`|Application or add-on to target by its ID (or name, if unambiguous)|
 |`-s`, `--sd-params` `<sd-params>`|RFC5424 structured data parameters (for ovh-tcp), e.g.: `X-OVH-TOKEN=\"REDACTED\"`|
 |`-u`, `--username` `<username>`|Basic auth username (for elasticsearch or raw-http)|
 
@@ -63,6 +65,7 @@ clever drain disable <drain-id> [options]
 |---|---|
 |`-a`, `--alias` `<alias>`|Short name for the application|
 |`--app` `<app-id\|app-name>`|Application to manage by its ID (or name, if unambiguous)|
+|`-r`, `--resource` `<resource-id\|resource-name>`|Application or add-on to target by its ID (or name, if unambiguous)|
 
 ## ➡️ `clever drain enable` <kbd>Since 0.9.0</kbd>
 
@@ -84,6 +87,7 @@ clever drain enable <drain-id> [options]
 |---|---|
 |`-a`, `--alias` `<alias>`|Short name for the application|
 |`--app` `<app-id\|app-name>`|Application to manage by its ID (or name, if unambiguous)|
+|`-r`, `--resource` `<resource-id\|resource-name>`|Application or add-on to target by its ID (or name, if unambiguous)|
 
 ## ➡️ `clever drain get` <kbd>Since 0.9.0</kbd>
 
@@ -106,6 +110,7 @@ clever drain get <drain-id> [options]
 |`-a`, `--alias` `<alias>`|Short name for the application|
 |`--app` `<app-id\|app-name>`|Application to manage by its ID (or name, if unambiguous)|
 |`-F`, `--format` `<format>`|Output format (human, json) (default: human)|
+|`-r`, `--resource` `<resource-id\|resource-name>`|Application or add-on to target by its ID (or name, if unambiguous)|
 
 ## ➡️ `clever drain remove` <kbd>Since 0.9.0</kbd>
 
@@ -127,3 +132,4 @@ clever drain remove <drain-id> [options]
 |---|---|
 |`-a`, `--alias` `<alias>`|Short name for the application|
 |`--app` `<app-id\|app-name>`|Application to manage by its ID (or name, if unambiguous)|
+|`-r`, `--resource` `<resource-id\|resource-name>`|Application or add-on to target by its ID (or name, if unambiguous)|
