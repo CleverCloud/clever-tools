@@ -5,10 +5,10 @@ import { defineCommand } from '../../lib/define-command.js';
 import { defineOption } from '../../lib/define-option.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
-import * as Application from '../../models/application.js';
 import { DRAIN_TYPE_CLI_CODES, DRAIN_TYPES } from '../../models/drain.js';
+import { resolveDrainResourceFromOptions } from '../../models/drain.resource-resolver.js';
 import { sendToApi } from '../../models/send-to-api.js';
-import { aliasOption, appIdOrNameOption } from '../global.options.js';
+import { aliasOption, appIdOrNameOption, resourceIdOrNameOption } from '../global.options.js';
 
 export const drainCreateCommand = defineCommand({
   description: 'Create a drain',
@@ -49,6 +49,7 @@ export const drainCreateCommand = defineCommand({
       aliases: ['s'],
       placeholder: 'sd-params',
     }),
+    resource: resourceIdOrNameOption,
     alias: aliasOption,
     app: appIdOrNameOption,
   },
@@ -66,7 +67,7 @@ export const drainCreateCommand = defineCommand({
     }),
   ],
   async handler(options, drainTypeCliCode, url) {
-    const { alias, app: appIdOrName } = options;
+    const { resource: resourceIdOrName, alias, app: appIdOrName } = options;
     const { username, password, apiKey, indexPrefix, rfc5424StructuredDataParameters } = options;
 
     const drainType = Object.values(DRAIN_TYPES).find((drainType) => drainType.cliCode === drainTypeCliCode);
@@ -74,7 +75,7 @@ export const drainCreateCommand = defineCommand({
       throw new Error(`Invalid drain type. Supported types are: ${DRAIN_TYPE_CLI_CODES.join(', ')}`);
     }
 
-    const { ownerId, appId: applicationId } = await Application.resolveId(appIdOrName, alias);
+    const { ownerId, resourceId } = await resolveDrainResourceFromOptions(resourceIdOrName, appIdOrName, alias);
 
     const body = {
       kind: 'LOG',
@@ -122,7 +123,7 @@ export const drainCreateCommand = defineCommand({
       }
     }
 
-    const drain = await createDrain({ ownerId, applicationId, body }).then(sendToApi);
+    const drain = await createDrain({ ownerId, resourceId, body }).then(sendToApi);
     Logger.printSuccess(`Drain ${styleText(['bold', 'green'], drain.id)} has been successfully created and enabled!`);
   },
 });
