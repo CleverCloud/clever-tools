@@ -55,7 +55,7 @@ export const drainCreateCommand = defineCommand({
   args: [
     defineArgument({
       schema: z.string(),
-      description: 'No description available',
+      description: `Drain type (${DRAIN_TYPE_CLI_CODES.join(', ')})`,
       placeholder: 'drain-type',
       complete: DRAIN_TYPE_CLI_CODES,
     }),
