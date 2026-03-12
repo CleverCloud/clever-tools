@@ -28,7 +28,7 @@ clever drain create <drain-type> <drain-url> [options]
 
 |Name|Description|
 |---|---|
-|`drain-type`|No description available|
+|`drain-type`|Drain type (datadog, elasticsearch, newrelic, ovh-tcp, raw-http, syslog-tcp, syslog-udp)|
 |`drain-url`|Drain URL|
 
 ### ⚙️ Options
