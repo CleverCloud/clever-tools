@@ -1170,6 +1170,28 @@ drain-id                       Drain ID
     --app <app-id|app-name>    Application to manage by its ID (or name, if unambiguous)
 ```
 
+### drain test-command
+
+**Description:** Get a ready-to-execute shell command to test a drain recipient
+
+**Since:** 4.8.0
+
+**Usage**
+```
+clever drain test-command <drain-id> [options]
+```
+
+**Arguments**
+```
+drain-id                       Drain ID
+```
+
+**Options**
+```
+-a, --alias <alias>            Short name for the application
+    --app <app-id|app-name>    Application to manage by its ID (or name, if unambiguous)
+```
+
 ## emails
 
 **Description:** Manage email addresses of the current user
