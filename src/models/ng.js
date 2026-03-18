@@ -79,7 +79,7 @@ export async function destroy(ngIdOrLabel, orgaIdOrName) {
  * @param {object} peerIdOrLabel The Peer ID or Label
  * @param {object} ngIdOrLabel The Network Group ID or Label
  * @param {object} orgaIdOrName The owner ID or name
- * @returns {Promise<Object>} The Peer WireGuard configuration
+ * @returns {Promise<string>} The Peer WireGuard configuration
  * @throws {Error} If the Peer is not found
  * @throws {Error} If the Network Group is not found
  * @throws {Error} If the Peer is not in the Network Group
@@ -113,7 +113,7 @@ export async function getPeerConfig(peerIdOrLabel, ngIdOrLabel, orgaIdOrName) {
     networkGroupId: parentNg.id,
     peerId: peer.id,
   }).then(sendToApi);
-  Logger.debug(`Received from API:\n${JSON.stringify(result, null, 2)}`);
+  Logger.debug(`Received from API:\n${result}`);
 
   return result;
 }

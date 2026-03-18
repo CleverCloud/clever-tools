@@ -146,7 +146,6 @@ clever ng get-config <peer-id|peer-label> <ng-id|ng-label> [options]
 
 |Name|Description|
 |---|---|
-|`-F`, `--format` `<format>`|Output format (human, json) (default: human)|
 |`-o`, `--org`, `--owner` `<org-id\|org-name>`|Organisation to target by its ID (or name, if unambiguous)|
 
 ## ➡️ `clever ng link` <kbd>Since 3.12.0</kbd>
