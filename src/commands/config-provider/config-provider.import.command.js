@@ -11,7 +11,7 @@ import { configProviderIdOrNameArg } from './config-provider.args.js';
 const importFormatOption = defineOption({
   name: 'format',
   schema: z.enum(['name-equals-value', 'json']).default('name-equals-value'),
-  description: 'Input format (name-equals-value, json)',
+  description: 'Input format',
   aliases: ['F'],
   placeholder: 'format',
 });
