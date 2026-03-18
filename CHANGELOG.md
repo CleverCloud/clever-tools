@@ -1,5 +1,12 @@
 # clever-tools changelog
 
+## [4.7.1](https://github.com/CleverCloud/clever-tools/compare/4.7.0...4.7.1) (2026-03-18)
+
+
+### 🐛 Bug Fixes
+
+* **drain:** add type in argument description ([fa99403](https://github.com/CleverCloud/clever-tools/commit/fa9940344c02e03647d82479dde711b48f5c86c4))
+
 ## [4.7.0](https://github.com/CleverCloud/clever-tools/compare/4.6.1...4.7.0) (2026-03-11)
 
 
