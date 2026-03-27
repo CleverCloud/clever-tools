@@ -47,6 +47,7 @@ These options are available for all commands:
 |[`clever matomo`](./matomo/matomo.docs.md)|Manage Clever Cloud Matomo services|
 |[`clever metabase`](./metabase/metabase.docs.md)|Manage Clever Cloud Metabase services|
 |[`clever ng`](./ng/ng.docs.md)|List Network Groups|
+|[`clever oauth-consumers`](./oauth-consumers/oauth-consumers.docs.md)|Manage OAuth consumers used with a Clever Cloud login|
 |[`clever notify-email`](./notify-email/notify-email.docs.md)|Manage email notifications|
 |[`clever open`](./open/open.docs.md)|Open an application in the Console|
 |[`clever otoroshi`](./otoroshi/otoroshi.docs.md)|Manage Clever Cloud Otoroshi services|
