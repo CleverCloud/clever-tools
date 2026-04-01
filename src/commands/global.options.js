@@ -23,7 +23,7 @@ export const appIdOrNameOption = defineOption({
 export const logsFormatOption = defineOption({
   name: 'format',
   schema: z.enum(['human', 'json', 'json-stream']).default('human'),
-  description: 'Output format (human, json, json-stream)',
+  description: 'Output format',
   aliases: ['F'],
   placeholder: 'format',
 });
@@ -62,7 +62,7 @@ export const orgaIdOrNameOption = defineOption({
 export const humanJsonOutputFormatOption = defineOption({
   name: 'format',
   schema: z.enum(['human', 'json']).default('human'),
-  description: 'Output format (human, json)',
+  description: 'Output format',
   aliases: ['F'],
   placeholder: 'format',
 });
@@ -77,7 +77,7 @@ export const confirmAddonDeletionOption = defineOption({
 export const envFormatOption = defineOption({
   name: 'format',
   schema: z.enum(['human', 'json', 'shell']).default('human'),
-  description: 'Output format (human, json, shell)',
+  description: 'Output format',
   aliases: ['F'],
   placeholder: 'format',
 });
@@ -107,7 +107,7 @@ export const followDeployLogsOption = defineOption({
 export const exitOnDeployOption = defineOption({
   name: 'exit-on',
   schema: z.enum(['deploy-start', 'deploy-end', 'never']).default('deploy-end'),
-  description: 'Step at which the logs streaming is ended, steps are: deploy-start, deploy-end, never',
+  description: 'Step at which the logs streaming is ended',
   aliases: ['e'],
   placeholder: 'step',
 });
