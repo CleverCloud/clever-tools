@@ -205,6 +205,7 @@ export function getSubCommandMarkdown(path, definition, subCommandNodes) {
   if (commandInfo.args) {
     const rows = commandInfo.args.map((arg) => {
       let description = arg.description;
+      if (arg.enumValues) description += ` (${arg.enumValues.join(', ')})`;
       if (arg.optional) description += ` *${arg.optional}*`;
       return `|\`${arg.name}\`|${escapeTableCell(description)}|`;
     });
@@ -223,6 +224,7 @@ export function getSubCommandMarkdown(path, definition, subCommandNodes) {
         const placeholder = opt.placeholder ? ` \`${opt.placeholder}\`` : '';
         const aliases = formatCodeList(opt.aliases) + placeholder;
         let description = opt.description;
+        if (opt.enumValues) description += ` (${opt.enumValues.join(', ')})`;
         if (opt.deprecated) description += ` *${opt.deprecated}*`;
         if (opt.required) description += ` **${opt.required}**`;
         if (opt.default) description += ` ${opt.default}`;
