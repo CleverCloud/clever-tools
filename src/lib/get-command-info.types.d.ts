@@ -13,6 +13,8 @@ export interface ArgumentInfo {
   description: string;
   /** '(optional)' or null */
   optional: string | null;
+  /** Enum values if the schema is a z.enum(), or null */
+  enumValues: string[] | null;
 }
 
 export interface OptionInfo {
@@ -30,6 +32,8 @@ export interface OptionInfo {
   required: string | null;
   /** '(default: value)' or null */
   default: string | null;
+  /** Enum values if the schema is a z.enum(), or null */
+  enumValues: string[] | null;
 }
 
 export interface CommandInfo {
