@@ -1,6 +1,7 @@
 /**
  * @typedef {Object} ZodSchemaLike
  * @property {{ type?: string, innerType?: ZodSchemaLike, defaultValue?: unknown, typeName?: string, in?: ZodSchemaLike }} [_def]
+ * @property {string[]} [options]
  */
 
 /**
@@ -35,6 +36,33 @@ export function isRequired(schema) {
     if (inputSchema) return isRequired(inputSchema);
   }
   return true;
+}
+
+/**
+ * Extracts enum values from a Zod schema.
+ * Handles wrapped schemas (default, optional, nullable, pipe).
+ * @param {ZodSchemaLike} schema
+ * @return {string[] | null}
+ */
+export function getEnumValues(schema) {
+  /** @type {ZodSchemaLike | undefined} */
+  let current = schema;
+  while (current) {
+    const schemaType = current._def?.type;
+    if (schemaType === 'enum') {
+      return current.options ?? null;
+    }
+    if (schemaType === 'default' || schemaType === 'optional' || schemaType === 'nullable') {
+      current = current._def?.innerType;
+      continue;
+    }
+    if (schemaType === 'pipe') {
+      current = current._def?.in;
+      continue;
+    }
+    break;
+  }
+  return null;
 }
 
 /**
