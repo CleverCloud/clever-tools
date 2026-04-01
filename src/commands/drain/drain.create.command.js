@@ -54,10 +54,9 @@ export const drainCreateCommand = defineCommand({
   },
   args: [
     defineArgument({
-      schema: z.string(),
-      description: `Drain type (${DRAIN_TYPE_CLI_CODES.join(', ')})`,
+      schema: z.enum(DRAIN_TYPE_CLI_CODES),
+      description: 'Drain type',
       placeholder: 'drain-type',
-      complete: DRAIN_TYPE_CLI_CODES,
     }),
     defineArgument({
       schema: z.string(),
@@ -70,9 +69,6 @@ export const drainCreateCommand = defineCommand({
     const { username, password, apiKey, indexPrefix, rfc5424StructuredDataParameters } = options;
 
     const drainType = Object.values(DRAIN_TYPES).find((drainType) => drainType.cliCode === drainTypeCliCode);
-    if (!drainType) {
-      throw new Error(`Invalid drain type. Supported types are: ${DRAIN_TYPE_CLI_CODES.join(', ')}`);
-    }
 
     const { ownerId, appId: applicationId } = await Application.resolveId(appIdOrName, alias);
 
