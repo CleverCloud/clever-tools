@@ -1,4 +1,5 @@
 import { defineCommand } from '../../lib/define-command.js';
+import { printGroupedList } from '../../lib/print-grouped-list.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
 import { findAddonsByAddonProvider } from '../../models/ids-resolver.js';
@@ -22,22 +23,12 @@ export const configProviderListCommand = defineCommand({
         break;
       case 'human':
       default:
-        if (deployed.length === 0) {
-          Logger.println(
-            `No configuration provider found, create one with ${styleText('blue', 'clever addon create config-provider')} command`,
-          );
-          return;
-        }
-
-        Logger.println(`Found ${deployed.length} configuration provider${deployed.length > 1 ? 's' : ''}:`);
-        Logger.println();
-
-        Object.values(providersPerOwner).forEach((providers) => {
-          Logger.println(`${styleText('bold', `${providers[0].ownerId} (${providers[0].ownerName})`)}`);
-          providers.forEach((provider) => {
-            Logger.println(`  ${provider.name} ${styleText('grey', `(${provider.realId})`)}`);
-          });
-          Logger.println();
+        printGroupedList(deployed, {
+          itemName: 'configuration provider',
+          emptyCommand: 'clever addon create config-provider',
+          groupBy: (p) => p.ownerId,
+          getOwnerLabel: (p) => `${p.ownerId} (${p.ownerName})`,
+          getItemLabel: (p) => `${p.name} ${styleText('grey', `(${p.realId})`)}`,
         });
         break;
     }
