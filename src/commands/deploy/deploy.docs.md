@@ -14,7 +14,7 @@ clever deploy [options]
 |---|---|
 |`-a`, `--alias` `<alias>`|Short name for the application|
 |`-b`, `--branch` `<branch>`|Branch to push (current branch by default)|
-|`-e`, `--exit-on` `<step>`|Step at which the logs streaming is ended, steps are: deploy-start, deploy-end, never (default: deploy-end)|
+|`-e`, `--exit-on` `<step>`|Step at which the logs streaming is ended (deploy-start, deploy-end, never) (default: deploy-end)|
 |`--follow`|Continue to follow logs after deployment has ended *(deprecated, use `--exit-on never` instead)*|
 |`-f`, `--force`|Force deploy even if it's not fast-forwardable|
 |`-q`, `--quiet`|Don't show logs during deployment|

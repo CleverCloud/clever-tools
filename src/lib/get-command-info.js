@@ -1,4 +1,4 @@
-import { getDefault, isBoolean, isRequired } from './zod-utils.js';
+import { getDefault, getEnumValues, isBoolean, isRequired } from './zod-utils.js';
 
 /**
  * @typedef {import('./get-command-info.types.d.ts').ArgumentInfo} ArgumentInfo
@@ -45,6 +45,7 @@ export function getCommandInfo(path, definition) {
           name: arg.placeholder,
           description: arg.description,
           optional: isRequired(arg.schema) ? null : '(optional)',
+          enumValues: getEnumValues(arg.schema) ?? null,
         };
       })
     : null;
@@ -78,6 +79,7 @@ export function getCommandInfo(path, definition) {
                   : null,
             required: isRequired(option.schema) ? '(required)' : null,
             default: defaultValue ? `(default: ${defaultValue})` : null,
+            enumValues: getEnumValues(option.schema) ?? null,
           };
         })
     : null;

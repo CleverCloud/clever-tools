@@ -17,7 +17,7 @@ import {
 import { EXPERIMENTAL_FEATURES, getFeatures } from '../src/config/features.js';
 import { cliparse } from '../src/lib/cliparse-patched.js';
 import { styleText } from '../src/lib/style-text.js';
-import { getDefault, isBoolean, isRequired } from '../src/lib/zod-utils.js';
+import { getDefault, getEnumValues, isBoolean, isRequired } from '../src/lib/zod-utils.js';
 
 /**
  * @typedef {import('../src/lib/define-command.types.js').CommandDefinition} CommandDefinition
@@ -199,6 +199,11 @@ function convertOption(option) {
   }
   if (option.complete != null) {
     cliparseConfig.complete = option.complete;
+  } else {
+    const enumValues = getEnumValues(option.schema);
+    if (enumValues != null) {
+      cliparseConfig.complete = enumValues;
+    }
   }
 
   // Use Zod's safeParse for validation (handles coercion, enums, refinements, etc.)
@@ -242,6 +247,11 @@ function convertArgument(arg) {
 
   if (arg.complete) {
     cliparseConfig.complete = arg.complete;
+  } else {
+    const enumValues = getEnumValues(arg.schema);
+    if (enumValues != null) {
+      cliparseConfig.complete = enumValues;
+    }
   }
 
   // Use Zod's safeParse for validation (handles coercion, enums, refinements, etc.)

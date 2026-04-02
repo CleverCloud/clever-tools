@@ -241,6 +241,7 @@ function getCommandSection(heading, path, definition) {
   if (commandInfo.args) {
     argumentsRows = commandInfo.args.map((arg) => {
       let description = arg.description;
+      if (arg.enumValues) description += ` (${arg.enumValues.join(', ')})`;
       if (arg.optional) description += ` ${arg.optional}`;
       return [arg.name, description];
     });
@@ -254,6 +255,7 @@ function getCommandSection(heading, path, definition) {
       const aliasesPadding = opt.aliases[0].length === 2 ? '' : '    ';
       const aliases = aliasesPadding + opt.aliases.join(', ') + placeholder;
       let description = opt.description;
+      if (opt.enumValues) description += ` (${opt.enumValues.join(', ')})`;
       if (opt.deprecated) description += ` ${opt.deprecated}`;
       if (opt.required) description += ` ${opt.required}`;
       if (opt.default) description += ` ${opt.default}`;
