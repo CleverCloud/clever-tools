@@ -3,12 +3,15 @@ import { z } from 'zod';
 import { defineArgument } from '../../lib/define-argument.js';
 import { defineCommand } from '../../lib/define-command.js';
 import { defineOption } from '../../lib/define-option.js';
+import { isNotEmpty, isValidUrl, promptField } from '../../lib/prompts.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
+import { parseRights, VALID_RIGHTS } from '../../models/oauth-consumer.js';
 import * as Organisation from '../../models/organisation.js';
 import { sendToApi } from '../../models/send-to-api.js';
+import { notEmptyStringSchema } from '../global.args.js';
 import { humanJsonOutputFormatOption, orgaIdOrNameOption } from '../global.options.js';
-import { isValidUrl, parseRights, promptField, promptRights, VALID_RIGHTS } from './oauth-consumers.args.js';
+import { promptRights, rightsSchema } from './oauth-consumers.args.js';
 
 export const oauthConsumersCreateCommand = defineCommand({
   description: 'Create an OAuth consumer',
@@ -17,7 +20,7 @@ export const oauthConsumersCreateCommand = defineCommand({
     org: orgaIdOrNameOption,
     description: defineOption({
       name: 'description',
-      schema: z.string().optional(),
+      schema: notEmptyStringSchema.optional(),
       description: 'Consumer description',
       aliases: ['d'],
       placeholder: 'description',
@@ -42,7 +45,7 @@ export const oauthConsumersCreateCommand = defineCommand({
     }),
     rights: defineOption({
       name: 'rights',
-      schema: z.string().optional(),
+      schema: rightsSchema,
       description: `Comma-separated list of rights (${VALID_RIGHTS.join(', ')})`,
       placeholder: 'rights',
     }),
@@ -50,7 +53,7 @@ export const oauthConsumersCreateCommand = defineCommand({
   },
   args: [
     defineArgument({
-      schema: z.string(),
+      schema: notEmptyStringSchema,
       description: 'Consumer name',
       placeholder: 'name',
     }),
@@ -62,7 +65,7 @@ export const oauthConsumersCreateCommand = defineCommand({
 
     const body = {
       name,
-      description: await promptField('Description:', description),
+      description: await promptField('Description:', description, undefined, isNotEmpty),
       url: await promptField('Application home URL:', url, undefined, isValidUrl),
       picture: await promptField('Application logo URL:', picture, undefined, isValidUrl),
       baseUrl: await promptField('OAuth callback base URL:', baseUrl, undefined, isValidUrl),

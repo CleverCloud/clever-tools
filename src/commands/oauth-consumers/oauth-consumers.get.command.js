@@ -3,10 +3,10 @@ import { z } from 'zod';
 import { defineCommand } from '../../lib/define-command.js';
 import { defineOption } from '../../lib/define-option.js';
 import { Logger } from '../../logger.js';
-import { resolveConsumer } from '../../models/oauth-consumer.js';
+import { RIGHTS_MAP, resolveConsumer } from '../../models/oauth-consumer.js';
 import { sendToApi } from '../../models/send-to-api.js';
 import { humanJsonOutputFormatOption } from '../global.options.js';
-import { consumerKeyOrNameArg, RIGHTS_MAP } from './oauth-consumers.args.js';
+import { consumerKeyOrNameArg } from './oauth-consumers.args.js';
 
 export const oauthConsumersGetCommand = defineCommand({
   description: 'Get details of an OAuth consumer',

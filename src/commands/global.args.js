@@ -26,6 +26,8 @@ export const appIdOrNameArg = defineArgument({
   placeholder: 'app-id|app-name',
 });
 
+export const notEmptyStringSchema = z.string().trim().min(1, 'This field is required');
+
 export const aliasArg = defineArgument({
   schema: z.string(),
   description: 'Application alias',

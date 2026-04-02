@@ -24,7 +24,31 @@ export function selectAnswer(message, choices) {
   return select({ message, choices }).catch(exitOnPromptError);
 }
 
-function exitOnPromptError(error) {
+export function isNotEmpty(value) {
+  return value.trim().length > 0 || 'This field is required';
+}
+
+export function isValidUrl(value) {
+  try {
+    new URL(value);
+    return true;
+  } catch {
+    return 'Please enter a valid URL (e.g. https://example.com)';
+  }
+}
+
+export async function promptField(message, value, defaultValue, validate) {
+  if (value != null) {
+    if (validate != null) {
+      const result = validate(value);
+      if (result !== true) throw new Error(result);
+    }
+    return value;
+  }
+  return input({ message, default: defaultValue, validate }).catch(exitOnPromptError);
+}
+
+export function exitOnPromptError(error) {
   if (error instanceof Error && error.name === 'ExitPromptError') {
     process.exit(1);
   }

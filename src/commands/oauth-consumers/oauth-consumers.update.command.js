@@ -2,20 +2,14 @@ import { get, update } from '@clevercloud/client/esm/api/v2/oauth-consumer.js';
 import { z } from 'zod';
 import { defineCommand } from '../../lib/define-command.js';
 import { defineOption } from '../../lib/define-option.js';
+import { isNotEmpty, isValidUrl, promptField } from '../../lib/prompts.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
-import { resolveConsumer } from '../../models/oauth-consumer.js';
+import { parseRights, resolveConsumer, stripAlmighty, VALID_RIGHTS } from '../../models/oauth-consumer.js';
 import { sendToApi } from '../../models/send-to-api.js';
+import { notEmptyStringSchema } from '../global.args.js';
 import { humanJsonOutputFormatOption } from '../global.options.js';
-import {
-  consumerKeyOrNameArg,
-  isValidUrl,
-  parseRights,
-  promptField,
-  promptRights,
-  stripAlmighty,
-  VALID_RIGHTS,
-} from './oauth-consumers.args.js';
+import { consumerKeyOrNameArg, promptRights, rightsSchema } from './oauth-consumers.args.js';
 
 export const oauthConsumersUpdateCommand = defineCommand({
   description: 'Update an OAuth consumer',
@@ -23,14 +17,14 @@ export const oauthConsumersUpdateCommand = defineCommand({
   options: {
     name: defineOption({
       name: 'name',
-      schema: z.string().optional(),
+      schema: notEmptyStringSchema.optional(),
       description: 'Consumer name',
       aliases: ['n'],
       placeholder: 'name',
     }),
     description: defineOption({
       name: 'description',
-      schema: z.string().optional(),
+      schema: notEmptyStringSchema.optional(),
       description: 'Consumer description',
       aliases: ['d'],
       placeholder: 'description',
@@ -55,7 +49,7 @@ export const oauthConsumersUpdateCommand = defineCommand({
     }),
     rights: defineOption({
       name: 'rights',
-      schema: z.string().optional(),
+      schema: rightsSchema,
       description: `Comma-separated list of rights (${VALID_RIGHTS.join(', ')})`,
       placeholder: 'rights',
     }),
@@ -84,8 +78,8 @@ export const oauthConsumersUpdateCommand = defineCommand({
       };
     } else {
       body = {
-        name: await promptField('Name:', null, existing.name),
-        description: await promptField('Description:', null, existing.description),
+        name: await promptField('Name:', null, existing.name, isNotEmpty),
+        description: await promptField('Description:', null, existing.description, isNotEmpty),
         url: await promptField('Application home URL:', null, existing.url, isValidUrl),
         picture: await promptField('Application logo URL:', null, existing.picture, isValidUrl),
         baseUrl: await promptField('OAuth callback base URL:', null, existing.baseUrl, isValidUrl),

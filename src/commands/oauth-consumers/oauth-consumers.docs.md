@@ -91,23 +91,17 @@ clever oauth-consumers list [options]
 
 ## ➡️ `clever oauth-consumers open` <kbd>Since 4.8.0</kbd>
 
-Open the OAuth consumers page in the Clever Cloud Console
+Open an OAuth consumer in the Clever Cloud Console
 
 ```bash
-clever oauth-consumers open [<consumer-key|consumer-name>] [options]
+clever oauth-consumers open <consumer-key|consumer-name>
 ```
 
 ### 📥 Arguments
 
 |Name|Description|
 |---|---|
-|`consumer-key|consumer-name`|OAuth consumer key or name (opens list page if omitted) *(optional)*|
-
-### ⚙️ Options
-
-|Name|Description|
-|---|---|
-|`-o`, `--org`, `--owner` `<org-id\|org-name>`|Organisation to target by its ID (or name, if unambiguous)|
+|`consumer-key|consumer-name`|OAuth consumer key (or name, if unambiguous)|
 
 ## ➡️ `clever oauth-consumers update` <kbd>Since 4.8.0</kbd>
 

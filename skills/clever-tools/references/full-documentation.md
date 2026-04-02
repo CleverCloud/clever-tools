@@ -2607,23 +2607,18 @@ clever oauth-consumers list [options]
 
 ### oauth-consumers open
 
-**Description:** Open the OAuth consumers page in the Clever Cloud Console
+**Description:** Open an OAuth consumer in the Clever Cloud Console
 
 **Since:** 4.8.0
 
 **Usage**
 ```
-clever oauth-consumers open [<consumer-key|consumer-name>] [options]
+clever oauth-consumers open <consumer-key|consumer-name>
 ```
 
 **Arguments**
 ```
-consumer-key|consumer-name              OAuth consumer key or name (opens list page if omitted) (optional)
-```
-
-**Options**
-```
--o, --org, --owner <org-id|org-name>    Organisation to target by its ID (or name, if unambiguous)
+consumer-key|consumer-name    OAuth consumer key (or name, if unambiguous)
 ```
 
 ### oauth-consumers update
