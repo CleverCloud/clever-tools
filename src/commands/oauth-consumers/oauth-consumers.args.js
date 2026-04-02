@@ -1,37 +1,12 @@
-import { getAll } from '@clevercloud/client/esm/api/v2/oauth-consumer.js';
 import { checkbox, input } from '@inquirer/prompts';
 import { z } from 'zod';
 import { defineArgument } from '../../lib/define-argument.js';
-import { styleText } from '../../lib/style-text.js';
-import * as Organisation from '../../models/organisation.js';
-import { sendToApi } from '../../models/send-to-api.js';
 
 export const consumerKeyOrNameArg = defineArgument({
   schema: z.string(),
   description: 'OAuth consumer key (or name, if unambiguous)',
   placeholder: 'consumer-key|consumer-name',
 });
-
-export async function resolveConsumerKey(keyOrName, org) {
-  const id = org != null ? await Organisation.getId(org) : null;
-  const consumers = await getAll({ id }).then(sendToApi);
-
-  const exact = consumers.find((c) => c.key === keyOrName);
-  if (exact) return exact.key;
-
-  const byName = consumers.filter((c) => c.name === keyOrName);
-
-  if (byName.length === 0) {
-    throw new Error(`OAuth consumer not found: ${styleText('red', keyOrName)}`);
-  }
-
-  if (byName.length > 1) {
-    const list = byName.map((c) => `  - ${c.name} ${styleText('grey', `(${c.key})`)}`).join('\n');
-    throw new Error(`Ambiguous name ${styleText('red', keyOrName)}, use the key instead:\n${list}`);
-  }
-
-  return byName[0].key;
-}
 
 export const RIGHTS_MAP = {
   'access-organisations': 'access_organisations',

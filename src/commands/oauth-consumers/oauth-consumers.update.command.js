@@ -4,16 +4,15 @@ import { defineCommand } from '../../lib/define-command.js';
 import { defineOption } from '../../lib/define-option.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
-import * as Organisation from '../../models/organisation.js';
+import { resolveConsumer } from '../../models/oauth-consumer.js';
 import { sendToApi } from '../../models/send-to-api.js';
-import { humanJsonOutputFormatOption, orgaIdOrNameOption } from '../global.options.js';
+import { humanJsonOutputFormatOption } from '../global.options.js';
 import {
   consumerKeyOrNameArg,
   isValidUrl,
   parseRights,
   promptField,
   promptRights,
-  resolveConsumerKey,
   stripAlmighty,
   VALID_RIGHTS,
 } from './oauth-consumers.args.js';
@@ -22,7 +21,6 @@ export const oauthConsumersUpdateCommand = defineCommand({
   description: 'Update an OAuth consumer',
   since: '4.8.0',
   options: {
-    org: orgaIdOrNameOption,
     name: defineOption({
       name: 'name',
       schema: z.string().optional(),
@@ -65,12 +63,11 @@ export const oauthConsumersUpdateCommand = defineCommand({
   },
   args: [consumerKeyOrNameArg],
   async handler(options, keyOrName) {
-    const { org, name, description, url, picture, baseUrl, rights: rightsCsv, format } = options;
+    const { name, description, url, picture, baseUrl, rights: rightsCsv, format } = options;
 
-    const key = await resolveConsumerKey(keyOrName, org);
-    const id = org != null ? await Organisation.getId(org) : null;
+    const { key, ownerId } = await resolveConsumer(keyOrName);
 
-    const existing = await get({ id, key }).then(sendToApi);
+    const existing = await get({ id: ownerId, key }).then(sendToApi);
 
     const hasAnyOption =
       name != null || description != null || url != null || picture != null || baseUrl != null || rightsCsv != null;
@@ -96,7 +93,7 @@ export const oauthConsumersUpdateCommand = defineCommand({
       };
     }
 
-    const consumer = await update({ id, key }, body).then(sendToApi);
+    const consumer = await update({ id: ownerId, key }, body).then(sendToApi);
 
     switch (format) {
       case 'json': {

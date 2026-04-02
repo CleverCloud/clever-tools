@@ -9,9 +9,13 @@ import { styleText } from './style-text.js';
  * @param {string} options.emptyCommand - Command suggestion shown when no items are found
  * @param {Function} options.getOwnerLabel - Function to get the owner group label from an item
  * @param {Function} options.getItemLabel - Function to get the item display line from an item
+ * @param {Function} [options.getItemDetails] - Optional function returning extra lines to display below each item
  * @param {Function} options.groupBy - Function to get the grouping key from an item
  */
-export function printGroupedList(items, { itemName, emptyCommand, getOwnerLabel, getItemLabel, groupBy }) {
+export function printGroupedList(
+  items,
+  { itemName, emptyCommand, getOwnerLabel, getItemLabel, getItemDetails, groupBy },
+) {
   if (items.length === 0) {
     Logger.println(`🔎 No ${itemName} found, create one with ${styleText('blue', emptyCommand)} command`);
     return;
@@ -26,6 +30,12 @@ export function printGroupedList(items, { itemName, emptyCommand, getOwnerLabel,
     Logger.println(`• ${styleText('bold', getOwnerLabel(group[0]))}`);
     group.forEach((item) => {
       Logger.println(`  • ${getItemLabel(item)}`);
+      if (getItemDetails != null) {
+        const details = getItemDetails(item);
+        if (details) {
+          Logger.println(`    ${details}`);
+        }
+      }
     });
     Logger.println();
   });

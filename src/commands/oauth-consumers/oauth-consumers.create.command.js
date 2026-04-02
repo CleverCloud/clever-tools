@@ -80,9 +80,8 @@ export const oauthConsumersCreateCommand = defineCommand({
       default: {
         Logger.printSuccess(`OAuth consumer ${styleText(['bold', 'green'], consumer.key)} has been created!`);
         Logger.println();
-        const orgOption = org ? ` --org "${org.orga_id || org.orga_name}"` : '';
         Logger.println(
-          `Retrieve the secret with ${styleText('blue', `clever oauth-consumers get ${consumer.key} --with-secret${orgOption}`)}`,
+          `Retrieve the secret with ${styleText('blue', `clever oauth-consumers get ${consumer.key} --with-secret`)}`,
         );
       }
     }
