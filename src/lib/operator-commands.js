@@ -15,6 +15,7 @@ import { findAddonsByAddonProvider } from '../models/ids-resolver.js';
 import * as Operator from '../models/operator.js';
 import { sendToApi } from '../models/send-to-api.js';
 import { openBrowser } from '../models/utils.js';
+import { printGroupedList } from './print-grouped-list.js';
 import { confirm, selectAnswer } from './prompts.js';
 import { styleText } from './style-text.js';
 
@@ -149,22 +150,12 @@ export async function operatorList(provider, format) {
       break;
     case 'human':
     default:
-      if (deployed.length === 0) {
-        Logger.println(
-          `🔎 No ${providerName} found, create one with ${styleText('blue', `clever addon create ${providerName.toLocaleLowerCase()}`)} command`,
-        );
-        return;
-      }
-
-      Logger.println(`🔎 Found ${deployed.length} ${providerName} operator${deployed.length > 1 ? 's' : ''}:`);
-      Logger.println();
-
-      Object.values(operatorsPerOwner).forEach((operators) => {
-        Logger.println(`• ${styleText('bold', `${operators[0].ownerId} (${operators[0].ownerName})`)}`);
-        operators.forEach((operator) => {
-          Logger.println(`  • ${operator.name} ${styleText('grey', `(${operator.realId})`)}`);
-        });
-        Logger.println();
+      printGroupedList(deployed, {
+        itemName: `${providerName} operator`,
+        emptyCommand: `clever addon create ${providerName.toLocaleLowerCase()}`,
+        groupBy: (o) => o.ownerId,
+        getOwnerLabel: (o) => `${o.ownerId} (${o.ownerName})`,
+        getItemLabel: (o) => `${o.name} ${styleText('grey', `(${o.realId})`)}`,
       });
       break;
   }
