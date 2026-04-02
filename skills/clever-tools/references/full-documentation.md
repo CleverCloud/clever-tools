@@ -2375,7 +2375,6 @@ ng-id|ng-label                          Network Group ID or label
 
 **Options**
 ```
--F, --format <format>                   Output format (human, json) (default: human)
 -o, --org, --owner <org-id|org-name>    Organisation to target by its ID (or name, if unambiguous)
 ```
 
