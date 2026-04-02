@@ -1,5 +1,4 @@
 import { get, update } from '@clevercloud/client/esm/api/v2/oauth-consumer.js';
-import { checkbox, input } from '@inquirer/prompts';
 import { z } from 'zod';
 import { defineCommand } from '../../lib/define-command.js';
 import { defineOption } from '../../lib/define-option.js';
@@ -10,42 +9,14 @@ import { sendToApi } from '../../models/send-to-api.js';
 import { humanJsonOutputFormatOption, orgaIdOrNameOption } from '../global.options.js';
 import {
   consumerKeyOrNameArg,
+  isValidUrl,
   parseRights,
+  promptField,
+  promptRights,
   resolveConsumerKey,
-  RIGHTS_MAP,
   stripAlmighty,
   VALID_RIGHTS,
 } from './oauth-consumers.args.js';
-
-function isValidUrl(value) {
-  try {
-    new URL(value);
-    return true;
-  } catch {
-    return 'Please enter a valid URL (e.g. https://example.com)';
-  }
-}
-
-async function promptField(message, value, defaultValue, validate) {
-  if (value != null) return value;
-  return input({ message, default: defaultValue, validate });
-}
-
-async function promptRights(existingRights) {
-  const choices = Object.entries(RIGHTS_MAP).map(([cliName, apiName]) => ({
-    name: cliName,
-    value: cliName,
-    checked: existingRights[apiName] ?? false,
-  }));
-
-  const selected = await checkbox({ message: 'Select rights', choices });
-
-  if (selected.length === 0) {
-    return parseRights(null);
-  }
-
-  return parseRights(selected.join(','));
-}
 
 export const oauthConsumersUpdateCommand = defineCommand({
   description: 'Update an OAuth consumer',

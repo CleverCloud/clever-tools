@@ -1,5 +1,4 @@
 import { create } from '@clevercloud/client/esm/api/v2/oauth-consumer.js';
-import { checkbox, input } from '@inquirer/prompts';
 import { z } from 'zod';
 import { defineArgument } from '../../lib/define-argument.js';
 import { defineCommand } from '../../lib/define-command.js';
@@ -9,33 +8,7 @@ import { Logger } from '../../logger.js';
 import * as Organisation from '../../models/organisation.js';
 import { sendToApi } from '../../models/send-to-api.js';
 import { humanJsonOutputFormatOption, orgaIdOrNameOption } from '../global.options.js';
-import { parseRights, RIGHTS_MAP, VALID_RIGHTS } from './oauth-consumers.args.js';
-
-function isValidUrl(value) {
-  try {
-    new URL(value);
-    return true;
-  } catch {
-    return 'Please enter a valid URL (e.g. https://example.com)';
-  }
-}
-
-async function promptField(message, value, validate) {
-  if (value != null) return value;
-  return input({ message, validate });
-}
-
-async function promptRights() {
-  const choices = Object.keys(RIGHTS_MAP).map((name) => ({ name, value: name }));
-
-  const selected = await checkbox({ message: 'Select rights', choices });
-
-  if (selected.length === 0) {
-    return parseRights(null);
-  }
-
-  return parseRights(selected.join(','));
-}
+import { isValidUrl, parseRights, promptField, promptRights, VALID_RIGHTS } from './oauth-consumers.args.js';
 
 export const oauthConsumersCreateCommand = defineCommand({
   description: 'Create an OAuth consumer',
@@ -90,9 +63,9 @@ export const oauthConsumersCreateCommand = defineCommand({
     const body = {
       name,
       description: await promptField('Description:', description),
-      url: await promptField('Application home URL:', url, isValidUrl),
-      picture: await promptField('Application logo URL:', picture, isValidUrl),
-      baseUrl: await promptField('OAuth callback base URL:', baseUrl, isValidUrl),
+      url: await promptField('Application home URL:', url, undefined, isValidUrl),
+      picture: await promptField('Application logo URL:', picture, undefined, isValidUrl),
+      baseUrl: await promptField('OAuth callback base URL:', baseUrl, undefined, isValidUrl),
       rights: rightsCsv != null ? parseRights(rightsCsv) : await promptRights(),
     };
 

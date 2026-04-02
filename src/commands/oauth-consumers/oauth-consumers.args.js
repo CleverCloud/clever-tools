@@ -1,4 +1,5 @@
 import { getAll } from '@clevercloud/client/esm/api/v2/oauth-consumer.js';
+import { checkbox, input } from '@inquirer/prompts';
 import { z } from 'zod';
 import { defineArgument } from '../../lib/define-argument.js';
 import { styleText } from '../../lib/style-text.js';
@@ -78,4 +79,34 @@ export function parseRights(rightsCsv) {
 export function stripAlmighty(rights) {
   const { almighty, ...rest } = rights;
   return rest;
+}
+
+export function isValidUrl(value) {
+  try {
+    new URL(value);
+    return true;
+  } catch {
+    return 'Please enter a valid URL (e.g. https://example.com)';
+  }
+}
+
+export async function promptField(message, value, defaultValue, validate) {
+  if (value != null) return value;
+  return input({ message, default: defaultValue, validate });
+}
+
+export async function promptRights(existingRights) {
+  const choices = Object.entries(RIGHTS_MAP).map(([cliName, apiName]) => ({
+    name: cliName,
+    value: cliName,
+    checked: existingRights?.[apiName] ?? false,
+  }));
+
+  const selected = await checkbox({ message: 'Select rights', choices });
+
+  if (selected.length === 0) {
+    return parseRights(null);
+  }
+
+  return parseRights(selected.join(','));
 }
