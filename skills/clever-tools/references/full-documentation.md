@@ -370,7 +370,7 @@ addon-id                                Add-on ID or real ID
 **Options**
 ```
 -F, --format <format>                   Output format (human, json, shell) (default: human)
--o, --org, --owner <org-id|org-name>    Organisation to target by its ID (or name, if unambiguous)
+-o, --org, --owner <org-id|org-name>    Organisation to target by its ID (or name, if unambiguous) (deprecated, organisation is now resolved automatically)
 ```
 
 ### addon list
@@ -797,7 +797,7 @@ database-id|addon-id                    Any database ID (format: addon_UUID, pos
 **Options**
 ```
 -F, --format <format>                   Output format (human, json) (default: human)
--o, --org, --owner <org-id|org-name>    Organisation to target by its ID (or name, if unambiguous)
+-o, --org, --owner <org-id|org-name>    Organisation to target by its ID (or name, if unambiguous) (deprecated, organisation is now resolved automatically)
 ```
 
 #### database backups download
@@ -819,7 +819,7 @@ backup-id                               A Database backup ID (format: UUID)
 
 **Options**
 ```
--o, --org, --owner <org-id|org-name>    Organisation to target by its ID (or name, if unambiguous)
+-o, --org, --owner <org-id|org-name>    Organisation to target by its ID (or name, if unambiguous) (deprecated, organisation is now resolved automatically)
     --output, --out <file-path>         Redirect the output of the command in a file
 ```
 

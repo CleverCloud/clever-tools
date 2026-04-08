@@ -8,7 +8,7 @@ import { JsonArray } from '../../models/json-array.js';
 import { getHostAndTokens } from '../../models/send-to-api.js';
 import { truncateWithEllipsis } from '../../models/utils.js';
 import {
-  addonIdOption,
+  addonIdOrRealIdOption,
   afterOption,
   aliasOption,
   appIdOrNameOption,
@@ -79,7 +79,7 @@ export const accesslogsCommand = defineCommand({
     format: logsFormatOption,
     before: beforeOption,
     after: afterOption,
-    addon: addonIdOption,
+    addon: addonIdOrRealIdOption,
   },
   args: [],
   async handler(options) {

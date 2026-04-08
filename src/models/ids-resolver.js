@@ -31,28 +31,17 @@ export async function resolveOwnerId(id) {
   return getIdFromCacheOrSummary((ids) => ids.owners[id]);
 }
 
-export async function resolveAddonId(id) {
-  const addonId = await getIdFromCacheOrSummary((ids) => {
-    return ids.addons[id] != null ? ids.addons[id].addonId : null;
+export async function resolveAddon(addonIdOrRealId) {
+  const result = await getIdFromCacheOrSummary((ids) => {
+    const addon = ids.addons[addonIdOrRealId];
+    if (addon == null) return null;
+    const ownerId = ids.owners[addon.realId];
+    return { ownerId, addonId: addon.addonId, realId: addon.realId };
   });
-
-  if (addonId != null) {
-    return addonId;
+  if (result == null) {
+    throw new Error(`Add-on ${addonIdOrRealId} does not exist`);
   }
-
-  throw new Error(`Add-on ${id} does not exist`);
-}
-
-export async function resolveRealId(id) {
-  const realId = await getIdFromCacheOrSummary((ids) => {
-    return ids.addons[id] != null ? ids.addons[id].realId : null;
-  });
-
-  if (realId != null) {
-    return realId;
-  }
-
-  throw new Error(`Add-on ${id} does not exist foo`);
+  return result;
 }
 
 async function getIdFromCacheOrSummary(callback) {

@@ -4,8 +4,7 @@ import { z } from 'zod';
 import { defineArgument } from '../../lib/define-argument.js';
 import { defineCommand } from '../../lib/define-command.js';
 import { Logger } from '../../logger.js';
-import { findOwnerId } from '../../models/addon.js';
-import { resolveAddonId } from '../../models/ids-resolver.js';
+import { resolveAddon } from '../../models/ids-resolver.js';
 import { sendToApi } from '../../models/send-to-api.js';
 import { envFormatOption, orgaIdOrNameOption } from '../global.options.js';
 
@@ -13,7 +12,7 @@ export const addonEnvCommand = defineCommand({
   description: 'List environment variables for an add-on',
   since: '2.11.0',
   options: {
-    org: orgaIdOrNameOption,
+    org: { ...orgaIdOrNameOption, deprecated: 'organisation is now resolved automatically' },
     format: envFormatOption,
   },
   args: [
@@ -24,10 +23,9 @@ export const addonEnvCommand = defineCommand({
     }),
   ],
   async handler(options, addonIdOrRealId) {
-    const { org, format } = options;
+    const { format } = options;
 
-    const addonId = await resolveAddonId(addonIdOrRealId);
-    const ownerId = await findOwnerId(org, addonId);
+    const { ownerId, addonId } = await resolveAddon(addonIdOrRealId);
 
     const envFromAddon = await getAllEnvVars({ id: ownerId, addonId }).then(sendToApi);
 
