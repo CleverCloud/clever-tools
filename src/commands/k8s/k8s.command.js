@@ -5,8 +5,4 @@ export const k8sCommand = defineCommand({
   since: '4.3.0',
   isExperimental: true,
   featureFlag: 'k8s',
-  options: {},
-  args: [],
-  // Parent command - no handler, only contains subcommands
-  handler: null,
 });
