@@ -45,8 +45,9 @@
     "install-local:cliparse": "(cd ../cliparse-node && npm pack) && mv ../cliparse-node/cliparse-*.tgz . && npm i -f ./cliparse-*.tgz",
     "lint": "eslint",
     "lint:fix": "eslint --fix",
+    "test": "node --experimental-test-module-mocks --test 'src/**/*.test.ts'",
     "typecheck": "tsc -p tsconfig.json",
-    "validate": "npm run lint && npm run format:check && npm run typecheck && npm run docs:check"
+    "validate": "npm run lint && npm run format:check && npm run typecheck && npm run docs:check && npm run test"
   },
   "dependencies": {
     "@clevercloud/client": "12.6.3",
