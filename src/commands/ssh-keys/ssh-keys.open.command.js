@@ -7,6 +7,6 @@ export const sshKeysOpenCommand = defineCommand({
   options: {},
   args: [],
   handler() {
-    return openBrowser('/users/me/ssh-keys', 'Opening the SSH keys management page of the Console in your browser');
+    return openBrowser('/users/me/ssh-keys', 'Opening the SSH keys page in the browser…');
   },
 });

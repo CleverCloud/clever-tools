@@ -26,7 +26,7 @@ export function openBrowser(urlOrPath, message) {
   const url = urlOrPath.startsWith('/') ? `${config.CONSOLE_URL}${urlOrPath}` : urlOrPath;
 
   Logger.debug(`Opening URL "${url}" in browser`);
-  Logger.println(message);
+  Logger.println(`🌐 ${message}`);
 
   return openPage(url, { wait: false });
 }

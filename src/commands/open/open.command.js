@@ -19,6 +19,6 @@ export const openCommand = defineCommand({
     const vhost = await Domain.getBest(appId, ownerId);
     const url = 'https://' + vhost.fqdn;
 
-    await openBrowser(url, 'Opening the application in your browser');
+    await openBrowser(url, 'Opening the application in the browser…');
   },
 });

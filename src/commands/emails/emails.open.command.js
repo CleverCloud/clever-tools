@@ -7,9 +7,6 @@ export const emailsOpenCommand = defineCommand({
   options: {},
   args: [],
   handler() {
-    return openBrowser(
-      '/users/me/emails',
-      'Opening the email addresses management page of the Console in your browser',
-    );
+    return openBrowser('/users/me/emails', 'Opening the emails page in the browser…');
   },
 });

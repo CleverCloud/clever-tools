@@ -180,7 +180,7 @@ export async function operatorOpen(provider, addonIdOrName) {
   const operator = await Operator.getDetails(provider, addonIdOrName);
   await openBrowser(
     `${config.GOTO_URL}/${operator.addonId}`,
-    `🌐 Opening ${styleText('blue', operator.addonId)} in the browser…`,
+    `Opening ${styleText('blue', operator.addonId)} in the browser…`,
   );
 }
 
@@ -194,7 +194,7 @@ export async function operatorOpenLogs(provider, addonIdOrName) {
   const operator = await Operator.getDetails(provider, addonIdOrName);
   await openBrowser(
     `/organisations/${operator.ownerId}/applications/${operator.resources.entrypoint}/logs`,
-    `🌐 Opening ${styleText('blue', operator.addonId)} logs in the Clever Cloud Console…`,
+    `Opening ${styleText('blue', operator.addonId)} logs in the browser…`,
   );
 }
 
@@ -206,10 +206,7 @@ export async function operatorOpenLogs(provider, addonIdOrName) {
  */
 export async function operatorOpenWebUi(provider, addonIdOrName) {
   const operator = await Operator.getDetails(provider, addonIdOrName);
-  await openBrowser(
-    operator.accessUrl,
-    `🌐 Opening ${styleText('blue', operator.addonId)} Management interface in the browser…`,
-  );
+  await openBrowser(operator.accessUrl, `Opening ${styleText('blue', operator.addonId)} web UI in the browser…`);
 }
 
 /**
