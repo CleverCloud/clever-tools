@@ -10,9 +10,8 @@ import * as Addon from '../../models/addon.js';
 import { completePlan, completeRegion, parseAddonOptions } from '../../models/addon.js';
 import * as AppConfig from '../../models/app_configuration.js';
 import { listAvailableAliases } from '../../models/application.js';
-import * as Organisation from '../../models/organisation.js';
+import { getOwnerIdFromOrgIdOrName } from '../../models/ids-resolver.js';
 import { sendToApi } from '../../models/send-to-api.js';
-import * as User from '../../models/user.js';
 import { addonOptions } from '../../parsers.js';
 import { humanJsonOutputFormatOption, orgaIdOrNameOption } from '../global.options.js';
 import { addonNameArg, addonProviderArg } from './addon.args.js';
@@ -130,7 +129,7 @@ export const addonCreateCommand = defineCommand({
       addonOptions: parseAddonOptions(addonOptions),
     };
 
-    const ownerId = orgaIdOrName != null ? await Organisation.getId(orgaIdOrName) : await User.getCurrentId();
+    const ownerId = await getOwnerIdFromOrgIdOrName(orgaIdOrName);
     if (linkedAppAlias != null) {
       const linkedAppData = await AppConfig.getAppDetails({ alias: linkedAppAlias });
       if (orgaIdOrName != null && linkedAppData.ownerId !== ownerId && format === 'human') {
