@@ -2,9 +2,9 @@ import { disableDrain } from '../../clever-client/drains.js';
 import { defineCommand } from '../../lib/define-command.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
-import * as Application from '../../models/application.js';
+import { resolveDrainResource } from '../../models/drain.js';
 import { sendToApi } from '../../models/send-to-api.js';
-import { aliasOption, appIdOrNameOption } from '../global.options.js';
+import { addonIdOrRealIdOption, aliasOption, appIdOrNameOption } from '../global.options.js';
 import { drainIdArg } from './drain.args.js';
 
 export const drainDisableCommand = defineCommand({
@@ -12,15 +12,15 @@ export const drainDisableCommand = defineCommand({
   since: '0.9.0',
   options: {
     alias: aliasOption,
-    app: appIdOrNameOption,
+    appIdOrName: appIdOrNameOption,
+    addonIdOrRealId: addonIdOrRealIdOption,
   },
   args: [drainIdArg],
   async handler(options, drainId) {
-    const { alias, app: appIdOrName } = options;
+    const { alias, appIdOrName, addonIdOrRealId } = options;
+    const { ownerId, resourceId } = await resolveDrainResource(alias, appIdOrName, addonIdOrRealId);
 
-    const { ownerId, appId: applicationId } = await Application.resolveId(appIdOrName, alias);
-
-    await disableDrain({ ownerId, applicationId, drainId }).then(sendToApi);
+    await disableDrain({ ownerId, resourceId, drainId }).then(sendToApi);
 
     Logger.printSuccess(`Drain ${styleText(['bold', 'green'], drainId)} has been successfully disabled!`);
   },

@@ -12,6 +12,7 @@ clever drain [options]
 
 |Name|Description|
 |---|---|
+|`--addon` `<addon-id>`|Add-on ID or real ID|
 |`-a`, `--alias` `<alias>`|Short name for the application|
 |`--app` `<app-id\|app-name>`|Application to manage by its ID (or name, if unambiguous)|
 |`-F`, `--format` `<format>`|Output format (human, json) (default: human)|
@@ -35,6 +36,7 @@ clever drain create <drain-type> <drain-url> [options]
 
 |Name|Description|
 |---|---|
+|`--addon` `<addon-id>`|Add-on ID or real ID|
 |`-a`, `--alias` `<alias>`|Short name for the application|
 |`-k`, `--api-key` `<api-key>`|API key (for newrelic)|
 |`--app` `<app-id\|app-name>`|Application to manage by its ID (or name, if unambiguous)|
@@ -61,6 +63,7 @@ clever drain disable <drain-id> [options]
 
 |Name|Description|
 |---|---|
+|`--addon` `<addon-id>`|Add-on ID or real ID|
 |`-a`, `--alias` `<alias>`|Short name for the application|
 |`--app` `<app-id\|app-name>`|Application to manage by its ID (or name, if unambiguous)|
 
@@ -82,6 +85,7 @@ clever drain enable <drain-id> [options]
 
 |Name|Description|
 |---|---|
+|`--addon` `<addon-id>`|Add-on ID or real ID|
 |`-a`, `--alias` `<alias>`|Short name for the application|
 |`--app` `<app-id\|app-name>`|Application to manage by its ID (or name, if unambiguous)|
 
@@ -103,6 +107,7 @@ clever drain get <drain-id> [options]
 
 |Name|Description|
 |---|---|
+|`--addon` `<addon-id>`|Add-on ID or real ID|
 |`-a`, `--alias` `<alias>`|Short name for the application|
 |`--app` `<app-id\|app-name>`|Application to manage by its ID (or name, if unambiguous)|
 |`-F`, `--format` `<format>`|Output format (human, json) (default: human)|
@@ -125,5 +130,6 @@ clever drain remove <drain-id> [options]
 
 |Name|Description|
 |---|---|
+|`--addon` `<addon-id>`|Add-on ID or real ID|
 |`-a`, `--alias` `<alias>`|Short name for the application|
 |`--app` `<app-id\|app-name>`|Application to manage by its ID (or name, if unambiguous)|
