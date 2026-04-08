@@ -45,7 +45,8 @@
     "install-local:cliparse": "(cd ../cliparse-node && npm pack) && mv ../cliparse-node/cliparse-*.tgz . && npm i -f ./cliparse-*.tgz",
     "lint": "eslint",
     "lint:fix": "eslint --fix",
-    "validate": "npm run lint && npm run format:check && npm run typecheck && npm run docs:check",
+    "test": "node --experimental-test-module-mocks --test src/**/*.test.js",
+    "validate": "npm run lint && npm run format:check && npm run typecheck && npm run docs:check && npm run test",
     "typecheck": "tsc -p tsconfig.json"
   },
   "dependencies": {
