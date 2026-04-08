@@ -117,6 +117,13 @@ import { ngUnlinkCommand } from './ng/ng.unlink.command.js';
 import { notifyEmailAddCommand } from './notify-email/notify-email.add.command.js';
 import { notifyEmailCommand } from './notify-email/notify-email.command.js';
 import { notifyEmailRemoveCommand } from './notify-email/notify-email.remove.command.js';
+import { oauthConsumersCommand } from './oauth-consumers/oauth-consumers.command.js';
+import { oauthConsumersCreateCommand } from './oauth-consumers/oauth-consumers.create.command.js';
+import { oauthConsumersDeleteCommand } from './oauth-consumers/oauth-consumers.delete.command.js';
+import { oauthConsumersGetCommand } from './oauth-consumers/oauth-consumers.get.command.js';
+import { oauthConsumersListCommand } from './oauth-consumers/oauth-consumers.list.command.js';
+import { oauthConsumersOpenCommand } from './oauth-consumers/oauth-consumers.open.command.js';
+import { oauthConsumersUpdateCommand } from './oauth-consumers/oauth-consumers.update.command.js';
 import { openCommand } from './open/open.command.js';
 import { otoroshiCommand } from './otoroshi/otoroshi.command.js';
 import { otoroshiDisableNgCommand } from './otoroshi/otoroshi.disable-ng.command.js';
@@ -382,6 +389,17 @@ export const globalCommands = {
       link: ngLinkCommand,
       search: ngSearchCommand,
       unlink: ngUnlinkCommand,
+    },
+  ],
+  'oauth-consumers': [
+    oauthConsumersCommand,
+    {
+      create: oauthConsumersCreateCommand,
+      delete: oauthConsumersDeleteCommand,
+      get: oauthConsumersGetCommand,
+      list: oauthConsumersListCommand,
+      open: oauthConsumersOpenCommand,
+      update: oauthConsumersUpdateCommand,
     },
   ],
   'notify-email': [
