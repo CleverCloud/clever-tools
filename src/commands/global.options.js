@@ -67,10 +67,10 @@ export const humanJsonOutputFormatOption = defineOption({
   placeholder: 'format',
 });
 
-export const confirmAddonDeletionOption = defineOption({
+export const skipConfirmationOption = defineOption({
   name: 'yes',
   schema: z.boolean().default(false),
-  description: 'Skip confirmation and delete the add-on directly',
+  description: 'Skip confirmation and proceed with deletion directly',
   aliases: ['y'],
 });
 

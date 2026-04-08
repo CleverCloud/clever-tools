@@ -348,7 +348,7 @@ addon-id|addon-name                     Add-on ID (or name, if unambiguous)
 **Options**
 ```
 -o, --org, --owner <org-id|org-name>    Organisation to target by its ID (or name, if unambiguous)
--y, --yes                               Skip confirmation and delete the add-on directly
+-y, --yes                               Skip confirmation and proceed with deletion directly
 ```
 
 ### addon env
@@ -1530,7 +1530,7 @@ cluster-id|cluster-name                 Kubernetes cluster ID or name
 **Options**
 ```
 -o, --org, --owner <org-id|org-name>    Organisation to target by its ID (or name, if unambiguous)
--y, --yes                               Skip confirmation and delete the add-on directly
+-y, --yes                               Skip confirmation and proceed with deletion directly
 ```
 
 ### k8s get
