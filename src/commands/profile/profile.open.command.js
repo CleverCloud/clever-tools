@@ -7,6 +7,6 @@ export const profileOpenCommand = defineCommand({
   options: {},
   args: [],
   async handler() {
-    await openBrowser('/users/me/information', 'Opening the profile page in your browser');
+    await openBrowser('/users/me/information', 'Opening the profile page in the browser…');
   },
 });

@@ -94,6 +94,9 @@ async function getIdsFromSummary() {
       ids.addons[addon.id] = addonIds;
       ids.addons[addon.realId] = addonIds;
     }
+    for (const consumer of owner.consumers) {
+      ids.owners[consumer.key] = owner.id;
+    }
   }
 
   return ids;
@@ -172,6 +175,32 @@ export async function findAddonsByAddonProvider(provider) {
   }
 
   return candidates;
+}
+
+/**
+ * Find OAuth consumers by key or name.
+ * Fast path: tries the IDs cache first (works for keys).
+ * Fallback: fetches the summary and searches by key or name.
+ * @param {string} keyOrName
+ * @returns {Promise<Array<{ ownerId: string, key: string, name: string }>>}
+ */
+export async function findOauthConsumersByKeyOrName(keyOrName) {
+  const ownerIdFromCache = await resolveOwnerId(keyOrName);
+  if (ownerIdFromCache != null) {
+    return [{ ownerId: ownerIdFromCache, key: keyOrName }];
+  }
+
+  const summary = await getSummary().then(sendToApi);
+  const consumers = [summary.user, ...summary.organisations].flatMap((owner) => {
+    return owner.consumers.map((c) => ({ ownerId: owner.id, name: c.name, key: c.key }));
+  });
+
+  const matchByKey = consumers.find((c) => c.key === keyOrName);
+  if (matchByKey) {
+    return [matchByKey];
+  }
+
+  return consumers.filter((c) => c.name === keyOrName);
 }
 
 /**

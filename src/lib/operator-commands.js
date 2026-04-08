@@ -15,6 +15,7 @@ import { findAddonsByAddonProvider } from '../models/ids-resolver.js';
 import * as Operator from '../models/operator.js';
 import { sendToApi } from '../models/send-to-api.js';
 import { openBrowser } from '../models/utils.js';
+import { printItemsByOwner } from './print-items-by-owner.js';
 import { confirm, selectAnswer } from './prompts.js';
 import { styleText } from './style-text.js';
 
@@ -141,30 +142,18 @@ export async function operatorNgEnable(provider, addonIdOrName) {
 export async function operatorList(provider, format) {
   const deployed = await findAddonsByAddonProvider(provider);
   const providerName = _.capitalize(provider.replace('addon-', ''));
-  const operatorsPerOwner = _.groupBy(deployed, 'ownerId');
-
   switch (format) {
-    case 'json':
+    case 'json': {
+      const operatorsPerOwner = Object.groupBy(deployed, (o) => o.ownerId);
       Logger.printJson(operatorsPerOwner);
       break;
+    }
     case 'human':
     default:
-      if (deployed.length === 0) {
-        Logger.println(
-          `🔎 No ${providerName} found, create one with ${styleText('blue', `clever addon create ${providerName.toLocaleLowerCase()}`)} command`,
-        );
-        return;
-      }
-
-      Logger.println(`🔎 Found ${deployed.length} ${providerName} operator${deployed.length > 1 ? 's' : ''}:`);
-      Logger.println();
-
-      Object.values(operatorsPerOwner).forEach((operators) => {
-        Logger.println(`• ${styleText('bold', `${operators[0].ownerId} (${operators[0].ownerName})`)}`);
-        operators.forEach((operator) => {
-          Logger.println(`  • ${operator.name} ${styleText('grey', `(${operator.realId})`)}`);
-        });
-        Logger.println();
+      printItemsByOwner(deployed, {
+        itemName: `${providerName} operator`,
+        emptyCommand: `clever addon create ${providerName.toLocaleLowerCase()}`,
+        getItemId: (o) => o.realId,
       });
       break;
   }
@@ -180,7 +169,7 @@ export async function operatorOpen(provider, addonIdOrName) {
   const operator = await Operator.getDetails(provider, addonIdOrName);
   await openBrowser(
     `${config.GOTO_URL}/${operator.addonId}`,
-    `🌐 Opening ${styleText('blue', operator.addonId)} in the browser…`,
+    `Opening ${styleText('blue', operator.addonId)} in the browser…`,
   );
 }
 
@@ -194,7 +183,7 @@ export async function operatorOpenLogs(provider, addonIdOrName) {
   const operator = await Operator.getDetails(provider, addonIdOrName);
   await openBrowser(
     `/organisations/${operator.ownerId}/applications/${operator.resources.entrypoint}/logs`,
-    `🌐 Opening ${styleText('blue', operator.addonId)} logs in the Clever Cloud Console…`,
+    `Opening ${styleText('blue', operator.addonId)} logs in the browser…`,
   );
 }
 
@@ -206,10 +195,7 @@ export async function operatorOpenLogs(provider, addonIdOrName) {
  */
 export async function operatorOpenWebUi(provider, addonIdOrName) {
   const operator = await Operator.getDetails(provider, addonIdOrName);
-  await openBrowser(
-    operator.accessUrl,
-    `🌐 Opening ${styleText('blue', operator.addonId)} Management interface in the browser…`,
-  );
+  await openBrowser(operator.accessUrl, `Opening ${styleText('blue', operator.addonId)} web UI in the browser…`);
 }
 
 /**

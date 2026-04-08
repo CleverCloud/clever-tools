@@ -3,7 +3,7 @@ import { k8sDelete } from '../../lib/k8s.js';
 import { confirm } from '../../lib/prompts.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
-import { confirmAddonDeletionOption, orgaIdOrNameOption } from '../global.options.js';
+import { orgaIdOrNameOption, skipConfirmationOption } from '../global.options.js';
 import { k8sIdOrNameArg } from './k8s.args.js';
 
 export const k8sDeleteCommand = defineCommand({
@@ -11,7 +11,7 @@ export const k8sDeleteCommand = defineCommand({
   since: '4.3.0',
   options: {
     org: orgaIdOrNameOption,
-    yes: confirmAddonDeletionOption,
+    yes: skipConfirmationOption,
   },
   args: [k8sIdOrNameArg],
   async handler(options, clusterIdOrName) {

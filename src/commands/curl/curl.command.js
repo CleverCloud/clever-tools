@@ -73,5 +73,4 @@ export async function curl() {
 export const curlCommand = defineCommand({
   description: "Query Clever Cloud's API using Clever Tools credentials",
   since: '2.10.0',
-  handler: null,
 });
