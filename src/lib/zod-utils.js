@@ -66,6 +66,29 @@ export function getEnumValues(schema) {
 }
 
 /**
+ * Unwraps optional/nullable/default/pipe wrappers to get the inner schema.
+ * @param {ZodSchemaLike} schema
+ * @return {ZodSchemaLike}
+ */
+export function unwrapSchema(schema) {
+  /** @type {ZodSchemaLike | undefined} */
+  let current = schema;
+  while (current) {
+    const schemaType = current._def?.type;
+    if (schemaType === 'optional' || schemaType === 'nullable' || schemaType === 'default') {
+      current = current._def?.innerType;
+      continue;
+    }
+    if (schemaType === 'pipe') {
+      current = current._def?.in;
+      continue;
+    }
+    break;
+  }
+  return /** @type {ZodSchemaLike} */ (current);
+}
+
+/**
  * Extracts the default value from a Zod schema.
  * Handles wrapped schemas (optional, nullable, pipe).
  * @param {ZodSchemaLike} schema
