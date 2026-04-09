@@ -4,11 +4,11 @@ import { defineOption } from '../../lib/define-option.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
 import * as Application from '../../models/application.js';
-import { resolveOwnerId, resolveRealId } from '../../models/ids-resolver.js';
+import { resolveAddon } from '../../models/ids-resolver.js';
 import * as Log from '../../models/log.js';
 import { Deferred } from '../../models/utils.js';
 import {
-  addonIdOption,
+  addonIdOrRealIdOption,
   afterOption,
   aliasOption,
   appIdOrNameOption,
@@ -36,7 +36,7 @@ export const logsCommand = defineCommand({
     app: appIdOrNameOption,
     before: beforeOption,
     after: afterOption,
-    addon: addonIdOption,
+    addon: addonIdOrRealIdOption,
     format: logsFormatOption,
   },
   args: [],
@@ -57,8 +57,7 @@ export const logsCommand = defineCommand({
     const isForHuman = format === 'human';
 
     if (addonIdOrRealId != null) {
-      const realId = await resolveRealId(addonIdOrRealId);
-      const ownerId = await resolveOwnerId(realId);
+      const { ownerId, realId } = await resolveAddon(addonIdOrRealId);
       if (isForHuman) {
         Logger.println(styleText('blue', 'Waiting for addon logs…'));
       }

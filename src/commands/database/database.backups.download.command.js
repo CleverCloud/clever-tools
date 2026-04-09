@@ -6,8 +6,7 @@ import { z } from 'zod';
 import { defineArgument } from '../../lib/define-argument.js';
 import { defineCommand } from '../../lib/define-command.js';
 import { defineOption } from '../../lib/define-option.js';
-import { findOwnerId } from '../../models/addon.js';
-import { resolveRealId } from '../../models/ids-resolver.js';
+import { resolveAddon } from '../../models/ids-resolver.js';
 import { sendToApi } from '../../models/send-to-api.js';
 import { orgaIdOrNameOption } from '../global.options.js';
 import { databaseIdArg } from './database.args.js';
@@ -23,7 +22,7 @@ export const databaseBackupsDownloadCommand = defineCommand({
       aliases: ['out'],
       placeholder: 'file-path',
     }),
-    org: orgaIdOrNameOption,
+    org: { ...orgaIdOrNameOption, deprecated: 'organisation is now resolved automatically' },
   },
   args: [
     databaseIdArg,
@@ -34,12 +33,11 @@ export const databaseBackupsDownloadCommand = defineCommand({
     }),
   ],
   async handler(options, addonIdOrRealId, backupId) {
-    const { org, output } = options;
+    const { output } = options;
 
-    const addonId = await resolveRealId(addonIdOrRealId);
-    const ownerId = await findOwnerId(org, addonId);
+    const { ownerId, realId } = await resolveAddon(addonIdOrRealId);
 
-    const backups = await getBackups({ ownerId, ref: addonId }).then(sendToApi);
+    const backups = await getBackups({ ownerId, ref: realId }).then(sendToApi);
     const backup = backups.find((backup) => backup.backup_id === backupId);
 
     if (backup == null) {

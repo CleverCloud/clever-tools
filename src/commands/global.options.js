@@ -44,7 +44,7 @@ export const afterOption = defineOption({
   placeholder: 'after',
 });
 
-export const addonIdOption = defineOption({
+export const addonIdOrRealIdOption = defineOption({
   name: 'addon',
   schema: z.string().optional(),
   description: 'Add-on ID or real ID',

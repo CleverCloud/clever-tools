@@ -1,26 +1,30 @@
 import { getDrains } from '../../clever-client/drains.js';
 import { defineCommand } from '../../lib/define-command.js';
 import { Logger } from '../../logger.js';
-import * as Application from '../../models/application.js';
-import { formatDrain } from '../../models/drain.js';
+import { formatDrain, resolveDrainResource } from '../../models/drain.js';
 import { sendToApi } from '../../models/send-to-api.js';
-import { aliasOption, appIdOrNameOption, humanJsonOutputFormatOption } from '../global.options.js';
+import {
+  addonIdOrRealIdOption,
+  aliasOption,
+  appIdOrNameOption,
+  humanJsonOutputFormatOption,
+} from '../global.options.js';
 
 export const drainCommand = defineCommand({
   description: 'Manage drains',
   since: '0.9.0',
   options: {
     alias: aliasOption,
-    app: appIdOrNameOption,
+    appIdOrName: appIdOrNameOption,
+    addonIdOrRealId: addonIdOrRealIdOption,
     format: humanJsonOutputFormatOption,
   },
   args: [],
   async handler(options) {
-    const { alias, app: appIdOrName, format } = options;
+    const { alias, appIdOrName, addonIdOrRealId, format } = options;
+    const { ownerId, resourceId } = await resolveDrainResource(alias, appIdOrName, addonIdOrRealId);
 
-    const { ownerId, appId: applicationId } = await Application.resolveId(appIdOrName, alias);
-
-    const drains = await getDrains({ ownerId, applicationId }).then(sendToApi);
+    const drains = await getDrains({ ownerId, resourceId }).then(sendToApi);
 
     switch (format) {
       case 'json': {
@@ -30,7 +34,8 @@ export const drainCommand = defineCommand({
       case 'human':
       default: {
         if (drains.length === 0) {
-          Logger.println(`There are no drains for ${applicationId}`);
+          const resourceLabel = addonIdOrRealId ?? appIdOrName ?? resourceId;
+          Logger.println(`There are no drains for ${resourceLabel}`);
           return;
         }
 

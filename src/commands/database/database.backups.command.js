@@ -2,8 +2,7 @@ import { getBackups } from '@clevercloud/client/esm/api/v2/backups.js';
 import { formatTable } from '../../format-table.js';
 import { defineCommand } from '../../lib/define-command.js';
 import { Logger } from '../../logger.js';
-import { findOwnerId } from '../../models/addon.js';
-import { resolveAddonId, resolveRealId } from '../../models/ids-resolver.js';
+import { resolveAddon } from '../../models/ids-resolver.js';
 import { sendToApi } from '../../models/send-to-api.js';
 import { humanJsonOutputFormatOption, orgaIdOrNameOption } from '../global.options.js';
 import { databaseIdArg } from './database.args.js';
@@ -12,16 +11,14 @@ export const databaseBackupsCommand = defineCommand({
   description: 'List available database backups',
   since: '2.10.0',
   options: {
-    org: orgaIdOrNameOption,
+    org: { ...orgaIdOrNameOption, deprecated: 'organisation is now resolved automatically' },
     format: humanJsonOutputFormatOption,
   },
   args: [databaseIdArg],
   async handler(options, addonIdOrRealId) {
-    const { org, format } = options;
+    const { format } = options;
 
-    const realId = await resolveRealId(addonIdOrRealId);
-    const addonId = await resolveAddonId(addonIdOrRealId);
-    const ownerId = await findOwnerId(org, realId);
+    const { ownerId, addonId, realId } = await resolveAddon(addonIdOrRealId);
 
     const backups = await getBackups({ ownerId, ref: realId }).then(sendToApi);
 

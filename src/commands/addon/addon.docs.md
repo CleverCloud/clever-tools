@@ -83,7 +83,7 @@ clever addon env <addon-id> [options]
 |Name|Description|
 |---|---|
 |`-F`, `--format` `<format>`|Output format (human, json, shell) (default: human)|
-|`-o`, `--org`, `--owner` `<org-id\|org-name>`|Organisation to target by its ID (or name, if unambiguous)|
+|`-o`, `--org`, `--owner` `<org-id\|org-name>`|Organisation to target by its ID (or name, if unambiguous) *(deprecated, organisation is now resolved automatically)*|
 
 ## ➡️ `clever addon list` <kbd>Since 0.2.3</kbd>
 

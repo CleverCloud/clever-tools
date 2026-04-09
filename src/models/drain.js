@@ -1,3 +1,20 @@
+import * as Application from './application.js';
+import { resolveAddon } from './ids-resolver.js';
+
+export async function resolveDrainResource(alias, appIdOrName, addonIdOrRealId) {
+  if (addonIdOrRealId != null && (appIdOrName != null || alias != null)) {
+    throw new Error('`--addon` cannot be combined with `--app` or `--alias`');
+  }
+
+  if (addonIdOrRealId != null) {
+    const { ownerId, realId } = await resolveAddon(addonIdOrRealId);
+    return { ownerId, resourceId: realId };
+  }
+
+  const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
+  return { ownerId, resourceId: appId };
+}
+
 export const DRAIN_TYPES = {
   DATADOG: { apiCode: 'DATADOG', cliCode: 'datadog', label: 'Datadog' },
   ELASTICSEARCH: { apiCode: 'ELASTICSEARCH', cliCode: 'elasticsearch', label: 'Elasticsearch' },

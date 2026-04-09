@@ -27,7 +27,7 @@ clever database backups <database-id|addon-id> [options]
 |Name|Description|
 |---|---|
 |`-F`, `--format` `<format>`|Output format (human, json) (default: human)|
-|`-o`, `--org`, `--owner` `<org-id\|org-name>`|Organisation to target by its ID (or name, if unambiguous)|
+|`-o`, `--org`, `--owner` `<org-id\|org-name>`|Organisation to target by its ID (or name, if unambiguous) *(deprecated, organisation is now resolved automatically)*|
 
 ## ➡️ `clever database backups download` <kbd>Since 2.10.0</kbd>
 
@@ -48,5 +48,5 @@ clever database backups download <database-id|addon-id> <backup-id> [options]
 
 |Name|Description|
 |---|---|
-|`-o`, `--org`, `--owner` `<org-id\|org-name>`|Organisation to target by its ID (or name, if unambiguous)|
+|`-o`, `--org`, `--owner` `<org-id\|org-name>`|Organisation to target by its ID (or name, if unambiguous) *(deprecated, organisation is now resolved automatically)*|
 |`--output`, `--out` `<file-path>`|Redirect the output of the command in a file|

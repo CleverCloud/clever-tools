@@ -370,7 +370,7 @@ addon-id                                Add-on ID or real ID
 **Options**
 ```
 -F, --format <format>                   Output format (human, json, shell) (default: human)
--o, --org, --owner <org-id|org-name>    Organisation to target by its ID (or name, if unambiguous)
+-o, --org, --owner <org-id|org-name>    Organisation to target by its ID (or name, if unambiguous) (deprecated, organisation is now resolved automatically)
 ```
 
 ### addon list
@@ -797,7 +797,7 @@ database-id|addon-id                    Any database ID (format: addon_UUID, pos
 **Options**
 ```
 -F, --format <format>                   Output format (human, json) (default: human)
--o, --org, --owner <org-id|org-name>    Organisation to target by its ID (or name, if unambiguous)
+-o, --org, --owner <org-id|org-name>    Organisation to target by its ID (or name, if unambiguous) (deprecated, organisation is now resolved automatically)
 ```
 
 #### database backups download
@@ -819,7 +819,7 @@ backup-id                               A Database backup ID (format: UUID)
 
 **Options**
 ```
--o, --org, --owner <org-id|org-name>    Organisation to target by its ID (or name, if unambiguous)
+-o, --org, --owner <org-id|org-name>    Organisation to target by its ID (or name, if unambiguous) (deprecated, organisation is now resolved automatically)
     --output, --out <file-path>         Redirect the output of the command in a file
 ```
 
@@ -1048,6 +1048,7 @@ clever drain [options]
 
 **Options**
 ```
+    --addon <addon-id>         Add-on ID or real ID
 -a, --alias <alias>            Short name for the application
     --app <app-id|app-name>    Application to manage by its ID (or name, if unambiguous)
 -F, --format <format>          Output format (human, json) (default: human)
@@ -1072,6 +1073,7 @@ drain-url                            Drain URL
 
 **Options**
 ```
+    --addon <addon-id>               Add-on ID or real ID
 -a, --alias <alias>                  Short name for the application
 -k, --api-key <api-key>              API key (for newrelic)
     --app <app-id|app-name>          Application to manage by its ID (or name, if unambiguous)
@@ -1099,6 +1101,7 @@ drain-id                       Drain ID
 
 **Options**
 ```
+    --addon <addon-id>         Add-on ID or real ID
 -a, --alias <alias>            Short name for the application
     --app <app-id|app-name>    Application to manage by its ID (or name, if unambiguous)
 ```
@@ -1121,6 +1124,7 @@ drain-id                       Drain ID
 
 **Options**
 ```
+    --addon <addon-id>         Add-on ID or real ID
 -a, --alias <alias>            Short name for the application
     --app <app-id|app-name>    Application to manage by its ID (or name, if unambiguous)
 ```
@@ -1143,6 +1147,7 @@ drain-id                       Drain ID
 
 **Options**
 ```
+    --addon <addon-id>         Add-on ID or real ID
 -a, --alias <alias>            Short name for the application
     --app <app-id|app-name>    Application to manage by its ID (or name, if unambiguous)
 -F, --format <format>          Output format (human, json) (default: human)
@@ -1166,6 +1171,7 @@ drain-id                       Drain ID
 
 **Options**
 ```
+    --addon <addon-id>         Add-on ID or real ID
 -a, --alias <alias>            Short name for the application
     --app <app-id|app-name>    Application to manage by its ID (or name, if unambiguous)
 ```
