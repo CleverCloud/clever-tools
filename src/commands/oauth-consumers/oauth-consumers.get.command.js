@@ -10,7 +10,7 @@ import { consumerKeyOrNameArg } from './oauth-consumers.args.js';
 
 export const oauthConsumersGetCommand = defineCommand({
   description: 'Get details of an OAuth consumer',
-  since: 'unreleased',
+  since: '4.8.0',
   options: {
     format: humanJsonOutputFormatOption,
     withSecret: defineOption({

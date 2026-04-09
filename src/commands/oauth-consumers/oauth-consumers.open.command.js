@@ -6,7 +6,7 @@ import { consumerKeyOrNameArg } from './oauth-consumers.args.js';
 
 export const oauthConsumersOpenCommand = defineCommand({
   description: 'Open an OAuth consumer in the Clever Cloud Console',
-  since: 'unreleased',
+  since: '4.8.0',
   args: [consumerKeyOrNameArg],
   async handler(options, keyOrName) {
     const oauthConsumer = await resolveOauthConsumer(keyOrName);

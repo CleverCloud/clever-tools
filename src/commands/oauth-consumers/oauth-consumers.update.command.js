@@ -26,7 +26,7 @@ const nameOption = defineOption({
 
 export const oauthConsumersUpdateCommand = defineCommand({
   description: 'Update an OAuth consumer',
-  since: 'unreleased',
+  since: '4.8.0',
   options: {
     name: nameOption,
     description: descriptionOption,

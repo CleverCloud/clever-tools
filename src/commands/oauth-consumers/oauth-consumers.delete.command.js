@@ -10,7 +10,7 @@ import { consumerKeyOrNameArg } from './oauth-consumers.args.js';
 
 export const oauthConsumersDeleteCommand = defineCommand({
   description: 'Delete an OAuth consumer',
-  since: 'unreleased',
+  since: '4.8.0',
   options: {
     skipConfirmation: skipConfirmationOption,
   },

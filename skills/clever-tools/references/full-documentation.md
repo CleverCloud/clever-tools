@@ -2518,7 +2518,7 @@ notification-id                         Notification ID
 
 **Description:** Manage OAuth consumers used with a Clever Cloud login
 
-**Since:** unreleased
+**Since:** 4.8.0
 
 **Usage**
 ```
@@ -2529,7 +2529,7 @@ clever oauth-consumers
 
 **Description:** Create an OAuth consumer
 
-**Since:** unreleased
+**Since:** 4.8.0
 
 **Usage**
 ```
@@ -2556,7 +2556,7 @@ name                                    Consumer name
 
 **Description:** Delete an OAuth consumer
 
-**Since:** unreleased
+**Since:** 4.8.0
 
 **Usage**
 ```
@@ -2577,7 +2577,7 @@ consumer-key|consumer-name    OAuth consumer key (or name, if unambiguous)
 
 **Description:** Get details of an OAuth consumer
 
-**Since:** unreleased
+**Since:** 4.8.0
 
 **Usage**
 ```
@@ -2599,7 +2599,7 @@ consumer-key|consumer-name    OAuth consumer key (or name, if unambiguous)
 
 **Description:** List OAuth consumers
 
-**Since:** unreleased
+**Since:** 4.8.0
 
 **Usage**
 ```
@@ -2615,7 +2615,7 @@ clever oauth-consumers list [options]
 
 **Description:** Open an OAuth consumer in the Clever Cloud Console
 
-**Since:** unreleased
+**Since:** 4.8.0
 
 **Usage**
 ```
@@ -2631,7 +2631,7 @@ consumer-key|consumer-name    OAuth consumer key (or name, if unambiguous)
 
 **Description:** Update an OAuth consumer
 
-**Since:** unreleased
+**Since:** 4.8.0
 
 **Usage**
 ```

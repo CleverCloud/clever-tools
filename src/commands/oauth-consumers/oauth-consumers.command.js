@@ -2,5 +2,5 @@ import { defineCommand } from '../../lib/define-command.js';
 
 export const oauthConsumersCommand = defineCommand({
   description: 'Manage OAuth consumers used with a Clever Cloud login',
-  since: 'unreleased',
+  since: '4.8.0',
 });

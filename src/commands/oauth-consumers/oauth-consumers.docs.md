@@ -1,6 +1,6 @@
 # 📖 `clever oauth-consumers` command reference
 
-## ➡️ `clever oauth-consumers` <kbd>Since unreleased</kbd>
+## ➡️ `clever oauth-consumers` <kbd>Since 4.8.0</kbd>
 
 Manage OAuth consumers used with a Clever Cloud login
 
@@ -8,7 +8,7 @@ Manage OAuth consumers used with a Clever Cloud login
 clever oauth-consumers
 ```
 
-## ➡️ `clever oauth-consumers create` <kbd>Since unreleased</kbd>
+## ➡️ `clever oauth-consumers create` <kbd>Since 4.8.0</kbd>
 
 Create an OAuth consumer
 
@@ -34,7 +34,7 @@ clever oauth-consumers create <name> [options]
 |`--rights` `<rights>`|Comma-separated list of rights (access-organisations, access-organisations-bills, access-organisations-consumption-statistics, access-organisations-credit-count, access-personal-information, manage-organisations, manage-organisations-applications, manage-organisations-members, manage-organisations-services, manage-personal-information, manage-ssh-keys, all)|
 |`--url` `<url>`|Application home URL|
 
-## ➡️ `clever oauth-consumers delete` <kbd>Since unreleased</kbd>
+## ➡️ `clever oauth-consumers delete` <kbd>Since 4.8.0</kbd>
 
 Delete an OAuth consumer
 
@@ -54,7 +54,7 @@ clever oauth-consumers delete <consumer-key|consumer-name> [options]
 |---|---|
 |`-y`, `--yes`|Skip confirmation and proceed with deletion directly|
 
-## ➡️ `clever oauth-consumers get` <kbd>Since unreleased</kbd>
+## ➡️ `clever oauth-consumers get` <kbd>Since 4.8.0</kbd>
 
 Get details of an OAuth consumer
 
@@ -75,7 +75,7 @@ clever oauth-consumers get <consumer-key|consumer-name> [options]
 |`-F`, `--format` `<format>`|Output format (human, json) (default: human)|
 |`--with-secret`|Include the consumer secret in the output|
 
-## ➡️ `clever oauth-consumers list` <kbd>Since unreleased</kbd>
+## ➡️ `clever oauth-consumers list` <kbd>Since 4.8.0</kbd>
 
 List OAuth consumers
 
@@ -89,7 +89,7 @@ clever oauth-consumers list [options]
 |---|---|
 |`-F`, `--format` `<format>`|Output format (human, json) (default: human)|
 
-## ➡️ `clever oauth-consumers open` <kbd>Since unreleased</kbd>
+## ➡️ `clever oauth-consumers open` <kbd>Since 4.8.0</kbd>
 
 Open an OAuth consumer in the Clever Cloud Console
 
@@ -103,7 +103,7 @@ clever oauth-consumers open <consumer-key|consumer-name>
 |---|---|
 |`consumer-key|consumer-name`|OAuth consumer key (or name, if unambiguous)|
 
-## ➡️ `clever oauth-consumers update` <kbd>Since unreleased</kbd>
+## ➡️ `clever oauth-consumers update` <kbd>Since 4.8.0</kbd>
 
 Update an OAuth consumer
 
