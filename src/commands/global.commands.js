@@ -165,6 +165,8 @@ import { tcpRedirsAddCommand } from './tcp-redirs/tcp-redirs.add.command.js';
 import { tcpRedirsCommand } from './tcp-redirs/tcp-redirs.command.js';
 import { tcpRedirsListNamespacesCommand } from './tcp-redirs/tcp-redirs.list-namespaces.command.js';
 import { tcpRedirsRemoveCommand } from './tcp-redirs/tcp-redirs.remove.command.js';
+import { terraformCommand } from './terraform/terraform.command.js';
+import { terraformGenerateCommand } from './terraform/terraform.generate.command.js';
 import { tokensCommand } from './tokens/tokens.command.js';
 import { tokensCreateCommand } from './tokens/tokens.create.command.js';
 import { tokensRevokeCommand } from './tokens/tokens.revoke.command.js';
@@ -480,6 +482,12 @@ export const globalCommands = {
       add: tcpRedirsAddCommand,
       'list-namespaces': tcpRedirsListNamespacesCommand,
       remove: tcpRedirsRemoveCommand,
+    },
+  ],
+  terraform: [
+    terraformCommand,
+    {
+      generate: terraformGenerateCommand,
     },
   ],
   tokens: [
