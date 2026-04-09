@@ -6,7 +6,7 @@ import { humanJsonOutputFormatOption } from '../global.options.js';
 
 export const oauthConsumersListCommand = defineCommand({
   description: 'List OAuth consumers',
-  since: 'unreleased',
+  since: '4.8.0',
   options: {
     format: humanJsonOutputFormatOption,
   },

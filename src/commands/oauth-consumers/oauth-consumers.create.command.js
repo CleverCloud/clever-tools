@@ -13,7 +13,7 @@ import { baseUrlOption, descriptionOption, pictureOption, rightsOption, urlOptio
 
 export const oauthConsumersCreateCommand = defineCommand({
   description: 'Create an OAuth consumer',
-  since: 'unreleased',
+  since: '4.8.0',
   options: {
     org: orgaIdOrNameOption,
     description: descriptionOption,

@@ -1,5 +1,18 @@
 # clever-tools changelog
 
+## [4.8.0](https://github.com/CleverCloud/clever-tools/compare/4.7.1...4.8.0) (2026-04-09)
+
+
+### 🚀 Features
+
+* **oauth-consumers:** add oauth-consumers commands ([13ae147](https://github.com/CleverCloud/clever-tools/commit/13ae14760e8fe3b4d6d2777a61afcdfebc892d75))
+* **drain:** add --addon option to target add-on drains ([4e40c24](https://github.com/CleverCloud/clever-tools/commit/4e40c24f461197d810ec7280e1a09aa796630723))
+
+
+### 🐛 Bug Fixes
+
+* **ng:** adapt to @clevercloud/client v12 API change for peer config ([ee306a0](https://github.com/CleverCloud/clever-tools/commit/ee306a0c04fbe491209984ab4908754f92d68fc2))
+
 ## [4.7.1](https://github.com/CleverCloud/clever-tools/compare/4.7.0...4.7.1) (2026-03-18)
 
 
