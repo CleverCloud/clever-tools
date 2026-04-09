@@ -45,6 +45,7 @@ import { drainDisableCommand } from './drain/drain.disable.command.js';
 import { drainEnableCommand } from './drain/drain.enable.command.js';
 import { drainGetCommand } from './drain/drain.get.command.js';
 import { drainRemoveCommand } from './drain/drain.remove.command.js';
+import { drainTestCommandCommand } from './drain/drain.test-command.command.js';
 import { emailsAddCommand } from './emails/emails.add.command.js';
 import { emailsCommand } from './emails/emails.command.js';
 import { emailsOpenCommand } from './emails/emails.open.command.js';
@@ -260,6 +261,7 @@ export const globalCommands = {
       enable: drainEnableCommand,
       get: drainGetCommand,
       remove: drainRemoveCommand,
+      'test-command': drainTestCommandCommand,
     },
   ],
   emails: [

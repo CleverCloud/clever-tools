@@ -133,3 +133,24 @@ clever drain remove <drain-id> [options]
 |`--addon` `<addon-id>`|Add-on ID or real ID|
 |`-a`, `--alias` `<alias>`|Short name for the application|
 |`--app` `<app-id\|app-name>`|Application to manage by its ID (or name, if unambiguous)|
+
+## ➡️ `clever drain test-command` <kbd>Since 4.8.0</kbd>
+
+Get a ready-to-execute shell command to test a drain recipient
+
+```bash
+clever drain test-command <drain-id> [options]
+```
+
+### 📥 Arguments
+
+|Name|Description|
+|---|---|
+|`drain-id`|Drain ID|
+
+### ⚙️ Options
+
+|Name|Description|
+|---|---|
+|`-a`, `--alias` `<alias>`|Short name for the application|
+|`--app` `<app-id\|app-name>`|Application to manage by its ID (or name, if unambiguous)|
