@@ -1,3 +1,4 @@
+import { createConfigBuilder, InvalidConfigError } from '@clevercloud/reglage';
 import path from 'node:path';
 import { z } from 'zod';
 import { readJsonSync, writeJson } from '../lib/fs.js';
@@ -40,36 +41,71 @@ const ConfigFileSchema = z.object({
 
 /** @typedef {z.infer<typeof ConfigFileSchema>} ConfigFile */
 
-const ConfigSchema = z
-  .object({
-    CONFIGURATION_FILE: z.string().default(getConfigPath('clever-tools.json')),
-    EXPERIMENTAL_FEATURES_FILE: z.string().default(getConfigPath('clever-tools-experimental-features.json')),
-    APP_CONFIGURATION_FILE: z.string().default(() => path.resolve('.', '.clever.json')),
+const CONFIG_SCHEMA = {
+  CONFIGURATION_FILE: {
+    schema: z.string().default(getConfigPath('clever-tools.json')),
+    documentation: 'Path to the main configuration file',
+  },
+  EXPERIMENTAL_FEATURES_FILE: {
+    schema: z.string().default(getConfigPath('clever-tools-experimental-features.json')),
+    documentation: 'Path to the experimental features configuration file',
+  },
+  APP_CONFIGURATION_FILE: {
+    schema: z.string().default(path.resolve('.', '.clever.json')),
+    documentation: 'Path to the per-project application configuration file',
+  },
 
-    API_HOST: z.url().default('https://api.clever-cloud.com'),
-    AUTH_BRIDGE_HOST: z.url().default('https://api-bridge.clever-cloud.com'),
-    SSH_GATEWAY: z.string().default('ssh@sshgateway-clevercloud-customers.services.clever-cloud.com'),
+  API_HOST: {
+    schema: z.url().default('https://api.clever-cloud.com'),
+    documentation: 'Clever Cloud API base URL',
+  },
+  AUTH_BRIDGE_HOST: {
+    schema: z.url().default('https://api-bridge.clever-cloud.com'),
+    documentation: 'Clever Cloud authentication bridge URL',
+  },
+  SSH_GATEWAY: {
+    schema: z.string().default('ssh@sshgateway-clevercloud-customers.services.clever-cloud.com'),
+    documentation: 'SSH gateway address',
+  },
 
-    // The disclosure of these tokens is not considered as a vulnerability.
-    // Do not report this to our security service.
-    OAUTH_CONSUMER_KEY: z.string().default('T5nFjKeHH4AIlEveuGhB5S3xg8T19e'),
-    OAUTH_CONSUMER_SECRET: z.string().default('MgVMqTr6fWlf2M0tkC2MXOnhfqBWDT'),
+  // The disclosure of these tokens is not considered as a vulnerability.
+  // Do not report this to our security service.
+  OAUTH_CONSUMER_KEY: {
+    schema: z.string().default('T5nFjKeHH4AIlEveuGhB5S3xg8T19e'),
+    secret: true,
+    documentation: 'OAuth consumer key',
+  },
+  OAUTH_CONSUMER_SECRET: {
+    schema: z.string().default('MgVMqTr6fWlf2M0tkC2MXOnhfqBWDT'),
+    secret: true,
+    documentation: 'OAuth consumer secret',
+  },
 
-    API_DOC_URL: z.url().default('https://www.clever.cloud/developers/api'),
-    DOC_URL: z.url().default('https://www.clever.cloud/developers/doc'),
-    CONSOLE_URL: z.url().default('https://console.clever-cloud.com'),
+  API_DOC_URL: {
+    schema: z.url().default('https://www.clever.cloud/developers/api'),
+    documentation: 'API documentation URL',
+  },
+  DOC_URL: {
+    schema: z.url().default('https://www.clever.cloud/developers/doc'),
+    documentation: 'Documentation URL',
+  },
+  CONSOLE_URL: {
+    schema: z.url().default('https://console.clever-cloud.com'),
+    documentation: 'Console URL',
+  },
 
-    // Default values are computed from `CONSOLE_URL` below
-    CONSOLE_TOKEN_URL: z.url().optional(),
-    GOTO_URL: z.url().optional(),
-  })
-  .transform((config) => ({
-    ...config,
-    CONSOLE_TOKEN_URL: config.CONSOLE_TOKEN_URL ?? `${config.CONSOLE_URL}/cli-oauth`,
-    GOTO_URL: config.GOTO_URL ?? `${config.CONSOLE_URL}/goto`,
-  }));
+  // Default values are computed from `CONSOLE_URL` via a derived source
+  CONSOLE_TOKEN_URL: {
+    schema: z.url().optional(),
+    documentation: 'Console token URL (derived from CONSOLE_URL)',
+  },
+  GOTO_URL: {
+    schema: z.url().optional(),
+    documentation: 'Goto URL (derived from CONSOLE_URL)',
+  },
+};
 
-/** @typedef {z.infer<typeof ConfigSchema>} ConfigData */
+/** @typedef {import('@clevercloud/reglage').Config<typeof CONFIG_SCHEMA>} ConfigData */
 
 export class BaseConfig {
   /**
@@ -88,12 +124,12 @@ export class BaseConfig {
   }
 
   /**
-   * @template {keyof ConfigData} K
+   * @template {keyof typeof CONFIG_SCHEMA} K
    * @param {K} key
-   * @returns {ConfigData[K]}
+   * @returns {import('@clevercloud/reglage').InferConfig<typeof CONFIG_SCHEMA>[K]}
    */
   get(key) {
-    return this._config[key];
+    return this._config.get(key);
   }
 }
 
@@ -142,15 +178,7 @@ export const baseConfig = new BaseConfig(loadBaseConfig());
  * @returns {ConfigData}
  */
 function loadBaseConfig() {
-  const result = ConfigSchema.safeParse(process.env);
-
-  if (!result.success) {
-    const errors = result.error.issues.map((issue) => `- ${issue.path.join('.')}: ${issue.message}`).join('\n');
-    Logger.error(`Invalid configuration:\n${errors}`);
-    process.exit(1);
-  }
-
-  return result.data;
+  return buildConfig([['env', process.env]]);
 }
 
 /**
@@ -178,22 +206,62 @@ function loadConfig() {
 
   const activeProfile = profiles[0];
 
-  /** @type {z.input<typeof ConfigSchema>} */
-  const rawConfig = {
-    // Profile overrides (e.g. custom API_HOST) applied after profile auth data, before env vars
-    ...activeProfile?.overrides,
-    ...process.env,
-  };
+  const config = buildConfig([
+    ['activeProfileOverride', activeProfile?.overrides],
+    ['env', process.env],
+  ]);
 
-  const result = ConfigSchema.safeParse(rawConfig);
+  Logger.debug('Configuration loaded:');
+  Logger.debug(config.toString('verbose'));
 
-  if (!result.success) {
-    const errors = result.error.issues.map((issue) => `- ${issue.path.join('.')}: ${issue.message}`).join('\n');
-    Logger.error(`Invalid configuration:\n${errors}`);
-    process.exit(1);
+  return { data: config, profiles };
+}
+
+/**
+ * Builds a Config from the given sources.
+ * Sources are applied in order (later sources override earlier ones).
+ * @param {Array<[string, Record<string, unknown> | undefined | null]>} sources
+ * @returns {ConfigData}
+ */
+function buildConfig(sources) {
+  const builder = createConfigBuilder(CONFIG_SCHEMA)
+    .refine('CONSOLE_TOKEN_URL', (schema, resolved) => {
+      if (resolved.CONSOLE_TOKEN_URL == null) {
+        return schema.default(`${resolved.CONSOLE_URL}/cli-oauth`);
+      }
+      return schema;
+    })
+    .refine('GOTO_URL', (schema, resolved) => {
+      if (resolved.GOTO_URL == null) {
+        return schema.default(`${resolved.CONSOLE_URL}/goto`);
+      }
+      return schema;
+    });
+
+  for (const [name, values] of sources) {
+    if (values != null) {
+      builder.addSource(name, values);
+    } else {
+      Logger.debug(`Skipping source "${name}": no values provided`);
+    }
   }
 
-  return { data: result.data, profiles };
+  try {
+    return builder.buildConfig();
+  } catch (error) {
+    if (error instanceof InvalidConfigError) {
+      const errors = error.issues
+        .map((issue) =>
+          issue.source != null
+            ? `- ${issue.key} (${issue.source}): ${issue.message}`
+            : `- ${issue.key}: ${issue.message}`,
+        )
+        .join('\n');
+      Logger.error(`Invalid configuration:\n${errors}`);
+      process.exit(1);
+    }
+    throw error;
+  }
 }
 
 /**
