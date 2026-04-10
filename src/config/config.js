@@ -62,11 +62,6 @@ const ConfigSchema = z
     // Default values are computed from `CONSOLE_URL` below
     CONSOLE_TOKEN_URL: z.url().optional(),
     GOTO_URL: z.url().optional(),
-
-    token: z.string().optional(),
-    secret: z.string().optional(),
-    expirationDate: z.string().optional(),
-    profiles: z.array(ProfileSchema).default([]),
   })
   .transform((config) => ({
     ...config,
@@ -76,7 +71,7 @@ const ConfigSchema = z
 
 /** @typedef {z.infer<typeof ConfigSchema>} ConfigData */
 
-export class Config {
+export class BaseConfig {
   /**
    * @param {ConfigData} config
    */
@@ -102,12 +97,46 @@ export class Config {
   }
 }
 
+export class Config extends BaseConfig {
+  /**
+   * @param {Object} param
+   * @param {ConfigData} param.data
+   * @param {Profile[]} param.profiles
+   */
+  constructor({ data, profiles }) {
+    super(data);
+    /** @type {Profile[]} */
+    this._profiles = profiles;
+  }
+
+  /**
+   * @param {Profile[]} profiles
+   */
+  reloadProfiles(profiles) {
+    this._profiles = profiles;
+  }
+
+  /**
+   * @returns {Profile[]}
+   */
+  get profiles() {
+    return this._profiles;
+  }
+
+  /**
+   * @returns {Profile | undefined}
+   */
+  get activeProfile() {
+    return this._profiles[0];
+  }
+}
+
 /**
  * Base configuration: environment variables + Zod schema defaults, without any profile overrides.
  * Use this as fallback when operating on a specific profile (login, profile list)
  * to avoid being affected by the active profile's overrides.
  */
-export const baseConfig = new Config(loadBaseConfig());
+export const baseConfig = new BaseConfig(loadBaseConfig());
 
 /**
  * @returns {ConfigData}
@@ -131,13 +160,14 @@ function loadBaseConfig() {
 export const config = new Config(loadConfig());
 
 /**
- * @returns {ConfigData}
+ * @returns {{data: ConfigData, profiles: Profile[]}}
  */
 function loadConfig() {
   Logger.debug(`Load configuration from ${baseConfig.get('CONFIGURATION_FILE')}`);
   const configFromFile = loadConfigFile();
 
   // If CLEVER_TOKEN and CLEVER_SECRET are set, inject a virtual "$env" profile as the active one
+  /** @type {Profile[]} */
   const profiles =
     process.env.CLEVER_TOKEN != null && process.env.CLEVER_SECRET != null
       ? [
@@ -150,10 +180,8 @@ function loadConfig() {
 
   /** @type {z.input<typeof ConfigSchema>} */
   const rawConfig = {
-    ...activeProfile,
     // Profile overrides (e.g. custom API_HOST) applied after profile auth data, before env vars
     ...activeProfile?.overrides,
-    profiles,
     ...process.env,
   };
 
@@ -165,7 +193,7 @@ function loadConfig() {
     process.exit(1);
   }
 
-  return result.data;
+  return { data: result.data, profiles };
 }
 
 /**
@@ -252,5 +280,7 @@ async function updateConfigFile(newConfig) {
  * This ensures all modules referencing the config object see the updated values.
  */
 export function reloadConfig() {
-  config.reload(loadConfig());
+  const { data, profiles } = loadConfig();
+  config.reload(data);
+  config.reloadProfiles(profiles);
 }

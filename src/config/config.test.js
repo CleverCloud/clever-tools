@@ -20,7 +20,7 @@ function get(cfg, key) {
  * @returns {Array<import('./config.js').Profile>}
  */
 function getProfiles(cfg) {
-  return /** @type {any} */ (get(cfg, 'profiles'));
+  return cfg.profiles;
 }
 
 /** @type {unknown} */
@@ -43,9 +43,6 @@ const CONFIG_KEYS = [
   'CONSOLE_URL',
   'CONSOLE_TOKEN_URL',
   'GOTO_URL',
-  'token',
-  'secret',
-  'expirationDate',
   'CLEVER_TOKEN',
   'CLEVER_SECRET',
 ];
@@ -127,17 +124,6 @@ describe('config', () => {
       const { config } = await loadFreshConfig();
       assert.strictEqual(get(config, 'SSH_GATEWAY'), 'ssh@sshgateway-clevercloud-customers.services.clever-cloud.com');
     });
-
-    it('should have empty profiles', async () => {
-      const { config } = await loadFreshConfig();
-      assert.deepStrictEqual(get(config, 'profiles'), []);
-    });
-
-    it('should have undefined token and secret', async () => {
-      const { config } = await loadFreshConfig();
-      assert.strictEqual(get(config, 'token'), undefined);
-      assert.strictEqual(get(config, 'secret'), undefined);
-    });
   });
 
   describe('derived keys from CONSOLE_URL', () => {
@@ -171,16 +157,6 @@ describe('config', () => {
   });
 
   describe('baseConfig ignores profiles', () => {
-    it('should not have profile token/secret even when config file has profiles', async () => {
-      fakeConfigFileData = {
-        version: 1,
-        profiles: [{ alias: 'default', token: 'file-token', secret: 'file-secret' }],
-      };
-      const { baseConfig } = await loadFreshConfig();
-      assert.strictEqual(get(baseConfig, 'token'), undefined);
-      assert.strictEqual(get(baseConfig, 'secret'), undefined);
-    });
-
     it('should use default API_HOST even when profile has override', async () => {
       fakeConfigFileData = {
         version: 1,
@@ -199,16 +175,6 @@ describe('config', () => {
   });
 
   describe('config file with current format', () => {
-    it('should load token and secret from the active profile', async () => {
-      fakeConfigFileData = {
-        version: 1,
-        profiles: [{ alias: 'default', token: 'my-token', secret: 'my-secret' }],
-      };
-      const { config } = await loadFreshConfig();
-      assert.strictEqual(get(config, 'token'), 'my-token');
-      assert.strictEqual(get(config, 'secret'), 'my-secret');
-    });
-
     it('should load all profiles', async () => {
       fakeConfigFileData = {
         version: 1,
@@ -249,10 +215,10 @@ describe('config', () => {
         expirationDate: '2030-01-01',
       };
       const { config } = await loadFreshConfig();
-      assert.strictEqual(get(config, 'token'), 'legacy-token');
-      assert.strictEqual(get(config, 'secret'), 'legacy-secret');
       const profiles = getProfiles(config);
       assert.strictEqual(profiles.length, 1);
+      assert.strictEqual(profiles[0].token, 'legacy-token');
+      assert.strictEqual(profiles[0].secret, 'legacy-secret');
       assert.strictEqual(profiles[0].alias, 'default');
     });
   });
@@ -260,9 +226,9 @@ describe('config', () => {
   describe('CLEVER_TOKEN / CLEVER_SECRET env vars', () => {
     it('should inject a virtual $env profile as the active one', async () => {
       const { config } = await loadFreshConfig({ CLEVER_TOKEN: 'env-token', CLEVER_SECRET: 'env-secret' });
-      assert.strictEqual(get(config, 'token'), 'env-token');
-      assert.strictEqual(get(config, 'secret'), 'env-secret');
       const profiles = getProfiles(config);
+      assert.strictEqual(profiles[0].token, 'env-token');
+      assert.strictEqual(profiles[0].secret, 'env-secret');
       assert.strictEqual(profiles[0].alias, '$env');
     });
 
@@ -280,7 +246,7 @@ describe('config', () => {
 
     it('should not inject $env when only CLEVER_TOKEN is set', async () => {
       const { config } = await loadFreshConfig({ CLEVER_TOKEN: 'env-token' });
-      assert.deepStrictEqual(get(config, 'profiles'), []);
+      assert.deepStrictEqual(getProfiles(config), []);
     });
   });
 
@@ -322,23 +288,41 @@ describe('config', () => {
     it('should reflect config file changes after reload', async () => {
       fakeConfigFileData = {
         version: 1,
-        profiles: [{ alias: 'initial', token: 'tok1', secret: 'sec1' }],
+        profiles: [
+          {
+            alias: 'initial',
+            token: 'tok1',
+            secret: 'sec1',
+            overrides: { API_HOST: 'https://initial-api.example.com' },
+          },
+        ],
       };
       const mod = await loadFreshConfig();
 
-      assert.strictEqual(get(mod.config, 'token'), 'tok1');
+      assert.strictEqual(mod.config.activeProfile.alias, 'initial');
+      assert.strictEqual(mod.config.activeProfile.token, 'tok1');
+      assert.strictEqual(mod.config.activeProfile.secret, 'sec1');
+      assert.strictEqual(get(mod.config, 'API_HOST'), 'https://initial-api.example.com');
 
       // Simulate config file change
       fakeConfigFileData = {
         version: 1,
-        profiles: [{ alias: 'updated', token: 'tok2', secret: 'sec2' }],
+        profiles: [
+          {
+            alias: 'updated',
+            token: 'tok2',
+            secret: 'sec2',
+            overrides: { API_HOST: 'https://updated-api.example.com' },
+          },
+        ],
       };
 
       mod.reloadConfig();
 
-      assert.strictEqual(get(mod.config, 'token'), 'tok2');
-      const profiles = getProfiles(mod.config);
-      assert.strictEqual(profiles[0].alias, 'updated');
+      assert.strictEqual(mod.config.activeProfile.alias, 'updated');
+      assert.strictEqual(mod.config.activeProfile.token, 'tok2');
+      assert.strictEqual(mod.config.activeProfile.secret, 'sec2');
+      assert.strictEqual(get(mod.config, 'API_HOST'), 'https://updated-api.example.com');
     });
   });
 });
