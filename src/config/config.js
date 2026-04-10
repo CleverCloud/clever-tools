@@ -74,15 +74,43 @@ const ConfigSchema = z
     GOTO_URL: config.GOTO_URL ?? `${config.CONSOLE_URL}/goto`,
   }));
 
+/** @typedef {z.infer<typeof ConfigSchema>} ConfigData */
+
+export class Config {
+  /**
+   * @param {ConfigData} config
+   */
+  constructor(config) {
+    /** @type {ConfigData} */
+    this._config = config;
+  }
+
+  /**
+   * @param {ConfigData} config
+   */
+  reload(config) {
+    this._config = config;
+  }
+
+  /**
+   * @template {keyof ConfigData} K
+   * @param {K} key
+   * @returns {ConfigData[K]}
+   */
+  get(key) {
+    return this._config[key];
+  }
+}
+
 /**
  * Base configuration: environment variables + Zod schema defaults, without any profile overrides.
  * Use this as fallback when operating on a specific profile (login, profile list)
  * to avoid being affected by the active profile's overrides.
  */
-export const baseConfig = loadBaseConfig();
+export const baseConfig = new Config(loadBaseConfig());
 
 /**
- * @returns {z.output<typeof ConfigSchema>}
+ * @returns {ConfigData}
  */
 function loadBaseConfig() {
   const result = ConfigSchema.safeParse(process.env);
@@ -100,13 +128,13 @@ function loadBaseConfig() {
  * The complete configuration object, loaded synchronously at startup.
  * Priority: environment variables > active profile overrides > Zod schema defaults.
  */
-export const config = loadConfig();
+export const config = new Config(loadConfig());
 
 /**
- * @returns {z.output<typeof ConfigSchema>}
+ * @returns {ConfigData}
  */
 function loadConfig() {
-  Logger.debug(`Load configuration from ${baseConfig.CONFIGURATION_FILE}`);
+  Logger.debug(`Load configuration from ${baseConfig.get('CONFIGURATION_FILE')}`);
   const configFromFile = loadConfigFile();
 
   // If CLEVER_TOKEN and CLEVER_SECRET are set, inject a virtual "$env" profile as the active one
@@ -145,7 +173,7 @@ function loadConfig() {
  * @returns {ConfigFile}
  */
 function loadConfigFile() {
-  const data = readJsonSync(baseConfig.CONFIGURATION_FILE);
+  const data = readJsonSync(baseConfig.get('CONFIGURATION_FILE'));
 
   // Try parsing as current format
   const result = ConfigFileSchema.safeParse(data);
@@ -212,10 +240,10 @@ export async function removeProfile(alias) {
 async function updateConfigFile(newConfig) {
   Logger.debug('Write the new config in the configuration file…');
   try {
-    await writeJson(baseConfig.CONFIGURATION_FILE, newConfig, { mode: 0o700 });
+    await writeJson(baseConfig.get('CONFIGURATION_FILE'), newConfig, { mode: 0o700 });
     reloadConfig();
   } catch (error) {
-    throw new Error(`Cannot write configuration to ${baseConfig.CONFIGURATION_FILE}\n${error.message}`);
+    throw new Error(`Cannot write configuration to ${baseConfig.get('CONFIGURATION_FILE')}\n${error.message}`);
   }
 }
 
@@ -224,10 +252,5 @@ async function updateConfigFile(newConfig) {
  * This ensures all modules referencing the config object see the updated values.
  */
 export function reloadConfig() {
-  const mutableConfig = /** @type {Record<string, unknown>} */ (config);
-  for (const key of Object.keys(mutableConfig)) {
-    delete mutableConfig[key];
-  }
-  const newConfig = loadConfig();
-  Object.assign(config, newConfig);
+  config.reload(loadConfig());
 }
