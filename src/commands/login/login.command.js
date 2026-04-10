@@ -67,7 +67,7 @@ async function loginViaConsole(apiHost, consoleTokenUrl) {
  * @returns {import('../../config/config.js').Profile | undefined}
  */
 function getExistingTargetProfile(alias) {
-  return config.get('profiles').find((profile) => profile.alias === alias);
+  return config.profiles.find((profile) => profile.alias === alias);
 }
 
 export const loginCommand = defineCommand({

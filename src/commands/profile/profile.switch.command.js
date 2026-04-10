@@ -22,22 +22,22 @@ export const profileSwitchCommand = defineCommand({
     }),
   },
   async handler(options) {
-    if (config.get('profiles').length === 0) {
+    if (config.profiles.length === 0) {
       throw new Error('No profile found.');
     }
 
-    if (config.get('profiles').length === 1) {
+    if (config.profiles.length === 1) {
       throw new Error('Only one profile. Use clever login --alias <name> to add another.');
     }
 
-    const [activeProfile] = config.get('profiles');
+    const activeProfile = config.activeProfile;
     if (activeProfile.alias === '$env') {
       throw new Error(
         `Cannot switch profiles while using environment-based authentication, unset ${styleText('red', 'CLEVER_TOKEN')} and ${styleText('red', 'CLEVER_SECRET')} instead`,
       );
     }
 
-    const targetProfile = await resolveTargetProfile(config.get('profiles'), options.alias);
+    const targetProfile = await resolveTargetProfile(config.profiles, options.alias);
     if (targetProfile.alias === activeProfile.alias) {
       Logger.printInfo(`Already on profile ${styleText('blue', formatProfile(activeProfile))}`);
       return;

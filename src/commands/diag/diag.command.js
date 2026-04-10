@@ -55,7 +55,7 @@ export const diagCommand = defineCommand({
     format: humanJsonOutputFormatOption,
   },
   async handler(options) {
-    const activeProfile = config.get('profiles')[0];
+    const activeProfile = config.activeProfile;
     const user = await getUser({})
       .then(sendToApi)
       .catch(() => null);
@@ -75,11 +75,11 @@ export const diagCommand = defineCommand({
       profile: activeProfile?.alias ?? null,
       userId: activeProfile?.userId ?? user?.id ?? null,
       authSource: activeProfile?.alias === '$env' ? 'environment variables' : 'configuration file',
-      oAuthToken: config.get('token'),
+      oAuthToken: activeProfile?.token,
       loggedIn: user != null,
       profileOverrides: activeProfile?.overrides ?? null,
       // No longer useful but kept for compatibility reasons
-      authState: getAuthState({ hasToken: config.get('token') != null, apiUser: user }),
+      authState: getAuthState({ hasToken: activeProfile?.token != null, apiUser: user }),
     };
 
     const linuxInfos = await getLinuxInfos()
