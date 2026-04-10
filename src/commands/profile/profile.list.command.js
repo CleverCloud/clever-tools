@@ -11,12 +11,12 @@ export const profileListCommand = defineCommand({
     format: humanJsonOutputFormatOption,
   },
   async handler(options) {
-    if (config.get('profiles').length === 0) {
+    if (config.activeProfile == null) {
       throw new Error('No profile found. You are not logged in.');
     }
 
     const profilesDetails = await Promise.all(
-      config.get('profiles').map(async (profile, index) => {
+      config.profiles.map(async (profile, index) => {
         return getProfileDetails({
           profile,
           isActive: index === 0,
