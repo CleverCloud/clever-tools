@@ -19,11 +19,11 @@ export const logoutCommand = defineCommand({
     }),
   },
   async handler(options) {
-    if (config.profiles.length === 0) {
+    if (config.get('profiles').length === 0) {
       throw new Error(`No profile found, use ${styleText('red', 'clever login')} command`);
     }
 
-    const [activeProfile] = config.profiles;
+    const [activeProfile] = config.get('profiles');
     const aliasToRemove = options.alias ?? activeProfile.alias;
 
     if (aliasToRemove === '$env') {
@@ -32,7 +32,7 @@ export const logoutCommand = defineCommand({
       );
     }
 
-    const profileToRemove = config.profiles.find((p) => p.alias === aliasToRemove);
+    const profileToRemove = config.get('profiles').find((p) => p.alias === aliasToRemove);
     if (profileToRemove == null) {
       throw new Error(`Profile "${aliasToRemove}" not found.`);
     }

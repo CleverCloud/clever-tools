@@ -12,6 +12,6 @@ export const configProviderOpenCommand = defineCommand({
   args: [configProviderIdOrNameArg],
   async handler(_options, addonIdOrRealIdOrName) {
     const { addonId } = await resolveConfigProviderId(addonIdOrRealIdOrName);
-    await openBrowser(`${config.GOTO_URL}/${addonId}`, `Opening ${styleText('blue', addonId)} in the browser…`);
+    await openBrowser(`${config.get('GOTO_URL')}/${addonId}`, `Opening ${styleText('blue', addonId)} in the browser…`);
   },
 });

@@ -78,8 +78,8 @@ export class GitSystem extends Git {
 
   #buildAuthenticatedUrl(url) {
     const urlObj = new URL(url);
-    urlObj.username = config.token;
-    urlObj.password = config.secret;
+    urlObj.username = config.get('token');
+    urlObj.password = config.get('secret');
     return urlObj;
   }
 

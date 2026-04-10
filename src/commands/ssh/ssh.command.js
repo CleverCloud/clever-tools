@@ -103,7 +103,7 @@ export const sshCommand = defineCommand({
       // IdentitiesOnly forces ssh to only offer this key, ignoring agent/default ones
       sshParams.push('-o', 'IdentitiesOnly=yes');
     }
-    sshParams.push(config.SSH_GATEWAY, sshTarget);
+    sshParams.push(config.get('SSH_GATEWAY'), sshTarget);
 
     // Interactive session mode (spawn SSH with inherited stdio)
     if (command == null) {
