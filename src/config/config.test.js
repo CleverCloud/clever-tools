@@ -2,16 +2,21 @@ import assert from 'node:assert';
 import { after, beforeEach, describe, it, mock } from 'node:test';
 
 /**
+ * @typedef {import('./config.js').Config} Config
+ * @typedef {import('./config.js').ConfigData} ConfigData
+ */
+
+/**
  * Read a config value from either a plain object (original) or a reglage Config (.get()).
- * @param {Record<string, unknown>} cfg
- * @param {string} key
+ * @param {Config} cfg
+ * @param {keyof ConfigData} key
  */
 function get(cfg, key) {
-  return cfg[key];
+  return cfg.get(key);
 }
 
 /**
- * @param {Record<string, unknown> & { get?: (key: string) => unknown }} cfg
+ * @param {Config} cfg
  * @returns {Array<import('./config.js').Profile>}
  */
 function getProfiles(cfg) {
