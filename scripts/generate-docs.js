@@ -35,7 +35,7 @@ import { parseMarkdown } from './lib/markdown.js';
 
 const typedGlobalCommands = globalCommands;
 
-const apiClient = new CcApiClient({ baseUrl: baseConfig.API_HOST });
+const apiClient = new CcApiClient({ baseUrl: baseConfig.get('API_HOST') });
 
 runCommand(async () => {
   const checkMode = process.argv.includes('--check');

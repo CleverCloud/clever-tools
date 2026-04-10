@@ -75,7 +75,7 @@ async function displayAppCreation(app, alias, github, taskCommand) {
   }
 
   Logger.println(
-    `  ${styleText('blue', '→')} Manage your application at: ${styleText('underline', `${config.GOTO_URL}/${app.id}`)}`,
+    `  ${styleText('blue', '→')} Manage your application at: ${styleText('underline', `${config.get('GOTO_URL')}/${app.id}`)}`,
   );
   Logger.println('');
 }
