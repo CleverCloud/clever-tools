@@ -168,7 +168,7 @@ export async function operatorList(provider, format) {
 export async function operatorOpen(provider, addonIdOrName) {
   const operator = await Operator.getDetails(provider, addonIdOrName);
   await openBrowser(
-    `${config.GOTO_URL}/${operator.addonId}`,
+    `${config.get('GOTO_URL')}/${operator.addonId}`,
     `Opening ${styleText('blue', operator.addonId)} in the browser…`,
   );
 }
