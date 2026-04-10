@@ -58,8 +58,8 @@ async function executeRequest(requestParams, customConfig = {}) {
   const tokens = {
     OAUTH_CONSUMER_KEY: customConfig.OAUTH_CONSUMER_KEY ?? config.get('OAUTH_CONSUMER_KEY'),
     OAUTH_CONSUMER_SECRET: customConfig.OAUTH_CONSUMER_SECRET ?? config.get('OAUTH_CONSUMER_SECRET'),
-    API_OAUTH_TOKEN: customConfig.API_OAUTH_TOKEN ?? config.get('token'),
-    API_OAUTH_TOKEN_SECRET: customConfig.API_OAUTH_TOKEN_SECRET ?? config.get('secret'),
+    API_OAUTH_TOKEN: customConfig.API_OAUTH_TOKEN ?? config.activeProfile?.token,
+    API_OAUTH_TOKEN_SECRET: customConfig.API_OAUTH_TOKEN_SECRET ?? config.activeProfile?.secret,
   };
 
   return Promise.resolve(requestParams)
@@ -98,8 +98,8 @@ export function getHostAndTokens() {
     tokens: {
       OAUTH_CONSUMER_KEY: config.get('OAUTH_CONSUMER_KEY'),
       OAUTH_CONSUMER_SECRET: config.get('OAUTH_CONSUMER_SECRET'),
-      API_OAUTH_TOKEN: config.get('token'),
-      API_OAUTH_TOKEN_SECRET: config.get('secret'),
+      API_OAUTH_TOKEN: config.activeProfile?.token,
+      API_OAUTH_TOKEN_SECRET: config.activeProfile?.secret,
     },
   };
 }
