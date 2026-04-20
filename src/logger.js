@@ -47,29 +47,29 @@ export const Logger = {
     writeStderr(`${styledPrefix}${formatted}`);
   },
 
-  println: console.log,
+  println: writeStdout,
 
   /**
    * @param {string} text
    * @param {number} indentLevel
    */
   printlnWithIndent(text, indentLevel) {
-    console.log(' '.repeat(indentLevel) + text);
+    writeStdout(' '.repeat(indentLevel) + text);
   },
 
   /** @param {string} message */
   printSuccess(message) {
-    console.log(`${styleText(['bold', 'green'], '✓')} ${message}`);
+    writeStdout(`${styleText(['bold', 'green'], '✓')} ${message}`);
   },
 
   /** @param {string} message */
   printInfo(message) {
-    console.log(`${styleText('blue', 'i')} ${message}`);
+    writeStdout(`${styleText('blue', 'i')} ${message}`);
   },
 
   /** @param {unknown} obj */
   printJson(obj) {
-    console.log(JSON.stringify(obj, null, 2));
+    writeStdout(JSON.stringify(obj, null, 2));
   },
 
   printErrorLine: writeStderr,
@@ -89,7 +89,7 @@ function consoleLog(severity, message) {
     return;
   }
   const prefix = `[${severity.toUpperCase()}] `;
-  console.log(`${prefix}${formatLines(prefix.length, message)}`);
+  writeStdout(`${prefix}${formatLines(prefix.length, message)}`);
 }
 
 /**
@@ -99,6 +99,15 @@ function consoleLog(severity, message) {
  */
 function writeStderr(value) {
   process.stderr.write(format(value) + '\n');
+}
+
+/**
+ * Writes a formatted line to stderr.
+ * @param {string?} value
+ * @returns {void}
+ */
+function writeStdout(value) {
+  process.stdout.write(format(value) + '\n');
 }
 
 /**
