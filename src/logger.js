@@ -1,9 +1,6 @@
 import { format } from 'node:util';
+import { ApiError } from './lib/api-error.js';
 import { styleText } from './lib/style-text.js';
-
-/**
- * @typedef {import('./logger.types.js').ApiError} ApiError
- */
 
 const IS_QUIET = Boolean(process.env.CLEVER_QUIET);
 const IS_VERBOSE = Boolean(process.env.CLEVER_VERBOSE);
@@ -40,8 +37,7 @@ export const Logger = {
 
     const prefix = '[ERROR] ';
     const styledPrefix = styleText(['bold', 'red'], prefix);
-    const message = error instanceof Error ? error.message : error;
-    const formatted = formatLines(prefix.length, processApiError(message));
+    const formatted = formatLines(prefix.length, processApiError(error));
 
     if (IS_VERBOSE) {
       writeStderr('[STACKTRACE]');
@@ -121,19 +117,15 @@ function formatLines(prefixLength, message) {
 
 /**
  * Transforms an API error object into a formatted message string.
- * @param {ApiError|string} error
+ * @param {Error|string} error
  * @returns {string}
  */
 function processApiError(error) {
-  if (typeof error === 'string') {
-    return error;
+  if (error instanceof ApiError) {
+    return `${error.message} [${error.code}]`;
   }
-
-  const { id, message, fields } = error;
-  if (id == null || message == null) {
-    return String(error);
+  if (error instanceof Error) {
+    return error.message;
   }
-
-  const fieldLines = Object.entries(fields ?? {}).map(([name, msg]) => `${name}: ${msg}`);
-  return [`${message} [${id}]`, ...fieldLines].join('\n');
+  return error;
 }
