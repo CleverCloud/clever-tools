@@ -3,6 +3,7 @@ import { prefixUrl } from '@clevercloud/client/esm/prefix-url.js';
 import { request } from '@clevercloud/client/esm/request.fetch.js';
 import { subtle as cryptoSubtle } from 'node:crypto';
 import { config } from '../config/config.js';
+import { ApiError } from '../lib/api-error.js';
 import { styleText } from '../lib/style-text.js';
 import { Logger } from '../logger.js';
 
@@ -86,10 +87,59 @@ export function processError(error) {
   if (error?.response?.status === 401) {
     throw new Error(
       `You're not logged in, use ${styleText('red', 'clever login')} command to connect to your Clever Cloud account`,
-      { cause: error },
+      { cause: toApiError(error) },
     );
   }
+  if (error?.response?.status >= 400) {
+    throw toApiError(error);
+  }
   throw error;
+}
+
+function toApiError(error) {
+  // parse message and code from error
+  const parsedErrorMessage = parseErrorMessage(error.responseBody);
+  const errorCode = parseErrorCode(error.responseBody);
+
+  const errorMessage =
+    parsedErrorMessage == null || parsedErrorMessage.length === 0
+      ? `Error ${error.response.status}`
+      : parsedErrorMessage;
+
+  return new ApiError(errorMessage, errorCode, JSON.stringify(error.responseBody), error.response);
+}
+
+/**
+ * @param {any} responseBody
+ * @returns {string|null}
+ */
+function parseErrorMessage(responseBody) {
+  if (typeof responseBody === 'string') {
+    return responseBody;
+  }
+  if (typeof responseBody?.message === 'string') {
+    return responseBody.message;
+  }
+  if (typeof responseBody?.error === 'string') {
+    return responseBody.error;
+  }
+
+  return null;
+}
+
+/**
+ * @param {any} responseBody
+ * @returns {string|null}
+ */
+function parseErrorCode(responseBody) {
+  if (responseBody?.code != null) {
+    return String(responseBody.code);
+  }
+  if (responseBody?.id != null) {
+    return String(responseBody.id);
+  }
+
+  return null;
 }
 
 export function getHostAndTokens() {
