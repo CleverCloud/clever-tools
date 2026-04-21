@@ -18,6 +18,7 @@ import {
   listK8sDeploymentEvents,
   listK8sNodeGroups,
   listK8sUsage,
+  updateK8sCluster,
   updateK8sNodeGroup,
   updateK8sVersion,
 } from '../clever-client/k8s.js';
@@ -187,6 +188,20 @@ export async function k8sGetConfig(orgIdOrName, clusterIdOrName) {
   const clusterId = await getClusterIdFromAddonIdOrName(clusterIdOrName, ownerId);
 
   return getK8sConfig({ ownerId, clusterId }).then(sendToApi);
+}
+
+/**
+ * Update a Kubernetes cluster metadata or features
+ * @param {object} orgIdOrName The organisation ID or name
+ * @param {string|object} clusterIdOrName The cluster ID or name
+ * @param {object} updates Patch fields (name, description, tags, features)
+ * @returns {Promise<object>}
+ */
+export async function k8sUpdate(orgIdOrName, clusterIdOrName, updates) {
+  const ownerId = await getOwnerIdFromOrgIdOrName(orgIdOrName);
+  const clusterId = await getClusterIdFromAddonIdOrName(clusterIdOrName, ownerId);
+
+  return updateK8sCluster({ ownerId, clusterId }, updates).then(sendToApi);
 }
 
 /**

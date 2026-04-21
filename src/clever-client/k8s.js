@@ -17,6 +17,23 @@ export function createK8sCluster(params, body) {
 }
 
 /**
+ * PATCH /v4/kubernetes/organisations/{ownerId}/clusters/{clusterId}
+ * @param {Object} params
+ * @param {String} params.ownerId
+ * @param {String} params.clusterId
+ * @param {Object} body
+ */
+export function updateK8sCluster(params, body) {
+  return Promise.resolve({
+    method: 'PATCH',
+    url: `/v4/kubernetes/organisations/${params.ownerId}/clusters/${params.clusterId}`,
+    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+    // no queryParams
+    body,
+  });
+}
+
+/**
  * DELETE /v4/kubernetes/organisations/{ownerId}/clusters/{clusterId}
  * @param {Object} params
  * @param {String} params.ownerId

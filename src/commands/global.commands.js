@@ -77,6 +77,7 @@ import { k8sNodeGroupGetCommand } from './k8s/k8s.nodegroups.get.command.js';
 import { k8sNodeGroupListCommand } from './k8s/k8s.nodegroups.list.command.js';
 import { k8sNodeGroupUpdateCommand } from './k8s/k8s.nodegroups.update.command.js';
 import { k8sQuotaCommand } from './k8s/k8s.quota.command.js';
+import { k8sUpdateCommand } from './k8s/k8s.update.command.js';
 import { k8sVersionCheckCommand } from './k8s/k8s.version.check.command.js';
 import { k8sVersionCommand } from './k8s/k8s.version.command.js';
 import { k8sVersionUpdateCommand } from './k8s/k8s.version.update.command.js';
@@ -323,6 +324,7 @@ export const globalCommands = {
         },
       ],
       quota: k8sQuotaCommand,
+      update: k8sUpdateCommand,
       version: [
         k8sVersionCommand,
         {

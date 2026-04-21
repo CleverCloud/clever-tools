@@ -1785,6 +1785,34 @@ clever k8s quota [options]
 -o, --org, --owner <org-id|org-name>    Organisation to target by its ID (or name, if unambiguous)
 ```
 
+### k8s update
+
+**Description:** Update a Kubernetes cluster metadata or features
+
+**Since:** 4.9.0
+
+**Usage**
+```
+clever k8s update <cluster-id|cluster-name> [options]
+```
+
+**Arguments**
+```
+cluster-id|cluster-name                 Kubernetes cluster ID or name
+```
+
+**Options**
+```
+    --autoscaling                       Enable the cluster autoscaler
+    --description <description>         Free-form cluster description
+    --disable-autoscaling               Disable the cluster autoscaler
+    --disable-persistent-storage        Disable persistent storage (Ceph CSI)
+    --name <name>                       Rename the cluster
+-o, --org, --owner <org-id|org-name>    Organisation to target by its ID (or name, if unambiguous)
+    --persistent-storage                Enable persistent storage (Ceph CSI)
+    --tag <tag[,tag...]>                Replace tags (comma-separated, e.g.: env:prod,team:platform)
+```
+
 ### k8s version
 
 **Description:** Check a Kubernetes cluster deployed version
