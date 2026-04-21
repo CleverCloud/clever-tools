@@ -12,7 +12,7 @@ export const emailsAddCommand = defineCommand({
   async handler(_options, secondaryAddress) {
     const secondaryAddressEncoded = encodeURIComponent(secondaryAddress);
     try {
-      await addEmailAddress({ email: secondaryAddressEncoded }).then(sendToApi);
+      await addEmailAddress({ email: secondaryAddressEncoded }, {}).then(sendToApi);
       Logger.printSuccess(
         `The server sent a confirmation email to ${secondaryAddress} to validate your secondary address`,
       );

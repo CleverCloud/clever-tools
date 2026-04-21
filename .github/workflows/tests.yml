@@ -1,0 +1,32 @@
+name: Tests
+
+on:
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+    branches-ignore:
+      - 'release-please--**'
+
+concurrency:
+  group: tests-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  tests:
+    name: 'Tests (${{ matrix.os }})'
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - macos-14
+          - windows-2025
+    steps:
+      - uses: actions/checkout@v5
+      - uses: ./.github/actions/setup-node
+      - name: 'Run tests'
+        shell: bash
+        run: npm test
