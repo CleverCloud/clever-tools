@@ -3,7 +3,7 @@ import { typewriterLogo } from '../../lib/ascii.js';
 import { defineArgument } from '../../lib/define-argument.js';
 import { defineCommand } from '../../lib/define-command.js';
 import { defineOption } from '../../lib/define-option.js';
-import { getK8sCluster, k8sCreate } from '../../lib/k8s.js';
+import { getK8sCluster, k8sCreate, k8sGetProduct } from '../../lib/k8s.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
 import { tags } from '../../parsers.js';
@@ -43,6 +43,33 @@ export const k8sCreateCommand = defineCommand({
       schema: z.boolean().default(false),
       description: 'Enable persistent storage (Ceph CSI)',
     }),
+    topology: defineOption({
+      name: 'topology',
+      schema: z.string().optional(),
+      description: 'Cluster topology (must be set with --flavor and --replication-factor)',
+      placeholder: 'topology',
+      complete: async () => {
+        const product = await k8sGetProduct();
+        return (product.topologies ?? []).map((t) => t.topology);
+      },
+    }),
+    flavor: defineOption({
+      name: 'flavor',
+      schema: z.string().optional(),
+      description: 'Control plane flavor',
+      placeholder: 'flavor',
+      complete: async () => {
+        const product = await k8sGetProduct();
+        const flavors = new Set((product.topologies ?? []).flatMap((t) => t.availableFlavors ?? []));
+        return [...flavors];
+      },
+    }),
+    replicationFactor: defineOption({
+      name: 'replication-factor',
+      schema: z.coerce.number().int().optional(),
+      description: 'Control plane replication factor',
+      placeholder: 'replication-factor',
+    }),
     watch: defineOption({
       name: 'watch',
       schema: z.boolean().default(false),
@@ -69,6 +96,9 @@ export const k8sCreateCommand = defineCommand({
         tags: options.tag,
         autoscaling: options.autoscaling,
         persistentStorage: options.persistentStorage,
+        topology: options.topology,
+        flavor: options.flavor,
+        replicationFactor: options.replicationFactor,
       });
 
       if (options.watch) {

@@ -96,6 +96,19 @@ export function addK8sPersistentStorage(params) {
 }
 
 /**
+ * GET /v4/kubernetes-product
+ */
+export function getK8sProduct() {
+  return Promise.resolve({
+    method: 'get',
+    url: `/v4/kubernetes-product`,
+    headers: { Accept: 'application/json' },
+    // no queryParams
+    // no body
+  });
+}
+
+/**
  * GET /v4/kubernetes/organisations/{ownerId}/clusters/{clusterId}/version/check
  * @param {Object} params
  * @param {String} params.ownerId

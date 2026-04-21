@@ -8,6 +8,7 @@ import {
   deleteK8sCluster,
   getK8sAddon,
   getK8sConfig,
+  getK8sProduct,
   getK8sQuota,
   getK8sVersionCheck,
   listK8sClusters,
@@ -42,6 +43,9 @@ export async function isK8sClusterActive(orgIdOrName, clusterIdOrName) {
  * @param {string[]} [options.tags] Semantic tags ("tag" or "key:value")
  * @param {boolean} [options.autoscaling] Enable the cluster autoscaler
  * @param {boolean} [options.persistentStorage] Enable the Ceph CSI persistent storage
+ * @param {string} [options.topology] Topology kind (ALL_IN_ONE or DEDICATED_COMPUTE)
+ * @param {string} [options.flavor] Control plane flavor
+ * @param {number} [options.replicationFactor] Control plane replication factor (1 to 5)
  * @returns {Promise<object>}
  */
 export async function k8sCreate(name, orgIdOrName, options = {}) {
@@ -57,7 +61,52 @@ export async function k8sCreate(name, orgIdOrName, options = {}) {
   if (options.persistentStorage) features.csi = true;
   if (Object.keys(features).length > 0) body.features = features;
 
+  const topologyProvided = [options.topology, options.flavor, options.replicationFactor].filter((v) => v != null);
+  if (topologyProvided.length > 0) {
+    if (topologyProvided.length < 3) {
+      throw new Error('--topology, --flavor and --replication-factor must be set together');
+    }
+    const product = await k8sGetProduct();
+    const constraint = product.topologies?.find((t) => t.topology === options.topology);
+    if (constraint == null) {
+      const supported = (product.topologies ?? []).map((t) => t.topology).join(', ');
+      throw new Error(`Unknown topology "${options.topology}". Supported: ${supported}`);
+    }
+    if (!constraint.availableFlavors.includes(options.flavor)) {
+      throw new Error(
+        `Flavor "${options.flavor}" is not available for ${options.topology}. Supported: ${constraint.availableFlavors.join(', ')}`,
+      );
+    }
+    const { min, max } = constraint.replicationFactor;
+    if (options.replicationFactor < min || options.replicationFactor > max) {
+      throw new Error(`Replication factor for ${options.topology} must be between ${min} and ${max}`);
+    }
+    body.topologyConfig =
+      options.topology === 'DISTRIBUTED'
+        ? {
+            topology: 'DISTRIBUTED',
+            components: Object.fromEntries(
+              ['apiserver', 'controllerManager', 'scheduler', 'nodeGroupOperator', 'cloudControllerManager'].map(
+                (c) => [c, { flavor: options.flavor, replicationFactor: options.replicationFactor }],
+              ),
+            ),
+          }
+        : {
+            topology: options.topology,
+            flavor: options.flavor,
+            replicationFactor: options.replicationFactor,
+          };
+  }
+
   return createK8sCluster({ ownerId }, body).then(sendToApi);
+}
+
+/**
+ * Get the Kubernetes service configuration (supported topologies, flavors, versions)
+ * @returns {Promise<object>}
+ */
+export async function k8sGetProduct() {
+  return getK8sProduct().then(sendToApi);
 }
 
 /**
