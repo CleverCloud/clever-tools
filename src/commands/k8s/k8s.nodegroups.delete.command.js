@@ -1,6 +1,6 @@
 import { defineCommand } from '../../lib/define-command.js';
 import { k8sDeleteNodeGroup } from '../../lib/k8s.js';
-import { confirm } from '../../lib/prompts.js';
+import { ask } from '../../lib/prompts.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
 import { orgaIdOrNameOption, skipConfirmationOption } from '../global.options.js';
@@ -18,10 +18,14 @@ export const k8sNodeGroupDeleteCommand = defineCommand({
     const { org: orgIdOrName, yes } = options;
 
     if (!yes) {
-      await confirm(
+      const proceed = await ask(
         `Are you sure you want to delete the node group ${styleText('blue', nodeGroupIdOrName)}?`,
-        'Node group deletion cancelled',
+        false,
       );
+      if (!proceed) {
+        Logger.println('Node group deletion cancelled');
+        return;
+      }
     }
 
     await k8sDeleteNodeGroup(orgIdOrName, clusterIdOrName, nodeGroupIdOrName);

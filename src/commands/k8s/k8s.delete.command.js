@@ -1,6 +1,6 @@
 import { defineCommand } from '../../lib/define-command.js';
 import { k8sDelete } from '../../lib/k8s.js';
-import { confirm } from '../../lib/prompts.js';
+import { ask } from '../../lib/prompts.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
 import { orgaIdOrNameOption, skipConfirmationOption } from '../global.options.js';
@@ -15,26 +15,21 @@ export const k8sDeleteCommand = defineCommand({
   },
   args: [k8sIdOrNameArg],
   async handler(options, clusterIdOrName) {
-    const { org: orgIdOrName, yes: confirmDeletion } = options;
+    const { org: orgIdOrName, yes } = options;
+    const display = clusterIdOrName.addon_name || clusterIdOrName.operator_id;
 
-    let proceedDeletion;
-    if (confirmDeletion) {
-      proceedDeletion = true;
-    } else {
-      proceedDeletion = await confirm(
-        `Are you sure you want to delete the Kubernetes cluster ${styleText(
-          'blue',
-          clusterIdOrName.addon_name || clusterIdOrName.operator_id,
-        )}?`,
-        'Kubernetes cluster deletion cancelled.',
+    if (!yes) {
+      const proceed = await ask(
+        `Are you sure you want to delete the Kubernetes cluster ${styleText('blue', display)}?`,
+        false,
       );
+      if (!proceed) {
+        Logger.println('Kubernetes cluster deletion cancelled');
+        return;
+      }
     }
 
-    if (proceedDeletion) {
-      await k8sDelete(orgIdOrName, clusterIdOrName);
-      Logger.printSuccess(
-        `Kubernetes cluster ${styleText('green', clusterIdOrName.addon_name || clusterIdOrName.operator_id)} successfully deleted`,
-      );
-    }
+    await k8sDelete(orgIdOrName, clusterIdOrName);
+    Logger.printSuccess(`Kubernetes cluster ${styleText('green', display)} successfully deleted`);
   },
 });
