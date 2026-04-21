@@ -213,13 +213,21 @@ export async function getClusterIdFromAddonIdOrName(addonIdOrName, ownerId) {
   } else if (typeof addonIdOrName === 'object' && addonIdOrName.operator_id) {
     return addonIdOrName.operator_id;
   } else if (typeof addonIdOrName === 'object' && addonIdOrName.addon_name) {
-    const clusters = await listK8sClusters({ ownerId }).then(sendToApi);
-    const matchingCluster = clusters.find((cluster) => cluster.name === addonIdOrName.addon_name);
-    if (matchingCluster) {
-      return matchingCluster.id;
-    } else {
-      throw new Error(`No Kubernetes cluster found with the name ${styleText('red', addonIdOrName.addon_name)}`);
+    const name = addonIdOrName.addon_name;
+    const matches = await listK8sClusters({ ownerId })
+      .then(sendToApi)
+      .then((clusters) => clusters.filter((c) => c.name === name && c.status !== 'DELETED'));
+
+    if (matches.length === 0) {
+      throw new Error(`No Kubernetes cluster found with the name ${styleText('red', name)}`);
     }
+    if (matches.length > 1) {
+      const listing = matches.map((c) => `- ${c.name} (${c.id})`).join('\n');
+      throw new Error(
+        `Multiple Kubernetes clusters found with the name ${styleText('red', name)}, use the ID instead:\n${styleText('grey', listing)}`,
+      );
+    }
+    return matches[0].id;
   } else {
     throw new Error('Invalid Kubernetes Cluster identifier provided');
   }
@@ -386,11 +394,17 @@ async function resolveNodeGroupId(ownerId, clusterId, nodeGroupIdOrName) {
     return nodeGroupIdOrName;
   }
   const list = await listK8sNodeGroups({ ownerId, clusterId }).then(sendToApi);
-  const match = list.find((ng) => ng.name === nodeGroupIdOrName);
-  if (match == null) {
+  const matches = list.filter((ng) => ng.name === nodeGroupIdOrName);
+  if (matches.length === 0) {
     throw new Error(`No node group found with name ${styleText('red', nodeGroupIdOrName)}`);
   }
-  return match.id;
+  if (matches.length > 1) {
+    const listing = matches.map((ng) => `- ${ng.name} (${ng.id})`).join('\n');
+    throw new Error(
+      `Multiple node groups found with the name ${styleText('red', nodeGroupIdOrName)}, use the ID instead:\n${styleText('grey', listing)}`,
+    );
+  }
+  return matches[0].id;
 }
 
 /**
