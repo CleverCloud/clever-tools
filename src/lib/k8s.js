@@ -6,7 +6,9 @@ import {
   deleteK8sCluster,
   getK8sAddon,
   getK8sConfig,
+  getK8sQuota,
   listK8sClusters,
+  listK8sUsage,
 } from '../clever-client/k8s.js';
 import { getOwnerIdFromOrgIdOrName } from '../models/ids-resolver.js';
 import { sendToApi } from '../models/send-to-api.js';
@@ -123,4 +125,26 @@ export async function k8sAddPersistentStorage(orgIdOrName, clusterIdOrName) {
   const clusterId = await getClusterIdFromAddonIdOrName(clusterIdOrName, ownerId);
 
   return addK8sPersistentStorage({ ownerId, clusterId }).then(sendToApi);
+}
+
+/**
+ * Get the Kubernetes quota of an organisation
+ * @param {object} [orgIdOrName] The organisation ID or name
+ * @returns {Promise<object>} The quota payload (id, tenantId, tags, quotas)
+ */
+export async function k8sGetQuota(orgIdOrName) {
+  const ownerId = await getOwnerIdFromOrgIdOrName(orgIdOrName);
+
+  return getK8sQuota({ ownerId }).then(sendToApi);
+}
+
+/**
+ * List the current Kubernetes usage items of an organisation
+ * @param {object} [orgIdOrName] The organisation ID or name
+ * @returns {Promise<object[]>} The list of cluster usage items
+ */
+export async function k8sListUsage(orgIdOrName) {
+  const ownerId = await getOwnerIdFromOrgIdOrName(orgIdOrName);
+
+  return listK8sUsage({ ownerId }).then(sendToApi);
 }

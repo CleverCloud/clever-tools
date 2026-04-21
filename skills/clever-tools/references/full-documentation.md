@@ -1599,6 +1599,23 @@ clever k8s list [options]
 -o, --org, --owner <org-id|org-name>    Organisation to target by its ID (or name, if unambiguous)
 ```
 
+### k8s quota
+
+**Description:** Get the Kubernetes quota, usage and remaining of an organisation
+
+**Since:** 4.9.0
+
+**Usage**
+```
+clever k8s quota [options]
+```
+
+**Options**
+```
+-F, --format <format>                   Output format (human, json) (default: human)
+-o, --org, --owner <org-id|org-name>    Organisation to target by its ID (or name, if unambiguous)
+```
+
 ## keycloak
 
 **Description:** Manage Clever Cloud Keycloak services

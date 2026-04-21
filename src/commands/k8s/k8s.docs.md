@@ -129,3 +129,18 @@ clever k8s list [options]
 |---|---|
 |`-F`, `--format` `<format>`|Output format (human, json) (default: human)|
 |`-o`, `--org`, `--owner` `<org-id\|org-name>`|Organisation to target by its ID (or name, if unambiguous)|
+
+## ➡️ `clever k8s quota` <kbd>Since 4.9.0</kbd>
+
+Get the Kubernetes quota, usage and remaining of an organisation
+
+```bash
+clever k8s quota [options]
+```
+
+### ⚙️ Options
+
+|Name|Description|
+|---|---|
+|`-F`, `--format` `<format>`|Output format (human, json) (default: human)|
+|`-o`, `--org`, `--owner` `<org-id\|org-name>`|Organisation to target by its ID (or name, if unambiguous)|

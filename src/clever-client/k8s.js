@@ -94,3 +94,33 @@ export function addK8sPersistentStorage(params) {
     // no body
   });
 }
+
+/**
+ * GET /v4/kubernetes/organisations/{ownerId}/quota
+ * @param {Object} params
+ * @param {String} params.ownerId
+ */
+export function getK8sQuota(params) {
+  return Promise.resolve({
+    method: 'get',
+    url: `/v4/kubernetes/organisations/${params.ownerId}/quota`,
+    headers: { Accept: 'application/json' },
+    // no queryParams
+    // no body
+  });
+}
+
+/**
+ * GET /v4/kubernetes/organisations/{ownerId}/usage
+ * @param {Object} params
+ * @param {String} params.ownerId
+ */
+export function listK8sUsage(params) {
+  return Promise.resolve({
+    method: 'get',
+    url: `/v4/kubernetes/organisations/${params.ownerId}/usage`,
+    headers: { Accept: 'application/json' },
+    // no queryParams
+    // no body
+  });
+}
