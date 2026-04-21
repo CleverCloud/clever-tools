@@ -54,7 +54,7 @@ clever k8s create <cluster-name> [options]
 |`--cluster-version` `<cluster-version>`|Kubernetes version to deploy (e.g.: 1.33)|
 |`--description` `<description>`|Free-form cluster description|
 |`--flavor` `<flavor>`|Control plane flavor|
-|`--node-group` `<flavor:count>`|Initial node group (format: <flavor>:<count>, e.g.: XS:3)|
+|`--nodegroup` `<flavor:count>`|Initial node group (format: <flavor>:<count>, e.g.: XS:3)|
 |`-o`, `--org`, `--owner` `<org-id\|org-name>`|Organisation to target by its ID (or name, if unambiguous)|
 |`--persistent-storage`|Enable persistent storage (Ceph CSI)|
 |`--replication-factor` `<replication-factor>`|Control plane replication factor|
@@ -161,7 +161,7 @@ clever k8s nodegroup create <cluster-id|cluster-name> <nodegroup-name> <flavor:c
 |Name|Description|
 |---|---|
 |`cluster-id|cluster-name`|Kubernetes cluster ID or name|
-|`nodegroup-name`|Node group name|
+|`nodegroup-name`|Node group name (lowercase RFC 1123, max 63 chars)|
 |`flavor:count`|Node group flavor and target node count (format: <flavor>:<count>, e.g.: XS:3)|
 
 ### ⚙️ Options

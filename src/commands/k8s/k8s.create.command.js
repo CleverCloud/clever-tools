@@ -77,7 +77,7 @@ export const k8sCreateCommand = defineCommand({
       placeholder: 'replication-factor',
     }),
     nodeGroup: defineOption({
-      name: 'node-group',
+      name: 'nodegroup',
       schema: z.string().transform(flavorCount).optional(),
       description: 'Initial node group (format: <flavor>:<count>, e.g.: XS:3)',
       placeholder: 'flavor:count',
