@@ -31,12 +31,14 @@ export async function isK8sClusterActive(orgIdOrName, clusterIdOrName) {
  * Create a kubernetes cluster
  * @param {string} name The name of the cluster
  * @param {string} ownerId The owner ID
+ * @param {string} [version] The Kubernetes version to deploy
  * @returns {Promise<void>}
  */
-export async function k8sCreate(name, ownerId) {
+export async function k8sCreate(name, ownerId, version) {
   ownerId = await getOwnerIdFromOrgIdOrName(ownerId);
 
-  return createK8sCluster({ ownerId }, { name }).then(sendToApi);
+  const body = version != null ? { name, version } : { name };
+  return createK8sCluster({ ownerId }, body).then(sendToApi);
 }
 
 /**

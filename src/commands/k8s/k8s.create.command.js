@@ -14,6 +14,12 @@ export const k8sCreateCommand = defineCommand({
   description: 'Create a Kubernetes cluster',
   since: '4.3.0',
   options: {
+    clusterVersion: defineOption({
+      name: 'cluster-version',
+      schema: z.string().optional(),
+      description: 'Kubernetes version to deploy (e.g.: 1.33)',
+      placeholder: 'cluster-version',
+    }),
     watch: defineOption({
       name: 'watch',
       schema: z.boolean().default(false),
@@ -34,7 +40,7 @@ export const k8sCreateCommand = defineCommand({
     const orgIdOrName = options.org;
 
     try {
-      const cluster = await k8sCreate(clusterName, orgIdOrName);
+      const cluster = await k8sCreate(clusterName, orgIdOrName, options.clusterVersion);
 
       if (options.watch) {
         await typewriterLogo();

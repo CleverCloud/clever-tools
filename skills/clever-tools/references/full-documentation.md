@@ -1508,13 +1508,14 @@ clever k8s create <cluster-name> [options]
 
 **Arguments**
 ```
-cluster-name                            Kubernetes cluster name
+cluster-name                               Kubernetes cluster name
 ```
 
 **Options**
 ```
--o, --org, --owner <org-id|org-name>    Organisation to target by its ID (or name, if unambiguous)
--w, --watch                             Watch the deployment until the cluster is deployed
+    --cluster-version <cluster-version>    Kubernetes version to deploy (e.g.: 1.33)
+-o, --org, --owner <org-id|org-name>       Organisation to target by its ID (or name, if unambiguous)
+-w, --watch                                Watch the deployment until the cluster is deployed
 ```
 
 ### k8s delete

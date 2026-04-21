@@ -50,6 +50,7 @@ clever k8s create <cluster-name> [options]
 
 |Name|Description|
 |---|---|
+|`--cluster-version` `<cluster-version>`|Kubernetes version to deploy (e.g.: 1.33)|
 |`-o`, `--org`, `--owner` `<org-id\|org-name>`|Organisation to target by its ID (or name, if unambiguous)|
 |`-w`, `--watch`|Watch the deployment until the cluster is deployed|
 
