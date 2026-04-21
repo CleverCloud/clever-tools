@@ -181,6 +181,24 @@ export function getK8sNodeGroup(params) {
 }
 
 /**
+ * GET /v4/kubernetes/organisations/{ownerId}/clusters/{clusterId}/deployment-events
+ * @param {Object} params
+ * @param {String} params.ownerId
+ * @param {String} params.clusterId
+ * @param {Object} [queryParams]
+ * @param {Number} [queryParams.limit]
+ */
+export function listK8sDeploymentEvents(params, queryParams = {}) {
+  return Promise.resolve({
+    method: 'get',
+    url: `/v4/kubernetes/organisations/${params.ownerId}/clusters/${params.clusterId}/deployment-events`,
+    headers: { Accept: 'application/json' },
+    queryParams,
+    // no body
+  });
+}
+
+/**
  * GET /v4/kubernetes-product
  */
 export function getK8sProduct() {

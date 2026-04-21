@@ -62,6 +62,7 @@ import { featuresEnableCommand } from './features/features.enable.command.js';
 import { featuresInfoCommand } from './features/features.info.command.js';
 import { featuresListCommand } from './features/features.list.command.js';
 import { helpCommand } from './help/help.command.js';
+import { k8sActivityCommand } from './k8s/k8s.activity.command.js';
 import { k8sAddPersistentStorageCommand } from './k8s/k8s.add-persistent-storage.command.js';
 import { k8sCommand } from './k8s/k8s.command.js';
 import { k8sCreateCommand } from './k8s/k8s.create.command.js';
@@ -304,6 +305,7 @@ export const globalCommands = {
   k8s: [
     k8sCommand,
     {
+      activity: k8sActivityCommand,
       'add-persistent-storage': k8sAddPersistentStorageCommand,
       create: k8sCreateCommand,
       delete: k8sDeleteCommand,

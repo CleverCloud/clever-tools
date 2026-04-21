@@ -1474,6 +1474,29 @@ clever help
 clever k8s
 ```
 
+### k8s activity
+
+**Description:** Show recent deployment events of a Kubernetes cluster
+
+**Since:** 4.9.0
+
+**Usage**
+```
+clever k8s activity <cluster-id|cluster-name> [options]
+```
+
+**Arguments**
+```
+cluster-id|cluster-name                 Kubernetes cluster ID or name
+```
+
+**Options**
+```
+-F, --format <format>                   Output format (human, json) (default: human)
+    --limit <limit>                     Number of events to fetch (1 to 1000) (default: 50)
+-o, --org, --owner <org-id|org-name>    Organisation to target by its ID (or name, if unambiguous)
+```
+
 ### k8s add-persistent-storage
 
 **Description:** Activate persistent storage to a deployed Kubernetes cluster

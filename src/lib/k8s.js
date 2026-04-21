@@ -15,6 +15,7 @@ import {
   getK8sQuota,
   getK8sVersionCheck,
   listK8sClusters,
+  listK8sDeploymentEvents,
   listK8sNodeGroups,
   listK8sUsage,
   updateK8sNodeGroup,
@@ -266,6 +267,21 @@ export async function k8sListUsage(orgIdOrName) {
   const ownerId = await getOwnerIdFromOrgIdOrName(orgIdOrName);
 
   return listK8sUsage({ ownerId }).then(sendToApi);
+}
+
+/**
+ * List deployment events for a Kubernetes cluster
+ * @param {object} orgIdOrName The organisation ID or name
+ * @param {string|object} clusterIdOrName The cluster ID or name
+ * @param {number} [limit] Max number of events to return
+ * @returns {Promise<object[]>}
+ */
+export async function k8sListActivity(orgIdOrName, clusterIdOrName, limit) {
+  const ownerId = await getOwnerIdFromOrgIdOrName(orgIdOrName);
+  const clusterId = await getClusterIdFromAddonIdOrName(clusterIdOrName, ownerId);
+  const queryParams = limit != null ? { limit } : {};
+
+  return listK8sDeploymentEvents({ ownerId, clusterId }, queryParams).then(sendToApi);
 }
 
 /**
