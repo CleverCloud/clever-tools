@@ -96,6 +96,39 @@ export function addK8sPersistentStorage(params) {
 }
 
 /**
+ * GET /v4/kubernetes/organisations/{ownerId}/clusters/{clusterId}/node-groups
+ * @param {Object} params
+ * @param {String} params.ownerId
+ * @param {String} params.clusterId
+ */
+export function listK8sNodeGroups(params) {
+  return Promise.resolve({
+    method: 'get',
+    url: `/v4/kubernetes/organisations/${params.ownerId}/clusters/${params.clusterId}/node-groups`,
+    headers: { Accept: 'application/json' },
+    // no queryParams
+    // no body
+  });
+}
+
+/**
+ * GET /v4/kubernetes/organisations/{ownerId}/clusters/{clusterId}/node-groups/{nodeGroupId}
+ * @param {Object} params
+ * @param {String} params.ownerId
+ * @param {String} params.clusterId
+ * @param {String} params.nodeGroupId
+ */
+export function getK8sNodeGroup(params) {
+  return Promise.resolve({
+    method: 'get',
+    url: `/v4/kubernetes/organisations/${params.ownerId}/clusters/${params.clusterId}/node-groups/${params.nodeGroupId}`,
+    headers: { Accept: 'application/json' },
+    // no queryParams
+    // no body
+  });
+}
+
+/**
  * GET /v4/kubernetes-product
  */
 export function getK8sProduct() {

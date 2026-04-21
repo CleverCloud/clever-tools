@@ -1609,6 +1609,62 @@ clever k8s list [options]
 -o, --org, --owner <org-id|org-name>    Organisation to target by its ID (or name, if unambiguous)
 ```
 
+### k8s nodegroup
+
+**Description:** Manage Kubernetes node groups
+
+**Since:** 4.9.0
+
+**Usage**
+```
+clever k8s nodegroup
+```
+
+#### k8s nodegroup get
+
+**Description:** Get information about a Kubernetes node group
+
+**Since:** 4.9.0
+
+**Usage**
+```
+clever k8s nodegroup get <cluster-id|cluster-name> <nodegroup-id|nodegroup-name> [options]
+```
+
+**Arguments**
+```
+cluster-id|cluster-name                 Kubernetes cluster ID or name
+nodegroup-id|nodegroup-name             Kubernetes node group ID or name
+```
+
+**Options**
+```
+-F, --format <format>                   Output format (human, json) (default: human)
+-o, --org, --owner <org-id|org-name>    Organisation to target by its ID (or name, if unambiguous)
+```
+
+#### k8s nodegroup list
+
+**Description:** List the node groups of a Kubernetes cluster
+
+**Since:** 4.9.0
+
+**Usage**
+```
+clever k8s nodegroup list <cluster-id|cluster-name> [options]
+```
+
+**Arguments**
+```
+cluster-id|cluster-name                 Kubernetes cluster ID or name
+```
+
+**Options**
+```
+-F, --format <format>                   Output format (human, json) (default: human)
+-o, --org, --owner <org-id|org-name>    Organisation to target by its ID (or name, if unambiguous)
+```
+
 ### k8s quota
 
 **Description:** Get the Kubernetes quota, usage and remaining of an organisation

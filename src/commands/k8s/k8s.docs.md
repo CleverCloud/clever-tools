@@ -140,6 +140,57 @@ clever k8s list [options]
 |`-F`, `--format` `<format>`|Output format (human, json) (default: human)|
 |`-o`, `--org`, `--owner` `<org-id\|org-name>`|Organisation to target by its ID (or name, if unambiguous)|
 
+## ➡️ `clever k8s nodegroup` <kbd>Since 4.9.0</kbd>
+
+Manage Kubernetes node groups
+
+```bash
+clever k8s nodegroup
+```
+
+## ➡️ `clever k8s nodegroup get` <kbd>Since 4.9.0</kbd>
+
+Get information about a Kubernetes node group
+
+```bash
+clever k8s nodegroup get <cluster-id|cluster-name> <nodegroup-id|nodegroup-name> [options]
+```
+
+### 📥 Arguments
+
+|Name|Description|
+|---|---|
+|`cluster-id|cluster-name`|Kubernetes cluster ID or name|
+|`nodegroup-id|nodegroup-name`|Kubernetes node group ID or name|
+
+### ⚙️ Options
+
+|Name|Description|
+|---|---|
+|`-F`, `--format` `<format>`|Output format (human, json) (default: human)|
+|`-o`, `--org`, `--owner` `<org-id\|org-name>`|Organisation to target by its ID (or name, if unambiguous)|
+
+## ➡️ `clever k8s nodegroup list` <kbd>Since 4.9.0</kbd>
+
+List the node groups of a Kubernetes cluster
+
+```bash
+clever k8s nodegroup list <cluster-id|cluster-name> [options]
+```
+
+### 📥 Arguments
+
+|Name|Description|
+|---|---|
+|`cluster-id|cluster-name`|Kubernetes cluster ID or name|
+
+### ⚙️ Options
+
+|Name|Description|
+|---|---|
+|`-F`, `--format` `<format>`|Output format (human, json) (default: human)|
+|`-o`, `--org`, `--owner` `<org-id\|org-name>`|Organisation to target by its ID (or name, if unambiguous)|
+
 ## ➡️ `clever k8s quota` <kbd>Since 4.9.0</kbd>
 
 Get the Kubernetes quota, usage and remaining of an organisation

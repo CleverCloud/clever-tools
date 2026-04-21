@@ -8,10 +8,12 @@ import {
   deleteK8sCluster,
   getK8sAddon,
   getK8sConfig,
+  getK8sNodeGroup,
   getK8sProduct,
   getK8sQuota,
   getK8sVersionCheck,
   listK8sClusters,
+  listK8sNodeGroups,
   listK8sUsage,
   updateK8sVersion,
 } from '../clever-client/k8s.js';
@@ -254,6 +256,55 @@ export async function k8sListUsage(orgIdOrName) {
   const ownerId = await getOwnerIdFromOrgIdOrName(orgIdOrName);
 
   return listK8sUsage({ ownerId }).then(sendToApi);
+}
+
+/**
+ * List the node groups of a Kubernetes cluster
+ * @param {object} orgIdOrName The organisation ID or name
+ * @param {string|object} clusterIdOrName The cluster ID or name
+ * @returns {Promise<object[]>}
+ */
+export async function k8sListNodeGroups(orgIdOrName, clusterIdOrName) {
+  const ownerId = await getOwnerIdFromOrgIdOrName(orgIdOrName);
+  const clusterId = await getClusterIdFromAddonIdOrName(clusterIdOrName, ownerId);
+
+  return listK8sNodeGroups({ ownerId, clusterId }).then(sendToApi);
+}
+
+/**
+ * Get a specific node group of a Kubernetes cluster
+ * @param {object} orgIdOrName The organisation ID or name
+ * @param {string|object} clusterIdOrName The cluster ID or name
+ * @param {string} nodeGroupIdOrName The node group ID or name
+ * @returns {Promise<object>}
+ */
+export async function k8sGetNodeGroup(orgIdOrName, clusterIdOrName, nodeGroupIdOrName) {
+  const ownerId = await getOwnerIdFromOrgIdOrName(orgIdOrName);
+  const clusterId = await getClusterIdFromAddonIdOrName(clusterIdOrName, ownerId);
+  const nodeGroupId = await resolveNodeGroupId(ownerId, clusterId, nodeGroupIdOrName);
+
+  return getK8sNodeGroup({ ownerId, clusterId, nodeGroupId }).then(sendToApi);
+}
+
+const NODE_GROUP_ID_REGEX = /^node_group_[0-9A-HJ-NP-TV-Z]{26}$/i;
+
+/**
+ * Resolve a node group ID from either an ID or a name (scoped to a cluster)
+ * @param {string} ownerId
+ * @param {string} clusterId
+ * @param {string} nodeGroupIdOrName
+ * @returns {Promise<string>}
+ */
+async function resolveNodeGroupId(ownerId, clusterId, nodeGroupIdOrName) {
+  if (NODE_GROUP_ID_REGEX.test(nodeGroupIdOrName)) {
+    return nodeGroupIdOrName;
+  }
+  const list = await listK8sNodeGroups({ ownerId, clusterId }).then(sendToApi);
+  const match = list.find((ng) => ng.name === nodeGroupIdOrName);
+  if (match == null) {
+    throw new Error(`No node group found with name ${styleText('red', nodeGroupIdOrName)}`);
+  }
+  return match.id;
 }
 
 /**
