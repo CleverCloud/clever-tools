@@ -33,6 +33,16 @@ export const k8sCreateCommand = defineCommand({
       description: 'Semantic tags (comma-separated, e.g.: env:prod,team:platform)',
       placeholder: 'tag[,tag...]',
     }),
+    autoscaling: defineOption({
+      name: 'autoscaling',
+      schema: z.boolean().default(false),
+      description: 'Enable the cluster autoscaler',
+    }),
+    persistentStorage: defineOption({
+      name: 'persistent-storage',
+      schema: z.boolean().default(false),
+      description: 'Enable persistent storage (Ceph CSI)',
+    }),
     watch: defineOption({
       name: 'watch',
       schema: z.boolean().default(false),
@@ -57,6 +67,8 @@ export const k8sCreateCommand = defineCommand({
         version: options.clusterVersion,
         description: options.description,
         tags: options.tag,
+        autoscaling: options.autoscaling,
+        persistentStorage: options.persistentStorage,
       });
 
       if (options.watch) {

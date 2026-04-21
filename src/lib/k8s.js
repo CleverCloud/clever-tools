@@ -40,6 +40,8 @@ export async function isK8sClusterActive(orgIdOrName, clusterIdOrName) {
  * @param {string} [options.version] The Kubernetes version to deploy
  * @param {string} [options.description] A free-form description
  * @param {string[]} [options.tags] Semantic tags ("tag" or "key:value")
+ * @param {boolean} [options.autoscaling] Enable the cluster autoscaler
+ * @param {boolean} [options.persistentStorage] Enable the Ceph CSI persistent storage
  * @returns {Promise<object>}
  */
 export async function k8sCreate(name, orgIdOrName, options = {}) {
@@ -49,6 +51,11 @@ export async function k8sCreate(name, orgIdOrName, options = {}) {
   if (options.version != null) body.version = options.version;
   if (options.description != null) body.description = options.description;
   if (options.tags?.length) body.tags = options.tags;
+
+  const features = {};
+  if (options.autoscaling) features.autoscalingEnabled = true;
+  if (options.persistentStorage) features.csi = true;
+  if (Object.keys(features).length > 0) body.features = features;
 
   return createK8sCluster({ ownerId }, body).then(sendToApi);
 }
