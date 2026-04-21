@@ -62,6 +62,7 @@ import { featuresEnableCommand } from './features/features.enable.command.js';
 import { featuresInfoCommand } from './features/features.info.command.js';
 import { featuresListCommand } from './features/features.list.command.js';
 import { helpCommand } from './help/help.command.js';
+import { k8sActivityCommand } from './k8s/k8s.activity.command.js';
 import { k8sAddPersistentStorageCommand } from './k8s/k8s.add-persistent-storage.command.js';
 import { k8sCommand } from './k8s/k8s.command.js';
 import { k8sCreateCommand } from './k8s/k8s.create.command.js';
@@ -69,6 +70,17 @@ import { k8sDeleteCommand } from './k8s/k8s.delete.command.js';
 import { k8sGetKubeconfigCommand } from './k8s/k8s.get-kubeconfig.command.js';
 import { k8sGetCommand } from './k8s/k8s.get.command.js';
 import { k8sListCommand } from './k8s/k8s.list.command.js';
+import { k8sNodeGroupCommand } from './k8s/k8s.nodegroups.command.js';
+import { k8sNodeGroupCreateCommand } from './k8s/k8s.nodegroups.create.command.js';
+import { k8sNodeGroupDeleteCommand } from './k8s/k8s.nodegroups.delete.command.js';
+import { k8sNodeGroupGetCommand } from './k8s/k8s.nodegroups.get.command.js';
+import { k8sNodeGroupListCommand } from './k8s/k8s.nodegroups.list.command.js';
+import { k8sNodeGroupUpdateCommand } from './k8s/k8s.nodegroups.update.command.js';
+import { k8sQuotaCommand } from './k8s/k8s.quota.command.js';
+import { k8sUpdateCommand } from './k8s/k8s.update.command.js';
+import { k8sVersionCheckCommand } from './k8s/k8s.version.check.command.js';
+import { k8sVersionCommand } from './k8s/k8s.version.command.js';
+import { k8sVersionUpdateCommand } from './k8s/k8s.version.update.command.js';
 import { keycloakCommand } from './keycloak/keycloak.command.js';
 import { keycloakDisableNgCommand } from './keycloak/keycloak.disable-ng.command.js';
 import { keycloakEnableNgCommand } from './keycloak/keycloak.enable-ng.command.js';
@@ -294,12 +306,32 @@ export const globalCommands = {
   k8s: [
     k8sCommand,
     {
+      activity: k8sActivityCommand,
       'add-persistent-storage': k8sAddPersistentStorageCommand,
       create: k8sCreateCommand,
       delete: k8sDeleteCommand,
       get: k8sGetCommand,
       'get-kubeconfig': k8sGetKubeconfigCommand,
       list: k8sListCommand,
+      nodegroups: [
+        k8sNodeGroupCommand,
+        {
+          create: k8sNodeGroupCreateCommand,
+          delete: k8sNodeGroupDeleteCommand,
+          get: k8sNodeGroupGetCommand,
+          list: k8sNodeGroupListCommand,
+          update: k8sNodeGroupUpdateCommand,
+        },
+      ],
+      quota: k8sQuotaCommand,
+      update: k8sUpdateCommand,
+      version: [
+        k8sVersionCommand,
+        {
+          check: k8sVersionCheckCommand,
+          update: k8sVersionUpdateCommand,
+        },
+      ],
     },
   ],
   keycloak: [

@@ -86,6 +86,16 @@ export function commaSeparated(string) {
   return string.split(',');
 }
 
+const flavorCountRegex = /^[^:]+:\d+$/;
+
+export function flavorCount(string) {
+  if (!flavorCountRegex.test(string)) {
+    throw new Error('Expected format: <flavor>:<count>');
+  }
+  const [flavor, count] = string.split(':');
+  return { flavor: flavor.toUpperCase(), targetNodeCount: Number(count) };
+}
+
 // /^[a-z0-9](?:[a-z0-9_-]*[a-z0-9])?$/i;
 const tagRegex = /^[^,\s]+$/;
 
