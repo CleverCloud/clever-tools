@@ -31,8 +31,13 @@ export const k8sNodeGroupUpdateCommand = defineCommand({
     }),
     autoscaling: defineOption({
       name: 'autoscaling',
-      schema: z.boolean().optional(),
-      description: 'Enable (--autoscaling) or disable (--no-autoscaling) the cluster autoscaler',
+      schema: z.boolean().default(false),
+      description: 'Enable the cluster autoscaler',
+    }),
+    disableAutoscaling: defineOption({
+      name: 'disable-autoscaling',
+      schema: z.boolean().default(false),
+      description: 'Disable the cluster autoscaler',
     }),
     description: defineOption({
       name: 'description',
@@ -52,17 +57,22 @@ export const k8sNodeGroupUpdateCommand = defineCommand({
   async handler(options, clusterIdOrName, nodeGroupIdOrName) {
     const { org: orgIdOrName } = options;
 
+    if (options.autoscaling && options.disableAutoscaling) {
+      throw new Error('--autoscaling and --disable-autoscaling are mutually exclusive');
+    }
+
     const updates = {};
     if (options.count != null) updates.targetNodeCount = options.count;
     if (options.min != null) updates.minNodeCount = options.min;
     if (options.max != null) updates.maxNodeCount = options.max;
-    if (options.autoscaling != null) updates.autoscalingEnabled = options.autoscaling;
+    if (options.autoscaling) updates.autoscalingEnabled = true;
+    if (options.disableAutoscaling) updates.autoscalingEnabled = false;
     if (options.description != null) updates.description = options.description;
     if (options.tag != null) updates.tag = options.tag;
 
     if (Object.keys(updates).length === 0) {
       throw new Error(
-        'No update specified. Provide at least one of --count, --min, --max, --autoscaling, --description, --tag',
+        'No update specified. Provide at least one of --count, --min, --max, --autoscaling, --disable-autoscaling, --description, --tag',
       );
     }
 

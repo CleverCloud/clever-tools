@@ -1735,9 +1735,10 @@ nodegroup-id|nodegroup-name             Kubernetes node group ID or name
 
 **Options**
 ```
-    --autoscaling                       Enable (--autoscaling) or disable (--no-autoscaling) the cluster autoscaler
+    --autoscaling                       Enable the cluster autoscaler
     --count <count>                     Target node count
     --description <description>         Free-form node group description
+    --disable-autoscaling               Disable the cluster autoscaler
     --max <max>                         Maximum node count (autoscaling bound)
     --min <min>                         Minimum node count (autoscaling bound)
 -o, --org, --owner <org-id|org-name>    Organisation to target by its ID (or name, if unambiguous)

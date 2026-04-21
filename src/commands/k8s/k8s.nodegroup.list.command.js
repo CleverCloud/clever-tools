@@ -24,7 +24,9 @@ export const k8sNodeGroupListCommand = defineCommand({
       case 'human':
       default:
         if (nodeGroups.length === 0) {
-          Logger.println(`🔎 No node group found, create one with ${styleText('blue', 'clever k8s nodegroup create')}`);
+          Logger.println(
+            `🔎 No node group found, create one with ${styleText('blue', 'clever k8s nodegroups create')}`,
+          );
           return;
         }
         console.table(
