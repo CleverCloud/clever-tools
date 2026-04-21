@@ -75,14 +75,14 @@ export const k8sGetCommand = defineCommand({
         if (k8sInfo.loadBalancers?.length) {
           Logger.println('');
           Logger.println(`🔀 Load balancers (${k8sInfo.loadBalancers.length})`);
-          console.table(
-            Object.fromEntries(
-              k8sInfo.loadBalancers.map((lb) => [
-                lb.id,
-                { Flavor: lb.flavor, IPs: lb.ips?.join(', ') ?? '-', Domain: lb.domainName ?? '-' },
-              ]),
-            ),
-          );
+          k8sInfo.loadBalancers.forEach((lb) => {
+            console.table({
+              ID: lb.id,
+              Flavor: lb.flavor,
+              IPs: lb.ips?.join(', ') ?? '-',
+              Domain: lb.domainName ?? '-',
+            });
+          });
         }
 
         Logger.println('');
