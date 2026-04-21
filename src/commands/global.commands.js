@@ -71,6 +71,7 @@ import { k8sGetCommand } from './k8s/k8s.get.command.js';
 import { k8sListCommand } from './k8s/k8s.list.command.js';
 import { k8sNodeGroupCommand } from './k8s/k8s.nodegroup.command.js';
 import { k8sNodeGroupCreateCommand } from './k8s/k8s.nodegroup.create.command.js';
+import { k8sNodeGroupDeleteCommand } from './k8s/k8s.nodegroup.delete.command.js';
 import { k8sNodeGroupGetCommand } from './k8s/k8s.nodegroup.get.command.js';
 import { k8sNodeGroupListCommand } from './k8s/k8s.nodegroup.list.command.js';
 import { k8sQuotaCommand } from './k8s/k8s.quota.command.js';
@@ -312,6 +313,7 @@ export const globalCommands = {
         k8sNodeGroupCommand,
         {
           create: k8sNodeGroupCreateCommand,
+          delete: k8sNodeGroupDeleteCommand,
           get: k8sNodeGroupGetCommand,
           list: k8sNodeGroupListCommand,
         },

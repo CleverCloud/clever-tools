@@ -7,6 +7,7 @@ import {
   createK8sCluster,
   createK8sNodeGroup,
   deleteK8sCluster,
+  deleteK8sNodeGroup,
   getK8sAddon,
   getK8sConfig,
   getK8sNodeGroup,
@@ -319,6 +320,21 @@ export async function k8sCreateNodeGroup(orgIdOrName, clusterIdOrName, options) 
 function getNodeGroupFlavors(product) {
   const available = new Set((product.topologies ?? []).flatMap((t) => t.availableFlavors ?? []));
   return FLAVOR_ORDER.filter((f) => available.has(f));
+}
+
+/**
+ * Delete a node group from a Kubernetes cluster
+ * @param {object} orgIdOrName The organisation ID or name
+ * @param {string|object} clusterIdOrName The cluster ID or name
+ * @param {string} nodeGroupIdOrName The node group ID or name
+ * @returns {Promise<void>}
+ */
+export async function k8sDeleteNodeGroup(orgIdOrName, clusterIdOrName, nodeGroupIdOrName) {
+  const ownerId = await getOwnerIdFromOrgIdOrName(orgIdOrName);
+  const clusterId = await getClusterIdFromAddonIdOrName(clusterIdOrName, ownerId);
+  const nodeGroupId = await resolveNodeGroupId(ownerId, clusterId, nodeGroupIdOrName);
+
+  return deleteK8sNodeGroup({ ownerId, clusterId, nodeGroupId }).then(sendToApi);
 }
 
 /**

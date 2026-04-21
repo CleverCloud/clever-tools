@@ -96,6 +96,23 @@ export function addK8sPersistentStorage(params) {
 }
 
 /**
+ * DELETE /v4/kubernetes/organisations/{ownerId}/clusters/{clusterId}/node-groups/{nodeGroupId}
+ * @param {Object} params
+ * @param {String} params.ownerId
+ * @param {String} params.clusterId
+ * @param {String} params.nodeGroupId
+ */
+export function deleteK8sNodeGroup(params) {
+  return Promise.resolve({
+    method: 'delete',
+    url: `/v4/kubernetes/organisations/${params.ownerId}/clusters/${params.clusterId}/node-groups/${params.nodeGroupId}`,
+    headers: { Accept: 'application/json' },
+    // no queryParams
+    // no body
+  });
+}
+
+/**
  * POST /v4/kubernetes/organisations/{ownerId}/clusters/{clusterId}/node-groups
  * @param {Object} params
  * @param {String} params.ownerId

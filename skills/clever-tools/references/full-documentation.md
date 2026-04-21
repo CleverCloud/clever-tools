@@ -1648,6 +1648,29 @@ flavor:count                            Node group flavor and target node count 
     --tag <tag>                         Arbitrary tag attached to the node group
 ```
 
+#### k8s nodegroups delete
+
+**Description:** Delete a node group from a Kubernetes cluster
+
+**Since:** 4.9.0
+
+**Usage**
+```
+clever k8s nodegroups delete <cluster-id|cluster-name> <nodegroup-id|nodegroup-name> [options]
+```
+
+**Arguments**
+```
+cluster-id|cluster-name                 Kubernetes cluster ID or name
+nodegroup-id|nodegroup-name             Kubernetes node group ID or name
+```
+
+**Options**
+```
+-o, --org, --owner <org-id|org-name>    Organisation to target by its ID (or name, if unambiguous)
+-y, --yes                               Skip confirmation prompts
+```
+
 #### k8s nodegroups get
 
 **Description:** Get information about a Kubernetes node group

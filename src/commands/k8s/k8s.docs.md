@@ -175,6 +175,28 @@ clever k8s nodegroups create <cluster-id|cluster-name> <nodegroup-name> <flavor:
 |`-o`, `--org`, `--owner` `<org-id\|org-name>`|Organisation to target by its ID (or name, if unambiguous)|
 |`--tag` `<tag>`|Arbitrary tag attached to the node group|
 
+## ➡️ `clever k8s nodegroups delete` <kbd>Since 4.9.0</kbd>
+
+Delete a node group from a Kubernetes cluster
+
+```bash
+clever k8s nodegroups delete <cluster-id|cluster-name> <nodegroup-id|nodegroup-name> [options]
+```
+
+### 📥 Arguments
+
+|Name|Description|
+|---|---|
+|`cluster-id|cluster-name`|Kubernetes cluster ID or name|
+|`nodegroup-id|nodegroup-name`|Kubernetes node group ID or name|
+
+### ⚙️ Options
+
+|Name|Description|
+|---|---|
+|`-o`, `--org`, `--owner` `<org-id\|org-name>`|Organisation to target by its ID (or name, if unambiguous)|
+|`-y`, `--yes`|Skip confirmation prompts|
+
 ## ➡️ `clever k8s nodegroups get` <kbd>Since 4.9.0</kbd>
 
 Get information about a Kubernetes node group
