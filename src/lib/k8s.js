@@ -1,5 +1,5 @@
 import dedent from 'dedent';
-import { confirm, selectAnswer } from './prompts.js';
+import { ask, confirm, selectAnswer } from './prompts.js';
 import { styleText } from './style-text.js';
 
 import {
@@ -43,13 +43,15 @@ export async function isK8sClusterActive(orgIdOrName, clusterIdOrName) {
  * @param {string[]} [options.tags] Semantic tags ("tag" or "key:value")
  * @param {boolean} [options.autoscaling] Enable the cluster autoscaler
  * @param {boolean} [options.persistentStorage] Enable the Ceph CSI persistent storage
- * @param {string} [options.topology] Topology kind (ALL_IN_ONE or DEDICATED_COMPUTE)
+ * @param {string} [options.topology] Topology kind (ALL_IN_ONE, DEDICATED_COMPUTE, DISTRIBUTED)
  * @param {string} [options.flavor] Control plane flavor
- * @param {number} [options.replicationFactor] Control plane replication factor (1 to 5)
+ * @param {number} [options.replicationFactor] Control plane replication factor
+ * @param {{flavor: string, targetNodeCount: number}} [options.nodeGroup] Initial node group
  * @returns {Promise<object>}
  */
 export async function k8sCreate(name, orgIdOrName, options = {}) {
   const ownerId = await getOwnerIdFromOrgIdOrName(orgIdOrName);
+  const product = await k8sGetProduct();
 
   const body = { name };
   if (options.version != null) body.version = options.version;
@@ -61,7 +63,35 @@ export async function k8sCreate(name, orgIdOrName, options = {}) {
   if (options.persistentStorage) features.csi = true;
   if (Object.keys(features).length > 0) body.features = features;
 
-  body.topologyConfig = await resolveTopologyConfig(options);
+  body.topologyConfig = resolveTopologyConfig(options, product);
+
+  if (options.nodeGroup != null) {
+    const available = new Set((product.topologies ?? []).flatMap((t) => t.availableFlavors ?? []));
+    const supported = FLAVOR_ORDER.filter((f) => available.has(f));
+    if (!supported.includes(options.nodeGroup.flavor)) {
+      throw new Error(
+        `Flavor "${options.nodeGroup.flavor}" is not a valid node group flavor. Supported: ${supported.join(', ')}`,
+      );
+    }
+    let addNodeGroup = true;
+    if (body.topologyConfig.topology === 'ALL_IN_ONE' && !options.yes) {
+      Logger.println(
+        styleText(
+          'yellow',
+          '⚠️  ALL_IN_ONE topology already schedules pods on control plane VMs — an additional node group is usually unnecessary.',
+        ),
+      );
+      addNodeGroup = await ask('Add the node group anyway?', false);
+      if (!addNodeGroup) {
+        Logger.println('Node group creation skipped, cluster will be deployed without it');
+      }
+    }
+    if (addNodeGroup) {
+      body.nodeGroups = [
+        { name: 'default', flavor: options.nodeGroup.flavor, targetNodeCount: options.nodeGroup.targetNodeCount },
+      ];
+    }
+  }
 
   return createK8sCluster({ ownerId }, body).then(sendToApi);
 }
@@ -76,8 +106,7 @@ const DISTRIBUTED_COMPONENTS = [
   'cloudControllerManager',
 ];
 
-async function resolveTopologyConfig({ topology, flavor, replicationFactor }) {
-  const product = await k8sGetProduct();
+function resolveTopologyConfig({ topology, flavor, replicationFactor }, product) {
   const resolvedTopology = topology ?? DEFAULT_TOPOLOGY;
   const constraint = product.topologies?.find((t) => t.topology === resolvedTopology);
   if (constraint == null) {

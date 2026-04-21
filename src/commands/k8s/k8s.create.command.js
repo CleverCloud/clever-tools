@@ -7,7 +7,7 @@ import { getK8sCluster, k8sCreate, k8sGetProduct } from '../../lib/k8s.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
 import { tags } from '../../parsers.js';
-import { orgaIdOrNameOption } from '../global.options.js';
+import { orgaIdOrNameOption, skipConfirmationOption } from '../global.options.js';
 
 const DEPLOY_POLL_DELAY_MS = 10000;
 
@@ -76,6 +76,20 @@ export const k8sCreateCommand = defineCommand({
       description: 'Control plane replication factor',
       placeholder: 'replication-factor',
     }),
+    nodeGroup: defineOption({
+      name: 'node-group',
+      schema: z
+        .string()
+        .regex(/^[^:]+:\d+$/, 'Expected format: <flavor>:<count>')
+        .transform((v) => {
+          const [flavor, count] = v.split(':');
+          return { flavor: flavor.toUpperCase(), targetNodeCount: Number(count) };
+        })
+        .optional(),
+      description: 'Initial node group (format: <flavor>:<count>, e.g.: XS:3)',
+      placeholder: 'flavor:count',
+    }),
+    yes: skipConfirmationOption,
     watch: defineOption({
       name: 'watch',
       schema: z.boolean().default(false),
@@ -105,6 +119,8 @@ export const k8sCreateCommand = defineCommand({
         topology: options.topology,
         flavor: options.flavor,
         replicationFactor: options.replicationFactor,
+        nodeGroup: options.nodeGroup,
+        yes: options.yes,
       });
 
       if (options.watch) {
