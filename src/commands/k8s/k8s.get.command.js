@@ -30,7 +30,7 @@ export const k8sGetCommand = defineCommand({
           ID: k8sInfo.id,
           Status: k8sInfo.status,
           Version: k8sInfo.version,
-          Topology: topo != null ? `${topo.topology} (${topo.flavor}, rf=${topo.replicationFactor})` : '-',
+          Topology: formatTopology(topo),
           Autoscaling: k8sInfo.features?.autoscalingEnabled ? 'enabled' : 'disabled',
           'Persistent storage': k8sInfo.features?.csi != null ? 'enabled' : 'disabled',
         };
@@ -40,6 +40,19 @@ export const k8sGetCommand = defineCommand({
           overview.Storage = `${Math.round((k8sInfo.storageUsageBytes / 1024 ** 3) * 100) / 100} GB`;
         }
         console.table(overview);
+
+        if (topo?.topology === 'DISTRIBUTED' && topo.components) {
+          Logger.println('');
+          Logger.println('🧩 Control plane components');
+          console.table(
+            Object.fromEntries(
+              Object.entries(topo.components).map(([name, c]) => [
+                name,
+                { Flavor: c?.flavor ?? '-', RF: c?.replicationFactor ?? '-' },
+              ]),
+            ),
+          );
+        }
 
         if (k8sInfo.loadBalancers?.length) {
           Logger.println('');
@@ -65,3 +78,9 @@ export const k8sGetCommand = defineCommand({
     }
   },
 });
+
+function formatTopology(topo) {
+  if (topo == null) return '-';
+  if (topo.topology === 'DISTRIBUTED') return 'DISTRIBUTED';
+  return `${topo.topology} (${topo.flavor}, rf=${topo.replicationFactor})`;
+}
