@@ -1609,7 +1609,7 @@ clever k8s list [options]
 -o, --org, --owner <org-id|org-name>    Organisation to target by its ID (or name, if unambiguous)
 ```
 
-### k8s nodegroup
+### k8s nodegroups
 
 **Description:** Manage Kubernetes node groups
 
@@ -1617,10 +1617,10 @@ clever k8s list [options]
 
 **Usage**
 ```
-clever k8s nodegroup
+clever k8s nodegroups
 ```
 
-#### k8s nodegroup create
+#### k8s nodegroups create
 
 **Description:** Create a node group on a Kubernetes cluster
 
@@ -1628,7 +1628,7 @@ clever k8s nodegroup
 
 **Usage**
 ```
-clever k8s nodegroup create <cluster-id|cluster-name> <nodegroup-name> <flavor:count> [options]
+clever k8s nodegroups create <cluster-id|cluster-name> <nodegroup-name> <flavor:count> [options]
 ```
 
 **Arguments**
@@ -1648,7 +1648,7 @@ flavor:count                            Node group flavor and target node count 
     --tag <tag>                         Arbitrary tag attached to the node group
 ```
 
-#### k8s nodegroup get
+#### k8s nodegroups get
 
 **Description:** Get information about a Kubernetes node group
 
@@ -1656,7 +1656,7 @@ flavor:count                            Node group flavor and target node count 
 
 **Usage**
 ```
-clever k8s nodegroup get <cluster-id|cluster-name> <nodegroup-id|nodegroup-name> [options]
+clever k8s nodegroups get <cluster-id|cluster-name> <nodegroup-id|nodegroup-name> [options]
 ```
 
 **Arguments**
@@ -1671,7 +1671,7 @@ nodegroup-id|nodegroup-name             Kubernetes node group ID or name
 -o, --org, --owner <org-id|org-name>    Organisation to target by its ID (or name, if unambiguous)
 ```
 
-#### k8s nodegroup list
+#### k8s nodegroups list
 
 **Description:** List the node groups of a Kubernetes cluster
 
@@ -1679,7 +1679,7 @@ nodegroup-id|nodegroup-name             Kubernetes node group ID or name
 
 **Usage**
 ```
-clever k8s nodegroup list <cluster-id|cluster-name> [options]
+clever k8s nodegroups list <cluster-id|cluster-name> [options]
 ```
 
 **Arguments**

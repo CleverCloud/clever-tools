@@ -140,20 +140,20 @@ clever k8s list [options]
 |`-F`, `--format` `<format>`|Output format (human, json) (default: human)|
 |`-o`, `--org`, `--owner` `<org-id\|org-name>`|Organisation to target by its ID (or name, if unambiguous)|
 
-## ➡️ `clever k8s nodegroup` <kbd>Since 4.9.0</kbd>
+## ➡️ `clever k8s nodegroups` <kbd>Since 4.9.0</kbd>
 
 Manage Kubernetes node groups
 
 ```bash
-clever k8s nodegroup
+clever k8s nodegroups
 ```
 
-## ➡️ `clever k8s nodegroup create` <kbd>Since 4.9.0</kbd>
+## ➡️ `clever k8s nodegroups create` <kbd>Since 4.9.0</kbd>
 
 Create a node group on a Kubernetes cluster
 
 ```bash
-clever k8s nodegroup create <cluster-id|cluster-name> <nodegroup-name> <flavor:count> [options]
+clever k8s nodegroups create <cluster-id|cluster-name> <nodegroup-name> <flavor:count> [options]
 ```
 
 ### 📥 Arguments
@@ -175,12 +175,12 @@ clever k8s nodegroup create <cluster-id|cluster-name> <nodegroup-name> <flavor:c
 |`-o`, `--org`, `--owner` `<org-id\|org-name>`|Organisation to target by its ID (or name, if unambiguous)|
 |`--tag` `<tag>`|Arbitrary tag attached to the node group|
 
-## ➡️ `clever k8s nodegroup get` <kbd>Since 4.9.0</kbd>
+## ➡️ `clever k8s nodegroups get` <kbd>Since 4.9.0</kbd>
 
 Get information about a Kubernetes node group
 
 ```bash
-clever k8s nodegroup get <cluster-id|cluster-name> <nodegroup-id|nodegroup-name> [options]
+clever k8s nodegroups get <cluster-id|cluster-name> <nodegroup-id|nodegroup-name> [options]
 ```
 
 ### 📥 Arguments
@@ -197,12 +197,12 @@ clever k8s nodegroup get <cluster-id|cluster-name> <nodegroup-id|nodegroup-name>
 |`-F`, `--format` `<format>`|Output format (human, json) (default: human)|
 |`-o`, `--org`, `--owner` `<org-id\|org-name>`|Organisation to target by its ID (or name, if unambiguous)|
 
-## ➡️ `clever k8s nodegroup list` <kbd>Since 4.9.0</kbd>
+## ➡️ `clever k8s nodegroups list` <kbd>Since 4.9.0</kbd>
 
 List the node groups of a Kubernetes cluster
 
 ```bash
-clever k8s nodegroup list <cluster-id|cluster-name> [options]
+clever k8s nodegroups list <cluster-id|cluster-name> [options]
 ```
 
 ### 📥 Arguments

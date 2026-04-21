@@ -308,7 +308,7 @@ export const globalCommands = {
       get: k8sGetCommand,
       'get-kubeconfig': k8sGetKubeconfigCommand,
       list: k8sListCommand,
-      nodegroup: [
+      nodegroups: [
         k8sNodeGroupCommand,
         {
           create: k8sNodeGroupCreateCommand,
