@@ -17,6 +17,7 @@ import {
   listK8sClusters,
   listK8sNodeGroups,
   listK8sUsage,
+  updateK8sNodeGroup,
   updateK8sVersion,
 } from '../clever-client/k8s.js';
 import { Logger } from '../logger.js';
@@ -320,6 +321,25 @@ export async function k8sCreateNodeGroup(orgIdOrName, clusterIdOrName, options) 
 function getNodeGroupFlavors(product) {
   const available = new Set((product.topologies ?? []).flatMap((t) => t.availableFlavors ?? []));
   return FLAVOR_ORDER.filter((f) => available.has(f));
+}
+
+/**
+ * Update a node group on a Kubernetes cluster
+ * @param {object} orgIdOrName The organisation ID or name
+ * @param {string|object} clusterIdOrName The cluster ID or name
+ * @param {string} nodeGroupIdOrName The node group ID or name
+ * @param {object} updates Patch fields (targetNodeCount, minNodeCount, maxNodeCount, autoscalingEnabled, description, tag)
+ * @returns {Promise<object>}
+ */
+export async function k8sUpdateNodeGroup(orgIdOrName, clusterIdOrName, nodeGroupIdOrName, updates) {
+  const ownerId = await getOwnerIdFromOrgIdOrName(orgIdOrName);
+  const clusterId = await getClusterIdFromAddonIdOrName(clusterIdOrName, ownerId);
+  const nodeGroupId = await resolveNodeGroupId(ownerId, clusterId, nodeGroupIdOrName);
+  const current = await getK8sNodeGroup({ ownerId, clusterId, nodeGroupId }).then(sendToApi);
+
+  const body = { name: current.name, targetNodeCount: current.targetNodeCount, ...updates };
+
+  return updateK8sNodeGroup({ ownerId, clusterId, nodeGroupId }, body).then(sendToApi);
 }
 
 /**

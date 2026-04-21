@@ -1716,6 +1716,34 @@ cluster-id|cluster-name                 Kubernetes cluster ID or name
 -o, --org, --owner <org-id|org-name>    Organisation to target by its ID (or name, if unambiguous)
 ```
 
+#### k8s nodegroups update
+
+**Description:** Update a node group on a Kubernetes cluster
+
+**Since:** 4.9.0
+
+**Usage**
+```
+clever k8s nodegroups update <cluster-id|cluster-name> <nodegroup-id|nodegroup-name> [options]
+```
+
+**Arguments**
+```
+cluster-id|cluster-name                 Kubernetes cluster ID or name
+nodegroup-id|nodegroup-name             Kubernetes node group ID or name
+```
+
+**Options**
+```
+    --autoscaling                       Enable (--autoscaling) or disable (--no-autoscaling) the cluster autoscaler
+    --count <count>                     Target node count
+    --description <description>         Free-form node group description
+    --max <max>                         Maximum node count (autoscaling bound)
+    --min <min>                         Minimum node count (autoscaling bound)
+-o, --org, --owner <org-id|org-name>    Organisation to target by its ID (or name, if unambiguous)
+    --tag <tag>                         Arbitrary tag attached to the node group
+```
+
 ### k8s quota
 
 **Description:** Get the Kubernetes quota, usage and remaining of an organisation

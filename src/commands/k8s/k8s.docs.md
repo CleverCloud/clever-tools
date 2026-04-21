@@ -240,6 +240,33 @@ clever k8s nodegroups list <cluster-id|cluster-name> [options]
 |`-F`, `--format` `<format>`|Output format (human, json) (default: human)|
 |`-o`, `--org`, `--owner` `<org-id\|org-name>`|Organisation to target by its ID (or name, if unambiguous)|
 
+## ➡️ `clever k8s nodegroups update` <kbd>Since 4.9.0</kbd>
+
+Update a node group on a Kubernetes cluster
+
+```bash
+clever k8s nodegroups update <cluster-id|cluster-name> <nodegroup-id|nodegroup-name> [options]
+```
+
+### 📥 Arguments
+
+|Name|Description|
+|---|---|
+|`cluster-id|cluster-name`|Kubernetes cluster ID or name|
+|`nodegroup-id|nodegroup-name`|Kubernetes node group ID or name|
+
+### ⚙️ Options
+
+|Name|Description|
+|---|---|
+|`--autoscaling`|Enable (--autoscaling) or disable (--no-autoscaling) the cluster autoscaler|
+|`--count` `<count>`|Target node count|
+|`--description` `<description>`|Free-form node group description|
+|`--max` `<max>`|Maximum node count (autoscaling bound)|
+|`--min` `<min>`|Minimum node count (autoscaling bound)|
+|`-o`, `--org`, `--owner` `<org-id\|org-name>`|Organisation to target by its ID (or name, if unambiguous)|
+|`--tag` `<tag>`|Arbitrary tag attached to the node group|
+
 ## ➡️ `clever k8s quota` <kbd>Since 4.9.0</kbd>
 
 Get the Kubernetes quota, usage and remaining of an organisation
