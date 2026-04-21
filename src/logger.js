@@ -1,50 +1,63 @@
+import { getLogger, setup } from '@clevercloud/scribe';
+import os from 'node:os';
+import path from 'node:path';
 import { format } from 'node:util';
-import { ApiError } from './lib/api-error.js';
 import { styleText } from './lib/style-text.js';
 
 const IS_QUIET = Boolean(process.env.CLEVER_QUIET);
 const IS_VERBOSE = Boolean(process.env.CLEVER_VERBOSE);
+
+setup({
+  stdio: IS_QUIET
+    ? undefined
+    : {
+        level: IS_VERBOSE ? 'debug' : 'info',
+        pretty: true,
+      },
+  file: {
+    level: 'debug',
+    path: getLogFilePath('clever-tools.log'),
+    rotation: {
+      size: '250k',
+      maxFiles: 50,
+    },
+  },
+});
+
+const logger = getLogger();
 
 export const Logger = {
   /**
    * @param {string} message
    */
   debug(message) {
-    consoleLog('debug', message);
+    logger.debug(message);
   },
 
   /**
    * @param {string} message
    */
   info(message) {
-    consoleLog('info', message);
+    logger.info(message);
   },
 
   /**
    * @param {string} message
    */
   warn(message) {
-    consoleLog('warn', message);
+    logger.warn(message);
   },
 
   /**
    * @param {Error|string} error
    */
   error(error) {
-    if (IS_QUIET) {
-      return;
+    const message = error instanceof Error ? error.message : error;
+    if (IS_VERBOSE && error instanceof Error) {
+      logger.error(error);
+    } else {
+      logger.error(message);
     }
-
-    const prefix = '[ERROR] ';
-    const styledPrefix = styleText(['bold', 'red'], prefix);
-    const formatted = formatLines(prefix.length, processApiError(error));
-
-    if (IS_VERBOSE) {
-      writeStderr('[STACKTRACE]');
-      writeStderr(error);
-      writeStderr('[/STACKTRACE]');
-    }
-    writeStderr(`${styledPrefix}${formatted}`);
   },
 
   println: writeStdout,
@@ -76,23 +89,6 @@ export const Logger = {
 };
 
 /**
- * Logs a message to the console with severity prefix.
- * @param {'debug'|'info'|'warn'} severity
- * @param {string} message
- * @returns {void}
- */
-function consoleLog(severity, message) {
-  if (IS_QUIET) {
-    return;
-  }
-  if (!IS_VERBOSE && severity !== 'warn') {
-    return;
-  }
-  const prefix = `[${severity.toUpperCase()}] `;
-  writeStdout(`${prefix}${formatLines(prefix.length, message)}`);
-}
-
-/**
  * Writes a formatted line to stderr.
  * @param {Error|string} value
  * @returns {void}
@@ -111,30 +107,20 @@ function writeStdout(value) {
 }
 
 /**
- * Formats a multiline message with indentation for continuation lines.
- * @param {number} prefixLength
- * @param {string} message
- * @returns {string}
+ * Resolves the full path for a log file based on the operating system.
+ * - Windows: `%LOCALAPPDATA%\clever-cloud\Logs\<logFile>`
+ * - macOS: `~/Library/Logs/clever-cloud/<logFile>`
+ * - Linux: `$XDG_STATE_HOME/clever-cloud/<logFile>` (defaults to `~/.local/state/clever-cloud/<logFile>`)
+ * @param {string} logFile - The name of the log file
+ * @returns {string} The absolute path to the log file
  */
-function formatLines(prefixLength, message) {
-  const indent = ' '.repeat(prefixLength);
-  return message
-    .split('\n')
-    .map((line, i) => (i === 0 ? line : indent + line))
-    .join('\n');
-}
-
-/**
- * Transforms an API error object into a formatted message string.
- * @param {Error|string} error
- * @returns {string}
- */
-function processApiError(error) {
-  if (error instanceof ApiError) {
-    return `${error.message} [${error.code}]`;
+function getLogFilePath(logFile) {
+  if (process.platform === 'win32' && process.env.LOCALAPPDATA != null) {
+    return path.resolve(process.env.LOCALAPPDATA, 'clever-cloud', 'Logs', logFile);
   }
-  if (error instanceof Error) {
-    return error.message;
+  if (process.platform === 'darwin') {
+    return path.resolve(os.homedir(), 'Library', 'Logs', 'clever-cloud', logFile);
   }
-  return error;
+  const xdgStateHome = process.env.XDG_STATE_HOME ?? path.resolve(os.homedir(), '.local', 'state');
+  return path.resolve(xdgStateHome, 'clever-cloud', logFile);
 }
