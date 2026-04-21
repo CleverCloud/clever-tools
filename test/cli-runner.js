@@ -8,7 +8,8 @@ const execFileAsync = promisify(execFile);
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const PROJECT_ROOT = resolve(__dirname, '..');
-const CLI_BIN = resolve(PROJECT_ROOT, 'bin/clever.js');
+const CLI_BIN = process.env.CLEVER_BIN ?? resolve(PROJECT_ROOT, 'bin/clever.js');
+const IS_NATIVE_BIN = process.env.CLEVER_BIN != null;
 
 /**
  * @typedef {Object} CliResult
@@ -37,7 +38,9 @@ export async function runCli(args, options = {}) {
   let result;
   try {
     delete process.env.FORCE_COLOR;
-    const { stdout, stderr } = await execFileAsync(process.execPath, [CLI_BIN, ...args], {
+    const [file, fileArgs] = IS_NATIVE_BIN ? [CLI_BIN, args] : [process.execPath, [CLI_BIN, ...args]];
+    console.log(`Running CLI command: ${file} ${fileArgs.join(' ')}`);
+    const { stdout, stderr } = await execFileAsync(file, fileArgs, {
       cwd,
       env: { ...process.env, ...env },
       timeout,

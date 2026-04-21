@@ -14,19 +14,56 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  build:
+    uses: ./.github/workflows/build.yml
+    with:
+      version: ${{ github.event.pull_request.head.ref }}
+      isPreview: true
+
   tests:
+    needs: build
     name: 'Tests (${{ matrix.os }})'
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.runner }}
     strategy:
       fail-fast: false
       matrix:
-        os:
-          - ubuntu-latest
-          - macos-14
-          - windows-2025
+        include:
+          - os: linux
+            runner: ubuntu-latest
+            artifact: build-linux-archive
+          - os: macos
+            runner: macos-14
+            artifact: build-macos-archive
+          - os: win
+            runner: windows-2025
+            artifact: build-win-archive
     steps:
       - uses: actions/checkout@v5
       - uses: ./.github/actions/setup-node
-      - name: 'Run tests'
+      - uses: ./.github/actions/download-artifacts
+        with:
+          pattern: ${{ matrix.artifact }}
+      - name: 'Extract built CLI and set CLEVER_BIN'
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p cli-under-test
+          archive=$(find build -type f \( -name "clever-tools-*_${{ matrix.os }}.tar.gz" -o -name "clever-tools-*_${{ matrix.os }}.zip" \) | head -n1)
+          if [ -z "$archive" ]; then
+            echo "No archive found for ${{ matrix.os }} under build/"; exit 1
+          fi
+          case "$archive" in
+            *.zip)    powershell -NoProfile -Command "Expand-Archive -Path '$archive' -DestinationPath cli-under-test" ;;
+            *.tar.gz) tar -xzf "$archive" -C cli-under-test ;;
+          esac
+          binary=$(find cli-under-test -type f \( -name clever -o -name clever.exe \) | head -n1)
+          if [ -z "$binary" ]; then
+            echo "Could not locate clever binary after extraction"; find cli-under-test; exit 1
+          fi
+          abs_binary=$(node -e "process.stdout.write(require('path').resolve(process.argv[1]))" "$binary")
+          echo "CLEVER_BIN=$abs_binary" >> "$GITHUB_ENV"
+          echo "Using CLI binary: $abs_binary"
+          "$abs_binary" version
+      - name: 'Run tests against built CLI'
         shell: bash
         run: npm test
