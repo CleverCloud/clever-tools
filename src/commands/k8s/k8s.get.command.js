@@ -54,6 +54,24 @@ export const k8sGetCommand = defineCommand({
           );
         }
 
+        if (k8sInfo.nodeGroups?.length) {
+          Logger.println('');
+          Logger.println(`🧮 Node groups (${k8sInfo.nodeGroups.length})`);
+          console.table(
+            Object.fromEntries(
+              k8sInfo.nodeGroups.map((ng) => [
+                ng.id,
+                {
+                  Name: ng.name,
+                  Status: ng.status,
+                  Flavor: ng.flavor,
+                  Nodes: `${ng.currentNodeCount}/${ng.targetNodeCount}`,
+                },
+              ]),
+            ),
+          );
+        }
+
         if (k8sInfo.loadBalancers?.length) {
           Logger.println('');
           Logger.println(`🔀 Load balancers (${k8sInfo.loadBalancers.length})`);
