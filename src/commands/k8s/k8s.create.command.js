@@ -6,7 +6,7 @@ import { defineOption } from '../../lib/define-option.js';
 import { getK8sCluster, k8sCreate, k8sGetProduct } from '../../lib/k8s.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
-import { tags } from '../../parsers.js';
+import { flavorCount, tags } from '../../parsers.js';
 import { orgaIdOrNameOption, skipConfirmationOption } from '../global.options.js';
 
 const DEPLOY_POLL_DELAY_MS = 10000;
@@ -78,14 +78,7 @@ export const k8sCreateCommand = defineCommand({
     }),
     nodeGroup: defineOption({
       name: 'node-group',
-      schema: z
-        .string()
-        .regex(/^[^:]+:\d+$/, 'Expected format: <flavor>:<count>')
-        .transform((v) => {
-          const [flavor, count] = v.split(':');
-          return { flavor: flavor.toUpperCase(), targetNodeCount: Number(count) };
-        })
-        .optional(),
+      schema: z.string().transform(flavorCount).optional(),
       description: 'Initial node group (format: <flavor>:<count>, e.g.: XS:3)',
       placeholder: 'flavor:count',
     }),

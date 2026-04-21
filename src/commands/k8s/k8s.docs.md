@@ -148,6 +148,33 @@ Manage Kubernetes node groups
 clever k8s nodegroup
 ```
 
+## ➡️ `clever k8s nodegroup create` <kbd>Since 4.9.0</kbd>
+
+Create a node group on a Kubernetes cluster
+
+```bash
+clever k8s nodegroup create <cluster-id|cluster-name> <nodegroup-name> <flavor:count> [options]
+```
+
+### 📥 Arguments
+
+|Name|Description|
+|---|---|
+|`cluster-id|cluster-name`|Kubernetes cluster ID or name|
+|`nodegroup-name`|Node group name|
+|`flavor:count`|Node group flavor and target node count (format: <flavor>:<count>, e.g.: XS:3)|
+
+### ⚙️ Options
+
+|Name|Description|
+|---|---|
+|`--autoscaling`|Enable cluster autoscaler for this node group (requires --min and --max)|
+|`--description` `<description>`|Free-form node group description|
+|`--max` `<max>`|Maximum node count when autoscaling is enabled|
+|`--min` `<min>`|Minimum node count when autoscaling is enabled|
+|`-o`, `--org`, `--owner` `<org-id\|org-name>`|Organisation to target by its ID (or name, if unambiguous)|
+|`--tag` `<tag>`|Arbitrary tag attached to the node group|
+
 ## ➡️ `clever k8s nodegroup get` <kbd>Since 4.9.0</kbd>
 
 Get information about a Kubernetes node group

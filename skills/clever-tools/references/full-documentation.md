@@ -1620,6 +1620,34 @@ clever k8s list [options]
 clever k8s nodegroup
 ```
 
+#### k8s nodegroup create
+
+**Description:** Create a node group on a Kubernetes cluster
+
+**Since:** 4.9.0
+
+**Usage**
+```
+clever k8s nodegroup create <cluster-id|cluster-name> <nodegroup-name> <flavor:count> [options]
+```
+
+**Arguments**
+```
+cluster-id|cluster-name                 Kubernetes cluster ID or name
+nodegroup-name                          Node group name
+flavor:count                            Node group flavor and target node count (format: <flavor>:<count>, e.g.: XS:3)
+```
+
+**Options**
+```
+    --autoscaling                       Enable cluster autoscaler for this node group (requires --min and --max)
+    --description <description>         Free-form node group description
+    --max <max>                         Maximum node count when autoscaling is enabled
+    --min <min>                         Minimum node count when autoscaling is enabled
+-o, --org, --owner <org-id|org-name>    Organisation to target by its ID (or name, if unambiguous)
+    --tag <tag>                         Arbitrary tag attached to the node group
+```
+
 #### k8s nodegroup get
 
 **Description:** Get information about a Kubernetes node group

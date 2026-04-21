@@ -5,6 +5,7 @@ import { styleText } from './style-text.js';
 import {
   addK8sPersistentStorage,
   createK8sCluster,
+  createK8sNodeGroup,
   deleteK8sCluster,
   getK8sAddon,
   getK8sConfig,
@@ -68,8 +69,7 @@ export async function k8sCreate(name, orgIdOrName, options = {}) {
   body.topologyConfig = resolveTopologyConfig(options, product);
 
   if (options.nodeGroup != null) {
-    const available = new Set((product.topologies ?? []).flatMap((t) => t.availableFlavors ?? []));
-    const supported = FLAVOR_ORDER.filter((f) => available.has(f));
+    const supported = getNodeGroupFlavors(product);
     if (!supported.includes(options.nodeGroup.flavor)) {
       throw new Error(
         `Flavor "${options.nodeGroup.flavor}" is not a valid node group flavor. Supported: ${supported.join(', ')}`,
@@ -269,6 +269,56 @@ export async function k8sListNodeGroups(orgIdOrName, clusterIdOrName) {
   const clusterId = await getClusterIdFromAddonIdOrName(clusterIdOrName, ownerId);
 
   return listK8sNodeGroups({ ownerId, clusterId }).then(sendToApi);
+}
+
+/**
+ * Create a node group on a Kubernetes cluster
+ * @param {object} orgIdOrName The organisation ID or name
+ * @param {string|object} clusterIdOrName The cluster ID or name
+ * @param {object} options
+ * @param {string} options.name Node group name
+ * @param {string} options.flavor Node flavor (2XS..XL)
+ * @param {number} options.targetNodeCount Target node count
+ * @param {string} [options.description]
+ * @param {string} [options.tag]
+ * @param {boolean} [options.autoscaling]
+ * @param {number} [options.min] Minimum node count (autoscaling)
+ * @param {number} [options.max] Maximum node count (autoscaling)
+ * @returns {Promise<object>}
+ */
+export async function k8sCreateNodeGroup(orgIdOrName, clusterIdOrName, options) {
+  const ownerId = await getOwnerIdFromOrgIdOrName(orgIdOrName);
+  const clusterId = await getClusterIdFromAddonIdOrName(clusterIdOrName, ownerId);
+  const product = await k8sGetProduct();
+
+  const supported = getNodeGroupFlavors(product);
+  if (!supported.includes(options.flavor)) {
+    throw new Error(`Flavor "${options.flavor}" is not a valid node group flavor. Supported: ${supported.join(', ')}`);
+  }
+
+  const wantsAutoscaling = options.autoscaling || options.min != null || options.max != null;
+  if (wantsAutoscaling && (options.min == null || options.max == null)) {
+    throw new Error('--autoscaling requires both --min and --max');
+  }
+  if (wantsAutoscaling && options.min > options.max) {
+    throw new Error('--min must be less than or equal to --max');
+  }
+
+  const body = { name: options.name, flavor: options.flavor, targetNodeCount: options.targetNodeCount };
+  if (options.description != null) body.description = options.description;
+  if (options.tag != null) body.tag = options.tag;
+  if (wantsAutoscaling) {
+    body.autoscalingEnabled = true;
+    body.minNodeCount = options.min;
+    body.maxNodeCount = options.max;
+  }
+
+  return createK8sNodeGroup({ ownerId, clusterId }, body).then(sendToApi);
+}
+
+function getNodeGroupFlavors(product) {
+  const available = new Set((product.topologies ?? []).flatMap((t) => t.availableFlavors ?? []));
+  return FLAVOR_ORDER.filter((f) => available.has(f));
 }
 
 /**
