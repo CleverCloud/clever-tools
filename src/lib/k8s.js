@@ -61,44 +61,52 @@ export async function k8sCreate(name, orgIdOrName, options = {}) {
   if (options.persistentStorage) features.csi = true;
   if (Object.keys(features).length > 0) body.features = features;
 
-  const topologyProvided = [options.topology, options.flavor, options.replicationFactor].filter((v) => v != null);
-  if (topologyProvided.length > 0) {
-    if (topologyProvided.length < 3) {
-      throw new Error('--topology, --flavor and --replication-factor must be set together');
-    }
-    const product = await k8sGetProduct();
-    const constraint = product.topologies?.find((t) => t.topology === options.topology);
-    if (constraint == null) {
-      const supported = (product.topologies ?? []).map((t) => t.topology).join(', ');
-      throw new Error(`Unknown topology "${options.topology}". Supported: ${supported}`);
-    }
-    if (!constraint.availableFlavors.includes(options.flavor)) {
-      throw new Error(
-        `Flavor "${options.flavor}" is not available for ${options.topology}. Supported: ${constraint.availableFlavors.join(', ')}`,
-      );
-    }
-    const { min, max } = constraint.replicationFactor;
-    if (options.replicationFactor < min || options.replicationFactor > max) {
-      throw new Error(`Replication factor for ${options.topology} must be between ${min} and ${max}`);
-    }
-    body.topologyConfig =
-      options.topology === 'DISTRIBUTED'
-        ? {
-            topology: 'DISTRIBUTED',
-            components: Object.fromEntries(
-              ['apiserver', 'controllerManager', 'scheduler', 'nodeGroupOperator', 'cloudControllerManager'].map(
-                (c) => [c, { flavor: options.flavor, replicationFactor: options.replicationFactor }],
-              ),
-            ),
-          }
-        : {
-            topology: options.topology,
-            flavor: options.flavor,
-            replicationFactor: options.replicationFactor,
-          };
-  }
+  body.topologyConfig = await resolveTopologyConfig(options);
 
   return createK8sCluster({ ownerId }, body).then(sendToApi);
+}
+
+const FLAVOR_ORDER = ['2XS', 'XS', 'S', 'M', 'L', 'XL'];
+const DEFAULT_TOPOLOGY = 'ALL_IN_ONE';
+const DISTRIBUTED_COMPONENTS = [
+  'apiserver',
+  'controllerManager',
+  'scheduler',
+  'nodeGroupOperator',
+  'cloudControllerManager',
+];
+
+async function resolveTopologyConfig({ topology, flavor, replicationFactor }) {
+  const product = await k8sGetProduct();
+  const resolvedTopology = topology ?? DEFAULT_TOPOLOGY;
+  const constraint = product.topologies?.find((t) => t.topology === resolvedTopology);
+  if (constraint == null) {
+    const supported = (product.topologies ?? []).map((t) => t.topology).join(', ');
+    throw new Error(`Unknown topology "${resolvedTopology}". Supported: ${supported}`);
+  }
+
+  const resolvedFlavor = flavor ?? FLAVOR_ORDER.find((f) => constraint.availableFlavors?.includes(f));
+  if (resolvedFlavor == null || !constraint.availableFlavors?.includes(resolvedFlavor)) {
+    throw new Error(
+      `Flavor "${resolvedFlavor}" is not available for ${resolvedTopology}. Supported: ${(constraint.availableFlavors ?? []).join(', ')}`,
+    );
+  }
+
+  const { min, max } = constraint.replicationFactor;
+  const resolvedRf = replicationFactor ?? min;
+  if (resolvedRf < min || resolvedRf > max) {
+    throw new Error(`Replication factor for ${resolvedTopology} must be between ${min} and ${max}`);
+  }
+
+  if (resolvedTopology === 'DISTRIBUTED') {
+    const component = { flavor: resolvedFlavor, replicationFactor: resolvedRf };
+    return {
+      topology: 'DISTRIBUTED',
+      components: Object.fromEntries(DISTRIBUTED_COMPONENTS.map((c) => [c, component])),
+    };
+  }
+
+  return { topology: resolvedTopology, flavor: resolvedFlavor, replicationFactor: resolvedRf };
 }
 
 /**
