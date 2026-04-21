@@ -1617,6 +1617,72 @@ clever k8s quota [options]
 -o, --org, --owner <org-id|org-name>    Organisation to target by its ID (or name, if unambiguous)
 ```
 
+### k8s version
+
+**Description:** Check a Kubernetes cluster deployed version
+
+**Since:** 4.9.0
+
+**Usage**
+```
+clever k8s version <cluster-id|cluster-name> [options]
+```
+
+**Arguments**
+```
+cluster-id|cluster-name                 Kubernetes cluster ID or name
+```
+
+**Options**
+```
+-F, --format <format>                   Output format (human, json) (default: human)
+-o, --org, --owner <org-id|org-name>    Organisation to target by its ID (or name, if unambiguous)
+```
+
+#### k8s version check
+
+**Description:** Check a Kubernetes cluster deployed version
+
+**Since:** 4.9.0
+
+**Usage**
+```
+clever k8s version check <cluster-id|cluster-name> [options]
+```
+
+**Arguments**
+```
+cluster-id|cluster-name                 Kubernetes cluster ID or name
+```
+
+**Options**
+```
+-F, --format <format>                   Output format (human, json) (default: human)
+-o, --org, --owner <org-id|org-name>    Organisation to target by its ID (or name, if unambiguous)
+```
+
+#### k8s version update
+
+**Description:** Update a Kubernetes cluster to a target version
+
+**Since:** 4.9.0
+
+**Usage**
+```
+clever k8s version update <cluster-id|cluster-name> [options]
+```
+
+**Arguments**
+```
+cluster-id|cluster-name                 Kubernetes cluster ID or name
+```
+
+**Options**
+```
+-o, --org, --owner <org-id|org-name>    Organisation to target by its ID (or name, if unambiguous)
+    --target <version>                  Target version to upgrade to (e.g.: 24, 2.4, 2.4.1)
+```
+
 ## keycloak
 
 **Description:** Manage Clever Cloud Keycloak services

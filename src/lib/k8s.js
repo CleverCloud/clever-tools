@@ -1,3 +1,5 @@
+import dedent from 'dedent';
+import { confirm, selectAnswer } from './prompts.js';
 import { styleText } from './style-text.js';
 
 import {
@@ -7,9 +9,12 @@ import {
   getK8sAddon,
   getK8sConfig,
   getK8sQuota,
+  getK8sVersionCheck,
   listK8sClusters,
   listK8sUsage,
+  updateK8sVersion,
 } from '../clever-client/k8s.js';
+import { Logger } from '../logger.js';
 import { getOwnerIdFromOrgIdOrName } from '../models/ids-resolver.js';
 import { sendToApi } from '../models/send-to-api.js';
 
@@ -149,4 +154,85 @@ export async function k8sListUsage(orgIdOrName) {
   const ownerId = await getOwnerIdFromOrgIdOrName(orgIdOrName);
 
   return listK8sUsage({ ownerId }).then(sendToApi);
+}
+
+/**
+ * Check a Kubernetes cluster version against available upgrades
+ * @param {object} orgIdOrName The organisation ID or name
+ * @param {string|object} clusterIdOrName The cluster ID or name
+ * @param {string} format The output format
+ * @returns {Promise<void>}
+ */
+export async function k8sCheckVersion(orgIdOrName, clusterIdOrName, format) {
+  const ownerId = await getOwnerIdFromOrgIdOrName(orgIdOrName);
+  const clusterId = await getClusterIdFromAddonIdOrName(clusterIdOrName, ownerId);
+  const name = getClusterDisplayName(clusterIdOrName, clusterId);
+  const versions = await getK8sVersionCheck({ ownerId, clusterId }).then(sendToApi);
+
+  switch (format) {
+    case 'json':
+      Logger.printJson(versions);
+      break;
+    case 'human':
+    default:
+      if (!versions.needUpdate) {
+        Logger.printSuccess(`${styleText('green', name)} is up-to-date (${styleText('green', versions.installed)})`);
+      } else {
+        Logger.println(dedent`
+          🔄 ${styleText('red', name)} is outdated
+             • Installed version: ${styleText('red', versions.installed)}
+             • Latest version: ${styleText('green', versions.latest)}
+        `);
+        Logger.println();
+
+        await confirm(
+          `Do you want to update it to ${styleText('green', versions.latest)} now?`,
+          'No confirmation, aborting version update',
+        );
+
+        await updateK8sVersion({ ownerId, clusterId }, { targetVersion: versions.latest }).then(sendToApi);
+        Logger.printSuccess(`${styleText('green', name)} is upgrading to ${styleText('green', versions.latest)}…`);
+      }
+      break;
+  }
+}
+
+/**
+ * Update a Kubernetes cluster version
+ * @param {object} orgIdOrName The organisation ID or name
+ * @param {string|object} clusterIdOrName The cluster ID or name
+ * @param {string} [askedVersion] The target version; prompts from available versions when omitted
+ * @returns {Promise<void>}
+ */
+export async function k8sUpdateVersion(orgIdOrName, clusterIdOrName, askedVersion) {
+  const ownerId = await getOwnerIdFromOrgIdOrName(orgIdOrName);
+  const clusterId = await getClusterIdFromAddonIdOrName(clusterIdOrName, ownerId);
+  const name = getClusterDisplayName(clusterIdOrName, clusterId);
+  const versions = await getK8sVersionCheck({ ownerId, clusterId }).then(sendToApi);
+
+  const targetVersion =
+    askedVersion ??
+    (await selectAnswer(
+      `Which version do you want to update ${styleText('blue', name)} to, current is ${styleText('blue', versions.installed)}?`,
+      [...versions.available].reverse(),
+    ));
+
+  if (!versions.available.includes(targetVersion)) {
+    throw new Error(`Version ${styleText('red', targetVersion)} is not available`);
+  }
+
+  if (versions.installed === targetVersion) {
+    Logger.printSuccess(`${styleText('green', name)} is already at version ${styleText('green', targetVersion)}`);
+    return;
+  }
+
+  await updateK8sVersion({ ownerId, clusterId }, { targetVersion }).then(sendToApi);
+  Logger.printSuccess(`${styleText('green', name)} is upgrading to ${styleText('green', targetVersion)}…`);
+}
+
+function getClusterDisplayName(clusterIdOrName, fallbackId) {
+  if (typeof clusterIdOrName === 'object') {
+    return clusterIdOrName.addon_name ?? clusterIdOrName.operator_id ?? fallbackId;
+  }
+  return clusterIdOrName ?? fallbackId;
 }

@@ -145,3 +145,66 @@ clever k8s quota [options]
 |---|---|
 |`-F`, `--format` `<format>`|Output format (human, json) (default: human)|
 |`-o`, `--org`, `--owner` `<org-id\|org-name>`|Organisation to target by its ID (or name, if unambiguous)|
+
+## ➡️ `clever k8s version` <kbd>Since 4.9.0</kbd>
+
+Check a Kubernetes cluster deployed version
+
+```bash
+clever k8s version <cluster-id|cluster-name> [options]
+```
+
+### 📥 Arguments
+
+|Name|Description|
+|---|---|
+|`cluster-id|cluster-name`|Kubernetes cluster ID or name|
+
+### ⚙️ Options
+
+|Name|Description|
+|---|---|
+|`-F`, `--format` `<format>`|Output format (human, json) (default: human)|
+|`-o`, `--org`, `--owner` `<org-id\|org-name>`|Organisation to target by its ID (or name, if unambiguous)|
+
+## ➡️ `clever k8s version check` <kbd>Since 4.9.0</kbd>
+
+Check a Kubernetes cluster deployed version
+
+```bash
+clever k8s version check <cluster-id|cluster-name> [options]
+```
+
+### 📥 Arguments
+
+|Name|Description|
+|---|---|
+|`cluster-id|cluster-name`|Kubernetes cluster ID or name|
+
+### ⚙️ Options
+
+|Name|Description|
+|---|---|
+|`-F`, `--format` `<format>`|Output format (human, json) (default: human)|
+|`-o`, `--org`, `--owner` `<org-id\|org-name>`|Organisation to target by its ID (or name, if unambiguous)|
+
+## ➡️ `clever k8s version update` <kbd>Since 4.9.0</kbd>
+
+Update a Kubernetes cluster to a target version
+
+```bash
+clever k8s version update <cluster-id|cluster-name> [options]
+```
+
+### 📥 Arguments
+
+|Name|Description|
+|---|---|
+|`cluster-id|cluster-name`|Kubernetes cluster ID or name|
+
+### ⚙️ Options
+
+|Name|Description|
+|---|---|
+|`-o`, `--org`, `--owner` `<org-id\|org-name>`|Organisation to target by its ID (or name, if unambiguous)|
+|`--target` `<version>`|Target version to upgrade to (e.g.: 24, 2.4, 2.4.1)|

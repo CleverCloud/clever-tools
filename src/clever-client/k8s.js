@@ -96,6 +96,40 @@ export function addK8sPersistentStorage(params) {
 }
 
 /**
+ * GET /v4/kubernetes/organisations/{ownerId}/clusters/{clusterId}/version/check
+ * @param {Object} params
+ * @param {String} params.ownerId
+ * @param {String} params.clusterId
+ */
+export function getK8sVersionCheck(params) {
+  return Promise.resolve({
+    method: 'get',
+    url: `/v4/kubernetes/organisations/${params.ownerId}/clusters/${params.clusterId}/version/check`,
+    headers: { Accept: 'application/json' },
+    // no queryParams
+    // no body
+  });
+}
+
+/**
+ * POST /v4/kubernetes/organisations/{ownerId}/clusters/{clusterId}/version/update
+ * @param {Object} params
+ * @param {String} params.ownerId
+ * @param {String} params.clusterId
+ * @param {Object} body
+ * @param {String} body.targetVersion
+ */
+export function updateK8sVersion(params, body) {
+  return Promise.resolve({
+    method: 'post',
+    url: `/v4/kubernetes/organisations/${params.ownerId}/clusters/${params.clusterId}/version/update`,
+    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+    // no queryParams
+    body,
+  });
+}
+
+/**
  * GET /v4/kubernetes/organisations/{ownerId}/quota
  * @param {Object} params
  * @param {String} params.ownerId
