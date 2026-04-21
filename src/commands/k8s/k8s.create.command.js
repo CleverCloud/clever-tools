@@ -45,7 +45,10 @@ export const k8sCreateCommand = defineCommand({
     }),
     topology: defineOption({
       name: 'topology',
-      schema: z.string().optional(),
+      schema: z
+        .string()
+        .transform((v) => v.toUpperCase())
+        .optional(),
       description: 'Cluster topology (must be set with --flavor and --replication-factor)',
       placeholder: 'topology',
       complete: async () => {
@@ -55,7 +58,10 @@ export const k8sCreateCommand = defineCommand({
     }),
     flavor: defineOption({
       name: 'flavor',
-      schema: z.string().optional(),
+      schema: z
+        .string()
+        .transform((v) => v.toUpperCase())
+        .optional(),
       description: 'Control plane flavor',
       placeholder: 'flavor',
       complete: async () => {
