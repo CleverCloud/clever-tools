@@ -35,14 +35,21 @@ export async function isK8sClusterActive(orgIdOrName, clusterIdOrName) {
 /**
  * Create a kubernetes cluster
  * @param {string} name The name of the cluster
- * @param {string} ownerId The owner ID
- * @param {string} [version] The Kubernetes version to deploy
- * @returns {Promise<void>}
+ * @param {object} orgIdOrName The organisation ID or name
+ * @param {object} [options]
+ * @param {string} [options.version] The Kubernetes version to deploy
+ * @param {string} [options.description] A free-form description
+ * @param {string[]} [options.tags] Semantic tags ("tag" or "key:value")
+ * @returns {Promise<object>}
  */
-export async function k8sCreate(name, ownerId, version) {
-  ownerId = await getOwnerIdFromOrgIdOrName(ownerId);
+export async function k8sCreate(name, orgIdOrName, options = {}) {
+  const ownerId = await getOwnerIdFromOrgIdOrName(orgIdOrName);
 
-  const body = version != null ? { name, version } : { name };
+  const body = { name };
+  if (options.version != null) body.version = options.version;
+  if (options.description != null) body.description = options.description;
+  if (options.tags?.length) body.tags = options.tags;
+
   return createK8sCluster({ ownerId }, body).then(sendToApi);
 }
 

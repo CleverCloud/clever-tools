@@ -6,6 +6,7 @@ import { defineOption } from '../../lib/define-option.js';
 import { getK8sCluster, k8sCreate } from '../../lib/k8s.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
+import { tags } from '../../parsers.js';
 import { orgaIdOrNameOption } from '../global.options.js';
 
 const DEPLOY_POLL_DELAY_MS = 10000;
@@ -19,6 +20,18 @@ export const k8sCreateCommand = defineCommand({
       schema: z.string().optional(),
       description: 'Kubernetes version to deploy (e.g.: 1.33)',
       placeholder: 'cluster-version',
+    }),
+    description: defineOption({
+      name: 'description',
+      schema: z.string().max(4096).optional(),
+      description: 'Free-form cluster description',
+      placeholder: 'description',
+    }),
+    tag: defineOption({
+      name: 'tag',
+      schema: z.string().transform(tags).optional(),
+      description: 'Semantic tags (comma-separated, e.g.: env:prod,team:platform)',
+      placeholder: 'tag[,tag...]',
     }),
     watch: defineOption({
       name: 'watch',
@@ -40,7 +53,11 @@ export const k8sCreateCommand = defineCommand({
     const orgIdOrName = options.org;
 
     try {
-      const cluster = await k8sCreate(clusterName, orgIdOrName, options.clusterVersion);
+      const cluster = await k8sCreate(clusterName, orgIdOrName, {
+        version: options.clusterVersion,
+        description: options.description,
+        tags: options.tag,
+      });
 
       if (options.watch) {
         await typewriterLogo();
