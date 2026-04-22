@@ -144,6 +144,7 @@ import { otoroshiGetConfigCommand } from './otoroshi/otoroshi.get-config.command
 import { otoroshiGetCommand } from './otoroshi/otoroshi.get.command.js';
 import { otoroshiOpenCommand } from './otoroshi/otoroshi.open.command.js';
 import { otoroshiOpenLogsCommand } from './otoroshi/otoroshi.open.logs.command.js';
+import { otoroshiOpenSwaggeruiCommand } from './otoroshi/otoroshi.open.swaggerui.command.js';
 import { otoroshiOpenWebuiCommand } from './otoroshi/otoroshi.open.webui.command.js';
 import { otoroshiRebuildCommand } from './otoroshi/otoroshi.rebuild.command.js';
 import { otoroshiRestartCommand } from './otoroshi/otoroshi.restart.command.js';
@@ -453,6 +454,7 @@ export const globalCommands = {
         otoroshiOpenCommand,
         {
           logs: otoroshiOpenLogsCommand,
+          swaggerui: otoroshiOpenSwaggeruiCommand,
           webui: otoroshiOpenWebuiCommand,
         },
       ],
