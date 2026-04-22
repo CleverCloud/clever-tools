@@ -2788,6 +2788,22 @@ clever otoroshi open logs <addon-id|addon-name>
 addon-id|addon-name    Add-on ID (or name, if unambiguous)
 ```
 
+#### otoroshi open swaggerui
+
+**Description:** Open the Otoroshi Swagger UI in your browser
+
+**Since:** 4.9.0
+
+**Usage**
+```
+clever otoroshi open swaggerui <addon-id|addon-name>
+```
+
+**Arguments**
+```
+addon-id|addon-name    Add-on ID (or name, if unambiguous)
+```
+
 #### otoroshi open webui
 
 **Description:** Open the Otoroshi admin console in your browser
