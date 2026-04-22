@@ -257,7 +257,8 @@ export async function operatorPrint(provider, addonIdOrName, format = 'human') {
   dataToPrint['Access URL'] = operator.accessUrl;
 
   if (provider === 'otoroshi') {
-    dataToPrint['API URL'] = operator.api.url;
+    dataToPrint['Swagger URL'] = operator.api.swaggerUrl;
+    dataToPrint['API endpoint'] = operator.api.url;
   }
 
   if (['otoroshi', 'keycloak'].includes(provider)) {
