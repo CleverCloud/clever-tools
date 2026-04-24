@@ -1,3 +1,4 @@
+import dedent from 'dedent';
 import * as assert from 'node:assert';
 import { after, before, beforeEach, describe, it } from 'node:test';
 import { cliHooks } from '../../../test/cli-hooks.js';
@@ -31,7 +32,7 @@ describe('logs command', () => {
 
   after(hooks.after);
 
-  it('should show the logs', async () => {
+  it('should show the logs emitted by the SSE', async () => {
     const result = await testKit
       .newScenario()
       .withAppConfigFile(CLEVER_APP_CONFIG)
@@ -39,8 +40,17 @@ describe('logs command', () => {
       .respond({
         status: 200,
         events: [
-          { type: 'message', event: 'APPLICATION_LOG', data: JSON.stringify({ id: '1', message: 'log message 1' }) },
-          { type: 'message', event: 'APPLICATION_LOG', data: JSON.stringify({ id: '2', message: 'log message 2' }) },
+          {
+            type: 'message',
+            event: 'APPLICATION_LOG',
+            data: JSON.stringify({ id: '1', message: 'log message 1', date: '2026-04-24T10:00:00Z' }),
+          },
+          {
+            type: 'message',
+            event: 'APPLICATION_LOG',
+            data: JSON.stringify({ id: '2', message: 'log message 2', date: '2026-04-24T10:00:01Z' }),
+          },
+          { type: 'message', event: 'END_OF_STREAM', data: JSON.stringify({ endedBy: 'limit' }) },
           { type: 'close' },
         ],
         delayBetween: 10,
@@ -52,7 +62,13 @@ describe('logs command', () => {
         assert.strictEqual(calls.first.pathParams?.appId, 'app_xxx');
       });
 
-    assert.strictEqual(result.stdout, '');
+    const reset = '\x1B[0m';
+    assert.strictEqual(
+      result.stdout,
+      dedent`Waiting for application logs…
+      2026-04-24T10:00:00.000Z: log message 1${reset}
+      2026-04-24T10:00:01.000Z: log message 2${reset}`,
+    );
     assert.strictEqual(result.stderr, '');
   });
 });
