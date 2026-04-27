@@ -12,6 +12,28 @@ Manage Kubernetes clusters
 clever k8s
 ```
 
+## ➡️ `clever k8s activity` <kbd>Since unreleased</kbd>
+
+Show recent deployment events of a Kubernetes cluster
+
+```bash
+clever k8s activity <cluster-id|cluster-name> [options]
+```
+
+### 📥 Arguments
+
+|Name|Description|
+|---|---|
+|`cluster-id|cluster-name`|Kubernetes cluster ID or name|
+
+### ⚙️ Options
+
+|Name|Description|
+|---|---|
+|`-F`, `--format` `<format>`|Output format (human, json) (default: human)|
+|`--limit` `<limit>`|Number of events to fetch (1 to 1000) (default: 50)|
+|`-o`, `--org`, `--owner` `<org-id\|org-name>`|Organisation to target by its ID (or name, if unambiguous)|
+
 ## ➡️ `clever k8s add-persistent-storage` <kbd>Since 4.3.0</kbd>
 
 Activate persistent storage to a deployed Kubernetes cluster
