@@ -1,0 +1,55 @@
+things to be tested (as for an example)
+- invalid option or missing args (displays the Help, but I'm not sure it's a good idea the check for the full Usage output in stdout)
+
+Tests that should be done manually:
+
+## Commands outside the current test-example patterns
+
+- `login`
+  - Opens a browser (`open` module), polls an OAuth endpoint with `globalThis.fetch` on the API; also an interactive "already-logged-in" dialog.
+  - No example of intercepting `open` or of polling-based flows.
+- `curl`
+  - Spawns `curl` as a subprocess with `stdio: 'inherit'`.
+  - No example of subprocess assertions.
+  - The help branch and the "wrong host" branch are testable; the OAuth-injected curl call is not.
+- `ssh`
+  - Spawns `ssh` interactively, uses `selectAnswer` prompt.
+  - No example of mocking `child_process` or inquirer-style prompts.
+- `deploy`
+  - Needs a real git repo (`Git.get()`, `git.push`, `git.addRemote`, shallow detection) plus deployment-event watching.
+  - No example of mocking `Git`.
+- `restart`
+  - Calls `git.resolveFullCommitId(commit)` against the local `.git`, then watches deployment logs via `Log.watchDeploymentAndDisplayLogs` (deployment state machine over SSE + HTTP polling).
+  - Partial overlap with `logs` example, but the state machine is new territory.
+- `activity --follow`
+  - Uses a **WebSocket** `EventsStream`.
+  - Doublure (in the node_modules I checked) exposes HTTP + SSE mocks only — no WS.
+  - Non-follow mode is fine.
+  - Confirm whether the tool supports WS before including.
+- `accesslogs`
+  - Uses `ApplicationAccessLogStream` (custom client stream, throttled, SIGINT handling).
+  - Probably testable via SSE mocks, but the exact endpoint + event shape aren't shown in existing tests.
+- `kv`
+  - Opens an `ioredis` TLS connection to the add-on.
+  - No Redis mock fixture exists.
+- `tokens create`
+  - Interactive `promptSecret` for password + TOTP 2FA via stdin.
+  - No example of feeding stdin.
+- `oauth-consumers create` / `update`
+  - `promptTextOption` + `promptRights` when options are missing.
+  - Same interactive-stdin issue.
+- `env import`, `published-config import`, `config-provider import`
+  - Read env vars **from stdin**.
+  - `execFile` in `cli-runner.js` doesn't pipe stdin.
+- `database backups download`
+  - `fetch`es a signed URL that is **not** on `API_HOST` and streams it to a file.
+  - No example of mocking a second host or of asserting streamed output on disk.
+- `ssh-keys add`
+  - Reads an arbitrary path from the real filesystem (the user's `.pub`).
+  - `withAppFile` only writes inside the mocked app dir; no example for host-fs access.
+- `open` / `emails open` / `profile open` / `console` / `oauth-consumers open` / `ssh-keys open` / `config-provider open`
+  - All call `openBrowser` (npm `open` module).
+  - No example asserting a browser side-effect or intercepting it.
+- `delete` / `emails remove-all` / `oauth-consumers delete` / `ssh-keys remove-all` / `k8s delete` / `addon delete` (interactive path)
+  - All use `confirm` / `confirmAnswer` prompts.
+  - The `--yes` path is testable, but the interactive path isn't demonstrated.

@@ -5,16 +5,16 @@ import { APP_ID } from '../../../test/fixtures/id.js';
 import { SELF } from '../../../test/fixtures/self.js';
 
 /**
- * @typedef {import('../../../test/cli-hooks.types.js').CliTestKit} CliTestKit
+ * @typedef {import('../../../test/cli-hooks.types.js').NewCliScenario} NewCliScenario
  */
 
 describe('link command', () => {
   const hooks = cliHooks();
-  /** @type {CliTestKit} */
-  let testKit;
+  /** @type {NewCliScenario} */
+  let newScenario;
 
   before(async () => {
-    testKit = await hooks.before();
+    newScenario = await hooks.before();
   });
 
   beforeEach(hooks.beforeEach);
@@ -31,14 +31,13 @@ describe('link command', () => {
       },
     };
 
-    const result = await testKit
-      .newScenario()
+    const result = await newScenario()
       .withAppFile('my-app.js', '')
       .when({ method: 'GET', path: '/v2/self' })
       .respond({ status: 200, body: SELF })
       .when({ method: 'GET', path: '/v2/self/applications/:app' })
       .respond({ status: 200, body: app })
-      .thenCall(() => testKit.runCli(['link', APP_ID]))
+      .thenRunCli(['link', APP_ID])
       .verify((calls) => {
         assert.strictEqual(calls.count, 2);
         assert.strictEqual(calls.last.pathParams?.app, APP_ID);

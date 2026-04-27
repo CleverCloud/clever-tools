@@ -1,16 +1,15 @@
+import type { MockClient } from '@clevercloud/doublure';
 import type { CliMockScenario } from './cli-hooks.js';
-import type { CliResult, CliRunnerOptions } from './cli-runner.types.js';
 
 export interface CliHooks {
-  before(): Promise<CliTestKit>;
+  before(): Promise<NewCliScenario>;
   beforeEach(): Promise<void>;
   after(): Promise<void>;
 }
 
-export interface CliTestKit {
-  newScenario: () => CliMockScenario;
-  runCli(args: string[], options?: Partial<CliRunnerOptions>): Promise<CliResult>;
-}
+export type NewCliScenario = (() => CliMockScenario) & {
+  readonly mockClient: MockClient;
+};
 
 export type FileMock = AppFileMock | ConfigFileMock | ExperimentalFeaturesFileMock;
 

@@ -1,9 +1,12 @@
+import dedent from 'dedent';
 import * as assert from 'node:assert';
 import { after, before, beforeEach, describe, it } from 'node:test';
 import { cliHooks } from '../../../test/cli-hooks.js';
+import { ORGA_ID } from '../../../test/fixtures/id.js';
+import { SELF } from '../../../test/fixtures/self.js';
 
 /**
- * @typedef {import('../../../test/cli-hooks.types.js').CliTestKit} CliTestKit
+ * @typedef {import('../../../test/cli-hooks.types.js').NewCliScenario} NewCliScenario
  */
 
 /** @type {Array<any>} */
@@ -38,13 +41,97 @@ const CLEVER_APP_CONFIG_MULTI = {
   ],
 };
 
+const EMAIL_HOOKS = [
+  {
+    id: 'notif_1',
+    name: 'App hook',
+    ownerId: 'orga_xxx',
+    scope: ['app_xxx'],
+    events: ['DEPLOYMENT_SUCCESS', 'DEPLOYMENT_FAIL'],
+    notified: [{ target: 'alice@example.com' }, { target: null }],
+  },
+  {
+    id: 'notif_2',
+    ownerId: 'orga_xxx',
+  },
+  {
+    id: 'notif_3',
+    name: 'Other app',
+    ownerId: 'orga_xxx',
+    scope: ['app_other'],
+    events: ['DEPLOYMENT_SUCCESS'],
+    notified: [{ target: 'dave@example.com' }],
+  },
+];
+
+const FORMATTED_SCOPED_HOOKS = [
+  {
+    id: 'notif_1',
+    name: 'App hook',
+    ownerId: 'orga_xxx',
+    services: ['app_xxx'],
+    events: ['DEPLOYMENT_SUCCESS', 'DEPLOYMENT_FAIL'],
+    notified: ['alice@example.com', 'whole team'],
+  },
+  {
+    id: 'notif_2',
+    ownerId: 'orga_xxx',
+    services: ['orga_xxx'],
+    events: ['ALL'],
+    notified: ['whole team'],
+  },
+];
+
+const FORMATTED_ALL_HOOKS = [
+  ...FORMATTED_SCOPED_HOOKS,
+  {
+    id: 'notif_3',
+    name: 'Other app',
+    ownerId: 'orga_xxx',
+    services: ['app_other'],
+    events: ['DEPLOYMENT_SUCCESS'],
+    notified: ['dave@example.com'],
+  },
+];
+
+const HUMAN_SCOPED_OUTPUT = dedent`
+  App hook
+    id: notif_1
+    services: app_xxx
+    events: DEPLOYMENT_SUCCESS, DEPLOYMENT_FAIL
+    to:
+      alice@example.com
+      whole team
+  notif_2
+    id: notif_2
+    services: orga_xxx
+    events: ALL
+    to: whole team
+`;
+
+const HUMAN_ALL_OUTPUT =
+  HUMAN_SCOPED_OUTPUT +
+  '\n' +
+  dedent`
+    Other app
+      id: notif_3
+      services: app_other
+      events: DEPLOYMENT_SUCCESS
+      to: dave@example.com
+  `;
+
+const SUMMARY = {
+  user: { id: SELF.id },
+  organisations: [{ id: ORGA_ID, name: 'my-org' }],
+};
+
 describe('notify-email command', () => {
   const hooks = cliHooks();
-  /** @type {CliTestKit} */
-  let testKit;
+  /** @type {NewCliScenario} */
+  let newScenario;
 
   before(async () => {
-    testKit = await hooks.before();
+    newScenario = await hooks.before();
   });
 
   beforeEach(hooks.beforeEach);
@@ -52,11 +139,10 @@ describe('notify-email command', () => {
   after(hooks.after);
 
   it('should show error when not in an app directory', async () => {
-    const result = await testKit
-      .newScenario()
+    const result = await newScenario()
       .when({ method: 'GET', path: '/v2/notifications/emailhooks/:ownerId' })
       .respond({ status: 200, body: EMPTY_EMAIL_HOOKS })
-      .thenCall(() => testKit.runCli(['notify-email'], { expectExitCode: 1 }))
+      .thenRunCli(['notify-email'], { expectExitCode: 1 })
       .verify((calls) => {
         assert.strictEqual(calls.count, 0);
       });
@@ -69,12 +155,11 @@ describe('notify-email command', () => {
   });
 
   it('should show error when app config has multiple aliases', async () => {
-    const result = await testKit
-      .newScenario()
+    const result = await newScenario()
       .withAppConfigFile(CLEVER_APP_CONFIG_MULTI)
       .when({ method: 'GET', path: '/v2/notifications/emailhooks/:ownerId' })
       .respond({ status: 200, body: EMPTY_EMAIL_HOOKS })
-      .thenCall(() => testKit.runCli(['notify-email'], { expectExitCode: 1 }))
+      .thenRunCli(['notify-email'], { expectExitCode: 1 })
       .verify((calls) => {
         assert.strictEqual(calls.count, 0);
       });
@@ -87,12 +172,11 @@ describe('notify-email command', () => {
   });
 
   it('should show empty string when no email hooks', async () => {
-    const result = await testKit
-      .newScenario()
+    const result = await newScenario()
       .withAppConfigFile(CLEVER_APP_CONFIG)
       .when({ method: 'GET', path: '/v2/notifications/emailhooks/:ownerId' })
       .respond({ status: 200, body: EMPTY_EMAIL_HOOKS })
-      .thenCall(() => testKit.runCli(['notify-email']))
+      .thenRunCli(['notify-email'])
       .verify((calls) => {
         assert.strictEqual(calls.count, 1);
         assert.strictEqual(calls.first.pathParams?.ownerId, 'orga_xxx');
@@ -100,9 +184,5 @@ describe('notify-email command', () => {
 
     assert.strictEqual(result.stdout, '');
     assert.strictEqual(result.stderr, '');
-  });
-
-  it('should show email hooks', async () => {
-    // todo. implement this test (and maybe create other tests) to cover all implementation paths
   });
 });

@@ -10,7 +10,6 @@ import { runCli } from './cli-runner.js';
 
 /**
  * @typedef {import('./cli-hooks.types.js').CliHooks} CliHooks
- * @typedef {import('./cli-hooks.types.js').CliTestKit} CliTestKit
  * @typedef {import('./cli-hooks.types.js').FileMock} FileMock
  * @typedef {import('./cli-hooks.types.js').FileMockContent} FileMockContent
  * @typedef {import('./cli-runner.types.js').CliRunnerOptions} CliRunnerOptions
@@ -28,48 +27,13 @@ export function cliHooks() {
   return {
     ...apiHooks,
     /**
-     * @returns {Promise<CliTestKit>}
+     * @returns {Promise<import('./cli-hooks.types.js').NewCliScenario>}
      */
     before: async () => {
       const apiNewScenario = await apiHooks.before();
       const mockClient = apiNewScenario.mockClient;
-      return {
-        newScenario: () => new CliMockScenario(mockClient, fileSystemClient),
-        /**
-         * Run the CLI binary with the given arguments
-         * @param {string[]} args - CLI arguments
-         * @param {Partial<CliRunnerOptions>} [options] - Options
-         * @returns {Promise<CliResult>}
-         */
-        runCli: (args, options = {}) => {
-          /** @type {Record<string, string>} */
-          const env = {
-            API_HOST: mockClient.baseUrl,
-          };
-          const configFile = fileSystemClient.getConfigFile();
-
-          if (configFile != null) {
-            env.CONFIGURATION_FILE = configFile;
-          }
-
-          const experimentalFeaturesFile = fileSystemClient.getExperimentalFeaturesFile();
-          if (experimentalFeaturesFile) {
-            env.EXPERIMENTAL_FEATURES_FILE = experimentalFeaturesFile;
-          }
-
-          /** @type {Partial<CliRunnerOptions>} */
-          const opts = {
-            cwd: fileSystemClient.getAppDirectory(),
-            ...options,
-            env: {
-              ...env,
-              ...options.env,
-            },
-          };
-
-          return runCli(args, opts);
-        },
-      };
+      const newScenario = () => new CliMockScenario(mockClient, fileSystemClient);
+      return Object.assign(newScenario, { mockClient });
     },
     beforeEach: async () => {
       fileSystemClient.reset();
@@ -148,6 +112,39 @@ export class CliMockScenario extends ApiMockScenario {
       this.#fileMocks,
     );
   }
+
+  /**
+   * Run the CLI binary with the given arguments
+   * @param {string[]} args - CLI arguments
+   * @param {Partial<CliRunnerOptions>} [options] - Options
+   * @returns {CliMockScenarioVerifier<CliResult>}
+   */
+  thenRunCli(args, options = {}) {
+    return this.thenCall(async () => {
+      /** @type {Record<string, string>} */
+      const env = {
+        API_HOST: this._mockClient.baseUrl,
+        CONFIGURATION_FILE: this.#fileSystemClient.getConfigFile(),
+        EXPERIMENTAL_FEATURES_FILE: this.#fileSystemClient.getExperimentalFeaturesFile(),
+      };
+
+      const workingDir = fs.existsSync(this.#fileSystemClient.getAppDirectory())
+        ? this.#fileSystemClient.getAppDirectory()
+        : undefined;
+
+      /** @type {Partial<CliRunnerOptions>} */
+      const opts = {
+        cwd: workingDir,
+        ...options,
+        env: {
+          ...env,
+          ...options.env,
+        },
+      };
+
+      return runCli(args, opts);
+    });
+  }
 }
 
 /**
@@ -160,7 +157,7 @@ class CliMockScenarioVerifier extends ApiMockScenarioVerifier {
   /** @type {Array<FileMock>} */
   #fileMocks;
   /** @type {Array<() => void>} */
-  #filesExpectations = [];
+  #cliExpectations = [];
 
   /**
    * @param {Client} apiMockClient
@@ -181,7 +178,7 @@ class CliMockScenarioVerifier extends ApiMockScenarioVerifier {
    */
   verifyFiles(verifyCallback) {
     const fileSystemRead = new FileSystemRead(this.#fileSystemClient);
-    this.#filesExpectations.push(() => {
+    this.#cliExpectations.push(() => {
       verifyCallback(fileSystemRead);
     });
     return this;
@@ -196,7 +193,7 @@ class CliMockScenarioVerifier extends ApiMockScenarioVerifier {
 
     const result = await super._toss();
 
-    for (const expectation of this.#filesExpectations) {
+    for (const expectation of this.#cliExpectations) {
       expectation();
     }
 
@@ -284,27 +281,22 @@ const CONFIG_FILE = 'clever-tools.json';
 const EXPERIMENTAL_FEATURES_FILE = 'clever-tools-experimental-features.json';
 
 class FileSystemClient {
-  /** @type {string | undefined} */
+  /** @type {string} */
   #workDirectory;
 
+  constructor() {
+    this.#workDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'clever-tools-test-'));
+  }
+
   getAppDirectory() {
-    if (this.#workDirectory == null) {
-      return undefined;
-    }
     return path.resolve(this.#workDirectory, APP_DIR);
   }
 
   getConfigFile() {
-    if (this.#workDirectory == null) {
-      return undefined;
-    }
     return path.resolve(this.#workDirectory, `${CONFIG_DIR}/${CONFIG_FILE}`);
   }
 
   getExperimentalFeaturesFile() {
-    if (this.#workDirectory == null) {
-      return undefined;
-    }
     return path.resolve(this.#workDirectory, `${CONFIG_DIR}/${EXPERIMENTAL_FEATURES_FILE}`);
   }
 
@@ -312,10 +304,6 @@ class FileSystemClient {
    * @param {FileMock} fileMock
    */
   addFile(fileMock) {
-    if (this.#workDirectory == null) {
-      this.#workDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'clever-tools-test-'));
-    }
-
     let filePath;
     if (fileMock.type === 'config') {
       const configDir = path.resolve(this.#workDirectory, CONFIG_DIR);
@@ -332,14 +320,12 @@ class FileSystemClient {
     }
 
     const content = typeof fileMock.content === 'object' ? JSON.stringify(fileMock.content, null, 2) : fileMock.content;
-    fs.writeFileSync(filePath, content);
+    fs.writeFileSync(filePath, content ?? '');
   }
 
   reset() {
-    if (this.#workDirectory != null) {
-      fs.rmSync(this.#workDirectory, { recursive: true, force: true });
-      this.#workDirectory = undefined;
-    }
+    fs.rmSync(this.#workDirectory, { recursive: true, force: true });
+    this.#workDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'clever-tools-test-'));
   }
 
   /**

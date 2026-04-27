@@ -1,0 +1,24 @@
+- we should test all combinations of options and args.
+- we should check non-passing cases
+  - invalid options
+  - invalid args
+  - API errors
+- we should check when API returns empty collections (in case API should return a collection of items)
+- for commands using `AppConfiguration.addLinkedApplication`
+  - we should check when not in an app directory
+  - we should check when app has multiple alias but no alias is given
+  - we should check when app has multiple alias with an unknown alias is given
+  - we should check when app has multiple alias with an existing alias is provided
+  - we should check when app has one app alias
+- for commands asking for addonIdOrName, appIdOrName, orgaIdOrName
+  - test all combinations of id or name of each
+- we should always check when user not connected
+- we should always check when no profile found
+- when defining the mocked content of API responses
+  - look at the code to see what's used
+  - you can also look at the js client source code at https://github.com/CleverCloud/clever-client.js
+- if a file is written: .verifyFiles(...) its content
+- if logs/SSE are streamed: follow the logs.command.test.js pattern (events, delayBetween, close)
+- fixtures
+  - when you see that you need to create fixtures, try to put them in /test/fixtures/ directory
+- when some env vars modify command behavior, test must cover that with custom env var
