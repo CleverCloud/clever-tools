@@ -39,13 +39,15 @@
   "scripts": {
     "docs": "node scripts/generate-docs.js",
     "docs:check": "node scripts/generate-docs.js --check",
-    "fix-all": "npm run lint:fix && npm run docs && npm run format",
+    "fix-all": "npm run lint:fix && npm run manifest && npm run docs && npm run format",
     "format": "prettier . --write",
     "format:check": "prettier . --check",
     "install-local:cliparse": "(cd ../cliparse-node && npm pack) && mv ../cliparse-node/cliparse-*.tgz . && npm i -f ./cliparse-*.tgz",
     "lint": "eslint",
     "lint:fix": "eslint --fix",
-    "validate": "npm run lint && npm run format:check && npm run typecheck && npm run docs:check",
+    "manifest": "node scripts/generate-commands-manifest.js",
+    "manifest:check": "node scripts/generate-commands-manifest.js --check",
+    "validate": "npm run lint && npm run format:check && npm run typecheck && npm run manifest:check && npm run docs:check",
     "typecheck": "tsc -p tsconfig.json"
   },
   "dependencies": {
@@ -72,6 +74,7 @@
   },
   "devDependencies": {
     "@aws-sdk/client-s3": "3.940.0",
+    "@babel/parser": "7.28.6",
     "@clevercloud/eslint-config": "1.1.0",
     "@commitlint/cli": "19.8.1",
     "@commitlint/config-conventional": "19.8.1",

@@ -20,7 +20,7 @@ import { ListProductRuntimeCommand } from '@clevercloud/client/cc-api-commands/p
 import { ListZoneCommand } from '@clevercloud/client/cc-api-commands/zone/list-zone-command.js';
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { globalCommands } from '../src/commands/global.commands.js';
+import { loadAllCommands } from '../src/commands/global.commands.js';
 import { colorOption, updateNotifierOption, verboseOption } from '../src/commands/global.options.js';
 import { baseConfig } from '../src/config/config.js';
 import { styleText } from '../src/lib/style-text.js';
@@ -33,8 +33,6 @@ import { parseMarkdown } from './lib/markdown.js';
  * @typedef {{ path: string, changed: boolean }} FileResult
  */
 
-const typedGlobalCommands = globalCommands;
-
 const apiClient = new CcApiClient({ baseUrl: baseConfig.API_HOST });
 
 runCommand(async () => {
@@ -44,7 +42,8 @@ runCommand(async () => {
     console.log('Updating docs...');
   }
 
-  const commands = Object.entries(typedGlobalCommands);
+  const globalCommands = await loadAllCommands();
+  const commands = Object.entries(globalCommands);
 
   const results = [
     await generateCommandsReadme(commands, checkMode),

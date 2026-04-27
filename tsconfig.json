@@ -26,5 +26,13 @@
     "src/lib/date-utils.js",
     "src/config/*"
   ],
-  "exclude": ["build", "docs", "node_modules", "scripts/generate-docs.js"]
+  "exclude": [
+    "build",
+    "docs",
+    "node_modules",
+    "scripts/generate-docs.js",
+    "scripts/generate-commands-manifest.js",
+    "scripts/bench-startup.js",
+    "scripts/bench-compare.js"
+  ]
 }
