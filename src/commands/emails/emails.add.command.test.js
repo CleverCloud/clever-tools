@@ -3,16 +3,16 @@ import { after, before, beforeEach, describe, it } from 'node:test';
 import { cliHooks } from '../../../test/cli-hooks.js';
 
 /**
- * @typedef {import('../../../test/cli-hooks.types.js').CliTestKit} CliTestKit
+ * @typedef {import('../../../test/cli-hooks.types.js').NewCliScenario} NewCliScenario
  */
 
 describe('emails add command', () => {
   const hooks = cliHooks();
-  /** @type {CliTestKit} */
-  let testKit;
+  /** @type {NewCliScenario} */
+  let newScenario;
 
   before(async () => {
-    testKit = await hooks.before();
+    newScenario = await hooks.before();
   });
 
   beforeEach(hooks.beforeEach);
@@ -20,11 +20,10 @@ describe('emails add command', () => {
   after(hooks.after);
 
   it('should write error when address already belongs to account', async () => {
-    const result = await testKit
-      .newScenario()
+    const result = await newScenario()
       .when({ method: 'PUT', path: `/v2/self/emails/:address` })
       .respond({ status: 400, body: { id: 101 } })
-      .thenCall(() => testKit.runCli(['emails', 'add', 'test.user@example.com'], { expectExitCode: 1 }))
+      .thenRunCli(['emails', 'add', 'test.user@example.com'], { expectExitCode: 1 })
       .verify((calls) => {
         assert.strictEqual(calls.count, 1);
         assert.strictEqual(calls.first.method, 'PUT');

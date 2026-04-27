@@ -4,7 +4,7 @@ import { after, before, beforeEach, describe, it } from 'node:test';
 import { cliHooks } from '../../../test/cli-hooks.js';
 
 /**
- * @typedef {import('../../../test/cli-hooks.types.js').CliTestKit} CliTestKit
+ * @typedef {import('../../../test/cli-hooks.types.js').NewCliScenario} NewCliScenario
  */
 
 const CLEVER_APP_CONFIG = {
@@ -21,11 +21,11 @@ const CLEVER_APP_CONFIG = {
 
 describe('logs command', () => {
   const hooks = cliHooks();
-  /** @type {CliTestKit} */
-  let testKit;
+  /** @type {NewCliScenario} */
+  let newScenario;
 
   before(async () => {
-    testKit = await hooks.before();
+    newScenario = await hooks.before();
   });
 
   beforeEach(hooks.beforeEach);
@@ -33,8 +33,7 @@ describe('logs command', () => {
   after(hooks.after);
 
   it('should show the logs emitted by the SSE', async () => {
-    const result = await testKit
-      .newScenario()
+    const result = await newScenario()
       .withAppConfigFile(CLEVER_APP_CONFIG)
       .when({ method: 'GET', path: '/v4/logs/organisations/:ownerId/applications/:appId/logs' })
       .respond({
@@ -55,7 +54,7 @@ describe('logs command', () => {
         ],
         delayBetween: 10,
       })
-      .thenCall(() => testKit.runCli(['logs']))
+      .thenRunCli(['logs'])
       .verify((calls) => {
         assert.strictEqual(calls.count, 1);
         assert.strictEqual(calls.first.pathParams?.ownerId, 'orga_xxx');

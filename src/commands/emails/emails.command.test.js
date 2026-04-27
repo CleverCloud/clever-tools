@@ -5,16 +5,16 @@ import { cliHooks } from '../../../test/cli-hooks.js';
 import { SELF } from '../../../test/fixtures/self.js';
 
 /**
- * @typedef {import('../../../test/cli-hooks.types.js').CliTestKit} CliTestKit
+ * @typedef {import('../../../test/cli-hooks.types.js').NewCliScenario} NewCliScenario
  */
 
 describe('emails command', () => {
   const hooks = cliHooks();
-  /** @type {CliTestKit} */
-  let testKit;
+  /** @type {NewCliScenario} */
+  let newScenario;
 
   before(async () => {
-    testKit = await hooks.before();
+    newScenario = await hooks.before();
   });
 
   beforeEach(hooks.beforeEach);
@@ -22,13 +22,12 @@ describe('emails command', () => {
   after(hooks.after);
 
   it('should return primary email addresses', async () => {
-    const result = await testKit
-      .newScenario()
+    const result = await newScenario()
       .when({ method: 'GET', path: '/v2/self' })
       .respond({ status: 200, body: SELF })
       .when({ method: 'GET', path: '/v2/self/emails' })
       .respond({ status: 200, body: [] })
-      .thenCall(() => testKit.runCli(['emails']))
+      .thenRunCli(['emails'])
       .verify((calls) => {
         assert.strictEqual(calls.count, 2);
       });
@@ -43,13 +42,12 @@ describe('emails command', () => {
   });
 
   it('should return primary and secondary email addresses', async () => {
-    const result = await testKit
-      .newScenario()
+    const result = await newScenario()
       .when({ method: 'GET', path: '/v2/self' })
       .respond({ status: 200, body: SELF })
       .when({ method: 'GET', path: '/v2/self/emails' })
       .respond({ status: 200, body: ['test.user+secondary@example.com'] })
-      .thenCall(() => testKit.runCli(['emails']))
+      .thenRunCli(['emails'])
       .verify((calls) => {
         assert.strictEqual(calls.count, 2);
       });
