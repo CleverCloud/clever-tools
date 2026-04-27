@@ -162,6 +162,21 @@ clever k8s list [options]
 |`-F`, `--format` `<format>`|Output format (human, json) (default: human)|
 |`-o`, `--org`, `--owner` `<org-id\|org-name>`|Organisation to target by its ID (or name, if unambiguous)|
 
+## ➡️ `clever k8s quota` <kbd>Since unreleased</kbd>
+
+Get the Kubernetes quota, usage and remaining of an organisation
+
+```bash
+clever k8s quota [options]
+```
+
+### ⚙️ Options
+
+|Name|Description|
+|---|---|
+|`-F`, `--format` `<format>`|Output format (human, json) (default: human)|
+|`-o`, `--org`, `--owner` `<org-id\|org-name>`|Organisation to target by its ID (or name, if unambiguous)|
+
 ## ➡️ `clever k8s update` <kbd>Since unreleased</kbd>
 
 Update a Kubernetes cluster metadata or features

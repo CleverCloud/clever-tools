@@ -70,6 +70,7 @@ import { k8sDeleteCommand } from './k8s/k8s.delete.command.js';
 import { k8sGetKubeconfigCommand } from './k8s/k8s.get-kubeconfig.command.js';
 import { k8sGetCommand } from './k8s/k8s.get.command.js';
 import { k8sListCommand } from './k8s/k8s.list.command.js';
+import { k8sQuotaCommand } from './k8s/k8s.quota.command.js';
 import { k8sUpdateCommand } from './k8s/k8s.update.command.js';
 import { keycloakCommand } from './keycloak/keycloak.command.js';
 import { keycloakDisableNgCommand } from './keycloak/keycloak.disable-ng.command.js';
@@ -303,6 +304,7 @@ export const globalCommands = {
       get: k8sGetCommand,
       'get-kubeconfig': k8sGetKubeconfigCommand,
       list: k8sListCommand,
+      quota: k8sQuotaCommand,
       update: k8sUpdateCommand,
     },
   ],

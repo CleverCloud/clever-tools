@@ -1632,6 +1632,23 @@ clever k8s list [options]
 -o, --org, --owner <org-id|org-name>    Organisation to target by its ID (or name, if unambiguous)
 ```
 
+### k8s quota
+
+**Description:** Get the Kubernetes quota, usage and remaining of an organisation
+
+**Since:** unreleased
+
+**Usage**
+```
+clever k8s quota [options]
+```
+
+**Options**
+```
+-F, --format <format>                   Output format (human, json) (default: human)
+-o, --org, --owner <org-id|org-name>    Organisation to target by its ID (or name, if unambiguous)
+```
+
 ### k8s update
 
 **Description:** Update a Kubernetes cluster metadata or features
