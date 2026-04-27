@@ -1,6 +1,7 @@
 node_modules/
 .clever.json
 build/
+bench-build/
 .idea/
 .s3cfg*
 *.gpg.key
