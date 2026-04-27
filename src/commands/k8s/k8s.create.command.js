@@ -3,10 +3,11 @@ import { typewriterLogo } from '../../lib/ascii.js';
 import { defineArgument } from '../../lib/define-argument.js';
 import { defineCommand } from '../../lib/define-command.js';
 import { defineOption } from '../../lib/define-option.js';
-import { getK8sCluster, k8sCreate } from '../../lib/k8s.js';
+import { getK8sCluster, k8sCreate, k8sGetProduct } from '../../lib/k8s.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
-import { orgaIdOrNameOption } from '../global.options.js';
+import { flavorCount, tags } from '../../parsers.js';
+import { orgaIdOrNameOption, skipConfirmationOption } from '../global.options.js';
 
 const DEPLOY_POLL_DELAY_MS = 10000;
 
@@ -14,6 +15,78 @@ export const k8sCreateCommand = defineCommand({
   description: 'Create a Kubernetes cluster',
   since: '4.3.0',
   options: {
+    clusterVersion: defineOption({
+      name: 'cluster-version',
+      schema: z.string().optional(),
+      description: 'Kubernetes version to deploy (e.g.: 1.36)',
+      placeholder: 'cluster-version',
+      complete: async () => {
+        const product = await k8sGetProduct();
+        return product.versions?.available ?? [];
+      },
+    }),
+    description: defineOption({
+      name: 'description',
+      schema: z.string().max(4096).optional(),
+      description: 'Free-form cluster description',
+      placeholder: 'description',
+    }),
+    tag: defineOption({
+      name: 'tag',
+      schema: z.string().transform(tags).optional(),
+      description: 'Semantic tags (comma-separated, e.g.: env:prod,team:platform)',
+      placeholder: 'tag[,tag...]',
+    }),
+    autoscaling: defineOption({
+      name: 'autoscaling',
+      schema: z.boolean().default(false),
+      description: 'Enable the cluster autoscaler',
+    }),
+    persistentStorage: defineOption({
+      name: 'persistent-storage',
+      schema: z.boolean().default(false),
+      description: 'Enable persistent storage (Ceph CSI)',
+    }),
+    topology: defineOption({
+      name: 'topology',
+      schema: z
+        .string()
+        .transform((v) => v.toUpperCase())
+        .optional(),
+      description: 'Cluster topology (must be set with --flavor and --replication-factor)',
+      placeholder: 'topology',
+      complete: async () => {
+        const product = await k8sGetProduct();
+        return (product.topologies ?? []).map((t) => t.topology);
+      },
+    }),
+    flavor: defineOption({
+      name: 'flavor',
+      schema: z
+        .string()
+        .transform((v) => v.toUpperCase())
+        .optional(),
+      description: 'Control plane flavor',
+      placeholder: 'flavor',
+      complete: async () => {
+        const product = await k8sGetProduct();
+        const flavors = new Set((product.topologies ?? []).flatMap((t) => t.availableFlavors ?? []));
+        return [...flavors];
+      },
+    }),
+    replicationFactor: defineOption({
+      name: 'replication-factor',
+      schema: z.coerce.number().int().optional(),
+      description: 'Control plane replication factor',
+      placeholder: 'replication-factor',
+    }),
+    nodeGroup: defineOption({
+      name: 'nodegroup',
+      schema: z.string().transform(flavorCount).optional(),
+      description: 'Initial node group (format: <flavor>:<count>, e.g.: XS:3)',
+      placeholder: 'flavor:count',
+    }),
+    yes: skipConfirmationOption,
     watch: defineOption({
       name: 'watch',
       schema: z.boolean().default(false),
@@ -34,7 +107,18 @@ export const k8sCreateCommand = defineCommand({
     const orgIdOrName = options.org;
 
     try {
-      const cluster = await k8sCreate(clusterName, orgIdOrName);
+      const cluster = await k8sCreate(clusterName, orgIdOrName, {
+        version: options.clusterVersion,
+        description: options.description,
+        tags: options.tag,
+        autoscaling: options.autoscaling,
+        persistentStorage: options.persistentStorage,
+        topology: options.topology,
+        flavor: options.flavor,
+        replicationFactor: options.replicationFactor,
+        nodeGroup: options.nodeGroup,
+        yes: options.yes,
+      });
 
       if (options.watch) {
         await typewriterLogo();

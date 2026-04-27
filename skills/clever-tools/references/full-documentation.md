@@ -1508,13 +1508,23 @@ clever k8s create <cluster-name> [options]
 
 **Arguments**
 ```
-cluster-name                            Kubernetes cluster name
+cluster-name                                     Kubernetes cluster name
 ```
 
 **Options**
 ```
--o, --org, --owner <org-id|org-name>    Organisation to target by its ID (or name, if unambiguous)
--w, --watch                             Watch the deployment until the cluster is deployed
+    --autoscaling                                Enable the cluster autoscaler
+    --cluster-version <cluster-version>          Kubernetes version to deploy (e.g.: 1.36)
+    --description <description>                  Free-form cluster description
+    --flavor <flavor>                            Control plane flavor
+    --nodegroup <flavor:count>                   Initial node group (format: <flavor>:<count>, e.g.: XS:3)
+-o, --org, --owner <org-id|org-name>             Organisation to target by its ID (or name, if unambiguous)
+    --persistent-storage                         Enable persistent storage (Ceph CSI)
+    --replication-factor <replication-factor>    Control plane replication factor
+    --tag <tag[,tag...]>                         Semantic tags (comma-separated, e.g.: env:prod,team:platform)
+    --topology <topology>                        Cluster topology (must be set with --flavor and --replication-factor)
+-w, --watch                                      Watch the deployment until the cluster is deployed
+-y, --yes                                        Skip confirmation prompts
 ```
 
 ### k8s delete
