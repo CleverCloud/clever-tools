@@ -162,6 +162,134 @@ clever k8s list [options]
 |`-F`, `--format` `<format>`|Output format (human, json) (default: human)|
 |`-o`, `--org`, `--owner` `<org-id\|org-name>`|Organisation to target by its ID (or name, if unambiguous)|
 
+## ➡️ `clever k8s nodegroups` <kbd>Since unreleased</kbd>
+
+Manage Kubernetes node groups
+
+```bash
+clever k8s nodegroups
+```
+
+## ➡️ `clever k8s nodegroups create` <kbd>Since unreleased</kbd>
+
+Create a node group on a Kubernetes cluster
+
+```bash
+clever k8s nodegroups create <cluster-id|cluster-name> <nodegroup-name> <flavor:count> [options]
+```
+
+### 📥 Arguments
+
+|Name|Description|
+|---|---|
+|`cluster-id|cluster-name`|Kubernetes cluster ID or name|
+|`nodegroup-name`|Node group name (lowercase RFC 1123, max 63 chars)|
+|`flavor:count`|Node group flavor and target node count (format: <flavor>:<count>, e.g.: XS:3)|
+
+### ⚙️ Options
+
+|Name|Description|
+|---|---|
+|`--autoscaling`|Enable cluster autoscaler for this node group (requires --min and --max)|
+|`--description` `<description>`|Free-form node group description|
+|`--max` `<max>`|Maximum node count when autoscaling is enabled|
+|`--min` `<min>`|Minimum node count when autoscaling is enabled|
+|`-o`, `--org`, `--owner` `<org-id\|org-name>`|Organisation to target by its ID (or name, if unambiguous)|
+|`--tag` `<tag>`|Arbitrary tag attached to the node group|
+
+## ➡️ `clever k8s nodegroups delete` <kbd>Since unreleased</kbd>
+
+Delete a node group from a Kubernetes cluster
+
+```bash
+clever k8s nodegroups delete <cluster-id|cluster-name> <nodegroup-id|nodegroup-name> [options]
+```
+
+### 📥 Arguments
+
+|Name|Description|
+|---|---|
+|`cluster-id|cluster-name`|Kubernetes cluster ID or name|
+|`nodegroup-id|nodegroup-name`|Kubernetes node group ID or name|
+
+### ⚙️ Options
+
+|Name|Description|
+|---|---|
+|`-o`, `--org`, `--owner` `<org-id\|org-name>`|Organisation to target by its ID (or name, if unambiguous)|
+|`-y`, `--yes`|Skip confirmation prompts|
+
+## ➡️ `clever k8s nodegroups get` <kbd>Since unreleased</kbd>
+
+Get information about a Kubernetes node group
+
+```bash
+clever k8s nodegroups get <cluster-id|cluster-name> <nodegroup-id|nodegroup-name> [options]
+```
+
+### 📥 Arguments
+
+|Name|Description|
+|---|---|
+|`cluster-id|cluster-name`|Kubernetes cluster ID or name|
+|`nodegroup-id|nodegroup-name`|Kubernetes node group ID or name|
+
+### ⚙️ Options
+
+|Name|Description|
+|---|---|
+|`-F`, `--format` `<format>`|Output format (human, json) (default: human)|
+|`-o`, `--org`, `--owner` `<org-id\|org-name>`|Organisation to target by its ID (or name, if unambiguous)|
+
+## ➡️ `clever k8s nodegroups list` <kbd>Since unreleased</kbd>
+
+List the node groups of a Kubernetes cluster
+
+```bash
+clever k8s nodegroups list <cluster-id|cluster-name> [options]
+```
+
+### 📥 Arguments
+
+|Name|Description|
+|---|---|
+|`cluster-id|cluster-name`|Kubernetes cluster ID or name|
+
+### ⚙️ Options
+
+|Name|Description|
+|---|---|
+|`-F`, `--format` `<format>`|Output format (human, json) (default: human)|
+|`-o`, `--org`, `--owner` `<org-id\|org-name>`|Organisation to target by its ID (or name, if unambiguous)|
+
+## ➡️ `clever k8s nodegroups update` <kbd>Since unreleased</kbd>
+
+Update a node group on a Kubernetes cluster
+
+```bash
+clever k8s nodegroups update <cluster-id|cluster-name> <nodegroup-id|nodegroup-name> [options]
+```
+
+### 📥 Arguments
+
+|Name|Description|
+|---|---|
+|`cluster-id|cluster-name`|Kubernetes cluster ID or name|
+|`nodegroup-id|nodegroup-name`|Kubernetes node group ID or name|
+
+### ⚙️ Options
+
+|Name|Description|
+|---|---|
+|`--autoscaling`|Enable the cluster autoscaler|
+|`--count` `<count>`|Target node count|
+|`--description` `<description>`|Free-form node group description|
+|`--disable-autoscaling`|Disable the cluster autoscaler|
+|`--max` `<max>`|Maximum node count (autoscaling bound)|
+|`--min` `<min>`|Minimum node count (autoscaling bound)|
+|`-o`, `--org`, `--owner` `<org-id\|org-name>`|Organisation to target by its ID (or name, if unambiguous)|
+|`--tag` `<tag>`|Arbitrary tag attached to the node group|
+
 ## ➡️ `clever k8s quota` <kbd>Since unreleased</kbd>
 
 Get the Kubernetes quota, usage and remaining of an organisation

@@ -1632,6 +1632,142 @@ clever k8s list [options]
 -o, --org, --owner <org-id|org-name>    Organisation to target by its ID (or name, if unambiguous)
 ```
 
+### k8s nodegroups
+
+**Description:** Manage Kubernetes node groups
+
+**Since:** unreleased
+
+**Usage**
+```
+clever k8s nodegroups
+```
+
+#### k8s nodegroups create
+
+**Description:** Create a node group on a Kubernetes cluster
+
+**Since:** unreleased
+
+**Usage**
+```
+clever k8s nodegroups create <cluster-id|cluster-name> <nodegroup-name> <flavor:count> [options]
+```
+
+**Arguments**
+```
+cluster-id|cluster-name                 Kubernetes cluster ID or name
+nodegroup-name                          Node group name (lowercase RFC 1123, max 63 chars)
+flavor:count                            Node group flavor and target node count (format: <flavor>:<count>, e.g.: XS:3)
+```
+
+**Options**
+```
+    --autoscaling                       Enable cluster autoscaler for this node group (requires --min and --max)
+    --description <description>         Free-form node group description
+    --max <max>                         Maximum node count when autoscaling is enabled
+    --min <min>                         Minimum node count when autoscaling is enabled
+-o, --org, --owner <org-id|org-name>    Organisation to target by its ID (or name, if unambiguous)
+    --tag <tag>                         Arbitrary tag attached to the node group
+```
+
+#### k8s nodegroups delete
+
+**Description:** Delete a node group from a Kubernetes cluster
+
+**Since:** unreleased
+
+**Usage**
+```
+clever k8s nodegroups delete <cluster-id|cluster-name> <nodegroup-id|nodegroup-name> [options]
+```
+
+**Arguments**
+```
+cluster-id|cluster-name                 Kubernetes cluster ID or name
+nodegroup-id|nodegroup-name             Kubernetes node group ID or name
+```
+
+**Options**
+```
+-o, --org, --owner <org-id|org-name>    Organisation to target by its ID (or name, if unambiguous)
+-y, --yes                               Skip confirmation prompts
+```
+
+#### k8s nodegroups get
+
+**Description:** Get information about a Kubernetes node group
+
+**Since:** unreleased
+
+**Usage**
+```
+clever k8s nodegroups get <cluster-id|cluster-name> <nodegroup-id|nodegroup-name> [options]
+```
+
+**Arguments**
+```
+cluster-id|cluster-name                 Kubernetes cluster ID or name
+nodegroup-id|nodegroup-name             Kubernetes node group ID or name
+```
+
+**Options**
+```
+-F, --format <format>                   Output format (human, json) (default: human)
+-o, --org, --owner <org-id|org-name>    Organisation to target by its ID (or name, if unambiguous)
+```
+
+#### k8s nodegroups list
+
+**Description:** List the node groups of a Kubernetes cluster
+
+**Since:** unreleased
+
+**Usage**
+```
+clever k8s nodegroups list <cluster-id|cluster-name> [options]
+```
+
+**Arguments**
+```
+cluster-id|cluster-name                 Kubernetes cluster ID or name
+```
+
+**Options**
+```
+-F, --format <format>                   Output format (human, json) (default: human)
+-o, --org, --owner <org-id|org-name>    Organisation to target by its ID (or name, if unambiguous)
+```
+
+#### k8s nodegroups update
+
+**Description:** Update a node group on a Kubernetes cluster
+
+**Since:** unreleased
+
+**Usage**
+```
+clever k8s nodegroups update <cluster-id|cluster-name> <nodegroup-id|nodegroup-name> [options]
+```
+
+**Arguments**
+```
+cluster-id|cluster-name                 Kubernetes cluster ID or name
+nodegroup-id|nodegroup-name             Kubernetes node group ID or name
+```
+
+**Options**
+```
+    --autoscaling                       Enable the cluster autoscaler
+    --count <count>                     Target node count
+    --description <description>         Free-form node group description
+    --disable-autoscaling               Disable the cluster autoscaler
+    --max <max>                         Maximum node count (autoscaling bound)
+    --min <min>                         Minimum node count (autoscaling bound)
+-o, --org, --owner <org-id|org-name>    Organisation to target by its ID (or name, if unambiguous)
+    --tag <tag>                         Arbitrary tag attached to the node group
+```
+
 ### k8s quota
 
 **Description:** Get the Kubernetes quota, usage and remaining of an organisation

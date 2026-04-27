@@ -70,6 +70,12 @@ import { k8sDeleteCommand } from './k8s/k8s.delete.command.js';
 import { k8sGetKubeconfigCommand } from './k8s/k8s.get-kubeconfig.command.js';
 import { k8sGetCommand } from './k8s/k8s.get.command.js';
 import { k8sListCommand } from './k8s/k8s.list.command.js';
+import { k8sNodeGroupCommand } from './k8s/k8s.nodegroups.command.js';
+import { k8sNodeGroupCreateCommand } from './k8s/k8s.nodegroups.create.command.js';
+import { k8sNodeGroupDeleteCommand } from './k8s/k8s.nodegroups.delete.command.js';
+import { k8sNodeGroupGetCommand } from './k8s/k8s.nodegroups.get.command.js';
+import { k8sNodeGroupListCommand } from './k8s/k8s.nodegroups.list.command.js';
+import { k8sNodeGroupUpdateCommand } from './k8s/k8s.nodegroups.update.command.js';
 import { k8sQuotaCommand } from './k8s/k8s.quota.command.js';
 import { k8sUpdateCommand } from './k8s/k8s.update.command.js';
 import { k8sVersionCheckCommand } from './k8s/k8s.version.check.command.js';
@@ -307,6 +313,16 @@ export const globalCommands = {
       get: k8sGetCommand,
       'get-kubeconfig': k8sGetKubeconfigCommand,
       list: k8sListCommand,
+      nodegroups: [
+        k8sNodeGroupCommand,
+        {
+          create: k8sNodeGroupCreateCommand,
+          delete: k8sNodeGroupDeleteCommand,
+          get: k8sNodeGroupGetCommand,
+          list: k8sNodeGroupListCommand,
+          update: k8sNodeGroupUpdateCommand,
+        },
+      ],
       quota: k8sQuotaCommand,
       update: k8sUpdateCommand,
       version: [
