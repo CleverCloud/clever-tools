@@ -7,3 +7,9 @@ export const k8sIdOrNameArg = defineArgument({
   description: 'Kubernetes cluster ID or name',
   placeholder: 'cluster-id|cluster-name',
 });
+
+export const k8sNodeGroupIdOrNameArg = defineArgument({
+  schema: z.string(),
+  description: 'Kubernetes node group ID or name',
+  placeholder: 'nodegroup-id|nodegroup-name',
+});

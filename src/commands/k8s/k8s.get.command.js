@@ -23,13 +23,67 @@ export const k8sGetCommand = defineCommand({
         Logger.printJson(k8sInfo);
         break;
       case 'human':
-      default:
-        console.table({
+      default: {
+        const topo = k8sInfo.topologyConfig;
+        const overview = {
           Name: k8sInfo.name,
           ID: k8sInfo.id,
-          Version: k8sInfo.version,
           Status: k8sInfo.status,
-        });
+          Version: k8sInfo.version,
+          Topology: formatTopology(topo),
+          Autoscaling: k8sInfo.features?.autoscalingEnabled ? 'enabled' : 'disabled',
+          'Persistent storage': k8sInfo.features?.csi != null ? 'enabled' : 'disabled',
+        };
+        if (k8sInfo.tags?.length) overview.Tags = k8sInfo.tags.join(', ');
+        if (k8sInfo.description) overview.Description = k8sInfo.description;
+        if (k8sInfo.storageUsageBytes != null) {
+          overview.Storage = `${Math.round((k8sInfo.storageUsageBytes / 1024 ** 3) * 100) / 100} GB`;
+        }
+        console.table(overview);
+
+        if (topo?.topology === 'DISTRIBUTED' && topo.components) {
+          Logger.println('');
+          Logger.println('🧩 Control plane components');
+          console.table(
+            Object.fromEntries(
+              Object.entries(topo.components).map(([name, c]) => [
+                name,
+                { Flavor: c?.flavor ?? '-', RF: c?.replicationFactor ?? '-' },
+              ]),
+            ),
+          );
+        }
+
+        if (k8sInfo.nodeGroups?.length) {
+          Logger.println('');
+          Logger.println(`🧮 Node groups (${k8sInfo.nodeGroups.length})`);
+          console.table(
+            Object.fromEntries(
+              k8sInfo.nodeGroups.map((ng) => [
+                ng.id,
+                {
+                  Name: ng.name,
+                  Status: ng.status,
+                  Flavor: ng.flavor,
+                  Nodes: `${ng.currentNodeCount}/${ng.targetNodeCount}`,
+                },
+              ]),
+            ),
+          );
+        }
+
+        if (k8sInfo.loadBalancers?.length) {
+          Logger.println('');
+          Logger.println(`🔀 Load balancers (${k8sInfo.loadBalancers.length})`);
+          k8sInfo.loadBalancers.forEach((lb) => {
+            console.table({
+              ID: lb.id,
+              Flavor: lb.flavor,
+              IPs: lb.ips?.join(', ') ?? '-',
+              Domain: lb.domainName ?? '-',
+            });
+          });
+        }
 
         Logger.println('');
         const orgMessageComplement = orgIdOrName ? `--org "${orgIdOrName.orga_id || orgIdOrName.orga_name}"` : '';
@@ -38,6 +92,13 @@ export const k8sGetCommand = defineCommand({
           `Once ACTIVE, get the kubeconfig with ${styleText('blue', `clever k8s get-kubeconfig ${k8sInfo.id} ${orgMessageComplement}`)}`,
         );
         break;
+      }
     }
   },
 });
+
+function formatTopology(topo) {
+  if (topo == null) return '-';
+  if (topo.topology === 'DISTRIBUTED') return 'DISTRIBUTED';
+  return `${topo.topology} (${topo.flavor}, rf=${topo.replicationFactor})`;
+}

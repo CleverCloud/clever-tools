@@ -5,13 +5,17 @@ export function promptSecret(message) {
   return password({ message, mask: true }).catch(exitOnPromptError);
 }
 
-export async function confirm(message, rejectionMessage) {
-  const answer = await confirmPrompt({ message }).catch(exitOnPromptError);
+export async function confirm(message, rejectionMessage, defaultAnswer = true) {
+  const answer = await confirmPrompt({ message, default: defaultAnswer }).catch(exitOnPromptError);
   if (!answer) {
     throw new Error(rejectionMessage);
   }
 
   return answer;
+}
+
+export async function ask(message, defaultAnswer = true) {
+  return confirmPrompt({ message, default: defaultAnswer }).catch(exitOnPromptError);
 }
 
 export async function confirmAnswer(message, rejectionMessage, expectedAnswer) {

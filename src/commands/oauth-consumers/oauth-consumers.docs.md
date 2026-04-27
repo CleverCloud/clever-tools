@@ -52,7 +52,7 @@ clever oauth-consumers delete <consumer-key|consumer-name> [options]
 
 |Name|Description|
 |---|---|
-|`-y`, `--yes`|Skip confirmation and proceed with deletion directly|
+|`-y`, `--yes`|Skip confirmation prompts|
 
 ## ➡️ `clever oauth-consumers get` <kbd>Since 4.8.0</kbd>
 
