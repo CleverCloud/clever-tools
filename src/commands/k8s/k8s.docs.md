@@ -72,7 +72,7 @@ clever k8s delete <cluster-id|cluster-name> [options]
 |Name|Description|
 |---|---|
 |`-o`, `--org`, `--owner` `<org-id\|org-name>`|Organisation to target by its ID (or name, if unambiguous)|
-|`-y`, `--yes`|Skip confirmation and proceed with deletion directly|
+|`-y`, `--yes`|Skip confirmation prompts|
 
 ## ➡️ `clever k8s get` <kbd>Since 4.3.0</kbd>
 

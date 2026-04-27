@@ -348,7 +348,7 @@ addon-id|addon-name                     Add-on ID (or name, if unambiguous)
 **Options**
 ```
 -o, --org, --owner <org-id|org-name>    Organisation to target by its ID (or name, if unambiguous)
--y, --yes                               Skip confirmation and proceed with deletion directly
+-y, --yes                               Skip confirmation prompts
 ```
 
 ### addon env
@@ -1536,7 +1536,7 @@ cluster-id|cluster-name                 Kubernetes cluster ID or name
 **Options**
 ```
 -o, --org, --owner <org-id|org-name>    Organisation to target by its ID (or name, if unambiguous)
--y, --yes                               Skip confirmation and proceed with deletion directly
+-y, --yes                               Skip confirmation prompts
 ```
 
 ### k8s get
@@ -2570,7 +2570,7 @@ consumer-key|consumer-name    OAuth consumer key (or name, if unambiguous)
 
 **Options**
 ```
--y, --yes                     Skip confirmation and proceed with deletion directly
+-y, --yes                     Skip confirmation prompts
 ```
 
 ### oauth-consumers get

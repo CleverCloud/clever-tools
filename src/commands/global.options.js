@@ -70,7 +70,7 @@ export const humanJsonOutputFormatOption = defineOption({
 export const skipConfirmationOption = defineOption({
   name: 'yes',
   schema: z.boolean().default(false),
-  description: 'Skip confirmation and proceed with deletion directly',
+  description: 'Skip confirmation prompts',
   aliases: ['y'],
 });
 
