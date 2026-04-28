@@ -15,10 +15,9 @@ Tests that should be done manually:
   - The help branch and the "wrong host" branch are testable; the OAuth-injected curl call is not.
   - => done
 - `ssh`
-  - The single-instance and multi-instance-with-TTY paths spawn `ssh` interactively (and `selectAnswer` for the latter).
-  - No example of mocking `child_process` or inquirer-style prompts; tests cover the option-validation and pre-spawn error paths only.
-  - => cli-runner now have all what we need to handle interactions
-  - => for ssh, we could use Embedded SSH server with `ssh2`
+  - Command mode (`--command`) covered by the `ssh command — real ssh` block in `ssh.command.test.js`, using the embedded `ssh2` server fixture (`test/fixtures/ssh-server.js`).
+  - Interactive mode (no `--command`) and the multi-instance TTY prompt path are still uncovered: the CLI spawns ssh with `stdio: 'inherit'` and the prompt path requires `process.stdout.isTTY === true` in the child, neither of which `cli-runner` can reproduce without PTY support.
+  - => follow-up: add PTY support in `cli-runner`, then exercise the interactive shell path against the fixture's `shell` handler.
 - `deploy`
   - Needs a real git repo (`Git.get()`, `git.push`, `git.addRemote`, shallow detection) plus deployment-event watching.
   - No example of mocking `Git`.
