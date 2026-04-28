@@ -5,7 +5,7 @@ import { k8sIdOrNameArg } from './k8s.args.js';
 
 export const k8sVersionCheckCommand = defineCommand({
   description: 'Check a Kubernetes cluster deployed version',
-  since: 'unreleased',
+  since: '4.9.0',
   options: {
     org: orgaIdOrNameOption,
     format: humanJsonOutputFormatOption,

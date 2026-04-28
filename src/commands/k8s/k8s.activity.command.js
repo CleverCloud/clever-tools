@@ -8,7 +8,7 @@ import { k8sIdOrNameArg } from './k8s.args.js';
 
 export const k8sActivityCommand = defineCommand({
   description: 'Show recent deployment events of a Kubernetes cluster',
-  since: 'unreleased',
+  since: '4.9.0',
   options: {
     org: orgaIdOrNameOption,
     format: humanJsonOutputFormatOption,

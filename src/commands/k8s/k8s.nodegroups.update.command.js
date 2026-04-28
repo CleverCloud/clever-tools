@@ -9,7 +9,7 @@ import { k8sIdOrNameArg, k8sNodeGroupIdOrNameArg } from './k8s.args.js';
 
 export const k8sNodeGroupUpdateCommand = defineCommand({
   description: 'Update a node group on a Kubernetes cluster',
-  since: 'unreleased',
+  since: '4.9.0',
   options: {
     count: defineOption({
       name: 'count',

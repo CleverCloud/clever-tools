@@ -7,7 +7,7 @@ import { k8sIdOrNameArg } from './k8s.args.js';
 
 export const k8sNodeGroupListCommand = defineCommand({
   description: 'List the node groups of a Kubernetes cluster',
-  since: 'unreleased',
+  since: '4.9.0',
   options: {
     org: orgaIdOrNameOption,
     format: humanJsonOutputFormatOption,
