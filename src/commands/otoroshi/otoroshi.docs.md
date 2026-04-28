@@ -108,7 +108,7 @@ clever otoroshi open logs <addon-id|addon-name>
 |---|---|
 |`addon-id|addon-name`|Add-on ID (or name, if unambiguous)|
 
-## ➡️ `clever otoroshi open swaggerui` <kbd>Since unreleased</kbd>
+## ➡️ `clever otoroshi open swaggerui` <kbd>Since 4.9.0</kbd>
 
 Open the Otoroshi Swagger UI in your browser
 

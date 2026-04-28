@@ -4,7 +4,7 @@ import { addonIdOrNameArg } from '../global.args.js';
 
 export const otoroshiOpenSwaggeruiCommand = defineCommand({
   description: 'Open the Otoroshi Swagger UI in your browser',
-  since: 'unreleased',
+  since: '4.9.0',
   options: {},
   args: [addonIdOrNameArg],
   async handler(_options, addonIdOrName) {

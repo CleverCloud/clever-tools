@@ -15,7 +15,7 @@ const UNIT_TO_BYTES = {
 
 export const k8sQuotaCommand = defineCommand({
   description: 'Get the Kubernetes quota, usage and remaining of an organisation',
-  since: 'unreleased',
+  since: '4.9.0',
   options: {
     org: orgaIdOrNameOption,
     format: humanJsonOutputFormatOption,

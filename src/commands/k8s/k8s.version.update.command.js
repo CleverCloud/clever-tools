@@ -5,7 +5,7 @@ import { k8sIdOrNameArg } from './k8s.args.js';
 
 export const k8sVersionUpdateCommand = defineCommand({
   description: 'Update a Kubernetes cluster to a target version',
-  since: 'unreleased',
+  since: '4.9.0',
   options: {
     org: orgaIdOrNameOption,
     target: targetVersionOption,

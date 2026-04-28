@@ -10,7 +10,7 @@ import { k8sIdOrNameArg } from './k8s.args.js';
 
 export const k8sUpdateCommand = defineCommand({
   description: 'Update a Kubernetes cluster metadata or features',
-  since: 'unreleased',
+  since: '4.9.0',
   options: {
     name: defineOption({
       name: 'name',

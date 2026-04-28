@@ -12,7 +12,7 @@ Manage Kubernetes clusters
 clever k8s
 ```
 
-## ➡️ `clever k8s activity` <kbd>Since unreleased</kbd>
+## ➡️ `clever k8s activity` <kbd>Since 4.9.0</kbd>
 
 Show recent deployment events of a Kubernetes cluster
 
@@ -162,7 +162,7 @@ clever k8s list [options]
 |`-F`, `--format` `<format>`|Output format (human, json) (default: human)|
 |`-o`, `--org`, `--owner` `<org-id\|org-name>`|Organisation to target by its ID (or name, if unambiguous)|
 
-## ➡️ `clever k8s nodegroups` <kbd>Since unreleased</kbd>
+## ➡️ `clever k8s nodegroups` <kbd>Since 4.9.0</kbd>
 
 Manage Kubernetes node groups
 
@@ -170,7 +170,7 @@ Manage Kubernetes node groups
 clever k8s nodegroups
 ```
 
-## ➡️ `clever k8s nodegroups create` <kbd>Since unreleased</kbd>
+## ➡️ `clever k8s nodegroups create` <kbd>Since 4.9.0</kbd>
 
 Create a node group on a Kubernetes cluster
 
@@ -197,7 +197,7 @@ clever k8s nodegroups create <cluster-id|cluster-name> <nodegroup-name> <flavor:
 |`-o`, `--org`, `--owner` `<org-id\|org-name>`|Organisation to target by its ID (or name, if unambiguous)|
 |`--tag` `<tag>`|Arbitrary tag attached to the node group|
 
-## ➡️ `clever k8s nodegroups delete` <kbd>Since unreleased</kbd>
+## ➡️ `clever k8s nodegroups delete` <kbd>Since 4.9.0</kbd>
 
 Delete a node group from a Kubernetes cluster
 
@@ -219,7 +219,7 @@ clever k8s nodegroups delete <cluster-id|cluster-name> <nodegroup-id|nodegroup-n
 |`-o`, `--org`, `--owner` `<org-id\|org-name>`|Organisation to target by its ID (or name, if unambiguous)|
 |`-y`, `--yes`|Skip confirmation prompts|
 
-## ➡️ `clever k8s nodegroups get` <kbd>Since unreleased</kbd>
+## ➡️ `clever k8s nodegroups get` <kbd>Since 4.9.0</kbd>
 
 Get information about a Kubernetes node group
 
@@ -241,7 +241,7 @@ clever k8s nodegroups get <cluster-id|cluster-name> <nodegroup-id|nodegroup-name
 |`-F`, `--format` `<format>`|Output format (human, json) (default: human)|
 |`-o`, `--org`, `--owner` `<org-id\|org-name>`|Organisation to target by its ID (or name, if unambiguous)|
 
-## ➡️ `clever k8s nodegroups list` <kbd>Since unreleased</kbd>
+## ➡️ `clever k8s nodegroups list` <kbd>Since 4.9.0</kbd>
 
 List the node groups of a Kubernetes cluster
 
@@ -262,7 +262,7 @@ clever k8s nodegroups list <cluster-id|cluster-name> [options]
 |`-F`, `--format` `<format>`|Output format (human, json) (default: human)|
 |`-o`, `--org`, `--owner` `<org-id\|org-name>`|Organisation to target by its ID (or name, if unambiguous)|
 
-## ➡️ `clever k8s nodegroups update` <kbd>Since unreleased</kbd>
+## ➡️ `clever k8s nodegroups update` <kbd>Since 4.9.0</kbd>
 
 Update a node group on a Kubernetes cluster
 
@@ -290,7 +290,7 @@ clever k8s nodegroups update <cluster-id|cluster-name> <nodegroup-id|nodegroup-n
 |`-o`, `--org`, `--owner` `<org-id\|org-name>`|Organisation to target by its ID (or name, if unambiguous)|
 |`--tag` `<tag>`|Arbitrary tag attached to the node group|
 
-## ➡️ `clever k8s quota` <kbd>Since unreleased</kbd>
+## ➡️ `clever k8s quota` <kbd>Since 4.9.0</kbd>
 
 Get the Kubernetes quota, usage and remaining of an organisation
 
@@ -305,7 +305,7 @@ clever k8s quota [options]
 |`-F`, `--format` `<format>`|Output format (human, json) (default: human)|
 |`-o`, `--org`, `--owner` `<org-id\|org-name>`|Organisation to target by its ID (or name, if unambiguous)|
 
-## ➡️ `clever k8s update` <kbd>Since unreleased</kbd>
+## ➡️ `clever k8s update` <kbd>Since 4.9.0</kbd>
 
 Update a Kubernetes cluster metadata or features
 
@@ -330,7 +330,7 @@ clever k8s update <cluster-id|cluster-name> [options]
 |`-o`, `--org`, `--owner` `<org-id\|org-name>`|Organisation to target by its ID (or name, if unambiguous)|
 |`--tag` `<tag[,tag...]>`|Replace tags (comma-separated, e.g.: env:prod,team:platform)|
 
-## ➡️ `clever k8s version` <kbd>Since unreleased</kbd>
+## ➡️ `clever k8s version` <kbd>Since 4.9.0</kbd>
 
 Check a Kubernetes cluster deployed version
 
@@ -351,7 +351,7 @@ clever k8s version <cluster-id|cluster-name> [options]
 |`-F`, `--format` `<format>`|Output format (human, json) (default: human)|
 |`-o`, `--org`, `--owner` `<org-id\|org-name>`|Organisation to target by its ID (or name, if unambiguous)|
 
-## ➡️ `clever k8s version check` <kbd>Since unreleased</kbd>
+## ➡️ `clever k8s version check` <kbd>Since 4.9.0</kbd>
 
 Check a Kubernetes cluster deployed version
 
@@ -372,7 +372,7 @@ clever k8s version check <cluster-id|cluster-name> [options]
 |`-F`, `--format` `<format>`|Output format (human, json) (default: human)|
 |`-o`, `--org`, `--owner` `<org-id\|org-name>`|Organisation to target by its ID (or name, if unambiguous)|
 
-## ➡️ `clever k8s version update` <kbd>Since unreleased</kbd>
+## ➡️ `clever k8s version update` <kbd>Since 4.9.0</kbd>
 
 Update a Kubernetes cluster to a target version
 

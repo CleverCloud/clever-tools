@@ -11,7 +11,7 @@ import { k8sIdOrNameArg } from './k8s.args.js';
 
 export const k8sNodeGroupCreateCommand = defineCommand({
   description: 'Create a node group on a Kubernetes cluster',
-  since: 'unreleased',
+  since: '4.9.0',
   options: {
     description: defineOption({
       name: 'description',

@@ -8,7 +8,7 @@ import { k8sIdOrNameArg, k8sNodeGroupIdOrNameArg } from './k8s.args.js';
 
 export const k8sNodeGroupDeleteCommand = defineCommand({
   description: 'Delete a node group from a Kubernetes cluster',
-  since: 'unreleased',
+  since: '4.9.0',
   options: {
     org: orgaIdOrNameOption,
     yes: skipConfirmationOption,

@@ -1,5 +1,21 @@
 # clever-tools changelog
 
+## [4.9.0](https://github.com/CleverCloud/clever-tools/compare/4.8.0...4.9.0) (2026-04-28)
+
+
+### 🚀 Features
+
+* **k8s:** add activity command ([52d5f3a](https://github.com/CleverCloud/clever-tools/commit/52d5f3a3ab2006adc5851c1809fbb31590aa96e8))
+* **k8s:** add nodegroups command, with create, list, get, update and delete ([3a7e0d5](https://github.com/CleverCloud/clever-tools/commit/3a7e0d5a536587476ee034f9c3b61e083b3c77b7))
+* **k8s:** add quota command ([90413de](https://github.com/CleverCloud/clever-tools/commit/90413def1c505eaab98ffee34806e1f8692fae76))
+* **k8s:** add update command ([c0ec4b9](https://github.com/CleverCloud/clever-tools/commit/c0ec4b90a1433d715c5216f3d9a80c07f2807f10))
+* **k8s:** add version command, with check and update ([d101ced](https://github.com/CleverCloud/clever-tools/commit/d101ced6823eaad47e3fa028c4d059fc98266478))
+* **k8s:** enrich create with topology, flavor, version, autoscaling, storage and node group ([8fa1205](https://github.com/CleverCloud/clever-tools/commit/8fa1205c3aec28c28db0380225dafa52eeb34de2))
+* **k8s:** enrich get output with topology, features, node groups and load balancers ([f01adce](https://github.com/CleverCloud/clever-tools/commit/f01adce97cedb9fecc79f5994ec0e471d9e143f5))
+* **otoroshi:** add open swaggerui subcommand ([80ee4f8](https://github.com/CleverCloud/clever-tools/commit/80ee4f817cdef10b354d24ee2e49d637c9df620a))
+* **otoroshi:** add Swagger URL in get command ([9007848](https://github.com/CleverCloud/clever-tools/commit/90078485ec4290003a1f1b812d5bfc869ea74459))
+* **parsers:** add flavor:count parser ([6024a99](https://github.com/CleverCloud/clever-tools/commit/6024a992b80b768fa55ed85f3db95d1915e74ce9))
+
 ## [4.8.0](https://github.com/CleverCloud/clever-tools/compare/4.7.1...4.8.0) (2026-04-09)
 
 

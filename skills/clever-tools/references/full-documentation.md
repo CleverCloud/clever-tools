@@ -1478,7 +1478,7 @@ clever k8s
 
 **Description:** Show recent deployment events of a Kubernetes cluster
 
-**Since:** unreleased
+**Since:** 4.9.0
 
 **Usage**
 ```
@@ -1636,7 +1636,7 @@ clever k8s list [options]
 
 **Description:** Manage Kubernetes node groups
 
-**Since:** unreleased
+**Since:** 4.9.0
 
 **Usage**
 ```
@@ -1647,7 +1647,7 @@ clever k8s nodegroups
 
 **Description:** Create a node group on a Kubernetes cluster
 
-**Since:** unreleased
+**Since:** 4.9.0
 
 **Usage**
 ```
@@ -1675,7 +1675,7 @@ flavor:count                            Node group flavor and target node count 
 
 **Description:** Delete a node group from a Kubernetes cluster
 
-**Since:** unreleased
+**Since:** 4.9.0
 
 **Usage**
 ```
@@ -1698,7 +1698,7 @@ nodegroup-id|nodegroup-name             Kubernetes node group ID or name
 
 **Description:** Get information about a Kubernetes node group
 
-**Since:** unreleased
+**Since:** 4.9.0
 
 **Usage**
 ```
@@ -1721,7 +1721,7 @@ nodegroup-id|nodegroup-name             Kubernetes node group ID or name
 
 **Description:** List the node groups of a Kubernetes cluster
 
-**Since:** unreleased
+**Since:** 4.9.0
 
 **Usage**
 ```
@@ -1743,7 +1743,7 @@ cluster-id|cluster-name                 Kubernetes cluster ID or name
 
 **Description:** Update a node group on a Kubernetes cluster
 
-**Since:** unreleased
+**Since:** 4.9.0
 
 **Usage**
 ```
@@ -1772,7 +1772,7 @@ nodegroup-id|nodegroup-name             Kubernetes node group ID or name
 
 **Description:** Get the Kubernetes quota, usage and remaining of an organisation
 
-**Since:** unreleased
+**Since:** 4.9.0
 
 **Usage**
 ```
@@ -1789,7 +1789,7 @@ clever k8s quota [options]
 
 **Description:** Update a Kubernetes cluster metadata or features
 
-**Since:** unreleased
+**Since:** 4.9.0
 
 **Usage**
 ```
@@ -1815,7 +1815,7 @@ cluster-id|cluster-name                 Kubernetes cluster ID or name
 
 **Description:** Check a Kubernetes cluster deployed version
 
-**Since:** unreleased
+**Since:** 4.9.0
 
 **Usage**
 ```
@@ -1837,7 +1837,7 @@ cluster-id|cluster-name                 Kubernetes cluster ID or name
 
 **Description:** Check a Kubernetes cluster deployed version
 
-**Since:** unreleased
+**Since:** 4.9.0
 
 **Usage**
 ```
@@ -1859,7 +1859,7 @@ cluster-id|cluster-name                 Kubernetes cluster ID or name
 
 **Description:** Update a Kubernetes cluster to a target version
 
-**Since:** unreleased
+**Since:** 4.9.0
 
 **Usage**
 ```
@@ -3070,7 +3070,7 @@ addon-id|addon-name    Add-on ID (or name, if unambiguous)
 
 **Description:** Open the Otoroshi Swagger UI in your browser
 
-**Since:** unreleased
+**Since:** 4.9.0
 
 **Usage**
 ```
