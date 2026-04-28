@@ -1,6 +1,7 @@
 import { spawn } from 'node:child_process';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import stripAnsiLib from 'strip-ansi';
 
 /**
  * @typedef {import('./cli-runner.types.js').CliRunnerOptions} CliRunnerOptions
@@ -19,10 +20,9 @@ const DEFAULT_OPTIONS = {
   expectExitCode: 0,
   stdin: null,
   interactions: null,
+  stripAnsi: true,
 };
 const DEFAULT_INTERACTION_TIMEOUT_MS = 5000;
-// Standard ANSI escape regex (CSI + OSC), equivalent to strip-ansi v6.
-const ANSI_REGEX = /[\x1B\x9B][[\]()#;?]*(?:(?:[a-zA-Z\d]*(?:;[a-zA-Z\d]*)*)?\x07|(?:\d{1,4}(?:;\d{0,4})*)?[\dA-PR-TZcf-nq-uy=><~])/g;
 
 /**
  * Run the CLI binary with the given arguments
@@ -31,7 +31,10 @@ const ANSI_REGEX = /[\x1B\x9B][[\]()#;?]*(?:(?:[a-zA-Z\d]*(?:;[a-zA-Z\d]*)*)?\x0
  * @returns {Promise<CliResult>}
  */
 export async function runCli(args, options = {}) {
-  const { env, cwd, timeout, expectExitCode, stdin, interactions } = { ...DEFAULT_OPTIONS, ...options };
+  const { env, cwd, timeout, expectExitCode, stdin, interactions, stripAnsi } = {
+    ...DEFAULT_OPTIONS,
+    ...options,
+  };
 
   const workingDir = cwd ?? PROJECT_ROOT;
 
@@ -52,6 +55,18 @@ export async function runCli(args, options = {}) {
     const queue = Array.isArray(interactions) ? [...interactions] : [];
     /** @type {NodeJS.Timeout | null} */
     let stepTimer = null;
+    // Once the last interaction has been answered, slice the captured streams from these
+    // offsets so result.stdout/stderr only contain what the command itself produced.
+    // -1 means "no slice" (no interactions, or the last answer was never sent).
+    let stdoutSliceFrom = -1;
+    let stderrSliceFrom = -1;
+    // After the last answer is sent, the prompt library writes one trailing line
+    // (e.g. "✔ Enter your password: *******\n") to whichever stream renders prompts.
+    // Skip past the next "\n" we observe on that stream so that line is dropped too.
+    /** @type {'stdout' | 'stderr' | null} */
+    let promptEndStream = null;
+    /** @type {'stdout' | 'stderr' | null} */
+    let lastChunkStream = null;
 
     const overallTimer = setTimeout(() => {
       child.kill('SIGKILL');
@@ -109,7 +124,29 @@ export async function runCli(args, options = {}) {
         if (queue.length > 0) {
           armStepTimer();
         } else {
+          // Last answer sent: mark current positions; everything after is the command's
+          // own output (modulo the trailing prompt confirmation that the prompt library
+          // emits on the same stream that rendered the prompt).
+          stdoutSliceFrom = stdout.length;
+          stderrSliceFrom = stderr.length;
+          promptEndStream = lastChunkStream;
           tryEndStdin();
+        }
+      }
+    }
+
+    function advancePromptEndMarker() {
+      if (promptEndStream === 'stdout') {
+        const idx = stdout.indexOf('\n', stdoutSliceFrom);
+        if (idx >= 0) {
+          stdoutSliceFrom = idx + 1;
+          promptEndStream = null;
+        }
+      } else if (promptEndStream === 'stderr') {
+        const idx = stderr.indexOf('\n', stderrSliceFrom);
+        if (idx >= 0) {
+          stderrSliceFrom = idx + 1;
+          promptEndStream = null;
         }
       }
     }
@@ -117,14 +154,18 @@ export async function runCli(args, options = {}) {
     child.stdout.on('data', (buf) => {
       const text = buf.toString();
       stdout += text;
-      combined += text.replace(ANSI_REGEX, '');
+      combined += stripAnsiLib(text);
+      lastChunkStream = 'stdout';
       processBuffer();
+      advancePromptEndMarker();
     });
     child.stderr.on('data', (buf) => {
       const text = buf.toString();
       stderr += text;
-      combined += text.replace(ANSI_REGEX, '');
+      combined += stripAnsiLib(text);
+      lastChunkStream = 'stderr';
       processBuffer();
+      advancePromptEndMarker();
     });
 
     // Swallow EPIPE on stdin once the child exits early; the real cause surfaces via 'close'.
@@ -154,7 +195,11 @@ export async function runCli(args, options = {}) {
         return;
       }
       const exitCode = typeof code === 'number' ? code : 1;
-      resolveResult({ stdout: stdout.trim(), stderr: stderr.trim(), exitCode });
+      const slicedStdout = stdoutSliceFrom >= 0 ? stdout.slice(stdoutSliceFrom) : stdout;
+      const slicedStderr = stderrSliceFrom >= 0 ? stderr.slice(stderrSliceFrom) : stderr;
+      const finalStdout = stripAnsi ? stripAnsiLib(slicedStdout) : slicedStdout;
+      const finalStderr = stripAnsi ? stripAnsiLib(slicedStderr) : slicedStderr;
+      resolveResult({ stdout: finalStdout.trim(), stderr: finalStderr.trim(), exitCode });
     });
 
     if (queue.length === 0) {

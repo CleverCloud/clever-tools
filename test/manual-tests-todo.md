@@ -17,8 +17,8 @@ Tests that should be done manually:
 - `ssh`
   - The single-instance and multi-instance-with-TTY paths spawn `ssh` interactively (and `selectAnswer` for the latter).
   - No example of mocking `child_process` or inquirer-style prompts; tests cover the option-validation and pre-spawn error paths only.
-  - => we may need `cli-testing-library` to test the interactive prompts.
-  - => for ssh interaction, use Embedded SSH server with `ssh2`
+  - => cli-runner now have all what we need to handle interactions
+  - => for ssh, we could use Embedded SSH server with `ssh2`
 - `deploy`
   - Needs a real git repo (`Git.get()`, `git.push`, `git.addRemote`, shallow detection) plus deployment-event watching.
   - No example of mocking `Git`.
@@ -44,14 +44,15 @@ Tests that should be done manually:
 - `tokens create`
   - Interactive `promptSecret` for password + TOTP 2FA via stdin.
   - No example of feeding stdin.
-  - look at `env import` test for inspiration (stdin feeding)
+  - => look at `env import` test for inspiration (stdin feeding)
 - `oauth-consumers create` / `update`
   - `promptTextOption` + `promptRights` when options are missing.
   - Same interactive-stdin issue.
+  - => cli-runner now have all what we need
 - `env import`, `published-config import`, `config-provider import`
   - Read env vars **from stdin**.
   - `execFile` in `cli-runner.js` doesn't pipe stdin.
-  - look at `env import` test for inspiration.
+  - => cli-runner now have all what we need
 - `database backups download`
   - `fetch`es a signed URL that is **not** on `API_HOST` and streams it to a file.
   - No example of mocking a second host or of asserting streamed output on disk.
@@ -66,3 +67,4 @@ Tests that should be done manually:
 - `delete` / `emails remove-all` / `oauth-consumers delete` / `ssh-keys remove-all` / `k8s delete` / `addon delete` (interactive path)
   - All use `confirm` / `confirmAnswer` prompts.
   - The `--yes` path is testable, but the interactive path isn't demonstrated.
+  - => cli-runner now have all what we need

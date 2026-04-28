@@ -124,6 +124,7 @@ export class CliMockScenario extends ApiMockScenario {
       /** @type {Record<string, string>} */
       const env = {
         API_HOST: this._mockClient.baseUrl,
+        AUTH_BRIDGE_HOST: this._mockClient.baseUrl,
         CONFIGURATION_FILE: this.#fileSystemClient.getConfigFile(),
         EXPERIMENTAL_FEATURES_FILE: this.#fileSystemClient.getExperimentalFeaturesFile(),
       };
