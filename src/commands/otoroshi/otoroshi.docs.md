@@ -108,6 +108,20 @@ clever otoroshi open logs <addon-id|addon-name>
 |---|---|
 |`addon-id|addon-name`|Add-on ID (or name, if unambiguous)|
 
+## ➡️ `clever otoroshi open swaggerui` <kbd>Since unreleased</kbd>
+
+Open the Otoroshi Swagger UI in your browser
+
+```bash
+clever otoroshi open swaggerui <addon-id|addon-name>
+```
+
+### 📥 Arguments
+
+|Name|Description|
+|---|---|
+|`addon-id|addon-name`|Add-on ID (or name, if unambiguous)|
+
 ## ➡️ `clever otoroshi open webui` <kbd>Since 3.13.0</kbd>
 
 Open the Otoroshi admin console in your browser

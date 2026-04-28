@@ -199,6 +199,19 @@ export async function operatorOpenWebUi(provider, addonIdOrName) {
 }
 
 /**
+ * Open an Otoroshi Swagger UI in the browser
+ * @param {{ addon_name?: string, operator_id?: string, addon_id?: string }} addonIdOrName The operator's name or ID
+ * @returns {Promise<void>}
+ */
+export async function operatorOpenSwaggerUi(addonIdOrName) {
+  const operator = await Operator.getDetails('otoroshi', addonIdOrName);
+  await openBrowser(
+    operator.api.swaggerUrl,
+    `Opening ${styleText('blue', operator.addonId)} Swagger UI in the browser…`,
+  );
+}
+
+/**
  * Reboot an operator
  * @param {object} params The command's parameters
  * @param {string} provider The operator's provider
@@ -257,7 +270,8 @@ export async function operatorPrint(provider, addonIdOrName, format = 'human') {
   dataToPrint['Access URL'] = operator.accessUrl;
 
   if (provider === 'otoroshi') {
-    dataToPrint['API URL'] = operator.api.url;
+    dataToPrint['Swagger URL'] = operator.api.swaggerUrl;
+    dataToPrint['API endpoint'] = operator.api.url;
   }
 
   if (['otoroshi', 'keycloak'].includes(provider)) {
