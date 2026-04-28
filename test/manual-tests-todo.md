@@ -8,16 +8,21 @@ Tests that should be done manually:
 - `login`
   - Opens a browser (`open` module), polls an OAuth endpoint with `globalThis.fetch` on the API; also an interactive "already-logged-in" dialog.
   - No example of intercepting `open` or of polling-based flows.
+  - => done
 - `curl`
   - Spawns `curl` as a subprocess with `stdio: 'inherit'`.
   - No example of subprocess assertions.
   - The help branch and the "wrong host" branch are testable; the OAuth-injected curl call is not.
+  - => done
 - `ssh`
-  - Spawns `ssh` interactively, uses `selectAnswer` prompt.
-  - No example of mocking `child_process` or inquirer-style prompts.
+  - The single-instance and multi-instance-with-TTY paths spawn `ssh` interactively (and `selectAnswer` for the latter).
+  - No example of mocking `child_process` or inquirer-style prompts; tests cover the option-validation and pre-spawn error paths only.
+  - => we may need `cli-testing-library` to test the interactive prompts.
+  - => for ssh interaction, use Embedded SSH server with `ssh2`
 - `deploy`
   - Needs a real git repo (`Git.get()`, `git.push`, `git.addRemote`, shallow detection) plus deployment-event watching.
   - No example of mocking `Git`.
+  - => use `git-http-mock-server` to mock a ssh server
 - `restart`
   - Calls `git.resolveFullCommitId(commit)` against the local `.git`, then watches deployment logs via `Log.watchDeploymentAndDisplayLogs` (deployment state machine over SSE + HTTP polling).
   - Partial overlap with `logs` example, but the state machine is new territory.
@@ -26,12 +31,14 @@ Tests that should be done manually:
   - Doublure (in the node_modules I checked) exposes HTTP + SSE mocks only — no WS.
   - Non-follow mode is fine.
   - Confirm whether the tool supports WS before including.
+  - => skip the follow mode for now
 - `accesslogs`
   - Uses `ApplicationAccessLogStream` (custom client stream, throttled, SIGINT handling).
   - Probably testable via SSE mocks, but the exact endpoint + event shape aren't shown in existing tests.
 - `kv`
   - Opens an `ioredis` TLS connection to the add-on.
   - No Redis mock fixture exists.
+  - => done
 - `tokens create`
   - Interactive `promptSecret` for password + TOTP 2FA via stdin.
   - No example of feeding stdin.
