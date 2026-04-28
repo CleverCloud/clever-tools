@@ -72,7 +72,7 @@ export const tokensCreateCommand = defineCommand({
     const createdToken = await createApiToken(tokenData)
       .then(sendToAuthBridge)
       .catch((error) => {
-        const errorCode = error?.cause?.responseBody?.code;
+        const errorCode = error?.responseBody?.code;
         if (errorCode === 'invalid-credential') {
           throw new Error('Invalid credentials, check your password');
         }

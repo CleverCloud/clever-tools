@@ -54,7 +54,7 @@ describe('logs command', () => {
         ],
         delayBetween: 10,
       })
-      .thenRunCli(['logs'])
+      .thenRunCli(['logs'], { stripAnsi: false })
       .verify((calls) => {
         assert.strictEqual(calls.count, 1);
         assert.strictEqual(calls.first.pathParams?.ownerId, 'orga_xxx');
