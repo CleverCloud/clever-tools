@@ -161,6 +161,11 @@ import { publishedConfigRmCommand } from './published-config/published-config.rm
 import { publishedConfigSetCommand } from './published-config/published-config.set.command.js';
 import { restartCommand } from './restart/restart.command.js';
 import { scaleCommand } from './scale/scale.command.js';
+import { serviceTokensCommand } from './service-tokens/service-tokens.command.js';
+import { serviceTokensCreateCommand } from './service-tokens/service-tokens.create.command.js';
+import { serviceTokensGetCommand } from './service-tokens/service-tokens.get.command.js';
+import { serviceTokensListCommand } from './service-tokens/service-tokens.list.command.js';
+import { serviceTokensRevokeCommand } from './service-tokens/service-tokens.revoke.command.js';
 import { serviceCommand } from './service/service.command.js';
 import { serviceLinkAddonCommand } from './service/service.link-addon.command.js';
 import { serviceLinkAppCommand } from './service/service.link-app.command.js';
@@ -494,6 +499,15 @@ export const globalCommands = {
       'link-app': serviceLinkAppCommand,
       'unlink-addon': serviceUnlinkAddonCommand,
       'unlink-app': serviceUnlinkAppCommand,
+    },
+  ],
+  'service-tokens': [
+    serviceTokensCommand,
+    {
+      create: serviceTokensCreateCommand,
+      get: serviceTokensGetCommand,
+      list: serviceTokensListCommand,
+      revoke: serviceTokensRevokeCommand,
     },
   ],
   ssh: sshCommand,
