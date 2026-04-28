@@ -3,6 +3,7 @@ export interface CliRunnerOptions {
   cwd: string;
   timeout: number;
   expectExitCode: number | null;
+  stdin: string | Buffer | null;
 }
 
 export interface CliResult {

@@ -26,6 +26,7 @@ Tests that should be done manually:
 - `restart`
   - Calls `git.resolveFullCommitId(commit)` against the local `.git`, then watches deployment logs via `Log.watchDeploymentAndDisplayLogs` (deployment state machine over SSE + HTTP polling).
   - Partial overlap with `logs` example, but the state machine is new territory.
+  - => now with what we've done in `deploy` command test, you'll be able to do this one too
 - `activity --follow`
   - Uses a **WebSocket** `EventsStream`.
   - Doublure (in the node_modules I checked) exposes HTTP + SSE mocks only — no WS.
@@ -35,28 +36,33 @@ Tests that should be done manually:
 - `accesslogs`
   - Uses `ApplicationAccessLogStream` (custom client stream, throttled, SIGINT handling).
   - Probably testable via SSE mocks, but the exact endpoint + event shape aren't shown in existing tests.
+  - => same tests than for logs
 - `kv`
   - Opens an `ioredis` TLS connection to the add-on.
   - No Redis mock fixture exists.
-  - => done
+  - => Redis fixture is ready now
 - `tokens create`
   - Interactive `promptSecret` for password + TOTP 2FA via stdin.
   - No example of feeding stdin.
+  - look at `env import` test for inspiration (stdin feeding)
 - `oauth-consumers create` / `update`
   - `promptTextOption` + `promptRights` when options are missing.
   - Same interactive-stdin issue.
 - `env import`, `published-config import`, `config-provider import`
   - Read env vars **from stdin**.
   - `execFile` in `cli-runner.js` doesn't pipe stdin.
+  - look at `env import` test for inspiration.
 - `database backups download`
   - `fetch`es a signed URL that is **not** on `API_HOST` and streams it to a file.
   - No example of mocking a second host or of asserting streamed output on disk.
+  - => if the first API call returns a URL pointing to the mocked API host, it's ok
 - `ssh-keys add`
   - Reads an arbitrary path from the real filesystem (the user's `.pub`).
   - `withAppFile` only writes inside the mocked app dir; no example for host-fs access.
 - `open` / `emails open` / `profile open` / `console` / `oauth-consumers open` / `ssh-keys open` / `config-provider open`
   - All call `openBrowser` (npm `open` module).
   - No example asserting a browser side-effect or intercepting it.
+  - => take inspiration from `login` command test
 - `delete` / `emails remove-all` / `oauth-consumers delete` / `ssh-keys remove-all` / `k8s delete` / `addon delete` (interactive path)
   - All use `confirm` / `confirmAnswer` prompts.
   - The `--yes` path is testable, but the interactive path isn't demonstrated.
