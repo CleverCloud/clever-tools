@@ -7,6 +7,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { runCli } from './cli-runner.js';
+import { seedAppGitRepo } from './fixtures/git-repo.js';
 
 /**
  * @typedef {import('./cli-hooks.types.js').CliHooks} CliHooks
@@ -14,6 +15,8 @@ import { runCli } from './cli-runner.js';
  * @typedef {import('./cli-hooks.types.js').FileMockContent} FileMockContent
  * @typedef {import('./cli-runner.types.js').CliRunnerOptions} CliRunnerOptions
  * @typedef {import('./cli-runner.types.js').CliResult} CliResult
+ * @typedef {import('./fixtures/git-repo.js').SeedAppGitRepoOptions} SeedAppGitRepoOptions
+ * @typedef {import('./fixtures/git-repo.js').SeedAppGitRepoResult} SeedAppGitRepoResult
  * @typedef {import('@clevercloud/doublure').MockClient} Client
  * @typedef {import('@clevercloud/doublure').Mock} Mock
  */
@@ -95,6 +98,30 @@ export class CliMockScenario extends ApiMockScenario {
    */
   withExperimentalFeaturesFile(content) {
     this.#fileMocks.push({ type: 'experimental-features', content });
+    return this;
+  }
+
+  /**
+   * Initialize a real git repository in the scenario's app directory with a single
+   * initial commit. Runs synchronously and (if provided) calls `onSeeded` with the
+   * seed result before returning, so callers can capture `headCommit`/`dir` into
+   * local variables without breaking the fluent chain.
+   *
+   * @example
+   * let headCommit;
+   * await newScenario()
+   *   .withAppConfigFile(...)
+   *   .withAppGitRepo({}, (seed) => { headCommit = seed.headCommit; })
+   *   .when(...).respond({ body: { commit: headCommit } })  // available here
+   *   ...;
+   *
+   * @param {SeedAppGitRepoOptions} [opts]
+   * @param {(seed: SeedAppGitRepoResult & { dir: string }) => void} [onSeeded]
+   */
+  withAppGitRepo(opts = {}, onSeeded) {
+    const dir = this.#fileSystemClient.getAppDirectory();
+    const repo = seedAppGitRepo(dir, opts);
+    onSeeded?.({ ...repo, dir });
     return this;
   }
 
