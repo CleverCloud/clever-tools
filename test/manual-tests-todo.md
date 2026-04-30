@@ -21,7 +21,7 @@ Tests that should be done manually:
 - `deploy`
   - Needs a real git repo (`Git.get()`, `git.push`, `git.addRemote`, shallow detection) plus deployment-event watching.
   - No example of mocking `Git`.
-  - => use `git-http-mock-server` to mock a ssh server
+  - => done
 - `restart`
   - Calls `git.resolveFullCommitId(commit)` against the local `.git`, then watches deployment logs via `Log.watchDeploymentAndDisplayLogs` (deployment state machine over SSE + HTTP polling).
   - Partial overlap with `logs` example, but the state machine is new territory.
