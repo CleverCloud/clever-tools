@@ -18,7 +18,7 @@ export async function sendToApi(requestParams) {
 }
 
 export async function sendToAuthBridge(requestParams) {
-  return executeRequest(requestParams, { API_HOST: config.AUTH_BRIDGE_HOST });
+  return executeRequest(requestParams, { API_HOST: config.get('AUTH_BRIDGE_HOST') });
 }
 
 /**
@@ -54,12 +54,12 @@ export function sendToApiWithConfig(customConfig) {
  * @returns {Promise<unknown>}
  */
 async function executeRequest(requestParams, customConfig = {}) {
-  const host = customConfig.API_HOST ?? config.API_HOST;
+  const host = customConfig.API_HOST ?? config.get('API_HOST');
   const tokens = {
-    OAUTH_CONSUMER_KEY: customConfig.OAUTH_CONSUMER_KEY ?? config.OAUTH_CONSUMER_KEY,
-    OAUTH_CONSUMER_SECRET: customConfig.OAUTH_CONSUMER_SECRET ?? config.OAUTH_CONSUMER_SECRET,
-    API_OAUTH_TOKEN: customConfig.API_OAUTH_TOKEN ?? config.token,
-    API_OAUTH_TOKEN_SECRET: customConfig.API_OAUTH_TOKEN_SECRET ?? config.secret,
+    OAUTH_CONSUMER_KEY: customConfig.OAUTH_CONSUMER_KEY ?? config.get('OAUTH_CONSUMER_KEY'),
+    OAUTH_CONSUMER_SECRET: customConfig.OAUTH_CONSUMER_SECRET ?? config.get('OAUTH_CONSUMER_SECRET'),
+    API_OAUTH_TOKEN: customConfig.API_OAUTH_TOKEN ?? config.activeProfile?.token,
+    API_OAUTH_TOKEN_SECRET: customConfig.API_OAUTH_TOKEN_SECRET ?? config.activeProfile?.secret,
   };
 
   return Promise.resolve(requestParams)
@@ -94,12 +94,12 @@ export function processError(error) {
 
 export function getHostAndTokens() {
   return {
-    apiHost: config.API_HOST,
+    apiHost: config.get('API_HOST'),
     tokens: {
-      OAUTH_CONSUMER_KEY: config.OAUTH_CONSUMER_KEY,
-      OAUTH_CONSUMER_SECRET: config.OAUTH_CONSUMER_SECRET,
-      API_OAUTH_TOKEN: config.token,
-      API_OAUTH_TOKEN_SECRET: config.secret,
+      OAUTH_CONSUMER_KEY: config.get('OAUTH_CONSUMER_KEY'),
+      OAUTH_CONSUMER_SECRET: config.get('OAUTH_CONSUMER_SECRET'),
+      API_OAUTH_TOKEN: config.activeProfile?.token,
+      API_OAUTH_TOKEN_SECRET: config.activeProfile?.secret,
     },
   };
 }

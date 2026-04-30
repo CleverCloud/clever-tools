@@ -18,8 +18,8 @@ export class GitIsomorphic extends Git {
 
   #onAuth() {
     return {
-      username: config.token,
-      password: config.secret,
+      username: config.activeProfile?.token,
+      password: config.activeProfile?.secret,
     };
   }
 
