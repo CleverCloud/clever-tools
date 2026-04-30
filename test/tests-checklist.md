@@ -20,5 +20,13 @@
 - if a file is written: .verifyFiles(...) its content
 - if logs/SSE are streamed: follow the logs.command.test.js pattern (events, delayBetween, close)
 - fixtures
-  - when you see that you need to create fixtures, try to put them in /test/fixtures/ directory
-- when some env vars modify command behavior, test must cover that with custom env var
+  - when you see that you need to create fixtures that are already used somewhere, put them in /test/fixtures/ directory
+- when some env vars modify command behavior, tests must cover that with custom env var
+- Ids resolutions
+  - when passing orga, command may allow to pass an orga id or an orga name. always test the combinations (with or without ids in cache)
+  - when passing addon id, command may allow to pass real addon id or addon name. always test the combinations (with or without ids in cache)
+  - when passing app id, command may allow to pass app name. always test the combinations (with or without ids in cache)
+  - test non-passing cases:
+    - when ids passed to command do not exist nor in cache nor in API
+    - when both orga and app/addon are passed, and app/addon exists but not inside that orga
+  - => see database.backups.download.command.test.js

@@ -102,6 +102,14 @@ export class CliMockScenario extends ApiMockScenario {
   }
 
   /**
+   * @param {FileMockContent} content
+   */
+  withIdsCacheFile(content) {
+    this.#fileMocks.push({ type: 'ids-cache', content });
+    return this;
+  }
+
+  /**
    * Initialize a real git repository in the scenario's app directory with a single
    * initial commit. Runs synchronously and (if provided) calls `onSeeded` with the
    * seed result before returning, so callers can capture `headCommit`/`dir` into
@@ -154,6 +162,7 @@ export class CliMockScenario extends ApiMockScenario {
         AUTH_BRIDGE_HOST: this._mockClient.baseUrl,
         CONFIGURATION_FILE: this.#fileSystemClient.getConfigFile(),
         EXPERIMENTAL_FEATURES_FILE: this.#fileSystemClient.getExperimentalFeaturesFile(),
+        IDS_CACHE_FILE: this.#fileSystemClient.getIdsCacheFile(),
       };
 
       const workingDir = fs.existsSync(this.#fileSystemClient.getAppDirectory())
@@ -301,12 +310,26 @@ class FileSystemRead {
       throw new Error(`Failed to parse JSON file "${file}": ${e.message}`);
     }
   }
+
+  readIdsCacheFile() {
+    const file = this.#fileSystemClient.getIdsCacheFile();
+    if (file == null) {
+      throw new Error('ids cache file does not exist yet — seed it with withIdsCacheFile');
+    }
+    const str = fs.readFileSync(file, 'utf-8');
+    try {
+      return JSON.parse(str);
+    } catch (e) {
+      throw new Error(`Failed to parse JSON file "${file}": ${e.message}`);
+    }
+  }
 }
 
 const APP_DIR = 'app';
 const CONFIG_DIR = 'config';
 const CONFIG_FILE = 'clever-tools.json';
 const EXPERIMENTAL_FEATURES_FILE = 'clever-tools-experimental-features.json';
+const IDS_CACHE_FILE = 'ids-cache.json';
 
 class FileSystemClient {
   /** @type {string} */
@@ -328,6 +351,10 @@ class FileSystemClient {
     return path.resolve(this.#workDirectory, `${CONFIG_DIR}/${EXPERIMENTAL_FEATURES_FILE}`);
   }
 
+  getIdsCacheFile() {
+    return path.resolve(this.#workDirectory, `${CONFIG_DIR}/${IDS_CACHE_FILE}`);
+  }
+
   /**
    * @param {FileMock} fileMock
    */
@@ -341,6 +368,10 @@ class FileSystemClient {
       const configDir = path.resolve(this.#workDirectory, CONFIG_DIR);
       this.#createDirIfNotExists(configDir);
       filePath = path.resolve(configDir, EXPERIMENTAL_FEATURES_FILE);
+    } else if (fileMock.type === 'ids-cache') {
+      const configDir = path.resolve(this.#workDirectory, CONFIG_DIR);
+      this.#createDirIfNotExists(configDir);
+      filePath = path.resolve(configDir, IDS_CACHE_FILE);
     } else {
       const appDir = path.resolve(this.#workDirectory, APP_DIR);
       filePath = path.resolve(appDir, fileMock.path);
