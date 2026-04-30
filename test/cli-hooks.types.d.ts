@@ -11,7 +11,7 @@ export type NewCliScenario = (() => CliMockScenario) & {
   readonly mockClient: MockClient;
 };
 
-export type FileMock = AppFileMock | ConfigFileMock | ExperimentalFeaturesFileMock;
+export type FileMock = AppFileMock | ConfigFileMock | ExperimentalFeaturesFileMock | IdsCacheFileMock;
 
 export type FileMockContent = string | object;
 
@@ -28,5 +28,10 @@ export interface ConfigFileMock {
 
 export interface ExperimentalFeaturesFileMock {
   type: 'experimental-features';
+  content: FileMockContent;
+}
+
+export interface IdsCacheFileMock {
+  type: 'ids-cache';
   content: FileMockContent;
 }

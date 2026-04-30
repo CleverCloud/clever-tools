@@ -1,6 +1,8 @@
 node_modules/
 .clever.json
 build/
+coverage/
+.nyc_output/
 .idea/
 .s3cfg*
 *.gpg.key
