@@ -1,0 +1,32 @@
+- we should test all combinations of options and args.
+- we should check non-passing cases
+  - invalid options
+  - invalid args
+  - API errors
+- we should check when API returns empty collections (in case API should return a collection of items)
+- for commands using `AppConfiguration.addLinkedApplication`
+  - we should check when not in an app directory
+  - we should check when app has multiple alias but no alias is given
+  - we should check when app has multiple alias with an unknown alias is given
+  - we should check when app has multiple alias with an existing alias is provided
+  - we should check when app has one app alias
+- for commands asking for addonIdOrName, appIdOrName, orgaIdOrName
+  - test all combinations of id or name of each
+- we should always check when user not connected
+- we should always check when no profile found
+- when defining the mocked content of API responses
+  - look at the code to see what's used
+  - you can also look at the js client source code at https://github.com/CleverCloud/clever-client.js
+- if a file is written: .verifyFiles(...) its content
+- if logs/SSE are streamed: follow the logs.command.test.js pattern (events, delayBetween, close)
+- fixtures
+  - when you see that you need to create fixtures that are already used somewhere, put them in /test/fixtures/ directory
+- when some env vars modify command behavior, tests must cover that with custom env var
+- Ids resolutions
+  - when passing orga, command may allow to pass an orga id or an orga name. always test the combinations (with or without ids in cache)
+  - when passing addon id, command may allow to pass real addon id or addon name. always test the combinations (with or without ids in cache)
+  - when passing app id, command may allow to pass app name. always test the combinations (with or without ids in cache)
+  - test non-passing cases:
+    - when ids passed to command do not exist nor in cache nor in API
+    - when both orga and app/addon are passed, and app/addon exists but not inside that orga
+  - => see database.backups.download.command.test.js
