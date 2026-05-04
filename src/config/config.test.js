@@ -6,23 +6,6 @@ import { after, beforeEach, describe, it, mock } from 'node:test';
  * @typedef {import('./config.js').ConfigData} ConfigData
  */
 
-/**
- * Read a config value from either a plain object (original) or a reglage Config (.get()).
- * @param {Config} cfg
- * @param {keyof ConfigData} key
- */
-function get(cfg, key) {
-  return cfg.get(key);
-}
-
-/**
- * @param {Config} cfg
- * @returns {Array<import('./config.js').Profile>}
- */
-function getProfiles(cfg) {
-  return cfg.profiles;
-}
-
 /** @type {unknown} */
 let fakeConfigFileData;
 
@@ -97,62 +80,72 @@ describe('config', () => {
   describe('defaults (no config file, no env overrides)', () => {
     it('should have default API_HOST', async () => {
       const { config } = await loadFreshConfig();
-      assert.strictEqual(get(config, 'API_HOST'), 'https://api.clever-cloud.com');
+      assert.strictEqual(config.get('API_HOST'), 'https://api.clever-cloud.com');
     });
 
     it('should have default AUTH_BRIDGE_HOST', async () => {
       const { config } = await loadFreshConfig();
-      assert.strictEqual(get(config, 'AUTH_BRIDGE_HOST'), 'https://api-bridge.clever-cloud.com');
+      assert.strictEqual(config.get('AUTH_BRIDGE_HOST'), 'https://api-bridge.clever-cloud.com');
     });
 
     it('should have default CONSOLE_URL', async () => {
       const { config } = await loadFreshConfig();
-      assert.strictEqual(get(config, 'CONSOLE_URL'), 'https://console.clever-cloud.com');
+      assert.strictEqual(config.get('CONSOLE_URL'), 'https://console.clever-cloud.com');
     });
 
     it('should have default DOC_URL', async () => {
       const { config } = await loadFreshConfig();
-      assert.strictEqual(get(config, 'DOC_URL'), 'https://www.clever.cloud/developers/doc');
+      assert.strictEqual(config.get('DOC_URL'), 'https://www.clever.cloud/developers/doc');
     });
 
     it('should have default OAUTH_CONSUMER_KEY', async () => {
       const { config } = await loadFreshConfig();
-      assert.strictEqual(get(config, 'OAUTH_CONSUMER_KEY'), 'T5nFjKeHH4AIlEveuGhB5S3xg8T19e');
+      assert.strictEqual(config.get('OAUTH_CONSUMER_KEY'), 'T5nFjKeHH4AIlEveuGhB5S3xg8T19e');
     });
 
     it('should have default SSH_GATEWAY', async () => {
       const { config } = await loadFreshConfig();
-      assert.strictEqual(get(config, 'SSH_GATEWAY'), 'ssh@sshgateway-clevercloud-customers.services.clever-cloud.com');
+      assert.strictEqual(config.get('SSH_GATEWAY'), 'ssh@sshgateway-clevercloud-customers.services.clever-cloud.com');
     });
   });
 
   describe('derived keys from CONSOLE_URL', () => {
     it('should derive CONSOLE_TOKEN_URL from default CONSOLE_URL', async () => {
       const { config } = await loadFreshConfig();
-      assert.strictEqual(get(config, 'CONSOLE_TOKEN_URL'), 'https://console.clever-cloud.com/cli-oauth');
+      assert.strictEqual(config.get('CONSOLE_TOKEN_URL'), 'https://console.clever-cloud.com/cli-oauth');
     });
 
     it('should derive GOTO_URL from default CONSOLE_URL', async () => {
       const { config } = await loadFreshConfig();
-      assert.strictEqual(get(config, 'GOTO_URL'), 'https://console.clever-cloud.com/goto');
+      assert.strictEqual(config.get('GOTO_URL'), 'https://console.clever-cloud.com/goto');
     });
 
     it('should derive from custom CONSOLE_URL env var', async () => {
       const { config } = await loadFreshConfig({ CONSOLE_URL: 'https://custom-console.example.com' });
-      assert.strictEqual(get(config, 'CONSOLE_TOKEN_URL'), 'https://custom-console.example.com/cli-oauth');
-      assert.strictEqual(get(config, 'GOTO_URL'), 'https://custom-console.example.com/goto');
+      assert.strictEqual(config.get('CONSOLE_TOKEN_URL'), 'https://custom-console.example.com/cli-oauth');
+      assert.strictEqual(config.get('GOTO_URL'), 'https://custom-console.example.com/goto');
+    });
+
+    it('should not derive CONSOLE_TOKEN_URL when not null', async () => {
+      const { config } = await loadFreshConfig({ CONSOLE_TOKEN_URL: 'https://token.example.com' });
+      assert.strictEqual(config.get('CONSOLE_TOKEN_URL'), 'https://token.example.com');
+    });
+
+    it('should not derive GOTO_URL when not null', async () => {
+      const { config } = await loadFreshConfig({ GOTO_URL: 'https://goto.example.com' });
+      assert.strictEqual(config.get('GOTO_URL'), 'https://goto.example.com');
     });
   });
 
   describe('env vars override defaults', () => {
     it('should override API_HOST from env', async () => {
       const { config } = await loadFreshConfig({ API_HOST: 'https://custom-api.example.com' });
-      assert.strictEqual(get(config, 'API_HOST'), 'https://custom-api.example.com');
+      assert.strictEqual(config.get('API_HOST'), 'https://custom-api.example.com');
     });
 
     it('should override SSH_GATEWAY from env', async () => {
       const { config } = await loadFreshConfig({ SSH_GATEWAY: 'custom-gateway' });
-      assert.strictEqual(get(config, 'SSH_GATEWAY'), 'custom-gateway');
+      assert.strictEqual(config.get('SSH_GATEWAY'), 'custom-gateway');
     });
   });
 
@@ -170,7 +163,7 @@ describe('config', () => {
         ],
       };
       const { baseConfig } = await loadFreshConfig();
-      assert.strictEqual(get(baseConfig, 'API_HOST'), 'https://api.clever-cloud.com');
+      assert.strictEqual(baseConfig.get('API_HOST'), 'https://api.clever-cloud.com');
     });
   });
 
@@ -184,7 +177,7 @@ describe('config', () => {
         ],
       };
       const { config } = await loadFreshConfig();
-      const profiles = getProfiles(config);
+      const profiles = config.profiles;
       assert.strictEqual(profiles.length, 2);
       assert.strictEqual(profiles[0].alias, 'prod');
       assert.strictEqual(profiles[1].alias, 'staging');
@@ -203,7 +196,7 @@ describe('config', () => {
         ],
       };
       const { config } = await loadFreshConfig();
-      assert.strictEqual(get(config, 'API_HOST'), 'https://custom-api.example.com');
+      assert.strictEqual(config.get('API_HOST'), 'https://custom-api.example.com');
     });
   });
 
@@ -215,7 +208,7 @@ describe('config', () => {
         expirationDate: '2030-01-01',
       };
       const { config } = await loadFreshConfig();
-      const profiles = getProfiles(config);
+      const profiles = config.profiles;
       assert.strictEqual(profiles.length, 1);
       assert.strictEqual(profiles[0].token, 'legacy-token');
       assert.strictEqual(profiles[0].secret, 'legacy-secret');
@@ -226,7 +219,7 @@ describe('config', () => {
   describe('CLEVER_TOKEN / CLEVER_SECRET env vars', () => {
     it('should inject a virtual $env profile as the active one', async () => {
       const { config } = await loadFreshConfig({ CLEVER_TOKEN: 'env-token', CLEVER_SECRET: 'env-secret' });
-      const profiles = getProfiles(config);
+      const profiles = config.profiles;
       assert.strictEqual(profiles[0].token, 'env-token');
       assert.strictEqual(profiles[0].secret, 'env-secret');
       assert.strictEqual(profiles[0].alias, '$env');
@@ -238,7 +231,7 @@ describe('config', () => {
         profiles: [{ alias: 'existing', token: 'tok', secret: 'sec' }],
       };
       const { config } = await loadFreshConfig({ CLEVER_TOKEN: 'env-token', CLEVER_SECRET: 'env-secret' });
-      const profiles = getProfiles(config);
+      const profiles = config.profiles;
       assert.strictEqual(profiles.length, 2);
       assert.strictEqual(profiles[0].alias, '$env');
       assert.strictEqual(profiles[1].alias, 'existing');
@@ -246,7 +239,7 @@ describe('config', () => {
 
     it('should not inject $env when only CLEVER_TOKEN is set', async () => {
       const { config } = await loadFreshConfig({ CLEVER_TOKEN: 'env-token' });
-      assert.deepStrictEqual(getProfiles(config), []);
+      assert.deepStrictEqual(config.profiles, []);
     });
   });
 
@@ -264,7 +257,7 @@ describe('config', () => {
         ],
       };
       const { config } = await loadFreshConfig({ API_HOST: 'https://env-api.example.com' });
-      assert.strictEqual(get(config, 'API_HOST'), 'https://env-api.example.com');
+      assert.strictEqual(config.get('API_HOST'), 'https://env-api.example.com');
     });
 
     it('profile overrides should override defaults', async () => {
@@ -280,7 +273,7 @@ describe('config', () => {
         ],
       };
       const { config } = await loadFreshConfig();
-      assert.strictEqual(get(config, 'API_HOST'), 'https://profile-api.example.com');
+      assert.strictEqual(config.get('API_HOST'), 'https://profile-api.example.com');
     });
   });
 
@@ -302,7 +295,7 @@ describe('config', () => {
       assert.strictEqual(mod.config.activeProfile.alias, 'initial');
       assert.strictEqual(mod.config.activeProfile.token, 'tok1');
       assert.strictEqual(mod.config.activeProfile.secret, 'sec1');
-      assert.strictEqual(get(mod.config, 'API_HOST'), 'https://initial-api.example.com');
+      assert.strictEqual(mod.config.get('API_HOST'), 'https://initial-api.example.com');
 
       // Simulate config file change
       fakeConfigFileData = {
@@ -322,7 +315,7 @@ describe('config', () => {
       assert.strictEqual(mod.config.activeProfile.alias, 'updated');
       assert.strictEqual(mod.config.activeProfile.token, 'tok2');
       assert.strictEqual(mod.config.activeProfile.secret, 'sec2');
-      assert.strictEqual(get(mod.config, 'API_HOST'), 'https://updated-api.example.com');
+      assert.strictEqual(mod.config.get('API_HOST'), 'https://updated-api.example.com');
     });
   });
 });
