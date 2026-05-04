@@ -51,6 +51,7 @@
   },
   "dependencies": {
     "@clevercloud/client": "12.6.3",
+    "@clevercloud/reglage": "0.0.5",
     "@inquirer/prompts": "8.7.2",
     "char-regex": "2.0.2",
     "cliparse": "0.5.0",

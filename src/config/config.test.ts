@@ -94,6 +94,18 @@ describe('config', () => {
       assert.strictEqual(config.get('CONSOLE_TOKEN_URL'), 'https://custom-console.example.com/cli-oauth');
       assert.strictEqual(config.get('GOTO_URL'), 'https://custom-console.example.com/goto');
     });
+
+    it('should not derive CONSOLE_TOKEN_URL when not null', async () => {
+      mockEnv({ CONSOLE_TOKEN_URL: 'https://token.example.com' });
+      const { config } = await importFreshConfig();
+      assert.strictEqual(config.get('CONSOLE_TOKEN_URL'), 'https://token.example.com');
+    });
+
+    it('should not derive GOTO_URL when not null', async () => {
+      mockEnv({ GOTO_URL: 'https://goto.example.com' });
+      const { config } = await importFreshConfig();
+      assert.strictEqual(config.get('GOTO_URL'), 'https://goto.example.com');
+    });
   });
 
   describe('env vars override defaults', () => {
