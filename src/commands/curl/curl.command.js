@@ -19,15 +19,15 @@ function printCleverCurlHelp() {
   Logger.println(dedent`
     Usage: clever curl
     Query Clever Cloud's API using Clever Tools credentials. For example:
-    
+
       clever curl ${config.API_HOST}/v2/self
       clever curl ${config.API_HOST}/v2/summary
       clever curl ${config.API_HOST}/v4/products/zones
       clever curl ${config.API_HOST}/v2/organisations/<ORGANISATION_ID>/applications | jq '.[].id'
       clever curl ${config.API_HOST}/v4/billing/organisations/<ORGANISATION_ID>/<INVOICE_NUMBER>.pdf > invoice.pdf
-    
+
     Our API documentation is available here :
-    
+
       ${config.API_DOC_URL}/v2/
       ${config.API_DOC_URL}/v4/
   `);
@@ -49,7 +49,7 @@ export async function curl() {
 
   // We only allow request to the respective API_HOST
   if (curlUrl == null) {
-    Logger.error('"clever curl" command must be used with ' + styleText('blue', config.API_HOST));
+    Logger.printErrorLine('"clever curl" command must be used with ' + styleText('blue', config.API_HOST));
     process.exit(1);
   }
 
