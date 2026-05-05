@@ -1,3 +1,6 @@
+import { getLogger, setup } from '@clevercloud/scribe';
+import os from 'node:os';
+import path from 'node:path';
 import { format } from 'node:util';
 import { ApiError } from './lib/api-error.js';
 import { styleText } from './lib/style-text.js';
@@ -5,32 +8,50 @@ import { styleText } from './lib/style-text.js';
 const IS_QUIET = Boolean(process.env.CLEVER_QUIET);
 const IS_VERBOSE = Boolean(process.env.CLEVER_VERBOSE);
 
+setup({
+  file: {
+    level: 'debug',
+    path: getLogFilePath('clever-tools.log'),
+    rotation: {
+      size: '250k',
+      maxFiles: 50,
+    },
+  },
+});
+
+const logger = getLogger();
+
 export const Logger = {
   /**
    * @param {string} message
    */
   debug(message) {
-    consoleLog('debug', message);
+    logger.debug(message);
+    prettyLog('debug', message);
   },
 
   /**
    * @param {string} message
    */
   info(message) {
-    consoleLog('info', message);
+    logger.info(message);
+    prettyLog('info', message);
   },
 
   /**
    * @param {string} message
    */
   warn(message) {
-    consoleLog('warn', message);
+    logger.warn(message);
+    prettyLog('warn', message);
   },
 
   /**
    * @param {Error|string} error
    */
   error(error) {
+    logger.error(error);
+
     if (IS_QUIET) {
       return;
     }
@@ -39,7 +60,7 @@ export const Logger = {
     const styledPrefix = styleText(['bold', 'red'], prefix);
     const formatted = formatLines(prefix.length, processApiError(error));
 
-    if (IS_VERBOSE) {
+    if (IS_VERBOSE && error instanceof Error) {
       writeStderr('[STACKTRACE]');
       writeStderr(error);
       writeStderr('[/STACKTRACE]');
@@ -92,11 +113,11 @@ export const Logger = {
  * @param {string} message
  * @returns {void}
  */
-function consoleLog(severity, message) {
+function prettyLog(severity, message) {
   if (IS_QUIET) {
     return;
   }
-  if (!IS_VERBOSE && severity !== 'warn') {
+  if (!IS_VERBOSE) {
     return;
   }
   const prefix = `[${severity.toUpperCase()}] `;
@@ -148,4 +169,23 @@ function processApiError(error) {
     return error.message;
   }
   return error;
+}
+
+/**
+ * Resolves the full path for a log file based on the operating system.
+ * - Windows: `%LOCALAPPDATA%\clever-cloud\Logs\<logFile>`
+ * - macOS: `~/Library/Logs/clever-cloud/<logFile>`
+ * - Linux: `$XDG_STATE_HOME/clever-cloud/<logFile>` (defaults to `~/.local/state/clever-cloud/<logFile>`)
+ * @param {string} logFile - The name of the log file
+ * @returns {string} The absolute path to the log file
+ */
+function getLogFilePath(logFile) {
+  if (process.platform === 'win32' && process.env.LOCALAPPDATA != null) {
+    return path.resolve(process.env.LOCALAPPDATA, 'clever-cloud', 'Logs', logFile);
+  }
+  if (process.platform === 'darwin') {
+    return path.resolve(os.homedir(), 'Library', 'Logs', 'clever-cloud', logFile);
+  }
+  const xdgStateHome = process.env.XDG_STATE_HOME ?? path.resolve(os.homedir(), '.local', 'state');
+  return path.resolve(xdgStateHome, 'clever-cloud', logFile);
 }
