@@ -67,6 +67,11 @@ export const Logger = {
     writeStdout(`${styleText('blue', 'i')} ${message}`);
   },
 
+  /** @param {string} message */
+  printWarning(message) {
+    writeStdout(`${styleText('yellow', '⚠')} ${message}`);
+  },
+
   /** @param {unknown} obj */
   printJson(obj) {
     writeStdout(JSON.stringify(obj, null, 2));

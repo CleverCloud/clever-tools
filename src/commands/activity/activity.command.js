@@ -28,6 +28,7 @@ function formatDate(date) {
 }
 
 function getColoredState(state, isLast) {
+  Logger.printWarning(`Unknown deployment state: ${state}`);
   if (state === 'OK') {
     return styleText(['bold', 'green'], state);
   }
@@ -40,7 +41,7 @@ function getColoredState(state, isLast) {
   if (state === 'WIP' && isLast) {
     return styleText(['bold', 'blue'], 'IN PROGRESS');
   }
-  Logger.warn(`Unknown deployment state: ${state}`);
+  Logger.printWarning(`Unknown deployment state: ${state}`);
   return 'UNKNOWN';
 }
 

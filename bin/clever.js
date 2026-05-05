@@ -18,6 +18,7 @@ import { EXPERIMENTAL_FEATURES, getFeatures } from '../src/config/features.js';
 import { cliparse } from '../src/lib/cliparse-patched.js';
 import { styleText } from '../src/lib/style-text.js';
 import { getDefault, getEnumValues, isBoolean, isRequired } from '../src/lib/zod-utils.js';
+import { Logger } from '../src/logger.js';
 
 /**
  * @typedef {import('../src/lib/define-command.types.js').CommandDefinition} CommandDefinition
@@ -211,7 +212,7 @@ function convertOption(option) {
     // Log deprecation warning if option is deprecated
     if (option.deprecated) {
       const message = typeof option.deprecated === 'string' ? `, ${option.deprecated}.` : '';
-      console.error(styleText('yellow', `Warning: --${option.name} is deprecated${message}`));
+      Logger.warn(`--${option.name} is deprecated${message}`);
     }
 
     const result = option.schema.safeParse(value);

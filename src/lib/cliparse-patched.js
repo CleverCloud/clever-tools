@@ -23,7 +23,7 @@ cliparseOriginal.command = function (name, options, commandFunction) {
       Logger.error(error);
       const semverIsOk = semver.satisfies(process.version, pkg.engines.node);
       if (!semverIsOk) {
-        Logger.warn(
+        Logger.printWarning(
           `You are using node ${process.version}, some of our commands require node ${pkg.engines.node}. The error may be caused by this.`,
         );
       }
