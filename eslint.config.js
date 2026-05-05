@@ -44,6 +44,13 @@ export default [
     },
   },
   {
+    name: 'no-console',
+    files: ['bin/*.js', 'src/**/*.js'],
+    rules: {
+      'no-console': 'error',
+    },
+  },
+  {
     name: 'no-extraneous-dependencies',
     files: ['scripts/**/*.js'],
     rules: {
