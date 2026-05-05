@@ -77,6 +77,11 @@ export const Logger = {
     writeStdout(JSON.stringify(obj, null, 2));
   },
 
+  /** @param {any} obj */
+  printTable(obj) {
+    console.table(obj);
+  },
+
   printErrorLine: writeStderr,
 };
 

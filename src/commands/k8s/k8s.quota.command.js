@@ -50,7 +50,7 @@ export const k8sQuotaCommand = defineCommand({
       case 'human':
       default: {
         const ramQuotaBytes = ramQuota != null ? ramToBytes(ramQuota.information) : null;
-        console.table({
+        Logger.printTable({
           'Max CPU': {
             Quota: cpuQuota != null ? `${cpuQuota.maximum / 1000} vCPU` : 'unlimited',
             Usage: `${usedMillicores / 1000} vCPU`,

@@ -35,7 +35,7 @@ export const drainGetCommand = defineCommand({
       case 'human':
       default: {
         const formattedDrain = formatDrain(drain);
-        console.table(formattedDrain);
+        Logger.printTable(formattedDrain);
       }
     }
   },

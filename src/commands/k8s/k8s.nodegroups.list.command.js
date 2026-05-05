@@ -29,7 +29,7 @@ export const k8sNodeGroupListCommand = defineCommand({
           );
           return;
         }
-        console.table(
+        Logger.printTable(
           Object.fromEntries(
             nodeGroups.map((ng) => [
               ng.id,
