@@ -27,6 +27,6 @@ export const k8sGetKubeconfigCommand = defineCommand({
       return;
     }
 
-    console.log(await k8sGetConfig(orgIdOrName, clusterIdOrName));
+    Logger.println(await k8sGetConfig(orgIdOrName, clusterIdOrName));
   },
 });
