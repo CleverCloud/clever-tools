@@ -79,6 +79,7 @@ export const Logger = {
 
   /** @param {any} obj */
   printTable(obj) {
+    // eslint-disable-next-line no-console -- Logger.printTable is the sanctioned wrapper around console.table
     console.table(obj);
   },
 
