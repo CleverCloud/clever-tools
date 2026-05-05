@@ -41,7 +41,7 @@ export const drainCommand = defineCommand({
 
         if (drains.length === 1) {
           const formattedDrain = formatDrain(drains[0]);
-          console.table(formattedDrain);
+          Logger.printTable(formattedDrain);
           return;
         }
 
@@ -54,7 +54,7 @@ export const drainCommand = defineCommand({
           };
         });
 
-        console.table(formattedDrains);
+        Logger.printTable(formattedDrains);
       }
     }
   },

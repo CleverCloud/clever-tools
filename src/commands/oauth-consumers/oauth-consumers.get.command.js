@@ -51,7 +51,7 @@ export const oauthConsumersGetCommand = defineCommand({
           dataToPrint.Secret = secret;
         }
 
-        console.table(dataToPrint);
+        Logger.printTable(dataToPrint);
 
         if (oauthConsumer.rights) {
           Logger.println('');
@@ -59,7 +59,7 @@ export const oauthConsumersGetCommand = defineCommand({
           for (const [apiName, cliName] of Object.entries(OAUTH_RIGHTS)) {
             rightsData[cliName] = oauthConsumer.rights[apiName] ?? false;
           }
-          console.table(rightsData);
+          Logger.printTable(rightsData);
         }
       }
     }
