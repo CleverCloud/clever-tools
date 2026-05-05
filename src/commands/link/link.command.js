@@ -18,7 +18,7 @@ export const linkCommand = defineCommand({
 
     let appConfigEntry;
     if (app.app_id != null && orgaIdOrName != null) {
-      Logger.warn("You've specified a unique application ID, organisation option will be ignored");
+      Logger.printWarning("You've specified a unique application ID, organisation option will be ignored");
       appConfigEntry = await Application.linkRepo(app, null, alias);
     } else {
       appConfigEntry = await Application.linkRepo(app, orgaIdOrName, alias);
