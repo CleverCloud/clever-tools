@@ -113,6 +113,7 @@ clever addon providers [options]
 |Name|Description|
 |---|---|
 |`-F`, `--format` `<format>`|Output format (human, json) (default: human)|
+|`-o`, `--org`, `--owner` `<org-id\|org-name>`|Organisation to target by its ID (or name, if unambiguous)|
 
 ## ➡️ `clever addon providers show` <kbd>Since 0.2.3</kbd>
 
