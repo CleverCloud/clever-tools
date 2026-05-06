@@ -15,12 +15,12 @@ import { Logger } from '../logger.js';
 import { resolveOwnerId } from './ids-resolver.js';
 import { sendToApi } from './send-to-api.js';
 
-export function listProviders() {
-  return getAllAddonProviders({}).then(sendToApi);
+export function listProviders(orgaId) {
+  return getAllAddonProviders({ orgaId }).then(sendToApi);
 }
 
-export async function getProvider(providerName) {
-  const providers = await listProviders();
+export async function getProvider(providerName, orgaId) {
+  const providers = await listProviders(orgaId);
   const provider = providers.find((p) => p.id === providerName);
   if (provider == null) {
     throw new Error(`Invalid provider name. Available providers: ${providers.map((p) => p.id).join(', ')}`);
@@ -129,7 +129,7 @@ function validateAddonVersionAndOptions(region, version, addonOptions, providerI
 
 export async function create({ ownerId, name, providerName, planName, region, version, addonOptions }) {
   // TODO: We should be able to use it without {}
-  const provider = await getProvider(providerName);
+  const provider = await getProvider(providerName, ownerId);
 
   if (!provider.regions.includes(region)) {
     throw new Error(`Invalid region name. Available regions: ${provider.regions.join(', ')}`);
