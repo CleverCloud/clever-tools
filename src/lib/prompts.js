@@ -1,4 +1,5 @@
 import { checkbox, confirm as confirmPrompt, input, password, select } from '@inquirer/prompts';
+import { exit } from './exit.js';
 import { unwrapSchema } from './zod-utils.js';
 
 export function promptSecret(message) {
@@ -78,9 +79,9 @@ function assertInteractiveTerminal(hint) {
   }
 }
 
-function exitOnPromptError(error) {
+async function exitOnPromptError(error) {
   if (error instanceof Error && error.name === 'ExitPromptError') {
-    process.exit(1);
+    await exit(1);
   }
   throw error;
 }

@@ -3,6 +3,7 @@ import dedent from 'dedent';
 import { spawn } from 'node:child_process';
 import { config } from '../../config/config.js';
 import { defineCommand } from '../../lib/define-command.js';
+import { exit } from '../../lib/exit.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
 
@@ -50,7 +51,7 @@ export async function curl() {
   // We only allow request to the respective API_HOST
   if (curlUrl == null) {
     Logger.printErrorLine('"clever curl" command must be used with ' + styleText('blue', config.API_HOST));
-    process.exit(1);
+    await exit(1);
   }
 
   const lastCurlArg = curlArgs.at(-1);
