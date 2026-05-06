@@ -51,6 +51,21 @@ export default [
     },
   },
   {
+    name: 'no-process-exit',
+    files: ['bin/*.js', 'src/**/*.js'],
+    ignores: ['src/lib/exit.js'],
+    rules: {
+      'no-restricted-properties': [
+        'error',
+        {
+          object: 'process',
+          property: 'exit',
+          message: 'Use exit() from src/lib/exit.js — it flushes log buffers before terminating.',
+        },
+      ],
+    },
+  },
+  {
     name: 'no-extraneous-dependencies',
     files: ['scripts/**/*.js'],
     rules: {
