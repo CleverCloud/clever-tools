@@ -21,13 +21,23 @@ setup({
 
 const logger = getLogger();
 
+/** @type {Record<string, Parameters<typeof styleText>[0]>} */
+const SEVERITY_STYLES = {
+  error: ['bold', 'red'],
+  warn: ['bold', 'yellow'],
+  info: ['bold', 'blue'],
+  debug: 'bold',
+};
+
 export const Logger = {
   /**
    * @param {string} message
    */
   debug(message) {
     logger.debug(message);
-    prettyLog('debug', message);
+    if (IS_VERBOSE) {
+      prettyLog('debug', message);
+    }
   },
 
   /**
@@ -35,7 +45,9 @@ export const Logger = {
    */
   info(message) {
     logger.info(message);
-    prettyLog('info', message);
+    if (IS_VERBOSE) {
+      prettyLog('info', message);
+    }
   },
 
   /**
@@ -43,7 +55,9 @@ export const Logger = {
    */
   warn(message) {
     logger.warn(message);
-    prettyLog('warn', message);
+    if (IS_VERBOSE) {
+      prettyLog('warn', message);
+    }
   },
 
   /**
@@ -51,21 +65,7 @@ export const Logger = {
    */
   error(error) {
     logger.error(error);
-
-    if (IS_QUIET) {
-      return;
-    }
-
-    const prefix = '[ERROR] ';
-    const styledPrefix = styleText(['bold', 'red'], prefix);
-    const formatted = formatLines(prefix.length, processApiError(error));
-
-    if (IS_VERBOSE && error instanceof Error) {
-      writeStderr('[STACKTRACE]');
-      writeStderr(error);
-      writeStderr('[/STACKTRACE]');
-    }
-    writeStderr(`${styledPrefix}${formatted}`);
+    prettyLog('error', error);
   },
 
   println: writeStdout,
@@ -109,19 +109,27 @@ export const Logger = {
 
 /**
  * Logs a message to the console with severity prefix.
- * @param {'debug'|'info'|'warn'} severity
- * @param {string} message
+ * @param {'debug'|'info'|'warn'|'error'} severity
+ * @param {Error|string} value
  * @returns {void}
  */
-function prettyLog(severity, message) {
+function prettyLog(severity, value) {
   if (IS_QUIET) {
     return;
   }
-  if (!IS_VERBOSE) {
-    return;
+
+  if (IS_VERBOSE && value instanceof Error) {
+    writeStderr('[STACKTRACE]');
+    writeStderr(value);
+    writeStderr('[/STACKTRACE]');
   }
   const prefix = `[${severity.toUpperCase()}] `;
-  writeStdout(`${prefix}${formatLines(prefix.length, message)}`);
+  const style = SEVERITY_STYLES[severity];
+  const styledPrefix = style != null ? styleText(style, prefix) : prefix;
+  const message = processApiError(value);
+  const write = severity === 'error' ? writeStderr : writeStdout;
+
+  write(`${styledPrefix}${formatLines(prefix.length, message)}`);
 }
 
 /**
