@@ -3491,6 +3491,103 @@ app-id|app-name                Application ID (or name, if unambiguous)
     --app <app-id|app-name>    Application to manage by its ID (or name, if unambiguous)
 ```
 
+## service-tokens
+
+**Description:** Manage organisation service tokens for machine-to-machine authentication
+
+**Since:** 4.8.0
+
+**Usage**
+```
+clever service-tokens
+```
+
+### service-tokens create
+
+**Description:** Create a service token for an organisation
+
+**Since:** 4.8.0
+
+**Usage**
+```
+clever service-tokens create <token-name> [options]
+```
+
+**Arguments**
+```
+token-name                              Service token name
+```
+
+**Options**
+```
+-d, --description <description>         Service token description
+-e, --expiration <expiration>           Duration until token expiration (e.g.: 1h, 4d, 2w, 6M, 1y) (default: 90d)
+-F, --format <format>                   Output format (human, json) (default: human)
+-o, --org, --owner <org-id|org-name>    Organisation to target by its ID (or name, if unambiguous)
+    --resources <id1,id2,...>           Scope token to specific resources by app ID, add-on ID, or real ID (comma-separated)
+-r, --role <role>                       Role assigned to the service token (Admin, Manager, Developer, Accounting) (Admin, Manager, Developer, Accounting)
+```
+
+### service-tokens get
+
+**Description:** Get details about a service token
+
+**Since:** 4.8.0
+
+**Usage**
+```
+clever service-tokens get <token-id|token-name> [options]
+```
+
+**Arguments**
+```
+token-id|token-name                     Service token ID or name
+```
+
+**Options**
+```
+-F, --format <format>                   Output format (human, json) (default: human)
+-o, --org, --owner <org-id|org-name>    Organisation to target by its ID (or name, if unambiguous)
+```
+
+### service-tokens list
+
+**Description:** List service tokens for an organisation
+
+**Since:** 4.8.0
+
+**Usage**
+```
+clever service-tokens list [options]
+```
+
+**Options**
+```
+-F, --format <format>                   Output format (human, json) (default: human)
+-o, --org, --owner <org-id|org-name>    Organisation to target by its ID (or name, if unambiguous)
+```
+
+### service-tokens revoke
+
+**Description:** Revoke a service token
+
+**Since:** 4.8.0
+
+**Usage**
+```
+clever service-tokens revoke <token-id|token-name> [options]
+```
+
+**Arguments**
+```
+token-id|token-name                     Service token ID or name
+```
+
+**Options**
+```
+-o, --org, --owner <org-id|org-name>    Organisation to target by its ID (or name, if unambiguous)
+```
+
 ## ssh
 
 **Description:** Connect to running instances through SSH
