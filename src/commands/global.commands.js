@@ -61,6 +61,11 @@ import { featuresDisableCommand } from './features/features.disable.command.js';
 import { featuresEnableCommand } from './features/features.enable.command.js';
 import { featuresInfoCommand } from './features/features.info.command.js';
 import { featuresListCommand } from './features/features.list.command.js';
+import { functionsCommand } from './functions/functions.command.js';
+import { functionsCreateCommand } from './functions/functions.create.command.js';
+import { functionsDeleteCommand } from './functions/functions.delete.command.js';
+import { functionsDeployCommand } from './functions/functions.deploy.command.js';
+import { functionsDeploymentsCommand } from './functions/functions.deployments.command.js';
 import { helpCommand } from './help/help.command.js';
 import { k8sActivityCommand } from './k8s/k8s.activity.command.js';
 import { k8sAddPersistentStorageCommand } from './k8s/k8s.add-persistent-storage.command.js';
@@ -301,6 +306,15 @@ export const globalCommands = {
       enable: featuresEnableCommand,
       info: featuresInfoCommand,
       list: featuresListCommand,
+    },
+  ],
+  functions: [
+    functionsCommand,
+    {
+      create: functionsCreateCommand,
+      delete: functionsDeleteCommand,
+      deploy: functionsDeployCommand,
+      deployments: functionsDeploymentsCommand,
     },
   ],
   help: helpCommand,
