@@ -346,7 +346,7 @@ describe('database backups download command', () => {
         });
 
       assert.strictEqual(result.stdout, '');
-      assert.match(result.stderr, /\[ERROR\]/);
+      assert.strictEqual(result.stderr, '[ERROR] not found');
     });
 
     // === real ID (postgresql_<UUID>) ===
@@ -404,7 +404,7 @@ describe('database backups download command', () => {
         });
 
       assert.strictEqual(result.stdout, '');
-      assert.match(result.stderr, /\[ERROR\]/);
+      assert.strictEqual(result.stderr, '[ERROR] not found');
     });
 
     // === addon name — not supported by resolveAddon, always errors ===

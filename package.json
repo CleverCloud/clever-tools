@@ -91,6 +91,7 @@
     "git-http-mock-server": "2.0.0",
     "globals": "16.5.0",
     "mime-types": "3.0.2",
+    "node-pty": "1.1.0",
     "prettier": "3.7.3",
     "prettier-plugin-organize-imports": "4.3.0",
     "remark-parse": "11.0.0",

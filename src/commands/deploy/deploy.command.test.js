@@ -182,10 +182,24 @@ describe('deploy command — real push', () => {
       });
 
     assert.strictEqual(result.exitCode, 0);
-    assert.match(result.stdout, /🚀 Deploying/);
-    assert.match(result.stdout, new RegExp(`Local commit\\s+${headCommit}`));
-    assert.match(result.stdout, /✓ Code pushed to Clever Cloud/);
-    assert.match(result.stdout, /✓ Deployment started/);
+    assert.strictEqual(
+      result.stdout.replace(/\(\d+\.\d+s\)/, '(<duration>)'),
+      [
+        '🚀 Deploying test-app',
+        `   Application ID  ${APP_ID}`,
+        `   Organisation ID ${ORGA_ID}`,
+        '',
+        '🔀 Git information',
+        '   ! App is brand new, no commits on remote yet',
+        `   Local commit    ${headCommit} [will be deployed]`,
+        '',
+        '🔄 Deployment progress',
+        '   → Pushing source code to Clever Cloud…',
+        '   ✓ Code pushed to Clever Cloud (<duration>)',
+        '   → Waiting for deployment to start…',
+        '   ✓ Deployment started (deploy_new)',
+      ].join('\n'),
+    );
   });
 
   it('should print up-to-date and skip the push when same-commit-policy is ignore', async () => {
@@ -210,7 +224,7 @@ describe('deploy command — real push', () => {
       });
 
     assert.strictEqual(result.exitCode, 0);
-    assert.match(result.stdout, /up-to-date/);
+    assert.strictEqual(result.stdout, `✓ The application is up-to-date (${headCommit})`);
   });
 
   it('should report brand-new app and push when remote has no commits', async () => {
@@ -233,7 +247,23 @@ describe('deploy command — real push', () => {
       .thenRunCli(['deploy', '--exit-on', 'deploy-start']);
 
     assert.strictEqual(result.exitCode, 0);
-    assert.match(result.stdout, /App is brand new, no commits on remote yet/);
-    assert.match(result.stdout, /✓ Deployment started/);
+    assert.strictEqual(
+      result.stdout.replace(/\(\d+\.\d+s\)/, '(<duration>)'),
+      [
+        '🚀 Deploying test-app',
+        `   Application ID  ${APP_ID}`,
+        `   Organisation ID ${ORGA_ID}`,
+        '',
+        '🔀 Git information',
+        '   ! App is brand new, no commits on remote yet',
+        `   Local commit    ${headCommit} [will be deployed]`,
+        '',
+        '🔄 Deployment progress',
+        '   → Pushing source code to Clever Cloud…',
+        '   ✓ Code pushed to Clever Cloud (<duration>)',
+        '   → Waiting for deployment to start…',
+        '   ✓ Deployment started (deploy_new)',
+      ].join('\n'),
+    );
   });
 });

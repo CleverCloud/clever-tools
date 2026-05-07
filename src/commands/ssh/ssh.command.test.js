@@ -102,7 +102,7 @@ describe('ssh command', () => {
       });
 
     assert.strictEqual(result.stdout, '');
-    assert.match(result.stderr, /^\[ERROR\] /);
+    assert.strictEqual(result.stderr, '[ERROR] There are no applications matching alias unknown');
   });
 
   it('should error when the application has no running instances', async () => {

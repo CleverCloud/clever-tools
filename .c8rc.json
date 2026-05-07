@@ -1,11 +1,7 @@
 {
   "all": true,
   "include": ["src/**/*.js"],
-  "exclude": [
-    "src/**/*.test.js",
-    "src/**/*.types.d.ts",
-    "src/clever-client/**"
-  ],
+  "exclude": ["src/**/*.test.js", "src/**/*.types.d.ts", "src/clever-client/**"],
   "reporter": ["text", "html", "lcov"],
   "reports-dir": "coverage",
   "check-coverage": false

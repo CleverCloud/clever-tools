@@ -143,6 +143,6 @@ describe('kv command', () => {
       });
 
     assert.strictEqual(result.stdout, '');
-    assert.match(result.stderr, /WRONGTYPE/);
+    assert.strictEqual(result.stderr, '[ERROR] WRONGTYPE Operation against a key holding the wrong kind of value');
   });
 });

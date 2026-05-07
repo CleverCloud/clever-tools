@@ -90,7 +90,7 @@ describe('env import command', () => {
       });
 
     assert.strictEqual(result.stdout, '');
-    assert.match(result.stderr, /the name FOO is already defined/);
+    assert.strictEqual(result.stderr, '[ERROR] line 2: be careful, the name FOO is already defined');
   });
 
   it('should error and not call the API when --json input is not valid JSON', async () => {
@@ -104,6 +104,9 @@ describe('env import command', () => {
       });
 
     assert.strictEqual(result.stdout, '');
-    assert.match(result.stderr, /Error when parsing JSON input/);
+    assert.strictEqual(
+      result.stderr,
+      `[ERROR] Error when parsing JSON input: Unexpected token 'o', "not json" is not valid JSON`,
+    );
   });
 });

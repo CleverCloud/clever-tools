@@ -121,15 +121,12 @@ describe('tokens create command', () => {
       .respond({ status: 200, body: SELF })
       .when({ method: 'POST', path: '/api-tokens' })
       .respond({ status: 200, body: CREATED_TOKEN })
-      .thenRunCli(
-        ['tokens', 'create', 'json-token', '--expiration', '2026-10-01', '--format', 'json'],
-        {
-          interactions: [
-            { waitFor: /Enter your password/, send: 'hunter2\n' },
-            { waitFor: /Enter your 2FA code/, send: '123456\n' },
-          ],
-        },
-      )
+      .thenRunCli(['tokens', 'create', 'json-token', '--expiration', '2026-10-01', '--format', 'json'], {
+        interactions: [
+          { waitFor: /Enter your password/, send: 'hunter2\n' },
+          { waitFor: /Enter your 2FA code/, send: '123456\n' },
+        ],
+      })
       .verify((calls) => {
         assert.strictEqual(calls.count, 2);
       });
@@ -149,8 +146,13 @@ describe('tokens create command', () => {
         assert.strictEqual(calls.first.path, '/v2/self');
       });
 
-    assert.match(result.stderr, /linked via GitHub and has no password/);
-    assert.match(result.stderr, /console\.clever-cloud\.com\/users\/me\/api-tokens/);
+    assert.strictEqual(
+      result.stderr,
+      [
+        '[ERROR] ! Your Clever Cloud account is linked via GitHub and has no password. Setting one is required to create API tokens.',
+        '        → To do so, go to the following URL: https://console.clever-cloud.com/users/me/api-tokens',
+      ].join('\n'),
+    );
   });
 
   it('errors when --expiration is more than 1 year in the future', async () => {
@@ -166,10 +168,7 @@ describe('tokens create command', () => {
         assert.strictEqual(calls.first.path, '/v2/self');
       });
 
-    assert.strictEqual(
-      result.stderr,
-      '[ERROR] You cannot set an expiration date greater than 1 year',
-    );
+    assert.strictEqual(result.stderr, '[ERROR] You cannot set an expiration date greater than 1 year');
   });
 
   it('reports a clear error when the API returns invalid-credential', async () => {

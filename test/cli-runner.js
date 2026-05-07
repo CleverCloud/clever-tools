@@ -7,6 +7,19 @@ import stripAnsiLib from 'strip-ansi';
  * @typedef {import('./cli-runner.types.js').CliRunnerOptions} CliRunnerOptions
  * @typedef {import('./cli-runner.types.js').CliInteraction} CliInteraction
  * @typedef {import('./cli-runner.types.js').CliResult} CliResult
+ *
+ * @typedef {object} RunCommonArgs
+ * @property {string} file
+ * @property {string[]} fileArgs
+ * @property {string} workingDir
+ * @property {Record<string, string>} env
+ * @property {number} timeout
+ * @property {string | Buffer | null} stdin
+ * @property {CliInteraction[] | null} interactions
+ * @property {boolean} stripAnsi
+ *
+ * @typedef {RunCommonArgs & { cliBin: string }} RunUnderPipesArgs
+ * @typedef {RunCommonArgs & { cols: number, rows: number }} RunUnderPtyArgs
  */
 
 const __filename = fileURLToPath(import.meta.url);
@@ -21,6 +34,9 @@ const DEFAULT_OPTIONS = {
   stdin: null,
   interactions: null,
   stripAnsi: true,
+  pty: false,
+  cols: 120,
+  rows: 30,
 };
 const DEFAULT_INTERACTION_TIMEOUT_MS = 5000;
 
@@ -31,7 +47,7 @@ const DEFAULT_INTERACTION_TIMEOUT_MS = 5000;
  * @returns {Promise<CliResult>}
  */
 export async function runCli(args, options = {}) {
-  const { env, cwd, timeout, expectExitCode, stdin, interactions, stripAnsi } = {
+  const { env, cwd, timeout, expectExitCode, stdin, interactions, stripAnsi, pty, cols, rows } = {
     ...DEFAULT_OPTIONS,
     ...options,
   };
@@ -41,9 +57,35 @@ export async function runCli(args, options = {}) {
   const isNativeBin = process.env.CLEVER_BIN != null;
   const cliBin = process.env.CLEVER_BIN ?? resolve(PROJECT_ROOT, 'bin/clever.js');
   const [file, fileArgs] = isNativeBin ? [cliBin, args] : [process.execPath, [cliBin, ...args]];
-  console.log(`Running CLI command`, { cwd: workingDir, cmd: [file, fileArgs], env, stdin, interactions });
+  console.log(`Running CLI command`, { cwd: workingDir, cmd: [file, fileArgs], env, stdin, interactions, pty });
 
-  const result = await new Promise((resolveResult, rejectResult) => {
+  const result = pty
+    ? await runUnderPty({ file, fileArgs, workingDir, env, timeout, cols, rows, stdin, interactions, stripAnsi })
+    : await runUnderPipes({ file, fileArgs, workingDir, env, timeout, stdin, interactions, stripAnsi, cliBin });
+
+  if (expectExitCode != null && result.exitCode !== expectExitCode) {
+    throw new Error(
+      `CLI exited with ${result.exitCode} (expected ${expectExitCode})\n` +
+        `args: ${JSON.stringify(args)}\n` +
+        `--- stdout ---\n${result.stdout}\n` +
+        `--- stderr ---\n${result.stderr}\n` +
+        `--- output ---\n${result.output}\n` +
+        `------`,
+    );
+  }
+
+  return result;
+}
+
+/**
+ * Pipe-mode runner: spawn the CLI with piped stdio and capture stdout/stderr separately.
+ * This is the default. Existing tests rely on the stdout/stderr split.
+ *
+ * @param {RunUnderPipesArgs} args
+ * @returns {Promise<CliResult>}
+ */
+async function runUnderPipes({ file, fileArgs, workingDir, env, timeout, stdin, interactions, stripAnsi, cliBin }) {
+  return new Promise((resolveResult, rejectResult) => {
     const child = spawn(file, fileArgs, { cwd: workingDir, env });
 
     let stdout = '';
@@ -89,8 +131,7 @@ export async function runCli(args, options = {}) {
         child.kill('SIGKILL');
         rejectResult(
           new Error(
-            `Interaction timed out after ${ms}ms waiting for ${re}\n` +
-              `--- output so far ---\n${combined}\n------`,
+            `Interaction timed out after ${ms}ms waiting for ${re}\n` + `--- output so far ---\n${combined}\n------`,
           ),
         );
       }, ms);
@@ -199,7 +240,15 @@ export async function runCli(args, options = {}) {
       const slicedStderr = stderrSliceFrom >= 0 ? stderr.slice(stderrSliceFrom) : stderr;
       const finalStdout = stripAnsi ? stripAnsiLib(slicedStdout) : slicedStdout;
       const finalStderr = stripAnsi ? stripAnsiLib(slicedStderr) : slicedStderr;
-      resolveResult({ stdout: finalStdout.trim(), stderr: finalStderr.trim(), exitCode });
+      const trimmedStdout = finalStdout.trim();
+      const trimmedStderr = finalStderr.trim();
+      const output =
+        trimmedStderr.length > 0
+          ? trimmedStdout.length > 0
+            ? `${trimmedStdout}\n${trimmedStderr}`
+            : trimmedStderr
+          : trimmedStdout;
+      resolveResult({ stdout: trimmedStdout, stderr: trimmedStderr, output, exitCode });
     });
 
     if (queue.length === 0) {
@@ -213,16 +262,139 @@ export async function runCli(args, options = {}) {
       armStepTimer();
     }
   });
+}
 
-  if (expectExitCode != null && result.exitCode !== expectExitCode) {
-    throw new Error(
-      `CLI exited with ${result.exitCode} (expected ${expectExitCode})\n` +
-        `args: ${JSON.stringify(args)}\n` +
-        `--- stdout ---\n${result.stdout}\n` +
-        `--- stderr ---\n${result.stderr}\n` +
-        `------`,
-    );
-  }
+/**
+ * PTY-mode runner: spawn the CLI under a pseudo-terminal so raw-mode prompts
+ * (select / checkbox / confirm via @inquirer/prompts) can be driven.
+ *
+ * The PTY model has only one channel between parent and child: stdout and
+ * stderr merge into a single stream by design (see Microsoft node-pty issue #71).
+ * Under PTY mode `result.output` carries the merged ANSI-stripped stream, and
+ * `result.stdout` / `result.stderr` are empty strings.
+ *
+ * @param {RunUnderPtyArgs} args
+ * @returns {Promise<CliResult>}
+ */
+async function runUnderPty({ file, fileArgs, workingDir, env, timeout, cols, rows, stdin, interactions, stripAnsi }) {
+  // Lazy-load node-pty so pipe-mode tests don't pay the native module cost.
+  const ptyMod = await import('node-pty');
+  const ptyApi = ptyMod.default ?? ptyMod;
 
-  return result;
+  return new Promise((resolveResult, rejectResult) => {
+    const ptyProcess = ptyApi.spawn(file, fileArgs, {
+      cwd: workingDir,
+      env: { ...process.env, ...env },
+      name: 'xterm-256color',
+      cols,
+      rows,
+      handleFlowControl: false,
+    });
+
+    let raw = '';
+    let combined = '';
+    /** @type {CliInteraction[]} */
+    const queue = Array.isArray(interactions) ? [...interactions] : [];
+    /** @type {NodeJS.Timeout | null} */
+    let stepTimer = null;
+    let outputSliceFrom = -1;
+    let exited = false;
+
+    const overallTimer = setTimeout(() => {
+      try {
+        ptyProcess.kill('SIGKILL');
+      } catch (_e) {
+        // process may already be gone
+      }
+      rejectResult(new Error(`CLI command timed out after ${timeout}ms`));
+    }, timeout);
+
+    function clearStepTimer() {
+      if (stepTimer != null) {
+        clearTimeout(stepTimer);
+        stepTimer = null;
+      }
+    }
+
+    function armStepTimer() {
+      clearStepTimer();
+      if (queue.length === 0) return;
+      const ms = queue[0].timeoutMs ?? DEFAULT_INTERACTION_TIMEOUT_MS;
+      stepTimer = setTimeout(() => {
+        const re = queue[0]?.waitFor;
+        try {
+          ptyProcess.kill('SIGKILL');
+        } catch (_e) {
+          // ignored
+        }
+        rejectResult(
+          new Error(
+            `Interaction timed out after ${ms}ms waiting for ${re}\n` + `--- output so far ---\n${combined}\n------`,
+          ),
+        );
+      }, ms);
+    }
+
+    /** @param {string} data */
+    function tryWrite(data) {
+      if (exited) return;
+      try {
+        ptyProcess.write(data);
+      } catch (_e) {
+        // child may have exited
+      }
+    }
+
+    function processBuffer() {
+      while (queue.length > 0) {
+        const next = queue[0];
+        if (!next.waitFor.test(combined)) break;
+        queue.shift();
+        clearStepTimer();
+        tryWrite(next.send);
+        if (queue.length > 0) {
+          armStepTimer();
+        } else {
+          // Last answer sent: mark slice point so result.output drops everything
+          // emitted while prompts were active.
+          outputSliceFrom = raw.length;
+        }
+      }
+    }
+
+    ptyProcess.onData((chunk) => {
+      raw += chunk;
+      combined += stripAnsiLib(chunk);
+      processBuffer();
+    });
+
+    ptyProcess.onExit(({ exitCode, signal }) => {
+      exited = true;
+      clearTimeout(overallTimer);
+      clearStepTimer();
+      if (queue.length > 0) {
+        rejectResult(
+          new Error(
+            `CLI exited before all interactions ran (${queue.length} remaining)\n` + `--- output ---\n${raw}\n------`,
+          ),
+        );
+        return;
+      }
+      const code = typeof exitCode === 'number' ? exitCode : signal != null ? 1 : 0;
+      const slicedRaw = outputSliceFrom >= 0 ? raw.slice(outputSliceFrom) : raw;
+      // PTYs translate '\n' -> '\r\n'; normalize so assertions look natural.
+      const normalized = slicedRaw.replace(/\r\n/g, '\n');
+      const finalOutput = stripAnsi ? stripAnsiLib(normalized) : normalized;
+      resolveResult({ stdout: '', stderr: '', output: finalOutput.trim(), exitCode: code });
+    });
+
+    if (queue.length === 0) {
+      // No prompts to drive: write any upfront stdin, then send EOF (Ctrl-D).
+      if (stdin != null) tryWrite(typeof stdin === 'string' ? stdin : stdin.toString('utf8'));
+      tryWrite('\x04');
+    } else {
+      if (stdin != null) tryWrite(typeof stdin === 'string' ? stdin : stdin.toString('utf8'));
+      armStepTimer();
+    }
+  });
 }

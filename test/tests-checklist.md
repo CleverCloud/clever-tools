@@ -7,11 +7,9 @@
 - for commands using `AppConfiguration.addLinkedApplication`
   - we should check when not in an app directory
   - we should check when app has multiple alias but no alias is given
-  - we should check when app has multiple alias with an unknown alias is given
-  - we should check when app has multiple alias with an existing alias is provided
+  - we should check when app has multiple alias but an unknown alias is given
+  - we should check when app has multiple alias and an existing alias is provided
   - we should check when app has one app alias
-- for commands asking for addonIdOrName, appIdOrName, orgaIdOrName
-  - test all combinations of id or name of each
 - we should always check when user not connected
 - we should always check when no profile found
 - when defining the mocked content of API responses
@@ -30,3 +28,4 @@
     - when ids passed to command do not exist nor in cache nor in API
     - when both orga and app/addon are passed, and app/addon exists but not inside that orga
   - => see database.backups.download.command.test.js
+- When it comes to stdout/stderr/output assertions, prefer using "strictEqual" instead of "match" matcher.

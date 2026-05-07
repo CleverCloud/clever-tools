@@ -3,9 +3,11 @@ import { dirname, resolve } from 'node:path';
 import { afterEach, beforeEach, describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { runCli } from './cli-runner.js';
+import { keys } from './keys.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const FIXTURE_PATH = resolve(dirname(__filename), 'fixtures/prompt-script.js');
+const SELECT_FIXTURE_PATH = resolve(dirname(__filename), 'fixtures/select-script.js');
 
 describe('cli-runner', () => {
   /** @type {string | undefined} */
@@ -80,5 +82,54 @@ describe('cli-runner', () => {
 
     assert.strictEqual(result.exitCode, 0);
     assert.strictEqual(result.stdout, 'A1=first\nA2=second');
+  });
+
+  describe('PTY mode', () => {
+    beforeEach(() => {
+      process.env.CLEVER_BIN = process.execPath;
+    });
+
+    it('drives a raw-mode @inquirer/select prompt with arrow keys', async () => {
+      const result = await runCli([SELECT_FIXTURE_PATH], {
+        pty: true,
+        interactions: [{ waitFor: /Pick one/, send: keys.DOWN + keys.DOWN + keys.ENTER }],
+      });
+
+      assert.strictEqual(result.exitCode, 0);
+      assert.strictEqual(result.stderr, '');
+      assert.strictEqual(
+        result.output,
+        [
+          '? Pick one',
+          '  Alpha',
+          '❯ Beta',
+          '  Gamma? Pick one',
+          '  Alpha',
+          '  Beta',
+          '❯ Gamma✔ Pick one Gamma',
+          'PICKED=gamma',
+        ].join('\n'),
+      );
+    });
+
+    it('selects the first choice with ENTER alone', async () => {
+      const result = await runCli([SELECT_FIXTURE_PATH], {
+        pty: true,
+        interactions: [{ waitFor: /Pick one/, send: keys.ENTER }],
+      });
+
+      assert.strictEqual(result.exitCode, 0);
+      assert.strictEqual(result.output, '✔ Pick one Alpha\nPICKED=alpha');
+    });
+
+    it('times out cleanly when the expected prompt never appears', async () => {
+      await assert.rejects(
+        runCli([SELECT_FIXTURE_PATH], {
+          pty: true,
+          interactions: [{ waitFor: /never-shown/, send: keys.ENTER, timeoutMs: 500 }],
+        }),
+        /Interaction timed out after 500ms/,
+      );
+    });
   });
 });
