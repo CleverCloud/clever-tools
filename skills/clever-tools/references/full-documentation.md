@@ -420,12 +420,13 @@ clever addon providers show <addon-provider> [options]
 
 **Arguments**
 ```
-addon-provider           Add-on provider
+addon-provider                          Add-on provider
 ```
 
 **Options**
 ```
--F, --format <format>    Output format (human, json) (default: human)
+-F, --format <format>                   Output format (human, json) (default: human)
+-o, --org, --owner <org-id|org-name>    Organisation to target by its ID (or name, if unambiguous)
 ```
 
 ### addon rename
