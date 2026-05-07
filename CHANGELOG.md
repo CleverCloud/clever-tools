@@ -1,5 +1,18 @@
 # clever-tools changelog
 
+## [4.10.0](https://github.com/CleverCloud/clever-tools/compare/4.9.0...4.10.0) (2026-05-07)
+
+
+### 🚀 Features
+
+* **addon:** add --org option to `addon providers show` ([1617f8b](https://github.com/CleverCloud/clever-tools/commit/1617f8bb90f2ae6b8b06460942eb29390f6bd8c0))
+* **addon:** add --org option to `addon providers` ([e058a47](https://github.com/CleverCloud/clever-tools/commit/e058a47e6eb5357a0929bb9879ce20b64e9bd6b9))
+
+
+### 🐛 Bug Fixes
+
+* **addon:** use --org to validate the allowed zones with `addon create` ([0899e34](https://github.com/CleverCloud/clever-tools/commit/0899e34e62128eac65a80bc0200810c756a6231a))
+
 ## [4.9.0](https://github.com/CleverCloud/clever-tools/compare/4.8.0...4.9.0) (2026-04-28)
 
 
