@@ -284,7 +284,7 @@ export async function operatorPrint(provider, addonIdOrName, format = 'human') {
       break;
     case 'human':
     default:
-      console.table(dataToPrint);
+      Logger.printTable(dataToPrint);
       break;
   }
 }

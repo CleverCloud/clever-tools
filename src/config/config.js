@@ -1,5 +1,6 @@
 import path from 'node:path';
 import { z } from 'zod';
+import { exit } from '../lib/exit.js';
 import { readJsonSync, writeJson } from '../lib/fs.js';
 import { Logger } from '../logger.js';
 import { getConfigPath } from './paths.js';
@@ -90,7 +91,8 @@ function loadBaseConfig() {
   if (!result.success) {
     const errors = result.error.issues.map((issue) => `- ${issue.path.join('.')}: ${issue.message}`).join('\n');
     Logger.error(`Invalid configuration:\n${errors}`);
-    process.exit(1);
+    exit(1);
+    throw new Error('Invalid base configuration');
   }
 
   return result.data;
@@ -134,7 +136,8 @@ function loadConfig() {
   if (!result.success) {
     const errors = result.error.issues.map((issue) => `- ${issue.path.join('.')}: ${issue.message}`).join('\n');
     Logger.error(`Invalid configuration:\n${errors}`);
-    process.exit(1);
+    exit(1);
+    throw new Error('Invalid configuration');
   }
 
   return result.data;

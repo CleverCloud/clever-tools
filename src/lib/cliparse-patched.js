@@ -3,6 +3,7 @@ import cliparseCommandModule from 'cliparse/src/command.js';
 import semver from 'semver';
 import pkg from '../../package.json' with { type: 'json' };
 import { Logger } from '../logger.js';
+import { exit } from './exit.js';
 import { getCommandInfo } from './get-command-info.js';
 import { styleText } from './style-text.js';
 
@@ -19,16 +20,19 @@ cliparseOriginal.command = function (name, options, commandFunction) {
     // to the original keys from the command definition (e.g. 'indexPrefix')
     const mappedOptions = mapOptionsToDefinitionKeys(params.options, command._definition);
     const promise = commandFunction(mappedOptions, ...args);
-    promise.catch((error) => {
-      Logger.error(error);
-      const semverIsOk = semver.satisfies(process.version, pkg.engines.node);
-      if (!semverIsOk) {
-        Logger.warn(
-          `You are using node ${process.version}, some of our commands require node ${pkg.engines.node}. The error may be caused by this.`,
-        );
-      }
-      process.exit(1);
-    });
+    promise.then(
+      () => exit(0),
+      (error) => {
+        Logger.error(error);
+        const semverIsOk = semver.satisfies(process.version, pkg.engines.node);
+        if (!semverIsOk) {
+          Logger.printWarning(
+            `You are using node ${process.version}, some of our commands require node ${pkg.engines.node}. The error may be caused by this.`,
+          );
+        }
+        exit(1);
+      },
+    );
   });
   return command;
 };

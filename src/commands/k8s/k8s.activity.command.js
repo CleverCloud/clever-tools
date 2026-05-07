@@ -34,7 +34,7 @@ export const k8sActivityCommand = defineCommand({
           Logger.println('🔎 No deployment event found');
           return;
         }
-        console.table(
+        Logger.printTable(
           events.map((e) => ({
             Date: formatDate(e.createdAt),
             Operation: e.operation,

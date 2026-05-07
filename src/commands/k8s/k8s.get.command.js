@@ -39,12 +39,12 @@ export const k8sGetCommand = defineCommand({
         if (k8sInfo.storageUsageBytes != null) {
           overview.Storage = `${Math.round((k8sInfo.storageUsageBytes / 1024 ** 3) * 100) / 100} GB`;
         }
-        console.table(overview);
+        Logger.printTable(overview);
 
         if (topo?.topology === 'DISTRIBUTED' && topo.components) {
           Logger.println('');
           Logger.println('🧩 Control plane components');
-          console.table(
+          Logger.printTable(
             Object.fromEntries(
               Object.entries(topo.components).map(([name, c]) => [
                 name,
@@ -57,7 +57,7 @@ export const k8sGetCommand = defineCommand({
         if (k8sInfo.nodeGroups?.length) {
           Logger.println('');
           Logger.println(`🧮 Node groups (${k8sInfo.nodeGroups.length})`);
-          console.table(
+          Logger.printTable(
             Object.fromEntries(
               k8sInfo.nodeGroups.map((ng) => [
                 ng.id,
@@ -76,7 +76,7 @@ export const k8sGetCommand = defineCommand({
           Logger.println('');
           Logger.println(`🔀 Load balancers (${k8sInfo.loadBalancers.length})`);
           k8sInfo.loadBalancers.forEach((lb) => {
-            console.table({
+            Logger.printTable({
               ID: lb.id,
               Flavor: lb.flavor,
               IPs: lb.ips?.join(', ') ?? '-',

@@ -133,7 +133,7 @@ export const addonCreateCommand = defineCommand({
     if (linkedAppAlias != null) {
       const linkedAppData = await AppConfig.getAppDetails({ alias: linkedAppAlias });
       if (orgaIdOrName != null && linkedAppData.ownerId !== ownerId && format === 'human') {
-        Logger.warn(
+        Logger.printWarning(
           'The specified application does not belong to the specified organisation. Ignoring the `--org` option',
         );
       }

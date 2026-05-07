@@ -124,7 +124,7 @@ export function printValue(app, id) {
 }
 
 export function printAllValues(app) {
-  console.table(
+  Logger.printTable(
     Object.fromEntries(
       CONFIG_KEYS.map((configKey) => {
         return [configKey.id, formatValue(configKey, app[configKey.name])];
