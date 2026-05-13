@@ -24,7 +24,9 @@
     "src/logger.js",
     "src/lib/fs.js",
     "src/lib/date-utils.js",
-    "src/config/*"
+    "src/config/*",
+    "test",
+    "src/**/*.test.js"
   ],
   "exclude": ["build", "docs", "node_modules", "scripts/generate-docs.js"]
 }

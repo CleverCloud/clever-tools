@@ -22,13 +22,20 @@ export class Deferred {
  * @param {string} message The message to display before opening the URL
  * @returns {Promise<void>} A promise that resolves when the URL is opened
  */
-export function openBrowser(urlOrPath, message) {
+export async function openBrowser(urlOrPath, message) {
   const url = urlOrPath.startsWith('/') ? `${config.CONSOLE_URL}${urlOrPath}` : urlOrPath;
 
   Logger.debug(`Opening URL "${url}" in browser`);
   Logger.println(`🌐 ${message}`);
 
-  return openPage(url, { wait: false });
+  // const browserCommand = process.env.CC_CLI_TEST_BROWSER_COMMAND;
+  // if (browserCommand != null) {
+  //   const [cmd, ...args] = browserCommand.split(/\s+/).filter(Boolean);
+  //   spawn(cmd, [...args, url], { stdio: 'ignore', detached: true }).unref();
+  //   return;
+  // }
+
+  await openPage(url, { wait: false });
 }
 
 export function truncateWithEllipsis(length, string) {
