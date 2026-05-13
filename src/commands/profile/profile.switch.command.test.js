@@ -166,10 +166,7 @@ describe('profile switch command', () => {
         .withConfigFile(ONE_PROFILE)
         .thenRunCli(['profile', 'switch'], { expectExitCode: 1 });
 
-      assert.strictEqual(
-        result.stderr,
-        '[ERROR] Only one profile. Use clever login --alias <name> to add another.',
-      );
+      assert.strictEqual(result.stderr, '[ERROR] Only one profile. Use clever login --alias <name> to add another.');
     });
 
     it('errors when CLEVER_TOKEN/CLEVER_SECRET env-based auth is in use', async () => {

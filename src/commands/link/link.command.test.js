@@ -77,10 +77,7 @@ describe('link command', () => {
           assert.strictEqual(fsRead.readAppConfigFile().apps[0].alias, 'prod');
         });
 
-      assert.strictEqual(
-        result.stdout,
-        `✓ Application ${APP_ID} has been successfully linked to local alias prod!`,
-      );
+      assert.strictEqual(result.stdout, `✓ Application ${APP_ID} has been successfully linked to local alias prod!`);
       assert.strictEqual(result.stderr, '');
     });
 

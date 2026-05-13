@@ -84,7 +84,11 @@ describe('database backups download command', () => {
         .respond({
           status: 200,
           body: [
-            backupEntry({ id: OTHER_BACKUP_ID, date: '2026-01-01T00:00:00Z', downloadUrl: `${apiHost}/downloads/${OTHER_BACKUP_ID}` }),
+            backupEntry({
+              id: OTHER_BACKUP_ID,
+              date: '2026-01-01T00:00:00Z',
+              downloadUrl: `${apiHost}/downloads/${OTHER_BACKUP_ID}`,
+            }),
             backupEntry({ downloadUrl: `${apiHost}${downloadPath}` }),
           ],
         })

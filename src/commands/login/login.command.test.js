@@ -145,12 +145,18 @@ describe('login command', () => {
         .respond({ status: 200, body: SELF })
         .thenRunCli([
           'login',
-          '--token', 't',
-          '--secret', 's',
-          '--auth-bridge-host', 'https://bridge.example.com',
-          '--ssh-gateway', 'gateway.example.com',
-          '--oauth-consumer-key', 'k',
-          '--oauth-consumer-secret', 'cs',
+          '--token',
+          't',
+          '--secret',
+          's',
+          '--auth-bridge-host',
+          'https://bridge.example.com',
+          '--ssh-gateway',
+          'gateway.example.com',
+          '--oauth-consumer-key',
+          'k',
+          '--oauth-consumer-secret',
+          'cs',
         ])
         .verifyFiles((fsRead) => {
           assert.deepStrictEqual(fsRead.readConfigFile().profiles[0].overrides, {
