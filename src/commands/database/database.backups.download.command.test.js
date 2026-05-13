@@ -1,7 +1,14 @@
+/* eslint-disable camelcase */
+// API fields below (backup_id, creation_date, download_url) are snake_case on purpose:
+// they mirror the Clever Cloud API response shape and the eslint rule is disabled per
+// the test-checklist's §4 guidance for mock object literals.
+
 import * as assert from 'node:assert';
 import { after, before, beforeEach, describe, it } from 'node:test';
 import { cliHooks } from '../../../test/cli-hooks.js';
+import { NOT_LOGGED_IN_ERROR } from '../../../test/fixtures/errors.js';
 import { ADDON_ID, ORGA_ID, UUID } from '../../../test/fixtures/id.js';
+import { idsCache } from '../../../test/fixtures/ids-cache.js';
 import { SELF } from '../../../test/fixtures/self.js';
 
 /**
@@ -20,20 +27,13 @@ const SUMMARY = {
       id: ORGA_ID,
       name: 'test-org',
       applications: [],
-      addons: [
-        {
-          id: ADDON_ID,
-          realId: REAL_ADDON_ID,
-          name: 'my-db',
-          providerId: 'postgresql-addon',
-        },
-      ],
+      addons: [{ id: ADDON_ID, realId: REAL_ADDON_ID, name: 'my-db', providerId: 'postgresql-addon' }],
       consumers: [],
     },
   ],
 };
 
-const IDS_CACHE = {
+const ADDON_IDS_CACHE = idsCache({
   owners: {
     [ADDON_ID]: ORGA_ID,
     [REAL_ADDON_ID]: ORGA_ID,
@@ -42,7 +42,22 @@ const IDS_CACHE = {
     [ADDON_ID]: { addonId: ADDON_ID, realId: REAL_ADDON_ID },
     [REAL_ADDON_ID]: { addonId: ADDON_ID, realId: REAL_ADDON_ID },
   },
-};
+});
+
+const BACKUPS_ENDPOINT = '/v2/backups/:ownerId/:realAddonId';
+
+/**
+ * Build a single API-shaped backup entry. Use it as a fixture for /v2/backups response bodies.
+ * @param {{ id?: string, date?: string, downloadUrl: string }} props
+ */
+function backupEntry({ id = BACKUP_ID, date = '2026-02-01T00:00:00Z', downloadUrl }) {
+  return {
+    backup_id: id,
+    creation_date: date,
+    status: 'COMPLETED',
+    download_url: downloadUrl,
+  };
+}
 
 describe('database backups download command', () => {
   const hooks = cliHooks();
@@ -60,211 +75,180 @@ describe('database backups download command', () => {
 
   after(hooks.after);
 
-  it('should write backup content to stdout when --output is omitted', async () => {
-    const downloadPath = `/downloads/${BACKUP_ID}`;
-    const result = await newScenario()
-      .withIdsCacheFile(IDS_CACHE)
-      .when({ method: 'GET', path: '/v2/backups/:ownerId/:realAddonId' })
-      .respond({
-        status: 200,
-        body: [
-          {
-            backup_id: OTHER_BACKUP_ID,
-            creation_date: '2026-01-01T00:00:00Z',
-            status: 'COMPLETED',
-            download_url: `${apiHost}/downloads/${OTHER_BACKUP_ID}`,
-          },
-          {
-            backup_id: BACKUP_ID,
-            creation_date: '2026-02-01T00:00:00Z',
-            status: 'COMPLETED',
-            download_url: `${apiHost}${downloadPath}`,
-          },
-        ],
-      })
-      .when({ method: 'GET', path: downloadPath })
-      .respond({ status: 200, body: BACKUP_CONTENT })
-      .thenRunCli(['database', 'backups', 'download', ADDON_ID, BACKUP_ID])
-      .verify((calls) => {
-        assert.strictEqual(calls.count, 2);
-        assert.strictEqual(calls.first.pathParams?.ownerId, ORGA_ID);
-        assert.strictEqual(calls.first.pathParams?.realAddonId, REAL_ADDON_ID);
-        assert.strictEqual(calls.last.path, downloadPath);
-      });
+  describe('happy path', () => {
+    it('writes backup content to stdout when --output is omitted', async () => {
+      const downloadPath = `/downloads/${BACKUP_ID}`;
+      const result = await newScenario()
+        .withIdsCacheFile(ADDON_IDS_CACHE)
+        .when({ method: 'GET', path: BACKUPS_ENDPOINT })
+        .respond({
+          status: 200,
+          body: [
+            backupEntry({ id: OTHER_BACKUP_ID, date: '2026-01-01T00:00:00Z', downloadUrl: `${apiHost}/downloads/${OTHER_BACKUP_ID}` }),
+            backupEntry({ downloadUrl: `${apiHost}${downloadPath}` }),
+          ],
+        })
+        .when({ method: 'GET', path: downloadPath })
+        .respond({ status: 200, body: BACKUP_CONTENT })
+        .thenRunCli(['database', 'backups', 'download', ADDON_ID, BACKUP_ID])
+        .verify((calls) => {
+          assert.strictEqual(calls.count, 2);
+          assert.strictEqual(calls.first.pathParams?.ownerId, ORGA_ID);
+          assert.strictEqual(calls.first.pathParams?.realAddonId, REAL_ADDON_ID);
+          assert.strictEqual(calls.last.path, downloadPath);
+        });
 
-    assert.strictEqual(result.stdout, BACKUP_CONTENT);
-    assert.strictEqual(result.stderr, '');
+      assert.strictEqual(result.stdout, BACKUP_CONTENT);
+      assert.strictEqual(result.stderr, '');
+    });
+
+    it('writes backup content to a file when --output is provided', async () => {
+      const downloadPath = `/downloads/${BACKUP_ID}`;
+      const result = await newScenario()
+        .withAppFile('placeholder', '')
+        .withIdsCacheFile(ADDON_IDS_CACHE)
+        .when({ method: 'GET', path: BACKUPS_ENDPOINT })
+        .respond({ status: 200, body: [backupEntry({ downloadUrl: `${apiHost}${downloadPath}` })] })
+        .when({ method: 'GET', path: downloadPath })
+        .respond({ status: 200, body: BACKUP_CONTENT })
+        .thenRunCli(['database', 'backups', 'download', ADDON_ID, BACKUP_ID, '--output', 'backup.dump'])
+        .verify((calls) => {
+          assert.strictEqual(calls.count, 2);
+          assert.strictEqual(calls.last.path, downloadPath);
+        })
+        .verifyFiles((fsRead) => {
+          assert.strictEqual(fsRead.readAppFile('backup.dump'), BACKUP_CONTENT);
+        });
+
+      assert.strictEqual(result.stdout, '');
+      assert.strictEqual(result.stderr, '');
+    });
+
+    it('accepts --out as an alias for --output', async () => {
+      const downloadPath = `/downloads/${BACKUP_ID}`;
+      const result = await newScenario()
+        .withAppFile('placeholder', '')
+        .withIdsCacheFile(ADDON_IDS_CACHE)
+        .when({ method: 'GET', path: BACKUPS_ENDPOINT })
+        .respond({ status: 200, body: [backupEntry({ downloadUrl: `${apiHost}${downloadPath}` })] })
+        .when({ method: 'GET', path: downloadPath })
+        .respond({ status: 200, body: BACKUP_CONTENT })
+        .thenRunCli(['database', 'backups', 'download', ADDON_ID, BACKUP_ID, '--out', 'backup.dump'])
+        .verify((calls) => {
+          assert.strictEqual(calls.count, 2);
+          assert.strictEqual(calls.last.path, downloadPath);
+        })
+        .verifyFiles((fsRead) => {
+          assert.strictEqual(fsRead.readAppFile('backup.dump'), BACKUP_CONTENT);
+        });
+
+      assert.strictEqual(result.stdout, '');
+      assert.strictEqual(result.stderr, '');
+    });
   });
 
-  it('should write backup content to a file when --output is provided', async () => {
-    const downloadPath = `/downloads/${BACKUP_ID}`;
-    const result = await newScenario()
-      .withAppFile('placeholder', '')
-      .withIdsCacheFile(IDS_CACHE)
-      .when({ method: 'GET', path: '/v2/backups/:ownerId/:realAddonId' })
-      .respond({
-        status: 200,
-        body: [
-          {
-            backup_id: BACKUP_ID,
-            creation_date: '2026-02-01T00:00:00Z',
-            status: 'COMPLETED',
-            download_url: `${apiHost}${downloadPath}`,
-          },
-        ],
-      })
-      .when({ method: 'GET', path: downloadPath })
-      .respond({ status: 200, body: BACKUP_CONTENT })
-      .thenRunCli(['database', 'backups', 'download', ADDON_ID, BACKUP_ID, '--output', 'backup.dump'])
-      .verify((calls) => {
-        assert.strictEqual(calls.count, 2);
-        assert.strictEqual(calls.last.path, downloadPath);
-      })
-      .verifyFiles((fsRead) => {
-        assert.strictEqual(fsRead.readAppFile('backup.dump'), BACKUP_CONTENT);
-      });
+  describe('arguments and options', () => {
+    it('errors when no arguments are given', async () => {
+      const result = await newScenario()
+        .thenRunCli(['database', 'backups', 'download'], { expectExitCode: 1 })
+        .verify((calls) => {
+          assert.strictEqual(calls.count, 0);
+        });
 
-    assert.strictEqual(result.stdout, '');
-    assert.strictEqual(result.stderr, '');
+      assert.match(result.stdout, /missing value/);
+    });
+
+    it('errors when only the addon argument is given', async () => {
+      const result = await newScenario()
+        .thenRunCli(['database', 'backups', 'download', ADDON_ID], { expectExitCode: 1 })
+        .verify((calls) => {
+          assert.strictEqual(calls.count, 0);
+        });
+
+      assert.match(result.stdout, /backup-id: missing value/);
+    });
   });
 
-  it('should accept --out as an alias for --output', async () => {
-    const downloadPath = `/downloads/${BACKUP_ID}`;
-    const result = await newScenario()
-      .withAppFile('placeholder', '')
-      .withIdsCacheFile(IDS_CACHE)
-      .when({ method: 'GET', path: '/v2/backups/:ownerId/:realAddonId' })
-      .respond({
-        status: 200,
-        body: [
-          {
-            backup_id: BACKUP_ID,
-            creation_date: '2026-02-01T00:00:00Z',
-            status: 'COMPLETED',
-            download_url: `${apiHost}${downloadPath}`,
-          },
-        ],
-      })
-      .when({ method: 'GET', path: downloadPath })
-      .respond({ status: 200, body: BACKUP_CONTENT })
-      .thenRunCli(['database', 'backups', 'download', ADDON_ID, BACKUP_ID, '--out', 'backup.dump'])
-      .verify((calls) => {
-        assert.strictEqual(calls.count, 2);
-        assert.strictEqual(calls.last.path, downloadPath);
-      })
-      .verifyFiles((fsRead) => {
-        assert.strictEqual(fsRead.readAppFile('backup.dump'), BACKUP_CONTENT);
-      });
+  describe('backup selection', () => {
+    it('errors when no backup matches the given ID', async () => {
+      const result = await newScenario()
+        .withIdsCacheFile(ADDON_IDS_CACHE)
+        .when({ method: 'GET', path: BACKUPS_ENDPOINT })
+        .respond({
+          status: 200,
+          body: [backupEntry({ id: OTHER_BACKUP_ID, downloadUrl: `${apiHost}/downloads/${OTHER_BACKUP_ID}` })],
+        })
+        .thenRunCli(['database', 'backups', 'download', ADDON_ID, BACKUP_ID], { expectExitCode: 1 })
+        .verify((calls) => {
+          assert.strictEqual(calls.count, 1);
+        });
 
-    assert.strictEqual(result.stdout, '');
-    assert.strictEqual(result.stderr, '');
+      assert.strictEqual(result.stdout, '');
+      assert.strictEqual(result.stderr, '[ERROR] no backup with this ID');
+    });
+
+    it('errors when the backup list is empty', async () => {
+      const result = await newScenario()
+        .withIdsCacheFile(ADDON_IDS_CACHE)
+        .when({ method: 'GET', path: BACKUPS_ENDPOINT })
+        .respond({ status: 200, body: [] })
+        .thenRunCli(['database', 'backups', 'download', ADDON_ID, BACKUP_ID], { expectExitCode: 1 })
+        .verify((calls) => {
+          assert.strictEqual(calls.count, 1);
+        });
+
+      assert.strictEqual(result.stdout, '');
+      assert.strictEqual(result.stderr, '[ERROR] no backup with this ID');
+    });
   });
 
-  it('should error when no backup matches the given ID', async () => {
-    const result = await newScenario()
-      .withIdsCacheFile(IDS_CACHE)
-      .when({ method: 'GET', path: '/v2/backups/:ownerId/:realAddonId' })
-      .respond({
-        status: 200,
-        body: [
-          {
-            backup_id: OTHER_BACKUP_ID,
-            creation_date: '2026-01-01T00:00:00Z',
-            status: 'COMPLETED',
-            download_url: `${apiHost}/downloads/${OTHER_BACKUP_ID}`,
-          },
-        ],
-      })
-      .thenRunCli(['database', 'backups', 'download', ADDON_ID, BACKUP_ID], { expectExitCode: 1 })
-      .verify((calls) => {
-        assert.strictEqual(calls.count, 1);
-      });
+  describe('API errors', () => {
+    it('reports the error body when the backups list endpoint returns a non-2xx status', async () => {
+      const result = await newScenario()
+        .withIdsCacheFile(ADDON_IDS_CACHE)
+        .when({ method: 'GET', path: BACKUPS_ENDPOINT })
+        .respond({ status: 500, body: { error: 'oops' } })
+        .thenRunCli(['database', 'backups', 'download', ADDON_ID, BACKUP_ID], { expectExitCode: 1 })
+        .verify((calls) => {
+          assert.strictEqual(calls.count, 1);
+        });
 
-    assert.strictEqual(result.stdout, '');
-    assert.strictEqual(result.stderr, '[ERROR] no backup with this ID');
+      assert.strictEqual(result.stdout, '');
+      assert.strictEqual(result.stderr, '[ERROR] oops');
+    });
+
+    it('errors when the download URL returns a non-OK status', async () => {
+      const downloadPath = `/downloads/${BACKUP_ID}`;
+      const result = await newScenario()
+        .withIdsCacheFile(ADDON_IDS_CACHE)
+        .when({ method: 'GET', path: BACKUPS_ENDPOINT })
+        .respond({ status: 200, body: [backupEntry({ downloadUrl: `${apiHost}${downloadPath}` })] })
+        .when({ method: 'GET', path: downloadPath })
+        .respond({ status: 500, body: { error: 'oops' } })
+        .thenRunCli(['database', 'backups', 'download', ADDON_ID, BACKUP_ID], { expectExitCode: 1 })
+        .verify((calls) => {
+          assert.strictEqual(calls.count, 2);
+        });
+
+      assert.strictEqual(result.stdout, '');
+      assert.strictEqual(result.stderr, '[ERROR] Failed to download backup');
+    });
   });
 
-  it('should error when the addon list is empty', async () => {
-    const result = await newScenario()
-      .withIdsCacheFile(IDS_CACHE)
-      .when({ method: 'GET', path: '/v2/backups/:ownerId/:realAddonId' })
-      .respond({ status: 200, body: [] })
-      .thenRunCli(['database', 'backups', 'download', ADDON_ID, BACKUP_ID], { expectExitCode: 1 })
-      .verify((calls) => {
-        assert.strictEqual(calls.count, 1);
-      });
+  describe('no auth', () => {
+    it('shows the not-logged-in error when the backups endpoint returns 401', async () => {
+      const result = await newScenario()
+        .withIdsCacheFile(ADDON_IDS_CACHE)
+        .when({ method: 'GET', path: BACKUPS_ENDPOINT })
+        .respond({ status: 401, body: { error: 'unauthorized' } })
+        .thenRunCli(['database', 'backups', 'download', ADDON_ID, BACKUP_ID], { expectExitCode: 1 })
+        .verify((calls) => {
+          assert.strictEqual(calls.count, 1);
+        });
 
-    assert.strictEqual(result.stdout, '');
-    assert.strictEqual(result.stderr, '[ERROR] no backup with this ID');
-  });
-
-  it('should error when the download URL returns a non-OK status', async () => {
-    const downloadPath = `/downloads/${BACKUP_ID}`;
-    const result = await newScenario()
-      .withIdsCacheFile(IDS_CACHE)
-      .when({ method: 'GET', path: '/v2/backups/:ownerId/:realAddonId' })
-      .respond({
-        status: 200,
-        body: [
-          {
-            backup_id: BACKUP_ID,
-            creation_date: '2026-02-01T00:00:00Z',
-            status: 'COMPLETED',
-            download_url: `${apiHost}${downloadPath}`,
-          },
-        ],
-      })
-      .when({ method: 'GET', path: downloadPath })
-      .respond({ status: 500, body: { error: 'oops' } })
-      .thenRunCli(['database', 'backups', 'download', ADDON_ID, BACKUP_ID], { expectExitCode: 1 })
-      .verify((calls) => {
-        assert.strictEqual(calls.count, 2);
-      });
-
-    assert.strictEqual(result.stdout, '');
-    assert.strictEqual(result.stderr, '[ERROR] Failed to download backup');
-  });
-
-  it('should error when the addon ID is unknown', async () => {
-    const result = await newScenario()
-      .when({ method: 'GET', path: '/v2/summary' })
-      .respond({ status: 200, body: SUMMARY })
-      .thenRunCli(['database', 'backups', 'download', 'addon_unknown', BACKUP_ID], { expectExitCode: 1 })
-      .verify((calls) => {
-        console.log(calls.first.path);
-      });
-
-    assert.strictEqual(result.stdout, '');
-    assert.strictEqual(result.stderr, '[ERROR] Add-on addon_unknown does not exist');
-  });
-
-  it('should resolve the addon by its real ID', async () => {
-    const downloadPath = `/downloads/${BACKUP_ID}`;
-    const result = await newScenario()
-      .when({ method: 'GET', path: '/v2/summary' })
-      .respond({ status: 200, body: SUMMARY })
-      .when({ method: 'GET', path: '/v2/backups/:ownerId/:realAddonId' })
-      .respond({
-        status: 200,
-        body: [
-          {
-            backup_id: BACKUP_ID,
-            creation_date: '2026-02-01T00:00:00Z',
-            status: 'COMPLETED',
-            download_url: `${apiHost}${downloadPath}`,
-          },
-        ],
-      })
-      .when({ method: 'GET', path: downloadPath })
-      .respond({ status: 200, body: BACKUP_CONTENT })
-      .thenRunCli(['database', 'backups', 'download', REAL_ADDON_ID, BACKUP_ID])
-      .verify((calls) => {
-        assert.strictEqual(calls.count, 3);
-        assert.strictEqual(calls.first.path, '/v2/summary');
-      });
-
-    assert.strictEqual(result.stdout, BACKUP_CONTENT);
-    assert.strictEqual(result.stderr, '');
+      assert.strictEqual(result.stdout, '');
+      assert.strictEqual(result.stderr, NOT_LOGGED_IN_ERROR);
+    });
   });
 
   describe('addon ID resolution', () => {
@@ -276,18 +260,8 @@ describe('database backups download command', () => {
      */
     function withSuccessfulBackup(scenario) {
       return scenario
-        .when({ method: 'GET', path: '/v2/backups/:ownerId/:realAddonId' })
-        .respond({
-          status: 200,
-          body: [
-            {
-              backup_id: BACKUP_ID,
-              creation_date: '2026-02-01T00:00:00Z',
-              status: 'COMPLETED',
-              download_url: `${apiHost}${downloadPath}`,
-            },
-          ],
-        })
+        .when({ method: 'GET', path: BACKUPS_ENDPOINT })
+        .respond({ status: 200, body: [backupEntry({ downloadUrl: `${apiHost}${downloadPath}` })] })
         .when({ method: 'GET', path: downloadPath })
         .respond({ status: 200, body: BACKUP_CONTENT });
     }
@@ -295,7 +269,7 @@ describe('database backups download command', () => {
     // === addon ID (addon_<UUID>) ===
 
     it('resolves an addon ID from cache without calling /v2/summary', async () => {
-      const result = await withSuccessfulBackup(newScenario().withIdsCacheFile(IDS_CACHE))
+      const result = await withSuccessfulBackup(newScenario().withIdsCacheFile(ADDON_IDS_CACHE))
         .thenRunCli(['database', 'backups', 'download', ADDON_ID, BACKUP_ID])
         .verify((calls) => {
           assert.strictEqual(calls.count, 2);
@@ -352,7 +326,7 @@ describe('database backups download command', () => {
     // === real ID (postgresql_<UUID>) ===
 
     it('resolves a real ID from cache without calling /v2/summary', async () => {
-      const result = await withSuccessfulBackup(newScenario().withIdsCacheFile(IDS_CACHE))
+      const result = await withSuccessfulBackup(newScenario().withIdsCacheFile(ADDON_IDS_CACHE))
         .thenRunCli(['database', 'backups', 'download', REAL_ADDON_ID, BACKUP_ID])
         .verify((calls) => {
           assert.strictEqual(calls.count, 2);
@@ -411,7 +385,7 @@ describe('database backups download command', () => {
 
     it('errors when an addon name is passed (cache hit by name is not supported)', async () => {
       const result = await newScenario()
-        .withIdsCacheFile(IDS_CACHE)
+        .withIdsCacheFile(ADDON_IDS_CACHE)
         .when({ method: 'GET', path: '/v2/summary' })
         .respond({ status: 200, body: SUMMARY })
         .thenRunCli(['database', 'backups', 'download', ADDON_NAME, BACKUP_ID], { expectExitCode: 1 })
