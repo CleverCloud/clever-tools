@@ -2,7 +2,6 @@ import { get as getUser } from '@clevercloud/client/esm/api/v2/organisation.js';
 import dedent from 'dedent';
 import crypto from 'node:crypto';
 import { setTimeout as delay } from 'node:timers/promises';
-import open from 'open';
 import { z } from 'zod';
 import pkg from '../../../package.json' with { type: 'json' };
 import { baseConfig, config, saveProfile } from '../../config/config.js';
@@ -12,6 +11,7 @@ import { formatProfile } from '../../lib/profile.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
 import { sendToApiWithConfig } from '../../models/send-to-api.js';
+import { openBrowser } from '../../models/utils.js';
 
 function randomToken() {
   return crypto.randomBytes(20).toString('base64').replace(/\//g, '-').replace(/\+/g, '_').replace(/=/g, '');
@@ -55,8 +55,10 @@ async function loginViaConsole(apiHost, consoleTokenUrl) {
   cliPollUrl.searchParams.set('cli_token', cliToken);
 
   Logger.debug('Try to login to Clever Cloud…');
-  Logger.println(`Opening ${styleText('blue', consoleUrl.toString())} in your browser to log you in…`);
-  await open(consoleUrl.toString(), { wait: false });
+  await openBrowser(
+    consoleUrl.toString(),
+    `Opening ${styleText('blue', consoleUrl.toString())} in your browser to log you in…`,
+  );
 
   return pollOauthData(cliPollUrl.toString());
 }
