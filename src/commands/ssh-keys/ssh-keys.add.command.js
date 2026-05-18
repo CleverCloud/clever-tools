@@ -30,7 +30,6 @@ export const sshKeysAddCommand = defineCommand({
     try {
       await addSshKey({ key: encodeURIComponent(keyName) }, JSON.stringify(pubKeyContent)).then(sendToApi);
     } catch (e) {
-      console.log(e?.responseBody?.id);
       if (e?.responseBody?.id === 505) {
         throw new Error("This SSH key is not valid, please make sure you're pointing to the public key file");
       }
