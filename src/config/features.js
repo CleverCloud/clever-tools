@@ -3,9 +3,6 @@ import z from 'zod';
 import { readJsonSync, writeJson } from '../lib/fs.js';
 import { Logger } from '../logger.js';
 import { config } from './config.js';
-import { getConfigPath } from './paths.js';
-
-const EXPERIMENTAL_FEATURES_FILEPATH = getConfigPath('clever-tools-experimental-features.json');
 
 /**
  * @typedef {object} ExperimentalFeature
@@ -144,14 +141,15 @@ let userFeatures = loadFeatures();
  * @returns {FeaturesConfig} The features configuration object
  */
 function loadFeatures() {
-  Logger.debug(`Load features configuration from ${EXPERIMENTAL_FEATURES_FILEPATH}`);
-  const rawFeatures = readJsonSync(EXPERIMENTAL_FEATURES_FILEPATH);
+  const filePath = config.EXPERIMENTAL_FEATURES_FILE;
+  Logger.debug(`Load features configuration from ${filePath}`);
+  const rawFeatures = readJsonSync(filePath);
   if (rawFeatures == null) {
     return {};
   }
   const parsed = FeaturesConfigSchema.safeParse(rawFeatures);
   if (!parsed.success) {
-    Logger.info(`Invalid features format in ${EXPERIMENTAL_FEATURES_FILEPATH}`);
+    Logger.info(`Invalid features format in ${filePath}`);
     return {};
   }
   return parsed.data;
@@ -167,11 +165,12 @@ function loadFeatures() {
  * @throws {Error} If the features file cannot be written
  */
 export async function setFeature(feature, value) {
+  const filePath = config.EXPERIMENTAL_FEATURES_FILE;
   const newFeatures = { ...userFeatures, [feature]: value };
   try {
-    await writeJson(EXPERIMENTAL_FEATURES_FILEPATH, newFeatures, { mode: 0o700 });
+    await writeJson(filePath, newFeatures, { mode: 0o700 });
   } catch (error) {
-    throw new Error(`Cannot write experimental features configuration to ${EXPERIMENTAL_FEATURES_FILEPATH}`);
+    throw new Error(`Cannot write experimental features configuration to ${filePath}`);
   }
   userFeatures = loadFeatures();
 }
