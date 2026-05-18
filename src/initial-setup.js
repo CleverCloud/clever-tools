@@ -16,4 +16,5 @@ const colorExplicitFalse = hasParam('--no-color') || hasParam('--color', 'false'
 const colorExplicitTrue = hasParam('--color', 'true');
 if (colorExplicitFalse || (!process.stdout.isTTY && !colorExplicitTrue)) {
   process.env.NO_COLOR = '1';
+  delete process.env.FORCE_COLOR;
 }
