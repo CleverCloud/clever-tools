@@ -91,32 +91,45 @@ export const sshCommand = defineCommand({
     sshProcess.stdin.write(`exec $SHELL --login -c '${escapedCommand}'\n`);
     sshProcess.stdin.end();
 
-    // Skip gateway/login noise on both stdout and stderr, stream after the marker
+    // Skip gateway/login noise on both stdout and stderr, stream after the marker.
+    // If ssh never reaches the marker (auth failure, connection refused, bad key
+    // permissions, …) we flush the buffered pre-marker bytes on non-zero exit so
+    // the user actually sees the error instead of getting silent exit-255.
     let started = false;
-    let buf = '';
+    let stdoutBuf = '';
+    let stderrBuf = '';
     sshProcess.stdout.on('data', (chunk) => {
       if (started) {
         process.stdout.write(chunk);
         return;
       }
-      buf += chunk.toString();
-      const idx = buf.indexOf(marker + '\n');
+      stdoutBuf += chunk.toString();
+      const idx = stdoutBuf.indexOf(marker + '\n');
       if (idx !== -1) {
         started = true;
-        const rest = buf.slice(idx + marker.length + 1);
+        const rest = stdoutBuf.slice(idx + marker.length + 1);
         if (rest) process.stdout.write(rest);
-        buf = '';
+        stdoutBuf = '';
       }
     });
 
-    // Discard stderr noise before the marker, forward after
     sshProcess.stderr.on('data', (chunk) => {
       if (started) {
         process.stderr.write(chunk);
+      } else {
+        stderrBuf += chunk.toString();
       }
     });
 
     const exitCode = await new Promise((resolve) => sshProcess.on('exit', resolve));
+    if (exitCode !== 0 && !started) {
+      if (stdoutBuf) {
+        process.stdout.write(stdoutBuf);
+      }
+      if (stderrBuf) {
+        process.stderr.write(stderrBuf);
+      }
+    }
     process.exit(exitCode);
   },
 });
