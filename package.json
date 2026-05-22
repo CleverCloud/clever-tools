@@ -45,6 +45,7 @@
     "install-local:cliparse": "(cd ../cliparse-node && npm pack) && mv ../cliparse-node/cliparse-*.tgz . && npm i -f ./cliparse-*.tgz",
     "lint": "eslint",
     "lint:fix": "eslint --fix",
+    "test": "node --experimental-strip-types --disable-warning=ExperimentalWarning --test --test-force-exit --test-reporter=./test/reporter/reporter.ts 'src/**/*.test.ts'",
     "typecheck": "tsc -p tsconfig.json",
     "validate": "npm run lint && npm run format:check && npm run typecheck && npm run docs:check"
   },
@@ -72,6 +73,7 @@
   },
   "devDependencies": {
     "@aws-sdk/client-s3": "3.940.0",
+    "@clevercloud/doublure": "0.0.4",
     "@clevercloud/eslint-config": "1.1.0",
     "@commitlint/cli": "19.8.1",
     "@commitlint/config-conventional": "19.8.1",
@@ -85,11 +87,13 @@
     "eslint": "9.39.1",
     "globals": "16.5.0",
     "mime-types": "3.0.2",
+    "node-pty": "1.2.0-beta.13",
     "prettier": "3.7.3",
     "prettier-plugin-organize-imports": "4.3.0",
     "remark-parse": "11.0.0",
     "remark-stringify": "11.0.0",
     "rollup": "4.53.3",
+    "strip-ansi": "7.2.0",
     "tinyglobby": "0.2.15",
     "typescript": "5.9.3",
     "unified": "11.0.5"
