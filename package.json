@@ -46,6 +46,7 @@
     "lint": "eslint",
     "lint:fix": "eslint --fix",
     "test": "node --experimental-strip-types --disable-warning=ExperimentalWarning --test --test-force-exit --test-reporter=./test/reporter/reporter.ts 'src/**/*.test.ts'",
+    "test:coverage": "c8 node --experimental-strip-types --disable-warning=ExperimentalWarning --test --test-force-exit --test-reporter=./test/reporter/reporter.ts 'src/**/*.test.ts'",
     "typecheck": "tsc -p tsconfig.json",
     "validate": "npm run lint && npm run format:check && npm run typecheck && npm run docs:check"
   },
@@ -84,6 +85,7 @@
     "@types/mime-types": "3.0.1",
     "@types/picomatch": "4.0.2",
     "@yao-pkg/pkg": "6.10.1",
+    "c8": "11.0.0",
     "eslint": "9.39.1",
     "globals": "16.5.0",
     "mime-types": "3.0.2",
