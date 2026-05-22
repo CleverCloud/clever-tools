@@ -82,6 +82,21 @@ export class CellarClient {
   }
 
   /**
+   * Uploads multiple local files to the bucket with bounded parallelism.
+   * @param {Array<{ filepath: string, remoteFilepath: string }>} items - Files to upload
+   * @param {Object} [options]
+   * @param {number} [options.concurrency=8] - Max uploads in flight at once
+   * @param {(item: { filepath: string, remoteFilepath: string }) => void} [options.onUpload] - Called before each upload starts
+   * @throws {Error} When any upload fails
+   */
+  async uploadFiles(items, { concurrency = 8, onUpload } = {}) {
+    await this.#runInPool(items, concurrency, async (item) => {
+      onUpload?.(item);
+      await this.upload(item.filepath, item.remoteFilepath);
+    });
+  }
+
+  /**
    * Uploads raw data to the bucket with automatic content type detection.
    * @param {Buffer|string} body - The data to upload
    * @param {string} remoteFilepath - The destination path in the bucket
@@ -101,22 +116,23 @@ export class CellarClient {
   }
 
   /**
-   * Deletes all objects that match the given prefix.
+   * Deletes all objects that match the given prefix, with bounded parallelism.
    *
    * @param {string} remoteFilepath - The path prefix to delete (can be a file or directory)
+   * @param {Object} [options]
+   * @param {number} [options.concurrency=8] - Max deletes in flight at once
    * @throws {Error} When the deletion fails
    */
-  async delete(remoteFilepath) {
+  async delete(remoteFilepath, { concurrency = 8 } = {}) {
     const keys = await this.listObjects(remoteFilepath);
-    const promises = keys.map((key) => {
-      return this.#client.send(
+    await this.#runInPool(keys, concurrency, async (key) => {
+      await this.#client.send(
         new DeleteObjectCommand({
           Bucket: this.#bucket,
           Key: key,
         }),
       );
     });
-    await Promise.all(promises);
   }
 
   /**
@@ -138,5 +154,26 @@ export class CellarClient {
     }
 
     return [];
+  }
+
+  /**
+   * Runs `fn` over `items` with at most `concurrency` tasks in flight at once.
+   * Workers share the queue via `shift()` — safe under JS's single-threaded model.
+   * @template T
+   * @param {T[]} items
+   * @param {number} concurrency
+   * @param {(item: T) => Promise<void>} fn
+   * @returns {Promise<void>}
+   */
+  async #runInPool(items, concurrency, fn) {
+    const queue = items.slice();
+    const workers = Array.from({ length: Math.min(concurrency, items.length) }, async () => {
+      while (queue.length > 0) {
+        const item = queue.shift();
+        if (item === undefined) break;
+        await fn(item);
+      }
+    });
+    await Promise.all(workers);
   }
 }
