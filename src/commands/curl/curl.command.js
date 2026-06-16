@@ -67,6 +67,12 @@ export async function curl() {
     curlArgs.push('-H', `authorization: ${oauthHeader}`);
   }
 
+  // NODE_TLS_REJECT_UNAUTHORIZED has no effect on the spawned curl process, so we forward the intent explicitly
+  const alreadyInsecure = curlArgs.includes('-k') || curlArgs.includes('--insecure');
+  if (process.env.CLEVER_INSECURE === '1' && !alreadyInsecure) {
+    curlArgs.push('--insecure');
+  }
+
   spawn('curl', curlArgs, { stdio: 'inherit' });
 }
 

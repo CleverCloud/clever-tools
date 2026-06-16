@@ -184,3 +184,10 @@ export const verboseOption = defineOption({
   description: 'Verbose output',
   aliases: ['v'],
 });
+
+export const insecureOption = defineOption({
+  name: 'insecure',
+  schema: z.boolean().default(false),
+  description:
+    'Skip TLS certificate verification (you can also set CLEVER_INSECURE=1). Use only behind a trusted proxy',
+});

@@ -11,6 +11,7 @@ These options are available for all commands:
 |`--color`|Choose whether to print colors or not. You can also use --no-color|
 |`-v`, `--verbose`|Verbose output|
 |`--update-notifier`|Choose whether to use update notifier or not. You can also use --no-update-notifier|
+|`--insecure`|Skip TLS certificate verification (you can also set CLEVER_INSECURE=1). Use only behind a trusted proxy|
 
 ## ➡️ Commands
 

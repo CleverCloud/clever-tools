@@ -49,7 +49,11 @@ For each of them, you can add these parameters:
 [--color]               Choose whether to print colors or not. You can also use --no-color (default: true)
 [--update-notifier]     Choose whether to use update notifier or not. You can also use --no-update-notifier (default: true)
 [--verbose, -v]         Verbose output (default: false)
+[--insecure]            Skip TLS certificate verification. You can also set CLEVER_INSECURE=1 (default: false)
 ```
+
+> [!WARNING]
+> `--insecure` (or `CLEVER_INSECURE=1`) disables TLS certificate verification for API calls, Git operations, and `clever curl`. Use it only behind a trusted corporate proxy that intercepts TLS with its own certificates. It exposes you to man-in-the-middle attacks.
 
 > [!TIP]
 > For commands returning a list of items, you can use `--format json` or `-F json` to get a JSON output.

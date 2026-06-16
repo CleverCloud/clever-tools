@@ -22,12 +22,12 @@ export function getDocRelativePath(rootName) {
 /**
  * Generates the main README with the list of commands.
  * @param {Array<[string, unknown]>} commands
- * @param {{ colorOption: OptionDefinition, verboseOption: OptionDefinition, updateNotifierOption: OptionDefinition }} globalOptions
+ * @param {{ colorOption: OptionDefinition, verboseOption: OptionDefinition, updateNotifierOption: OptionDefinition, insecureOption: OptionDefinition }} globalOptions
  * @param {(rootName: string) => string} getDocRelativePath
  * @return {string}
  */
 export function getReadmeMarkdown(commands, globalOptions, getDocRelativePath) {
-  const { colorOption, verboseOption, updateNotifierOption } = globalOptions;
+  const { colorOption, verboseOption, updateNotifierOption, insecureOption } = globalOptions;
 
   const commandRows = commands.map(([rootName, command]) => {
     const definition = Array.isArray(command) ? command[0] : command;
@@ -50,6 +50,7 @@ export function getReadmeMarkdown(commands, globalOptions, getDocRelativePath) {
     |${getOptionAliases('color', colorOption)}|${escapeTableCell(colorOption.description)}|
     |${getOptionAliases('verbose', verboseOption)}|${escapeTableCell(verboseOption.description)}|
     |${getOptionAliases('update-notifier', updateNotifierOption)}|${escapeTableCell(updateNotifierOption.description)}|
+    |${getOptionAliases('insecure', insecureOption)}|${escapeTableCell(insecureOption.description)}|
 
     ## ➡️ Commands
 

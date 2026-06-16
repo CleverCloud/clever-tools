@@ -21,7 +21,7 @@ import { ListZoneCommand } from '@clevercloud/client/cc-api-commands/zone/list-z
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { globalCommands } from '../src/commands/global.commands.js';
-import { colorOption, updateNotifierOption, verboseOption } from '../src/commands/global.options.js';
+import { colorOption, insecureOption, updateNotifierOption, verboseOption } from '../src/commands/global.options.js';
 import { baseConfig } from '../src/config/config.js';
 import { styleText } from '../src/lib/style-text.js';
 import { runCommand } from './lib/command.js';
@@ -66,7 +66,11 @@ async function generateCommandsReadme(commands, checkMode) {
   const existingReadme = await fs.readFile(readmePath, 'utf-8').catch(() => null);
 
   const newMarkdown =
-    getReadmeMarkdown(commands, { colorOption, verboseOption, updateNotifierOption }, getDocRelativePath) + '\n';
+    getReadmeMarkdown(
+      commands,
+      { colorOption, verboseOption, updateNotifierOption, insecureOption },
+      getDocRelativePath,
+    ) + '\n';
 
   return processFile(readmePath, existingReadme, newMarkdown, checkMode);
 }

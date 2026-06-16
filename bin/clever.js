@@ -10,6 +10,7 @@ import { globalCommands } from '../src/commands/global.commands.js';
 import {
   colorOption,
   helpOption,
+  insecureOption,
   updateNotifierOption,
   verboseOption,
   versionOption,
@@ -68,6 +69,7 @@ async function run() {
       verbose: verboseOption,
       color: colorOption,
       'update-notifier': updateNotifierOption,
+      insecure: insecureOption,
     },
   };
 
@@ -78,7 +80,12 @@ async function run() {
     name: 'clever',
     description: rootCommandDefinition.description,
     version: pkg.version,
-    options: [convertOption(colorOption), convertOption(updateNotifierOption), convertOption(verboseOption)],
+    options: [
+      convertOption(colorOption),
+      convertOption(updateNotifierOption),
+      convertOption(verboseOption),
+      convertOption(insecureOption),
+    ],
     helpCommand: false,
     commands: sortedCommands,
   });
