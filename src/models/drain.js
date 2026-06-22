@@ -16,6 +16,7 @@ export async function resolveDrainResource(alias, appIdOrName, addonIdOrRealId) 
 }
 
 export const DRAIN_TYPES = {
+  BETTERSTACK: { apiCode: 'BETTERSTACK', cliCode: 'betterstack', label: 'Better Stack' },
   DATADOG: { apiCode: 'DATADOG', cliCode: 'datadog', label: 'Datadog' },
   ELASTICSEARCH: { apiCode: 'ELASTICSEARCH', cliCode: 'elasticsearch', label: 'Elasticsearch' },
   NEWRELIC: { apiCode: 'NEWRELIC', cliCode: 'newrelic', label: 'New Relic' },

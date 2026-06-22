@@ -1069,7 +1069,7 @@ clever drain create <drain-type> <drain-url> [options]
 
 **Arguments**
 ```
-drain-type                           Drain type (datadog, elasticsearch, newrelic, ovh-tcp, raw-http, syslog-tcp, syslog-udp)
+drain-type                           Drain type (betterstack, datadog, elasticsearch, newrelic, ovh-tcp, raw-http, syslog-tcp, syslog-udp)
 drain-url                            Drain URL
 ```
 
@@ -1082,6 +1082,7 @@ drain-url                            Drain URL
 -i, --index-prefix <index-prefix>    Optional index prefix (for elasticsearch), `logstash` value is used if not set
 -p, --password <password>            Basic auth password (for elasticsearch or raw-http)
 -s, --sd-params <sd-params>          RFC5424 structured data parameters (for ovh-tcp), e.g.: `X-OVH-TOKEN=\"REDACTED\"`
+-t, --source-token <source-token>    Source token (for betterstack)
 -u, --username <username>            Basic auth username (for elasticsearch or raw-http)
 ```
 

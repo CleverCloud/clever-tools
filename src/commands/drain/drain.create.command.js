@@ -34,6 +34,13 @@ export const drainCreateCommand = defineCommand({
       aliases: ['k'],
       placeholder: 'api-key',
     }),
+    sourceToken: defineOption({
+      name: 'source-token',
+      schema: z.string().optional(),
+      description: 'Source token (for betterstack)',
+      aliases: ['t'],
+      placeholder: 'source-token',
+    }),
     indexPrefix: defineOption({
       name: 'index-prefix',
       schema: z.string().optional(),
@@ -66,7 +73,7 @@ export const drainCreateCommand = defineCommand({
   ],
   async handler(options, drainTypeCliCode, url) {
     const { alias, appIdOrName, addonIdOrRealId } = options;
-    const { username, password, apiKey, indexPrefix, rfc5424StructuredDataParameters } = options;
+    const { username, password, apiKey, sourceToken, indexPrefix, rfc5424StructuredDataParameters } = options;
 
     const drainType = Object.values(DRAIN_TYPES).find((drainType) => drainType.cliCode === drainTypeCliCode);
 
@@ -106,6 +113,13 @@ export const drainCreateCommand = defineCommand({
         throw new Error(`${DRAIN_TYPES.NEWRELIC.cliCode} drains require an API key (--api-key) to be set`);
       }
       body.recipient.apiKey = apiKey;
+    }
+
+    if (drainTypeCliCode === DRAIN_TYPES.BETTERSTACK.cliCode) {
+      if (!sourceToken) {
+        throw new Error(`${DRAIN_TYPES.BETTERSTACK.cliCode} drains require a source token (--source-token) to be set`);
+      }
+      body.recipient.sourceToken = sourceToken;
     }
 
     if (
