@@ -1056,6 +1056,30 @@ clever drain [options]
 -F, --format <format>          Output format (human, json) (default: human)
 ```
 
+### drain check
+
+**Description:** Check that a drain's recipient is reachable and accepts deliveries
+
+**Since:** unreleased
+
+**Usage**
+```
+clever drain check <drain-id> [options]
+```
+
+**Arguments**
+```
+drain-id                       Drain ID
+```
+
+**Options**
+```
+    --addon <addon-id>         Add-on ID or real ID
+-a, --alias <alias>            Short name for the application
+    --app <app-id|app-name>    Application to manage by its ID (or name, if unambiguous)
+-F, --format <format>          Output format (human, json) (default: human)
+```
+
 ### drain create
 
 **Description:** Create a drain

@@ -39,6 +39,7 @@ import { domainFavouriteSetCommand } from './domain/domain.favourite.set.command
 import { domainFavouriteUnsetCommand } from './domain/domain.favourite.unset.command.js';
 import { domainOverviewCommand } from './domain/domain.overview.command.js';
 import { domainRmCommand } from './domain/domain.rm.command.js';
+import { drainCheckCommand } from './drain/drain.check.command.js';
 import { drainCommand } from './drain/drain.command.js';
 import { drainCreateCommand } from './drain/drain.create.command.js';
 import { drainDisableCommand } from './drain/drain.disable.command.js';
@@ -268,6 +269,7 @@ export const globalCommands = {
   drain: [
     drainCommand,
     {
+      check: drainCheckCommand,
       create: drainCreateCommand,
       disable: drainDisableCommand,
       enable: drainEnableCommand,

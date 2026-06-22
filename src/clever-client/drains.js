@@ -108,3 +108,20 @@ export function enableDrain(params) {
     // no body
   });
 }
+
+/**
+ * POST /v4/drains/organisations/{ownerId}/resources/{resourceId}/drains/{drainId}/check
+ * @param {Object} params
+ * @param {String} params.ownerId
+ * @param {String} params.resourceId
+ * @param {String} params.drainId
+ */
+export function checkDrain(params) {
+  // no multipath for /self or /organisations/{id}
+  return Promise.resolve({
+    method: 'post',
+    url: `/v4/drains/organisations/${params.ownerId}/resources/${params.resourceId}/drains/${params.drainId}/check`,
+    headers: { Accept: 'application/json' },
+    // no body
+  });
+}

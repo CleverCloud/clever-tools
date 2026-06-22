@@ -17,6 +17,29 @@ clever drain [options]
 |`--app` `<app-id\|app-name>`|Application to manage by its ID (or name, if unambiguous)|
 |`-F`, `--format` `<format>`|Output format (human, json) (default: human)|
 
+## ➡️ `clever drain check` <kbd>Since unreleased</kbd>
+
+Check that a drain's recipient is reachable and accepts deliveries
+
+```bash
+clever drain check <drain-id> [options]
+```
+
+### 📥 Arguments
+
+|Name|Description|
+|---|---|
+|`drain-id`|Drain ID|
+
+### ⚙️ Options
+
+|Name|Description|
+|---|---|
+|`--addon` `<addon-id>`|Add-on ID or real ID|
+|`-a`, `--alias` `<alias>`|Short name for the application|
+|`--app` `<app-id\|app-name>`|Application to manage by its ID (or name, if unambiguous)|
+|`-F`, `--format` `<format>`|Output format (human, json) (default: human)|
+
 ## ➡️ `clever drain create` <kbd>Since 0.9.0</kbd>
 
 Create a drain
