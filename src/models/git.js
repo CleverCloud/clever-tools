@@ -67,6 +67,24 @@ export class Git {
   }
 
   /**
+   * Check if the repository is a linked git worktree.
+   * In a linked worktree (created with `git worktree add`), the top-level `.git`
+   * is a file holding a `gitdir:` pointer instead of a directory.
+   * @protected
+   * @param {string} [dir] - Repository directory (resolved automatically when omitted)
+   * @returns {Promise<boolean>}
+   */
+  async _isLinkedWorktree(dir) {
+    const repoDir = dir ?? (await this._getRepoDir());
+    try {
+      const stats = await fs.promises.stat(path.join(repoDir, '.git'));
+      return stats.isFile();
+    } catch {
+      return false;
+    }
+  }
+
+  /**
    * Add a remote to the repository
    * @param {string} remoteName
    * @param {string} url
