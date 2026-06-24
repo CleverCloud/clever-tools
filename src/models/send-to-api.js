@@ -75,6 +75,15 @@ async function executeRequest(requestParams, customConfig = {}) {
     .catch(processError);
 }
 
+// OpenSSL error codes raised when the server certificate chain isn't trusted
+// (corporate TLS-intercepting proxy, private or self-signed CA…).
+const TLS_ERROR_CODES = [
+  'SELF_SIGNED_CERT_IN_CHAIN',
+  'DEPTH_ZERO_SELF_SIGNED_CERT',
+  'UNABLE_TO_VERIFY_LEAF_SIGNATURE',
+  'UNABLE_TO_GET_ISSUER_CERT_LOCALLY',
+];
+
 export function processError(error) {
   const code = error.code ?? error?.cause?.code;
   if (code === 'EAI_AGAIN') {
@@ -86,6 +95,12 @@ export function processError(error) {
   if (error?.response?.status === 401) {
     throw new Error(
       `You're not logged in, use ${styleText('red', 'clever login')} command to connect to your Clever Cloud account`,
+      { cause: error },
+    );
+  }
+  if (TLS_ERROR_CODES.includes(code)) {
+    throw new Error(
+      `TLS certificate verification failed (${code}). If you're behind a corporate proxy or using a private/self-signed Certificate Authority, trust your CA and follow the "TLS certificates" section of the documentation.`,
       { cause: error },
     );
   }

@@ -59,7 +59,14 @@ export async function getProfileDetails({ profile, isActive }) {
   const [user, token] = await Promise.all([
     getUser({}).then(sendWithCredentials),
     getCurrentTokenInfo().then(sendWithCredentials),
-  ]).catch(() => [null, null]);
+  ]).catch((error) => {
+    // An expired/invalid token surfaces as a 401: degrade gracefully so the command can report it.
+    // Any other failure (TLS, network…) must bubble up instead of being masked as "token invalid".
+    if (error?.cause?.response?.status === 401) {
+      return [null, null];
+    }
+    throw error;
+  });
 
   return {
     id: user?.id ?? profile.userId,
