@@ -75,6 +75,10 @@ async function resolveTargetProfile(profiles, requestedAlias) {
     name: formatProfile(profile),
     value: profile.alias,
   }));
-  const selectedAlias = await selectAnswer('Select a profile:', choices);
+  const selectedAlias = await selectAnswer(
+    'Select a profile:',
+    choices,
+    'Use --alias <name> to select a profile directly.',
+  );
   return profiles.find((profile) => profile.alias === selectedAlias);
 }
