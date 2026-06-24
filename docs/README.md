@@ -108,6 +108,33 @@ If you switch to the system git backend (`clever features enable system-git`), `
 > [!WARNING]
 > Disabling TLS verification entirely (for example with `NODE_TLS_REJECT_UNAUTHORIZED=0`) exposes you to man-in-the-middle attacks, including the theft of your Clever Cloud credentials. Always prefer trusting your CA with one of the methods above.
 
+## HTTP proxy
+
+On a network where outgoing traffic must go through an HTTP proxy, Clever Tools follows the same `http_proxy` / `https_proxy` environment variables as tools like `curl`, `kubectl` or `s3cmd`. Set them in your shell and every request the CLI makes (API calls, update checks…) is routed through the proxy:
+
+```bash
+# Linux / macOS
+export http_proxy=http://proxy.example.com:3128
+export https_proxy=http://proxy.example.com:3128
+clever profile
+```
+
+```powershell
+# Windows (PowerShell)
+$env:http_proxy = "http://proxy.example.com:3128"
+$env:https_proxy = "http://proxy.example.com:3128"
+clever profile
+```
+
+The uppercase variants (`HTTP_PROXY`, `HTTPS_PROXY`) are also recognized, and a proxy that requires authentication can be configured inline with `http://user:password@proxy.example.com:3128`. To bypass the proxy for some hosts, list them in the `no_proxy` (or `NO_PROXY`) variable:
+
+```bash
+export no_proxy=localhost,127.0.0.1,.internal.example.com
+```
+
+> [!NOTE]
+> Like the TLS variables above, proxy variables are read at startup: set them in your shell or inline before the command, not in a `.env` file. With the `system-git` feature enabled, `clever deploy` delegates to your system `git`, which follows its own proxy configuration (`git config --global http.proxy …` or the same `http_proxy`/`https_proxy` variables).
+
 ## features
 
 Some features are available as experimental, before they're completely ready for prime time. They usually work well, but this testing phase allows us to get feedbacks, refine some details, documentation, and break things between two releases.
