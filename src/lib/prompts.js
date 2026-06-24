@@ -26,10 +26,12 @@ export async function confirmAnswer(message, rejectionMessage, expectedAnswer) {
 }
 
 export function selectAnswer(message, choices) {
+  assertInteractiveTerminal();
   return select({ message, choices }).catch(exitOnPromptError);
 }
 
 export function promptCheckbox(message, choices) {
+  assertInteractiveTerminal();
   return checkbox({ message, choices }).catch(exitOnPromptError);
 }
 
@@ -48,6 +50,20 @@ export function promptTextOption(option, defaultValue) {
     return result.success || result.error.issues[0]?.message || 'Invalid value';
   };
   return input({ message, default: defaultValue, validate }).catch(exitOnPromptError);
+}
+
+/**
+ * Throw an explicit error when no interactive terminal is available.
+ *
+ * Raw-mode prompts (select, checkbox) need a TTY on stdin. Without one (CI, scripts,
+ * pipes, `< /dev/null`), Inquirer reads EOF and throws ExitPromptError, which
+ * exitOnPromptError turns into a silent `process.exit(1)` — indistinguishable from a
+ * user pressing Ctrl+C. Guarding up front lets us surface a clear message instead.
+ */
+function assertInteractiveTerminal() {
+  if (!process.stdin.isTTY) {
+    throw new Error('This command requires an interactive terminal.');
+  }
 }
 
 function exitOnPromptError(error) {

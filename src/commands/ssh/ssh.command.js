@@ -45,7 +45,7 @@ export const sshCommand = defineCommand({
     let sshTarget;
     if (instances.length === 1) {
       sshTarget = instances[0].id;
-    } else if (process.stdout.isTTY) {
+    } else if (process.stdin.isTTY) {
       const choices = instances
         .sort((a, b) => a.instanceNumber - b.instanceNumber)
         .map((inst) => ({
