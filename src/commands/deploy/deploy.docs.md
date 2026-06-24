@@ -28,6 +28,7 @@ Clever Tools uses a current JS implementation for git operations. This works wit
 * **HTTP-only**: cannot use SSH-based git protocols
 * **Slow performance** on repositories with rewritten history (rebases, squashes)
 * **Connection timeouts** on large repositories or when pushing big files, due to HTTP-based transfers
+* **No git worktree support**: deploying from a linked git worktree (`git worktree add`) fails with `Could not find HEAD`. The system git backend deploys from worktrees just like from the main working tree
 
 If you experience any of these issues, you can enable the **system git backend** which uses the `git` command installed on your system (it must be in your `PATH` environment variable).
 
