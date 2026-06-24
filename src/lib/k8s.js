@@ -503,6 +503,7 @@ export async function k8sUpdateVersion(orgIdOrName, clusterIdOrName, askedVersio
     (await selectAnswer(
       `Which version do you want to update ${styleText('blue', name)} to, current is ${styleText('blue', versions.installed)}?`,
       [...versions.available].reverse(),
+      'Use --target <version> to update directly.',
     ));
 
   if (!versions.available.includes(targetVersion)) {
