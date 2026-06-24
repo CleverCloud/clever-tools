@@ -25,7 +25,7 @@ export const tokensCommand = defineCommand({
       if (tokens.length === 0) {
         Logger.println(`ℹ️  No API token found, create one with ${styleText('blue', 'clever tokens create')} command`);
       } else {
-        console.table(
+        Logger.printTable(
           tokens.map((token) => {
             return {
               'API token ID': token.apiTokenId,

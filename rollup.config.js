@@ -24,7 +24,7 @@ export default defineConfig({
     {
       transform(code, id) {
         if (
-          id.includes('/package.json') &&
+          id.endsWith('/package.json') &&
           process.env.CLEVER_TOOLS_PREVIEW_VERSION &&
           process.env.CLEVER_TOOLS_COMMIT_ID
         ) {

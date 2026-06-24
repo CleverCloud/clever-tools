@@ -24,7 +24,7 @@ function printNg(ng, format, full = false) {
         'Members/Peers': `${Object.keys(ng.members)?.length}/${Object.keys(ng.peers)?.length}`,
       };
 
-      console.table(ngData);
+      Logger.printTable(ngData);
 
       if (full) {
         const members = Object.entries(ng.members)
@@ -34,7 +34,7 @@ function printNg(ng, format, full = false) {
           }));
         if (members.length > 0) {
           Logger.println(styleText('bold', ' • Members:'));
-          console.table(members);
+          Logger.printTable(members);
         }
 
         const peers = Object.entries(ng.peers)
@@ -42,7 +42,7 @@ function printNg(ng, format, full = false) {
           .map(([_id, peer]) => formatPeer(peer));
         if (peers.length > 0) {
           Logger.println(styleText('bold', ' • Peers:'));
-          console.table(peers);
+          Logger.printTable(peers);
         }
       }
     }
@@ -62,7 +62,7 @@ function printMember(member, format) {
     }
     case 'human':
     default: {
-      console.table({
+      Logger.printTable({
         Label: member.label,
         Domain: member.domainName,
       });
@@ -84,7 +84,7 @@ function printPeer(peer, format, full = false) {
     }
     case 'human':
     default: {
-      console.table(formatPeer(peer, full));
+      Logger.printTable(formatPeer(peer, full));
     }
   }
 }

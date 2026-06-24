@@ -5,6 +5,7 @@ import { z } from 'zod';
 import { config } from '../../config/config.js';
 import { defineCommand } from '../../lib/define-command.js';
 import { defineOption } from '../../lib/define-option.js';
+import { exit } from '../../lib/exit.js';
 import { selectAnswer } from '../../lib/prompts.js';
 import * as Application from '../../models/application.js';
 import { sendToApi } from '../../models/send-to-api.js';
@@ -117,6 +118,6 @@ export const sshCommand = defineCommand({
     });
 
     const exitCode = await new Promise((resolve) => sshProcess.on('exit', resolve));
-    process.exit(exitCode);
+    await exit(exitCode);
   },
 });
