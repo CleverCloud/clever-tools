@@ -185,7 +185,8 @@ function getSubCommands(name, command, parentPath = []) {
  * @return {string}
  */
 export function getSubCommandHeading(commandPath, definition) {
-  return `## ➡️ \`clever ${commandPath.join(' ')}\` <kbd>Since ${definition.since}</kbd>`;
+  const since = definition.since == null ? 'Unreleased' : `Since ${definition.since}`;
+  return `## ➡️ \`clever ${commandPath.join(' ')}\` <kbd>${since}</kbd>`;
 }
 
 /**

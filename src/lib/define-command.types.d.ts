@@ -41,8 +41,13 @@ export interface CommandDefinition<
    */
   featureFlag?: string;
 
-  /** Version when this command was introduced (semver format, e.g., '2.1.0'). */
-  since?: `${number}.${number}.${number}`;
+  /**
+   * Version when this command was introduced (semver format, e.g., '2.1.0').
+   * Use `null` for a command not yet released: the release workflow resolves it
+   * to the upcoming version (see `scripts/resolve-since.js`). Required on purpose,
+   * so a missing value is a type error rather than a silent omission.
+   */
+  since: `${number}.${number}.${number}` | null;
 
   /** Options (named options like --type, --region, --format). */
   options?: O;
