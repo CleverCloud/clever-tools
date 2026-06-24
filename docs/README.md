@@ -54,6 +54,60 @@ For each of them, you can add these parameters:
 > [!TIP]
 > For commands returning a list of items, you can use `--format json` or `-F json` to get a JSON output.
 
+## TLS certificates (corporate proxy / custom CA)
+
+Clever Tools verifies the TLS certificate of every HTTPS connection it makes, both for API calls and for Git-based deployments. Behind a corporate proxy that intercepts HTTPS, or when your endpoint relies on a private or self-signed Certificate Authority (CA), this verification can fail with an error such as:
+
+```
+Error: self signed certificate in certificate chain
+```
+
+The right fix is to make Clever Tools trust your CA, not to disable verification. There are two ways to do it, depending on whether your CA is installed system-wide or only available as a file.
+
+### Trust your operating system's certificate store
+
+If your corporate or proxy root CA is installed at the OS level (Windows Certificate Store, macOS Keychain, Linux `/etc/ssl/certs`), Clever Tools can rely on it:
+
+- **Binary install**: nothing to do, the binary already trusts the OS certificate store.
+- **npm install**: the package runs on your own Node.js, so enable it explicitly (Node.js >= 22.15):
+
+```bash
+NODE_OPTIONS=--use-system-ca clever <command>
+```
+
+If the CA isn't in the OS store yet, ask your IT team to install it there: it's then trusted by every tool on the machine, not just Clever Tools.
+
+### Trust a specific certificate
+
+When the CA is only available as a file (not installed system-wide), set the `NODE_EXTRA_CA_CERTS` environment variable to its path. This works the same way for both the binary and npm installs. The file must be PEM-encoded and may contain several certificates:
+
+```bash
+# Linux / macOS
+export NODE_EXTRA_CA_CERTS=/path/to/corporate-ca.pem
+clever <command>
+```
+
+```powershell
+# Windows (PowerShell)
+$env:NODE_EXTRA_CA_CERTS = "C:\path\to\corporate-ca.pem"
+clever <command>
+```
+
+> [!NOTE]
+> `NODE_EXTRA_CA_CERTS` and `NODE_OPTIONS` are read by Node.js at startup: set them in your shell, or inline before the command, not in a `.env` file.
+
+### Git-based deployments
+
+`clever deploy` pushes over HTTPS and verifies certificates too. By default it relies on its JS git implementation (running on Node.js), so it trusts the OS certificate store and `NODE_EXTRA_CA_CERTS` exactly like API calls — nothing more to do.
+
+If you switch to the system git backend (`clever features enable system-git`), `clever` delegates to your system `git` binary instead. That binary **ignores** `NODE_EXTRA_CA_CERTS` and follows its own TLS configuration: the OS certificate store (recommended), or an explicit CA file set with `git config --global http.sslCAInfo /path/to/corporate-ca.pem` (equivalent to the `GIT_SSL_CAINFO` environment variable).
+
+> [!TIP]
+> Installing your CA in the OS certificate store is the most reliable option: it covers both API calls and Git deployments, in every mode, for both binary and npm installs.
+
+> [!WARNING]
+> Disabling TLS verification entirely (for example with `NODE_TLS_REJECT_UNAUTHORIZED=0`) exposes you to man-in-the-middle attacks, including the theft of your Clever Cloud credentials. Always prefer trusting your CA with one of the methods above.
+
 ## features
 
 Some features are available as experimental, before they're completely ready for prime time. They usually work well, but this testing phase allows us to get feedbacks, refine some details, documentation, and break things between two releases.

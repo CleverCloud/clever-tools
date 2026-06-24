@@ -34,5 +34,5 @@ export async function buildBinary(version, os) {
     highlight`=> Build script ${input} into binary ${output} for ${platform}-${arch} with Node.js ${nodeMajorVersion}`,
   );
 
-  await pkg.exec([input, '--target', target, '--output', output]);
+  await pkg.exec([input, '--target', target, '--output', output, '--options', 'use-system-ca']);
 }
