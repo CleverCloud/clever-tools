@@ -25,13 +25,23 @@ export async function confirmAnswer(message, rejectionMessage, expectedAnswer) {
   }
 }
 
-export function selectAnswer(message, choices) {
-  assertInteractiveTerminal();
+/**
+ * @param {string} message
+ * @param {Array<unknown>} choices
+ * @param {string} [nonInteractiveHint] How to achieve the same result without a prompt (e.g. an option to use)
+ */
+export function selectAnswer(message, choices, nonInteractiveHint) {
+  assertInteractiveTerminal(nonInteractiveHint);
   return select({ message, choices }).catch(exitOnPromptError);
 }
 
-export function promptCheckbox(message, choices) {
-  assertInteractiveTerminal();
+/**
+ * @param {string} message
+ * @param {Array<unknown>} choices
+ * @param {string} [nonInteractiveHint] How to achieve the same result without a prompt (e.g. an option to use)
+ */
+export function promptCheckbox(message, choices, nonInteractiveHint) {
+  assertInteractiveTerminal(nonInteractiveHint);
   return checkbox({ message, choices }).catch(exitOnPromptError);
 }
 
@@ -59,10 +69,12 @@ export function promptTextOption(option, defaultValue) {
  * pipes, `< /dev/null`), Inquirer reads EOF and throws ExitPromptError, which
  * exitOnPromptError turns into a silent `process.exit(1)` — indistinguishable from a
  * user pressing Ctrl+C. Guarding up front lets us surface a clear message instead.
+ * @param {string} [hint] How to achieve the same result without a prompt (e.g. an option to use)
  */
-function assertInteractiveTerminal() {
+function assertInteractiveTerminal(hint) {
   if (!process.stdin.isTTY) {
-    throw new Error('This command requires an interactive terminal.');
+    const suffix = hint != null ? ` ${hint}` : '';
+    throw new Error(`This command requires an interactive terminal.${suffix}`);
   }
 }
 
