@@ -28,6 +28,14 @@ export const logsFormatOption = defineOption({
   placeholder: 'format',
 });
 
+export const accessLogsFormatOption = defineOption({
+  name: 'format',
+  schema: z.enum(['human', 'json', 'json-stream', 'clf']).default('human'),
+  description: 'Output format',
+  aliases: ['F'],
+  placeholder: 'format',
+});
+
 export const beforeOption = defineOption({
   name: 'before',
   schema: z.string().transform(date).optional(),
