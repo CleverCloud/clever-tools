@@ -1,5 +1,6 @@
 import { ApplicationAccessLogStream } from '@clevercloud/client/esm/streams/access-logs.js';
 import { formatTable } from '../../format-table.js';
+import { formatClf } from '../../lib/access-logs-clf.js';
 import { defineCommand } from '../../lib/define-command.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
@@ -8,12 +9,12 @@ import { JsonArray } from '../../models/json-array.js';
 import { getHostAndTokens } from '../../models/send-to-api.js';
 import { truncateWithEllipsis } from '../../models/utils.js';
 import {
+  accessLogsFormatOption,
   addonIdOrRealIdOption,
   afterOption,
   aliasOption,
   appIdOrNameOption,
   beforeOption,
-  logsFormatOption,
 } from '../global.options.js';
 
 const THROTTLE_ELEMENTS = 2000;
@@ -76,7 +77,7 @@ export const accesslogsCommand = defineCommand({
   options: {
     alias: aliasOption,
     app: appIdOrNameOption,
-    format: logsFormatOption,
+    format: accessLogsFormatOption,
     before: beforeOption,
     after: afterOption,
     addon: addonIdOrRealIdOption,
@@ -131,6 +132,14 @@ export const accesslogsCommand = defineCommand({
             break;
           case 'json-stream':
             Logger.printJson(log);
+            break;
+          case 'clf':
+            // when the connection is cut too early, or for TCP redirections, we don't have HTTP section
+            if (log.http == null) {
+              break;
+            }
+
+            Logger.println(formatClf(log));
             break;
           case 'human':
           default:
