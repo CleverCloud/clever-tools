@@ -1,4 +1,5 @@
 import cliparseOriginal from 'cliparse';
+import cliparseArgumentModule from 'cliparse/src/argument.js';
 import cliparseCommandModule from 'cliparse/src/command.js';
 import semver from 'semver';
 import pkg from '../../package.json' with { type: 'json' };
@@ -31,6 +32,23 @@ cliparseOriginal.command = function (name, options, commandFunction) {
     });
   });
   return command;
+};
+
+// Patch cliparse.argument.parseList to drop the parse results that succeeded
+// from its error payload. When several positional args are given and only one
+// fails its parser, parseList returns the *whole* result list (successes
+// included) as the error. Downstream, displayErrors prints the valid siblings
+// as `<arg-name>: undefined` (they carry an `.argument` but no `.error`).
+// We keep only the entries that actually failed, fixing the issue at its root.
+// The success path is untouched (we only rewrite the error array), and
+// missing-value errors carry an `.error` ("missing value") so they are kept.
+const originalParseList = cliparseArgumentModule.parseList;
+cliparseArgumentModule.parseList = function (args, providedArguments) {
+  const result = originalParseList(args, providedArguments);
+  if (Array.isArray(result.error)) {
+    return cliparseOriginal.parsers.error(result.error.filter((entry) => entry.error != null));
+  }
+  return result;
 };
 
 /**
