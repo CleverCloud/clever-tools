@@ -9,6 +9,7 @@ import { Logger } from '../../logger.js';
 import * as AppConfig from '../../models/app_configuration.js';
 import * as Application from '../../models/application.js';
 import { AVAILABLE_ZONES, listAvailableTypes, listAvailableZones } from '../../models/application.js';
+import { LinkedWorktreeNotSupportedError } from '../../models/git-isomorphic.js';
 import { Git } from '../../models/git.js';
 import { aliasCreationOption, humanJsonOutputFormatOption, orgaIdOrNameOption } from '../global.options.js';
 
@@ -54,7 +55,13 @@ async function displayAppCreation(app, alias, github, taskCommand) {
       Logger.println(`    ${shellCommand('git commit -m "Initial commit"')}`);
       Logger.println();
     } else {
-      const isClean = await git.isGitWorkingDirectoryClean();
+      // Best-effort hint: if we can't tell because of a linked worktree on the JS backend, don't nag
+      const isClean = await git.isGitWorkingDirectoryClean().catch((error) => {
+        if (error instanceof LinkedWorktreeNotSupportedError) {
+          return true;
+        }
+        throw error;
+      });
       if (!isClean) {
         Logger.println(`  ${styleText('yellow', '!')} Commit your changes first:`);
         Logger.println(`    ${shellCommand('git add .')}`);

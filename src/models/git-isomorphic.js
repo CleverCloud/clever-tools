@@ -13,6 +13,9 @@ export class GitIsomorphic extends Git {
 
   async #getRepo() {
     const dir = await this._getRepoDir();
+    if (await this._isLinkedWorktree(dir)) {
+      throw new LinkedWorktreeNotSupportedError();
+    }
     return { fs, dir, http };
   }
 
@@ -128,7 +131,8 @@ export class GitIsomorphic extends Git {
    */
   async isInsideGitRepo() {
     this._debug('isInsideGitRepo');
-    return this.#getRepo()
+    // Don't go through #getRepo: it rejects linked worktrees, which are still git repos
+    return this._getRepoDir()
       .then(() => true)
       .catch(() => false);
   }
@@ -149,5 +153,16 @@ export class GitIsomorphic extends Git {
         return (!isHidden || isCleverJson) && head !== workdir;
       }).length === 0;
     return isStatusEmpty;
+  }
+}
+
+export class LinkedWorktreeNotSupportedError extends Error {
+  constructor() {
+    super(
+      "Linked git worktrees aren't supported by the default JS git backend.\n" +
+        'Enable the system git backend (it uses your installed git):\n' +
+        '    clever features enable system-git',
+    );
+    this.name = 'LinkedWorktreeNotSupportedError';
   }
 }
