@@ -47,7 +47,7 @@ export async function promptRights(existingRights) {
     checked: existingRights?.[apiName] ?? false,
   }));
 
-  const selected = await promptCheckbox('Select rights', choices);
+  const selected = await promptCheckbox('Select rights', choices, 'Use --rights <list> to set rights directly.');
 
   return rightsFromList(selected);
 }

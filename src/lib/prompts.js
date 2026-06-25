@@ -25,11 +25,23 @@ export async function confirmAnswer(message, rejectionMessage, expectedAnswer) {
   }
 }
 
-export function selectAnswer(message, choices) {
+/**
+ * @param {string} message
+ * @param {Array<unknown>} choices
+ * @param {string} [nonInteractiveHint] How to achieve the same result without a prompt (e.g. an option to use)
+ */
+export function selectAnswer(message, choices, nonInteractiveHint) {
+  assertInteractiveTerminal(nonInteractiveHint);
   return select({ message, choices }).catch(exitOnPromptError);
 }
 
-export function promptCheckbox(message, choices) {
+/**
+ * @param {string} message
+ * @param {Array<unknown>} choices
+ * @param {string} [nonInteractiveHint] How to achieve the same result without a prompt (e.g. an option to use)
+ */
+export function promptCheckbox(message, choices, nonInteractiveHint) {
+  assertInteractiveTerminal(nonInteractiveHint);
   return checkbox({ message, choices }).catch(exitOnPromptError);
 }
 
@@ -48,6 +60,22 @@ export function promptTextOption(option, defaultValue) {
     return result.success || result.error.issues[0]?.message || 'Invalid value';
   };
   return input({ message, default: defaultValue, validate }).catch(exitOnPromptError);
+}
+
+/**
+ * Throw an explicit error when no interactive terminal is available.
+ *
+ * Raw-mode prompts (select, checkbox) need a TTY on stdin. Without one (CI, scripts,
+ * pipes, `< /dev/null`), Inquirer reads EOF and throws ExitPromptError, which
+ * exitOnPromptError turns into a silent `process.exit(1)` — indistinguishable from a
+ * user pressing Ctrl+C. Guarding up front lets us surface a clear message instead.
+ * @param {string} [hint] How to achieve the same result without a prompt (e.g. an option to use)
+ */
+function assertInteractiveTerminal(hint) {
+  if (!process.stdin.isTTY) {
+    const suffix = hint != null ? ` ${hint}` : '';
+    throw new Error(`This command requires an interactive terminal.${suffix}`);
+  }
 }
 
 function exitOnPromptError(error) {
