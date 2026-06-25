@@ -44,3 +44,5 @@ jobs:
         run: npm run typecheck
       - name: 'Check generated docs are up to date'
         run: npm run docs:check
+      - name: 'Run unit tests'
+        run: npm test

@@ -11,7 +11,7 @@ export const profileListCommand = defineCommand({
     format: humanJsonOutputFormatOption,
   },
   async handler(options) {
-    if (config.profiles.length === 0) {
+    if (config.activeProfile == null) {
       throw new Error('No profile found. You are not logged in.');
     }
 
