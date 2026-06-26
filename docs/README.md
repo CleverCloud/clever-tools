@@ -69,7 +69,7 @@ The right fix is to make Clever Tools trust your CA, not to disable verification
 If your corporate or proxy root CA is installed at the OS level (Windows Certificate Store, macOS Keychain, Linux `/etc/ssl/certs`), Clever Tools can rely on it:
 
 - **Binary install**: nothing to do, the binary already trusts the OS certificate store.
-- **npm install**: the package runs on your own Node.js, so enable it explicitly (Node.js >= 22.15):
+- **npm install**: the package runs on your own Node.js, so enable it explicitly (Node.js >= 24):
 
 ```bash
 NODE_OPTIONS=--use-system-ca clever <command>
