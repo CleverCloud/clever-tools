@@ -8,6 +8,29 @@ import { getConfigPath } from './paths.js';
 const EXPERIMENTAL_FEATURES_FILEPATH = getConfigPath('clever-tools-experimental-features.json');
 
 export const EXPERIMENTAL_FEATURES = {
+  functions: {
+    status: 'alpha',
+    description: 'Deploy and manage serverless Functions on Clever Cloud',
+    instructions: dedent`
+      - Create a function:
+          clever functions create
+          clever functions create --name my-function
+
+      - Deploy a function from source code:
+          clever functions deploy function_xxx src-file
+
+      - List functions:
+          clever functions
+
+      - List deployments of a function:
+          clever functions deployments function_xxx
+
+      - Delete a function:
+          clever functions delete function_xxx
+
+      Supported source file extensions: .js (JavaScript), .ts (AssemblyScript), .rs (Rust), .go (TinyGo)
+    `,
+  },
   'system-git': {
     status: 'beta',
     description: 'Use system git instead of current JS implementation for git operations',
