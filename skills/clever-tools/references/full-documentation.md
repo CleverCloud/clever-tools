@@ -1060,7 +1060,7 @@ clever drain [options]
 
 **Description:** Check that a drain's recipient is reachable and accepts deliveries
 
-**Since:** Unreleased
+**Since:** 4.11.0
 
 **Usage**
 ```
