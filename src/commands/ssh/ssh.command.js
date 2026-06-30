@@ -65,7 +65,7 @@ export const sshCommand = defineCommand({
     if (identityFile != null) {
       sshParams.push('-i', identityFile);
     }
-    sshParams.push(config.SSH_GATEWAY, sshTarget);
+    sshParams.push(config.get('SSH_GATEWAY'), sshTarget);
 
     // Interactive session mode (spawn SSH with inherited stdio)
     if (command == null) {
