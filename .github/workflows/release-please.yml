@@ -14,13 +14,44 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
+        with:
+          token: ${{ secrets.CI_TOKEN }}
+          fetch-depth: 0
       - id: read-changelog-types
         # Transform JSON to a single line for GitHub Actions output
         run: echo "content=$(jq -c . .github/config/changelog-types.json)" >> $GITHUB_OUTPUT
       - uses: google-github-actions/release-please-action@v3
+        id: release
         with:
           token: ${{ secrets.CI_TOKEN }}
           release-type: node
           include-v-in-tag: false
           default-branch: ${{ github.ref_name }}
           changelog-types: ${{ steps.read-changelog-types.outputs.content }}
+      # When a release PR is open, resolve `since: null` markers on new commands to
+      # the upcoming version, regenerate the docs, and push it all back onto the PR.
+      # The version comes from the bumped package.json on the release branch.
+      - name: 'Check out the release PR branch'
+        if: ${{ steps.release.outputs.pr }}
+        env:
+          RELEASE_BRANCH: release-please--branches--${{ github.ref_name }}
+        run: |
+          git fetch origin "$RELEASE_BRANCH"
+          git checkout -B "$RELEASE_BRANCH" FETCH_HEAD
+      - uses: ./.github/actions/setup-node
+        if: ${{ steps.release.outputs.pr }}
+      - name: 'Resolve `since` versions and regenerate docs'
+        if: ${{ steps.release.outputs.pr }}
+        run: |
+          VERSION=$(jq -r .version package.json)
+          node scripts/resolve-since.js "$VERSION"
+          npm run docs
+          git add -A
+          if git diff --cached --quiet; then
+            echo "Nothing to resolve, working tree is clean."
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git commit -m "docs(commands): resolve \`since\` to version $VERSION"
+          git push origin HEAD

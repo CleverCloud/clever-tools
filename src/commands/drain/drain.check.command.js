@@ -14,7 +14,7 @@ import { drainIdArg } from './drain.args.js';
 
 export const drainCheckCommand = defineCommand({
   description: "Check that a drain's recipient is reachable and accepts deliveries",
-  since: 'unreleased',
+  since: null,
   options: {
     alias: aliasOption,
     appIdOrName: appIdOrNameOption,
