@@ -1,5 +1,28 @@
 # clever-tools changelog
 
+## [4.11.0](https://github.com/CleverCloud/clever-tools/compare/4.10.0...4.11.0) (2026-06-30)
+
+
+### 🚀 Features
+
+* **accesslogs:** restore CLF output format ([f4f524b](https://github.com/CleverCloud/clever-tools/commit/f4f524b70e28d9d7d95483a062dd8af069dea576))
+* **commands:** make since field required with null for unreleased ([baaf9b2](https://github.com/CleverCloud/clever-tools/commit/baaf9b29438a1d31c2fc5b146aa1f31eba43ec0f))
+* **drain:** add `drain check` command to test a recipient ([efb6fc1](https://github.com/CleverCloud/clever-tools/commit/efb6fc13a28696228dc69e99d94b31b248722efe))
+* **drain:** support Better Stack as a drain target ([856af7c](https://github.com/CleverCloud/clever-tools/commit/856af7c0fe2f88a433365856980e3cdfc30b6397))
+* **k8s:** suggest --target when k8s version update needs a terminal ([a41dcc5](https://github.com/CleverCloud/clever-tools/commit/a41dcc503ea08a648eddc22c91b8e715ee910999))
+* **oauth-consumers:** suggest --rights when selecting rights needs a terminal ([9b1a782](https://github.com/CleverCloud/clever-tools/commit/9b1a782fab64b514bc6662efc70f8532233b68a1))
+* **operators:** suggest --target when operator version update needs a terminal ([9f7f7cb](https://github.com/CleverCloud/clever-tools/commit/9f7f7cbdddb980972ea8921c5256648baee86604))
+* **profile:** suggest --alias when profile switch needs a terminal ([dfb3ffa](https://github.com/CleverCloud/clever-tools/commit/dfb3ffaa16404977f3df65130090df0c64fba6d3))
+* **tls:** trust system and custom CA certificates ([8fe9e48](https://github.com/CleverCloud/clever-tools/commit/8fe9e4826d2f5fff0eac1c6457482eac18ad5d54))
+
+
+### 🐛 Bug Fixes
+
+* **cli:** stop printing valid positional args as undefined errors ([90b0f5d](https://github.com/CleverCloud/clever-tools/commit/90b0f5d222cdef872b37e98ea994463998246bac))
+* **git:** point worktree users to the system git backend ([050c991](https://github.com/CleverCloud/clever-tools/commit/050c991e8d6ed88883a6cd1b99a4afe4a1aab726))
+* **prompts:** surface a clear error when prompts run without a TTY ([b08f2b9](https://github.com/CleverCloud/clever-tools/commit/b08f2b9a66451aaf1a883ee1e3329a96ef5daf64)), closes [#1092](https://github.com/CleverCloud/clever-tools/issues/1092)
+* **tls:** surface TLS verification errors instead of masking them ([2dbca22](https://github.com/CleverCloud/clever-tools/commit/2dbca22734393de2e5a08047fbb14cb7000fbf61))
+
 ## [4.10.0](https://github.com/CleverCloud/clever-tools/compare/4.9.0...4.10.0) (2026-05-07)
 
 

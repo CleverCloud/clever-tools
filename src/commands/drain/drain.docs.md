@@ -17,7 +17,7 @@ clever drain [options]
 |`--app` `<app-id\|app-name>`|Application to manage by its ID (or name, if unambiguous)|
 |`-F`, `--format` `<format>`|Output format (human, json) (default: human)|
 
-## ➡️ `clever drain check` <kbd>Unreleased</kbd>
+## ➡️ `clever drain check` <kbd>Since 4.11.0</kbd>
 
 Check that a drain's recipient is reachable and accepts deliveries
 
