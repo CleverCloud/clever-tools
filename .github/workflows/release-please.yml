@@ -34,7 +34,7 @@ jobs:
       - name: 'Check out the release PR branch'
         if: ${{ steps.release.outputs.pr }}
         env:
-          RELEASE_BRANCH: release-please--branches--${{ github.ref_name }}
+          RELEASE_BRANCH: ${{ fromJSON(steps.release.outputs.pr).headBranchName }}
         run: |
           git fetch origin "$RELEASE_BRANCH"
           git checkout -B "$RELEASE_BRANCH" FETCH_HEAD
