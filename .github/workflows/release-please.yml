@@ -30,21 +30,37 @@ jobs:
           changelog-types: ${{ steps.read-changelog-types.outputs.content }}
       # When a release PR is open, resolve `since: null` markers on new commands to
       # the upcoming version, regenerate the docs, and push it all back onto the PR.
-      # The version comes from the bumped package.json on the release branch.
-      - name: 'Check out the release PR branch'
-        if: ${{ steps.release.outputs.pr }}
+      # The open PR is looked up directly (rather than via the action's `pr` output,
+      # which is empty whenever the PR didn't change this run) so the resolution also
+      # runs on pushes that leave the release PR untouched.
+      - name: 'Find the open release PR branch'
+        id: release-pr
         env:
-          RELEASE_BRANCH: ${{ fromJSON(steps.release.outputs.pr).headBranchName }}
+          GH_TOKEN: ${{ secrets.CI_TOKEN }}
+          PREFIX: release-please--branches--${{ github.ref_name }}
+        run: |
+          BRANCH=$(gh pr list --state open --json headRefName \
+            --jq "[.[] | select(.headRefName | startswith(\"$PREFIX\"))][0].headRefName // empty")
+          echo "branch=$BRANCH" >> "$GITHUB_OUTPUT"
+      - name: 'Check out the release PR branch'
+        if: ${{ steps.release-pr.outputs.branch }}
+        env:
+          RELEASE_BRANCH: ${{ steps.release-pr.outputs.branch }}
         run: |
           git fetch origin "$RELEASE_BRANCH"
           git checkout -B "$RELEASE_BRANCH" FETCH_HEAD
       - uses: ./.github/actions/setup-node
-        if: ${{ steps.release.outputs.pr }}
+        if: ${{ steps.release-pr.outputs.branch }}
       - name: 'Resolve `since` versions and regenerate docs'
-        if: ${{ steps.release.outputs.pr }}
+        if: ${{ steps.release-pr.outputs.branch }}
         run: |
           VERSION=$(jq -r .version package.json)
           node scripts/resolve-since.js "$VERSION"
+          # Safety net: no `since: null` may survive on the release branch.
+          if grep -rEn "since:[[:space:]]*null" src/commands --include="*.command.js"; then
+            echo "::error::Unresolved \`since: null\` remains on the release branch"
+            exit 1
+          fi
           npm run docs
           git add -A
           if git diff --cached --quiet; then
