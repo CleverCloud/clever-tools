@@ -21,10 +21,6 @@ const POLLING_INTERVAL = 2000;
 
 const POLLING_MAX_TRY_COUNT = 60;
 
-function warnManualLogin() {
-  Logger.warn('Could not open your browser automatically. Open the URL above manually to continue logging in.');
-}
-
 function pollOauthData(url, tryCount = 0) {
   if (tryCount >= POLLING_MAX_TRY_COUNT) {
     throw new Error('Something went wrong while trying to log you in.');
@@ -60,11 +56,16 @@ async function loginViaConsole(apiHost, consoleTokenUrl) {
 
   Logger.debug('Try to login to Clever Cloud…');
   Logger.println(`Opening ${styleText('blue', consoleUrl.toString())} in your browser to log you in…`);
+  function warnBrowserLaunchFailed(error) {
+    Logger.warn(`Failed to open your browser automatically (${error.message}).`);
+    Logger.println('Open the URL above manually to continue logging in.');
+  }
+
   try {
     const browserProcess = await open(consoleUrl.toString(), { wait: false });
-    browserProcess.once('error', warnManualLogin);
-  } catch {
-    warnManualLogin();
+    browserProcess.once('error', warnBrowserLaunchFailed);
+  } catch (error) {
+    warnBrowserLaunchFailed(error);
   }
 
   return pollOauthData(cliPollUrl.toString());
