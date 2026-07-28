@@ -1,6 +1,5 @@
 import { getAllInstances } from '@clevercloud/client/esm/api/v2/application.js';
 import { spawn } from 'node:child_process';
-import { randomUUID } from 'node:crypto';
 import { z } from 'zod';
 import { config } from '../../config/config.js';
 import { defineCommand } from '../../lib/define-command.js';
@@ -8,6 +7,7 @@ import { defineOption } from '../../lib/define-option.js';
 import { selectAnswer } from '../../lib/prompts.js';
 import * as Application from '../../models/application.js';
 import { sendToApi } from '../../models/send-to-api.js';
+import { runMarkerProtocol } from '../../models/ssh-marker-protocol.js';
 import { aliasOption, appIdOrNameOption } from '../global.options.js';
 
 export const sshCommand = defineCommand({
@@ -78,45 +78,7 @@ export const sshCommand = defineCommand({
 
     // Single command mode (pipe stdio to filter gateway noise via a marker)
     const sshProcess = spawn('ssh', sshParams, { stdio: 'pipe' });
-
-    // We can't pass the command directly via `ssh gateway 'cmd'` because appId already occupies
-    // the remote command slot (used by the gateway for routing). So we write into stdin and use
-    // a marker to delimit the start of real output from gateway/login noise.
-    const marker = `__CLEVER_${randomUUID()}__`;
-    sshProcess.stdin.write(`echo '${marker}'\n`);
-
-    // `exec $SHELL --login -c` ensures the full login environment is loaded (.bashrc, env vars)
-    // while keeping stdout clean (no PTY = no prompt/ANSI noise).
-    const escapedCommand = command.replaceAll("'", "'\\''");
-    sshProcess.stdin.write(`exec $SHELL --login -c '${escapedCommand}'\n`);
-    sshProcess.stdin.end();
-
-    // Skip gateway/login noise on both stdout and stderr, stream after the marker
-    let started = false;
-    let buf = '';
-    sshProcess.stdout.on('data', (chunk) => {
-      if (started) {
-        process.stdout.write(chunk);
-        return;
-      }
-      buf += chunk.toString();
-      const idx = buf.indexOf(marker + '\n');
-      if (idx !== -1) {
-        started = true;
-        const rest = buf.slice(idx + marker.length + 1);
-        if (rest) process.stdout.write(rest);
-        buf = '';
-      }
-    });
-
-    // Discard stderr noise before the marker, forward after
-    sshProcess.stderr.on('data', (chunk) => {
-      if (started) {
-        process.stderr.write(chunk);
-      }
-    });
-
-    const exitCode = await new Promise((resolve) => sshProcess.on('exit', resolve));
+    const exitCode = await runMarkerProtocol({ child: sshProcess, command });
     process.exit(exitCode);
   },
 });

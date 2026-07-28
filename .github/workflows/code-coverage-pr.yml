@@ -1,0 +1,47 @@
+name: Publish code coverage
+
+on:
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+    paths-ignore:
+      - '**/*.md'
+    branches-ignore:
+      - 'release-please--**'
+
+concurrency:
+  group: code-coverage-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+env:
+  CC_CLEVER_TOOLS_PREVIEWS_CELLAR_BUCKET: ${{ vars.CC_CLEVER_TOOLS_PREVIEWS_CELLAR_BUCKET }}
+  CC_CLEVER_TOOLS_PREVIEWS_CELLAR_KEY_ID: ${{ secrets.CC_CLEVER_TOOLS_PREVIEWS_CELLAR_KEY_ID }}
+  CC_CLEVER_TOOLS_PREVIEWS_CELLAR_SECRET_KEY: ${{ secrets.CC_CLEVER_TOOLS_PREVIEWS_CELLAR_SECRET_KEY }}
+
+jobs:
+  code-coverage:
+    name: 'Publish code coverage'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v5
+      - uses: ./.github/actions/setup-node
+      - name: 'Run tests with coverage'
+        run: npm run test:coverage
+      - name: 'Publish code coverage report'
+        run: ./scripts/code-coverage.js publish ${{ github.event.pull_request.head.ref }}
+      - name: 'Prepare PR comment'
+        id: coverage-comment
+        run: |
+          echo "body<<EOF" >> $GITHUB_OUTPUT
+          ./scripts/code-coverage.js pr-comment ${{ github.event.pull_request.head.ref }} >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+      - name: 'Add code coverage comment to PR'
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: 'Code coverage'
+          message: ${{ steps.coverage-comment.outputs.body }}

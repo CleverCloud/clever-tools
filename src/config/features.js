@@ -3,9 +3,6 @@ import z from 'zod';
 import { readJson, writeJson } from '../lib/fs.js';
 import { Logger } from '../logger.js';
 import { config } from './config.js';
-import { getConfigPath } from './paths.js';
-
-const EXPERIMENTAL_FEATURES_FILEPATH = getConfigPath('clever-tools-experimental-features.json');
 
 export const EXPERIMENTAL_FEATURES = {
   'system-git': {
@@ -121,18 +118,19 @@ const FeaturesConfigSchema = z
  * @returns {Promise<FeaturesConfig>} The features configuration object
  */
 export async function getFeatures() {
-  Logger.debug(`Get features configuration from ${EXPERIMENTAL_FEATURES_FILEPATH}`);
+  const filePath = config.EXPERIMENTAL_FEATURES_FILE;
+  Logger.debug(`Get features configuration from ${filePath}`);
   try {
-    const rawFeatures = await readJson(EXPERIMENTAL_FEATURES_FILEPATH);
+    const rawFeatures = await readJson(filePath);
     const parsed = FeaturesConfigSchema.safeParse(rawFeatures);
     if (!parsed.success) {
-      Logger.info(`Invalid features format in ${EXPERIMENTAL_FEATURES_FILEPATH}`);
+      Logger.info(`Invalid features format in ${filePath}`);
       return {};
     }
     return parsed.data;
   } catch (error) {
     if (error.code !== 'ENOENT') {
-      throw new Error(`Cannot get experimental features configuration from ${EXPERIMENTAL_FEATURES_FILEPATH}`);
+      throw new Error(`Cannot get experimental features configuration from ${filePath}`);
     }
     return {};
   }
@@ -147,12 +145,13 @@ export async function getFeatures() {
  * @throws {Error} If the features file cannot be written
  */
 export async function setFeature(feature, value) {
+  const filePath = config.EXPERIMENTAL_FEATURES_FILE;
   const currentFeatures = await getFeatures();
   const newFeatures = { ...currentFeatures, [feature]: value };
   try {
-    await writeJson(EXPERIMENTAL_FEATURES_FILEPATH, newFeatures, { mode: 0o700 });
+    await writeJson(filePath, newFeatures, { mode: 0o700 });
   } catch (error) {
-    throw new Error(`Cannot write experimental features configuration to ${EXPERIMENTAL_FEATURES_FILEPATH}`);
+    throw new Error(`Cannot write experimental features configuration to ${filePath}`);
   }
 }
 

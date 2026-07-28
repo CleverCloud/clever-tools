@@ -1,5 +1,6 @@
 export const BUILD_DIR = 'build';
 export const PREVIEW_DIR = 'previews';
+export const CODE_COVERAGE_DIR = 'code-coverage';
 export const RELEASES_DIR = 'releases';
 export const LOCAL_PREVIEW_DIR = '.preview-binaries';
 
