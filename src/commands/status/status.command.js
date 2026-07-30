@@ -1,24 +1,40 @@
-import { getAllInstances, get as getApplication } from '@clevercloud/client/esm/api/v2/application.js';
+import { GetDeploymentCommand } from '@clevercloud/client/cc-api-commands/deployment/get-deployment-command.js';
+import { ListApplicationInstanceCommand } from '@clevercloud/client/cc-api-commands/instance/list-application-instance-command.js';
+import { tolerateNotFound } from '@clevercloud/client/utils/error-utils.js';
 import _ from 'lodash';
 import { defineCommand } from '../../lib/define-command.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
 import * as Application from '../../models/application.js';
-import { sendToApi } from '../../models/send-to-api.js';
+import { clients } from '../../models/cc-api-client.js';
 import { aliasOption, appIdOrNameOption, humanJsonOutputFormatOption } from '../global.options.js';
 
 function displayInstances(instances, commit) {
   return `(${instances.map((instance) => `${instance.count}*${instance.flavor}`)},  Commit: ${commit || 'N/A'})`;
 }
 
-function computeStatus(instances, app) {
+// The v4 instance API does not expose the commit anymore, we get it from the instances' deployment
+async function getDeploymentCommit(ownerId, applicationId, deploymentId) {
+  if (deploymentId == null) {
+    return undefined;
+  }
+  const deployment = await tolerateNotFound(
+    clients.ccApi.send(new GetDeploymentCommand({ ownerId, applicationId, deploymentId })),
+  );
+  return deployment?.version?.commitId;
+}
+
+async function computeStatus(instances, app, ownerId) {
   const upInstances = _.filter(instances, ({ state }) => state === 'UP');
   const isUp = !_.isEmpty(upInstances);
-  const upCommit = _(upInstances).map('commit').head();
 
   const deployingInstances = _.filter(instances, ({ state }) => state === 'DEPLOYING');
   const isDeploying = !_.isEmpty(deployingInstances);
-  const deployingCommit = _(deployingInstances).map('commit').head();
+
+  const [upCommit, deployingCommit] = await Promise.all([
+    getDeploymentCommit(ownerId, app.id, upInstances[0]?.deploymentId),
+    getDeploymentCommit(ownerId, app.id, deployingInstances[0]?.deploymentId),
+  ]);
 
   const { minFlavor, maxFlavor, minInstances, maxInstances } = app.instance;
 
@@ -40,8 +56,8 @@ function computeStatus(instances, app) {
       vertical: { min: minFlavor.name, max: maxFlavor.name },
       horizontal: { min: minInstances, max: maxInstances },
     },
-    separateBuild: app.separateBuild,
-    buildFlavor: app.buildFlavor.name,
+    separateBuild: app.hasSeparatedBuild,
+    buildFlavor: app.buildFlavor?.name,
   };
 
   if (isDeploying) {
@@ -60,7 +76,7 @@ function formatScalability({ min, max }) {
 
 function groupInstances(instances) {
   return _(instances)
-    .groupBy((i) => i.flavor.name)
+    .groupBy((i) => i.flavor)
     .map((instances, flavorName) => ({
       flavor: flavorName,
       count: instances.length,
@@ -81,10 +97,12 @@ export const statusCommand = defineCommand({
     const { alias, app: appIdOrName, format } = options;
     const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
 
-    const instances = await getAllInstances({ id: ownerId, appId }).then(sendToApi);
-    const app = await getApplication({ id: ownerId, appId }).then(sendToApi);
+    const instances = await clients.ccApi.send(
+      new ListApplicationInstanceCommand({ ownerId, applicationId: appId, excludeState: ['DELETED'] }),
+    );
+    const app = await Application.get(ownerId, appId);
 
-    const status = computeStatus(instances, app);
+    const status = await computeStatus(instances, app, ownerId);
 
     switch (format) {
       case 'json': {

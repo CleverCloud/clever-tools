@@ -9,10 +9,27 @@ import { SELF } from '../../../test/fixtures/self.ts';
 
 const PROFILE = profileConfig();
 
+// Raw POST /api-tokens response, in the wire shape the client transforms.
 const CREATED_TOKEN = {
   apiTokenId: 'tk_00000000-0000-0000-0000-000000000001',
   apiToken: 'cct_v1.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+  name: 'my-token',
+  description: 'a token',
+  state: 'ACTIVE',
+  creationDate: '2026-07-01T00:00:00.000Z',
   expirationDate: '2026-10-01T00:00:00.000Z',
+};
+
+// `--format json` keeps printing the wire shape: the client renames the dates to `createdAt` /
+// `expiresAt` and `toLegacyCreatedApiToken` renames them back.
+const CREATED_TOKEN_OUTPUT = {
+  apiTokenId: CREATED_TOKEN.apiTokenId,
+  apiToken: CREATED_TOKEN.apiToken,
+  name: CREATED_TOKEN.name,
+  description: CREATED_TOKEN.description,
+  state: CREATED_TOKEN.state,
+  creationDate: CREATED_TOKEN.creationDate,
+  expirationDate: CREATED_TOKEN.expirationDate,
 };
 
 describe('tokens create command', () => {
@@ -53,7 +70,6 @@ describe('tokens create command', () => {
             password: 'hunter2',
             mfaCode: '123456',
             name: 'my-token',
-            description: '',
             expirationDate: '2026-10-01T00:00:00.000Z',
           });
         });
@@ -95,7 +111,6 @@ describe('tokens create command', () => {
             email: SELF.email,
             password: 'hunter2',
             name: 'no-totp',
-            description: '',
             expirationDate: '2026-10-01T00:00:00.000Z',
           });
         });
@@ -118,7 +133,7 @@ describe('tokens create command', () => {
           assert.strictEqual(calls.count, 2);
         });
 
-      assert.deepStrictEqual(JSON.parse(result.stdout), CREATED_TOKEN);
+      assert.deepStrictEqual(JSON.parse(result.stdout), CREATED_TOKEN_OUTPUT);
     });
 
     it('accepts -e as an alias for --expiration', async () => {
@@ -313,7 +328,7 @@ describe('tokens create command', () => {
           assert.strictEqual(calls.count, 1);
         });
 
-      assert.strictEqual(result.stderr, '[ERROR] oops');
+      assert.strictEqual(result.stderr, '[ERROR] [500]: oops');
     });
   });
 

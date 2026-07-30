@@ -1,8 +1,9 @@
-import { getDrain } from '../../clever-client/drains.js';
+import { GetLogDrainCommand } from '@clevercloud/client/cc-api-commands/log-drain/get-log-drain-command.js';
+import { toLegacyLogDrain } from '../../legacy-json/log-drain.legacy.js';
 import { defineCommand } from '../../lib/define-command.js';
 import { Logger } from '../../logger.js';
+import { clients } from '../../models/cc-api-client.js';
 import { formatDrain, resolveDrainResource } from '../../models/drain.js';
-import { sendToApi } from '../../models/send-to-api.js';
 import {
   addonIdOrRealIdOption,
   aliasOption,
@@ -23,13 +24,14 @@ export const drainGetCommand = defineCommand({
   args: [drainIdArg],
   async handler(options, drainId) {
     const { alias, appIdOrName, addonIdOrRealId, format } = options;
-    const { ownerId, resourceId } = await resolveDrainResource(alias, appIdOrName, addonIdOrRealId);
+    const resource = await resolveDrainResource(alias, appIdOrName, addonIdOrRealId);
 
-    const drain = await getDrain({ ownerId, resourceId, drainId }).then(sendToApi);
+    const drain = await clients.ccApi.send(new GetLogDrainCommand({ ...resource, drainId }));
 
     switch (format) {
       case 'json': {
-        Logger.printJson(drain);
+        // `--format json` still prints the raw v4 payload, see src/legacy-json/README.md
+        Logger.printJson(toLegacyLogDrain(drain));
         break;
       }
       case 'human':

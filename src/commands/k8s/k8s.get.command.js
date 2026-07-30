@@ -1,3 +1,4 @@
+import { toLegacyKubernetesCluster } from '../../legacy-json/kubernetes.legacy.js';
 import { defineCommand } from '../../lib/define-command.js';
 import { getK8sCluster } from '../../lib/k8s.js';
 import { styleText } from '../../lib/style-text.js';
@@ -20,7 +21,8 @@ export const k8sGetCommand = defineCommand({
 
     switch (format) {
       case 'json':
-        Logger.printJson(k8sInfo);
+        // `--format json` still prints the raw payload, see src/legacy-json/README.md
+        Logger.printJson(toLegacyKubernetesCluster(k8sInfo));
         break;
       case 'human':
       default: {
@@ -31,8 +33,8 @@ export const k8sGetCommand = defineCommand({
           Status: k8sInfo.status,
           Version: k8sInfo.version,
           Topology: formatTopology(topo),
-          Autoscaling: k8sInfo.features?.autoscalingEnabled ? 'enabled' : 'disabled',
-          'Persistent storage': k8sInfo.features?.csi != null ? 'enabled' : 'disabled',
+          Autoscaling: k8sInfo.features?.isAutoscalingEnabled ? 'enabled' : 'disabled',
+          'Persistent storage': k8sInfo.features?.isCsi != null ? 'enabled' : 'disabled',
         };
         if (k8sInfo.tags?.length) overview.Tags = k8sInfo.tags.join(', ');
         if (k8sInfo.description) overview.Description = k8sInfo.description;

@@ -1,10 +1,10 @@
-import { removeTcpRedir } from '@clevercloud/client/esm/api/v2/application.js';
+import { DeleteTcpRedirectionCommand } from '@clevercloud/client/cc-api-commands/tcp-redirection/delete-tcp-redirection-command.js';
 import { z } from 'zod';
 import { defineArgument } from '../../lib/define-argument.js';
 import { defineCommand } from '../../lib/define-command.js';
 import { Logger } from '../../logger.js';
 import * as Application from '../../models/application.js';
-import { sendToApi } from '../../models/send-to-api.js';
+import { clients } from '../../models/cc-api-client.js';
 import { aliasOption, appIdOrNameOption } from '../global.options.js';
 import { namespaceOption } from './tcp-redirs.options.js';
 
@@ -27,7 +27,7 @@ export const tcpRedirsRemoveCommand = defineCommand({
     const { alias, app: appIdOrName, namespace } = options;
     const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
 
-    await removeTcpRedir({ id: ownerId, appId, sourcePort: port, namespace }).then(sendToApi);
+    await clients.ccApi.send(new DeleteTcpRedirectionCommand({ ownerId, applicationId: appId, port, namespace }));
 
     Logger.println('Successfully removed tcp redirection.');
   },

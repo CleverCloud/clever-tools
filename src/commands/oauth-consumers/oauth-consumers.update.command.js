@@ -1,17 +1,18 @@
-import { update as updateOauthConsumer } from '@clevercloud/client/esm/api/v2/oauth-consumer.js';
+import { UpdateOauthConsumerCommand } from '@clevercloud/client/cc-api-commands/oauth-consumer/update-oauth-consumer-command.js';
 import { z } from 'zod';
+import { toLegacyOauthConsumer } from '../../legacy-json/oauth-consumer.legacy.js';
 import { defineCommand } from '../../lib/define-command.js';
 import { defineOption } from '../../lib/define-option.js';
 import { promptTextOption } from '../../lib/prompts.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
+import { clients } from '../../models/cc-api-client.js';
 import {
+  pickGrantableRights,
   promptRights,
-  removeReadonlyRights,
   resolveOauthConsumer,
   rightsFromList,
 } from '../../models/oauth-consumer.js';
-import { sendToApi } from '../../models/send-to-api.js';
 import { humanJsonOutputFormatOption } from '../global.options.js';
 import { consumerKeyOrNameArg } from './oauth-consumers.args.js';
 import { baseUrlOption, descriptionOption, pictureOption, rightsOption, urlOption } from './oauth-consumers.options.js';
@@ -51,7 +52,7 @@ export const oauthConsumersUpdateCommand = defineCommand({
           url: url ?? oauthConsumer.url,
           picture: picture ?? oauthConsumer.picture,
           baseUrl: baseUrl ?? oauthConsumer.baseUrl,
-          rights: rights != null ? rightsFromList(rights) : removeReadonlyRights(oauthConsumer.rights),
+          rights: rights != null ? rightsFromList(rights) : pickGrantableRights(oauthConsumer.rights),
         }
       : {
           name: await promptTextOption(nameOption, oauthConsumer.name),
@@ -62,14 +63,18 @@ export const oauthConsumersUpdateCommand = defineCommand({
           rights: await promptRights(oauthConsumer.rights),
         };
 
-    const updatedOauthConsumer = await updateOauthConsumer(
-      { id: oauthConsumer.ownerId, key: oauthConsumer.key },
-      body,
-    ).then(sendToApi);
+    const updatedOauthConsumer = await clients.ccApi.send(
+      new UpdateOauthConsumerCommand({
+        ownerId: oauthConsumer.ownerId,
+        oauthConsumerKey: oauthConsumer.key,
+        ...body,
+      }),
+    );
 
     switch (format) {
       case 'json': {
-        Logger.printJson(updatedOauthConsumer);
+        // `--format json` still prints the rights as the API names them, see src/legacy-json/README.md
+        Logger.printJson(toLegacyOauthConsumer(updatedOauthConsumer));
         break;
       }
       case 'human':

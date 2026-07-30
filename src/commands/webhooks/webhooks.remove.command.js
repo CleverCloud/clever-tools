@@ -1,8 +1,8 @@
-import { deleteWebhook } from '@clevercloud/client/esm/api/v2/notification.js';
+import { DeleteWebhookNotificationCommand } from '@clevercloud/client/cc-api-commands/notification/delete-webhook-notification-command.js';
 import { defineCommand } from '../../lib/define-command.js';
 import { Logger } from '../../logger.js';
+import { clients } from '../../models/cc-api-client.js';
 import { getOwnerIdFromOrgIdOrName } from '../../models/ids-resolver.js';
-import { sendToApi } from '../../models/send-to-api.js';
 import { notificationIdArg } from '../global.args.js';
 import { orgaIdOrNameOption } from '../global.options.js';
 
@@ -17,7 +17,7 @@ export const webhooksRemoveCommand = defineCommand({
     const { org } = options;
 
     const ownerId = await getOwnerIdFromOrgIdOrName(org);
-    await deleteWebhook({ ownerId, id: notificationId }).then(sendToApi);
+    await clients.ccApi.send(new DeleteWebhookNotificationCommand({ ownerId, webhookNotificationId: notificationId }));
 
     Logger.println('The notification has been successfully removed');
   },

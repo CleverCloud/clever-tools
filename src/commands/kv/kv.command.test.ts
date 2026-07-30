@@ -251,7 +251,7 @@ describe('kv command', () => {
         });
 
       assert.strictEqual(result.stdout, '');
-      assert.strictEqual(result.stderr, '[ERROR] oops');
+      assert.strictEqual(result.stderr, '[ERROR] [500]: oops');
     });
 
     it('reports the error body when the addon env endpoint returns a non-2xx status', async () => {
@@ -268,7 +268,7 @@ describe('kv command', () => {
         });
 
       assert.strictEqual(result.stdout, '');
-      assert.strictEqual(result.stderr, '[ERROR] oops');
+      assert.strictEqual(result.stderr, '[ERROR] [500]: oops');
     });
   });
 

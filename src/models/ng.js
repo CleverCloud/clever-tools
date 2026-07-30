@@ -1,21 +1,19 @@
-import {
-  createNetworkGroup,
-  deleteNetworkGroup,
-  getNetworkGroup,
-  getNetworkGroupWireGuardConfiguration,
-  listNetworkGroups,
-} from '@clevercloud/client/esm/api/v4/network-group.js';
-import crypto from 'node:crypto';
-import { searchNetworkGroupOrResource } from '../clever-client/ng.js';
+import { CreateNetworkGroupCommand } from '@clevercloud/client/cc-api-commands/network-group/create-network-group-command.js';
+import { DeleteNetworkGroupCommand } from '@clevercloud/client/cc-api-commands/network-group/delete-network-group-command.js';
+import { GetNetworkGroupCommand } from '@clevercloud/client/cc-api-commands/network-group/get-network-group-command.js';
+import { GetNetworkGroupWireguardConfigurationCommand } from '@clevercloud/client/cc-api-commands/network-group/get-network-group-wireguard-configuration-command.js';
+import { ListNetworkGroupCommand } from '@clevercloud/client/cc-api-commands/network-group/list-network-group-command.js';
+import { SearchNetworkGroupCommand } from '@clevercloud/client/cc-api-commands/network-group/search-network-group-command.js';
+import { tolerateNotFound } from '@clevercloud/client/utils/error-utils.js';
+import { isTimeoutError, Polling } from '@clevercloud/client/utils/polling.js';
 import { styleText } from '../lib/style-text.js';
 import { Logger } from '../logger.js';
+import { clients } from './cc-api-client.js';
 import { getOwnerIdFromOrgIdOrName } from './ids-resolver.js';
 import { checkMembersToLink } from './ng-resources.js';
-import { sendToApi } from './send-to-api.js';
 
 export const POLLING_TIMEOUT_MS = 30_000;
 export const POLLING_INTERVAL_MS = 1000;
-export const DOMAIN = 'cc-ng.cloud';
 export const NG_MEMBER_PREFIXES = {
   app_: 'APPLICATION',
   elasticsearch_: 'ADDON',
@@ -36,23 +34,22 @@ export const NG_MEMBER_PREFIXES = {
  * @throws {Error} If the Network Group label is missing
  */
 export async function create(label, description, tags, membersIds, orgaIdOrName) {
-  const id = `ng_${crypto.randomUUID()}`;
   const ownerId = await getOwnerIdFromOrgIdOrName(orgaIdOrName);
 
   if (membersIds?.length > 0) {
     checkMembersToLink(membersIds);
   }
 
-  const members = constructMembers(id, membersIds || []);
-  const body = { ownerId, id, label, description, tags, members };
+  const members = (membersIds ?? []).map((id) => ({ id }));
 
-  Logger.info(`Creating Network Group ${label} (${id}) from owner ${ownerId}`);
+  Logger.info(`Creating Network Group ${label} from owner ${ownerId}`);
   Logger.info(`${members.length} members will be added: ${members.map((m) => m.id).join(', ')}`);
-  Logger.debug(`Sending body: ${JSON.stringify(body, null, 2)}`);
-  await createNetworkGroup({ ownerId }, body).then(sendToApi);
+  const ng = await clients.ccApi.send(new CreateNetworkGroupCommand({ ownerId, label, description, tags, members }));
 
-  await pollNetworkGroup(ownerId, id, { waitForMembers: membersIds });
-  Logger.info(`Network Group ${label} (${id}) created from owner ${ownerId}`);
+  if (membersIds?.length > 0) {
+    await waitForMembers(ownerId, ng.id, membersIds);
+  }
+  Logger.info(`Network Group ${label} (${ng.id}) created from owner ${ownerId}`);
 }
 
 /**
@@ -68,9 +65,8 @@ export async function destroy(ngIdOrLabel, orgaIdOrName) {
     throw new Error(`Network Group ${styleText('red', ngIdOrLabel.ngId ?? ngIdOrLabel.ngResourceLabel)} not found`);
   }
 
-  await deleteNetworkGroup({ ownerId: found.ownerId, networkGroupId: found.id }).then(sendToApi);
   Logger.info(`Deleting Network Group ${found.id} from owner ${found.ownerId}`);
-  await pollNetworkGroup(found.ownerId, found.id, { waitForDeletion: true });
+  await clients.ccApi.send(new DeleteNetworkGroupCommand({ ownerId: found.ownerId, networkGroupId: found.id }));
   Logger.info(`Network Group ${found.id} deleted from owner ${found.ownerId}`);
 }
 
@@ -108,28 +104,23 @@ export async function getPeerConfig(peerIdOrLabel, ngIdOrLabel, orgaIdOrName) {
   }
 
   Logger.debug(`Getting configuration for Peer ${peer.id}`);
-  const result = await getNetworkGroupWireGuardConfiguration({
-    ownerId: parentNg.ownerId,
-    networkGroupId: parentNg.id,
-    peerId: peer.id,
-  }).then(sendToApi);
+  const result = await tolerateNotFound(
+    clients.ccApi.send(
+      new GetNetworkGroupWireguardConfigurationCommand({
+        ownerId: parentNg.ownerId,
+        networkGroupId: parentNg.id,
+        peerId: peer.id,
+      }),
+    ),
+  );
+
+  if (result == null) {
+    throw new Error(
+      `No WireGuard configuration found for Peer ${styleText('red', peer.id)} in Network Group ${styleText('red', parentNg.id)}`,
+    );
+  }
+
   Logger.debug(`Received from API:\n${result}`);
-
-  return result;
-}
-
-/**
- * Get a Network Group from an owner with members and peers
- * @param {string} networkGroupId The Network Group ID
- * @param {string} orgaIdOrName The owner ID or name
- * @returns {Promise<Array<Object>>} The Network Groups
- */
-export async function getNG(networkGroupId, orgaIdOrName) {
-  const ownerId = await getOwnerIdFromOrgIdOrName(orgaIdOrName);
-
-  Logger.info(`Get Network Group ${networkGroupId} for owner ${ownerId}`);
-  const result = await getNetworkGroup({ networkGroupId, ownerId }).then(sendToApi);
-  Logger.debug(`Received from API:\n${JSON.stringify(result, null, 2)}`);
 
   return result;
 }
@@ -143,7 +134,7 @@ export async function getAllNGs(orgaIdOrName) {
   const ownerId = await getOwnerIdFromOrgIdOrName(orgaIdOrName);
 
   Logger.info(`Listing Network Groups from owner ${ownerId}`);
-  const result = await listNetworkGroups({ ownerId }).then(sendToApi);
+  const result = await clients.ccApi.send(new ListNetworkGroupCommand({ ownerId }));
   Logger.debug(`Received from API:\n${JSON.stringify(result, null, 2)}`);
   return result;
 }
@@ -164,25 +155,25 @@ export async function searchNgOrResource(idOrLabel, orgaIdOrName, type = 'all', 
   const query =
     typeof idOrLabel === 'string' ? idOrLabel : (idOrLabel.ngId ?? idOrLabel.memberId ?? idOrLabel.ngResourceLabel);
 
-  const found = await searchNetworkGroupOrResource({ ownerId, query }).then(sendToApi);
-
-  let filtered = found;
+  let types;
   switch (type) {
     case 'all':
     case 'single':
       break;
     case 'Peer':
-      filtered = found.filter((f) => f.type === 'CleverPeer' || f.type === 'ExternalPeer');
+      types = ['CleverPeer', 'ExternalPeer'];
       break;
     case 'CleverPeer':
     case 'ExternalPeer':
     case 'Member':
     case 'NetworkGroup':
-      filtered = found.filter((f) => f.type === type);
+      types = [type];
       break;
     default:
       throw new Error(`Unsupported type: ${type}`);
   }
+
+  let filtered = await clients.ccApi.send(new SearchNetworkGroupCommand({ ownerId, query, types }));
 
   if (exactMatch) {
     filtered = filtered.filter((f) => f.id === query || f.label === query);
@@ -198,69 +189,40 @@ ${filtered.map((f) => ` • ${f.id} ${styleText('grey', `(${f.domainName || f.la
 }
 
 /**
- * Construct members from members_ids
- * @param {string} ngId The Network Group ID
- * @param {Array<string>} membersIds The members IDs
- * @returns {Array<Object>} Array of members with id, domainName and kind
- */
-export function constructMembers(ngId, membersIds) {
-  return membersIds.map((id) => {
-    const domainName = `${id}.m.${ngId}.${DOMAIN}`;
-    const prefix = Object.keys(NG_MEMBER_PREFIXES).find((p) => id.startsWith(p));
-    const kind = NG_MEMBER_PREFIXES[prefix];
-    return { id, domainName, kind };
-  });
-}
-
-/**
- * Poll Network Groups to check its status and members
+ * Poll a Network Group until all the given members are linked to it
  * @param {string} ownerId The owner ID
  * @param {string} ngId The Network Group ID
- * @param {Array<string>} waitForMembers The members IDs to wait for
- * @param {boolean} waitForDeletion Wait for the Network Group deletion
+ * @param {Array<string>} memberIds The members IDs to wait for
  * @throws {Error} When timeout is reached
  * @returns {Promise<void>}
  */
-async function pollNetworkGroup(ownerId, ngId, { waitForMembers = null, waitForDeletion = false } = {}) {
-  return new Promise((resolve, reject) => {
-    Logger.info(`Polling Network Groups from owner ${ownerId}`);
-    const timeoutTime = Date.now() + POLLING_TIMEOUT_MS;
+async function waitForMembers(ownerId, ngId, memberIds) {
+  Logger.info(`Polling Network Group ${ngId} from owner ${ownerId}`);
 
-    async function pollOnce() {
-      if (Date.now() > timeoutTime) {
-        const action = waitForDeletion ? 'deletion of' : 'creation of';
-        reject(new Error(`Timeout while checking ${action} Network Group ${ngId}`));
-        return;
+  const polling = new Polling(
+    async () => {
+      const ng = await tolerateNotFound(
+        clients.ccApi.send(new GetNetworkGroupCommand({ ownerId, networkGroupId: ngId })),
+      );
+      const members = ng?.members.filter((member) => memberIds.includes(member.id)) ?? [];
+
+      if (members.length === memberIds.length) {
+        return { stop: true };
       }
 
-      try {
-        const ngs = await listNetworkGroups({ ownerId }).then(sendToApi);
-        const ng = ngs.find((ng) => ng.id === ngId);
+      Logger.debug(`Waiting for members: ${memberIds.join(', ')}`);
+      return { stop: false };
+    },
+    POLLING_INTERVAL_MS,
+    POLLING_TIMEOUT_MS,
+  );
 
-        if (waitForDeletion && !ng) {
-          resolve();
-          return;
-        }
-
-        if (!waitForDeletion && ng) {
-          if (waitForMembers?.length) {
-            const members = ng.members.filter((member) => waitForMembers.includes(member.id));
-            if (members.length !== waitForMembers.length) {
-              Logger.debug(`Waiting for members: ${waitForMembers.join(', ')}`);
-              setTimeout(pollOnce, POLLING_INTERVAL_MS);
-              return;
-            }
-          }
-          resolve();
-          return;
-        }
-
-        setTimeout(pollOnce, POLLING_INTERVAL_MS);
-      } catch (error) {
-        reject(error);
-      }
+  try {
+    await polling.start();
+  } catch (error) {
+    if (isTimeoutError(error)) {
+      throw new Error(`Timeout while checking creation of Network Group ${ngId}`);
     }
-
-    pollOnce();
-  });
+    throw error;
+  }
 }

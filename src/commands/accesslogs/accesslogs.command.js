@@ -1,12 +1,13 @@
-import { ApplicationAccessLogStream } from '@clevercloud/client/esm/streams/access-logs.js';
+import { StreamApplicationAccessLogCommand } from '@clevercloud/client/cc-api-commands/log/stream-application-access-log-command.js';
 import { formatTable } from '../../format-table.js';
+import { toLegacyApplicationAccessLog } from '../../legacy-json/log.legacy.js';
 import { formatClf } from '../../lib/access-logs-clf.js';
 import { defineCommand } from '../../lib/define-command.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
 import * as Application from '../../models/application.js';
+import { clients } from '../../models/cc-api-client.js';
 import { JsonArray } from '../../models/json-array.js';
-import { getHostAndTokens } from '../../models/send-to-api.js';
 import { truncateWithEllipsis } from '../../models/utils.js';
 import {
   accessLogsFormatOption,
@@ -21,21 +22,26 @@ const THROTTLE_ELEMENTS = 2000;
 
 const THROTTLE_PER_IN_MILLISECONDS = 100;
 
+const RETRY_CONFIGURATION = {
+  initRetryTimeout: 3000,
+  maxRetryCount: 10,
+};
+
 const CITY_MAX_LENGTH = 20;
 
 function formatHuman(log) {
-  const { date, http, source } = log;
+  const { date, detail, source } = log;
   const country = source.countryCode ?? '(unknown)';
   const hasSourceCity = source.city ?? '';
 
   return formatTable(
     [
       [
-        styleText('grey', date.toISOString(date)),
+        styleText('grey', date),
         source.ip,
         `${country}${hasSourceCity ? '/' + truncateWithEllipsis(CITY_MAX_LENGTH, source.city) : ''}`,
-        colorStatusCode(http.response.statusCode),
-        http.request.method.toString().padEnd(4, ' ') + ' ' + http.request.path,
+        colorStatusCode(detail.response.statusCode),
+        detail.request.method.toString().padEnd(4, ' ') + ' ' + detail.request.path,
       ],
     ],
 
@@ -89,20 +95,8 @@ export const accesslogsCommand = defineCommand({
       throw new Error('Access Logs are not available for add-ons yet');
     }
 
-    const { apiHost, tokens } = await getHostAndTokens();
     const { alias, app: appIdOrName, format, before: until, after: since } = options;
     const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
-
-    const stream = new ApplicationAccessLogStream({
-      apiHost,
-      tokens,
-      ownerId,
-      appId,
-      since,
-      until,
-      throttleElements: THROTTLE_ELEMENTS,
-      throttlePerInMilliseconds: THROTTLE_PER_IN_MILLISECONDS,
-    });
 
     if (format === 'human') {
       Logger.println(styleText('yellow', '/!\\ This feature is in Beta testing phase'));
@@ -112,42 +106,46 @@ export const accesslogsCommand = defineCommand({
       throw new Error('JSON format only works with a limiting parameter such as `before`');
     }
 
+    const stream = await clients.ccApi.stream(
+      new StreamApplicationAccessLogCommand({
+        ownerId,
+        applicationId: appId,
+        since,
+        until,
+        throttleElements: THROTTLE_ELEMENTS,
+        throttlePerInMilliseconds: THROTTLE_PER_IN_MILLISECONDS,
+      }),
+      { retry: RETRY_CONFIGURATION },
+    );
+
     // used for 'json' format
     const jsonArray = new JsonArray();
 
     stream
-      .on('open', () => {
+      .onOpen(() => {
         Logger.debug(styleText('blue', `Logs stream (open) ${JSON.stringify({ appId })}`));
         if (format === 'json') {
           jsonArray.open();
         }
       })
-      .on('error', (event) => {
-        Logger.debug(styleText('red', `Logs stream (error) ${event.error.message}`));
+      .onError((error) => {
+        Logger.debug(styleText('red', `Logs stream (error) ${error.message}`));
       })
       .onLog((log) => {
         switch (format) {
+          // `--format json` and `--format json-stream` still print the raw payloads,
+          // see src/legacy-json/README.md
           case 'json':
-            jsonArray.push(log);
+            jsonArray.push(toLegacyApplicationAccessLog(log));
             break;
           case 'json-stream':
-            Logger.printJson(log);
+            Logger.printJson(toLegacyApplicationAccessLog(log));
             break;
           case 'clf':
-            // when the connection is cut too early, or for TCP redirections, we don't have HTTP section
-            if (log.http == null) {
-              break;
-            }
-
             Logger.println(formatClf(log));
             break;
           case 'human':
           default:
-            // when the connection is cut too early, or for TCP redirections, we don't have HTTP section
-            if (log.http == null) {
-              break;
-            }
-
             Logger.println(formatHuman(log));
             break;
         }
@@ -155,7 +153,7 @@ export const accesslogsCommand = defineCommand({
 
     // Properly close the stream
     process.once('SIGINT', (signal) => {
-      stream.close(signal);
+      stream.close({ type: signal });
       process.kill(process.pid, 'SIGINT');
     });
 

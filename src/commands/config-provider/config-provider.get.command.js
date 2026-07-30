@@ -1,9 +1,10 @@
-import { getConfigProviderEnv } from '@clevercloud/client/esm/api/v4/addon.js';
-import { toNameEqualsValueString } from '@clevercloud/client/esm/utils/env-vars.js';
+import { GetConfigProviderCommand } from '@clevercloud/client/cc-api-commands/config-provider/get-config-provider-command.js';
+import { toNameEqualsValueString } from '@clevercloud/client/utils/environment-utils.js';
+import { tolerateNotFound } from '@clevercloud/client/utils/error-utils.js';
 import { defineCommand } from '../../lib/define-command.js';
 import { Logger } from '../../logger.js';
+import { clients } from '../../models/cc-api-client.js';
 import { resolveConfigProviderId } from '../../models/config-provider.js';
-import { sendToApi } from '../../models/send-to-api.js';
 import { envFormatOption } from '../global.options.js';
 import { configProviderIdOrNameArg } from './config-provider.args.js';
 
@@ -18,8 +19,9 @@ export const configProviderGetCommand = defineCommand({
     const { format } = options;
     const { realId } = await resolveConfigProviderId(addonIdOrRealIdOrName);
 
-    // API returns an array of { name, value } objects
-    const envVars = await getConfigProviderEnv({ configurationProviderId: realId }).then(sendToApi);
+    // The client returns an array of { name, value } objects, sorted by name
+    const envVars =
+      (await tolerateNotFound(clients.ccApi.send(new GetConfigProviderCommand({ addonId: realId })))) ?? [];
 
     switch (format) {
       case 'json':

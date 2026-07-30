@@ -1,12 +1,18 @@
-import { getAllDeployments, getDeployment } from '@clevercloud/client/esm/api/v2/application.js';
+import { GetDeploymentCommand } from '@clevercloud/client/cc-api-commands/deployment/get-deployment-command.js';
+import { ListDeploymentCommand } from '@clevercloud/client/cc-api-commands/deployment/list-deployment-command.js';
+import { isNetworkError } from '@clevercloud/client/utils/error-utils.js';
 import { setTimeout as delay } from 'node:timers/promises';
 import { Logger } from '../logger.js';
-import { sendToApi } from './send-to-api.js';
+import { clients } from './cc-api-client.js';
 
 const DEPLOYMENT_POLLING_DELAY = 5000;
 const BACKOFF_FACTOR = 1.25;
 const INIT_RETRY_TIMEOUT = 1500;
 const MAX_RETRY_COUNT = 5;
+
+export function listLastDeployments(ownerId, appId) {
+  return clients.ccApi.send(new ListDeploymentCommand({ ownerId, applicationId: appId, limit: 5 }));
+}
 
 export async function waitForDeploymentStart({ ownerId, appId, deploymentId, commitId, knownDeployments }) {
   return waitFor(async () => {
@@ -15,13 +21,13 @@ export async function waitForDeploymentStart({ ownerId, appId, deploymentId, com
       // then we match by commit ID and we filter out "known deployments" that existed before the deploy.
       // In a restart situation, we have a deployment ID but fetching it too soon may result in an error so we get latest deployments,
       // then we just match on the deployment ID.
-      const deploymentList = await getAllDeployments({ id: ownerId, appId, limit: 5 }).then(sendToApi);
+      const deploymentList = await listLastDeployments(ownerId, appId);
       const deployment = deploymentList.find((d) => {
         if (deploymentId != null) {
-          return d.uuid === deploymentId;
+          return d.id === deploymentId;
         }
         if (commitId != null && Array.isArray(knownDeployments)) {
-          const isNew = knownDeployments.every(({ uuid }) => uuid !== d.uuid);
+          const isNew = knownDeployments.every(({ id }) => id !== d.id);
           return isNew && d.commit === commitId;
         }
         return false;
@@ -41,9 +47,10 @@ export async function waitForDeploymentStart({ ownerId, appId, deploymentId, com
 export async function waitForDeploymentEnd({ ownerId, appId, deploymentId }) {
   return waitFor(async () => {
     try {
-      const deployment = await getDeployment({ id: ownerId, appId, deploymentId }).then(sendToApi);
-      // If it's not WIP, it means it has ended (OK, FAIL, CANCELLED…)
-      if (deployment.state !== 'WIP') {
+      const deployment = await clients.ccApi.send(
+        new GetDeploymentCommand({ ownerId, applicationId: appId, deploymentId }),
+      );
+      if (deployment.state === 'SUCCEEDED' || deployment.state === 'FAILED' || deployment.state === 'CANCELLED') {
         Logger.debug(`Deployment is finished (state:${deployment.state})`);
         return deployment;
       }
@@ -75,8 +82,11 @@ async function waitFor(fetchResult) {
       // Retry with simple polling when API calls succeed
       await delay(DEPLOYMENT_POLLING_DELAY);
     } catch (e) {
-      // If only retry if it's a network error
-      if (e.code !== 'EAI_AGAIN') {
+      // Only retry the network failures the client says are worth another attempt: a host that does
+      // not resolve or a connection the peer aborted will fail the same way five times in a row, and
+      // polling a deployment is not worth waiting through that. The client answers this rather than
+      // us because it knows whether the request had been sent when the connection died.
+      if (!isNetworkError(e) || !e.isWorthRetrying()) {
         throw e;
       }
 

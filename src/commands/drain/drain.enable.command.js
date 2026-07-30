@@ -1,9 +1,9 @@
-import { enableDrain } from '../../clever-client/drains.js';
+import { EnableLogDrainCommand } from '@clevercloud/client/cc-api-commands/log-drain/enable-log-drain-command.js';
 import { defineCommand } from '../../lib/define-command.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
+import { clients } from '../../models/cc-api-client.js';
 import { resolveDrainResource } from '../../models/drain.js';
-import { sendToApi } from '../../models/send-to-api.js';
 import { addonIdOrRealIdOption, aliasOption, appIdOrNameOption } from '../global.options.js';
 import { drainIdArg } from './drain.args.js';
 
@@ -18,9 +18,9 @@ export const drainEnableCommand = defineCommand({
   args: [drainIdArg],
   async handler(options, drainId) {
     const { alias, appIdOrName, addonIdOrRealId } = options;
-    const { ownerId, resourceId } = await resolveDrainResource(alias, appIdOrName, addonIdOrRealId);
+    const resource = await resolveDrainResource(alias, appIdOrName, addonIdOrRealId);
 
-    await enableDrain({ ownerId, resourceId, drainId }).then(sendToApi);
+    await clients.ccApi.send(new EnableLogDrainCommand({ ...resource, drainId }));
 
     Logger.printSuccess(`Drain ${styleText(['bold', 'green'], drainId)} has been successfully enabled!`);
   },

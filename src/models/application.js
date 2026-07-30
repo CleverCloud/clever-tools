@@ -1,24 +1,24 @@
-import {
-  addDependency,
-  create as createApplication,
-  getAll as getAllApplications,
-  getAllDependencies,
-  get as getApplication,
-  redeploy as redeployApplication,
-  remove as removeApplication,
-  removeDependency,
-  update as updateApplication,
-} from '@clevercloud/client/esm/api/v2/application.js';
-import { getAvailableInstances } from '@clevercloud/client/esm/api/v2/product.js';
-import { getSummary } from '@clevercloud/client/esm/api/v2/user.js';
+import { CreateApplicationCommand } from '@clevercloud/client/cc-api-commands/application/create-application-command.js';
+import { DeleteApplicationCommand } from '@clevercloud/client/cc-api-commands/application/delete-application-command.js';
+import { DeployApplicationCommand } from '@clevercloud/client/cc-api-commands/application/deploy-application-command.js';
+import { GetApplicationCommand } from '@clevercloud/client/cc-api-commands/application/get-application-command.js';
+import { ListApplicationCommand } from '@clevercloud/client/cc-api-commands/application/list-application-command.js';
+import { UpdateApplicationCommand } from '@clevercloud/client/cc-api-commands/application/update-application-command.js';
+import { AddLinkCommand } from '@clevercloud/client/cc-api-commands/link/add-link-command.js';
+import { ListLinkCommand } from '@clevercloud/client/cc-api-commands/link/list-link-command.js';
+import { RemoveLinkCommand } from '@clevercloud/client/cc-api-commands/link/remove-link-command.js';
+import { GetOrganisationSummariesCommand } from '@clevercloud/client/cc-api-commands/organisation/get-organisation-summaries-command.js';
+import { ListProductRuntimeCommand } from '@clevercloud/client/cc-api-commands/product/list-product-runtime-command.js';
+import { toArray } from '@clevercloud/client/utils/environment-utils.js';
+import { tolerateNotFound } from '@clevercloud/client/utils/error-utils.js';
 import _ from 'lodash';
 import { confirmAnswer } from '../lib/prompts.js';
 import { styleText } from '../lib/style-text.js';
 import { Logger } from '../logger.js';
 import * as AppConfiguration from './app_configuration.js';
+import { clients } from './cc-api-client.js';
 import { resolveOwnerId } from './ids-resolver.js';
 import * as Organisation from './organisation.js';
-import { sendToApi } from './send-to-api.js';
 import * as User from './user.js';
 
 export function listAvailableTypes() {
@@ -71,10 +71,9 @@ async function getId(ownerId, dependency) {
 }
 
 async function getInstanceType(type) {
-  // TODO: We should be able to use it without {}
-  const types = await getAvailableInstances({}).then(sendToApi);
+  const types = await clients.ccApi.send(new ListProductRuntimeCommand());
 
-  const enabledTypes = types.filter((t) => t.enabled);
+  const enabledTypes = types.filter((t) => t.isEnabled);
   const matchingVariants = enabledTypes.filter((t) => t.variant != null && t.variant.slug === type);
   const instanceVariant = _.sortBy(matchingVariants, 'version').reverse()[0];
   if (instanceVariant == null) {
@@ -90,28 +89,27 @@ export async function create(name, typeName, region, orgaIdOrName, github, isTas
 
   const instanceType = await getInstanceType(typeName);
 
-  const newApp = {
-    deploy: 'git',
-    description: name,
-    instanceType: instanceType.type,
-    instanceVersion: instanceType.version,
-    instanceVariant: instanceType.variant.id,
-    maxFlavor: instanceType.defaultFlavor.name,
-    maxInstances: 1,
-    minFlavor: instanceType.defaultFlavor.name,
-    minInstances: 1,
-    name: name,
-    zone: region,
-    instanceLifetime: isTask ? 'TASK' : 'REGULAR',
-    env: envVars,
-  };
-
-  if (github != null) {
-    newApp.oauthService = 'github';
-    newApp.oauthApp = github;
-  }
-
-  return createApplication({ id: ownerId }, newApp).then(sendToApi);
+  return clients.ccApi.send(
+    new CreateApplicationCommand({
+      ownerId,
+      name,
+      description: name,
+      deploy: 'git',
+      instance: {
+        type: instanceType.type,
+        version: instanceType.version,
+        variant: instanceType.variant.id,
+      },
+      minFlavor: instanceType.defaultFlavor.name,
+      maxFlavor: instanceType.defaultFlavor.name,
+      minInstances: 1,
+      maxInstances: 1,
+      zone: region,
+      instanceLifetime: isTask ? 'TASK' : 'REGULAR',
+      environment: toArray(envVars ?? {}),
+      oauthApp: github != null ? { type: 'github', id: `${github.owner}/${github.name}` } : undefined,
+    }),
+  );
 }
 
 export async function deleteApp(app, skipConfirmation) {
@@ -125,14 +123,18 @@ export async function deleteApp(app, skipConfirmation) {
     );
   }
 
-  return removeApplication({ id: app.ownerId, appId: app.id }).then(sendToApi);
+  return clients.ccApi.send(new DeleteApplicationCommand({ ownerId: app.ownerId, applicationId: app.id }));
 }
 
 export async function getAllApps(ownerId) {
-  const summary = await getSummary().then(sendToApi);
+  const summaries = await clients.ccApi.send(new GetOrganisationSummariesCommand());
 
   const orgaWithApps = await Promise.all(
-    summary.organisations
+    summaries
+      // The client answers with every owner, the personal one included, where the v2 summary this
+      // used to read kept it apart: listing it would add an entry `clever applications` never had.
+      // See src/legacy-json/README.md.
+      .filter((org) => !org.isPersonal)
       // If owner ID is present, only keep the matching org
       .filter((org) => ownerId == null || org.id === ownerId)
       .sort((a, b) => a.name.localeCompare(b.name))
@@ -150,7 +152,7 @@ export async function getAllApps(ownerId) {
 }
 
 async function getApplicationsForOwner(ownerId) {
-  const rawApplications = await getAllApplications({ id: ownerId }).then(sendToApi);
+  const rawApplications = await clients.ccApi.send(new ListApplicationCommand({ ownerId }));
   return rawApplications.map((app) => {
     return {
       app_id: app.id,
@@ -158,7 +160,7 @@ async function getApplicationsForOwner(ownerId) {
       name: app.name,
       zone: app.zone,
       type: app.instance.variant.slug,
-      createdAt: new Date(app.creationDate).toISOString(),
+      createdAt: new Date(app.createdAt).toISOString(),
       deploy_url: app.deployment.httpUrl,
       git_ssh_url: app.deployment.url,
     };
@@ -176,32 +178,22 @@ function getApplicationByName(apps, name) {
 }
 
 async function getByName(ownerId, name) {
-  const apps = await getAllApplications({ id: ownerId }).then(sendToApi);
+  const apps = await clients.ccApi.send(new ListApplicationCommand({ ownerId }));
   return getApplicationByName(apps, name);
 }
 
-function addInstanceLifetime(app) {
-  // Patch to help config commands
-  app.instanceLifetime = app.instance.lifetime;
-  return app;
-}
-
-export function get(ownerId, appId) {
+export async function get(ownerId, appId) {
   Logger.debug(`Get information for the app: ${appId}`);
-  return getApplication({ id: ownerId, appId }).then(sendToApi).then(addInstanceLifetime);
+  const app = await tolerateNotFound(clients.ccApi.send(new GetApplicationCommand({ ownerId, applicationId: appId })));
+  if (app == null) {
+    throw new Error('Application not found');
+  }
+  return app;
 }
 
 export function updateOptions(ownerId, appId, options) {
   Logger.debug(`Update app: ${appId}`);
-  return updateApplication({ id: ownerId, appId }, options).then(sendToApi).then(addInstanceLifetime);
-}
-
-function getFromSelf(appId) {
-  Logger.debug(`Get information for the app: ${appId}`);
-  // /self differs from /organisations only for this one:
-  // it fallbacks to the organisations of which the user
-  // is a member, if it doesn't belong to Personal Space.
-  return getApplication({ appId }).then(sendToApi);
+  return clients.ccApi.send(new UpdateApplicationCommand({ ownerId, applicationId: appId, ...options }));
 }
 
 /**
@@ -237,9 +229,9 @@ export async function resolveId(appIdOrName, alias) {
 
   // -- resolve by app name
 
-  const summary = await getSummary({}).then(sendToApi);
+  const summaries = await clients.ccApi.send(new GetOrganisationSummariesCommand());
 
-  const candidates = [summary.user, ...summary.organisations]
+  const candidates = summaries
     .flatMap((owner) => owner.applications.map((app) => ({ app, owner })))
     .filter((candidate) => candidate.app.name === appIdOrName.app_name);
 
@@ -263,9 +255,17 @@ export async function resolveId(appIdOrName, alias) {
 export async function linkRepo(app, orgaIdOrName, alias, ignoreParentConfig) {
   Logger.debug(`Linking current repository to the app: ${app.app_id || app.app_name}`);
 
-  const ownerId = orgaIdOrName != null ? await Organisation.getId(orgaIdOrName) : await User.getCurrentId();
-
-  const appData = app.app_id != null ? await getFromSelf(app.app_id) : await getByName(ownerId, app.app_name);
+  let appData;
+  if (app.app_id != null) {
+    const ownerId = await resolveOwnerId(app.app_id);
+    if (ownerId == null) {
+      throw new Error('Application not found');
+    }
+    appData = await get(ownerId, app.app_id);
+  } else {
+    const ownerId = orgaIdOrName != null ? await Organisation.getId(orgaIdOrName) : await User.getCurrentId();
+    appData = await getByName(ownerId, app.app_name);
+  }
 
   return AppConfiguration.addLinkedApplication(appData, alias, ignoreParentConfig);
 }
@@ -277,8 +277,9 @@ export function unlinkRepo(alias) {
 
 export function redeploy(ownerId, appId, commit, withoutCache) {
   Logger.debug(`Redeploying the app: ${appId}`);
-  const useCache = withoutCache ? 'no' : null;
-  return redeployApplication({ id: ownerId, appId, commit, useCache }).then(sendToApi);
+  return clients.ccApi.send(
+    new DeployApplicationCommand({ ownerId, applicationId: appId, commit, useCache: withoutCache ? false : null }),
+  );
 }
 
 export function mergeScalabilityParameters(scalabilityParameters, instance) {
@@ -318,16 +319,19 @@ export function mergeScalabilityParameters(scalabilityParameters, instance) {
 export async function setScalability(appId, ownerId, scalabilityParameters, buildFlavor) {
   Logger.info('Scaling the app: ' + appId);
 
-  const app = await getApplication({ id: ownerId, appId }).then(sendToApi);
-  const instance = _.cloneDeep(app.instance);
+  const app = await get(ownerId, appId);
 
-  instance.minFlavor = instance.minFlavor.name;
-  instance.maxFlavor = instance.maxFlavor.name;
+  const instance = {
+    minFlavor: app.instance.minFlavor.name,
+    maxFlavor: app.instance.maxFlavor.name,
+    minInstances: app.instance.minInstances,
+    maxInstances: app.instance.maxInstances,
+  };
 
   const newConfig = mergeScalabilityParameters(scalabilityParameters, instance);
 
   if (buildFlavor != null) {
-    newConfig.separateBuild = buildFlavor !== 'disabled';
+    newConfig.hasSeparatedBuild = buildFlavor !== 'disabled';
     if (buildFlavor !== 'disabled') {
       newConfig.buildFlavor = buildFlavor;
     } else {
@@ -335,19 +339,20 @@ export async function setScalability(appId, ownerId, scalabilityParameters, buil
     }
   }
 
-  return updateApplication({ id: ownerId, appId }, newConfig).then(sendToApi);
+  return updateOptions(ownerId, appId, newConfig);
 }
 
 export async function listDependencies(ownerId, appId, showAll) {
-  const applicationDeps = await getAllDependencies({ id: ownerId, appId }).then(sendToApi);
+  const links = await clients.ccApi.send(new ListLinkCommand({ ownerId, applicationId: appId }));
+  const applicationDeps = links.filter((link) => link.type === 'link-to-application');
 
   if (!showAll) {
-    return applicationDeps.map((app) => ({ ...app, isLinked: true }));
+    return applicationDeps.map((dep) => ({ ...dep.application, isLinked: true }));
   }
 
-  const allApps = await getAllApplications({ id: ownerId }).then(sendToApi);
+  const allApps = await clients.ccApi.send(new ListApplicationCommand({ ownerId }));
 
-  const applicationDepsIds = applicationDeps.map((app) => app.id);
+  const applicationDepsIds = applicationDeps.map((dep) => dep.application.id);
   return allApps.map((app) => {
     const isLinked = applicationDepsIds.includes(app.id);
     return { ...app, isLinked };
@@ -356,10 +361,12 @@ export async function listDependencies(ownerId, appId, showAll) {
 
 export async function link(ownerId, appId, dependency) {
   const dependencyId = await getId(ownerId, dependency);
-  return addDependency({ id: ownerId, appId, dependencyId }).then(sendToApi);
+  return clients.ccApi.send(new AddLinkCommand({ ownerId, applicationId: appId, targetApplicationId: dependencyId }));
 }
 
 export async function unlink(ownerId, appId, dependency) {
   const dependencyId = await getId(ownerId, dependency);
-  return removeDependency({ id: ownerId, appId, dependencyId }).then(sendToApi);
+  return clients.ccApi.send(
+    new RemoveLinkCommand({ ownerId, applicationId: appId, targetApplicationId: dependencyId }),
+  );
 }

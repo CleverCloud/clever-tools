@@ -1,9 +1,10 @@
-import { getAllExposedEnvVars } from '@clevercloud/client/esm/api/v2/application.js';
-import { toNameEqualsValueString } from '@clevercloud/client/esm/utils/env-vars.js';
+import { GetExposedEnvironmentCommand } from '@clevercloud/client/cc-api-commands/environment/get-exposed-environment-command.js';
+import { toNameEqualsValueString } from '@clevercloud/client/utils/environment-utils.js';
+import { tolerateNotFound } from '@clevercloud/client/utils/error-utils.js';
 import { defineCommand } from '../../lib/define-command.js';
 import { Logger } from '../../logger.js';
 import * as Application from '../../models/application.js';
-import { sendToApi } from '../../models/send-to-api.js';
+import { clients } from '../../models/cc-api-client.js';
 import { aliasOption, appIdOrNameOption, envFormatOption } from '../global.options.js';
 
 export const publishedConfigCommand = defineCommand({
@@ -19,8 +20,11 @@ export const publishedConfigCommand = defineCommand({
     const { alias, app: appIdOrName, format } = options;
     const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
 
-    const publishedConfigs = await getAllExposedEnvVars({ id: ownerId, appId }).then(sendToApi);
-    const pairs = Object.entries(publishedConfigs).map(([name, value]) => ({ name, value }));
+    // The client returns an array of { name, value } objects, sorted by name
+    const pairs =
+      (await tolerateNotFound(
+        clients.ccApi.send(new GetExposedEnvironmentCommand({ ownerId, applicationId: appId })),
+      )) ?? [];
 
     switch (format) {
       case 'json': {

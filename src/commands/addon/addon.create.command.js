@@ -1,6 +1,9 @@
+import { GetKeycloakInfoCommand } from '@clevercloud/client/cc-api-commands/keycloak/get-keycloak-info-command.js';
+import { GetMatomoInfoCommand } from '@clevercloud/client/cc-api-commands/matomo/get-matomo-info-command.js';
+import { GetMetabaseInfoCommand } from '@clevercloud/client/cc-api-commands/metabase/get-metabase-info-command.js';
+import { GetOtoroshiInfoCommand } from '@clevercloud/client/cc-api-commands/otoroshi/get-otoroshi-info-command.js';
 import dedent from 'dedent';
 import { z } from 'zod';
-import { getOperator } from '../../clever-client/operators.js';
 import { config } from '../../config/config.js';
 import { defineCommand } from '../../lib/define-command.js';
 import { defineOption } from '../../lib/define-option.js';
@@ -10,11 +13,18 @@ import * as Addon from '../../models/addon.js';
 import { completePlan, completeRegion, parseAddonOptions } from '../../models/addon.js';
 import * as AppConfig from '../../models/app_configuration.js';
 import { listAvailableAliases } from '../../models/application.js';
+import { clients } from '../../models/cc-api-client.js';
 import { getOwnerIdFromOrgIdOrName } from '../../models/ids-resolver.js';
-import { sendToApi } from '../../models/send-to-api.js';
 import { addonOptions } from '../../parsers.js';
 import { humanJsonOutputFormatOption, orgaIdOrNameOption } from '../global.options.js';
 import { addonNameArg, addonProviderArg } from './addon.args.js';
+
+const OPERATOR_INFO_COMMANDS = {
+  keycloak: GetKeycloakInfoCommand,
+  matomo: GetMatomoInfoCommand,
+  metabase: GetMetabaseInfoCommand,
+  otoroshi: GetOtoroshiInfoCommand,
+};
 
 const ADDON_PROVIDERS = {
   keycloak: {
@@ -188,9 +198,10 @@ export const addonCreateCommand = defineCommand({
     Logger.println(`Name: ${newAddon.name}`);
 
     const operatorProvider = ADDON_PROVIDERS[providerName]?.operatorProvider;
+    const OperatorInfoCommand = operatorProvider != null ? OPERATOR_INFO_COMMANDS[operatorProvider] : null;
     const operator =
-      operatorProvider != null
-        ? await getOperator({ provider: operatorProvider, realId: newAddon.realId }).then(sendToApi)
+      OperatorInfoCommand != null
+        ? await clients.ccApi.send(new OperatorInfoCommand({ addonId: newAddon.realId }))
         : null;
 
     if (operator != null) {

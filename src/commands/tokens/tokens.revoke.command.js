@@ -1,10 +1,10 @@
+import { DeleteApiTokenCommand } from '@clevercloud/client/cc-api-bridge-commands/api-token/delete-api-token-command.js';
 import { z } from 'zod';
-import { deleteApiToken } from '../../clever-client/auth-bridge.js';
 import { defineArgument } from '../../lib/define-argument.js';
 import { defineCommand } from '../../lib/define-command.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
-import { sendToAuthBridge } from '../../models/send-to-api.js';
+import { clients } from '../../models/cc-api-client.js';
 
 export const tokensRevokeCommand = defineCommand({
   description: 'Revoke an API token',
@@ -18,7 +18,7 @@ export const tokensRevokeCommand = defineCommand({
     }),
   ],
   async handler(_options, apiTokenId) {
-    await deleteApiToken(apiTokenId).then(sendToAuthBridge);
+    await clients.ccApiBridge.send(new DeleteApiTokenCommand({ apiTokenId }));
 
     Logger.println(styleText('green', '✔'), 'API token successfully revoked!');
   },

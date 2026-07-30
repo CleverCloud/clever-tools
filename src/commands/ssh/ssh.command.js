@@ -1,4 +1,4 @@
-import { getAllInstances } from '@clevercloud/client/esm/api/v2/application.js';
+import { ListApplicationInstanceCommand } from '@clevercloud/client/cc-api-commands/instance/list-application-instance-command.js';
 import { spawn } from 'node:child_process';
 import { z } from 'zod';
 import { config } from '../../config/config.js';
@@ -6,7 +6,7 @@ import { defineCommand } from '../../lib/define-command.js';
 import { defineOption } from '../../lib/define-option.js';
 import { selectAnswer } from '../../lib/prompts.js';
 import * as Application from '../../models/application.js';
-import { sendToApi } from '../../models/send-to-api.js';
+import { clients } from '../../models/cc-api-client.js';
 import { runMarkerProtocol } from '../../models/ssh-marker-protocol.js';
 import { aliasOption, appIdOrNameOption } from '../global.options.js';
 
@@ -36,7 +36,9 @@ export const sshCommand = defineCommand({
     const { alias, app: appIdOrName, identityFile, command } = options;
     const { appId, ownerId } = await Application.resolveId(appIdOrName, alias);
 
-    const instances = await getAllInstances({ id: ownerId, appId }).then(sendToApi);
+    const instances = await clients.ccApi.send(
+      new ListApplicationInstanceCommand({ ownerId, applicationId: appId, excludeState: ['DELETED'] }),
+    );
 
     if (instances.length === 0) {
       throw new Error('No running instances found for this application');
@@ -47,9 +49,9 @@ export const sshCommand = defineCommand({
       sshTarget = instances[0].id;
     } else if (process.stdin.isTTY) {
       const choices = instances
-        .sort((a, b) => a.instanceNumber - b.instanceNumber)
+        .sort((a, b) => (a.index ?? 0) - (b.index ?? 0))
         .map((inst) => ({
-          name: `${inst.displayName} - Instance ${inst.instanceNumber} - ${inst.state} (${inst.id})`,
+          name: `${inst.name} - Instance ${inst.index} - ${inst.state} (${inst.id})`,
           value: inst.id,
         }));
       sshTarget = await selectAnswer('Select an instance:', choices);

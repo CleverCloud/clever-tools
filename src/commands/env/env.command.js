@@ -1,15 +1,11 @@
-import {
-  getAllEnvVars,
-  getAllEnvVarsForAddons,
-  getAllEnvVarsForDependencies,
-} from '@clevercloud/client/esm/api/v2/application.js';
-import { toNameEqualsValueString } from '@clevercloud/client/esm/utils/env-vars.js';
+import { GetEnvironmentCommand } from '@clevercloud/client/cc-api-commands/environment/get-environment-command.js';
+import { toNameEqualsValueString } from '@clevercloud/client/utils/environment-utils.js';
 import { z } from 'zod';
 import { defineCommand } from '../../lib/define-command.js';
 import { defineOption } from '../../lib/define-option.js';
 import { Logger } from '../../logger.js';
 import * as Application from '../../models/application.js';
-import { sendToApi } from '../../models/send-to-api.js';
+import { clients } from '../../models/cc-api-client.js';
 import { aliasOption, appIdOrNameOption, envFormatOption } from '../global.options.js';
 
 export const envCommand = defineCommand({
@@ -31,25 +27,28 @@ export const envCommand = defineCommand({
     const { alias, app: appIdOrName, addExportsOption, format } = options;
     const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
 
-    const [envFromApp, envFromAddons, envFromDeps] = await Promise.all([
-      getAllEnvVars({ id: ownerId, appId }).then(sendToApi),
-      getAllEnvVarsForAddons({ id: ownerId, appId }).then(sendToApi),
-      getAllEnvVarsForDependencies({ id: ownerId, appId }).then(sendToApi),
-    ]);
+    const { environment, linkedApplicationsEnvironment, linkedAddonsEnvironment } = await clients.ccApi.send(
+      new GetEnvironmentCommand({
+        ownerId,
+        applicationId: appId,
+        includeLinkedApplications: true,
+        includeLinkedAddons: true,
+      }),
+    );
 
     switch (format) {
       case 'json': {
         Logger.printJson({
-          env: envFromApp,
-          fromAddons: envFromAddons.map((addon) => ({
-            addonId: addon.addon_id,
-            addonName: addon.addon_name,
-            env: addon.env,
+          env: environment,
+          fromAddons: linkedAddonsEnvironment.map((addon) => ({
+            addonId: addon.addonId,
+            addonName: addon.addonName,
+            env: addon.environment,
           })),
-          fromDependencies: envFromDeps.map((dep) => ({
-            addonId: dep.app_id,
-            addonName: dep.app_name,
-            env: dep.env,
+          fromDependencies: linkedApplicationsEnvironment.map((dep) => ({
+            addonId: dep.applicationId,
+            addonName: dep.applicationName,
+            env: dep.environment,
           })),
         });
         break;
@@ -60,16 +59,16 @@ export const envCommand = defineCommand({
         const addExports = addExportsOption || format === 'shell';
 
         Logger.println('# Manually set env variables');
-        Logger.println(toNameEqualsValueString(envFromApp, { addExports }));
+        Logger.println(toNameEqualsValueString(environment, { addExports }));
 
-        envFromAddons.forEach((addon) => {
-          Logger.println('# Addon ' + addon.addon_name);
-          Logger.println(toNameEqualsValueString(addon.env, { addExports }));
+        linkedAddonsEnvironment.forEach((addon) => {
+          Logger.println('# Addon ' + addon.addonName);
+          Logger.println(toNameEqualsValueString(addon.environment, { addExports }));
         });
 
-        envFromDeps.forEach((dep) => {
-          Logger.println('# Dependency ' + dep.app_name);
-          Logger.println(toNameEqualsValueString(dep.env, { addExports }));
+        linkedApplicationsEnvironment.forEach((dep) => {
+          Logger.println('# Dependency ' + dep.applicationName);
+          Logger.println(toNameEqualsValueString(dep.environment, { addExports }));
         });
       }
     }

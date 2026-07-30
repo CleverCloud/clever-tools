@@ -1,11 +1,11 @@
-import { getAllEnvVars } from '@clevercloud/client/esm/api/v2/addon.js';
-import { toNameEqualsValueString } from '@clevercloud/client/esm/utils/env-vars.js';
+import { GetEnvironmentCommand } from '@clevercloud/client/cc-api-commands/environment/get-environment-command.js';
+import { toNameEqualsValueString } from '@clevercloud/client/utils/environment-utils.js';
 import { z } from 'zod';
 import { defineArgument } from '../../lib/define-argument.js';
 import { defineCommand } from '../../lib/define-command.js';
 import { Logger } from '../../logger.js';
+import { clients } from '../../models/cc-api-client.js';
 import { resolveAddon } from '../../models/ids-resolver.js';
-import { sendToApi } from '../../models/send-to-api.js';
 import { envFormatOption, orgaIdOrNameOption } from '../global.options.js';
 
 export const addonEnvCommand = defineCommand({
@@ -27,7 +27,7 @@ export const addonEnvCommand = defineCommand({
 
     const { ownerId, addonId } = await resolveAddon(addonIdOrRealId);
 
-    const envFromAddon = await getAllEnvVars({ id: ownerId, addonId }).then(sendToApi);
+    const { environment: envFromAddon } = await clients.ccApi.send(new GetEnvironmentCommand({ ownerId, addonId }));
 
     switch (format) {
       case 'json': {

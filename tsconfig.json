@@ -25,6 +25,7 @@
     "src/logger.js",
     "src/lib/fs.js",
     "src/lib/date-utils.js",
+    "src/legacy-json",
     "src/config/*",
     "test",
     "src/**/*.test.ts"

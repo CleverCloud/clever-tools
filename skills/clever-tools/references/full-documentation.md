@@ -1503,7 +1503,7 @@ clever k8s
 
 ### k8s activity
 
-**Description:** Show recent deployment events of a Kubernetes cluster
+**Description:** Show recent events of a Kubernetes cluster
 
 **Since:** 4.9.0
 

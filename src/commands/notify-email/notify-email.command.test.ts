@@ -5,7 +5,7 @@ import type { NewCliScenario } from '../../../test/cli-hooks.ts';
 import { cliHooks } from '../../../test/cli-hooks.ts';
 import { multiAppConfig, singleAppConfig } from '../../../test/fixtures/app-config.ts';
 import { NOT_LOGGED_IN_ERROR } from '../../../test/fixtures/errors.ts';
-import { APP_ID, ORGA_ID } from '../../../test/fixtures/id.ts';
+import { APP_ID, ORGA_ID, USER_ID } from '../../../test/fixtures/id.ts';
 import { SELF } from '../../../test/fixtures/self.ts';
 
 const EMPTY_EMAIL_HOOKS: Array<any> = [];
@@ -19,7 +19,11 @@ const EMAIL_HOOKS = [
     ownerId: ORGA_ID,
     scope: [APP_ID],
     events: ['DEPLOYMENT_SUCCESS', 'DEPLOYMENT_FAIL'],
-    notified: [{ target: 'alice@example.com' }, { target: null }],
+    notified: [
+      { type: 'email', target: 'alice@example.com' },
+      { type: 'organisation', target: null },
+      { type: 'userid', target: USER_ID },
+    ],
   },
   {
     id: 'notif_2',
@@ -31,7 +35,7 @@ const EMAIL_HOOKS = [
     ownerId: ORGA_ID,
     scope: ['app_other'],
     events: ['DEPLOYMENT_SUCCESS'],
-    notified: [{ target: 'dave@example.com' }],
+    notified: [{ type: 'email', target: 'dave@example.com' }],
   },
 ];
 
@@ -41,8 +45,9 @@ const FORMATTED_SCOPED_HOOKS = [
     name: 'App hook',
     ownerId: ORGA_ID,
     services: [APP_ID],
-    events: ['DEPLOYMENT_SUCCESS', 'DEPLOYMENT_FAIL'],
-    notified: ['alice@example.com', 'whole team'],
+    // events are sorted alphabetically by the API client
+    events: ['DEPLOYMENT_FAIL', 'DEPLOYMENT_SUCCESS'],
+    notified: ['alice@example.com', 'whole team', USER_ID],
   },
   {
     id: 'notif_2',
@@ -69,10 +74,11 @@ const HUMAN_SCOPED_OUTPUT = dedent`
   App hook
     id: notif_1
     services: ${APP_ID}
-    events: DEPLOYMENT_SUCCESS, DEPLOYMENT_FAIL
+    events: DEPLOYMENT_FAIL, DEPLOYMENT_SUCCESS
     to:
       alice@example.com
       whole team
+      ${USER_ID}
   notif_2
     id: notif_2
     services: ${ORGA_ID}
@@ -90,6 +96,19 @@ const HUMAN_ALL_OUTPUT =
       events: DEPLOYMENT_SUCCESS
       to: dave@example.com
   `;
+
+// A hook the API answers with explicitly empty lists, as opposed to `notif_2` which has no such key
+// at all. The two mean different things and `--format json` has always told them apart.
+const EMPTY_LIST_HOOKS = [
+  {
+    id: 'notif_4',
+    name: 'Explicitly empty',
+    ownerId: ORGA_ID,
+    scope: [],
+    events: [],
+    notified: [],
+  },
+];
 
 const SUMMARY_FOR_ORG_NAME = {
   user: { id: SELF.id },
@@ -186,6 +205,30 @@ describe('notify-email command', () => {
       assert.deepStrictEqual(JSON.parse(result.stdout), FORMATTED_ALL_HOOKS);
     });
 
+    // An explicitly empty list stays empty, where the absent key becomes `[ownerId]`, `['ALL']` and
+    // `['whole team']` respectively (see `notif_2` above).
+    it('keeps explicitly empty scope, events and notified lists as JSON, unlike absent ones', async () => {
+      const result = await newScenario()
+        .withAppConfigFile(singleAppConfig())
+        .when({ method: 'GET', path: EMAILHOOKS_ENDPOINT })
+        .respond({ status: 200, body: EMPTY_LIST_HOOKS })
+        .thenRunCli(['notify-email', '--format', 'json'])
+        .verify((calls) => {
+          assert.strictEqual(calls.count, 1);
+        });
+
+      assert.deepStrictEqual(JSON.parse(result.stdout), [
+        {
+          id: 'notif_4',
+          name: 'Explicitly empty',
+          ownerId: ORGA_ID,
+          services: [],
+          events: [],
+          notified: [],
+        },
+      ]);
+    });
+
     it('resolves owner from --org name via /v2/summary', async () => {
       const result = await newScenario()
         .when({ method: 'GET', path: '/v2/summary' })
@@ -274,7 +317,7 @@ describe('notify-email command', () => {
         });
 
       assert.strictEqual(result.stdout, '');
-      assert.strictEqual(result.stderr, '[ERROR] oops');
+      assert.strictEqual(result.stderr, '[ERROR] [500]: oops');
     });
   });
 

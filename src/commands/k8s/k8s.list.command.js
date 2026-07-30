@@ -1,3 +1,4 @@
+import { toLegacyKubernetesCluster } from '../../legacy-json/kubernetes.legacy.js';
 import { defineCommand } from '../../lib/define-command.js';
 import { k8sList } from '../../lib/k8s.js';
 import { styleText } from '../../lib/style-text.js';
@@ -14,11 +15,12 @@ export const k8sListCommand = defineCommand({
   args: [],
   async handler(options) {
     const { format, org: orgIdOrName } = options;
-    const clusters = await k8sList(orgIdOrName, format);
+    const clusters = await k8sList(orgIdOrName);
 
     switch (format) {
       case 'json':
-        Logger.printJson(clusters);
+        // `--format json` still prints the raw payloads, see src/legacy-json/README.md
+        Logger.printJson(clusters.map(toLegacyKubernetesCluster));
         break;
       case 'human':
       default:

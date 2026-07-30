@@ -167,8 +167,8 @@ export const createCommand = defineCommand({
           id: app.id,
           name: app.name,
           executedAs: app.instance.lifetime,
-          env: app.env,
-          deployUrl: app.deployUrl,
+          env: app.environment,
+          deployUrl: app.deployment.httpUrl,
         });
         break;
       }

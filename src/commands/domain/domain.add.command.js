@@ -1,8 +1,8 @@
-import { addDomain } from '@clevercloud/client/esm/api/v2/application.js';
+import { CreateDomainCommand } from '@clevercloud/client/cc-api-commands/domain/create-domain-command.js';
 import { defineCommand } from '../../lib/define-command.js';
 import { Logger } from '../../logger.js';
 import * as Application from '../../models/application.js';
-import { sendToApi } from '../../models/send-to-api.js';
+import { clients } from '../../models/cc-api-client.js';
 import { aliasOption, appIdOrNameOption } from '../global.options.js';
 import { fqdnArg } from './domain.args.js';
 
@@ -17,9 +17,8 @@ export const domainAddCommand = defineCommand({
   async handler(options, fqdn) {
     const { alias, app: appIdOrName } = options;
     const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
-    const encodedFqdn = encodeURIComponent(fqdn);
 
-    await addDomain({ id: ownerId, appId, domain: encodedFqdn }).then(sendToApi);
+    await clients.ccApi.send(new CreateDomainCommand({ ownerId, applicationId: appId, domain: fqdn }));
     Logger.println('Your domain has been successfully saved');
   },
 });

@@ -1,8 +1,8 @@
-import { undeploy as stopApplication } from '@clevercloud/client/esm/api/v2/application.js';
+import { UndeployApplicationCommand } from '@clevercloud/client/cc-api-commands/application/undeploy-application-command.js';
 import { defineCommand } from '../../lib/define-command.js';
 import { Logger } from '../../logger.js';
 import * as Application from '../../models/application.js';
-import { sendToApi } from '../../models/send-to-api.js';
+import { clients } from '../../models/cc-api-client.js';
 import { aliasOption, appIdOrNameOption } from '../global.options.js';
 
 export const stopCommand = defineCommand({
@@ -17,7 +17,7 @@ export const stopCommand = defineCommand({
     const { alias, app: appIdOrName } = options;
     const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
 
-    await stopApplication({ id: ownerId, appId }).then(sendToApi);
+    await clients.ccApi.send(new UndeployApplicationCommand({ ownerId, applicationId: appId }));
     Logger.printSuccess('Application successfully stopped!');
   },
 });

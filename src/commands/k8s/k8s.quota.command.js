@@ -1,3 +1,4 @@
+import { toLegacyKubernetesQuota } from '../../legacy-json/kubernetes.legacy.js';
 import { defineCommand } from '../../lib/define-command.js';
 import { k8sGetQuota, k8sListUsage } from '../../lib/k8s.js';
 import { Logger } from '../../logger.js';
@@ -32,7 +33,8 @@ export const k8sQuotaCommand = defineCommand({
 
     switch (format) {
       case 'json': {
-        const { quotas, ...quotaRest } = quota;
+        // `--format json` still prints the raw quota payload, see src/legacy-json/README.md
+        const { quotas, ...quotaRest } = toLegacyKubernetesQuota(quota);
         Logger.printJson({
           quota: {
             ...quotaRest,

@@ -1,3 +1,8 @@
+import {
+  toLegacyNetworkGroup,
+  toLegacyNetworkGroupComponent,
+  toLegacyNetworkGroupPeer,
+} from '../legacy-json/network-group.legacy.js';
 import { Logger } from '../logger.js';
 import * as networkGroup from '../models/ng.js';
 import { styleText } from './style-text.js';
@@ -11,7 +16,8 @@ import { styleText } from './style-text.js';
 function printNg(ng, format, full = false) {
   switch (format) {
     case 'json': {
-      Logger.printJson(ng);
+      // `--format json` still prints the raw v4 payload, see src/legacy-json/README.md
+      Logger.printJson(toLegacyNetworkGroup(ng));
       break;
     }
     case 'human':
@@ -57,6 +63,7 @@ function printNg(ng, format, full = false) {
 function printMember(member, format) {
   switch (format) {
     case 'json': {
+      // a member is printed as the v4 API sends it, the client does not reshape it
       Logger.printJson(member);
       break;
     }
@@ -79,7 +86,8 @@ function printMember(member, format) {
 function printPeer(peer, format, full = false) {
   switch (format) {
     case 'json': {
-      Logger.printJson(peer);
+      // `--format json` still prints the raw v4 payload, see src/legacy-json/README.md
+      Logger.printJson(toLegacyNetworkGroupPeer(peer));
       break;
     }
     case 'human':
@@ -103,10 +111,10 @@ function formatPeer(peer, full = false) {
   };
 
   if (full) {
-    if (peer.endpoint.ngTerm != null) {
-      peerToPrint['Host:IP'] = `${peer.endpoint.ngTerm.host}:${peer.endpoint.ngTerm.port}`;
+    if (peer.endpoint.networkGroupTerm != null) {
+      peerToPrint['Host:IP'] = `${peer.endpoint.networkGroupTerm.host}:${peer.endpoint.networkGroupTerm.port}`;
     } else {
-      peerToPrint.Host = peer.endpoint.ngIp;
+      peerToPrint.Host = peer.endpoint.networkGroupIp;
     }
     if (peer.endpoint.publicTerm != null) {
       peerToPrint['Public Term'] = `${peer.endpoint.publicTerm.host}:${peer.endpoint.publicTerm.port}`;
@@ -164,7 +172,12 @@ export async function printResults(idOrLabel, org, format, action, type) {
 
     switch (format) {
       case 'json': {
-        Logger.printJson(grouped);
+        // `--format json` still prints the raw v4 payload, see src/legacy-json/README.md
+        Logger.printJson(
+          Object.fromEntries(
+            Object.entries(grouped).map(([type, items]) => [type, items.map(toLegacyNetworkGroupComponent)]),
+          ),
+        );
         break;
       }
       case 'human':

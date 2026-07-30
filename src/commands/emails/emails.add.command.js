@@ -1,7 +1,8 @@
-import { todo_addEmailAddress as addEmailAddress } from '@clevercloud/client/esm/api/v2/user.js';
+import { CreateProfileEmailAddressCommand } from '@clevercloud/client/cc-api-commands/profile/create-profile-email-address-command.js';
+import { isCcHttpError } from '@clevercloud/client/utils/error-utils.js';
 import { defineCommand } from '../../lib/define-command.js';
 import { Logger } from '../../logger.js';
-import { sendToApi } from '../../models/send-to-api.js';
+import { clients } from '../../models/cc-api-client.js';
 import { emailArg } from './emails.args.js';
 
 export const emailsAddCommand = defineCommand({
@@ -10,23 +11,23 @@ export const emailsAddCommand = defineCommand({
   options: {},
   args: [emailArg],
   async handler(_options, secondaryAddress) {
-    const secondaryAddressEncoded = encodeURIComponent(secondaryAddress);
     try {
-      await addEmailAddress({ email: secondaryAddressEncoded }).then(sendToApi);
+      await clients.ccApi.send(new CreateProfileEmailAddressCommand({ address: secondaryAddress }));
       Logger.printSuccess(
         `The server sent a confirmation email to ${secondaryAddress} to validate your secondary address`,
       );
     } catch (e) {
-      switch (e?.responseBody?.id) {
-        case 101:
-          throw new Error('This address already belongs to your account');
-        case 550:
-          throw new Error('The format of this address is invalid');
-        case 1004:
-          throw new Error('This address belongs to another account');
-        default:
-          throw e;
+      if (isCcHttpError(e)) {
+        switch (e.code) {
+          case 'clever.profile.email-address.already-defined':
+            throw new Error('This address already belongs to your account');
+          case 'clever.profile.email-address.invalid-format':
+            throw new Error('The format of this address is invalid');
+          case 'clever.profile.email-address.already-used':
+            throw new Error('This address belongs to another account');
+        }
       }
+      throw e;
     }
   },
 });

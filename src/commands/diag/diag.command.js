@@ -1,4 +1,3 @@
-import { get as getUser } from '@clevercloud/client/esm/api/v2/organisation.js';
 import { releaseInfo as getLinuxInfos } from 'linux-release-info';
 import os from 'node:os';
 import pkg from '../../../package.json' with { type: 'json' };
@@ -6,7 +5,7 @@ import { config } from '../../config/config.js';
 import { defineCommand } from '../../lib/define-command.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
-import { sendToApi } from '../../models/send-to-api.js';
+import * as User from '../../models/user.js';
 import { humanJsonOutputFormatOption } from '../global.options.js';
 
 function getShell() {
@@ -56,9 +55,7 @@ export const diagCommand = defineCommand({
   },
   async handler(options) {
     const activeProfile = config.profiles[0];
-    const user = await getUser({})
-      .then(sendToApi)
-      .catch(() => null);
+    const user = await User.getCurrent().catch(() => null);
 
     const formattedDiag = {
       version: pkg.version,

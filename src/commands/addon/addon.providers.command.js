@@ -25,8 +25,8 @@ export const addonProvidersCommand = defineCommand({
         const formattedProviders = providers.map((provider) => ({
           id: provider.id,
           name: provider.name,
-          shortDesc: provider.shortDesc,
-          regions: provider.regions,
+          shortDesc: provider.shortDescription,
+          regions: provider.zones,
           plans: provider.plans.map((plan) => ({
             id: plan.id,
             name: plan.name,
@@ -39,7 +39,7 @@ export const addonProvidersCommand = defineCommand({
       case 'human':
       default: {
         const formattedProviders = providers.map((provider) => {
-          return [styleText('bold', provider.id), provider.name, provider.shortDesc || ''];
+          return [styleText('bold', provider.id), provider.name, provider.shortDescription || ''];
         });
         Logger.println(formatTable(formattedProviders));
       }

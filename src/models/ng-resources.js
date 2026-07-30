@@ -1,11 +1,13 @@
-import * as networkGroupApi from '@clevercloud/client/esm/api/v4/network-group.js';
+import { CreateNetworkGroupExternalPeerCommand } from '@clevercloud/client/cc-api-commands/network-group/create-network-group-external-peer-command.js';
+import { CreateNetworkGroupMemberCommand } from '@clevercloud/client/cc-api-commands/network-group/create-network-group-member-command.js';
+import { DeleteNetworkGroupExternalPeerCommand } from '@clevercloud/client/cc-api-commands/network-group/delete-network-group-external-peer-command.js';
+import { DeleteNetworkGroupMemberCommand } from '@clevercloud/client/cc-api-commands/network-group/delete-network-group-member-command.js';
 import crypto from 'node:crypto';
-import { setTimeout } from 'node:timers/promises';
 import { styleText } from '../lib/style-text.js';
 import { Logger } from '../logger.js';
+import { clients } from './cc-api-client.js';
 import * as networkGroup from './ng.js';
 import { NG_MEMBER_PREFIXES } from './ng.js';
-import { sendToApi } from './send-to-api.js';
 
 /**
  * Create an external peer and link its parent member to the Network Group
@@ -30,48 +32,27 @@ export async function createExternalPeerWithParent(ngIdOrLabel, peerLabel, publi
   }
 
   // We define a parent member for the external peer
-  const id = `external_${crypto.randomUUID()}`;
-  const parentMember = {
-    id,
-    label: `Parent of ${peerLabel}`,
-    domainName: `${id}.m.${ng.id}.${networkGroup.DOMAIN}`,
-    kind: 'EXTERNAL',
-  };
+  const parentMemberId = `external_${crypto.randomUUID()}`;
+  const parentMemberLabel = `Parent of ${peerLabel}`;
 
-  Logger.info(`Creating a parent member ${parentMember.id} linked to Network Group ${ng.id}`);
-  await linkMember({ ngId: ng.id }, parentMember.id, org, parentMember.label);
-
-  const checkParentMember = await checkResource(ng.id, org, parentMember.id, true);
-  if (!checkParentMember) {
-    throw new Error(
-      `Parent member ${styleText('red', parentMember.id)} not linked to Network Group ${styleText('red', ng.id)}`,
-    );
-  }
-
-  Logger.info(`Parent member ${parentMember.id} created and linked to Network Group ${ng.id}`);
+  Logger.info(`Creating a parent member ${parentMemberId} linked to Network Group ${ng.id}`);
+  await linkMember({ ngId: ng.id }, parentMemberId, org, parentMemberLabel);
+  Logger.info(`Parent member ${parentMemberId} created and linked to Network Group ${ng.id}`);
 
   // We define the external peer, for now we only support client role
-  const body = {
-    peerRole: 'CLIENT',
-    publicKey,
-    label: peerLabel,
-    parentMember: parentMember.id,
-  };
+  Logger.info(`Adding external peer to Member ${parentMemberId} of Network Group ${ng.id}`);
+  await clients.ccApi.send(
+    new CreateNetworkGroupExternalPeerCommand({
+      ownerId: ng.ownerId,
+      networkGroupId: ng.id,
+      label: peerLabel,
+      peerRole: 'CLIENT',
+      publicKey,
+      parentMember: parentMemberId,
+    }),
+  );
 
-  Logger.info(`Adding external peer to Member ${parentMember.id} of Network Group ${ng.id}`);
-  Logger.debug('Sending body: ' + JSON.stringify(body, null, 2));
-  await networkGroupApi
-    .createNetworkGroupExternalPeer({ ownerId: ng.ownerId, networkGroupId: ng.id }, body)
-    .then(sendToApi);
-
-  const checkExternalPeer = await checkResource(ng.id, org, peerLabel, true, 'peer', 'label');
-  if (!checkExternalPeer) {
-    throw new Error(
-      `External peer ${styleText('red', peerLabel)} not linked to Network Group ${styleText('red', ng.id)}`,
-    );
-  }
-
-  Logger.info(`External peer ${peerLabel} added to Member ${parentMember.id} of Network Group ${ng.id}`);
+  Logger.info(`External peer ${peerLabel} added to Member ${parentMemberId} of Network Group ${ng.id}`);
 }
 
 /**
@@ -100,28 +81,18 @@ export async function deleteExternalPeerWithParent(ngIdOrLabel, peerIdOrLabel, o
   }
 
   Logger.info(`Deleting external peer ${externalPeer.id} from Network Group ${ng.id}`);
-  await networkGroupApi
-    .deleteNetworkGroupExternalPeer({ ownerId: ng.ownerId, networkGroupId: ng.id, peerId: externalPeer.id })
-    .then(sendToApi);
-
-  const checkPeer = await checkResource(ng.id, org, externalPeer.id, false, 'peer');
-  if (!checkPeer) {
-    throw new Error(
-      `External peer ${styleText('red', externalPeer.id)} still linked to Network Group ${styleText('red', ng.id)}`,
-    );
-  }
+  await clients.ccApi.send(
+    new DeleteNetworkGroupExternalPeerCommand({
+      ownerId: ng.ownerId,
+      networkGroupId: ng.id,
+      externalPeerId: externalPeer.id,
+    }),
+  );
 
   Logger.info(`External peer ${externalPeer.id} deleted from Network Group ${ng.id}`);
   Logger.info(`Unlinking parent member ${externalPeer.parentMember} from Network Group ${ng.id}`);
 
   await unlinkMember(ngIdOrLabel, externalPeer.parentMember, org);
-
-  const checkParentMember = await checkResource(ng.id, org, externalPeer.parentMember, false);
-  if (!checkParentMember) {
-    throw new Error(
-      `Parent member ${styleText('red', externalPeer.parentMember)} still linked to Network Group ${styleText('red', ng.id)}`,
-    );
-  }
 
   Logger.info(`Parent member ${externalPeer.parentMember} unlinked from Network Group ${ng.id}`);
 }
@@ -155,25 +126,17 @@ export async function linkMember(ngIdOrLabel, memberId, org, label) {
     );
   }
 
-  const [member] = networkGroup.constructMembers(ng.id, [memberId]);
+  Logger.info(`Linking member ${memberId} to Network Group ${ng.id}`);
+  await clients.ccApi.send(
+    new CreateNetworkGroupMemberCommand({
+      ownerId: ng.ownerId,
+      networkGroupId: ng.id,
+      memberId,
+      label,
+    }),
+  );
 
-  const body = {
-    id: member.id,
-    label: label || member.label,
-    domainName: member.domainName,
-    kind: member.kind,
-  };
-
-  Logger.info(`Linking member ${member.id} to Network Group ${ng.id}`);
-  Logger.debug('Sending body: ' + JSON.stringify(body, null, 2));
-  await networkGroupApi.createNetworkGroupMember({ ownerId: ng.ownerId, networkGroupId: ng.id }, body).then(sendToApi);
-
-  const check = await checkResource(ng.id, org, member.id, true);
-  if (!check) {
-    throw new Error(`Member ${styleText('red', member.id)} not linked to Network Group ${styleText('red', ng.id)}`);
-  }
-
-  Logger.info(`Member ${member.id} linked to Network Group ${ng.id}`);
+  Logger.info(`Member ${memberId} linked to Network Group ${ng.id}`);
 }
 
 /**
@@ -205,14 +168,13 @@ export async function unlinkMember(ngIdOrLabel, memberId, org) {
   }
 
   Logger.info(`Unlinking member ${memberId} from Network Group ${ng.id}`);
-  await networkGroupApi
-    .deleteNetworkGroupMember({ ownerId: ng.ownerId, networkGroupId: ng.id, memberId })
-    .then(sendToApi);
-
-  const check = await checkResource(ng.id, org, memberId, false);
-  if (!check) {
-    throw new Error(`Member ${styleText('red', memberId)} still linked to Network Group ${styleText('red', ng.id)}`);
-  }
+  await clients.ccApi.send(
+    new DeleteNetworkGroupMemberCommand({
+      ownerId: ng.ownerId,
+      networkGroupId: ng.id,
+      memberId,
+    }),
+  );
 
   Logger.info(`Member ${memberId} unlinked from Network Group ${ng.id}`);
 }
@@ -238,31 +200,4 @@ export function checkMembersToLink(memberIds) {
       `Member(s) ${styleText('red', membersNotOK.join(', '))} can't be linked to the Network Group, check member ID format`,
     );
   }
-}
-
-/**
- * Check if a resource is present in a Network Group by ID or label
- * @param {string} ngId Network Group ID
- * @param {object} org Organisation ID or name
- * @param {string} resource Resource ID or label
- * @param {boolean} shouldBePresent Expected presence of the resource
- * @param {string} [resourceType] Resource type (member or peer), default is member
- * @param {string} [searchBy] Search by 'id' or 'label', default is 'id'
- * @returns {Promise<boolean>} True if the resource is present, false otherwise
- */
-async function checkResource(ngId, org, resource, shouldBePresent, resourceType = 'member', searchBy = 'id') {
-  const endTime = Date.now() + networkGroup.POLLING_TIMEOUT_MS;
-
-  while (Date.now() < endTime) {
-    const ng = await networkGroup.getNG(ngId, org);
-    const items = resourceType === 'member' ? ng.members : ng.peers;
-    const isPresent = items.some((item) => item[searchBy] === resource);
-
-    if (isPresent === shouldBePresent) {
-      return true;
-    }
-
-    await setTimeout(networkGroup.POLLING_INTERVAL_MS);
-  }
-  return false;
 }

@@ -1,13 +1,14 @@
-import { ApplicationLogStream } from '@clevercloud/client/esm/streams/application-logs.js';
-import { ResourceLogStream } from '@clevercloud/client/esm/streams/resource-logs.js';
+import { StreamAddonRuntimeLogCommand } from '@clevercloud/client/cc-api-commands/log/stream-addon-runtime-log-command.js';
+import { StreamApplicationRuntimeLogCommand } from '@clevercloud/client/cc-api-commands/log/stream-application-runtime-log-command.js';
 import { config } from '../config/config.js';
+import { toLegacyRuntimeLog } from '../legacy-json/log.legacy.js';
 import { styleText } from '../lib/style-text.js';
 import { Logger } from '../logger.js';
+import { clients } from './cc-api-client.js';
 import { waitForDeploymentEnd, waitForDeploymentStart } from './deployments.js';
-import { getBest } from './domain.js';
+import { getFavouriteDomain } from './domain.js';
 import * as ExitStrategy from './exit-strategy-option.js';
 import { JsonArray } from './json-array.js';
-import { getHostAndTokens, processError } from './send-to-api.js';
 import { Deferred } from './utils.js';
 
 const RESET_COLOR = '\x1B[0m';
@@ -16,15 +17,13 @@ const RESET_COLOR = '\x1B[0m';
 const THROTTLE_ELEMENTS = 2000;
 const THROTTLE_PER_IN_MILLISECONDS = 100;
 
-const retryConfiguration = {
-  enabled: true,
+const RETRY_CONFIGURATION = {
   initRetryTimeout: 3000,
   maxRetryCount: 10,
 };
 
 export async function displayLogs(params) {
   const deferred = params.deferred || new Deferred();
-  const { apiHost, tokens } = await getHostAndTokens();
   const { ownerId, appId, addonId, filter, since, until, format } = params;
   // deploymentId only applies to apps
   const deploymentId = addonId != null ? undefined : params.deploymentId;
@@ -34,11 +33,7 @@ export async function displayLogs(params) {
   }
 
   const commonStreamParams = {
-    apiHost,
-    tokens,
     ownerId,
-    connectionTimeout: 10_000,
-    retryConfiguration,
     since,
     until,
     deploymentId,
@@ -47,35 +42,39 @@ export async function displayLogs(params) {
     throttlePerInMilliseconds: THROTTLE_PER_IN_MILLISECONDS,
   };
 
-  const logStream =
+  const streamCommand =
     addonId != null
-      ? new ResourceLogStream({ ...commonStreamParams, addonId })
-      : new ApplicationLogStream({ ...commonStreamParams, appId });
+      ? new StreamAddonRuntimeLogCommand({ ...commonStreamParams, addonId })
+      : new StreamApplicationRuntimeLogCommand({ ...commonStreamParams, applicationId: appId });
+
+  const logStream = await clients.ccApi.stream(streamCommand, { retry: RETRY_CONFIGURATION });
 
   // Properly close the stream
   process.once('SIGINT', (signal) => {
-    logStream.close(signal);
+    logStream.close({ type: signal });
     process.kill(process.pid, 'SIGINT');
   });
   const jsonArray = new JsonArray();
 
   logStream
-    .on('open', () => {
+    .onOpen(() => {
       Logger.debug(styleText('blue', `Logs stream (open) ${JSON.stringify({ appId, addonId, filter, deploymentId })}`));
       if (format === 'json') {
         jsonArray.open();
       }
     })
-    .on('error', (event) => {
-      Logger.debug(styleText('red', `Logs stream (error) ${event.error.message}`));
+    .onError((error) => {
+      Logger.debug(styleText('red', `Logs stream (error) ${error.message}`));
     })
     .onLog((log) => {
       switch (format) {
+        // `--format json` and `--format json-stream` still print the raw payloads,
+        // see src/legacy-json/README.md
         case 'json':
-          jsonArray.push(log);
+          jsonArray.push(toLegacyRuntimeLog(log));
           return;
         case 'json-stream':
-          Logger.println(JSON.stringify(log));
+          Logger.println(JSON.stringify(toLegacyRuntimeLog(log)));
           return;
         case 'human':
         default:
@@ -95,7 +94,6 @@ export async function displayLogs(params) {
       }
       return deferred.resolve();
     })
-    .catch(processError)
     .catch((error) => deferred.reject(error));
 
   return logStream;
@@ -110,7 +108,7 @@ export async function watchDeploymentAndDisplayLogs(options) {
     Logger.println(`   ${styleText('blue', '→ Waiting for deployment to start…')}`);
   }
   const deployment = await waitForDeploymentStart({ ownerId, appId, deploymentId, commitId, knownDeployments });
-  Logger.println(`   ${styleText('green', `✓ Deployment started ${styleText('grey', `(${deployment.uuid})`)}`)}`);
+  Logger.println(`   ${styleText('green', `✓ Deployment started ${styleText('grey', `(${deployment.id})`)}`)}`);
 
   if (exitStrategy === 'deploy-start') {
     return;
@@ -126,7 +124,7 @@ export async function watchDeploymentAndDisplayLogs(options) {
     // displayLogs() defines callback listeners so if it catches error in those callbacks,
     // it has no proper way to bubble up the error here.
     // Using the deferred enables this.
-    logsStream = await displayLogs({ ownerId, appId, deploymentId: deployment.uuid, since: redeployDate, deferred });
+    logsStream = await displayLogs({ ownerId, appId, deploymentId: deployment.id, since: redeployDate, deferred });
   }
 
   if (!quiet) {
@@ -135,12 +133,12 @@ export async function watchDeploymentAndDisplayLogs(options) {
 
   // Wait for deployment end (or an error thrown by logs with the deferred)
   const deploymentEnded = await Promise.race([
-    waitForDeploymentEnd({ ownerId, appId, deploymentId: deployment.uuid }),
+    waitForDeploymentEnd({ ownerId, appId, deploymentId: deployment.id }),
     deferred.promise,
   ]);
 
   if (!quiet && exitStrategy !== 'never') {
-    logsStream.close(quiet ? 'quiet' : 'follow');
+    logsStream.close({ type: quiet ? 'quiet' : 'follow' });
   }
 
   // deploymentEnded can be undefined if deferred resolved (e.g., stream closed via SIGINT)
@@ -148,15 +146,15 @@ export async function watchDeploymentAndDisplayLogs(options) {
     return;
   }
 
-  if (deploymentEnded.state === 'OK') {
+  if (deploymentEnded.state === 'SUCCEEDED') {
     Logger.println('');
 
-    // There can be applications without any domain, so we don't fail if we can't get one
-    const favouriteDomain = await getBest(appId, ownerId).catch(() => null);
+    // There can be applications without any domain
+    const favouriteDomain = await getFavouriteDomain({ ownerId, appId });
 
-    if (favouriteDomain) {
+    if (favouriteDomain != null) {
       Logger.println(
-        `${styleText(['bold', 'green'], '✓ Access your application:')} ${styleText(['underline', 'bold'], `https://${favouriteDomain.fqdn}`)}`,
+        `${styleText(['bold', 'green'], '✓ Access your application:')} ${styleText(['underline', 'bold'], `https://${favouriteDomain}`)}`,
       );
     }
 
@@ -173,13 +171,13 @@ export async function watchDeploymentAndDisplayLogs(options) {
 function formatLogLine(log) {
   const { date, message } = log;
   if (isDeploymentSuccessMessage(log)) {
-    return `${date.toISOString()}: ${styleText(['bold', 'green'], message)}`;
+    return `${date}: ${styleText(['bold', 'green'], message)}`;
   } else if (isDeploymentFailedMessage(log)) {
-    return `${date.toISOString()}: ${styleText(['bold', 'red'], message)}`;
+    return `${date}: ${styleText(['bold', 'red'], message)}`;
   } else if (isBuildSuccessMessage(log)) {
-    return `${date.toISOString()}: ${styleText(['bold', 'blue'], message)}`;
+    return `${date}: ${styleText(['bold', 'blue'], message)}`;
   }
-  return `${date.toISOString()}: ${message}${RESET_COLOR}`;
+  return `${date}: ${message}${RESET_COLOR}`;
 }
 
 function isCleverMessage(log) {

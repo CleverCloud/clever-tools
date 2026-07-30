@@ -48,7 +48,7 @@ export const addonProvidersShowCommand = defineCommand({
                 isDefault: version === providerInfos.defaultDedicatedVersion,
                 features: providerInfos.dedicated[version].features.map((feature) => ({
                   name: feature.name,
-                  enabledByDefault: feature.enabled,
+                  enabledByDefault: feature.isEnabled,
                 })),
               };
             });
@@ -61,8 +61,8 @@ export const addonProvidersShowCommand = defineCommand({
     const formattedProvider = {
       id: provider.id,
       name: provider.name,
-      shortDesc: provider.shortDesc,
-      regions: provider.regions,
+      shortDesc: provider.shortDescription,
+      regions: provider.zones,
       plans: formattedPlans,
     };
 

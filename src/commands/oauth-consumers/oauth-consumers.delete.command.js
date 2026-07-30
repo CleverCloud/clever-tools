@@ -1,10 +1,10 @@
-import { remove } from '@clevercloud/client/esm/api/v2/oauth-consumer.js';
+import { DeleteOauthConsumerCommand } from '@clevercloud/client/cc-api-commands/oauth-consumer/delete-oauth-consumer-command.js';
 import { defineCommand } from '../../lib/define-command.js';
 import { confirm } from '../../lib/prompts.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
+import { clients } from '../../models/cc-api-client.js';
 import { resolveOauthConsumer } from '../../models/oauth-consumer.js';
-import { sendToApi } from '../../models/send-to-api.js';
 import { skipConfirmationOption } from '../global.options.js';
 import { consumerKeyOrNameArg } from './oauth-consumers.args.js';
 
@@ -27,7 +27,9 @@ export const oauthConsumersDeleteCommand = defineCommand({
       );
     }
 
-    await remove({ id: oauthConsumer.ownerId, key: oauthConsumer.key }).then(sendToApi);
+    await clients.ccApi.send(
+      new DeleteOauthConsumerCommand({ ownerId: oauthConsumer.ownerId, oauthConsumerKey: oauthConsumer.key }),
+    );
     Logger.printSuccess(`OAuth consumer ${styleText(['bold', 'green'], oauthConsumer.key)} has been deleted!`);
   },
 });

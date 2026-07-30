@@ -1,8 +1,18 @@
+import { GetKeycloakInfoCommand } from '@clevercloud/client/cc-api-commands/keycloak/get-keycloak-info-command.js';
+import { GetMatomoInfoCommand } from '@clevercloud/client/cc-api-commands/matomo/get-matomo-info-command.js';
+import { GetMetabaseInfoCommand } from '@clevercloud/client/cc-api-commands/metabase/get-metabase-info-command.js';
+import { GetOtoroshiInfoCommand } from '@clevercloud/client/cc-api-commands/otoroshi/get-otoroshi-info-command.js';
 import dedent from 'dedent';
-import { getOperator } from '../clever-client/operators.js';
 import { styleText } from '../lib/style-text.js';
+import { clients } from './cc-api-client.js';
 import { findAddonsByNameOrId } from './ids-resolver.js';
-import { sendToApi } from './send-to-api.js';
+
+const GET_INFO_COMMANDS = {
+  keycloak: GetKeycloakInfoCommand,
+  matomo: GetMatomoInfoCommand,
+  metabase: GetMetabaseInfoCommand,
+  otoroshi: GetOtoroshiInfoCommand,
+};
 
 /**
  * Get the details of an operator from its name or ID
@@ -10,10 +20,17 @@ import { sendToApi } from './send-to-api.js';
  * @param {object|string} operatorIdOrName The operator's ID or name
  * @returns {Promise<object>} The operator's details
  * @throws {Error} If the operator provider is unknown
+ * @throws {Error} If the operator is not found
  */
 export async function getDetails(provider, operatorIdOrName) {
+  const GetInfoCommand = GET_INFO_COMMANDS[provider];
+  if (GetInfoCommand == null) {
+    throw new Error(`Unknown operator provider ${styleText('red', provider)}`);
+  }
+
   const realId = await getSingleRealId(operatorIdOrName);
-  return getOperator({ provider, realId }).then(sendToApi);
+
+  return clients.ccApi.send(new GetInfoCommand({ addonId: realId }));
 }
 
 /**

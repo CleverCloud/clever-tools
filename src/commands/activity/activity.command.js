@@ -1,5 +1,6 @@
 import { EventsStream } from '@clevercloud/client/esm/streams/events.js';
 import { z } from 'zod';
+import { config } from '../../config/config.js';
 import { formatTable } from '../../format-table.js';
 import { defineCommand } from '../../lib/define-command.js';
 import { defineOption } from '../../lib/define-option.js';
@@ -7,7 +8,6 @@ import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
 import * as Activity from '../../models/activity.js';
 import * as Application from '../../models/application.js';
-import { getHostAndTokens } from '../../models/send-to-api.js';
 import { Deferred } from '../../models/utils.js';
 import { aliasOption, appIdOrNameOption } from '../global.options.js';
 
@@ -42,6 +42,28 @@ function getColoredState(state, isLast) {
   }
   Logger.warn(`Unknown deployment state: ${state}`);
   return 'UNKNOWN';
+}
+
+// The new client transforms deployments (`uuid` renamed to `id`, states renamed, dates normalized to ISO strings).
+// The `--follow` mode still receives events from the legacy events WebSocket with the raw v2 vocabulary,
+// so we convert listed deployments back to the legacy event shape to keep a single rendering path and a stable output.
+const DEPLOYMENT_STATE_TO_LEGACY = {
+  WORK_IN_PROGRESS: 'WIP',
+  TASK_IN_PROGRESS: 'TASK_RUNNING',
+  FAILED: 'FAIL',
+  CANCELLED: 'CANCELLED',
+  SUCCEEDED: 'OK',
+};
+
+function toLegacyEvent(deployment) {
+  return {
+    uuid: deployment.id,
+    date: new Date(deployment.date).getTime(),
+    state: DEPLOYMENT_STATE_TO_LEGACY[deployment.state] ?? deployment.state,
+    action: deployment.action,
+    commit: deployment.commit,
+    cause: deployment.cause,
+  };
 }
 
 const ACTIVITY_TABLE_COLUMN_WIDTHS = [
@@ -185,7 +207,8 @@ export const activityCommand = defineCommand({
   async handler(options) {
     const { alias, app: appIdOrName, showAll, follow, format } = options;
     const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
-    const events = await Activity.list(ownerId, appId, showAll);
+    const deployments = await Activity.list(ownerId, appId, showAll);
+    const events = deployments.map(toLegacyEvent);
     const reversedArrayWithIndex = events.reverse().map((event, index, all) => {
       const isLast = index === all.length - 1;
       return { ...event, isLast };
@@ -203,8 +226,16 @@ export const activityCommand = defineCommand({
       return lastEvent;
     }
 
-    const { apiHost, tokens } = await getHostAndTokens();
-    const eventsStream = new EventsStream({ apiHost, tokens, appId });
+    const eventsStream = new EventsStream({
+      apiHost: config.API_HOST,
+      tokens: {
+        OAUTH_CONSUMER_KEY: config.OAUTH_CONSUMER_KEY,
+        OAUTH_CONSUMER_SECRET: config.OAUTH_CONSUMER_SECRET,
+        API_OAUTH_TOKEN: config.token,
+        API_OAUTH_TOKEN_SECRET: config.secret,
+      },
+      appId,
+    });
 
     const deferred = new Deferred();
 

@@ -58,6 +58,15 @@ export default [
     },
   },
   {
+    // The legacy JSON layer rebuilds the payloads the API answers with, key for key, so it spells
+    // the API's own names — snake_case included. See src/legacy-json/README.md.
+    name: 'legacy-json',
+    files: ['src/legacy-json/**/*.js'],
+    rules: {
+      camelcase: 'off',
+    },
+  },
+  {
     name: 'hashbang',
     files: ['bin/*.js', 'scripts/**/*.js'],
     rules: {

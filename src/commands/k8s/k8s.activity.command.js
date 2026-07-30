@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { toLegacyKubernetesClusterEvent } from '../../legacy-json/kubernetes.legacy.js';
 import { defineCommand } from '../../lib/define-command.js';
 import { defineOption } from '../../lib/define-option.js';
 import { k8sListActivity } from '../../lib/k8s.js';
@@ -6,8 +7,12 @@ import { Logger } from '../../logger.js';
 import { humanJsonOutputFormatOption, orgaIdOrNameOption } from '../global.options.js';
 import { k8sIdOrNameArg } from './k8s.args.js';
 
+/**
+ * @typedef {import('@clevercloud/client/cc-api-commands/kubernetes/kubernetes.types.js').KubernetesClusterEvent} KubernetesClusterEvent
+ */
+
 export const k8sActivityCommand = defineCommand({
-  description: 'Show recent deployment events of a Kubernetes cluster',
+  description: 'Show recent events of a Kubernetes cluster',
   since: '4.9.0',
   options: {
     org: orgaIdOrNameOption,
@@ -26,20 +31,22 @@ export const k8sActivityCommand = defineCommand({
 
     switch (format) {
       case 'json':
-        Logger.printJson(events);
+        // `--format json` still prints the raw payloads, see src/legacy-json/README.md
+        Logger.printJson(events.map(toLegacyKubernetesClusterEvent));
         break;
       case 'human':
       default:
         if (events.length === 0) {
-          Logger.println('🔎 No deployment event found');
+          Logger.println('🔎 No event found');
           return;
         }
         console.table(
           events.map((e) => ({
-            Date: formatDate(e.createdAt),
-            Operation: e.operation,
-            Step: e.stepName ?? '-',
+            Date: formatDate(e.date),
+            Event: e.event,
+            Target: formatTarget(e),
             Status: e.status,
+            Failure: formatFailure(e),
           })),
         );
         break;
@@ -47,7 +54,39 @@ export const k8sActivityCommand = defineCommand({
   },
 });
 
+/**
+ * @param {string|undefined} iso
+ * @returns {string}
+ */
 function formatDate(iso) {
   if (iso == null) return '-';
   return `${iso.slice(0, 19).replace('T', ' ')}Z`;
+}
+
+/**
+ * The resource the event is about, which is named differently on each event kind
+ * @param {KubernetesClusterEvent} event A cluster event
+ * @returns {string}
+ */
+function formatTarget(event) {
+  switch (event.event) {
+    case 'CLUSTER_ITEM':
+      return `${event.itemType} (${event.id})`;
+    case 'NODE_LIFECYCLE':
+      return `${event.nodeName} (${event.flavor})`;
+    default:
+      return '-';
+  }
+}
+
+/**
+ * The reason an event reports a failure, absent unless it does
+ * @param {KubernetesClusterEvent} event A cluster event
+ * @returns {string}
+ */
+function formatFailure(event) {
+  // only the cluster status and node lifecycle events carry a failure
+  if (event.event === 'CLUSTER_ITEM' || event.failure == null) return '-';
+  const { operation, step, message } = event.failure;
+  return `${operation}${step != null ? `/${step}` : ''}: ${message}`;
 }

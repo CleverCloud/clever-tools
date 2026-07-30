@@ -1,9 +1,9 @@
-import { getNamespaces as getTcpRedirNamespaces } from '@clevercloud/client/esm/api/v2/organisation.js';
+import { ListTcpRedirectionNamespaceCommand } from '@clevercloud/client/cc-api-commands/tcp-redirection/list-tcp-redirection-namespace-command.js';
 import * as Application from './application.js';
-import { sendToApi } from './send-to-api.js';
+import { clients } from './cc-api-client.js';
 
 export async function getNamespaces(ownerId) {
-  return getTcpRedirNamespaces({ id: ownerId }).then(sendToApi);
+  return clients.ccApi.send(new ListTcpRedirectionNamespaceCommand({ ownerId }));
 }
 
 export async function completeNamespaces() {

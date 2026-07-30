@@ -1,50 +1,50 @@
-import { get as getOauthConsumer } from '@clevercloud/client/esm/api/v2/oauth-consumer.js';
-import { getSummary } from '@clevercloud/client/esm/api/v2/user.js';
+import { GetOauthConsumerCommand } from '@clevercloud/client/cc-api-commands/oauth-consumer/get-oauth-consumer-command.js';
+import { GRANTABLE_RIGHTS } from '@clevercloud/client/cc-api-commands/oauth-consumer/oauth-consumer-rights.js';
+import { GetOrganisationSummariesCommand } from '@clevercloud/client/cc-api-commands/organisation/get-organisation-summaries-command.js';
+import { tolerateNotFound } from '@clevercloud/client/utils/error-utils.js';
 import { promptCheckbox } from '../lib/prompts.js';
 import { styleText } from '../lib/style-text.js';
+import { clients } from './cc-api-client.js';
 import { findOauthConsumersByKeyOrName } from './ids-resolver.js';
-import { sendToApi } from './send-to-api.js';
 
-/* eslint-disable camelcase */
-export const OAUTH_RIGHTS = {
-  access_organisations: 'access-organisations',
-  access_organisations_bills: 'access-organisations-bills',
-  access_organisations_consumption_statistics: 'access-organisations-consumption-statistics',
-  access_organisations_credit_count: 'access-organisations-credit-count',
-  access_personal_information: 'access-personal-information',
-  manage_organisations: 'manage-organisations',
-  manage_organisations_applications: 'manage-organisations-applications',
-  manage_organisations_members: 'manage-organisations-members',
-  manage_organisations_services: 'manage-organisations-services',
-  manage_personal_information: 'manage-personal-information',
-  manage_ssh_keys: 'manage-ssh-keys',
-};
-/* eslint-enable camelcase */
+/**
+ * The rights an OAuth consumer can be granted, mapping the API's camelCase name to the kebab-case
+ * name the CLI exposes through `--rights`. Derived from the client's list rather than spelled out
+ * here, so a right added to the API becomes available without a change in clever-tools.
+ */
+export const OAUTH_RIGHTS =
+  /** @type {Record<import('@clevercloud/client/cc-api-commands/oauth-consumer/oauth-consumer.types.js').GrantableRights, string>} */ (
+    Object.fromEntries(
+      GRANTABLE_RIGHTS.map((right) => [right, right.replace(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`)]),
+    )
+  );
 
 export function rightsFromList(requestedRights = []) {
   const hasAll = requestedRights.includes('all');
   return Object.fromEntries(
-    Object.entries(OAUTH_RIGHTS).map(([apiName, cliName]) => {
-      return [apiName, hasAll || requestedRights.includes(cliName)];
+    GRANTABLE_RIGHTS.map((right) => {
+      return [right, hasAll || requestedRights.includes(OAUTH_RIGHTS[right])];
     }),
   );
 }
 
-const READONLY_RIGHTS = ['almighty'];
-
-export function removeReadonlyRights(rights) {
+/**
+ * Keeps only the rights the API accepts on create and update, defaulting the missing ones to false.
+ * The API also reports `almighty`, which it derives itself and rejects when sent back.
+ */
+export function pickGrantableRights(rights) {
   return Object.fromEntries(
-    Object.entries(rights).filter(([key]) => {
-      return !READONLY_RIGHTS.includes(key);
+    GRANTABLE_RIGHTS.map((right) => {
+      return [right, rights?.[right] ?? false];
     }),
   );
 }
 
 export async function promptRights(existingRights) {
-  const choices = Object.entries(OAUTH_RIGHTS).map(([apiName, cliName]) => ({
-    name: cliName,
-    value: cliName,
-    checked: existingRights?.[apiName] ?? false,
+  const choices = GRANTABLE_RIGHTS.map((right) => ({
+    name: OAUTH_RIGHTS[right],
+    value: OAUTH_RIGHTS[right],
+    checked: existingRights?.[right] ?? false,
   }));
 
   const selected = await promptCheckbox('Select rights', choices, 'Use --rights <list> to set rights directly.');
@@ -53,8 +53,8 @@ export async function promptRights(existingRights) {
 }
 
 export async function getAllConsumers() {
-  const summary = await getSummary().then(sendToApi);
-  return [summary.user, ...summary.organisations].flatMap((owner) => {
+  const owners = await clients.ccApi.send(new GetOrganisationSummariesCommand());
+  return owners.flatMap((owner) => {
     return owner.consumers.map((c) => ({ ownerId: owner.id, ownerName: owner.name, ...c }));
   });
 }
@@ -72,6 +72,13 @@ export async function resolveOauthConsumer(keyOrName) {
   }
 
   const { ownerId, key } = candidates[0];
-  const oauthConsumer = await getOauthConsumer({ id: ownerId, key }).then(sendToApi);
+  const oauthConsumer = await tolerateNotFound(
+    clients.ccApi.send(new GetOauthConsumerCommand({ ownerId, oauthConsumerKey: key, withSecret: false })),
+  );
+
+  if (oauthConsumer == null) {
+    throw new Error(`OAuth consumer not found: ${styleText('red', keyOrName)}`);
+  }
+
   return { ownerId, ...oauthConsumer };
 }

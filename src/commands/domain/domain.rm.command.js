@@ -1,8 +1,8 @@
-import { removeDomain } from '@clevercloud/client/esm/api/v2/application.js';
+import { DeleteDomainCommand } from '@clevercloud/client/cc-api-commands/domain/delete-domain-command.js';
 import { defineCommand } from '../../lib/define-command.js';
 import { Logger } from '../../logger.js';
 import * as Application from '../../models/application.js';
-import { sendToApi } from '../../models/send-to-api.js';
+import { clients } from '../../models/cc-api-client.js';
 import { aliasOption, appIdOrNameOption } from '../global.options.js';
 import { fqdnArg } from './domain.args.js';
 
@@ -17,9 +17,8 @@ export const domainRmCommand = defineCommand({
   async handler(options, fqdn) {
     const { alias, app: appIdOrName } = options;
     const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
-    const encodedFqdn = encodeURIComponent(fqdn);
 
-    await removeDomain({ id: ownerId, appId, domain: encodedFqdn }).then(sendToApi);
+    await clients.ccApi.send(new DeleteDomainCommand({ ownerId, applicationId: appId, domain: fqdn }));
     Logger.println('Your domain has been successfully removed');
   },
 });

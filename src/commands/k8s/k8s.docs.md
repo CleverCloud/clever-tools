@@ -14,7 +14,7 @@ clever k8s
 
 ## ➡️ `clever k8s activity` <kbd>Since 4.9.0</kbd>
 
-Show recent deployment events of a Kubernetes cluster
+Show recent events of a Kubernetes cluster
 
 ```bash
 clever k8s activity <cluster-id|cluster-name> [options]

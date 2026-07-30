@@ -1,8 +1,8 @@
-import { todo_removeSshKey as removeSshKey } from '@clevercloud/client/esm/api/v2/user.js';
+import { DeletePersonalSshKeyCommand } from '@clevercloud/client/cc-api-commands/ssh-key/delete-personal-ssh-key-command.js';
 import { defineCommand } from '../../lib/define-command.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
-import { sendToApi } from '../../models/send-to-api.js';
+import { clients } from '../../models/cc-api-client.js';
 import { getUserSshKeys } from '../../models/ssh-keys.js';
 import { sshKeyNameArg } from './ssh-keys.args.js';
 
@@ -18,8 +18,7 @@ export const sshKeysRemoveCommand = defineCommand({
       throw new Error(`SSH key ${styleText('red', keyName)} not found`);
     }
 
-    const keyNameEncoded = encodeURIComponent(keyName);
-    await removeSshKey({ key: keyNameEncoded }).then(sendToApi);
+    await clients.ccApi.send(new DeletePersonalSshKeyCommand({ name: keyName }));
 
     Logger.printSuccess(`SSH key ${keyName} removed successfully`);
   },

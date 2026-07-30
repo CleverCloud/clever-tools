@@ -5,7 +5,7 @@ import { after, before, beforeEach, describe, it } from 'node:test';
 import type { NewCliScenario } from '../../../test/cli-hooks.ts';
 import { cliHooks } from '../../../test/cli-hooks.ts';
 import { multiAppConfig, singleAppConfig } from '../../../test/fixtures/app-config.ts';
-import { APP_ALIAS_MUTEX_ERROR } from '../../../test/fixtures/errors.ts';
+import { APP_ALIAS_MUTEX_ERROR, NOT_LOGGED_IN_ERROR } from '../../../test/fixtures/errors.ts';
 import { ADDON_ID, APP_ID, ORGA_ID, UUID } from '../../../test/fixtures/id.ts';
 import { idsCache } from '../../../test/fixtures/ids-cache.ts';
 import { SELF } from '../../../test/fixtures/self.ts';
@@ -232,7 +232,7 @@ describe('logs command', () => {
           assert.strictEqual(calls.first.path, '/v2/summary');
         });
 
-      assert.strictEqual(result.stderr, '[ERROR] not found');
+      assert.strictEqual(result.stderr, '[ERROR] [404]: not found');
     });
 
     // === app name — goes directly to /v2/summary (no cache lookup) ===
@@ -274,7 +274,7 @@ describe('logs command', () => {
           assert.strictEqual(calls.first.path, '/v2/summary');
         });
 
-      assert.strictEqual(result.stderr, '[ERROR] not found');
+      assert.strictEqual(result.stderr, '[ERROR] [404]: not found');
     });
   });
 
@@ -336,7 +336,7 @@ describe('logs command', () => {
           assert.strictEqual(calls.first.path, '/v2/summary');
         });
 
-      assert.strictEqual(result.stderr, '[ERROR] not found');
+      assert.strictEqual(result.stderr, '[ERROR] [404]: not found');
     });
 
     // === real ID (postgresql_<UUID>) ===
@@ -391,7 +391,7 @@ describe('logs command', () => {
           assert.strictEqual(calls.first.path, '/v2/summary');
         });
 
-      assert.strictEqual(result.stderr, '[ERROR] not found');
+      assert.strictEqual(result.stderr, '[ERROR] [404]: not found');
     });
 
     // === addon name — not supported by resolveAddon, always errors ===
@@ -461,9 +461,7 @@ describe('logs command', () => {
   });
 
   describe('no auth', () => {
-    // The SSE path uses its own error renderer and surfaces raw `HTTP error 401: <body>`
-    // rather than the friendly NOT_LOGGED_IN_ERROR message from send-to-api's processError.
-    it('reports an HTTP 401 when the log stream endpoint rejects the request', async () => {
+    it('shows the not-logged-in error when the log stream endpoint rejects with 401', async () => {
       const result = await newScenario()
         .withAppConfigFile(singleAppConfig())
         .when({ method: 'GET', path: LOGS_APP_ENDPOINT })
@@ -473,7 +471,7 @@ describe('logs command', () => {
           assert.strictEqual(calls.count, 1);
         });
 
-      assert.strictEqual(result.stderr, '[ERROR] HTTP error 401: {"error":"unauthorized"}');
+      assert.strictEqual(result.stderr, NOT_LOGGED_IN_ERROR);
     });
   });
 });

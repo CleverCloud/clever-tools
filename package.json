@@ -43,6 +43,7 @@
     "format": "prettier . --write",
     "format:check": "prettier . --check",
     "install-local:cliparse": "(cd ../cliparse-node && npm pack) && mv ../cliparse-node/cliparse-*.tgz . && npm i -f ./cliparse-*.tgz",
+    "install-local:client": "OUT=\"$PWD/clevercloud-client.tgz\"; (cd ../clever-client.js && DEV=true pnpm pack --out \"$OUT\") && npm i -f ./clevercloud-client.tgz",
     "lint": "eslint",
     "lint:fix": "eslint --fix",
     "test": "node --experimental-strip-types --disable-warning=ExperimentalWarning --test --test-force-exit --test-reporter=./test/reporter/reporter.ts 'src/**/*.test.ts'",
@@ -52,7 +53,7 @@
   },
   "dependencies": {
     "@babel/traverse": "7.28.5",
-    "@clevercloud/client": "12.0.0",
+    "@clevercloud/client": "file:clevercloud-client.tgz",
     "@inquirer/prompts": "7.8.4",
     "char-regex": "2.0.2",
     "cliparse": "0.5.0",

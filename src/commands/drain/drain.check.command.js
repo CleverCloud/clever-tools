@@ -1,9 +1,9 @@
-import { checkDrain } from '../../clever-client/drains.js';
+import { CheckLogDrainCommand } from '@clevercloud/client/cc-api-commands/log-drain/check-log-drain-command.js';
 import { defineCommand } from '../../lib/define-command.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
+import { clients } from '../../models/cc-api-client.js';
 import { resolveDrainResource } from '../../models/drain.js';
-import { sendToApi } from '../../models/send-to-api.js';
 import {
   addonIdOrRealIdOption,
   aliasOption,
@@ -24,9 +24,9 @@ export const drainCheckCommand = defineCommand({
   args: [drainIdArg],
   async handler(options, drainId) {
     const { alias, appIdOrName, addonIdOrRealId, format } = options;
-    const { ownerId, resourceId } = await resolveDrainResource(alias, appIdOrName, addonIdOrRealId);
+    const resource = await resolveDrainResource(alias, appIdOrName, addonIdOrRealId);
 
-    const probe = await checkDrain({ ownerId, resourceId, drainId }).then(sendToApi);
+    const probe = await clients.ccApi.send(new CheckLogDrainCommand({ ...resource, drainId }));
     switch (format) {
       case 'json': {
         Logger.printJson({ ok: probe.ok, message: probe.message });

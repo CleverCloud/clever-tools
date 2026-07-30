@@ -1,4 +1,4 @@
-import { get as getUser } from '@clevercloud/client/esm/api/v2/organisation.js';
+import { GetProfileCommand } from '@clevercloud/client/cc-api-commands/profile/get-profile-command.js';
 import dedent from 'dedent';
 import crypto from 'node:crypto';
 import { setTimeout as delay } from 'node:timers/promises';
@@ -10,7 +10,7 @@ import { defineOption } from '../../lib/define-option.js';
 import { formatProfile } from '../../lib/profile.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
-import { sendToApiWithConfig } from '../../models/send-to-api.js';
+import { createCcApiClient } from '../../models/cc-api-client.js';
 import { openBrowser } from '../../models/utils.js';
 
 function randomToken() {
@@ -163,15 +163,15 @@ export const loginCommand = defineCommand({
 
     const oauthData = hasToken ? { token, secret } : await loginViaConsole(apiHost, consoleUrl);
 
-    const user = await getUser({}).then(
-      sendToApiWithConfig({
-        token: oauthData.token,
-        secret: oauthData.secret,
-        apiHost,
-        consumerKey: options.consumerKey ?? baseConfig.OAUTH_CONSUMER_KEY,
-        consumerSecret: options.consumerSecret ?? baseConfig.OAUTH_CONSUMER_SECRET,
-      }),
-    );
+    const client = createCcApiClient({
+      token: oauthData.token,
+      secret: oauthData.secret,
+      apiHost,
+      consumerKey: options.consumerKey ?? baseConfig.OAUTH_CONSUMER_KEY,
+      consumerSecret: options.consumerSecret ?? baseConfig.OAUTH_CONSUMER_SECRET,
+    });
+
+    const user = await client.send(new GetProfileCommand());
 
     const overrideEntries = Object.entries({
       API_HOST: options.apiHost,
@@ -188,7 +188,7 @@ export const loginCommand = defineCommand({
       secret: oauthData.secret,
       expirationDate: oauthData.expirationDate,
       userId: user.id,
-      email: user.email,
+      email: user.emailAddress,
       overrides: overrideEntries.length > 0 ? Object.fromEntries(overrideEntries) : undefined,
     };
 

@@ -1,11 +1,12 @@
 const CLF_MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 /**
- * Format a `Date` as a Common Log Format timestamp in UTC, e.g. `10/Oct/2000:13:55:36 +0000`.
- * @param {Date} date
+ * Format an ISO date string as a Common Log Format timestamp in UTC, e.g. `10/Oct/2000:13:55:36 +0000`.
+ * @param {string} isoDate
  * @returns {string}
  */
-function formatClfDate(date) {
+function formatClfDate(isoDate) {
+  const date = new Date(isoDate);
   const pad = (n) => String(n).padStart(2, '0');
   const day = pad(date.getUTCDate());
   const month = CLF_MONTHS[date.getUTCMonth()];
@@ -36,7 +37,7 @@ function escapeClfQuoted(value) {
  * (grok, GoAccess), and emitting a `-` placeholder would actually break their structured parsing.
  *
  * @see https://en.wikipedia.org/wiki/Common_Log_Format
- * @param {object} log an HTTP access log (the `http` section must be present)
+ * @param {import('@clevercloud/client/cc-api-commands/log/log.types.js').ApplicationAccessLog} log
  * @returns {string}
  */
 export function formatClf(log) {
@@ -44,8 +45,8 @@ export function formatClf(log) {
   const ident = '-';
   const authuser = '-';
   const date = formatClfDate(log.date);
-  const request = `${log.http.request.method} ${escapeClfQuoted(log.http.request.path)}`;
-  const status = log.http.response.statusCode;
+  const request = `${log.detail.request.method} ${escapeClfQuoted(log.detail.request.path)}`;
+  const status = log.detail.response.statusCode;
   const bytes = log.bytesOut;
 
   return `${host} ${ident} ${authuser} [${date}] "${request}" ${status} ${bytes}`;

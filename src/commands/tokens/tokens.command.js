@@ -1,10 +1,11 @@
-import { listApiTokens } from '../../clever-client/auth-bridge.js';
+import { ListApiTokenCommand } from '@clevercloud/client/cc-api-bridge-commands/api-token/list-api-token-command.js';
 import { config } from '../../config/config.js';
+import { toLegacyApiToken } from '../../legacy-json/api-token.legacy.js';
 import { formatDate } from '../../lib/date-utils.js';
 import { defineCommand } from '../../lib/define-command.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
-import { sendToAuthBridge } from '../../models/send-to-api.js';
+import { clients } from '../../models/cc-api-client.js';
 import { humanJsonOutputFormatOption } from '../global.options.js';
 
 export const tokensCommand = defineCommand({
@@ -17,10 +18,10 @@ export const tokensCommand = defineCommand({
   async handler(options) {
     const { format } = options;
 
-    const tokens = await listApiTokens().then(sendToAuthBridge);
+    const tokens = await clients.ccApiBridge.send(new ListApiTokenCommand());
 
     if (format === 'json') {
-      Logger.printJson(tokens);
+      Logger.printJson(tokens.map(toLegacyApiToken));
     } else {
       if (tokens.length === 0) {
         Logger.println(`ℹ️  No API token found, create one with ${styleText('blue', 'clever tokens create')} command`);
@@ -31,8 +32,8 @@ export const tokensCommand = defineCommand({
               'API token ID': token.apiTokenId,
               Name: token.name,
               'Creation IP address': token.ip,
-              Creation: formatDate(token.creationDate),
-              Expiration: formatDate(token.expirationDate),
+              Creation: formatDate(token.createdAt),
+              Expiration: formatDate(token.expiresAt),
               State: token.state,
             };
           }),

@@ -1,12 +1,12 @@
-import { getAllEnvVars } from '@clevercloud/client/esm/api/v2/addon.js';
+import { GetEnvironmentCommand } from '@clevercloud/client/cc-api-commands/environment/get-environment-command.js';
 import Redis from 'ioredis';
 import { z } from 'zod';
 import { defineArgument } from '../../lib/define-argument.js';
 import { defineCommand } from '../../lib/define-command.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
+import { clients } from '../../models/cc-api-client.js';
 import { findAddonsByNameOrId } from '../../models/ids-resolver.js';
-import { sendToApi } from '../../models/send-to-api.js';
 import { humanJsonOutputFormatOption, orgaIdOrNameOption } from '../global.options.js';
 
 const URL_ENV_KEY = 'REDIS_URL';
@@ -14,8 +14,8 @@ const URL_ENV_KEY = 'REDIS_URL';
 const MAX_RETRIES_PER_REQUEST = 1;
 
 async function getAddonUrl(ownerId, addonId) {
-  const envVars = await getAllEnvVars({ id: ownerId, addonId }).then(sendToApi);
-  const redisUrl = envVars.find((env) => env.name === URL_ENV_KEY)?.value;
+  const { environment } = await clients.ccApi.send(new GetEnvironmentCommand({ ownerId, addonId }));
+  const redisUrl = environment.find((env) => env.name === URL_ENV_KEY)?.value;
 
   if (!redisUrl) {
     throw new Error(

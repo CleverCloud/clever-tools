@@ -1,8 +1,8 @@
-import { getTcpRedirs } from '@clevercloud/client/esm/api/v2/application.js';
+import { ListTcpRedirectionCommand } from '@clevercloud/client/cc-api-commands/tcp-redirection/list-tcp-redirection-command.js';
 import { defineCommand } from '../../lib/define-command.js';
 import { Logger } from '../../logger.js';
 import * as Application from '../../models/application.js';
-import { sendToApi } from '../../models/send-to-api.js';
+import { clients } from '../../models/cc-api-client.js';
 import { aliasOption, appIdOrNameOption, humanJsonOutputFormatOption } from '../global.options.js';
 
 export const tcpRedirsCommand = defineCommand({
@@ -18,7 +18,7 @@ export const tcpRedirsCommand = defineCommand({
     const { alias, app: appIdOrName, format } = options;
     const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
 
-    const redirs = await getTcpRedirs({ id: ownerId, appId }).then(sendToApi);
+    const redirs = await clients.ccApi.send(new ListTcpRedirectionCommand({ ownerId, applicationId: appId }));
 
     switch (format) {
       case 'json': {

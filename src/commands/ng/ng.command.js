@@ -1,3 +1,4 @@
+import { toLegacyNetworkGroup } from '../../legacy-json/network-group.legacy.js';
 import { defineCommand } from '../../lib/define-command.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
@@ -21,7 +22,8 @@ export const ngCommand = defineCommand({
 
     switch (format) {
       case 'json': {
-        Logger.printJson(ngs);
+        // `--format json` still prints the raw v4 payload, see src/legacy-json/README.md
+        Logger.printJson(ngs.map(toLegacyNetworkGroup));
         break;
       }
       case 'human':

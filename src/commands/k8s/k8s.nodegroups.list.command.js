@@ -1,3 +1,4 @@
+import { toLegacyKubernetesNodeGroup } from '../../legacy-json/kubernetes.legacy.js';
 import { defineCommand } from '../../lib/define-command.js';
 import { k8sListNodeGroups } from '../../lib/k8s.js';
 import { styleText } from '../../lib/style-text.js';
@@ -19,7 +20,8 @@ export const k8sNodeGroupListCommand = defineCommand({
 
     switch (format) {
       case 'json':
-        Logger.printJson(nodeGroups);
+        // `--format json` still prints the raw payloads, see src/legacy-json/README.md
+        Logger.printJson(nodeGroups.map(toLegacyKubernetesNodeGroup));
         break;
       case 'human':
       default:
@@ -38,7 +40,7 @@ export const k8sNodeGroupListCommand = defineCommand({
                 Status: ng.status,
                 Flavor: ng.flavor,
                 Nodes: `${ng.currentNodeCount}/${ng.targetNodeCount}`,
-                Autoscaling: ng.autoscalingEnabled ? `${ng.minNodeCount}-${ng.maxNodeCount}` : 'disabled',
+                Autoscaling: ng.isAutoscalingEnabled ? `${ng.minNodeCount}-${ng.maxNodeCount}` : 'disabled',
               },
             ]),
           ),

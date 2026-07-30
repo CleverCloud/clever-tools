@@ -65,8 +65,8 @@ export const k8sNodeGroupUpdateCommand = defineCommand({
     if (options.count != null) updates.targetNodeCount = options.count;
     if (options.min != null) updates.minNodeCount = options.min;
     if (options.max != null) updates.maxNodeCount = options.max;
-    if (options.autoscaling) updates.autoscalingEnabled = true;
-    if (options.disableAutoscaling) updates.autoscalingEnabled = false;
+    if (options.autoscaling) updates.isAutoscalingEnabled = true;
+    if (options.disableAutoscaling) updates.isAutoscalingEnabled = false;
     if (options.description != null) updates.description = options.description;
     if (options.tag != null) updates.tag = options.tag;
 

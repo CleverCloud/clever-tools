@@ -9,7 +9,7 @@ import { idsCache } from '../../../test/fixtures/ids-cache.ts';
 import { SELF } from '../../../test/fixtures/self.ts';
 import { keys } from '../../../test/keys.ts';
 
-const INSTANCES_ENDPOINT = '/v2/organisations/:ownerId/applications/:appId/instances';
+const INSTANCES_ENDPOINT = '/v4/orchestration/organisations/:ownerId/applications/:appId/instances';
 
 const APP_NAME = 'test-app';
 const UNKNOWN_APP_ID = 'app_99999999-9999-4999-8999-999999999999';
@@ -162,7 +162,7 @@ describe('ssh command', () => {
           assert.strictEqual(calls.first.path, '/v2/summary');
         });
 
-      assert.strictEqual(result.stderr, '[ERROR] not found');
+      assert.strictEqual(result.stderr, '[ERROR] [404]: not found');
     });
 
     // === app name — goes directly to /v2/summary (no cache lookup) ===
@@ -204,7 +204,7 @@ describe('ssh command', () => {
           assert.strictEqual(calls.first.path, '/v2/summary');
         });
 
-      assert.strictEqual(result.stderr, '[ERROR] not found');
+      assert.strictEqual(result.stderr, '[ERROR] [404]: not found');
     });
   });
 
@@ -227,8 +227,8 @@ describe('ssh command', () => {
 
     it('errors when multiple instances are running and stdout is not a TTY', async () => {
       const instances = [
-        { id: 'instance_1', displayName: 'Instance one', instanceNumber: 0, state: 'UP' },
-        { id: 'instance_2', displayName: 'Instance two', instanceNumber: 1, state: 'UP' },
+        { id: 'instance_1', name: 'Instance one', index: 0, state: 'UP' },
+        { id: 'instance_2', name: 'Instance two', index: 1, state: 'UP' },
       ];
 
       const result = await newScenario()
@@ -248,11 +248,11 @@ describe('ssh command', () => {
     });
 
     it('drives the select prompt and picks an instance when multiple are running (PTY)', async () => {
-      // Pass instances out of order to also verify the sort-by-instanceNumber.
+      // Pass instances out of order to also verify the sort-by-index.
       const instances = [
-        { id: 'instance_2', displayName: 'Instance two', instanceNumber: 2, state: 'UP' },
-        { id: 'instance_0', displayName: 'Instance zero', instanceNumber: 0, state: 'UP' },
-        { id: 'instance_1', displayName: 'Instance one', instanceNumber: 1, state: 'UP' },
+        { id: 'instance_2', name: 'Instance two', index: 2, state: 'UP' },
+        { id: 'instance_0', name: 'Instance zero', index: 0, state: 'UP' },
+        { id: 'instance_1', name: 'Instance one', index: 1, state: 'UP' },
       ];
 
       const result = await newScenario()
@@ -292,7 +292,7 @@ describe('ssh command', () => {
         });
 
       assert.strictEqual(result.stdout, '');
-      assert.strictEqual(result.stderr, '[ERROR] oops');
+      assert.strictEqual(result.stderr, '[ERROR] [500]: oops');
     });
   });
 

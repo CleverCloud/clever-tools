@@ -118,14 +118,16 @@ describe('emails command', () => {
       const result = await newScenario()
         .when({ method: 'GET', path: '/v2/self' })
         .respond({ status: 500, body: { error: 'oops' } })
+        .when({ method: 'GET', path: '/v2/self/emails' })
+        .respond({ status: 200, body: [] })
         .thenRunCli(['emails'], { expectExitCode: 1 })
         .verify((calls) => {
-          assert.strictEqual(calls.count, 1);
-          assert.strictEqual(calls.first.path, '/v2/self');
+          // both endpoints are queried in parallel, so the failing /v2/self does not prevent the other call
+          assert.strictEqual(calls.count, 2);
         });
 
       assert.strictEqual(result.stdout, '');
-      assert.strictEqual(result.stderr, '[ERROR] oops');
+      assert.strictEqual(result.stderr, '[ERROR] [500]: oops');
     });
 
     it('reports the error body when /v2/self/emails returns a non-2xx status', async () => {
@@ -140,7 +142,7 @@ describe('emails command', () => {
         });
 
       assert.strictEqual(result.stdout, '');
-      assert.strictEqual(result.stderr, '[ERROR] oops');
+      assert.strictEqual(result.stderr, '[ERROR] [500]: oops');
     });
   });
 
@@ -149,9 +151,12 @@ describe('emails command', () => {
       const result = await newScenario()
         .when({ method: 'GET', path: '/v2/self' })
         .respond({ status: 401, body: { error: 'unauthorized' } })
+        .when({ method: 'GET', path: '/v2/self/emails' })
+        .respond({ status: 401, body: { error: 'unauthorized' } })
         .thenRunCli(['emails'], { expectExitCode: 1 })
         .verify((calls) => {
-          assert.strictEqual(calls.count, 1);
+          // both endpoints are queried in parallel
+          assert.strictEqual(calls.count, 2);
         });
 
       assert.strictEqual(result.stdout, '');

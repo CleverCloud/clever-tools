@@ -1,7 +1,7 @@
-import { get as getApp } from '@clevercloud/client/esm/api/v2/application.js';
-import { getDefaultLoadBalancersDnsInfo } from '@clevercloud/client/esm/api/v4/load-balancers.js';
-import { diagDomainConfig } from '@clevercloud/client/esm/utils/diag-domain-config.js';
-import { sortDomains } from '@clevercloud/client/esm/utils/domains.js';
+import { GetLoadBalancerInfoCommand } from '@clevercloud/client/cc-api-commands/load-balancer/get-load-balancer-info-command.js';
+import { diagDomain } from '@clevercloud/client/utils/domain-diag.js';
+import { sortDomains } from '@clevercloud/client/utils/domain-utils.js';
+import { tolerateNotFound } from '@clevercloud/client/utils/error-utils.js';
 import { parse as parseDomain } from 'tldts';
 import { z } from 'zod';
 import { defineCommand } from '../../lib/define-command.js';
@@ -9,8 +9,8 @@ import { defineOption } from '../../lib/define-option.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
 import * as Application from '../../models/application.js';
+import { clients } from '../../models/cc-api-client.js';
 import { DnsResolver } from '../../models/node-dns-resolver.js';
-import { sendToApi } from '../../models/send-to-api.js';
 import { aliasOption, appIdOrNameOption, humanJsonOutputFormatOption } from '../global.options.js';
 
 function reportDomainDiagnostics({ hostname, pathPrefix, resolvedDnsConfig, diagDetails, diagSummary }) {
@@ -114,10 +114,10 @@ function reportDomainDiagnostics({ hostname, pathPrefix, resolvedDnsConfig, diag
   }
 }
 
-function getParsedDomains(vhosts) {
-  return vhosts.map(({ fqdn }) => {
-    const { hostname, pathname } = new URL('https://' + fqdn);
-    const { subdomain } = parseDomain(fqdn);
+function getParsedDomains(domains) {
+  return domains.map(({ domain }) => {
+    const { hostname, pathname } = new URL('https://' + domain);
+    const { subdomain } = parseDomain(domain);
 
     return { hostname, pathPrefix: pathname, isApex: subdomain === '' };
   });
@@ -146,15 +146,21 @@ export const domainDiagCommand = defineCommand({
     const hasDomainFilter = filter.length > 0;
     let hasError = false;
 
-    const app = await getApp({ id: ownerId, appId }).then(sendToApi);
-    const expectedDnsForPublicLoadBalancer = await getDefaultLoadBalancersDnsInfo({ ownerId, appId }).then(sendToApi);
+    const app = await Application.get(ownerId, appId);
+    const expectedDnsForPublicLoadBalancer = await tolerateNotFound(
+      clients.ccApi.send(new GetLoadBalancerInfoCommand({ ownerId, applicationId: appId })),
+    );
+
+    if (expectedDnsForPublicLoadBalancer == null || expectedDnsForPublicLoadBalancer.length === 0) {
+      throw new Error(`Couldn't find any load balancer for the app "${app.name}" (${app.id})`);
+    }
 
     const loadBalancerDnsConfig = {
-      aRecords: expectedDnsForPublicLoadBalancer[0].dns.a,
+      aRecords: expectedDnsForPublicLoadBalancer[0].dns.aRecords,
       cnameRecord: expectedDnsForPublicLoadBalancer[0].dns.cname,
     };
 
-    const filteredDomains = app.vhosts.filter(({ fqdn }) => fqdn.includes(filter));
+    const filteredDomains = app.domains.filter(({ domain }) => domain.includes(filter));
     const domains = getParsedDomains(filteredDomains);
     const sortedDomains = domains.sort(sortDomains);
 
@@ -164,7 +170,7 @@ export const domainDiagCommand = defineCommand({
         cnameRecords: (await dnsResolver.resolveCname(hostname)) ?? [],
       };
 
-      const diagnosticResults = diagDomainConfig(
+      const diagnosticResults = diagDomain(
         {
           hostname,
           pathPrefix,

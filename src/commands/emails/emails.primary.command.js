@@ -1,8 +1,8 @@
-import { todo_addEmailAddress as addEmailAddress } from '@clevercloud/client/esm/api/v2/user.js';
+import { SetProfilePrimaryEmailAddressCommand } from '@clevercloud/client/cc-api-commands/profile/set-profile-primary-email-address-command.js';
 import { defineCommand } from '../../lib/define-command.js';
 import { Logger } from '../../logger.js';
+import { clients } from '../../models/cc-api-client.js';
 import { getUserEmailAddresses } from '../../models/emails.js';
-import { sendToApi } from '../../models/send-to-api.js';
 import { emailArg } from './emails.args.js';
 
 export const emailsPrimaryCommand = defineCommand({
@@ -21,8 +21,7 @@ export const emailsPrimaryCommand = defineCommand({
       throw new Error('This address must be added as a secondary address before marking it as primary');
     }
 
-    const newPrimaryEmailEncoded = encodeURIComponent(newPrimaryAddress);
-    await addEmailAddress({ email: newPrimaryEmailEncoded }, { make_primary: true }).then(sendToApi);
+    await clients.ccApi.send(new SetProfilePrimaryEmailAddressCommand({ address: newPrimaryAddress }));
 
     Logger.printSuccess(`Primary address updated to ${newPrimaryAddress} successfully`);
   },

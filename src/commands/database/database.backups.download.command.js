@@ -1,4 +1,4 @@
-import { getBackups } from '@clevercloud/client/esm/api/v2/backups.js';
+import { ListBackupCommand } from '@clevercloud/client/cc-api-commands/backup/list-backup-command.js';
 import fs from 'node:fs';
 import { Readable } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
@@ -6,8 +6,8 @@ import { z } from 'zod';
 import { defineArgument } from '../../lib/define-argument.js';
 import { defineCommand } from '../../lib/define-command.js';
 import { defineOption } from '../../lib/define-option.js';
+import { clients } from '../../models/cc-api-client.js';
 import { resolveAddon } from '../../models/ids-resolver.js';
-import { sendToApi } from '../../models/send-to-api.js';
 import { orgaIdOrNameOption } from '../global.options.js';
 import { databaseIdArg } from './database.args.js';
 
@@ -37,14 +37,14 @@ export const databaseBackupsDownloadCommand = defineCommand({
 
     const { ownerId, realId } = await resolveAddon(addonIdOrRealId);
 
-    const backups = await getBackups({ ownerId, ref: realId }).then(sendToApi);
-    const backup = backups.find((backup) => backup.backup_id === backupId);
+    const backups = await clients.ccApi.send(new ListBackupCommand({ ownerId, addonId: realId }));
+    const backup = backups.find((backup) => backup.backupId === backupId);
 
     if (backup == null) {
       throw new Error('no backup with this ID');
     }
 
-    const response = await globalThis.fetch(backup.download_url);
+    const response = await globalThis.fetch(backup.downloadUrl);
     if (!response.ok) {
       throw new Error('Failed to download backup');
     }

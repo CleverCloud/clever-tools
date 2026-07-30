@@ -1,10 +1,10 @@
-import { updateConfigProviderEnv } from '@clevercloud/client/esm/api/v4/addon.js';
+import { UpdateConfigProviderCommand } from '@clevercloud/client/cc-api-commands/config-provider/update-config-provider-command.js';
 import { z } from 'zod';
 import { defineCommand } from '../../lib/define-command.js';
 import { defineOption } from '../../lib/define-option.js';
 import { Logger } from '../../logger.js';
+import { clients } from '../../models/cc-api-client.js';
 import { resolveConfigProviderId } from '../../models/config-provider.js';
-import { sendToApi } from '../../models/send-to-api.js';
 import * as variables from '../../models/variables.js';
 import { configProviderIdOrNameArg } from './config-provider.args.js';
 
@@ -29,11 +29,11 @@ export const configProviderImportCommand = defineCommand({
     const { realId } = await resolveConfigProviderId(addonIdOrRealIdOrName);
 
     // readVariablesFromStdin returns { NAME: "value" } format
-    // but the API expects [{ name, value }] format
+    // but the client expects [{ name, value }] format
     const envVarsObject = await variables.readVariablesFromStdin(format);
     const envVarsArray = Object.entries(envVarsObject).map(([name, value]) => ({ name, value }));
 
-    await updateConfigProviderEnv({ configurationProviderId: realId }, envVarsArray).then(sendToApi);
+    await clients.ccApi.send(new UpdateConfigProviderCommand({ addonId: realId, environment: envVarsArray }));
 
     Logger.println('Environment variables have been set');
   },

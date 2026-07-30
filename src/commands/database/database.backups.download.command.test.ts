@@ -220,7 +220,7 @@ describe('database backups download command', () => {
         });
 
       assert.strictEqual(result.stdout, '');
-      assert.strictEqual(result.stderr, '[ERROR] oops');
+      assert.strictEqual(result.stderr, '[ERROR] [500]: oops');
     });
 
     it('errors when the download URL returns a non-OK status', async () => {
@@ -323,7 +323,7 @@ describe('database backups download command', () => {
         });
 
       assert.strictEqual(result.stdout, '');
-      assert.strictEqual(result.stderr, '[ERROR] not found');
+      assert.strictEqual(result.stderr, '[ERROR] [404]: not found');
     });
 
     // === real ID (postgresql_<UUID>) ===
@@ -381,7 +381,7 @@ describe('database backups download command', () => {
         });
 
       assert.strictEqual(result.stdout, '');
-      assert.strictEqual(result.stderr, '[ERROR] not found');
+      assert.strictEqual(result.stderr, '[ERROR] [404]: not found');
     });
 
     // === addon name — not supported by resolveAddon, always errors ===

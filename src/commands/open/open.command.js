@@ -16,9 +16,12 @@ export const openCommand = defineCommand({
     const { alias, app: appIdOrName } = options;
     const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
 
-    const vhost = await Domain.getBest(appId, ownerId);
-    const url = 'https://' + vhost.fqdn;
+    const favouriteDomain = await Domain.getFavouriteDomain({ ownerId, appId });
 
-    await openBrowser(url, 'Opening the application in the browser…');
+    if (favouriteDomain == null) {
+      throw new Error("Couldn't find a domain name");
+    }
+
+    await openBrowser('https://' + favouriteDomain, 'Opening the application in the browser…');
   },
 });

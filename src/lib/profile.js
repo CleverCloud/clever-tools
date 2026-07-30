@@ -1,7 +1,8 @@
-import { get as getUser } from '@clevercloud/client/esm/api/v2/organisation.js';
-import { getCurrentTokenInfo } from '@clevercloud/client/esm/api/v2/self.js';
+import { GetCurrentOauthTokenInfoCommand } from '@clevercloud/client/cc-api-commands/oauth-token/get-current-oauth-token-info-command.js';
+import { GetProfileCommand } from '@clevercloud/client/cc-api-commands/profile/get-profile-command.js';
+import { tolerateStatus } from '@clevercloud/client/utils/error-utils.js';
 import { baseConfig } from '../config/config.js';
-import { sendToApiWithConfig } from '../models/send-to-api.js';
+import { createCcApiClient } from '../models/cc-api-client.js';
 import { formatDateLocalized, toDate } from './date-utils.js';
 import { styleText } from './style-text.js';
 
@@ -48,7 +49,7 @@ export function formatProfile(profile) {
  * @returns {Promise<ProfileDetails>}
  */
 export async function getProfileDetails({ profile, isActive }) {
-  const sendWithCredentials = sendToApiWithConfig({
+  const apiClientWithCredentials = createCcApiClient({
     token: profile.token,
     secret: profile.secret,
     apiHost: profile.overrides?.API_HOST ?? baseConfig.API_HOST,
@@ -56,25 +57,23 @@ export async function getProfileDetails({ profile, isActive }) {
     consumerSecret: profile.overrides?.OAUTH_CONSUMER_SECRET ?? baseConfig.OAUTH_CONSUMER_SECRET,
   });
 
-  const [user, token] = await Promise.all([
-    getUser({}).then(sendWithCredentials),
-    getCurrentTokenInfo().then(sendWithCredentials),
-  ]).catch((error) => {
-    // An expired/invalid token surfaces as a 401: degrade gracefully so the command can report it.
-    // Any other failure (TLS, network…) must bubble up instead of being masked as "token invalid".
-    if (error?.cause?.response?.status === 401) {
-      return [null, null];
-    }
-    throw error;
-  });
+  // An expired/invalid token surfaces as a 401: degrade gracefully so the command can report it.
+  // Any other failure (TLS, network…) must bubble up instead of being masked as "token invalid".
+  const [user, token] = (await tolerateStatus(
+    Promise.all([
+      apiClientWithCredentials.send(new GetProfileCommand()),
+      apiClientWithCredentials.send(new GetCurrentOauthTokenInfoCommand()),
+    ]),
+    401,
+  )) ?? [null, null];
 
   return {
     id: user?.id ?? profile.userId,
-    email: user?.email ?? profile.email,
+    email: user?.emailAddress ?? profile.email,
     name: user?.name,
     avatar: user?.avatar,
-    creationDate: toDate(user?.creationDate),
-    tokenExpiration: toDate(token?.expirationDate ?? profile.expirationDate),
+    creationDate: toDate(user?.createdAt),
+    tokenExpiration: toDate(token?.expiresAt ?? profile.expirationDate),
     lang: user?.lang,
     has2FA: user != null ? user.preferredMFA != null && user.preferredMFA !== 'NONE' : undefined,
     alias: profile.alias,

@@ -1,11 +1,11 @@
-import { updateEnvVar } from '@clevercloud/client/esm/api/v2/application.js';
-import { validateName } from '@clevercloud/client/esm/utils/env-vars.js';
+import { CreateOrUpdateEnvironmentVariableCommand } from '@clevercloud/client/cc-api-commands/environment/create-or-update-environment-variable-command.js';
+import { validateName } from '@clevercloud/client/utils/environment-utils.js';
 import { z } from 'zod';
 import { defineArgument } from '../../lib/define-argument.js';
 import { defineCommand } from '../../lib/define-command.js';
 import { Logger } from '../../logger.js';
 import * as Application from '../../models/application.js';
-import { sendToApi } from '../../models/send-to-api.js';
+import { clients } from '../../models/cc-api-client.js';
 import { aliasOption, appIdOrNameOption } from '../global.options.js';
 
 export const envImportVarsCommand = defineCommand({
@@ -37,7 +37,9 @@ export const envImportVarsCommand = defineCommand({
 
     for (const envName of envNames) {
       const value = process.env[envName] || '';
-      await updateEnvVar({ id: ownerId, appId, envName }, { value }).then(sendToApi);
+      await clients.ccApi.send(
+        new CreateOrUpdateEnvironmentVariableCommand({ ownerId, applicationId: appId, name: envName, value }),
+      );
     }
 
     Logger.println('Your environment variables have been successfully saved');

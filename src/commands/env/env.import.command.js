@@ -1,8 +1,9 @@
-import { updateAllEnvVars } from '@clevercloud/client/esm/api/v2/application.js';
+import { UpdateEnvironmentCommand } from '@clevercloud/client/cc-api-commands/environment/update-environment-command.js';
+import { toArray } from '@clevercloud/client/utils/environment-utils.js';
 import { defineCommand } from '../../lib/define-command.js';
 import { Logger } from '../../logger.js';
 import * as Application from '../../models/application.js';
-import { sendToApi } from '../../models/send-to-api.js';
+import { clients } from '../../models/cc-api-client.js';
 import * as variables from '../../models/variables.js';
 import { aliasOption, appIdOrNameOption, importAsJsonOption } from '../global.options.js';
 
@@ -22,7 +23,9 @@ export const envImportCommand = defineCommand({
     const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
 
     const envVars = await variables.readVariablesFromStdin(format);
-    await updateAllEnvVars({ id: ownerId, appId }, envVars).then(sendToApi);
+    await clients.ccApi.send(
+      new UpdateEnvironmentCommand({ ownerId, applicationId: appId, environment: toArray(envVars) }),
+    );
 
     Logger.println('Environment variables have been set');
   },

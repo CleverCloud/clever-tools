@@ -1,7 +1,7 @@
 import { defineCommand } from '../../lib/define-command.js';
 import { Logger } from '../../logger.js';
 import * as Addon from '../../models/addon.js';
-import * as Organisation from '../../models/organisation.js';
+import { getOwnerIdFromOrgIdOrName } from '../../models/ids-resolver.js';
 import { addonIdOrNameArg } from '../global.args.js';
 import { orgaIdOrNameOption } from '../global.options.js';
 import { addonNameArg } from './addon.args.js';
@@ -16,7 +16,7 @@ export const addonRenameCommand = defineCommand({
   async handler(options, addon, newName) {
     const { org: orgaIdOrName } = options;
 
-    const ownerId = await Organisation.getId(orgaIdOrName);
+    const ownerId = await getOwnerIdFromOrgIdOrName(orgaIdOrName);
     await Addon.rename(ownerId, addon, newName);
 
     Logger.println(`Addon ${addon.addon_id || addon.addon_name} successfully renamed to ${newName}`);

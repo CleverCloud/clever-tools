@@ -1,9 +1,9 @@
-import { getSummary } from '@clevercloud/client/esm/api/v2/user.js';
+import { GetOrganisationSummariesCommand } from '@clevercloud/client/cc-api-commands/organisation/get-organisation-summaries-command.js';
 import { loadIdsCache, writeIdsCache } from '../config/cache.js';
 import { Logger } from '../logger.js';
 import * as User from '../models/user.js';
+import { clients } from './cc-api-client.js';
 import * as Organisation from './organisation.js';
-import { sendToApi } from './send-to-api.js';
 
 /*
 This system uses a simplified representation of the summary to expose IDs links:
@@ -68,9 +68,7 @@ async function getIdsFromSummary() {
     addons: {},
   };
 
-  const summary = await getSummary().then(sendToApi);
-
-  const owners = [summary.user, ...summary.organisations];
+  const owners = await clients.ccApi.send(new GetOrganisationSummariesCommand());
 
   for (const owner of owners) {
     for (const app of owner.applications) {
@@ -100,12 +98,10 @@ async function getIdsFromSummary() {
  * @returns {Object} The name, IDs and owner ID of the add-on { name, addonId, realId, ownerId }
  */
 export async function findAddonsByNameOrId(addonIdOrRealIdOrName, ownerNameOrId) {
-  const summary = await getSummary().then(sendToApi);
+  const owners = await clients.ccApi.send(new GetOrganisationSummariesCommand());
 
-  Logger.debug(
-    `Searching for add-on '${addonIdOrRealIdOrName}' in ${summary.user.id} and ${summary.organisations.map((org) => org.id).join(', ')}`,
-  );
-  const candidates = [summary.user, ...summary.organisations]
+  Logger.debug(`Searching for add-on '${addonIdOrRealIdOrName}' in ${owners.map((owner) => owner.id).join(', ')}`);
+  const candidates = owners
     .flatMap((owner) => owner.addons.map((addon) => ({ addon, owner })))
     .filter(({ addon, owner }) => {
       const matchOwner =
@@ -139,12 +135,10 @@ export async function findAddonsByNameOrId(addonIdOrRealIdOrName, ownerNameOrId)
  * @returns {Object} The name, IDs and owner ID of the add-on { name, addonId, realId, ownerId }
  */
 export async function findAddonsByAddonProvider(provider) {
-  const summary = await getSummary().then(sendToApi);
+  const owners = await clients.ccApi.send(new GetOrganisationSummariesCommand());
 
-  Logger.debug(
-    `Searching for ${provider} add-ons in ${summary.user.id} and ${summary.organisations.map((org) => org.id).join(', ')}`,
-  );
-  const candidates = [summary.user, ...summary.organisations].flatMap((owner) => {
+  Logger.debug(`Searching for ${provider} add-ons in ${owners.map((owner) => owner.id).join(', ')}`);
+  const candidates = owners.flatMap((owner) => {
     return owner.addons
       .filter((addon) => addon.providerId === provider)
       .map((addon) => {
@@ -179,8 +173,8 @@ export async function findOauthConsumersByKeyOrName(keyOrName) {
     return [{ ownerId: ownerIdFromCache, key: keyOrName }];
   }
 
-  const summary = await getSummary().then(sendToApi);
-  const consumers = [summary.user, ...summary.organisations].flatMap((owner) => {
+  const owners = await clients.ccApi.send(new GetOrganisationSummariesCommand());
+  const consumers = owners.flatMap((owner) => {
     return owner.consumers.map((c) => ({ ownerId: owner.id, name: c.name, key: c.key }));
   });
 

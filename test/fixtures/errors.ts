@@ -1,6 +1,5 @@
 /**
  * Canonical error text the CLI emits when the API returns 401.
- * Mapped in src/models/send-to-api.js (`processError`).
  */
 export const NOT_LOGGED_IN_ERROR =
   "[ERROR] You're not logged in, use clever login command to connect to your Clever Cloud account";

@@ -1,16 +1,14 @@
-import { todo_getEmailAddresses as getEmailAddresses } from '@clevercloud/client/esm/api/v2/user.js';
-import { sendToApi } from './send-to-api.js';
-import * as User from './user.js';
+import { ListProfileEmailAddressCommand } from '@clevercloud/client/cc-api-commands/profile/list-profile-email-address-command.js';
+import { clients } from './cc-api-client.js';
 
 /**
  * Get the primary and secondary email addresses of the current user
  * @returns {Promise<{ primary: string, secondary: string[] }>} The primary and secondary email addresses of the current user
  */
 export async function getUserEmailAddresses() {
-  const currentUser = await User.getCurrent();
-  const secondaryAddresses = await getEmailAddresses().then(sendToApi);
+  const addresses = await clients.ccApi.send(new ListProfileEmailAddressCommand());
   return {
-    primary: currentUser.email,
-    secondary: secondaryAddresses.sort(),
+    primary: addresses.primaryAddress.address,
+    secondary: addresses.secondaryAddresses.map(({ address }) => address),
   };
 }

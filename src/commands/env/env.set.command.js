@@ -1,9 +1,9 @@
-import { updateEnvVar } from '@clevercloud/client/esm/api/v2/application.js';
-import { validateName } from '@clevercloud/client/esm/utils/env-vars.js';
+import { CreateOrUpdateEnvironmentVariableCommand } from '@clevercloud/client/cc-api-commands/environment/create-or-update-environment-variable-command.js';
+import { validateName } from '@clevercloud/client/utils/environment-utils.js';
 import { defineCommand } from '../../lib/define-command.js';
 import { Logger } from '../../logger.js';
 import * as Application from '../../models/application.js';
-import { sendToApi } from '../../models/send-to-api.js';
+import { clients } from '../../models/cc-api-client.js';
 import { envVariableNameArg, envVariableValueArg } from '../global.args.js';
 import { aliasOption, appIdOrNameOption } from '../global.options.js';
 
@@ -25,7 +25,9 @@ export const envSetCommand = defineCommand({
 
     const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
 
-    await updateEnvVar({ id: ownerId, appId, envName }, { value }).then(sendToApi);
+    await clients.ccApi.send(
+      new CreateOrUpdateEnvironmentVariableCommand({ ownerId, applicationId: appId, name: envName, value }),
+    );
 
     Logger.println('Your environment variable has been successfully saved');
   },

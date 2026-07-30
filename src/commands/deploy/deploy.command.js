@@ -1,4 +1,3 @@
-import { getAllDeployments } from '@clevercloud/client/esm/api/v2/application.js';
 import dedent from 'dedent';
 import { z } from 'zod';
 import { defineCommand } from '../../lib/define-command.js';
@@ -8,10 +7,10 @@ import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
 import * as AppConfig from '../../models/app_configuration.js';
 import * as Application from '../../models/application.js';
+import { listLastDeployments } from '../../models/deployments.js';
 import * as ExitStrategy from '../../models/exit-strategy-option.js';
 import { Git } from '../../models/git.js';
 import * as Log from '../../models/log.js';
-import { sendToApi } from '../../models/send-to-api.js';
 import { aliasOption, exitOnDeployOption, followDeployLogsOption, quietOption } from '../global.options.js';
 
 async function restartOnSameCommit(ownerId, appId, commitIdToPush, quiet, withoutCache, exitStrategy) {
@@ -117,7 +116,7 @@ export const deployCommand = defineCommand({
     // It's sometimes tricky to figure out the deployment ID for the current git push.
     // We on have the commit ID but there in a situation where the last deployment was cancelled, it may have the same commit ID.
     // So before pushing, we get the last deployments so we can after the push figure out which deployment is new…
-    const knownDeployments = await getAllDeployments({ id: ownerId, appId, limit: 5 }).then(sendToApi);
+    const knownDeployments = await listLastDeployments(ownerId, appId);
 
     Logger.println(dedent`
         ${styleText('bold', `🚀 Deploying ${styleText('green', appData.name)}`)}

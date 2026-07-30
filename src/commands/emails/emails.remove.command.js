@@ -1,8 +1,8 @@
-import { todo_removeEmailAddress as removeEmailAddress } from '@clevercloud/client/esm/api/v2/user.js';
+import { DeleteProfileEmailAddressCommand } from '@clevercloud/client/cc-api-commands/profile/delete-profile-email-address-command.js';
 import { defineCommand } from '../../lib/define-command.js';
 import { Logger } from '../../logger.js';
+import { clients } from '../../models/cc-api-client.js';
 import { getUserEmailAddresses } from '../../models/emails.js';
-import { sendToApi } from '../../models/send-to-api.js';
 import { emailArg } from './emails.args.js';
 
 export const emailsRemoveCommand = defineCommand({
@@ -17,8 +17,7 @@ export const emailsRemoveCommand = defineCommand({
       throw new Error("This address is not part of the secondary addresses of the current user, it can't be removed");
     }
 
-    const addressToRemoveEncoded = encodeURIComponent(addressToRemove);
-    await removeEmailAddress({ email: addressToRemoveEncoded }).then(sendToApi);
+    await clients.ccApi.send(new DeleteProfileEmailAddressCommand({ address: addressToRemove }));
 
     Logger.printSuccess(`Secondary address ${addressToRemove} removed successfully`);
   },

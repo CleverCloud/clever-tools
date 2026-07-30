@@ -1,3 +1,4 @@
+import { toLegacyKubernetesNodeGroup } from '../../legacy-json/kubernetes.legacy.js';
 import { defineCommand } from '../../lib/define-command.js';
 import { k8sGetNodeGroup } from '../../lib/k8s.js';
 import { Logger } from '../../logger.js';
@@ -18,7 +19,8 @@ export const k8sNodeGroupGetCommand = defineCommand({
 
     switch (format) {
       case 'json':
-        Logger.printJson(nodeGroup);
+        // `--format json` still prints the raw payload, see src/legacy-json/README.md
+        Logger.printJson(toLegacyKubernetesNodeGroup(nodeGroup));
         break;
       case 'human':
       default: {
@@ -28,8 +30,8 @@ export const k8sNodeGroupGetCommand = defineCommand({
           Status: nodeGroup.status,
           Flavor: nodeGroup.flavor,
           Nodes: `${nodeGroup.currentNodeCount}/${nodeGroup.targetNodeCount}`,
-          Autoscaling: nodeGroup.autoscalingEnabled ? 'enabled' : 'disabled',
-          'Min / Max': `${nodeGroup.minNodeCount} / ${nodeGroup.maxNodeCount}${nodeGroup.autoscalingEnabled ? '' : ' (inactive)'}`,
+          Autoscaling: nodeGroup.isAutoscalingEnabled ? 'enabled' : 'disabled',
+          'Min / Max': `${nodeGroup.minNodeCount} / ${nodeGroup.maxNodeCount}${nodeGroup.isAutoscalingEnabled ? '' : ' (inactive)'}`,
           Created: formatDate(nodeGroup.createdAt),
         };
         const createdFmt = formatDate(nodeGroup.createdAt);

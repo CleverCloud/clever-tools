@@ -1,8 +1,8 @@
-import { unmarkFavouriteDomain } from '@clevercloud/client/esm/api/v2/application.js';
+import { UnsetPrimaryDomainCommand } from '@clevercloud/client/cc-api-commands/domain/unset-primary-domain-command.js';
 import { defineCommand } from '../../lib/define-command.js';
 import { Logger } from '../../logger.js';
 import * as Application from '../../models/application.js';
-import { sendToApi } from '../../models/send-to-api.js';
+import { clients } from '../../models/cc-api-client.js';
 import { aliasOption, appIdOrNameOption } from '../global.options.js';
 
 export const domainFavouriteUnsetCommand = defineCommand({
@@ -17,7 +17,7 @@ export const domainFavouriteUnsetCommand = defineCommand({
     const { alias, app: appIdOrName } = options;
     const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
 
-    await unmarkFavouriteDomain({ id: ownerId, appId }).then(sendToApi);
+    await clients.ccApi.send(new UnsetPrimaryDomainCommand({ ownerId, applicationId: appId }));
     Logger.println('Favourite domain has been successfully unset');
   },
 });

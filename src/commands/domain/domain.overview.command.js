@@ -1,5 +1,7 @@
-import { getAllDomains } from '@clevercloud/client/esm/api/v2/application.js';
-import { getSummary } from '@clevercloud/client/esm/api/v2/user.js';
+import { ListDomainCommand } from '@clevercloud/client/cc-api-commands/domain/list-domain-command.js';
+import { GetOrganisationSummariesCommand } from '@clevercloud/client/cc-api-commands/organisation/get-organisation-summaries-command.js';
+import { GetProfileCommand } from '@clevercloud/client/cc-api-commands/profile/get-profile-command.js';
+import { tolerateStatus } from '@clevercloud/client/utils/error-utils.js';
 import _ from 'lodash';
 import { parse as parseDomain } from 'tldts';
 import { z } from 'zod';
@@ -7,7 +9,7 @@ import { defineCommand } from '../../lib/define-command.js';
 import { defineOption } from '../../lib/define-option.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
-import { sendToApi } from '../../models/send-to-api.js';
+import { clients } from '../../models/cc-api-client.js';
 import { humanJsonOutputFormatOption } from '../global.options.js';
 
 function recursiveSort(obj) {
@@ -64,43 +66,40 @@ export const domainOverviewCommand = defineCommand({
   async handler(options) {
     const { format, filter } = options;
 
-    const summary = await getSummary().then(sendToApi);
-    const consoleUrl = summary.user.partnerConsoleUrl;
+    const [summaries, profile] = await Promise.all([
+      clients.ccApi.send(new GetOrganisationSummariesCommand()),
+      clients.ccApi.send(new GetProfileCommand()),
+    ]);
+    const consoleUrl = profile.partnerConsoleUrl;
 
-    const applications = [
-      ...summary.user.applications.map((app) => {
-        return { ownerName: summary.user.name, ownerId: summary.user.id, ...app };
-      }),
-      ...summary.organisations.flatMap((o) => {
-        return o.applications.map((app) => {
-          return { ownerName: o.name, ownerId: o.id, ...app };
-        });
-      }),
-    ];
+    const applications = summaries.flatMap((owner) => {
+      return owner.applications.map((app) => {
+        return { ownerName: owner.name, ownerId: owner.id, ...app };
+      });
+    });
 
     const applicationsWithDomains = await Promise.all(
       applications.map(async (app) => {
-        const domains = await getAllDomains({ id: app.ownerId, appId: app.id })
-          .then(sendToApi)
-          .catch((error) => {
-            // if the user cannot access application domains, we simply act as if there were no domains
-            if (error?.response?.status === 403) {
-              Logger.printErrorLine(`You cannot list domains for application ${app.name} (${app.id})`);
-              return [];
-            }
-            throw error;
-          });
+        // if the user cannot access application domains (403), we simply act as if there were no domains
+        const domains = await tolerateStatus(
+          clients.ccApi.send(new ListDomainCommand({ ownerId: app.ownerId, applicationId: app.id })),
+          403,
+        );
+        if (domains == null) {
+          return [];
+        }
+
         return { app, domains };
       }),
     );
 
     const applicationsWithParsedDomain = applicationsWithDomains.flatMap(({ app, domains }) => {
       return domains
-        .filter((domain) => filter == null || domain.fqdn.includes(filter))
+        .filter((domain) => filter == null || domain.domain.includes(filter))
         .map((domain) => {
           // `validateHostname` is set to `false` so that wildcard domains may be parsed correctly
-          const parsedDomain = parseDomain(domain.fqdn, { validateHostname: false });
-          const pathname = new URL('https://' + domain.fqdn).pathname;
+          const parsedDomain = parseDomain(domain.domain, { validateHostname: false });
+          const pathname = new URL('https://' + domain.domain).pathname;
           const subdomains = parsedDomain.subdomain !== '' ? parsedDomain.subdomain.split('.') : [];
 
           // We're trying to create a propertyPath for lodash to create a tree structure object,
@@ -123,7 +122,7 @@ export const domainOverviewCommand = defineCommand({
             appName: app.name,
             appConsoleUrl: `${consoleUrl}/goto/${app.id}`,
             appVariantSlug: app.variantSlug,
-            domain: domain.fqdn,
+            domain: domain.domain,
             propetyPath: propertyPath,
           };
         });

@@ -1,12 +1,10 @@
-import { get } from '@clevercloud/client/esm/api/v2/organisation.js';
-import { sendToApi } from './send-to-api.js';
+import { GetProfileCommand } from '@clevercloud/client/cc-api-commands/profile/get-profile-command.js';
+import { clients } from './cc-api-client.js';
 
 export function getCurrent() {
-  return get({}).then(sendToApi);
+  return clients.ccApi.send(new GetProfileCommand());
 }
 
 export function getCurrentId() {
-  return get({})
-    .then(sendToApi)
-    .then(({ id }) => id);
+  return getCurrent().then(({ id }) => id);
 }

@@ -1,11 +1,11 @@
-import { todo_removeEmailAddress as removeEmailAddress } from '@clevercloud/client/esm/api/v2/user.js';
+import { DeleteProfileEmailAddressCommand } from '@clevercloud/client/cc-api-commands/profile/delete-profile-email-address-command.js';
 import { z } from 'zod';
 import { defineCommand } from '../../lib/define-command.js';
 import { defineOption } from '../../lib/define-option.js';
 import { confirm } from '../../lib/prompts.js';
 import { Logger } from '../../logger.js';
+import { clients } from '../../models/cc-api-client.js';
 import { getUserEmailAddresses } from '../../models/emails.js';
-import { sendToApi } from '../../models/send-to-api.js';
 
 export const emailsRemoveAllCommand = defineCommand({
   description: 'Remove all secondary email addresses from the current user',
@@ -33,9 +33,8 @@ export const emailsRemoveAllCommand = defineCommand({
 
     const results = await Promise.all(
       addresses.secondary.map((addressToRemove) => {
-        const addressToRemoveEncoded = encodeURIComponent(addressToRemove);
-        return removeEmailAddress({ email: addressToRemoveEncoded })
-          .then(sendToApi)
+        return clients.ccApi
+          .send(new DeleteProfileEmailAddressCommand({ address: addressToRemove }))
           .then(() => [true, addressToRemove])
           .catch(() => [false, addressToRemove]);
       }),

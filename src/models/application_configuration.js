@@ -4,11 +4,22 @@ import { Logger } from '../logger.js';
 const CONFIG_KEYS = [
   { id: 'name', name: 'name', displayName: 'Name', kind: 'string' },
   { id: 'description', name: 'description', displayName: 'Description', kind: 'string' },
-  { id: 'zero-downtime', name: 'homogeneous', displayName: 'Zero-downtime deployment', kind: 'inverted-bool' },
-  { id: 'sticky-sessions', name: 'stickySessions', displayName: 'Sticky sessions', kind: 'bool' },
+  {
+    id: 'zero-downtime',
+    name: 'isZeroDowntimeDeploymentEnabled',
+    displayName: 'Zero-downtime deployment',
+    kind: 'bool',
+  },
+  { id: 'sticky-sessions', name: 'hasStickySessions', displayName: 'Sticky sessions', kind: 'bool' },
   { id: 'cancel-on-push', name: 'cancelOnPush', displayName: 'Cancel current deployment on push', kind: 'bool' },
-  { id: 'force-https', name: 'forceHttps', displayName: 'Force redirection of HTTP to HTTPS', kind: 'force-https' },
-  { id: 'task', name: 'instanceLifetime', displayName: 'Deploy an application as a Clever Task', kind: 'task' },
+  { id: 'force-https', name: 'shouldForceHttps', displayName: 'Force redirection of HTTP to HTTPS', kind: 'bool' },
+  {
+    id: 'task',
+    name: 'instanceLifetime',
+    displayName: 'Deploy an application as a Clever Task',
+    kind: 'task',
+    getValue: (app) => app.instance.lifetime,
+  },
 ];
 
 export function listAvailableIds(asText = false) {
@@ -35,12 +46,6 @@ export function formatValue(configKey, value) {
     case 'bool': {
       return value;
     }
-    case 'inverted-bool': {
-      return !value;
-    }
-    case 'force-https': {
-      return value === 'ENABLED';
-    }
     case 'task': {
       return value === 'TASK';
     }
@@ -53,8 +58,6 @@ export function formatValue(configKey, value) {
 export function parse(configKey, value) {
   switch (configKey.kind) {
     case 'bool':
-    case 'inverted-bool':
-    case 'force-https':
     case 'task': {
       if (value !== 'true' && value !== 'false') {
         throw new Error('Invalid configuration value, it must be a boolean (true or false)');
@@ -64,9 +67,6 @@ export function parse(configKey, value) {
       }
       if (configKey.kind === 'inverted-bool') {
         return value === 'false';
-      }
-      if (configKey.kind === 'force-https') {
-        return value === 'true' ? 'ENABLED' : 'DISABLED';
       }
       if (configKey.kind === 'task') {
         return value === 'false' ? 'REGULAR' : 'TASK';
@@ -91,8 +91,6 @@ export function parseOptions(options) {
 function parseConfigOption(configKey, options) {
   switch (configKey.kind) {
     case 'bool':
-    case 'inverted-bool':
-    case 'force-https':
     case 'task': {
       const enable = options[`enable-${configKey.id}`];
       const disable = options[`disable-${configKey.id}`];
@@ -106,7 +104,7 @@ function parseConfigOption(configKey, options) {
         if (configKey.kind === 'inverted-bool') {
           return [configKey.name, disable];
         }
-        if (configKey.kind === 'force-https' || configKey.kind === 'task') {
+        if (configKey.kind === 'task') {
           return [configKey.name, parse(configKey, String(enable))];
         }
       }
@@ -118,16 +116,20 @@ function parseConfigOption(configKey, options) {
   }
 }
 
+function getValue(app, configKey) {
+  return configKey.getValue != null ? configKey.getValue(app) : app[configKey.name];
+}
+
 export function printValue(app, id) {
   const configKey = getById(id);
-  Logger.println(formatValue(configKey, app[configKey.name]));
+  Logger.println(formatValue(configKey, getValue(app, configKey)));
 }
 
 export function printAllValues(app) {
   console.table(
     Object.fromEntries(
       CONFIG_KEYS.map((configKey) => {
-        return [configKey.id, formatValue(configKey, app[configKey.name])];
+        return [configKey.id, formatValue(configKey, getValue(app, configKey))];
       }),
     ),
   );

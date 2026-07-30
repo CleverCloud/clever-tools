@@ -50,7 +50,7 @@ describe('env import command', () => {
       const result = await newScenario()
         .withAppConfigFile(singleAppConfig())
         .when({ method: 'PUT', path: ENV_ENDPOINT })
-        .respond({ status: 200, body: {} })
+        .respond({ status: 200, body: { env: [] } })
         .thenRunCli(['env', 'import'], { stdin })
         .verify((calls) => {
           assert.strictEqual(calls.count, 1);
@@ -73,7 +73,7 @@ describe('env import command', () => {
       const result = await newScenario()
         .withAppConfigFile(singleAppConfig())
         .when({ method: 'PUT', path: ENV_ENDPOINT })
-        .respond({ status: 200, body: {} })
+        .respond({ status: 200, body: { env: [] } })
         .thenRunCli(['env', 'import', '--json'], { stdin })
         .verify((calls) => {
           assert.strictEqual(calls.count, 1);
@@ -88,7 +88,7 @@ describe('env import command', () => {
       const result = await newScenario()
         .withAppConfigFile(multiAppConfig())
         .when({ method: 'PUT', path: ENV_ENDPOINT })
-        .respond({ status: 200, body: {} })
+        .respond({ status: 200, body: { env: [] } })
         .thenRunCli(['env', 'import', '-a', 'prod'], { stdin: 'FOO=bar' })
         .verify((calls) => {
           assert.strictEqual(calls.count, 1);
@@ -189,7 +189,7 @@ describe('env import command', () => {
 
   describe('app ID resolution', () => {
     function withSuccessfulPut(scenario: ReturnType<NewCliScenario>) {
-      return scenario.when({ method: 'PUT', path: ENV_ENDPOINT }).respond({ status: 200, body: {} });
+      return scenario.when({ method: 'PUT', path: ENV_ENDPOINT }).respond({ status: 200, body: { env: [] } });
     }
 
     // === app ID (app_<UUID>) ===
@@ -248,7 +248,7 @@ describe('env import command', () => {
         });
 
       assert.strictEqual(result.stdout, '');
-      assert.strictEqual(result.stderr, '[ERROR] not found');
+      assert.strictEqual(result.stderr, '[ERROR] [404]: not found');
     });
 
     // === app name — goes directly to /v2/summary (no cache lookup) ===
@@ -293,7 +293,7 @@ describe('env import command', () => {
         });
 
       assert.strictEqual(result.stdout, '');
-      assert.strictEqual(result.stderr, '[ERROR] not found');
+      assert.strictEqual(result.stderr, '[ERROR] [404]: not found');
     });
   });
 
@@ -309,7 +309,7 @@ describe('env import command', () => {
         });
 
       assert.strictEqual(result.stdout, '');
-      assert.strictEqual(result.stderr, '[ERROR] oops');
+      assert.strictEqual(result.stderr, '[ERROR] [500]: oops');
     });
   });
 

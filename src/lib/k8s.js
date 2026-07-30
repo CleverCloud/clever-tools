@@ -1,30 +1,29 @@
+import { AddKubernetesPersistentStorageCommand } from '@clevercloud/client/cc-api-commands/kubernetes/add-kubernetes-persistent-storage-command.js';
+import { CheckKubernetesClusterVersionCommand } from '@clevercloud/client/cc-api-commands/kubernetes/check-kubernetes-cluster-version-command.js';
+import { CreateKubernetesClusterCommand } from '@clevercloud/client/cc-api-commands/kubernetes/create-kubernetes-cluster-command.js';
+import { CreateKubernetesNodeGroupCommand } from '@clevercloud/client/cc-api-commands/kubernetes/create-kubernetes-node-group-command.js';
+import { DeleteKubernetesClusterCommand } from '@clevercloud/client/cc-api-commands/kubernetes/delete-kubernetes-cluster-command.js';
+import { DeleteKubernetesNodeGroupCommand } from '@clevercloud/client/cc-api-commands/kubernetes/delete-kubernetes-node-group-command.js';
+import { GetKubernetesClusterCommand } from '@clevercloud/client/cc-api-commands/kubernetes/get-kubernetes-cluster-command.js';
+import { GetKubernetesKubeconfigCommand } from '@clevercloud/client/cc-api-commands/kubernetes/get-kubernetes-kubeconfig-command.js';
+import { GetKubernetesNodeGroupCommand } from '@clevercloud/client/cc-api-commands/kubernetes/get-kubernetes-node-group-command.js';
+import { GetKubernetesProductCommand } from '@clevercloud/client/cc-api-commands/kubernetes/get-kubernetes-product-command.js';
+import { GetKubernetesQuotaCommand } from '@clevercloud/client/cc-api-commands/kubernetes/get-kubernetes-quota-command.js';
+import { ListKubernetesClusterCommand } from '@clevercloud/client/cc-api-commands/kubernetes/list-kubernetes-cluster-command.js';
+import { ListKubernetesClusterEventCommand } from '@clevercloud/client/cc-api-commands/kubernetes/list-kubernetes-cluster-event-command.js';
+import { ListKubernetesNodeGroupCommand } from '@clevercloud/client/cc-api-commands/kubernetes/list-kubernetes-node-group-command.js';
+import { ListKubernetesUsageCommand } from '@clevercloud/client/cc-api-commands/kubernetes/list-kubernetes-usage-command.js';
+import { UpdateKubernetesClusterCommand } from '@clevercloud/client/cc-api-commands/kubernetes/update-kubernetes-cluster-command.js';
+import { UpdateKubernetesClusterVersionCommand } from '@clevercloud/client/cc-api-commands/kubernetes/update-kubernetes-cluster-version-command.js';
+import { UpdateKubernetesNodeGroupCommand } from '@clevercloud/client/cc-api-commands/kubernetes/update-kubernetes-node-group-command.js';
+import { tolerateNotFound } from '@clevercloud/client/utils/error-utils.js';
 import dedent from 'dedent';
+import { toLegacyKubernetesClusterVersionCheck } from '../legacy-json/kubernetes.legacy.js';
+import { Logger } from '../logger.js';
+import { clients } from '../models/cc-api-client.js';
+import { getOwnerIdFromOrgIdOrName } from '../models/ids-resolver.js';
 import { ask, confirm, selectAnswer } from './prompts.js';
 import { styleText } from './style-text.js';
-
-import {
-  addK8sPersistentStorage,
-  createK8sCluster,
-  createK8sNodeGroup,
-  deleteK8sCluster,
-  deleteK8sNodeGroup,
-  getK8sAddon,
-  getK8sConfig,
-  getK8sNodeGroup,
-  getK8sProduct,
-  getK8sQuota,
-  getK8sVersionCheck,
-  listK8sClusters,
-  listK8sDeploymentEvents,
-  listK8sNodeGroups,
-  listK8sUsage,
-  updateK8sCluster,
-  updateK8sNodeGroup,
-  updateK8sVersion,
-} from '../clever-client/k8s.js';
-import { Logger } from '../logger.js';
-import { getOwnerIdFromOrgIdOrName } from '../models/ids-resolver.js';
-import { sendToApi } from '../models/send-to-api.js';
 
 /**
  * Check if a Kubernetes cluster status is ACTIVE
@@ -33,9 +32,7 @@ import { sendToApi } from '../models/send-to-api.js';
  * @returns {Promise<boolean>} True if the cluster is deployed, false otherwise
  */
 export async function isK8sClusterActive(orgIdOrName, clusterIdOrName) {
-  const ownerId = await getOwnerIdFromOrgIdOrName(orgIdOrName);
-  const clusterId = await getClusterIdFromAddonIdOrName(clusterIdOrName, ownerId);
-  const cluster = await getK8sAddon({ ownerId, clusterId }).then(sendToApi);
+  const cluster = await getK8sCluster(orgIdOrName, clusterIdOrName);
 
   return cluster.status === 'ACTIVE';
 }
@@ -62,7 +59,7 @@ export async function k8sCreate(name, orgIdOrName, options = {}) {
 
   const body = { name };
   if (options.version != null) {
-    const available = product.versions?.available ?? [];
+    const available = product.versions?.availableVersions ?? [];
     if (!available.includes(options.version)) {
       throw new Error(`Version "${options.version}" is not available. Supported: ${available.join(', ')}`);
     }
@@ -72,8 +69,8 @@ export async function k8sCreate(name, orgIdOrName, options = {}) {
   if (options.tags?.length) body.tags = options.tags;
 
   const features = {};
-  if (options.autoscaling) features.autoscalingEnabled = true;
-  if (options.persistentStorage) features.csi = true;
+  if (options.autoscaling) features.isAutoscalingEnabled = true;
+  if (options.persistentStorage) features.isCsi = true;
   if (Object.keys(features).length > 0) body.features = features;
 
   body.topologyConfig = resolveTopologyConfig(options, product);
@@ -105,7 +102,7 @@ export async function k8sCreate(name, orgIdOrName, options = {}) {
     }
   }
 
-  return createK8sCluster({ ownerId }, body).then(sendToApi);
+  return clients.ccApi.send(new CreateKubernetesClusterCommand({ ownerId, ...body }));
 }
 
 const FLAVOR_ORDER = ['2XS', 'XS', 'S', 'M', 'L', 'XL'];
@@ -155,17 +152,17 @@ function resolveTopologyConfig({ topology, flavor, replicationFactor }, product)
  * @returns {Promise<object>}
  */
 export async function k8sGetProduct() {
-  return getK8sProduct().then(sendToApi);
+  return clients.ccApi.send(new GetKubernetesProductCommand());
 }
 
 /**
  * List all kubernetes addons
- * @param {string} format The output format
- * @returns {Promise<void>}
+ * @param {string} [orgIdOrName] The organisation ID or name
+ * @returns {Promise<Array<import('@clevercloud/client/cc-api-commands/kubernetes/kubernetes.types.js').KubernetesCluster>>} The list of non-deleted clusters
  */
 export async function k8sList(orgIdOrName) {
   const ownerId = await getOwnerIdFromOrgIdOrName(orgIdOrName);
-  const deployed = await listK8sClusters({ ownerId }).then(sendToApi);
+  const deployed = await clients.ccApi.send(new ListKubernetesClusterCommand({ ownerId }));
 
   return deployed.filter((op) => op.status != 'DELETED');
 }
@@ -180,7 +177,13 @@ export async function getK8sCluster(orgIdOrName, clusterIdOrName) {
   const ownerId = await getOwnerIdFromOrgIdOrName(orgIdOrName);
   const clusterId = await getClusterIdFromAddonIdOrName(clusterIdOrName, ownerId);
 
-  return getK8sAddon({ ownerId, clusterId }).then(sendToApi);
+  const cluster = await tolerateNotFound(clients.ccApi.send(new GetKubernetesClusterCommand({ ownerId, clusterId })));
+
+  if (cluster == null) {
+    throw new Error(`No Kubernetes cluster found with the ID ${styleText('red', clusterId)}`);
+  }
+
+  return cluster;
 }
 
 /**
@@ -193,7 +196,7 @@ export async function k8sGetConfig(orgIdOrName, clusterIdOrName) {
   const ownerId = await getOwnerIdFromOrgIdOrName(orgIdOrName);
   const clusterId = await getClusterIdFromAddonIdOrName(clusterIdOrName, ownerId);
 
-  return getK8sConfig({ ownerId, clusterId }).then(sendToApi);
+  return clients.ccApi.send(new GetKubernetesKubeconfigCommand({ ownerId, clusterId }));
 }
 
 /**
@@ -207,7 +210,7 @@ export async function k8sUpdate(orgIdOrName, clusterIdOrName, updates) {
   const ownerId = await getOwnerIdFromOrgIdOrName(orgIdOrName);
   const clusterId = await getClusterIdFromAddonIdOrName(clusterIdOrName, ownerId);
 
-  return updateK8sCluster({ ownerId, clusterId }, updates).then(sendToApi);
+  return clients.ccApi.send(new UpdateKubernetesClusterCommand({ ownerId, clusterId, ...updates }));
 }
 
 /**
@@ -220,7 +223,7 @@ export async function k8sDelete(orgIdOrName, clusterIdOrName) {
   const ownerId = await getOwnerIdFromOrgIdOrName(orgIdOrName);
   const clusterId = await getClusterIdFromAddonIdOrName(clusterIdOrName, ownerId);
 
-  return deleteK8sCluster({ ownerId, clusterId }).then(sendToApi);
+  return clients.ccApi.send(new DeleteKubernetesClusterCommand({ ownerId, clusterId }));
 }
 
 /**
@@ -236,8 +239,8 @@ export async function getClusterIdFromAddonIdOrName(addonIdOrName, ownerId) {
     return addonIdOrName.operator_id;
   } else if (typeof addonIdOrName === 'object' && addonIdOrName.addon_name) {
     const name = addonIdOrName.addon_name;
-    const matches = await listK8sClusters({ ownerId })
-      .then(sendToApi)
+    const matches = await clients.ccApi
+      .send(new ListKubernetesClusterCommand({ ownerId }))
       .then((clusters) => clusters.filter((c) => c.name === name && c.status !== 'DELETED'));
 
     if (matches.length === 0) {
@@ -265,18 +268,18 @@ export async function k8sAddPersistentStorage(orgIdOrName, clusterIdOrName) {
   const ownerId = await getOwnerIdFromOrgIdOrName(orgIdOrName);
   const clusterId = await getClusterIdFromAddonIdOrName(clusterIdOrName, ownerId);
 
-  return addK8sPersistentStorage({ ownerId, clusterId }).then(sendToApi);
+  return clients.ccApi.send(new AddKubernetesPersistentStorageCommand({ ownerId, clusterId }));
 }
 
 /**
  * Get the Kubernetes quota of an organisation
  * @param {object} [orgIdOrName] The organisation ID or name
- * @returns {Promise<object>} The quota payload (id, tenantId, tags, quotas)
+ * @returns {Promise<object>} The quota payload (id, ownerId, tags, quotas)
  */
 export async function k8sGetQuota(orgIdOrName) {
   const ownerId = await getOwnerIdFromOrgIdOrName(orgIdOrName);
 
-  return getK8sQuota({ ownerId }).then(sendToApi);
+  return clients.ccApi.send(new GetKubernetesQuotaCommand({ ownerId }));
 }
 
 /**
@@ -287,22 +290,21 @@ export async function k8sGetQuota(orgIdOrName) {
 export async function k8sListUsage(orgIdOrName) {
   const ownerId = await getOwnerIdFromOrgIdOrName(orgIdOrName);
 
-  return listK8sUsage({ ownerId }).then(sendToApi);
+  return clients.ccApi.send(new ListKubernetesUsageCommand({ ownerId }));
 }
 
 /**
- * List deployment events for a Kubernetes cluster
+ * List the event log of a Kubernetes cluster
  * @param {object} orgIdOrName The organisation ID or name
  * @param {string|object} clusterIdOrName The cluster ID or name
  * @param {number} [limit] Max number of events to return
- * @returns {Promise<object[]>}
+ * @returns {Promise<Array<import('@clevercloud/client/cc-api-commands/kubernetes/kubernetes.types.js').KubernetesClusterEvent>>}
  */
 export async function k8sListActivity(orgIdOrName, clusterIdOrName, limit) {
   const ownerId = await getOwnerIdFromOrgIdOrName(orgIdOrName);
   const clusterId = await getClusterIdFromAddonIdOrName(clusterIdOrName, ownerId);
-  const queryParams = limit != null ? { limit } : {};
 
-  return listK8sDeploymentEvents({ ownerId, clusterId }, queryParams).then(sendToApi);
+  return clients.ccApi.send(new ListKubernetesClusterEventCommand({ ownerId, clusterId, limit }));
 }
 
 /**
@@ -315,7 +317,7 @@ export async function k8sListNodeGroups(orgIdOrName, clusterIdOrName) {
   const ownerId = await getOwnerIdFromOrgIdOrName(orgIdOrName);
   const clusterId = await getClusterIdFromAddonIdOrName(clusterIdOrName, ownerId);
 
-  return listK8sNodeGroups({ ownerId, clusterId }).then(sendToApi);
+  return clients.ccApi.send(new ListKubernetesNodeGroupCommand({ ownerId, clusterId }));
 }
 
 /**
@@ -355,12 +357,12 @@ export async function k8sCreateNodeGroup(orgIdOrName, clusterIdOrName, options) 
   if (options.description != null) body.description = options.description;
   if (options.tag != null) body.tag = options.tag;
   if (wantsAutoscaling) {
-    body.autoscalingEnabled = true;
+    body.isAutoscalingEnabled = true;
     body.minNodeCount = options.min;
     body.maxNodeCount = options.max;
   }
 
-  return createK8sNodeGroup({ ownerId, clusterId }, body).then(sendToApi);
+  return clients.ccApi.send(new CreateKubernetesNodeGroupCommand({ ownerId, clusterId, ...body }));
 }
 
 function getNodeGroupFlavors(product) {
@@ -373,18 +375,19 @@ function getNodeGroupFlavors(product) {
  * @param {object} orgIdOrName The organisation ID or name
  * @param {string|object} clusterIdOrName The cluster ID or name
  * @param {string} nodeGroupIdOrName The node group ID or name
- * @param {object} updates Patch fields (targetNodeCount, minNodeCount, maxNodeCount, autoscalingEnabled, description, tag)
+ * @param {object} updates Patch fields (targetNodeCount, minNodeCount, maxNodeCount, isAutoscalingEnabled, description, tag)
  * @returns {Promise<object>}
  */
 export async function k8sUpdateNodeGroup(orgIdOrName, clusterIdOrName, nodeGroupIdOrName, updates) {
   const ownerId = await getOwnerIdFromOrgIdOrName(orgIdOrName);
   const clusterId = await getClusterIdFromAddonIdOrName(clusterIdOrName, ownerId);
   const nodeGroupId = await resolveNodeGroupId(ownerId, clusterId, nodeGroupIdOrName);
-  const current = await getK8sNodeGroup({ ownerId, clusterId, nodeGroupId }).then(sendToApi);
+  const current = await getNodeGroup(ownerId, clusterId, nodeGroupId);
 
+  // `name` and `targetNodeCount` are required by the API on every PATCH call
   const body = { name: current.name, targetNodeCount: current.targetNodeCount, ...updates };
 
-  return updateK8sNodeGroup({ ownerId, clusterId, nodeGroupId }, body).then(sendToApi);
+  return clients.ccApi.send(new UpdateKubernetesNodeGroupCommand({ ownerId, clusterId, nodeGroupId, ...body }));
 }
 
 /**
@@ -399,7 +402,7 @@ export async function k8sDeleteNodeGroup(orgIdOrName, clusterIdOrName, nodeGroup
   const clusterId = await getClusterIdFromAddonIdOrName(clusterIdOrName, ownerId);
   const nodeGroupId = await resolveNodeGroupId(ownerId, clusterId, nodeGroupIdOrName);
 
-  return deleteK8sNodeGroup({ ownerId, clusterId, nodeGroupId }).then(sendToApi);
+  return clients.ccApi.send(new DeleteKubernetesNodeGroupCommand({ ownerId, clusterId, nodeGroupId }));
 }
 
 /**
@@ -414,7 +417,27 @@ export async function k8sGetNodeGroup(orgIdOrName, clusterIdOrName, nodeGroupIdO
   const clusterId = await getClusterIdFromAddonIdOrName(clusterIdOrName, ownerId);
   const nodeGroupId = await resolveNodeGroupId(ownerId, clusterId, nodeGroupIdOrName);
 
-  return getK8sNodeGroup({ ownerId, clusterId, nodeGroupId }).then(sendToApi);
+  return getNodeGroup(ownerId, clusterId, nodeGroupId);
+}
+
+/**
+ * Get a node group by its ID
+ * @param {string} ownerId
+ * @param {string} clusterId
+ * @param {string} nodeGroupId
+ * @returns {Promise<object>}
+ * @throws {Error} If the node group is not found
+ */
+async function getNodeGroup(ownerId, clusterId, nodeGroupId) {
+  const nodeGroup = await tolerateNotFound(
+    clients.ccApi.send(new GetKubernetesNodeGroupCommand({ ownerId, clusterId, nodeGroupId })),
+  );
+
+  if (nodeGroup == null) {
+    throw new Error(`No node group found with the ID ${styleText('red', nodeGroupId)}`);
+  }
+
+  return nodeGroup;
 }
 
 const NODE_GROUP_ID_REGEX = /^node_group_[0-9A-HJ-NP-TV-Z]{26}$/i;
@@ -430,7 +453,7 @@ async function resolveNodeGroupId(ownerId, clusterId, nodeGroupIdOrName) {
   if (NODE_GROUP_ID_REGEX.test(nodeGroupIdOrName)) {
     return nodeGroupIdOrName;
   }
-  const list = await listK8sNodeGroups({ ownerId, clusterId }).then(sendToApi);
+  const list = await clients.ccApi.send(new ListKubernetesNodeGroupCommand({ ownerId, clusterId }));
   const matches = list.filter((ng) => ng.name === nodeGroupIdOrName);
   if (matches.length === 0) {
     throw new Error(`No node group found with name ${styleText('red', nodeGroupIdOrName)}`);
@@ -455,11 +478,12 @@ export async function k8sCheckVersion(orgIdOrName, clusterIdOrName, format) {
   const ownerId = await getOwnerIdFromOrgIdOrName(orgIdOrName);
   const clusterId = await getClusterIdFromAddonIdOrName(clusterIdOrName, ownerId);
   const name = getClusterDisplayName(clusterIdOrName, clusterId);
-  const versions = await getK8sVersionCheck({ ownerId, clusterId }).then(sendToApi);
+  const versions = await clients.ccApi.send(new CheckKubernetesClusterVersionCommand({ ownerId, clusterId }));
 
   switch (format) {
     case 'json':
-      Logger.printJson(versions);
+      // `--format json` still prints the raw payload, see src/legacy-json/README.md
+      Logger.printJson(toLegacyKubernetesClusterVersionCheck(versions));
       break;
     case 'human':
     default:
@@ -478,7 +502,9 @@ export async function k8sCheckVersion(orgIdOrName, clusterIdOrName, format) {
           'No confirmation, aborting version update',
         );
 
-        await updateK8sVersion({ ownerId, clusterId }, { targetVersion: versions.latest }).then(sendToApi);
+        await clients.ccApi.send(
+          new UpdateKubernetesClusterVersionCommand({ ownerId, clusterId, targetVersion: versions.latest }),
+        );
         Logger.printSuccess(`${styleText('green', name)} is upgrading to ${styleText('green', versions.latest)}…`);
       }
       break;
@@ -496,17 +522,17 @@ export async function k8sUpdateVersion(orgIdOrName, clusterIdOrName, askedVersio
   const ownerId = await getOwnerIdFromOrgIdOrName(orgIdOrName);
   const clusterId = await getClusterIdFromAddonIdOrName(clusterIdOrName, ownerId);
   const name = getClusterDisplayName(clusterIdOrName, clusterId);
-  const versions = await getK8sVersionCheck({ ownerId, clusterId }).then(sendToApi);
+  const versions = await clients.ccApi.send(new CheckKubernetesClusterVersionCommand({ ownerId, clusterId }));
 
   const targetVersion =
     askedVersion ??
     (await selectAnswer(
       `Which version do you want to update ${styleText('blue', name)} to, current is ${styleText('blue', versions.installed)}?`,
-      [...versions.available].reverse(),
+      [...versions.availableVersions].reverse(),
       'Use --target <version> to update directly.',
     ));
 
-  if (!versions.available.includes(targetVersion)) {
+  if (!versions.availableVersions.includes(targetVersion)) {
     throw new Error(`Version ${styleText('red', targetVersion)} is not available`);
   }
 
@@ -515,7 +541,7 @@ export async function k8sUpdateVersion(orgIdOrName, clusterIdOrName, askedVersio
     return;
   }
 
-  await updateK8sVersion({ ownerId, clusterId }, { targetVersion }).then(sendToApi);
+  await clients.ccApi.send(new UpdateKubernetesClusterVersionCommand({ ownerId, clusterId, targetVersion }));
   Logger.printSuccess(`${styleText('green', name)} is upgrading to ${styleText('green', targetVersion)}…`);
 }
 

@@ -1,6 +1,11 @@
 import * as Application from './application.js';
 import { resolveAddon } from './ids-resolver.js';
 
+/**
+ * Resolves the resource (application or add-on) a drain command applies to.
+ * Returns an object ready to be spread into a log drain command input:
+ * `{ ownerId, addonId }` (real add-on id) or `{ ownerId, applicationId }`.
+ */
 export async function resolveDrainResource(alias, appIdOrName, addonIdOrRealId) {
   if (addonIdOrRealId != null && (appIdOrName != null || alias != null)) {
     throw new Error('`--addon` cannot be combined with `--app` or `--alias`');
@@ -8,11 +13,11 @@ export async function resolveDrainResource(alias, appIdOrName, addonIdOrRealId) 
 
   if (addonIdOrRealId != null) {
     const { ownerId, realId } = await resolveAddon(addonIdOrRealId);
-    return { ownerId, resourceId: realId };
+    return { ownerId, addonId: realId };
   }
 
   const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
-  return { ownerId, resourceId: appId };
+  return { ownerId, applicationId: appId };
 }
 
 export const DRAIN_TYPES = {
@@ -48,29 +53,37 @@ function formatThroughput(bytesPerSecond) {
   return (bytesPerSecond / (1024 * 1024)).toFixed(2) + ' MiB/second';
 }
 
-export function formatDrain(rawDrain) {
-  const drainType = DRAIN_TYPES[rawDrain.recipient.type];
+/**
+ * Formats a log drain (as returned by the `cc-api` log drain commands) for `console.table` display.
+ * @param {import('@clevercloud/client/cc-api-commands/log-drain/log-drain.types.js').LogDrain} drain
+ */
+export function formatDrain(drain) {
+  const drainType = DRAIN_TYPES[drain.target.type];
+  // `execution` and `backlog` carry more runtime fields than their declared types
+  const execution = /** @type {Record<string, any>} */ (drain.execution);
+  const backlog = /** @type {Record<string, any>} */ (drain.backlog);
   const drainDetails = [
-    ['ID', rawDrain.id],
-    ['Status', rawDrain.status.status],
-    ['Execution status', rawDrain.execution.status],
-    ['URL', rawDrain.recipient.url],
+    ['ID', drain.id],
+    ['Status', drain.status],
+    ['Execution status', execution.status],
+    ['URL', drain.target.url],
     ['Type', drainType.label],
-    ['Custom index', rawDrain.recipient.index],
-    ['SD parameters', rawDrain.recipient.rfc5424StructuredDataParameters],
-    ['Message output rate', formatRate(rawDrain.backlog.msgRateOut)],
-    ['Message throughput', formatThroughput(rawDrain.backlog.msgThroughputOut)],
-    ['Backlog', rawDrain.backlog.msgBacklog + ' pending messages'],
+    ['Custom index', 'indexPrefix' in drain.target ? drain.target.indexPrefix : null],
+    [
+      'SD parameters',
+      'rfc5424StructuredDataParameters' in drain.target ? drain.target.rfc5424StructuredDataParameters : null,
+    ],
+    ['Message output rate', formatRate(backlog.msgRateOut)],
+    ['Message throughput', formatThroughput(backlog.msgThroughputOut)],
+    ['Backlog', backlog.msgBacklog + ' pending messages'],
     [
       'Retry attempts',
-      rawDrain.execution.attempt != null && rawDrain.execution.maxAttempt != null
-        ? `${rawDrain.execution.attempt}/${rawDrain.execution.maxAttempt}`
-        : null,
+      execution.attempt != null && execution.maxAttempt != null ? `${execution.attempt}/${execution.maxAttempt}` : null,
     ],
-    ['Last attempt at', rawDrain.execution.lastAttemptAt],
-    ['Next attempt at', rawDrain.execution.nextAttemptAt],
-    ['Retrying since', rawDrain.execution.retryingSince],
-    ['Last error', rawDrain.execution.lastError],
+    ['Last attempt at', execution.lastAttemptAt],
+    ['Next attempt at', execution.nextAttemptAt],
+    ['Retrying since', execution.retryingSince],
+    ['Last error', execution.lastError],
   ];
   return Object.fromEntries(drainDetails.filter(([_name, value]) => value != null));
 }

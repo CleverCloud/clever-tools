@@ -1,12 +1,12 @@
+import { CreateLogDrainCommand } from '@clevercloud/client/cc-api-commands/log-drain/create-log-drain-command.js';
 import { z } from 'zod';
-import { createDrain } from '../../clever-client/drains.js';
 import { defineArgument } from '../../lib/define-argument.js';
 import { defineCommand } from '../../lib/define-command.js';
 import { defineOption } from '../../lib/define-option.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
+import { clients } from '../../models/cc-api-client.js';
 import { DRAIN_TYPE_CLI_CODES, DRAIN_TYPES, resolveDrainResource } from '../../models/drain.js';
-import { sendToApi } from '../../models/send-to-api.js';
 import { addonIdOrRealIdOption, aliasOption, appIdOrNameOption } from '../global.options.js';
 
 export const drainCreateCommand = defineCommand({
@@ -77,14 +77,11 @@ export const drainCreateCommand = defineCommand({
 
     const drainType = Object.values(DRAIN_TYPES).find((drainType) => drainType.cliCode === drainTypeCliCode);
 
-    const { ownerId, resourceId } = await resolveDrainResource(alias, appIdOrName, addonIdOrRealId);
+    const resource = await resolveDrainResource(alias, appIdOrName, addonIdOrRealId);
 
-    const body = {
-      kind: 'LOG',
-      recipient: {
-        type: drainType.apiCode,
-        url,
-      },
+    const target = {
+      type: drainType.apiCode,
+      url,
     };
 
     if (drainTypeCliCode === DRAIN_TYPES.ELASTICSEARCH.cliCode) {
@@ -96,15 +93,12 @@ export const drainCreateCommand = defineCommand({
       if (!url.endsWith('/_bulk')) {
         throw new Error(`${DRAIN_TYPES.ELASTICSEARCH.cliCode} drain URL must end with '/_bulk'`);
       }
-      body.recipient.index = indexPrefix;
+      target.indexPrefix = indexPrefix;
     }
 
     if (drainTypeCliCode === DRAIN_TYPES.ELASTICSEARCH.cliCode || drainTypeCliCode === DRAIN_TYPES.RAW_HTTP.cliCode) {
-      if (username) {
-        body.recipient.username = username;
-      }
-      if (password) {
-        body.recipient.password = password;
+      if (username || password) {
+        target.credentials = { username: username || undefined, password: password || undefined };
       }
     }
 
@@ -112,14 +106,14 @@ export const drainCreateCommand = defineCommand({
       if (!apiKey) {
         throw new Error(`${DRAIN_TYPES.NEWRELIC.cliCode} drains require an API key (--api-key) to be set`);
       }
-      body.recipient.apiKey = apiKey;
+      target.apiKey = apiKey;
     }
 
     if (drainTypeCliCode === DRAIN_TYPES.BETTERSTACK.cliCode) {
       if (!sourceToken) {
         throw new Error(`${DRAIN_TYPES.BETTERSTACK.cliCode} drains require a source token (--source-token) to be set`);
       }
-      body.recipient.sourceToken = sourceToken;
+      target.sourceToken = sourceToken;
     }
 
     if (
@@ -128,11 +122,11 @@ export const drainCreateCommand = defineCommand({
       drainTypeCliCode === DRAIN_TYPES.SYSLOG_UDP.cliCode
     ) {
       if (rfc5424StructuredDataParameters) {
-        body.recipient.rfc5424StructuredDataParameters = rfc5424StructuredDataParameters;
+        target.rfc5424StructuredDataParameters = rfc5424StructuredDataParameters;
       }
     }
 
-    const drain = await createDrain({ ownerId, resourceId, body }).then(sendToApi);
+    const drain = await clients.ccApi.send(new CreateLogDrainCommand({ ...resource, kind: 'LOG', target }));
     Logger.printSuccess(`Drain ${styleText(['bold', 'green'], drain.id)} has been successfully created and enabled!`);
   },
 });

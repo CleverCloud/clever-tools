@@ -1,22 +1,23 @@
-import {
-  create as createAddon,
-  get as getAddon,
-  getAll as getAllAddons,
-  getAllEnvVars,
-  remove as removeAddon,
-  update as updateAddon,
-} from '@clevercloud/client/esm/api/v2/addon.js';
-import { getAllLinkedAddons, linkAddon, unlinkAddon } from '@clevercloud/client/esm/api/v2/application.js';
-import { getAllAddonProviders } from '@clevercloud/client/esm/api/v2/product.js';
-import { getSummary } from '@clevercloud/client/esm/api/v2/user.js';
-import { getAddonProvider } from '@clevercloud/client/esm/api/v4/addon-providers.js';
+import { CreateAddonCommand } from '@clevercloud/client/cc-api-commands/addon/create-addon-command.js';
+import { DeleteAddonCommand } from '@clevercloud/client/cc-api-commands/addon/delete-addon-command.js';
+import { GetAddonCommand } from '@clevercloud/client/cc-api-commands/addon/get-addon-command.js';
+import { ListAddonCommand } from '@clevercloud/client/cc-api-commands/addon/list-addon-command.js';
+import { UpdateAddonCommand } from '@clevercloud/client/cc-api-commands/addon/update-addon-command.js';
+import { GetEnvironmentCommand } from '@clevercloud/client/cc-api-commands/environment/get-environment-command.js';
+import { AddLinkCommand } from '@clevercloud/client/cc-api-commands/link/add-link-command.js';
+import { ListLinkCommand } from '@clevercloud/client/cc-api-commands/link/list-link-command.js';
+import { RemoveLinkCommand } from '@clevercloud/client/cc-api-commands/link/remove-link-command.js';
+import { GetOrganisationSummariesCommand } from '@clevercloud/client/cc-api-commands/organisation/get-organisation-summaries-command.js';
+import { GetProductAddonVersionsCommand } from '@clevercloud/client/cc-api-commands/product/get-product-addon-versions-command.js';
+import { ListProductAddonCommand } from '@clevercloud/client/cc-api-commands/product/list-product-addon-command.js';
+import { tolerateNotFound } from '@clevercloud/client/utils/error-utils.js';
 import { confirm } from '../lib/prompts.js';
 import { Logger } from '../logger.js';
+import { clients } from './cc-api-client.js';
 import { resolveOwnerId } from './ids-resolver.js';
-import { sendToApi } from './send-to-api.js';
 
 export function listProviders(orgaId) {
-  return getAllAddonProviders({ orgaId }).then(sendToApi);
+  return clients.ccApi.send(new ListProductAddonCommand({ ownerId: orgaId, withVersions: false }));
 }
 
 export async function getProvider(providerName, orgaId) {
@@ -28,26 +29,33 @@ export async function getProvider(providerName, orgaId) {
   return provider;
 }
 
-export function getProviderInfos(providerName) {
-  return getAddonProvider({ providerId: providerName })
-    .then(sendToApi)
-    .catch(() => {
-      // An error can occur because the add-on api doesn't implement this endpoint yet
-      // This is fine, just ignore it
-      Logger.debug(`${providerName} doesn't yet implement the provider info endpoint`);
-      return Promise.resolve(null);
-    });
+export async function getProviderInfos(providerName) {
+  try {
+    return await clients.ccApi.send(new GetProductAddonVersionsCommand({ id: providerName }));
+  } catch {
+    // An error can occur because the add-on api doesn't implement this endpoint yet
+    // This is fine, just ignore it
+    Logger.debug(`${providerName} doesn't yet implement the provider info endpoint`);
+    return null;
+  }
 }
 
+/**
+ * Lists the add-ons of an owner, optionally restricted to the ones a given application links to.
+ * @param {string} ownerId The owner ID
+ * @param {string} [appId] Only keep the add-ons linked to this application
+ * @param {boolean} [showAll] With `appId`, keep every add-on and flag the linked ones
+ */
 export async function list(ownerId, appId, showAll) {
-  const allAddons = await getAllAddons({ id: ownerId }).then(sendToApi);
+  const allAddons = await clients.ccApi.send(new ListAddonCommand({ ownerId }));
 
   if (appId == null) {
     // Not linked to a specific app, show everything
     return allAddons;
   }
 
-  const myAddons = await getAllLinkedAddons({ id: ownerId, appId }).then(sendToApi);
+  const links = await clients.ccApi.send(new ListLinkCommand({ ownerId, applicationId: appId }));
+  const myAddons = links.filter((link) => link.type === 'link-to-addon').map((link) => link.addon);
   if (!showAll) {
     return myAddons.map((addon) => ({ ...addon, isLinked: true }));
   }
@@ -128,11 +136,10 @@ function validateAddonVersionAndOptions(region, version, addonOptions, providerI
 }
 
 export async function create({ ownerId, name, providerName, planName, region, version, addonOptions }) {
-  // TODO: We should be able to use it without {}
   const provider = await getProvider(providerName, ownerId);
 
-  if (!provider.regions.includes(region)) {
-    throw new Error(`Invalid region name. Available regions: ${provider.regions.join(', ')}`);
+  if (!provider.zones.includes(region)) {
+    throw new Error(`Invalid region name. Available regions: ${provider.zones.join(', ')}`);
   }
   if (provider.plans.length === 0) {
     throw new Error(`No plans available for provider ${providerName}`);
@@ -155,22 +162,25 @@ export async function create({ ownerId, name, providerName, planName, region, ve
 
   const createOptions = validateAddonVersionAndOptions(region, version, addonOptions, providerInfos, planType);
 
-  const addonToCreate = {
-    name,
-    plan: plan.id,
-    providerId: provider.id,
-    region,
-    options: createOptions,
-  };
+  const createdAddon = await clients.ccApi.send(
+    new CreateAddonCommand({
+      ownerId,
+      name,
+      zone: region,
+      providerId: provider.id,
+      planId: plan.id,
+      options: createOptions,
+    }),
+  );
 
-  const createdAddon = await createAddon({ id: ownerId }, addonToCreate).then(sendToApi);
-  createdAddon.env = await getAllEnvVars({ id: ownerId, addonId: createdAddon.id }).then(sendToApi);
+  const { environment } = await clients.ccApi.send(new GetEnvironmentCommand({ ownerId, addonId: createdAddon.id }));
+  createdAddon.env = environment;
 
   return createdAddon;
 }
 
 async function getByName(ownerId, addonNameOrRealId) {
-  const addons = await getAllAddons({ id: ownerId }).then(sendToApi);
+  const addons = await clients.ccApi.send(new ListAddonCommand({ ownerId }));
   const filteredAddons = addons.filter(({ name, realId }) => {
     return name === addonNameOrRealId || realId === addonNameOrRealId;
   });
@@ -193,12 +203,12 @@ async function getId(ownerId, addon) {
 
 export async function link(ownerId, appId, addon) {
   const addonId = await getId(ownerId, addon);
-  return linkAddon({ id: ownerId, appId }, JSON.stringify(addonId)).then(sendToApi);
+  return clients.ccApi.send(new AddLinkCommand({ ownerId, applicationId: appId, targetAddonId: addonId }));
 }
 
 export async function unlink(ownerId, appId, addon) {
   const addonId = await getId(ownerId, addon);
-  return unlinkAddon({ id: ownerId, appId, addonId }).then(sendToApi);
+  return clients.ccApi.send(new RemoveLinkCommand({ ownerId, applicationId: appId, targetAddonId: addonId }));
 }
 
 export async function deleteAddon(ownerId, addonIdOrName, skipConfirmation) {
@@ -208,12 +218,12 @@ export async function deleteAddon(ownerId, addonIdOrName, skipConfirmation) {
     await confirm("Deleting the add-on can't be undone, are you sure?", 'No confirmation, aborting add-on deletion');
   }
 
-  return removeAddon({ id: ownerId, addonId }).then(sendToApi);
+  return clients.ccApi.send(new DeleteAddonCommand({ ownerId, addonId }));
 }
 
 export async function rename(ownerId, addon, name) {
   const addonId = await getId(ownerId, addon);
-  return updateAddon({ id: ownerId, addonId }, { name }).then(sendToApi);
+  return clients.ccApi.send(new UpdateAddonCommand({ ownerId, addonId, name }));
 }
 
 export function completeRegion() {
@@ -226,14 +236,19 @@ export function completePlan() {
 }
 
 export async function findByName(addonName) {
-  const { user, organisations } = await getSummary({}).then(sendToApi);
-  for (const orga of [user, ...organisations]) {
-    for (const simpleAddon of orga.addons) {
+  const owners = await clients.ccApi.send(new GetOrganisationSummariesCommand());
+  for (const owner of owners) {
+    for (const simpleAddon of owner.addons) {
       if (simpleAddon.name === addonName) {
-        const addon = await getAddon({ id: orga.id, addonId: simpleAddon.id }).then(sendToApi);
+        const addon = await tolerateNotFound(
+          clients.ccApi.send(new GetAddonCommand({ ownerId: owner.id, addonId: simpleAddon.id })),
+        );
+        if (addon == null) {
+          break;
+        }
         return {
           ...addon,
-          orgaId: orga.id,
+          orgaId: owner.id,
         };
       }
     }

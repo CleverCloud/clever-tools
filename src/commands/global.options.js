@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { defineOption } from '../lib/define-option.js';
 import { listAvailableAliases } from '../models/application.js';
-import { listMetaEvents } from '../models/notification.js';
+import { listEventTypes } from '../models/notification.js';
 import { appIdOrName, date, orgaIdOrName } from '../parsers.js';
 
 export const aliasOption = defineOption({
@@ -147,7 +147,7 @@ export const notificationEventTypeOption = defineOption({
     .optional(),
   description: 'Restrict notifications to specific event types',
   placeholder: 'event-type',
-  complete: listMetaEvents,
+  complete: listEventTypes,
 });
 
 export const notificationScopeOption = defineOption({

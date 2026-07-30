@@ -1,3 +1,4 @@
+import { isCcHttpError } from '@clevercloud/client/utils/error-utils.js';
 import { z } from 'zod';
 import { typewriterLogo } from '../../lib/ascii.js';
 import { defineArgument } from '../../lib/define-argument.js';
@@ -22,7 +23,7 @@ export const k8sCreateCommand = defineCommand({
       placeholder: 'cluster-version',
       complete: async () => {
         const product = await k8sGetProduct();
-        return product.versions?.available ?? [];
+        return product.versions?.availableVersions ?? [];
       },
     }),
     description: defineOption({
@@ -158,7 +159,7 @@ export const k8sCreateCommand = defineCommand({
         `You can get its information with ${styleText('blue', `clever k8s get ${cluster.id} ${orgMessageComplement}`)}`,
       );
     } catch (error) {
-      if (error.responseBody?.code === 'clever.core.quota-exceeded') {
+      if (isCcHttpError(error) && error.code === 'clever.core.quota-exceeded') {
         throw new Error(
           'Failed to create Kubernetes cluster: your quota exceeded, contact support to increase your quota',
         );

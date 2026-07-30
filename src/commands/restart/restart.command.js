@@ -1,3 +1,4 @@
+import { tolerateNotFound } from '@clevercloud/client/utils/error-utils.js';
 import { z } from 'zod';
 import { defineCommand } from '../../lib/define-command.js';
 import { defineOption } from '../../lib/define-option.js';
@@ -45,7 +46,7 @@ export const restartCommand = defineCommand({
     const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
     const git = await Git.get();
     const fullCommitId = await git.resolveFullCommitId(commit);
-    const app = await Application.get(ownerId, appId);
+    const app = await tolerateNotFound(Application.get(ownerId, appId));
 
     if (app == null) {
       throw new Error("The application doesn't exist");

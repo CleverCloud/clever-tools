@@ -1,6 +1,6 @@
-import { get as getAddon } from '@clevercloud/client/esm/api/v2/addon.js';
+import { GetAddonCommand } from '@clevercloud/client/cc-api-commands/addon/get-addon-command.js';
+import { clients } from './cc-api-client.js';
 import { findAddonsByNameOrId } from './ids-resolver.js';
-import { sendToApi } from './send-to-api.js';
 
 /**
  * Resolve a config provider ID from a name, ID or real ID
@@ -24,7 +24,7 @@ export async function resolveConfigProviderId(addonIdOrRealIdOrName) {
   const { ownerId, addonId, realId } = candidates[0];
 
   // Verify that the addon is a config provider
-  const addon = await getAddon({ id: ownerId, addonId }).then(sendToApi);
+  const addon = await clients.ccApi.send(new GetAddonCommand({ ownerId, addonId }));
 
   if (addon.provider.id !== 'config-provider') {
     throw new Error(`The add-on '${addonIdOrRealIdOrName}' is not a configuration provider`);

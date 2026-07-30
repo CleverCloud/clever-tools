@@ -1,4 +1,4 @@
-import { ERROR_TYPES, parseRaw, toNameValueObject, validateName } from '@clevercloud/client/esm/utils/env-vars.js';
+import { ERROR_TYPES, parseRaw, toNameValueObject, validateName } from '@clevercloud/client/utils/environment-utils.js';
 import _countBy from 'lodash/countBy.js';
 import readline from 'node:readline';
 

@@ -1,6 +1,5 @@
-import { getSummary } from '@clevercloud/client/esm/api/v2/user.js';
-import _ from 'lodash';
-import { sendToApi } from './send-to-api.js';
+import { GetOrganisationSummariesCommand } from '@clevercloud/client/cc-api-commands/organisation/get-organisation-summaries-command.js';
+import { clients } from './cc-api-client.js';
 
 export async function getId(orgaIdOrName) {
   if (orgaIdOrName == null) {
@@ -15,8 +14,8 @@ export async function getId(orgaIdOrName) {
 }
 
 async function getByName(name) {
-  const fullSummary = await getSummary({}).then(sendToApi);
-  const filteredOrgs = _.filter(fullSummary.organisations, { name });
+  const summaries = await clients.ccApi.send(new GetOrganisationSummariesCommand());
+  const filteredOrgs = summaries.filter((summary) => !summary.isPersonal && summary.name === name);
 
   if (filteredOrgs.length === 0) {
     throw new Error('Organisation not found');

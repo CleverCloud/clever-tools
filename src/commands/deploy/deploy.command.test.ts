@@ -5,6 +5,7 @@ import type { NewCliScenario } from '../../../test/cli-hooks.ts';
 import { cliHooks } from '../../../test/cli-hooks.ts';
 import { multiAppConfig, singleAppConfig } from '../../../test/fixtures/app-config.ts';
 import { NOT_LOGGED_IN_ERROR } from '../../../test/fixtures/errors.ts';
+import { rawApplication } from '../../../test/fixtures/application.ts';
 import { APP_ID, ORGA_ID } from '../../../test/fixtures/id.ts';
 import { profileConfig } from '../../../test/fixtures/profile.ts';
 
@@ -14,16 +15,10 @@ const APP_ENDPOINT = `/v2/organisations/${ORGA_ID}/applications/${APP_ID}`;
 const DEPLOYMENTS_ENDPOINT = `${APP_ENDPOINT}/deployments`;
 
 /**
- * Minimum app body that survives `addInstanceLifetime` (which dereferences `instance.lifetime`).
+ * App body as returned by the raw v2 API (the client transforms it before the CLI reads it).
  */
 function appBody({ commitId = null }: { commitId?: string | null } = {}) {
-  return {
-    id: APP_ID,
-    ownerId: ORGA_ID,
-    name: 'test-app',
-    commitId,
-    instance: { lifetime: 'REGULAR' },
-  };
+  return rawApplication({ ownerId: ORGA_ID, commitId });
 }
 
 describe('deploy command', () => {
@@ -276,7 +271,7 @@ describe('deploy command', () => {
           assert.strictEqual(calls.filter({ method: 'GET', path: APP_ENDPOINT }).count, 1);
         });
 
-      assert.strictEqual(result.stderr, '[ERROR] oops');
+      assert.strictEqual(result.stderr, '[ERROR] [500]: oops');
     });
   });
 

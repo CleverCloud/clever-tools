@@ -1,9 +1,9 @@
-import { getWebhooks } from '@clevercloud/client/esm/api/v2/notification.js';
+import { ListWebhookNotificationCommand } from '@clevercloud/client/cc-api-commands/notification/list-webhook-notification-command.js';
 import { defineCommand } from '../../lib/define-command.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
+import { clients } from '../../models/cc-api-client.js';
 import { getOwnerAndApp } from '../../models/notification.js';
-import { sendToApi } from '../../models/send-to-api.js';
 import { humanJsonOutputFormatOption, listAllNotificationsOption, orgaIdOrNameOption } from '../global.options.js';
 
 export const webhooksCommand = defineCommand({
@@ -19,18 +19,17 @@ export const webhooksCommand = defineCommand({
     const { org, listAll, format } = options;
 
     const { ownerId, appId } = await getOwnerAndApp(org, org == null && !listAll);
-    const hooks = await getWebhooks({ ownerId }).then(sendToApi);
+    const hooks = await clients.ccApi.send(new ListWebhookNotificationCommand({ ownerId }));
 
     const formattedHooks = hooks
       .filter((hook) => {
-        const emptyScope = !hook.scope || hook.scope.length === 0;
-        return !appId || emptyScope || hook.scope.includes(appId);
+        return appId == null || hook.scopes == null || hook.scopes.length === 0 || hook.scopes.includes(appId);
       })
       .map((hook) => ({
         id: hook.id,
         name: hook.name,
         ownerId: hook.ownerId,
-        services: hook.scope ?? [hook.ownerId],
+        services: hook.scopes ?? [hook.ownerId],
         events: hook.events ?? ['ALL'],
         urls: hook.urls,
       }));

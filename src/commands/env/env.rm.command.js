@@ -1,8 +1,8 @@
-import { removeEnvVar } from '@clevercloud/client/esm/api/v2/application.js';
+import { DeleteEnvironmentVariableCommand } from '@clevercloud/client/cc-api-commands/environment/delete-environment-variable-command.js';
 import { defineCommand } from '../../lib/define-command.js';
 import { Logger } from '../../logger.js';
 import * as Application from '../../models/application.js';
-import { sendToApi } from '../../models/send-to-api.js';
+import { clients } from '../../models/cc-api-client.js';
 import { envVariableNameArg } from '../global.args.js';
 import { aliasOption, appIdOrNameOption } from '../global.options.js';
 
@@ -18,7 +18,7 @@ export const envRmCommand = defineCommand({
     const { alias, app: appIdOrName } = options;
     const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
 
-    await removeEnvVar({ id: ownerId, appId, envName }).then(sendToApi);
+    await clients.ccApi.send(new DeleteEnvironmentVariableCommand({ ownerId, applicationId: appId, name: envName }));
 
     Logger.println('Your environment variable has been successfully removed');
   },

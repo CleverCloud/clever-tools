@@ -1,9 +1,9 @@
-import { get as getApp } from '@clevercloud/client/esm/api/v2/application.js';
+import { ListDomainCommand } from '@clevercloud/client/cc-api-commands/domain/list-domain-command.js';
 import { defineCommand } from '../../lib/define-command.js';
 import { Logger } from '../../logger.js';
 import * as Application from '../../models/application.js';
-import { getDomainObject, getFavouriteDomain } from '../../models/domain.js';
-import { sendToApi } from '../../models/send-to-api.js';
+import { clients } from '../../models/cc-api-client.js';
+import { getDomainObject } from '../../models/domain.js';
 import { aliasOption, appIdOrNameOption, humanJsonOutputFormatOption } from '../global.options.js';
 
 export const domainCommand = defineCommand({
@@ -19,10 +19,9 @@ export const domainCommand = defineCommand({
     const { alias, app: appIdOrName, format } = options;
     const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
 
-    const app = await getApp({ id: ownerId, appId }).then(sendToApi);
-    const favouriteDomain = await getFavouriteDomain({ ownerId, appId });
+    const rawDomains = await clients.ccApi.send(new ListDomainCommand({ ownerId, applicationId: appId }));
 
-    const domains = app.vhosts.map((vhost) => getDomainObject(vhost.fqdn, favouriteDomain));
+    const domains = rawDomains.map(({ domain, isPrimary }) => getDomainObject(domain, isPrimary ? domain : null));
 
     switch (format) {
       case 'json':

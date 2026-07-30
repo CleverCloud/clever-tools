@@ -1,10 +1,10 @@
-import { todo_removeSshKey as removeSshKey } from '@clevercloud/client/esm/api/v2/user.js';
+import { DeletePersonalSshKeyCommand } from '@clevercloud/client/cc-api-commands/ssh-key/delete-personal-ssh-key-command.js';
 import { z } from 'zod';
 import { defineCommand } from '../../lib/define-command.js';
 import { defineOption } from '../../lib/define-option.js';
 import { confirm } from '../../lib/prompts.js';
 import { Logger } from '../../logger.js';
-import { sendToApi } from '../../models/send-to-api.js';
+import { clients } from '../../models/cc-api-client.js';
 import { getUserSshKeys } from '../../models/ssh-keys.js';
 
 export const sshKeysRemoveAllCommand = defineCommand({
@@ -33,9 +33,8 @@ export const sshKeysRemoveAllCommand = defineCommand({
 
     const results = await Promise.all(
       keys.map((key) => {
-        const keyNameEncoded = encodeURIComponent(key.name);
-        return removeSshKey({ key: keyNameEncoded })
-          .then(sendToApi)
+        return clients.ccApi
+          .send(new DeletePersonalSshKeyCommand({ name: key.name }))
           .then(() => [true, key.name])
           .catch(() => [false, key.name]);
       }),

@@ -1,8 +1,8 @@
-import { updateAllExposedEnvVars } from '@clevercloud/client/esm/api/v2/application.js';
+import { UpdateExposedEnvironmentCommand } from '@clevercloud/client/cc-api-commands/environment/update-exposed-environment-command.js';
 import { defineCommand } from '../../lib/define-command.js';
 import { Logger } from '../../logger.js';
 import * as Application from '../../models/application.js';
-import { sendToApi } from '../../models/send-to-api.js';
+import { clients } from '../../models/cc-api-client.js';
 import * as variables from '../../models/variables.js';
 import { aliasOption, appIdOrNameOption, importAsJsonOption } from '../global.options.js';
 
@@ -21,8 +21,12 @@ export const publishedConfigImportCommand = defineCommand({
     const format = json ? 'json' : 'name-equals-value';
     const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
 
+    // readVariablesFromStdin returns { NAME: "value" } format
+    // but the client expects [{ name, value }] format
     const publishedConfigs = await variables.readVariablesFromStdin(format);
-    await updateAllExposedEnvVars({ id: ownerId, appId }, publishedConfigs).then(sendToApi);
+    const environment = Object.entries(publishedConfigs).map(([name, value]) => ({ name, value }));
+
+    await clients.ccApi.send(new UpdateExposedEnvironmentCommand({ ownerId, applicationId: appId, environment }));
 
     Logger.println('Your published configs have been set');
   },
