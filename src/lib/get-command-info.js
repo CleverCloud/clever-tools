@@ -80,9 +80,31 @@ export function getCommandInfo(path, definition) {
             required: isRequired(option.schema) ? '(required)' : null,
             default: defaultValue ? `(default: ${defaultValue})` : null,
             enumValues: getEnumValues(option.schema) ?? null,
+            groups: option.groups?.length ? option.groups : null,
           };
         })
     : null;
 
-  return { usage, args, options };
+  return { usage, args, options, optionGroups: getOptionGroups(options) };
+}
+
+/**
+ * Splits options for display: the ones that apply to every use of the command first, then one entry
+ * per group. An option declaring several groups is repeated in each, so a group reads as the whole
+ * list of what applies to it rather than as a remainder of the ungrouped section.
+ * @param {OptionInfo[] | null} options
+ * @return {import('./get-command-info.types.d.ts').OptionGroupInfo[] | null}
+ */
+function getOptionGroups(options) {
+  if (options == null) {
+    return null;
+  }
+
+  const titles = [...new Set(options.flatMap((option) => option.groups ?? []))].sort((a, b) => a.localeCompare(b));
+  const ungrouped = options.filter((option) => option.groups == null);
+
+  return [
+    ...(ungrouped.length > 0 ? [{ title: null, options: ungrouped }] : []),
+    ...titles.map((title) => ({ title, options: options.filter((option) => option.groups?.includes(title)) })),
+  ];
 }

@@ -34,6 +34,15 @@ export interface OptionInfo {
   default: string | null;
   /** Enum values if the schema is a z.enum(), or null */
   enumValues: string[] | null;
+  /** Groups this option belongs to, or null when it applies to every use of the command */
+  groups: string[] | null;
+}
+
+export interface OptionGroupInfo {
+  /** The group name, or null for the options that apply to every use of the command */
+  title: string | null;
+  /** The options of this group, in the same order as `CommandInfo.options` */
+  options: OptionInfo[];
 }
 
 export interface CommandInfo {
@@ -41,6 +50,12 @@ export interface CommandInfo {
   usage: string;
   /** Sorted by position, or null if no arguments */
   args: ArgumentInfo[] | null;
-  /** Sorted by required first, then alphabetically, or null if no options */
+  /** Sorted by required first, then alphabetically, or null if no options. Every option appears once. */
   options: OptionInfo[] | null;
+  /**
+   * The same options split for display: ungrouped ones first, then one entry per group, sorted by
+   * title. An option declaring several groups is repeated in each of them, so a group reads as the
+   * complete list of what applies to it. Null if no options.
+   */
+  optionGroups: OptionGroupInfo[] | null;
 }

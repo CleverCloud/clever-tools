@@ -219,26 +219,25 @@ export function getSubCommandMarkdown(path, definition, subCommandNodes) {
     `);
   }
 
-  if (commandInfo.options) {
-    if (commandInfo.options.length > 0) {
-      const rows = commandInfo.options.map((opt) => {
-        const placeholder = opt.placeholder ? ` \`${opt.placeholder}\`` : '';
-        const aliases = formatCodeList(opt.aliases) + placeholder;
-        let description = opt.description;
-        if (opt.enumValues) description += ` (${opt.enumValues.join(', ')})`;
-        if (opt.deprecated) description += ` *${opt.deprecated}*`;
-        if (opt.required) description += ` **${opt.required}**`;
-        if (opt.default) description += ` ${opt.default}`;
-        return `|${escapeTableCell(aliases)}|${escapeTableCell(description)}|`;
-      });
-      parts.push(dedent`
-        ### ⚙️ Options
+  for (const group of commandInfo.optionGroups ?? []) {
+    const rows = group.options.map((opt) => {
+      const placeholder = opt.placeholder ? ` \`${opt.placeholder}\`` : '';
+      const aliases = formatCodeList(opt.aliases) + placeholder;
+      let description = opt.description;
+      if (opt.enumValues) description += ` (${opt.enumValues.join(', ')})`;
+      if (opt.deprecated) description += ` *${opt.deprecated}*`;
+      if (opt.required) description += ` **${opt.required}**`;
+      if (opt.default) description += ` ${opt.default}`;
+      return `|${escapeTableCell(aliases)}|${escapeTableCell(description)}|`;
+    });
+    const title = group.title == null ? 'Options' : `Options for \`${group.title}\``;
+    parts.push(dedent`
+      ### ⚙️ ${title}
 
-        |Name|Description|
-        |---|---|
-        ${rows.join('\n')}
-      `);
-    }
+      |Name|Description|
+      |---|---|
+      ${rows.join('\n')}
+    `);
   }
 
   // Find custom H3 sections (not Arguments or Options)

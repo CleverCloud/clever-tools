@@ -24,6 +24,13 @@ export interface OptionDefinition<S extends z.ZodType = z.ZodType> {
   /** Shell completion function. Can be sync or async. */
   complete?: CompletionFunction;
 
+  /**
+   * Groups this option belongs to (e.g., ['splunk'] for an option only meaningful for that drain type).
+   * Help and docs list each group separately, so an option that applies to several groups declares
+   * them all and shows up under each. Omit for options that apply to every use of the command.
+   */
+  groups?: string[];
+
   /** Mark as deprecated. `true` for generic warning, or a string with migration instructions. */
   deprecated?: boolean | string;
 }

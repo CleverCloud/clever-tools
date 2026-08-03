@@ -248,9 +248,8 @@ function getCommandSection(heading, path, definition) {
     allRows.push(...argumentsRows);
   }
 
-  let optionsRows;
-  if (commandInfo.options) {
-    optionsRows = commandInfo.options.map((opt) => {
+  const optionSections = (commandInfo.optionGroups ?? []).map((group) => {
+    const rows = group.options.map((opt) => {
       const placeholder = opt.placeholder ? ` ${opt.placeholder}` : '';
       const aliasesPadding = opt.aliases[0].length === 2 ? '' : '    ';
       const aliases = aliasesPadding + opt.aliases.join(', ') + placeholder;
@@ -261,7 +260,10 @@ function getCommandSection(heading, path, definition) {
       if (opt.default) description += ` ${opt.default}`;
       return [aliases, description];
     });
-    allRows.push(...optionsRows);
+    return { title: group.title == null ? 'Options' : `Options for ${group.title}`, rows };
+  });
+  for (const section of optionSections) {
+    allRows.push(...section.rows);
   }
 
   const firstColumnWith = Math.max(...allRows.map(([cell]) => cell.length));
@@ -274,8 +276,8 @@ function getCommandSection(heading, path, definition) {
   if (argumentsRows) {
     parts.push(formatSectionWithColumns('Arguments', argumentsRows, firstColumnWith));
   }
-  if (optionsRows) {
-    parts.push(formatSectionWithColumns('Options', optionsRows, firstColumnWith));
+  for (const section of optionSections) {
+    parts.push(formatSectionWithColumns(section.title, section.rows, firstColumnWith));
   }
 
   return parts.join('\n\n');

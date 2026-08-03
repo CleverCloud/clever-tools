@@ -105,9 +105,8 @@ cliparseCommandModule.help = function (context) {
     allRows.push(...argumentsRows);
   }
 
-  let optionsRows;
-  if (commandInfo.options) {
-    optionsRows = commandInfo.options.map((opt) => {
+  const optionSections = (commandInfo.optionGroups ?? []).map((group) => {
+    const rows = group.options.map((opt) => {
       const placeholder = opt.placeholder ? ` ${opt.placeholder}` : '';
       const aliasesPadding = opt.aliases[0].length === 2 ? '' : '    ';
       const aliases = aliasesPadding + opt.aliases.join(', ') + placeholder;
@@ -118,7 +117,10 @@ cliparseCommandModule.help = function (context) {
       if (opt.default) description += ` ${styleText('dim', opt.default)}`;
       return [aliases, description];
     });
-    allRows.push(...optionsRows);
+    return { title: group.title == null ? 'OPTIONS' : `OPTIONS FOR ${group.title.toUpperCase()}`, rows };
+  });
+  for (const section of optionSections) {
+    allRows.push(...section.rows);
   }
 
   const availableCommandsRows = cmd.commands.map((cmd) => [cmd.name, cmd.description.split('\n')[0]]);
@@ -135,8 +137,8 @@ cliparseCommandModule.help = function (context) {
   if (argumentsRows) {
     parts.push(formatSectionWithColumns('ARGUMENTS', argumentsRows, firstColumnWith));
   }
-  if (optionsRows) {
-    parts.push(formatSectionWithColumns('OPTIONS', optionsRows, firstColumnWith));
+  for (const section of optionSections) {
+    parts.push(formatSectionWithColumns(section.title, section.rows, firstColumnWith));
   }
   if (cmd._definition.examples?.length > 0) {
     parts.push(formatSection('EXAMPLES', cmd._definition.examples));
