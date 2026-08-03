@@ -1,7 +1,9 @@
+import { z } from 'zod';
 import { getDrains } from '../../clever-client/drains.js';
 import { defineCommand } from '../../lib/define-command.js';
+import { defineOption } from '../../lib/define-option.js';
 import { Logger } from '../../logger.js';
-import { formatDrain, resolveDrainResource } from '../../models/drain.js';
+import { DRAIN_TYPE_CLI_CODES, DRAIN_TYPES, formatDrain, resolveDrainResource } from '../../models/drain.js';
 import { sendToApi } from '../../models/send-to-api.js';
 import {
   addonIdOrRealIdOption,
@@ -17,14 +19,25 @@ export const drainCommand = defineCommand({
     alias: aliasOption,
     appIdOrName: appIdOrNameOption,
     addonIdOrRealId: addonIdOrRealIdOption,
+    type: defineOption({
+      name: 'type',
+      schema: z.enum(DRAIN_TYPE_CLI_CODES).optional(),
+      description: 'Only list drains of this type',
+      placeholder: 'drain-type',
+    }),
     format: humanJsonOutputFormatOption,
   },
   args: [],
   async handler(options) {
-    const { alias, appIdOrName, addonIdOrRealId, format } = options;
+    const { alias, appIdOrName, addonIdOrRealId, type, format } = options;
     const { ownerId, resourceId } = await resolveDrainResource(alias, appIdOrName, addonIdOrRealId);
 
-    const drains = await getDrains({ ownerId, resourceId }).then(sendToApi);
+    const allDrains = await getDrains({ ownerId, resourceId }).then(sendToApi);
+
+    // The resource scoped endpoint only filters on status, so the type filter is applied here.
+    // The list is bounded by the number of drains of a single resource, it never paginates.
+    const drainType = Object.values(DRAIN_TYPES).find((drainType) => drainType.cliCode === type);
+    const drains = drainType == null ? allDrains : allDrains.filter((d) => d.recipient.type === drainType.apiCode);
 
     switch (format) {
       case 'json': {
@@ -35,7 +48,8 @@ export const drainCommand = defineCommand({
       default: {
         if (drains.length === 0) {
           const resourceLabel = addonIdOrRealId ?? appIdOrName ?? resourceId;
-          Logger.println(`There are no drains for ${resourceLabel}`);
+          const drainsLabel = drainType == null ? 'drains' : `${drainType.label} drains`;
+          Logger.println(`There are no ${drainsLabel} for ${resourceLabel}`);
           return;
         }
 

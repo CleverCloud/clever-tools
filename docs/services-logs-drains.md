@@ -5,6 +5,7 @@ You can use Clever Tools to control logs drains, through following commands. Eac
 ```
 clever drain
 clever drain -F json
+clever drain --type <DRAIN-TYPE>
 clever drain create <DRAIN-TYPE> <DRAIN-URL>
 clever drain get <DRAIN-ID>
 clever drain get <DRAIN-ID> --format json
