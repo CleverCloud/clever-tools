@@ -22,6 +22,7 @@ export const DRAIN_TYPES = {
   NEWRELIC: { apiCode: 'NEWRELIC', cliCode: 'newrelic', label: 'New Relic' },
   OVH_TCP: { apiCode: 'OVH_TCP', cliCode: 'ovh-tcp', label: 'OVH TCP' },
   RAW_HTTP: { apiCode: 'RAW_HTTP', cliCode: 'raw-http', label: 'Raw HTTP' },
+  SPLUNK: { apiCode: 'SPLUNK', cliCode: 'splunk', label: 'Splunk' },
   SYSLOG_TCP: { apiCode: 'SYSLOG_TCP', cliCode: 'syslog-tcp', label: 'Syslog TCP' },
   SYSLOG_UDP: { apiCode: 'SYSLOG_UDP', cliCode: 'syslog-udp', label: 'Syslog UDP' },
 };
@@ -57,6 +58,12 @@ export function formatDrain(rawDrain) {
     ['URL', rawDrain.recipient.url],
     ['Type', drainType.label],
     ['Custom index', rawDrain.recipient.index],
+    ['Sourcetype', rawDrain.recipient.sourcetype],
+    // DEFAULT is the implicit norm, only a relaxed verification is worth showing
+    [
+      'TLS verification',
+      rawDrain.recipient.tlsVerification === 'TRUSTFUL' ? 'Trustful (certificate not verified)' : null,
+    ],
     ['SD parameters', rawDrain.recipient.rfc5424StructuredDataParameters],
     ['Message output rate', formatRate(rawDrain.backlog.msgRateOut)],
     ['Message throughput', formatThroughput(rawDrain.backlog.msgThroughputOut)],
