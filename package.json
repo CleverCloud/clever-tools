@@ -49,7 +49,6 @@
     "typecheck": "tsc -p tsconfig.json"
   },
   "dependencies": {
-    "@babel/traverse": "7.28.5",
     "@clevercloud/client": "12.0.0",
     "@inquirer/prompts": "7.8.4",
     "char-regex": "2.0.2",
