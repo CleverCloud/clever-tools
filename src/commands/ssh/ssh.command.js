@@ -58,6 +58,9 @@ export const sshCommand = defineCommand({
     }
 
     const sshParams = [];
+    // Clever Cloud SSH only accepts key auth. Disable password fallback so a missing
+    // or unregistered key fails fast instead of prompting for a password that cannot work.
+    sshParams.push('-o', 'PreferredAuthentications=publickey', '-o', 'PasswordAuthentication=no');
     // -t: force PTY allocation (SSH skips it by default because appId is passed as a command for gateway routing)
     if (command == null) {
       sshParams.push('-t');
