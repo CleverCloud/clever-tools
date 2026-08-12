@@ -13,6 +13,13 @@ clever drain enable <DRAIN-ID>
 clever drain disable <DRAIN-ID>
 ```
 
+When no application is linked or targeted, `clever drain` lists the drains of every application and add-on you have access to, grouped by organisation. You can restrict this listing to a single organisation with `--org` (`-o`, `--owner`):
+
+```
+clever drain
+clever drain --org <ORG_ID_OR_NAME>
+```
+
 Where `DRAIN-TYPE` is one of:
 
 - `datadog`: for Datadog endpoint (note that this endpoint needs your Datadog API Key)
