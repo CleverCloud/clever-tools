@@ -140,7 +140,10 @@ function printOwnersDrains(owners, format) {
           ),
         );
 
-        console.table(owner.drains.map((drain) => formatDrainRow(drain, drain.resourceName ?? drain.resourceId)));
+        // A tenant-scoped drain (audit logs) has no resource, it belongs to the organisation itself
+        console.table(
+          owner.drains.map((drain) => formatDrainRow(drain, drain.resourceName ?? drain.resourceId ?? owner.name)),
+        );
       });
     }
   }
