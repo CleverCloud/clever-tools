@@ -28,12 +28,18 @@ export const sshCommand = defineCommand({
       aliases: ['c'],
       placeholder: 'command',
     }),
+    instance: defineOption({
+      name: 'instance',
+      schema: z.string().optional(),
+      description: 'Instance ID to connect to (skips interactive selection)',
+      placeholder: 'instance-id',
+    }),
     alias: aliasOption,
     app: appIdOrNameOption,
   },
   args: [],
   async handler(options) {
-    const { alias, app: appIdOrName, identityFile, command } = options;
+    const { alias, app: appIdOrName, identityFile, command, instance } = options;
     const { appId, ownerId } = await Application.resolveId(appIdOrName, alias);
 
     const instances = await getAllInstances({ id: ownerId, appId }).then(sendToApi);
@@ -43,7 +49,13 @@ export const sshCommand = defineCommand({
     }
 
     let sshTarget;
-    if (instances.length === 1) {
+    if (instance != null) {
+      const match = instances.find((inst) => inst.id === instance);
+      if (match == null) {
+        throw new Error(`Instance ${instance} is not a running instance of this application`);
+      }
+      sshTarget = match.id;
+    } else if (instances.length === 1) {
       sshTarget = instances[0].id;
     } else if (process.stdin.isTTY) {
       const choices = instances
