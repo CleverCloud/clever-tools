@@ -139,9 +139,13 @@ function findDefaultApp(appConfig) {
   );
 }
 
-export async function getAppDetails({ alias }) {
-  const appConfig = await loadApplicationConf();
-  const app = findApp(appConfig, alias);
+/**
+ * @param {Object} params
+ * @param {String} [params.alias]
+ * @param {Object} [params.appConfig] an already loaded application configuration, to avoid reading it again
+ */
+export async function getAppDetails({ alias, appConfig }) {
+  const app = findApp(appConfig ?? (await loadApplicationConf()), alias);
   const ownerId = app.org_id != null ? app.org_id : await User.getCurrentId();
   return {
     appId: app.app_id,
