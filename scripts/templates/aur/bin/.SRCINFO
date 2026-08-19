@@ -5,9 +5,12 @@ pkgbase = <%= pkgbase %>
 	url = <%= url %>
 	arch = x86_64
 	license = <%= license %>
+	depends = glibc
+	depends = gcc-libs
 	provides = clever-tools
 	conflicts = clever-tools
 	options = !strip
+	options = !debug
 	source = clever-tools-<%= version %>_linux.tar.gz::https://clever-tools.clever-cloud.com/releases/<%= version %>/clever-tools-<%= version %>_linux.tar.gz
 	sha256sums = <%= sha256 %>
 

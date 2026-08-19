@@ -60,5 +60,9 @@ WRAPPER
 
   install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
 
+  # Dependencies ship their own man pages, which namcap flags as non FHS and
+  # which are of no use here: the CLI documents itself through "clever help"
+  find "${pkgdir}/usr/lib/clever-tools/node_modules" -type d -name man -exec rm -rf {} +
+
   chown -R root:root "${pkgdir}/usr/lib/clever-tools"
 }
