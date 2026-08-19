@@ -8,9 +8,27 @@ import path from 'node:path';
  * @returns {Promise<string>}
  */
 export async function getSha256(inputPath) {
+  return getFileHash(inputPath, 'sha256');
+}
+
+/**
+ * Calculates the SHA512 hash of a file.
+ * @param {string} inputPath - Path to the file to hash
+ * @returns {Promise<string>}
+ */
+export async function getSha512(inputPath) {
+  return getFileHash(inputPath, 'sha512');
+}
+
+/**
+ * Calculates the hash of a file with the given algorithm.
+ * @param {string} inputPath - Path to the file to hash
+ * @param {'sha256'|'sha512'} algorithm - Hash algorithm to use
+ * @returns {Promise<string>} The hash, hex encoded
+ */
+async function getFileHash(inputPath, algorithm) {
   const content = await fs.readFile(inputPath);
-  const hash = crypto.createHash('sha256').update(content).digest('hex');
-  return hash;
+  return crypto.createHash(algorithm).update(content).digest('hex');
 }
 
 /**
