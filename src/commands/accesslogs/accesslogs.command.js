@@ -74,8 +74,9 @@ function formatBytes(bytes) {
  * connection details replace the request line.
  *
  * The destination is the load balancer, not the add-on, so it's dropped. The target VM is only
- * printed when the platform actually filled it: add-ons exposed over raw TCP leave it at the nil
- * UUID, printing that on every line would be pure noise.
+ * printed when the API resolved it: it carries the load balancer server name, which is a bare UUID
+ * for some providers but not for others, and the API falls back to the nil UUID when it cannot
+ * parse it. Printing `00000000` on every line of those would be pure noise.
  */
 function formatHumanTcp(log) {
   const { date, source, bytesIn, bytesOut, instanceId } = log;
