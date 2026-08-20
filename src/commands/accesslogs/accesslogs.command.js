@@ -35,31 +35,82 @@ const RETRY_CONFIGURATION = {
 
 const CITY_MAX_LENGTH = 20;
 
+function formatLocation(endpoint) {
+  const country = endpoint.countryCode ?? '(unknown)';
+  const hasCity = endpoint.city ?? '';
+
+  return `${country}${hasCity ? '/' + truncateWithEllipsis(CITY_MAX_LENGTH, endpoint.city) : ''}`;
+}
+
+/** An access log carries this instance ID when the platform did not attach the event to a VM */
+const NIL_INSTANCE_ID = '00000000-0000-0000-0000-000000000000';
+
+const INSTANCE_ID_SHORT_LENGTH = 8;
+
+function formatBytes(bytes) {
+  if (bytes < 1024) {
+    return `${bytes}B`;
+  }
+  if (bytes < 1024 * 1024) {
+    return `${(bytes / 1024).toFixed(2)}KiB`;
+  }
+  if (bytes < 1024 * 1024 * 1024) {
+    return `${(bytes / (1024 * 1024)).toFixed(2)}MiB`;
+  }
+  return `${(bytes / (1024 * 1024 * 1024)).toFixed(2)}GiB`;
+}
+
+/**
+ * Format the connection details of an access log without an HTTP section, as emitted for TCP
+ * redirections, SSH connections and add-ons exposed over raw TCP (Redis, PostgreSQL…).
+ *
+ * The destination is the load balancer, not the resource, so it's dropped. The target VM is only
+ * printed when the platform actually filled it: add-ons exposed over raw TCP leave it at the nil
+ * UUID, printing that on every line would be pure noise.
+ *
+ * @param {object} log an access log, as emitted by `ApplicationAccessLogStream`
+ * @returns {string}
+ */
+function formatConnection(log) {
+  const { source, bytesIn, bytesOut, instanceId } = log;
+  const target =
+    instanceId != null && instanceId !== NIL_INSTANCE_ID ? instanceId.slice(0, INSTANCE_ID_SHORT_LENGTH) : null;
+
+  return [
+    source.port != null ? `:${source.port}` : null,
+    bytesIn != null && bytesOut != null ? `${formatBytes(bytesIn)}↑ ${formatBytes(bytesOut)}↓` : null,
+    target && styleText('grey', target),
+  ]
+    .filter((part) => part != null)
+    .join('  ');
+}
+
 /**
  * Format an access log as a human readable table row.
  *
  * Non-HTTP access logs (TCP redirections, SSH connections, or HTTP connections cut before the
- * proxy could answer) have no `http` section: their status and request columns are omitted.
+ * proxy could answer) have no `http` section: their status and method columns are left empty and
+ * the connection details sit where the request path would be, so a mixed stream stays aligned.
  *
  * @param {object} log an access log, as emitted by `ApplicationAccessLogStream`
  * @returns {string}
  */
 function formatHuman(log) {
   const { date, http, source } = log;
-  const country = source.countryCode ?? '(unknown)';
-  const hasSourceCity = source.city ?? '';
 
   const columns = [
     styleText('grey', date.toISOString(date)),
     guessAccessLogTransport(log),
     source.ip,
-    `${country}${hasSourceCity ? '/' + truncateWithEllipsis(CITY_MAX_LENGTH, source.city) : ''}`,
+    formatLocation(source),
   ];
 
   if (http != null) {
     columns.push(colorStatusCode(http.response.statusCode));
     columns.push(http.request.method);
     columns.push(http.request.path);
+  } else {
+    columns.push('', '', formatConnection(log));
   }
 
   return formatTable([columns], ACCESSLOG_COLUMN_WIDTHS);
