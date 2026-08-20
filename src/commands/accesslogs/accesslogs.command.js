@@ -5,6 +5,7 @@ import { defineCommand } from '../../lib/define-command.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
 import * as Application from '../../models/application.js';
+import { resolveAddon } from '../../models/ids-resolver.js';
 import { JsonArray } from '../../models/json-array.js';
 import { getHostAndTokens } from '../../models/send-to-api.js';
 import { truncateWithEllipsis } from '../../models/utils.js';
@@ -84,20 +85,25 @@ export const accesslogsCommand = defineCommand({
   },
   args: [],
   async handler(options) {
-    // TODO: drop when add-ons are supported in API
-    if (options.addon) {
-      throw new Error('Access Logs are not available for add-ons yet');
-    }
-
     const { apiHost, tokens } = await getHostAndTokens();
-    const { alias, app: appIdOrName, format, before: until, after: since } = options;
-    const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
+    const { alias, app: appIdOrName, addon: addonIdOrRealId, format, before: until, after: since } = options;
+
+    // Add-ons are served by the very same endpoint as applications: the `applications` path segment
+    // is a misnomer, the API accepts any loggable ID. The access logs topic is named after the
+    // add-on real ID, an `addon_` ID resolves to no topic at all, hence the `realId` here.
+    const { ownerId, resourceId } =
+      addonIdOrRealId != null
+        ? await resolveAddon(addonIdOrRealId).then(({ ownerId, realId }) => ({ ownerId, resourceId: realId }))
+        : await Application.resolveId(appIdOrName, alias).then(({ ownerId, appId }) => ({
+            ownerId,
+            resourceId: appId,
+          }));
 
     const stream = new ApplicationAccessLogStream({
       apiHost,
       tokens,
       ownerId,
-      appId,
+      appId: resourceId,
       since,
       until,
       throttleElements: THROTTLE_ELEMENTS,
@@ -117,7 +123,7 @@ export const accesslogsCommand = defineCommand({
 
     stream
       .on('open', () => {
-        Logger.debug(styleText('blue', `Logs stream (open) ${JSON.stringify({ appId })}`));
+        Logger.debug(styleText('blue', `Logs stream (open) ${JSON.stringify({ resourceId })}`));
         if (format === 'json') {
           jsonArray.open();
         }
