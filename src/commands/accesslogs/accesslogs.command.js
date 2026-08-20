@@ -165,10 +165,6 @@ export const accesslogsCommand = defineCommand({
       throttlePerInMilliseconds: THROTTLE_PER_IN_MILLISECONDS,
     });
 
-    if (format === 'human') {
-      Logger.println(styleText('yellow', '/!\\ This feature is in Beta testing phase'));
-    }
-
     if (format === 'json' && !until) {
       throw new Error('JSON format only works with a limiting parameter such as `before`');
     }
