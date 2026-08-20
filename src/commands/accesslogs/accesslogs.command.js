@@ -24,19 +24,74 @@ const THROTTLE_PER_IN_MILLISECONDS = 100;
 
 const CITY_MAX_LENGTH = 20;
 
+function formatLocation(endpoint) {
+  const country = endpoint.countryCode ?? '(unknown)';
+  const hasCity = endpoint.city ?? '';
+
+  return `${country}${hasCity ? '/' + truncateWithEllipsis(CITY_MAX_LENGTH, endpoint.city) : ''}`;
+}
+
 function formatHuman(log) {
   const { date, http, source } = log;
-  const country = source.countryCode ?? '(unknown)';
-  const hasSourceCity = source.city ?? '';
 
   return formatTable(
     [
       [
         styleText('grey', date.toISOString(date)),
         source.ip,
-        `${country}${hasSourceCity ? '/' + truncateWithEllipsis(CITY_MAX_LENGTH, source.city) : ''}`,
+        formatLocation(source),
         colorStatusCode(http.response.statusCode),
         http.request.method.toString().padEnd(4, ' ') + ' ' + http.request.path,
+      ],
+    ],
+
+    ACCESSLOG_COLUMN_WIDTHS,
+  );
+}
+
+/** An access log carries this instance ID when the platform did not attach the event to a VM */
+const NIL_INSTANCE_ID = '00000000-0000-0000-0000-000000000000';
+
+const INSTANCE_ID_SHORT_LENGTH = 8;
+
+function formatBytes(bytes) {
+  if (bytes < 1024) {
+    return `${bytes}B`;
+  }
+  if (bytes < 1024 * 1024) {
+    return `${(bytes / 1024).toFixed(2)}KiB`;
+  }
+  if (bytes < 1024 * 1024 * 1024) {
+    return `${(bytes / (1024 * 1024)).toFixed(2)}MiB`;
+  }
+  return `${(bytes / (1024 * 1024 * 1024)).toFixed(2)}GiB`;
+}
+
+/**
+ * Format an access log without an HTTP section, as emitted for TCP redirections and for add-ons
+ * exposed over raw TCP (Redis, PostgreSQL…). The columns are kept identical to the HTTP ones so both
+ * kinds of lines stay aligned in a single stream: `TCP` sits where the status code would be, and the
+ * connection details replace the request line.
+ *
+ * The destination is the load balancer, not the add-on, so it's dropped. The target VM is only
+ * printed when the platform actually filled it: add-ons exposed over raw TCP leave it at the nil
+ * UUID, printing that on every line would be pure noise.
+ */
+function formatHumanTcp(log) {
+  const { date, source, bytesIn, bytesOut, instanceId } = log;
+  const target =
+    instanceId != null && instanceId !== NIL_INSTANCE_ID ? instanceId.slice(0, INSTANCE_ID_SHORT_LENGTH) : null;
+
+  return formatTable(
+    [
+      [
+        styleText('grey', date.toISOString(date)),
+        source.ip,
+        formatLocation(source),
+        styleText('cyan', 'TCP'),
+        [`:${source.port}`, `${formatBytes(bytesIn)}↑ ${formatBytes(bytesOut)}↓`, target && styleText('grey', target)]
+          .filter((part) => part != null)
+          .join('  '),
       ],
     ],
 
@@ -140,7 +195,8 @@ export const accesslogsCommand = defineCommand({
             Logger.printJson(log);
             break;
           case 'clf':
-            // when the connection is cut too early, or for TCP redirections, we don't have HTTP section
+            // when the connection is cut too early, or for TCP redirections, we don't have HTTP
+            // section. CLF describes an HTTP request, there is nothing meaningful to emit here
             if (log.http == null) {
               break;
             }
@@ -149,12 +205,10 @@ export const accesslogsCommand = defineCommand({
             break;
           case 'human':
           default:
-            // when the connection is cut too early, or for TCP redirections, we don't have HTTP section
-            if (log.http == null) {
-              break;
-            }
-
-            Logger.println(formatHuman(log));
+            // when the connection is cut too early, or for TCP redirections, we don't have HTTP
+            // section. That's the only thing add-ons exposed over raw TCP ever emit, so these logs
+            // get their own line instead of being dropped
+            Logger.println(log.http == null ? formatHumanTcp(log) : formatHuman(log));
             break;
         }
       });
