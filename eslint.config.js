@@ -10,7 +10,7 @@ export default [
   {
     name: 'global config',
     ...cleverCloud.configs.node,
-    files: ['bin/*.js', 'src/**/*.js', 'scripts/**/*.js'],
+    files: ['bin/*.js', 'src/**/*.js', 'scripts/**/*.js', 'test/**/*.js'],
     languageOptions: {
       ecmaVersion: 2025,
       sourceType: 'module',
