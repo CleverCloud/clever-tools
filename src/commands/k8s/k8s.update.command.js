@@ -1,7 +1,12 @@
 import { z } from 'zod';
 import { defineCommand } from '../../lib/define-command.js';
 import { defineOption } from '../../lib/define-option.js';
-import { k8sUpdate } from '../../lib/k8s.js';
+import {
+  NODE_AUTOPROVISIONING_HINT,
+  buildClusterFeaturesPatch,
+  k8sUpdate,
+  processFeaturesError,
+} from '../../lib/k8s.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
 import { tags } from '../../parsers.js';
@@ -40,33 +45,48 @@ export const k8sUpdateCommand = defineCommand({
       schema: z.boolean().default(false),
       description: 'Disable the cluster autoscaler',
     }),
+    nodeAutoprovisioning: defineOption({
+      name: 'node-autoprovisioning',
+      schema: z.boolean().default(false),
+      description: 'Enable node autoscaling via node auto-provisioning, powered by Karpenter',
+    }),
+    disableNodeAutoprovisioning: defineOption({
+      name: 'disable-node-autoprovisioning',
+      schema: z.boolean().default(false),
+      description: 'Disable node autoscaling via node auto-provisioning, uninstalls Karpenter',
+    }),
     org: orgaIdOrNameOption,
   },
   args: [k8sIdOrNameArg],
   async handler(options, clusterIdOrName) {
     const { org: orgIdOrName } = options;
 
-    if (options.autoscaling && options.disableAutoscaling) {
-      throw new Error('--autoscaling and --disable-autoscaling are mutually exclusive');
-    }
-
     const updates = {};
     if (options.name != null) updates.name = options.name;
     if (options.description != null) updates.description = options.description;
     if (options.tag != null) updates.tags = options.tag;
 
-    const features = {};
-    if (options.autoscaling) features.autoscalingEnabled = true;
-    if (options.disableAutoscaling) features.autoscalingEnabled = false;
+    const features = buildClusterFeaturesPatch(options);
     if (Object.keys(features).length > 0) updates.features = features;
 
     if (Object.keys(updates).length === 0) {
       throw new Error(
-        'No update specified. Provide at least one of --name, --description, --tag, --autoscaling, --disable-autoscaling',
+        'No update specified. Provide at least one of --name, --description, --tag, --autoscaling, --disable-autoscaling, --node-autoprovisioning, --disable-node-autoprovisioning',
       );
     }
 
-    const cluster = await k8sUpdate(orgIdOrName, clusterIdOrName, updates);
+    const cluster = await k8sUpdate(orgIdOrName, clusterIdOrName, updates).catch((error) => {
+      // Preserve API errors for metadata and existing autoscaler updates.
+      if (features.nodeAutoprovisioning == null) throw error;
+      throw processFeaturesError(error, clusterIdOrName, { disabling: options.disableNodeAutoprovisioning });
+    });
     Logger.printSuccess(`Cluster ${styleText('green', cluster.name)} updated`);
+
+    if (options.nodeAutoprovisioning) {
+      Logger.printInfo(NODE_AUTOPROVISIONING_HINT);
+    }
+    if (options.disableNodeAutoprovisioning) {
+      Logger.printInfo('Karpenter is being uninstalled from the cluster');
+    }
   },
 });

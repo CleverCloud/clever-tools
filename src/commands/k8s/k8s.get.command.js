@@ -1,5 +1,5 @@
 import { defineCommand } from '../../lib/define-command.js';
-import { getK8sCluster } from '../../lib/k8s.js';
+import { formatFeatureState, getK8sCluster } from '../../lib/k8s.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
 import { humanJsonOutputFormatOption, orgaIdOrNameOption } from '../global.options.js';
@@ -32,6 +32,7 @@ export const k8sGetCommand = defineCommand({
           Version: k8sInfo.version,
           Topology: formatTopology(topo),
           Autoscaling: k8sInfo.features?.autoscalingEnabled ? 'enabled' : 'disabled',
+          'Node auto-provisioning': formatFeatureState(k8sInfo.features?.nodeAutoprovisioning, k8sInfo.status),
           'Persistent storage': k8sInfo.features?.csi != null ? 'enabled' : 'disabled',
         };
         if (k8sInfo.tags?.length) overview.Tags = k8sInfo.tags.join(', ');

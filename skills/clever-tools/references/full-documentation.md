@@ -1769,6 +1769,7 @@ cluster-name                                     Kubernetes cluster name
     --cluster-version <cluster-version>          Kubernetes version to deploy (e.g.: 1.36)
     --description <description>                  Free-form cluster description
     --flavor <flavor>                            Control plane flavor
+    --node-autoprovisioning                      Enable node autoscaling via node auto-provisioning, powered by Karpenter
     --nodegroup <flavor:count>                   Initial node group (format: <flavor>:<count>, e.g.: XS:3)
 -o, --org, --owner <org-id|org-name>             Organisation to target by its ID (or name, if unambiguous)
     --persistent-storage                         Enable persistent storage (Ceph CSI)
@@ -2035,7 +2036,9 @@ cluster-id|cluster-name                 Kubernetes cluster ID or name
     --autoscaling                       Enable the cluster autoscaler
     --description <description>         Free-form cluster description
     --disable-autoscaling               Disable the cluster autoscaler
+    --disable-node-autoprovisioning     Disable node autoscaling via node auto-provisioning, uninstalls Karpenter
     --name <name>                       Rename the cluster
+    --node-autoprovisioning             Enable node autoscaling via node auto-provisioning, powered by Karpenter
 -o, --org, --owner <org-id|org-name>    Organisation to target by its ID (or name, if unambiguous)
     --tag <tag[,tag...]>                Replace tags (comma-separated, e.g.: env:prod,team:platform)
 ```
