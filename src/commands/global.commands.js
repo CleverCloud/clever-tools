@@ -181,6 +181,8 @@ import { tcpRedirsListNamespacesCommand } from './tcp-redirs/tcp-redirs.list-nam
 import { tcpRedirsRemoveCommand } from './tcp-redirs/tcp-redirs.remove.command.js';
 import { tokensCommand } from './tokens/tokens.command.js';
 import { tokensCreateCommand } from './tokens/tokens.create.command.js';
+import { tokensMetricsCommand } from './tokens/tokens.metrics.command.js';
+import { tokensMetricsGenCommand } from './tokens/tokens.metrics.gen.command.js';
 import { tokensRevokeCommand } from './tokens/tokens.revoke.command.js';
 import { unlinkCommand } from './unlink/unlink.command.js';
 import { versionCommand } from './version/version.command.js';
@@ -522,6 +524,12 @@ export const globalCommands = {
     tokensCommand,
     {
       create: tokensCreateCommand,
+      metrics: [
+        tokensMetricsCommand,
+        {
+          gen: tokensMetricsGenCommand,
+        },
+      ],
       revoke: tokensRevokeCommand,
     },
   ],

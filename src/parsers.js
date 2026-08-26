@@ -158,13 +158,53 @@ const SHORT_UNITS_TO_ISO = {
 };
 
 function parseSimpleDuration(durationStr) {
-  const { rawValue, unit } = durationStr.match(/^(?<rawValue>\d+)(?<unit>.*)$/)?.groups ?? {};
-  if (unit in SHORT_UNITS_TO_ISO) {
-    const value = Number(rawValue);
-    const isoDuration = SHORT_UNITS_TO_ISO[unit](value);
-    const d = ISO8601.parse(isoDuration);
-    return ISO8601.toSeconds(d);
+  const isoDuration = shortDurationToIso(durationStr);
+  if (isoDuration != null) {
+    return ISO8601.toSeconds(ISO8601.parse(isoDuration));
   }
+}
+
+/**
+ * Convert a `1h`/`4d`/`2w` like duration to its ISO 8601 form, or `null` if the unit is unknown.
+ * @param {string} durationStr
+ * @returns {string|null} an ISO 8601 duration
+ */
+function shortDurationToIso(durationStr) {
+  const { rawValue, unit } = durationStr.match(/^(?<rawValue>\d+)(?<unit>.*)$/)?.groups ?? {};
+  return unit in SHORT_UNITS_TO_ISO ? SHORT_UNITS_TO_ISO[unit](Number(rawValue)) : null;
+}
+
+/**
+ * Parse a duration into the ISO 8601 string an API expects.
+ *
+ * Accepts the same grammar as {@link durationInSeconds} minus the bare number of seconds, which
+ * would be ambiguous here, and returns a duration rather than a count of seconds: `P5D` stays
+ * `P5D` instead of becoming `432000`, so what the user typed is what gets sent and echoed back.
+ * A zero or negative duration is rejected — every caller so far wants a lifespan.
+ *
+ * @param {string} durationStr an ISO 8601 duration or a `1h, 4d, 2w` like duration
+ * @returns {string} an ISO 8601 duration
+ */
+export function iso8601Duration(durationStr = '') {
+  const errorMessage = `Invalid duration: "${durationStr}", expect an ISO 8601 duration (e.g.: P5D, PT12H) or a "1h, 4d, 2w" like duration`;
+
+  const isoDuration = durationStr.startsWith('P') ? durationStr : shortDurationToIso(durationStr);
+  if (isoDuration == null) {
+    throw new Error(errorMessage);
+  }
+
+  let seconds;
+  try {
+    seconds = ISO8601.toSeconds(ISO8601.parse(isoDuration));
+  } catch {
+    throw new Error(errorMessage);
+  }
+
+  if (seconds <= 0) {
+    throw new Error(`Invalid duration: "${durationStr}", it must be strictly positive`);
+  }
+
+  return isoDuration;
 }
 
 // Network Groups parsers
