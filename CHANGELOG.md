@@ -1,5 +1,19 @@
 # clever-tools changelog
 
+## [4.12.0](https://github.com/CleverCloud/clever-tools/compare/4.11.0...4.12.0) (2026-09-03)
+
+
+### 🚀 Features
+
+* **drain:** support Splunk HEC as a drain target ([3ceced3](https://github.com/CleverCloud/clever-tools/commit/3ceced38d423677d278b9effd731587bf6827458))
+
+
+### 🐛 Bug Fixes
+
+* **ci:** skip release-please PRs via head_ref check ([bce17d3](https://github.com/CleverCloud/clever-tools/commit/bce17d3fd6a7de471e2fb8127426ea0f04037a30))
+* **login:** continue when browser launch fails ([2e6cfea](https://github.com/CleverCloud/clever-tools/commit/2e6cfeaefb8154692a670153d0d3b44b69741eec)), closes [#939](https://github.com/CleverCloud/clever-tools/issues/939)
+* **ssh:** forbid password authentication fallback ([80efad0](https://github.com/CleverCloud/clever-tools/commit/80efad068ab1e889cbbb5d1cd7244096725b4b01))
+
 ## [4.11.0](https://github.com/CleverCloud/clever-tools/compare/4.10.0...4.11.0) (2026-06-30)
 
 
