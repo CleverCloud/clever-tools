@@ -22,9 +22,17 @@ To control an application with Clever Tools, it must be linked to a local direct
 
 ## How to install Clever Tools
 
-Clever Cloud CLI is based on Node.js. We thought it to be easily available on any platform. Thus, you can download Clever Tools as [a npm package](https://www.npmjs.com/package/clever-tools), but also through package managers or as a binary on many systems:
+Clever Tools is available as a npm package, through package managers, or as a standalone binary on many systems:
 
 
+
+### Node.js
+
+Clever Tools is available as [a npm package](https://www.npmjs.com/package/clever-tools):
+
+```
+npm install -g clever-tools
+```
 
 ### GNU/Linux
 
