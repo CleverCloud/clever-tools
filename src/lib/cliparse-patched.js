@@ -179,7 +179,7 @@ function wrapParser(parser) {
 // instead of cliparse.autocomplete.words(array)
 function wrapComplete(complete) {
   return (word) => {
-    // Support both functions and static arrays (e.g. complete: Drain.DRAIN_TYPE_CLI_CODES)
+    // Support both functions and static arrays (e.g. complete: ['human', 'json'])
     const result = typeof complete === 'function' ? complete(word) : complete;
     return Promise.resolve(result).then(cliparse.autocomplete.words);
   };
