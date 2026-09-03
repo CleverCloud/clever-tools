@@ -81,7 +81,7 @@
     "@rollup/plugin-node-resolve": "16.0.3",
     "@types/mime-types": "3.0.1",
     "@types/picomatch": "4.0.2",
-    "@yao-pkg/pkg": "6.21.0",
+    "@yao-pkg/pkg": "6.22.0",
     "eslint": "9.39.1",
     "globals": "16.5.0",
     "mime-types": "3.0.2",
@@ -98,7 +98,7 @@
     "node": ">=24"
   },
   "volta": {
-    "node": "24.18.0",
+    "node": "24.18.1",
     "npm": "11.6.2"
   }
 }
