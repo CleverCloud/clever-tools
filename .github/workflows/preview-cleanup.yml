@@ -4,8 +4,6 @@ on:
   pull_request:
     types:
       - closed
-    branches-ignore:
-      - 'release-please--**'
 
 env:
   CC_CLEVER_TOOLS_PREVIEWS_CELLAR_BUCKET: ${{ vars.CC_CLEVER_TOOLS_PREVIEWS_CELLAR_BUCKET }}
@@ -14,6 +12,7 @@ env:
 
 jobs:
   cleanup:
+    if: ${{ !startsWith(github.head_ref, 'release-please--') }}
     name: 'Cleanup preview'
     runs-on: ubuntu-latest
     permissions:

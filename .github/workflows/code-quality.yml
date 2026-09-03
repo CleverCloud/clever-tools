@@ -6,8 +6,6 @@ on:
       - opened
       - reopened
       - synchronize
-    branches-ignore:
-      - 'release-please--**'
 
 concurrency:
   group: code-quality-${{ github.event.pull_request.number }}
@@ -15,6 +13,7 @@ concurrency:
 
 jobs:
   code-quality:
+    if: ${{ !startsWith(github.head_ref, 'release-please--') }}
     name: 'Code quality'
     runs-on: ubuntu-latest
     steps:

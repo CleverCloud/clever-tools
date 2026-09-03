@@ -10,8 +10,6 @@ on:
       - unlabeled
     paths-ignore:
       - '**/*.md'
-    branches-ignore:
-      - 'release-please--**'
 
 concurrency:
   group: preview-${{ github.event.pull_request.number }}
@@ -24,6 +22,7 @@ env:
 
 jobs:
   build:
+    if: ${{ !startsWith(github.head_ref, 'release-please--') }}
     uses: ./.github/workflows/build.yml
     with:
       version: ${{ github.event.pull_request.head.ref }}
