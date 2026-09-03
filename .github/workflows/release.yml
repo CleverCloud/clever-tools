@@ -132,8 +132,8 @@ jobs:
           CC_CLEVER_TOOLS_RELEASES_CELLAR_KEY_ID: ${{ secrets.CC_CLEVER_TOOLS_RELEASES_CELLAR_KEY_ID }}
           CC_CLEVER_TOOLS_RELEASES_CELLAR_SECRET_KEY: ${{ secrets.CC_CLEVER_TOOLS_RELEASES_CELLAR_SECRET_KEY }}
 
-  publish-aur:
-    name: 'Publish to AUR'
+  publish-aur-bin:
+    name: 'Publish to AUR (binary package)'
     needs: publish-cellar-archives
     runs-on: ubuntu-latest
     steps:
@@ -150,9 +150,29 @@ jobs:
       - uses: ./.github/actions/download-artifacts
         with: { pattern: build-linux-archive }
       - name: 'Publish to AUR'
-        run: ./scripts/publish-aur.js ${{ github.ref_name }}
+        run: ./scripts/publish-aur.js ${{ github.ref_name }} bin
         env:
-          AUR_GIT_URL: ${{ vars.AUR_GIT_URL }}
+          AUR_GIT_URL: ${{ vars.AUR_BIN_GIT_URL }}
+
+  publish-aur-nodejs:
+    name: 'Publish to AUR (Node.js package)'
+    needs: publish-npm
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'Setup SSH key'
+        uses: webfactory/ssh-agent@v0.9.1
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+      - name: 'Add AUR to known hosts'
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H aur.archlinux.org >> ~/.ssh/known_hosts
+      - uses: actions/checkout@v5
+      - uses: ./.github/actions/setup-node
+      - name: 'Publish to AUR'
+        run: ./scripts/publish-aur.js ${{ github.ref_name }} nodejs
+        env:
+          AUR_GIT_URL: ${{ vars.AUR_NODEJS_GIT_URL }}
 
   publish-homebrew:
     name: 'Publish to Homebrew'

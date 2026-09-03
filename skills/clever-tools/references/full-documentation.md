@@ -30,12 +30,21 @@ Clever Cloud CLI is based on Node.js. We thought it to be easily available on an
 
 #### Arch Linux (AUR)
 
-If you use Arch Linux, install packages [from AUR](https://aur.archlinux.org/packages/clever-tools-bin/). If you don't know how to use this, run:
+If you use Arch Linux, install Clever Tools from AUR. Two packages are available, they provide the same `clever` command and cannot be installed side by side:
+
+- [`clever-tools`](https://aur.archlinux.org/packages/clever-tools/): the Node.js flavor, it runs on the `nodejs` package of your system
+- [`clever-tools-bin`](https://aur.archlinux.org/packages/clever-tools-bin/): a self-contained binary, with no runtime dependency
+
+If you use an AUR helper like `yay`, run:
 
 ```
-git clone https://aur.archlinux.org/clever-tools-bin.git clever-tools
-cd clever-tools
-makepkg -si
+yay -S clever-tools
+```
+
+Or, for the self-contained binary:
+
+```
+yay -S clever-tools-bin
 ```
 
 #### CentOS/Fedora (.rpm)

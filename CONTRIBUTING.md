@@ -86,6 +86,15 @@ We provide several utility scripts to streamline development (located in `/scrip
   node scripts/check-github-actions.js
   ```
 
+#### AUR Packages
+
+- **`scripts/publish-aur.js`**: Publish a package flavor to the Arch User Repository
+
+  Both flavors are published from templates in `scripts/templates/aur/<flavor>/`. The `.SRCINFO` is
+  templated alongside the `PKGBUILD`, so both files must be edited together and kept in sync
+  (`makepkg --printsrcinfo` regenerates it for comparison). On an Arch Linux machine, a template
+  change can be validated end to end against a local bare repository, without ever touching AUR.
+
 #### Preview Management
 
 - **`scripts/preview.js`**: Build and manage PR preview versions
@@ -123,6 +132,7 @@ clever-tools/
 ├── scripts/                             # Build and CI scripts (TypeScript with JSDoc enforced)
 │   ├── lib/                             # Shared utilities for scripts
 │   └── templates/                       # Templates for package managers (AUR, Homebrew, etc.)
+│       └── aur/{bin,nodejs}/            # One directory per AUR package flavor
 └── ...
 ```
 
@@ -694,7 +704,7 @@ Our CI/CD pipeline ensures quality and automates releases:
 - Conventional commits drive changelog generation
 - Release-please manages versioning
 - Automated publishing to multiple platforms:
-  - **AUR**: Arch Linux User Repository
+  - **AUR**: Arch Linux User Repository, two packages (`clever-tools`, the Node.js flavor, and `clever-tools-bin`, the self-contained binary)
   - **Cellar**: Clever Cloud's object storage for direct downloads
   - **Docker Hub**: Official Docker images
   - **Exherbo**: Linux distribution packages
@@ -742,6 +752,9 @@ graph LR
         BUNDLE2 --> BUILD_WIN2[build-windows]
     end
 
+    REL --> NPM[publish-npm]
+    NPM --> AUR_NODEJS[publish-aur-nodejs]
+
     BUILD_2 --> PACKAGE_RPM[package-rpm]
     BUILD_2 --> PACKAGE_DEB[package-deb]
     BUILD_2 --> CELLAR_ARC[publish-cellar-archives]
@@ -756,7 +769,7 @@ graph LR
     PACKAGE_DEB --> NEXUS_DEB[publish-nexus-deb]
 
     %% Package managers (depend on cellar archives)
-    CELLAR_ARC --> AUR[publish-aur]
+    CELLAR_ARC --> AUR_BIN[publish-aur-bin]
     CELLAR_ARC --> HOMEBREW[publish-homebrew]
     CELLAR_ARC --> DOCKER[publish-dockerhub]
     CELLAR_ARC --> EXHERBO[publish-exherbo]

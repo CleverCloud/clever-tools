@@ -1,0 +1,18 @@
+pkgbase = <%= pkgbase %>
+	pkgdesc = <%= description %>
+	pkgver = <%= version %>
+	pkgrel = 1
+	url = <%= url %>
+	arch = any
+	license = <%= license %>
+	makedepends = npm
+	depends = nodejs>=22
+	conflicts = clever-tools-bin
+	options = !strip
+	options = !debug
+	source = clever-tools-<%= version %>.tgz::https://registry.npmjs.org/clever-tools/-/clever-tools-<%= version %>.tgz
+	source = clever-tools-<%= version %>-package-lock.json::https://raw.githubusercontent.com/CleverCloud/clever-tools/<%= version %>/package-lock.json
+	sha512sums = <%= tarballSha512 %>
+	sha512sums = <%= lockfileSha512 %>
+
+pkgname = <%= pkgbase %>
