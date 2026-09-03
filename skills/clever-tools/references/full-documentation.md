@@ -1093,21 +1093,25 @@ clever drain create <drain-type> <drain-url> [options]
 
 **Arguments**
 ```
-drain-type                           Drain type (betterstack, datadog, elasticsearch, newrelic, ovh-tcp, raw-http, syslog-tcp, syslog-udp)
-drain-url                            Drain URL
+drain-type                                   Drain type (betterstack, datadog, elasticsearch, newrelic, ovh-tcp, raw-http, splunk, syslog-tcp, syslog-udp)
+drain-url                                    Drain URL
 ```
 
 **Options**
 ```
-    --addon <addon-id>               Add-on ID or real ID
--a, --alias <alias>                  Short name for the application
--k, --api-key <api-key>              API key (for newrelic)
-    --app <app-id|app-name>          Application to manage by its ID (or name, if unambiguous)
--i, --index-prefix <index-prefix>    Optional index prefix (for elasticsearch), `logstash` value is used if not set
--p, --password <password>            Basic auth password (for elasticsearch or raw-http)
--s, --sd-params <sd-params>          RFC5424 structured data parameters (for ovh-tcp), e.g.: `X-OVH-TOKEN=\"REDACTED\"`
--t, --source-token <source-token>    Source token (for betterstack)
--u, --username <username>            Basic auth username (for elasticsearch or raw-http)
+    --addon <addon-id>                       Add-on ID or real ID
+-a, --alias <alias>                          Short name for the application
+-k, --api-key <api-key>                      API key (for newrelic)
+    --app <app-id|app-name>                  Application to manage by its ID (or name, if unambiguous)
+    --hec-token <hec-token>                  HTTP Event Collector token (for splunk)
+    --index <index>                          Optional target index (for splunk), the HEC token's own index is used if not set
+-i, --index-prefix <index-prefix>            Optional index prefix (for elasticsearch), `logstash` value is used if not set
+-p, --password <password>                    Basic auth password (for elasticsearch or raw-http)
+-s, --sd-params <sd-params>                  RFC5424 structured data parameters (for ovh-tcp), e.g.: `X-OVH-TOKEN=\"REDACTED\"`
+-t, --source-token <source-token>            Source token (for betterstack)
+    --sourcetype <sourcetype>                Optional sourcetype (for splunk), the HEC token's own sourcetype is used if not set
+    --tls-verification <tls-verification>    TLS verification mode (for splunk), use `trustful` to accept a self-signed certificate (default, trustful)
+-u, --username <username>                    Basic auth username (for elasticsearch or raw-http)
 ```
 
 ### drain disable

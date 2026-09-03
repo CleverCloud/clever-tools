@@ -20,6 +20,7 @@ Where `DRAIN-TYPE` is one of:
 - `newrelic`: for NewRelic endpoint (note that this endpoint needs your NewRelic API Key)
 - `ovh-tcp`: for OVH TCP syslog endpoint (note that this endpoint has an optional sd-params parameter)
 - `raw-http`: for HTTP endpoint (note that this endpoint has optional username/password parameters as HTTP Basic Authentication)
+- `splunk`: for Splunk HTTP Event Collector endpoint (note that this endpoint needs an HEC token)
 - `syslog-tcp`: for TCP syslog endpoint
 - `syslog-udp`: for UDP syslog endpoint
 
@@ -31,6 +32,11 @@ Drain creation supports the following options:
 [--api-key, -k] API_KEY               API key (for newrelic)
 [--index-prefix, -i] INDEX_PREFIX     Optional index prefix (for elasticsearch), `logstash` value is used if not set
 [--sd-params, -s] SD_PARAMS           RFC5424 structured data parameters (for ovh-tcp), e.g.: `X-OVH-TOKEN=\"REDACTED\"`
+[--source-token, -t] SOURCE_TOKEN     Source token (for betterstack)
+[--hec-token] HEC_TOKEN               HTTP Event Collector token (for splunk)
+[--index] INDEX                       Optional target index (for splunk), the HEC token's own index is used if not set
+[--sourcetype] SOURCETYPE             Optional sourcetype (for splunk), the HEC token's own sourcetype is used if not set
+[--tls-verification] MODE             TLS verification mode (for splunk), `default` or `trustful`
 ```
 
 ## ElasticSearch logs drains
@@ -51,6 +57,22 @@ clever drain create DatadogHTTP "https://http-intake.logs.datadoghq.com/v1/input
 ```
 
 The `host` query parameter is not mandatory: in the Datadog pipeline configuration, you can map `@source_host` which is the host provided by Clever Cloud in logs as `host` property.
+
+## Splunk logs drains
+
+Splunk drains send events to the [HTTP Event Collector](https://docs.splunk.com/Documentation/Splunk/latest/Data/UsetheHTTPEventCollector) (HEC). The URL is the full collector endpoint, the token is the one bound to your HEC input:
+
+```
+clever drain create splunk "https://<HOST>:8088/services/collector/event" --hec-token <HEC_TOKEN>
+```
+
+`--index` and `--sourcetype` are optional: when they're not set, the values configured on the HEC token itself apply. When they are set, they override it for every forwarded event.
+
+A self-hosted Splunk ships a self-signed certificate on port 8088 by default. If you didn't replace it, add `--tls-verification trustful` so the drain doesn't fail on certificate verification:
+
+```
+clever drain create splunk "https://<HOST>:8088/services/collector/event" --hec-token <HEC_TOKEN> --tls-verification trustful
+```
 
 ## NewRelic logs drains
 

@@ -41,6 +41,30 @@ export const drainCreateCommand = defineCommand({
       aliases: ['t'],
       placeholder: 'source-token',
     }),
+    hecToken: defineOption({
+      name: 'hec-token',
+      schema: z.string().optional(),
+      description: 'HTTP Event Collector token (for splunk)',
+      placeholder: 'hec-token',
+    }),
+    index: defineOption({
+      name: 'index',
+      schema: z.string().optional(),
+      description: "Optional target index (for splunk), the HEC token's own index is used if not set",
+      placeholder: 'index',
+    }),
+    sourcetype: defineOption({
+      name: 'sourcetype',
+      schema: z.string().optional(),
+      description: "Optional sourcetype (for splunk), the HEC token's own sourcetype is used if not set",
+      placeholder: 'sourcetype',
+    }),
+    tlsVerification: defineOption({
+      name: 'tls-verification',
+      schema: z.enum(['default', 'trustful']).optional(),
+      description: 'TLS verification mode (for splunk), use `trustful` to accept a self-signed certificate',
+      placeholder: 'tls-verification',
+    }),
     indexPrefix: defineOption({
       name: 'index-prefix',
       schema: z.string().optional(),
@@ -73,7 +97,18 @@ export const drainCreateCommand = defineCommand({
   ],
   async handler(options, drainTypeCliCode, url) {
     const { alias, appIdOrName, addonIdOrRealId } = options;
-    const { username, password, apiKey, sourceToken, indexPrefix, rfc5424StructuredDataParameters } = options;
+    const {
+      username,
+      password,
+      apiKey,
+      sourceToken,
+      indexPrefix,
+      rfc5424StructuredDataParameters,
+      hecToken,
+      index,
+      sourcetype,
+      tlsVerification,
+    } = options;
 
     const drainType = Object.values(DRAIN_TYPES).find((drainType) => drainType.cliCode === drainTypeCliCode);
 
@@ -120,6 +155,23 @@ export const drainCreateCommand = defineCommand({
         throw new Error(`${DRAIN_TYPES.BETTERSTACK.cliCode} drains require a source token (--source-token) to be set`);
       }
       body.recipient.sourceToken = sourceToken;
+    }
+
+    if (drainTypeCliCode === DRAIN_TYPES.SPLUNK.cliCode) {
+      if (!hecToken) {
+        throw new Error(`${DRAIN_TYPES.SPLUNK.cliCode} drains require an HEC token (--hec-token) to be set`);
+      }
+      body.recipient.token = hecToken;
+      // Both are omitted when unset: a field sent in the payload overrides the setting bound to the HEC token
+      if (index) {
+        body.recipient.index = index;
+      }
+      if (sourcetype) {
+        body.recipient.sourcetype = sourcetype;
+      }
+      if (tlsVerification) {
+        body.recipient.tlsVerification = tlsVerification.toUpperCase();
+      }
     }
 
     if (
