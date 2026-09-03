@@ -6,3 +6,9 @@ export const drainIdArg = defineArgument({
   description: 'Drain ID',
   placeholder: 'drain-id',
 });
+
+export const drainUrlArg = defineArgument({
+  schema: z.string(),
+  description: 'Drain URL',
+  placeholder: 'drain-url',
+});
