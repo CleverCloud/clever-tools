@@ -41,7 +41,16 @@ import { domainOverviewCommand } from './domain/domain.overview.command.js';
 import { domainRmCommand } from './domain/domain.rm.command.js';
 import { drainCheckCommand } from './drain/drain.check.command.js';
 import { drainCommand } from './drain/drain.command.js';
+import { drainCreateBetterstackCommand } from './drain/drain.create.betterstack.command.js';
 import { drainCreateCommand } from './drain/drain.create.command.js';
+import { drainCreateDatadogCommand } from './drain/drain.create.datadog.command.js';
+import { drainCreateElasticsearchCommand } from './drain/drain.create.elasticsearch.command.js';
+import { drainCreateNewrelicCommand } from './drain/drain.create.newrelic.command.js';
+import { drainCreateOvhTcpCommand } from './drain/drain.create.ovh-tcp.command.js';
+import { drainCreateRawHttpCommand } from './drain/drain.create.raw-http.command.js';
+import { drainCreateSplunkCommand } from './drain/drain.create.splunk.command.js';
+import { drainCreateSyslogTcpCommand } from './drain/drain.create.syslog-tcp.command.js';
+import { drainCreateSyslogUdpCommand } from './drain/drain.create.syslog-udp.command.js';
 import { drainDisableCommand } from './drain/drain.disable.command.js';
 import { drainEnableCommand } from './drain/drain.enable.command.js';
 import { drainGetCommand } from './drain/drain.get.command.js';
@@ -270,7 +279,20 @@ export const globalCommands = {
     drainCommand,
     {
       check: drainCheckCommand,
-      create: drainCreateCommand,
+      create: [
+        drainCreateCommand,
+        {
+          betterstack: drainCreateBetterstackCommand,
+          datadog: drainCreateDatadogCommand,
+          elasticsearch: drainCreateElasticsearchCommand,
+          newrelic: drainCreateNewrelicCommand,
+          'ovh-tcp': drainCreateOvhTcpCommand,
+          'raw-http': drainCreateRawHttpCommand,
+          splunk: drainCreateSplunkCommand,
+          'syslog-tcp': drainCreateSyslogTcpCommand,
+          'syslog-udp': drainCreateSyslogUdpCommand,
+        },
+      ],
       disable: drainDisableCommand,
       enable: drainEnableCommand,
       get: drainGetCommand,

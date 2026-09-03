@@ -1,5 +1,7 @@
+import { createDrain } from '../clever-client/drains.js';
 import * as Application from './application.js';
 import { resolveAddon } from './ids-resolver.js';
+import { sendToApi } from './send-to-api.js';
 
 export async function resolveDrainResource(alias, appIdOrName, addonIdOrRealId) {
   if (addonIdOrRealId != null && (appIdOrName != null || alias != null)) {
@@ -15,19 +17,37 @@ export async function resolveDrainResource(alias, appIdOrName, addonIdOrRealId) 
   return { ownerId, resourceId: appId };
 }
 
-export const DRAIN_TYPES = {
-  BETTERSTACK: { apiCode: 'BETTERSTACK', cliCode: 'betterstack', label: 'Better Stack' },
-  DATADOG: { apiCode: 'DATADOG', cliCode: 'datadog', label: 'Datadog' },
-  ELASTICSEARCH: { apiCode: 'ELASTICSEARCH', cliCode: 'elasticsearch', label: 'Elasticsearch' },
-  NEWRELIC: { apiCode: 'NEWRELIC', cliCode: 'newrelic', label: 'New Relic' },
-  OVH_TCP: { apiCode: 'OVH_TCP', cliCode: 'ovh-tcp', label: 'OVH TCP' },
-  RAW_HTTP: { apiCode: 'RAW_HTTP', cliCode: 'raw-http', label: 'Raw HTTP' },
-  SPLUNK: { apiCode: 'SPLUNK', cliCode: 'splunk', label: 'Splunk' },
-  SYSLOG_TCP: { apiCode: 'SYSLOG_TCP', cliCode: 'syslog-tcp', label: 'Syslog TCP' },
-  SYSLOG_UDP: { apiCode: 'SYSLOG_UDP', cliCode: 'syslog-udp', label: 'Syslog UDP' },
-};
+/**
+ * Creates a log drain, the recipient options that are not set are left out of the payload.
+ * @param {string} type - Drain type, as expected by the API
+ * @param {string} ownerId
+ * @param {string} resourceId
+ * @param {string} url - Drain URL
+ * @param {Record<string, unknown>} [recipientOptions] - Extra recipient fields, `null` and `undefined` ones are ignored
+ */
+export function createLogDrain(type, ownerId, resourceId, url, recipientOptions = {}) {
+  const body = { kind: 'LOG', recipient: { type, url } };
 
-export const DRAIN_TYPE_CLI_CODES = Object.values(DRAIN_TYPES).map(({ cliCode }) => cliCode);
+  for (const key in recipientOptions) {
+    if (recipientOptions[key] != null) {
+      body.recipient[key] = recipientOptions[key];
+    }
+  }
+
+  return createDrain({ ownerId, resourceId, body }).then(sendToApi);
+}
+
+export const DRAIN_TYPE_LABELS = {
+  BETTERSTACK: 'Better Stack',
+  DATADOG: 'Datadog',
+  ELASTICSEARCH: 'Elasticsearch',
+  NEWRELIC: 'New Relic',
+  OVH_TCP: 'OVH TCP',
+  RAW_HTTP: 'Raw HTTP',
+  SPLUNK: 'Splunk',
+  SYSLOG_TCP: 'Syslog TCP',
+  SYSLOG_UDP: 'Syslog UDP',
+};
 
 function formatRate(messagesPerSecond) {
   if (messagesPerSecond < 1) {
@@ -50,13 +70,12 @@ function formatThroughput(bytesPerSecond) {
 }
 
 export function formatDrain(rawDrain) {
-  const drainType = DRAIN_TYPES[rawDrain.recipient.type];
   const drainDetails = [
     ['ID', rawDrain.id],
     ['Status', rawDrain.status.status],
     ['Execution status', rawDrain.execution.status],
     ['URL', rawDrain.recipient.url],
-    ['Type', drainType.label],
+    ['Type', DRAIN_TYPE_LABELS[rawDrain.recipient.type]],
     ['Custom index', rawDrain.recipient.index],
     ['Sourcetype', rawDrain.recipient.sourcetype],
     // DEFAULT is the implicit norm, only a relaxed verification is worth showing
