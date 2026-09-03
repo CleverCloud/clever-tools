@@ -97,8 +97,18 @@ export const drainCreateCommand = defineCommand({
   ],
   async handler(options, drainTypeCliCode, url) {
     const { alias, appIdOrName, addonIdOrRealId } = options;
-    const { username, password, apiKey, sourceToken, indexPrefix, rfc5424StructuredDataParameters } = options;
-    const { hecToken, index, sourcetype, tlsVerification } = options;
+    const {
+      username,
+      password,
+      apiKey,
+      sourceToken,
+      indexPrefix,
+      rfc5424StructuredDataParameters,
+      hecToken,
+      index,
+      sourcetype,
+      tlsVerification,
+    } = options;
 
     const drainType = Object.values(DRAIN_TYPES).find((drainType) => drainType.cliCode === drainTypeCliCode);
 
