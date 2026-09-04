@@ -1050,10 +1050,11 @@ clever drain [options]
 
 **Options**
 ```
-    --addon <addon-id>         Add-on ID or real ID
--a, --alias <alias>            Short name for the application
-    --app <app-id|app-name>    Application to manage by its ID (or name, if unambiguous)
--F, --format <format>          Output format (human, json) (default: human)
+    --addon <addon-id>                  Add-on ID or real ID
+-a, --alias <alias>                     Short name for the application
+    --app <app-id|app-name>             Application to manage by its ID (or name, if unambiguous)
+-F, --format <format>                   Output format (human, json) (default: human)
+-o, --org, --owner <org-id|org-name>    Organisation to target by its ID (or name, if unambiguous)
 ```
 
 ### drain check

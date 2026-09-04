@@ -13,6 +13,15 @@ clever drain enable <DRAIN-ID>
 clever drain disable <DRAIN-ID>
 ```
 
+When no application is linked or targeted, `clever drain` lists the drains of every application and add-on you have access to, grouped by organisation. You can restrict this listing to a single organisation with `--org` (`-o`, `--owner`):
+
+```
+clever drain
+clever drain --org <ORG_ID_OR_NAME>
+```
+
+A drain is reachable by the admins, managers and developers of an organisation: its recipient carries credentials in its URL, so reading one is as restricted as creating it. An organisation you belong to with another role is reported as unreachable and the listing goes on with the others.
+
 Where `DRAIN-TYPE` is one of:
 
 - `datadog`: for Datadog endpoint (note that this endpoint needs your Datadog API Key)
