@@ -3765,6 +3765,36 @@ api-token-name                   API token name
 -F, --format <format>            Output format (human, json) (default: human)
 ```
 
+### tokens metrics
+
+**Description:** Manage the Warp 10 tokens used to query your metrics
+
+**Since:** Unreleased
+
+**Usage**
+```
+clever tokens metrics
+```
+
+#### tokens metrics gen
+
+**Description:** Generate a Warp 10 read token to query your metrics
+
+**Since:** Unreleased
+
+**Usage**
+```
+clever tokens metrics gen [options]
+```
+
+**Options**
+```
+-a, --apps <applications>               Comma separated list of platform applications the token grants read access to
+-F, --format <format>                   Output format (human, json) (default: human)
+-o, --org, --owner <org-id|org-name>    Organisation to target by its ID (or name, if unambiguous)
+-t, --ttl <ttl>                         Token lifespan, as an ISO 8601 duration (e.g.: P5D, PT12H) or a "1h, 4d, 2w" like duration
+```
+
 ### tokens revoke
 
 **Description:** Revoke an API token
