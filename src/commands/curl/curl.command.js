@@ -8,10 +8,10 @@ import { Logger } from '../../logger.js';
 
 function getTokens() {
   return {
-    OAUTH_CONSUMER_KEY: config.OAUTH_CONSUMER_KEY,
-    OAUTH_CONSUMER_SECRET: config.OAUTH_CONSUMER_SECRET,
-    API_OAUTH_TOKEN: config.token,
-    API_OAUTH_TOKEN_SECRET: config.secret,
+    OAUTH_CONSUMER_KEY: config.get('OAUTH_CONSUMER_KEY'),
+    OAUTH_CONSUMER_SECRET: config.get('OAUTH_CONSUMER_SECRET'),
+    API_OAUTH_TOKEN: config.activeProfile?.token,
+    API_OAUTH_TOKEN_SECRET: config.activeProfile?.secret,
   };
 }
 
@@ -20,16 +20,16 @@ function printCleverCurlHelp() {
     Usage: clever curl
     Query Clever Cloud's API using Clever Tools credentials. For example:
     
-      clever curl ${config.API_HOST}/v2/self
-      clever curl ${config.API_HOST}/v2/summary
-      clever curl ${config.API_HOST}/v4/products/zones
-      clever curl ${config.API_HOST}/v2/organisations/<ORGANISATION_ID>/applications | jq '.[].id'
-      clever curl ${config.API_HOST}/v4/billing/organisations/<ORGANISATION_ID>/<INVOICE_NUMBER>.pdf > invoice.pdf
-    
+      clever curl ${config.get('API_HOST')}/v2/self
+      clever curl ${config.get('API_HOST')}/v2/summary
+      clever curl ${config.get('API_HOST')}/v4/products/zones
+      clever curl ${config.get('API_HOST')}/v2/organisations/<ORGANISATION_ID>/applications | jq '.[].id'
+      clever curl ${config.get('API_HOST')}/v4/billing/organisations/<ORGANISATION_ID>/<INVOICE_NUMBER>.pdf > invoice.pdf
+
     Our API documentation is available here :
-    
-      ${config.API_DOC_URL}/v2/
-      ${config.API_DOC_URL}/v4/
+
+      ${config.get('API_DOC_URL')}/v2/
+      ${config.get('API_DOC_URL')}/v4/
   `);
 }
 
@@ -45,11 +45,11 @@ export async function curl() {
     return;
   }
 
-  const curlUrl = curlArgs.find((part) => part.startsWith(config.API_HOST));
+  const curlUrl = curlArgs.find((part) => part.startsWith(config.get('API_HOST')));
 
   // We only allow request to the respective API_HOST
   if (curlUrl == null) {
-    Logger.error('"clever curl" command must be used with ' + styleText('blue', config.API_HOST));
+    Logger.error('"clever curl" command must be used with ' + styleText('blue', config.get('API_HOST')));
     process.exit(1);
   }
 

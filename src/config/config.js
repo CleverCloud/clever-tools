@@ -1,3 +1,4 @@
+import { createConfigBuilder, InvalidConfigError } from '@clevercloud/reglage';
 import path from 'node:path';
 import { z } from 'zod';
 import { readJsonSync, writeJson } from '../lib/fs.js';
@@ -40,76 +41,161 @@ const ConfigFileSchema = z.object({
 
 /** @typedef {z.infer<typeof ConfigFileSchema>} ConfigFile */
 
-const ConfigSchema = z
-  .object({
-    CONFIGURATION_FILE: z.string().default(getConfigPath('clever-tools.json')),
-    EXPERIMENTAL_FEATURES_FILE: z.string().default(getConfigPath('clever-tools-experimental-features.json')),
-    APP_CONFIGURATION_FILE: z.string().default(() => path.resolve('.', '.clever.json')),
+const CONFIG_SCHEMA = {
+  CONFIGURATION_FILE: {
+    schema: z.string().default(getConfigPath('clever-tools.json')),
+    documentation: 'Path to the main configuration file',
+  },
+  EXPERIMENTAL_FEATURES_FILE: {
+    schema: z.string().default(getConfigPath('clever-tools-experimental-features.json')),
+    documentation: 'Path to the experimental features configuration file',
+  },
+  APP_CONFIGURATION_FILE: {
+    schema: z.string().default(path.resolve('.', '.clever.json')),
+    documentation: 'Path to the per-project application configuration file',
+  },
 
-    API_HOST: z.url().default('https://api.clever-cloud.com'),
-    AUTH_BRIDGE_HOST: z.url().default('https://api-bridge.clever-cloud.com'),
-    SSH_GATEWAY: z.string().default('ssh@sshgateway-clevercloud-customers.services.clever-cloud.com'),
+  API_HOST: {
+    schema: z.url().default('https://api.clever-cloud.com'),
+    documentation: 'Clever Cloud API base URL',
+  },
+  AUTH_BRIDGE_HOST: {
+    schema: z.url().default('https://api-bridge.clever-cloud.com'),
+    documentation: 'Clever Cloud authentication bridge URL',
+  },
+  SSH_GATEWAY: {
+    schema: z.string().default('ssh@sshgateway-clevercloud-customers.services.clever-cloud.com'),
+    documentation: 'SSH gateway address',
+  },
 
-    // The disclosure of these tokens is not considered as a vulnerability.
-    // Do not report this to our security service.
-    OAUTH_CONSUMER_KEY: z.string().default('T5nFjKeHH4AIlEveuGhB5S3xg8T19e'),
-    OAUTH_CONSUMER_SECRET: z.string().default('MgVMqTr6fWlf2M0tkC2MXOnhfqBWDT'),
+  // The disclosure of these tokens is not considered as a vulnerability.
+  // Do not report this to our security service.
+  OAUTH_CONSUMER_KEY: {
+    schema: z.string().default('T5nFjKeHH4AIlEveuGhB5S3xg8T19e'),
+    secret: true,
+    documentation: 'OAuth consumer key',
+  },
+  OAUTH_CONSUMER_SECRET: {
+    schema: z.string().default('MgVMqTr6fWlf2M0tkC2MXOnhfqBWDT'),
+    secret: true,
+    documentation: 'OAuth consumer secret',
+  },
 
-    API_DOC_URL: z.url().default('https://www.clever.cloud/developers/api'),
-    DOC_URL: z.url().default('https://www.clever.cloud/developers/doc'),
-    CONSOLE_URL: z.url().default('https://console.clever-cloud.com'),
+  API_DOC_URL: {
+    schema: z.url().default('https://www.clever.cloud/developers/api'),
+    documentation: 'API documentation URL',
+  },
+  DOC_URL: {
+    schema: z.url().default('https://www.clever.cloud/developers/doc'),
+    documentation: 'Documentation URL',
+  },
+  CONSOLE_URL: {
+    schema: z.url().default('https://console.clever-cloud.com'),
+    documentation: 'Console URL',
+  },
 
-    // Default values are computed from `CONSOLE_URL` below
-    CONSOLE_TOKEN_URL: z.url().optional(),
-    GOTO_URL: z.url().optional(),
+  // Default values are computed from `CONSOLE_URL` via a derived source
+  CONSOLE_TOKEN_URL: {
+    schema: z.url().optional(),
+    documentation: 'Console token URL (derived from CONSOLE_URL)',
+  },
+  GOTO_URL: {
+    schema: z.url().optional(),
+    documentation: 'Goto URL (derived from CONSOLE_URL)',
+  },
+};
 
-    token: z.string().optional(),
-    secret: z.string().optional(),
-    expirationDate: z.string().optional(),
-    profiles: z.array(ProfileSchema).default([]),
-  })
-  .transform((config) => ({
-    ...config,
-    CONSOLE_TOKEN_URL: config.CONSOLE_TOKEN_URL ?? `${config.CONSOLE_URL}/cli-oauth`,
-    GOTO_URL: config.GOTO_URL ?? `${config.CONSOLE_URL}/goto`,
-  }));
+/** @typedef {import('@clevercloud/reglage').Config<typeof CONFIG_SCHEMA>} ConfigData */
+
+export class BaseConfig {
+  /**
+   * @param {ConfigData} config
+   */
+  constructor(config) {
+    /** @type {ConfigData} */
+    this._config = config;
+  }
+
+  /**
+   * @param {ConfigData} config
+   */
+  reload(config) {
+    this._config = config;
+  }
+
+  /**
+   * @template {keyof typeof CONFIG_SCHEMA} K
+   * @param {K} key
+   * @returns {import('@clevercloud/reglage').InferConfig<typeof CONFIG_SCHEMA>[K]}
+   */
+  get(key) {
+    return this._config.get(key);
+  }
+}
+
+export class Config extends BaseConfig {
+  /**
+   * @param {Object} param
+   * @param {ConfigData} param.data
+   * @param {Profile[]} param.profiles
+   */
+  constructor({ data, profiles }) {
+    super(data);
+    /** @type {Profile[]} */
+    this._profiles = profiles;
+  }
+
+  /**
+   * @param {Profile[]} profiles
+   */
+  reloadProfiles(profiles) {
+    this._profiles = profiles;
+  }
+
+  /**
+   * @returns {Profile[]}
+   */
+  get profiles() {
+    return this._profiles;
+  }
+
+  /**
+   * @returns {Profile | undefined}
+   */
+  get activeProfile() {
+    return this._profiles[0];
+  }
+}
 
 /**
  * Base configuration: environment variables + Zod schema defaults, without any profile overrides.
  * Use this as fallback when operating on a specific profile (login, profile list)
  * to avoid being affected by the active profile's overrides.
  */
-export const baseConfig = loadBaseConfig();
+export const baseConfig = new BaseConfig(loadBaseConfig());
 
 /**
- * @returns {z.output<typeof ConfigSchema>}
+ * @returns {ConfigData}
  */
 function loadBaseConfig() {
-  const result = ConfigSchema.safeParse(process.env);
-
-  if (!result.success) {
-    const errors = result.error.issues.map((issue) => `- ${issue.path.join('.')}: ${issue.message}`).join('\n');
-    Logger.error(`Invalid configuration:\n${errors}`);
-    process.exit(1);
-  }
-
-  return result.data;
+  return buildConfig([['env', process.env]]);
 }
 
 /**
  * The complete configuration object, loaded synchronously at startup.
  * Priority: environment variables > active profile overrides > Zod schema defaults.
  */
-export const config = loadConfig();
+export const config = new Config(loadConfig());
 
 /**
- * @returns {z.output<typeof ConfigSchema>}
+ * @returns {{data: ConfigData, profiles: Profile[]}}
  */
 function loadConfig() {
-  Logger.debug(`Load configuration from ${baseConfig.CONFIGURATION_FILE}`);
+  Logger.debug(`Load configuration from ${baseConfig.get('CONFIGURATION_FILE')}`);
   const configFromFile = loadConfigFile();
 
   // If CLEVER_TOKEN and CLEVER_SECRET are set, inject a virtual "$env" profile as the active one
+  /** @type {Profile[]} */
   const profiles =
     process.env.CLEVER_TOKEN != null && process.env.CLEVER_SECRET != null
       ? [
@@ -120,24 +206,62 @@ function loadConfig() {
 
   const activeProfile = profiles[0];
 
-  /** @type {z.input<typeof ConfigSchema>} */
-  const rawConfig = {
-    ...activeProfile,
-    // Profile overrides (e.g. custom API_HOST) applied after profile auth data, before env vars
-    ...activeProfile?.overrides,
-    profiles,
-    ...process.env,
-  };
+  const config = buildConfig([
+    ['activeProfileOverride', activeProfile?.overrides],
+    ['env', process.env],
+  ]);
 
-  const result = ConfigSchema.safeParse(rawConfig);
+  Logger.debug('Configuration loaded:');
+  Logger.debug(config.toString('verbose'));
 
-  if (!result.success) {
-    const errors = result.error.issues.map((issue) => `- ${issue.path.join('.')}: ${issue.message}`).join('\n');
-    Logger.error(`Invalid configuration:\n${errors}`);
-    process.exit(1);
+  return { data: config, profiles };
+}
+
+/**
+ * Builds a Config from the given sources.
+ * Sources are applied in order (later sources override earlier ones).
+ * @param {Array<[string, Record<string, unknown> | undefined | null]>} sources
+ * @returns {ConfigData}
+ */
+function buildConfig(sources) {
+  const builder = createConfigBuilder(CONFIG_SCHEMA)
+    .refine('CONSOLE_TOKEN_URL', (schema, resolved) => {
+      if (resolved.CONSOLE_TOKEN_URL == null) {
+        return schema.default(`${resolved.CONSOLE_URL}/cli-oauth`);
+      }
+      return schema;
+    })
+    .refine('GOTO_URL', (schema, resolved) => {
+      if (resolved.GOTO_URL == null) {
+        return schema.default(`${resolved.CONSOLE_URL}/goto`);
+      }
+      return schema;
+    });
+
+  for (const [name, values] of sources) {
+    if (values != null) {
+      builder.addSource(name, values);
+    } else {
+      Logger.debug(`Skipping source "${name}": no values provided`);
+    }
   }
 
-  return result.data;
+  try {
+    return builder.buildConfig();
+  } catch (error) {
+    if (error instanceof InvalidConfigError) {
+      const errors = error.issues
+        .map((issue) =>
+          issue.source != null
+            ? `- ${issue.key} (${issue.source}): ${issue.message}`
+            : `- ${issue.key}: ${issue.message}`,
+        )
+        .join('\n');
+      Logger.error(`Invalid configuration:\n${errors}`);
+      process.exit(1);
+    }
+    throw error;
+  }
 }
 
 /**
@@ -145,7 +269,7 @@ function loadConfig() {
  * @returns {ConfigFile}
  */
 function loadConfigFile() {
-  const data = readJsonSync(baseConfig.CONFIGURATION_FILE);
+  const data = readJsonSync(baseConfig.get('CONFIGURATION_FILE'));
 
   // Try parsing as current format
   const result = ConfigFileSchema.safeParse(data);
@@ -212,10 +336,10 @@ export async function removeProfile(alias) {
 async function updateConfigFile(newConfig) {
   Logger.debug('Write the new config in the configuration file…');
   try {
-    await writeJson(baseConfig.CONFIGURATION_FILE, newConfig, { mode: 0o700 });
+    await writeJson(baseConfig.get('CONFIGURATION_FILE'), newConfig, { mode: 0o700 });
     reloadConfig();
   } catch (error) {
-    throw new Error(`Cannot write configuration to ${baseConfig.CONFIGURATION_FILE}\n${error.message}`);
+    throw new Error(`Cannot write configuration to ${baseConfig.get('CONFIGURATION_FILE')}\n${error.message}`);
   }
 }
 
@@ -224,10 +348,7 @@ async function updateConfigFile(newConfig) {
  * This ensures all modules referencing the config object see the updated values.
  */
 export function reloadConfig() {
-  const mutableConfig = /** @type {Record<string, unknown>} */ (config);
-  for (const key of Object.keys(mutableConfig)) {
-    delete mutableConfig[key];
-  }
-  const newConfig = loadConfig();
-  Object.assign(config, newConfig);
+  const { data, profiles } = loadConfig();
+  config.reload(data);
+  config.reloadProfiles(profiles);
 }

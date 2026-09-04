@@ -23,7 +23,7 @@ export const logoutCommand = defineCommand({
       throw new Error(`No profile found, use ${styleText('red', 'clever login')} command`);
     }
 
-    const [activeProfile] = config.profiles;
+    const activeProfile = config.activeProfile;
     const aliasToRemove = options.alias ?? activeProfile.alias;
 
     if (aliasToRemove === '$env') {

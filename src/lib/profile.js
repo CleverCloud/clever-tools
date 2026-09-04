@@ -51,9 +51,9 @@ export async function getProfileDetails({ profile, isActive }) {
   const sendWithCredentials = sendToApiWithConfig({
     token: profile.token,
     secret: profile.secret,
-    apiHost: profile.overrides?.API_HOST ?? baseConfig.API_HOST,
-    consumerKey: profile.overrides?.OAUTH_CONSUMER_KEY ?? baseConfig.OAUTH_CONSUMER_KEY,
-    consumerSecret: profile.overrides?.OAUTH_CONSUMER_SECRET ?? baseConfig.OAUTH_CONSUMER_SECRET,
+    apiHost: profile.overrides?.API_HOST ?? baseConfig.get('API_HOST'),
+    consumerKey: profile.overrides?.OAUTH_CONSUMER_KEY ?? baseConfig.get('OAUTH_CONSUMER_KEY'),
+    consumerSecret: profile.overrides?.OAUTH_CONSUMER_SECRET ?? baseConfig.get('OAUTH_CONSUMER_SECRET'),
   });
 
   const [user, token] = await Promise.all([

@@ -39,7 +39,7 @@ export const tokensCreateCommand = defineCommand({
     const user = await getCurrentUser();
 
     if (!user.hasPassword) {
-      const apiTokenListHref = new URL('/users/me/api-tokens', config.CONSOLE_URL).href;
+      const apiTokenListHref = new URL('/users/me/api-tokens', config.get('CONSOLE_URL')).href;
       throw new Error(dedent`
           ${styleText('yellow', '!')} Your Clever Cloud account is linked via GitHub and has no password. Setting one is required to create API tokens.
           ${styleText('blue', '→')} To do so, go to the following URL: ${styleText('blue', apiTokenListHref)}
@@ -98,7 +98,7 @@ export const tokensCreateCommand = defineCommand({
             Export this token and use it to make authenticated requests to the Clever Cloud API through the Auth Bridge:
     
             export CC_API_TOKEN=${createdToken.apiToken}
-            curl -H "Authorization: Bearer $CC_API_TOKEN" ${config.AUTH_BRIDGE_HOST}/v2/self
+            curl -H "Authorization: Bearer $CC_API_TOKEN" ${config.get('AUTH_BRIDGE_HOST')}/v2/self
     
             Then, to revoke this token, run:
             clever tokens revoke ${createdToken.apiTokenId}

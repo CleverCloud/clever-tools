@@ -23,7 +23,7 @@ export class Deferred {
  * @returns {Promise<void>} A promise that resolves when the URL is opened
  */
 export function openBrowser(urlOrPath, message) {
-  const url = urlOrPath.startsWith('/') ? `${config.CONSOLE_URL}${urlOrPath}` : urlOrPath;
+  const url = urlOrPath.startsWith('/') ? `${config.get('CONSOLE_URL')}${urlOrPath}` : urlOrPath;
 
   Logger.debug(`Opening URL "${url}" in browser`);
   Logger.println(`🌐 ${message}`);

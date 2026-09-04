@@ -8,7 +8,7 @@ import { sendToAuthBridge } from '../../models/send-to-api.js';
 import { humanJsonOutputFormatOption } from '../global.options.js';
 
 export const tokensCommand = defineCommand({
-  description: `Manage API tokens to query Clever Cloud API from ${config.AUTH_BRIDGE_HOST}`,
+  description: `Manage API tokens to query Clever Cloud API from ${config.get('AUTH_BRIDGE_HOST')}`,
   since: '3.12.0',
   options: {
     format: humanJsonOutputFormatOption,
