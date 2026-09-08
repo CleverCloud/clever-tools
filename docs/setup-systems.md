@@ -1,7 +1,12 @@
 # How to install Clever Tools
 
-Clever Cloud CLI is based on Node.js. We thought it to be easily available on any platform. Thus, you can download Clever Tools as [a npm package](https://www.npmjs.com/package/clever-tools), but also through package managers or as a binary on many systems:
+Clever Tools is available as a npm package, through package managers, or as a standalone binary on many systems:
 
+- [Node.js](/docs/setup-systems.md#nodejs)
+  - [npm](/docs/setup-systems.md#npm)
+  - [pnpm](/docs/setup-systems.md#pnpm)
+  - [Bun](/docs/setup-systems.md#bun)
+  - [Yarn](/docs/setup-systems.md#yarn)
 - [GNU/Linux](/docs/setup-systems.md#gnulinux)
   - [Arch Linux (AUR)](/docs/setup-systems.md#arch-linux-aur)
   - [CentOS/Fedora (.rpm)](/docs/setup-systems.md#centosfedora-rpm)
@@ -16,6 +21,34 @@ Clever Cloud CLI is based on Node.js. We thought it to be easily available on an
   - [Binary (.zip)](/docs/setup-systems.md#binary-zip)
 - [Docker](/docs/setup-systems.md#docker)
 - [Nix package manager](/docs/setup-systems.md#nix-package-manager)
+
+## Node.js
+
+Clever Tools is available as [a npm package](https://www.npmjs.com/package/clever-tools):
+
+### npm
+
+```
+npm install -g clever-tools
+```
+
+### pnpm
+
+```
+pnpm add -g clever-tools
+```
+
+### Bun
+
+```
+bun add -g clever-tools
+```
+
+### Yarn
+
+```
+yarn global add clever-tools
+```
 
 ## GNU/Linux
 
