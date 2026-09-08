@@ -161,7 +161,7 @@ export async function watchDeploymentAndDisplayLogs(options) {
     }
 
     Logger.println(
-      `${styleText(['bold', 'blue'], '→ Manage your application:')} ${styleText(['underline', 'bold'], `${config.GOTO_URL}/${appId}`)}`,
+      `${styleText(['bold', 'blue'], '→ Manage your application:')} ${styleText(['underline', 'bold'], `${config.get('GOTO_URL')}/${appId}`)}`,
     );
   } else if (deploymentEnded.state === 'CANCELLED') {
     throw new Error('Deployment was cancelled. Please check the activity');

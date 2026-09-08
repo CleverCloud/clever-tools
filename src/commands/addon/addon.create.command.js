@@ -20,7 +20,7 @@ const ADDON_PROVIDERS = {
   keycloak: {
     name: 'Keycloak',
     operatorProvider: 'keycloak',
-    postCreateInstructions: `Learn more about Keycloak on Clever Cloud: ${config.DOC_URL}/addons/keycloak/`,
+    postCreateInstructions: `Learn more about Keycloak on Clever Cloud: ${config.get('DOC_URL')}/addons/keycloak/`,
   },
   kv: {
     name: 'Materia KV',
@@ -29,27 +29,27 @@ const ADDON_PROVIDERS = {
       ${styleText('yellow', "You can easily use Materia KV with 'redis-cli', with such commands:")}
       ${styleText('blue', `source <(clever addon env ${addonId} -F shell)`)}
       ${styleText('blue', 'redis-cli -h $KV_HOST -p $KV_PORT --tls')}
-      Learn more about Materia KV on Clever Cloud: ${config.DOC_URL}/addons/materia-kv/
+      Learn more about Materia KV on Clever Cloud: ${config.get('DOC_URL')}/addons/materia-kv/
     `,
   },
   'addon-matomo': {
     name: 'Matomo',
     operatorProvider: 'matomo',
-    postCreateInstructions: `Learn more about Matomo on Clever Cloud: ${config.DOC_URL}/addons/matomo/`,
+    postCreateInstructions: `Learn more about Matomo on Clever Cloud: ${config.get('DOC_URL')}/addons/matomo/`,
   },
   metabase: {
     name: 'Metabase',
     operatorProvider: 'metabase',
-    postCreateInstructions: `Learn more about Metabase on Clever Cloud: ${config.DOC_URL}/addons/metabase/`,
+    postCreateInstructions: `Learn more about Metabase on Clever Cloud: ${config.get('DOC_URL')}/addons/metabase/`,
   },
   otoroshi: {
     name: 'Otoroshi with LLM',
     operatorProvider: 'otoroshi',
-    postCreateInstructions: `Learn more about Otoroshi with LLM on Clever Cloud: ${config.DOC_URL}/addons/otoroshi/`,
+    postCreateInstructions: `Learn more about Otoroshi with LLM on Clever Cloud: ${config.get('DOC_URL')}/addons/otoroshi/`,
   },
   'addon-pulsar': {
     name: 'Pulsar',
-    postCreateInstructions: `Learn more about Pulsar on Clever Cloud: ${config.DOC_URL}/addons/pulsar/`,
+    postCreateInstructions: `Learn more about Pulsar on Clever Cloud: ${config.get('DOC_URL')}/addons/pulsar/`,
   },
 };
 
@@ -198,7 +198,7 @@ export const addonCreateCommand = defineCommand({
         Logger.println();
         Logger.println(`Your ${ADDON_PROVIDERS[providerName].name} is starting:`);
         Logger.println(` - Access it: ${operator.accessUrl}`);
-        Logger.println(` - Manage it: ${config.GOTO_URL}/${newAddon.id}`);
+        Logger.println(` - Manage it: ${config.get('GOTO_URL')}/${newAddon.id}`);
       }
 
       if (operator.initialCredentials) {
