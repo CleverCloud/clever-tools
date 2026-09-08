@@ -35,14 +35,6 @@ export default defineConfig({
         }
       },
     },
-    // When building the CJS for the binary builds, we don't want to include "update-notifier"
-    {
-      transform(code, id) {
-        if (id.endsWith('/bin/clever.js')) {
-          return code.replace("import '../src/initial-update-notifier.js';", '');
-        }
-      },
-    },
     commonjs(),
     nodeResolve({
       preferBuiltins: true,
