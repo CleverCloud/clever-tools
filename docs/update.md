@@ -52,12 +52,19 @@ yarn global add clever-tools
 
 ### Arch Linux (AUR)
 
-From the directory where you cloned the AUR package:
+With an AUR helper like `yay`, update the package you installed:
 
-```
-git -C clever-tools pull
-makepkg -si -C clever-tools
-```
+- [`clever-tools`](https://aur.archlinux.org/packages/clever-tools/), the Node.js flavor:
+
+  ```
+  yay -S clever-tools
+  ```
+
+- [`clever-tools-bin`](https://aur.archlinux.org/packages/clever-tools-bin/), the self-contained binary:
+
+  ```
+  yay -S clever-tools-bin
+  ```
 
 ### CentOS/Fedora (.rpm)
 
