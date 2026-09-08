@@ -7,10 +7,13 @@ pkgdesc="<%= description %>"
 arch=('x86_64')
 url="<%= url %>"
 license=('<%= license %>')
+# The binary embeds Node.js but is still dynamically linked against the C and C++ runtimes
+depends=('glibc' 'gcc-libs')
 provides=('clever-tools')
 conflicts=('clever-tools')
 
-options=(!strip)
+# Prebuilt binary: stripping it breaks it, and there are no debug symbols to extract
+options=(!strip !debug)
 
 source=("clever-tools-<%= version %>_linux.tar.gz::https://clever-tools.clever-cloud.com/releases/<%= version %>/clever-tools-<%= version %>_linux.tar.gz")
 sha256sums=('<%= sha256 %>')
