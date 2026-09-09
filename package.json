@@ -90,7 +90,7 @@
     "remark-parse": "11.0.0",
     "remark-stringify": "11.0.0",
     "rollup": "4.53.3",
-    "tinyglobby": "0.2.15",
+    "tinyglobby": "0.2.17",
     "typescript": "5.9.3",
     "unified": "11.0.5"
   },
