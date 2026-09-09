@@ -53,7 +53,7 @@
     "@inquirer/prompts": "7.8.4",
     "char-regex": "2.0.2",
     "cliparse": "0.5.0",
-    "dedent": "1.7.0",
+    "dedent": "1.7.2",
     "eventsource": "4.1.0",
     "ioredis": "5.8.2",
     "iso8601-duration": "2.1.3",
