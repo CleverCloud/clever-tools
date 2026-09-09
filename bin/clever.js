@@ -16,8 +16,10 @@ import {
 } from '../src/commands/global.options.js';
 import { EXPERIMENTAL_FEATURES, getFeatures } from '../src/config/features.js';
 import { cliparse } from '../src/lib/cliparse-patched.js';
+import { exit } from '../src/lib/exit.js';
 import { styleText } from '../src/lib/style-text.js';
 import { getDefault, getEnumValues, isBoolean, isRequired } from '../src/lib/zod-utils.js';
+import { Logger } from '../src/logger.js';
 
 /**
  * @typedef {import('../src/lib/define-command.types.js').CommandDefinition} CommandDefinition
@@ -34,16 +36,22 @@ import { getDefault, getEnumValues, isBoolean, isRequired } from '../src/lib/zod
 // Exit cleanly if the program we pipe to exits abruptly
 process.stdout.on('error', (error) => {
   if (error.code === 'EPIPE') {
-    process.exit(0);
+    exit(0);
   }
 });
+
+process.on('SIGINT', () => exit(130));
+process.on('SIGTERM', () => exit(143));
 
 // Right now, this is the only way to do this properly
 // cliparse doesn't allow unknown options/arguments
 if (process.argv[2] === 'curl') {
-  curl().catch(() => process.exit(1));
+  curl().then(
+    () => exit(0),
+    () => exit(1),
+  );
 } else {
-  run().catch(() => process.exit(1));
+  run().catch(() => exit(1));
 }
 
 async function run() {
@@ -211,7 +219,7 @@ function convertOption(option) {
     // Log deprecation warning if option is deprecated
     if (option.deprecated) {
       const message = typeof option.deprecated === 'string' ? `, ${option.deprecated}.` : '';
-      console.error(styleText('yellow', `Warning: --${option.name} is deprecated${message}`));
+      Logger.warn(`--${option.name} is deprecated${message}`);
     }
 
     const result = option.schema.safeParse(value);

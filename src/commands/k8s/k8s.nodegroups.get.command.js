@@ -39,20 +39,22 @@ export const k8sNodeGroupGetCommand = defineCommand({
         }
         if (nodeGroup.description) overview.Description = nodeGroup.description;
         if (nodeGroup.tag) overview.Tag = nodeGroup.tag;
-        console.table(overview);
+        Logger.printTable(overview);
 
         const labels = Object.entries(nodeGroup.labels ?? {});
         if (labels.length > 0) {
           Logger.println('');
           Logger.println(`🏷️  Labels (${labels.length})`);
-          console.table(Object.fromEntries(labels.map(([k, v]) => [k, { Value: v }])));
+          Logger.printTable(Object.fromEntries(labels.map(([k, v]) => [k, { Value: v }])));
         }
 
         const taints = nodeGroup.taints ?? [];
         if (taints.length > 0) {
           Logger.println('');
           Logger.println(`🚫 Taints (${taints.length})`);
-          console.table(Object.fromEntries(taints.map((t) => [t.key, { Value: t.value ?? '-', Effect: t.effect }])));
+          Logger.printTable(
+            Object.fromEntries(taints.map((t) => [t.key, { Value: t.value ?? '-', Effect: t.effect }])),
+          );
         }
         break;
       }

@@ -38,7 +38,7 @@ export const ngCommand = defineCommand({
           Peers: Object.keys(peers).length,
         }));
 
-        console.table(ngList);
+        Logger.printTable(ngList);
       }
     }
   },
