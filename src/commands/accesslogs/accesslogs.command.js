@@ -28,19 +28,16 @@ function formatHuman(log) {
   const country = source.countryCode ?? '(unknown)';
   const hasSourceCity = source.city ?? '';
 
-  return formatTable(
-    [
-      [
-        styleText('grey', date.toISOString(date)),
-        source.ip,
-        `${country}${hasSourceCity ? '/' + truncateWithEllipsis(CITY_MAX_LENGTH, source.city) : ''}`,
-        colorStatusCode(http.response.statusCode),
-        http.request.method.toString().padEnd(4, ' ') + ' ' + http.request.path,
-      ],
-    ],
+  const columns = [
+    styleText('grey', date.toISOString(date)),
+    source.ip,
+    `${country}${hasSourceCity ? '/' + truncateWithEllipsis(CITY_MAX_LENGTH, source.city) : ''}`,
+    colorStatusCode(http.response.statusCode),
+    http.request.method,
+    http.request.path,
+  ];
 
-    ACCESSLOG_COLUMN_WIDTHS,
-  );
+  return formatTable([columns], ACCESSLOG_COLUMN_WIDTHS);
 }
 
 const ACCESSLOG_COLUMN_WIDTHS = [
