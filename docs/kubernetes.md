@@ -86,13 +86,7 @@ clever k8s update myKubeCluster --disable-node-autoprovisioning
 
 Delete your `NodePool`, `NodeOverlay` and `CleverNodeClass` resources and let Karpenter drain the nodes first, otherwise the command is refused.
 
-Node auto-provisioning can't run alongside the node group autoscaler. If it is enabled on an existing cluster, disable it before enabling node auto-provisioning:
-
-```
-clever k8s update myKubeCluster --disable-autoscaling
-```
-
-The existing `--autoscaling`, `--disable-autoscaling`, `--min` and `--max` options remain available for managing the node group autoscaler. `--autoscaling` and `--node-autoprovisioning` cannot be enabled together.
+Node auto-provisioning can't run alongside the node group autoscaler. If it is enabled on an existing cluster, disable it from the Console or the API before enabling node auto-provisioning.
 
 ## Add persistent storage to a Cluster
 

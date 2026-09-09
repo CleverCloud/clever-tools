@@ -35,16 +35,6 @@ export const k8sUpdateCommand = defineCommand({
       description: 'Replace tags (comma-separated, e.g.: env:prod,team:platform)',
       placeholder: 'tag[,tag...]',
     }),
-    autoscaling: defineOption({
-      name: 'autoscaling',
-      schema: z.boolean().default(false),
-      description: 'Enable the cluster autoscaler',
-    }),
-    disableAutoscaling: defineOption({
-      name: 'disable-autoscaling',
-      schema: z.boolean().default(false),
-      description: 'Disable the cluster autoscaler',
-    }),
     nodeAutoprovisioning: defineOption({
       name: 'node-autoprovisioning',
       schema: z.boolean().default(false),
@@ -71,12 +61,12 @@ export const k8sUpdateCommand = defineCommand({
 
     if (Object.keys(updates).length === 0) {
       throw new Error(
-        'No update specified. Provide at least one of --name, --description, --tag, --autoscaling, --disable-autoscaling, --node-autoprovisioning, --disable-node-autoprovisioning',
+        'No update specified. Provide at least one of --name, --description, --tag, --node-autoprovisioning, --disable-node-autoprovisioning',
       );
     }
 
     const cluster = await k8sUpdate(orgIdOrName, clusterIdOrName, updates).catch((error) => {
-      // Preserve API errors for metadata and existing autoscaler updates.
+      // Preserve API errors for metadata updates.
       if (features.nodeAutoprovisioning == null) throw error;
       throw processFeaturesError(error, clusterIdOrName, { disabling: options.disableNodeAutoprovisioning });
     });

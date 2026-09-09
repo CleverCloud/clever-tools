@@ -31,7 +31,6 @@ export const k8sGetCommand = defineCommand({
           Status: k8sInfo.status,
           Version: k8sInfo.version,
           Topology: formatTopology(topo),
-          Autoscaling: k8sInfo.features?.autoscalingEnabled ? 'enabled' : 'disabled',
           'Node auto-provisioning': formatFeatureState(k8sInfo.features?.nodeAutoprovisioning, k8sInfo.status),
           'Persistent storage': k8sInfo.features?.csi != null ? 'enabled' : 'disabled',
         };

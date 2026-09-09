@@ -4,7 +4,7 @@ import { k8sCreateCommand } from '../src/commands/k8s/k8s.create.command.js';
 import { k8sNodeGroupCreateCommand } from '../src/commands/k8s/k8s.nodegroups.create.command.js';
 import { k8sNodeGroupUpdateCommand } from '../src/commands/k8s/k8s.nodegroups.update.command.js';
 import { k8sUpdateCommand } from '../src/commands/k8s/k8s.update.command.js';
-import { buildClusterFeaturesPatch, formatFeatureState, k8sCreate, processFeaturesError } from '../src/lib/k8s.js';
+import { buildClusterFeaturesPatch, formatFeatureState, processFeaturesError } from '../src/lib/k8s.js';
 
 const clusterIdOrName = { addon_name: 'myKubeCluster' };
 
@@ -13,9 +13,7 @@ function apiError(status, message = 'Something went wrong') {
 }
 
 describe('buildClusterFeaturesPatch()', () => {
-  it('updates each feature independently without touching the other autoscaler', () => {
-    assert.deepEqual(buildClusterFeaturesPatch({ autoscaling: true }), { autoscalingEnabled: true });
-    assert.deepEqual(buildClusterFeaturesPatch({ disableAutoscaling: true }), { autoscalingEnabled: false });
+  it('updates node auto-provisioning without touching other features', () => {
     assert.deepEqual(buildClusterFeaturesPatch({ nodeAutoprovisioning: true }), { nodeAutoprovisioning: true });
     assert.deepEqual(buildClusterFeaturesPatch({ disableNodeAutoprovisioning: true }), {
       nodeAutoprovisioning: false,
@@ -29,8 +27,6 @@ describe('buildClusterFeaturesPatch()', () => {
   it('does not interpret default false options as requests to disable features', () => {
     assert.deepEqual(
       buildClusterFeaturesPatch({
-        autoscaling: false,
-        disableAutoscaling: false,
         nodeAutoprovisioning: false,
         disableNodeAutoprovisioning: false,
       }),
@@ -38,35 +34,19 @@ describe('buildClusterFeaturesPatch()', () => {
     );
   });
 
-  it('allows switching between autoscalers with an explicit disable', () => {
-    assert.deepEqual(buildClusterFeaturesPatch({ disableAutoscaling: true, nodeAutoprovisioning: true }), {
-      autoscalingEnabled: false,
-      nodeAutoprovisioning: true,
-    });
-    assert.deepEqual(buildClusterFeaturesPatch({ autoscaling: true, disableNodeAutoprovisioning: true }), {
-      autoscalingEnabled: true,
-      nodeAutoprovisioning: false,
-    });
-  });
-
-  it('rejects contradictory feature toggles and simultaneous autoscalers', () => {
-    const incompatibleOptions = [
-      { autoscaling: true, disableAutoscaling: true },
-      { nodeAutoprovisioning: true, disableNodeAutoprovisioning: true },
-      { autoscaling: true, nodeAutoprovisioning: true },
-    ];
-
-    incompatibleOptions.forEach((options) => {
-      assert.throws(() => buildClusterFeaturesPatch(options), /mutually exclusive/);
-    });
+  it('rejects contradictory node auto-provisioning toggles', () => {
+    assert.throws(
+      () => buildClusterFeaturesPatch({ nodeAutoprovisioning: true, disableNodeAutoprovisioning: true }),
+      /--node-autoprovisioning and --disable-node-autoprovisioning are mutually exclusive/,
+    );
   });
 });
 
-describe('k8sCreate()', () => {
-  it('rejects simultaneous autoscalers before resolving the owner or calling the API', async () => {
+describe('k8sUpdateCommand.handler()', () => {
+  it('rejects contradictory node auto-provisioning toggles before calling the API', async () => {
     await assert.rejects(
-      k8sCreate('myKubeCluster', undefined, { autoscaling: true, nodeAutoprovisioning: true }),
-      /--autoscaling and --node-autoprovisioning are mutually exclusive/,
+      k8sUpdateCommand.handler({ nodeAutoprovisioning: true, disableNodeAutoprovisioning: true }, clusterIdOrName),
+      /--node-autoprovisioning and --disable-node-autoprovisioning are mutually exclusive/,
     );
   });
 });
@@ -119,7 +99,7 @@ describe('processFeaturesError()', () => {
     const error = processFeaturesError(apiError(400), clusterIdOrName, {});
 
     assert.match(error.message, /can't run alongside the node group autoscaler/);
-    assert.match(error.message, /clever k8s update myKubeCluster --disable-autoscaling/);
+    assert.match(error.message, /Console or the API/);
   });
 
   it('leaves any other failure untouched', () => {
@@ -153,16 +133,16 @@ describe('k8s command options', () => {
     assert.match(k8sUpdateCommand.options.disableNodeAutoprovisioning.description, /autoscaling/);
   });
 
-  it('preserves the existing cluster and node group autoscaling options', () => {
-    assert.equal(k8sCreateCommand.options.autoscaling.name, 'autoscaling');
-    assert.equal(k8sUpdateCommand.options.autoscaling.name, 'autoscaling');
-    assert.equal(k8sUpdateCommand.options.disableAutoscaling.name, 'disable-autoscaling');
-    assert.equal(k8sNodeGroupCreateCommand.options.autoscaling.name, 'autoscaling');
-    assert.equal(k8sNodeGroupUpdateCommand.options.autoscaling.name, 'autoscaling');
-    assert.equal(k8sNodeGroupUpdateCommand.options.disableAutoscaling.name, 'disable-autoscaling');
-    assert.equal(k8sNodeGroupCreateCommand.options.min.name, 'min');
-    assert.equal(k8sNodeGroupCreateCommand.options.max.name, 'max');
-    assert.equal(k8sNodeGroupUpdateCommand.options.min.name, 'min');
-    assert.equal(k8sNodeGroupUpdateCommand.options.max.name, 'max');
+  it('no longer exposes the cluster or node group autoscaling options', () => {
+    assert.equal(k8sCreateCommand.options.autoscaling, undefined);
+    assert.equal(k8sUpdateCommand.options.autoscaling, undefined);
+    assert.equal(k8sUpdateCommand.options.disableAutoscaling, undefined);
+    assert.equal(k8sNodeGroupCreateCommand.options.autoscaling, undefined);
+    assert.equal(k8sNodeGroupUpdateCommand.options.autoscaling, undefined);
+    assert.equal(k8sNodeGroupUpdateCommand.options.disableAutoscaling, undefined);
+    assert.equal(k8sNodeGroupCreateCommand.options.min, undefined);
+    assert.equal(k8sNodeGroupCreateCommand.options.max, undefined);
+    assert.equal(k8sNodeGroupUpdateCommand.options.min, undefined);
+    assert.equal(k8sNodeGroupUpdateCommand.options.max, undefined);
   });
 });

@@ -1765,7 +1765,6 @@ cluster-name                                     Kubernetes cluster name
 
 **Options**
 ```
-    --autoscaling                                Enable the cluster autoscaler
     --cluster-version <cluster-version>          Kubernetes version to deploy (e.g.: 1.36)
     --description <description>                  Free-form cluster description
     --flavor <flavor>                            Control plane flavor
@@ -1893,10 +1892,7 @@ flavor:count                            Node group flavor and target node count 
 
 **Options**
 ```
-    --autoscaling                       Enable cluster autoscaler for this node group (requires --min and --max)
     --description <description>         Free-form node group description
-    --max <max>                         Maximum node count when autoscaling is enabled
-    --min <min>                         Minimum node count when autoscaling is enabled
 -o, --org, --owner <org-id|org-name>    Organisation to target by its ID (or name, if unambiguous)
     --tag <tag>                         Arbitrary tag attached to the node group
 ```
@@ -1988,12 +1984,8 @@ nodegroup-id|nodegroup-name             Kubernetes node group ID or name
 
 **Options**
 ```
-    --autoscaling                       Enable the cluster autoscaler
     --count <count>                     Target node count
     --description <description>         Free-form node group description
-    --disable-autoscaling               Disable the cluster autoscaler
-    --max <max>                         Maximum node count (autoscaling bound)
-    --min <min>                         Minimum node count (autoscaling bound)
 -o, --org, --owner <org-id|org-name>    Organisation to target by its ID (or name, if unambiguous)
     --tag <tag>                         Arbitrary tag attached to the node group
 ```
@@ -2033,9 +2025,7 @@ cluster-id|cluster-name                 Kubernetes cluster ID or name
 
 **Options**
 ```
-    --autoscaling                       Enable the cluster autoscaler
     --description <description>         Free-form cluster description
-    --disable-autoscaling               Disable the cluster autoscaler
     --disable-node-autoprovisioning     Disable node autoscaling via node auto-provisioning, uninstalls Karpenter
     --name <name>                       Rename the cluster
     --node-autoprovisioning             Enable node autoscaling via node auto-provisioning, powered by Karpenter

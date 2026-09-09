@@ -38,7 +38,6 @@ export const k8sNodeGroupListCommand = defineCommand({
                 Status: ng.status,
                 Flavor: ng.flavor,
                 Nodes: `${ng.currentNodeCount}/${ng.targetNodeCount}`,
-                Autoscaling: ng.autoscalingEnabled ? `${ng.minNodeCount}-${ng.maxNodeCount}` : 'disabled',
               },
             ]),
           ),

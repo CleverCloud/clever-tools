@@ -48,7 +48,6 @@ export async function isK8sClusterActive(orgIdOrName, clusterIdOrName) {
  * @param {string} [options.version] The Kubernetes version to deploy
  * @param {string} [options.description] A free-form description
  * @param {string[]} [options.tags] Semantic tags ("tag" or "key:value")
- * @param {boolean} [options.autoscaling] Enable the cluster autoscaler
  * @param {boolean} [options.nodeAutoprovisioning] Enable node auto-provisioning (Karpenter)
  * @param {boolean} [options.persistentStorage] Enable the Ceph CSI persistent storage
  * @param {string} [options.topology] Topology kind (ALL_IN_ONE, DEDICATED_COMPUTE, DISTRIBUTED)
@@ -226,31 +225,16 @@ export const NODE_AUTOPROVISIONING_HINT = `Karpenter only provisions nodes once 
  * `null` erases it. Only the features the user asked for are mentioned, so an update
  * never touches (nor erases) the ones it doesn't name.
  * @param {object} options
- * @param {boolean} [options.autoscaling] Enable the cluster autoscaler
- * @param {boolean} [options.disableAutoscaling] Disable the cluster autoscaler
  * @param {boolean} [options.nodeAutoprovisioning] Enable node auto-provisioning
  * @param {boolean} [options.disableNodeAutoprovisioning] Disable node auto-provisioning
  * @returns {object} The features merge patch, empty when no feature is asked for
  */
-export function buildClusterFeaturesPatch({
-  autoscaling,
-  disableAutoscaling,
-  nodeAutoprovisioning,
-  disableNodeAutoprovisioning,
-}) {
-  if (autoscaling && disableAutoscaling) {
-    throw new Error('--autoscaling and --disable-autoscaling are mutually exclusive');
-  }
+export function buildClusterFeaturesPatch({ nodeAutoprovisioning, disableNodeAutoprovisioning }) {
   if (nodeAutoprovisioning && disableNodeAutoprovisioning) {
     throw new Error('--node-autoprovisioning and --disable-node-autoprovisioning are mutually exclusive');
   }
-  if (autoscaling && nodeAutoprovisioning) {
-    throw new Error('--autoscaling and --node-autoprovisioning are mutually exclusive');
-  }
 
   const features = {};
-  if (autoscaling) features.autoscalingEnabled = true;
-  if (disableAutoscaling) features.autoscalingEnabled = false;
   if (nodeAutoprovisioning) features.nodeAutoprovisioning = true;
   if (disableNodeAutoprovisioning) features.nodeAutoprovisioning = false;
 
@@ -288,7 +272,7 @@ export function processFeaturesError(error, clusterIdOrName, { disabling }) {
   switch (error.response?.status) {
     case 400:
       return new Error(
-        `Node auto-provisioning can't run alongside the node group autoscaler of ${styleText('red', name)}, both would provision nodes for the same workloads. Disable the autoscaler first with ${styleText('blue', `clever k8s update ${name} --disable-autoscaling`)}`,
+        `Node auto-provisioning can't run alongside the node group autoscaler of ${styleText('red', name)}, both would provision nodes for the same workloads. Disable the autoscaler from the Console or the API first`,
         { cause: error },
       );
     case 409:
@@ -429,9 +413,6 @@ export async function k8sListNodeGroups(orgIdOrName, clusterIdOrName) {
  * @param {number} options.targetNodeCount Target node count
  * @param {string} [options.description]
  * @param {string} [options.tag]
- * @param {boolean} [options.autoscaling]
- * @param {number} [options.min] Minimum node count (autoscaling)
- * @param {number} [options.max] Maximum node count (autoscaling)
  * @returns {Promise<object>}
  */
 export async function k8sCreateNodeGroup(orgIdOrName, clusterIdOrName, options) {
@@ -444,22 +425,9 @@ export async function k8sCreateNodeGroup(orgIdOrName, clusterIdOrName, options) 
     throw new Error(`Flavor "${options.flavor}" is not a valid node group flavor. Supported: ${supported.join(', ')}`);
   }
 
-  const wantsAutoscaling = options.autoscaling || options.min != null || options.max != null;
-  if (wantsAutoscaling && (options.min == null || options.max == null)) {
-    throw new Error('--autoscaling requires both --min and --max');
-  }
-  if (wantsAutoscaling && options.min > options.max) {
-    throw new Error('--min must be less than or equal to --max');
-  }
-
   const body = { name: options.name, flavor: options.flavor, targetNodeCount: options.targetNodeCount };
   if (options.description != null) body.description = options.description;
   if (options.tag != null) body.tag = options.tag;
-  if (wantsAutoscaling) {
-    body.autoscalingEnabled = true;
-    body.minNodeCount = options.min;
-    body.maxNodeCount = options.max;
-  }
 
   return createK8sNodeGroup({ ownerId, clusterId }, body).then(sendToApi);
 }
@@ -474,7 +442,7 @@ function getNodeGroupFlavors(product) {
  * @param {object} orgIdOrName The organisation ID or name
  * @param {string|object} clusterIdOrName The cluster ID or name
  * @param {string} nodeGroupIdOrName The node group ID or name
- * @param {object} updates Patch fields (targetNodeCount, minNodeCount, maxNodeCount, autoscalingEnabled, description, tag)
+ * @param {object} updates Patch fields (targetNodeCount, description, tag)
  * @returns {Promise<object>}
  */
 export async function k8sUpdateNodeGroup(orgIdOrName, clusterIdOrName, nodeGroupIdOrName, updates) {

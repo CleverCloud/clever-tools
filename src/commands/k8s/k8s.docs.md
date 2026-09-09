@@ -72,7 +72,6 @@ clever k8s create <cluster-name> [options]
 
 |Name|Description|
 |---|---|
-|`--autoscaling`|Enable the cluster autoscaler|
 |`--cluster-version` `<cluster-version>`|Kubernetes version to deploy (e.g.: 1.36)|
 |`--description` `<description>`|Free-form cluster description|
 |`--flavor` `<flavor>`|Control plane flavor|
@@ -191,10 +190,7 @@ clever k8s nodegroups create <cluster-id|cluster-name> <nodegroup-name> <flavor:
 
 |Name|Description|
 |---|---|
-|`--autoscaling`|Enable cluster autoscaler for this node group (requires --min and --max)|
 |`--description` `<description>`|Free-form node group description|
-|`--max` `<max>`|Maximum node count when autoscaling is enabled|
-|`--min` `<min>`|Minimum node count when autoscaling is enabled|
 |`-o`, `--org`, `--owner` `<org-id\|org-name>`|Organisation to target by its ID (or name, if unambiguous)|
 |`--tag` `<tag>`|Arbitrary tag attached to the node group|
 
@@ -282,12 +278,8 @@ clever k8s nodegroups update <cluster-id|cluster-name> <nodegroup-id|nodegroup-n
 
 |Name|Description|
 |---|---|
-|`--autoscaling`|Enable the cluster autoscaler|
 |`--count` `<count>`|Target node count|
 |`--description` `<description>`|Free-form node group description|
-|`--disable-autoscaling`|Disable the cluster autoscaler|
-|`--max` `<max>`|Maximum node count (autoscaling bound)|
-|`--min` `<min>`|Minimum node count (autoscaling bound)|
 |`-o`, `--org`, `--owner` `<org-id\|org-name>`|Organisation to target by its ID (or name, if unambiguous)|
 |`--tag` `<tag>`|Arbitrary tag attached to the node group|
 
@@ -324,9 +316,7 @@ clever k8s update <cluster-id|cluster-name> [options]
 
 |Name|Description|
 |---|---|
-|`--autoscaling`|Enable the cluster autoscaler|
 |`--description` `<description>`|Free-form cluster description|
-|`--disable-autoscaling`|Disable the cluster autoscaler|
 |`--disable-node-autoprovisioning`|Disable node autoscaling via node auto-provisioning, uninstalls Karpenter|
 |`--name` `<name>`|Rename the cluster|
 |`--node-autoprovisioning`|Enable node autoscaling via node auto-provisioning, powered by Karpenter|
