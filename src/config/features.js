@@ -7,9 +7,19 @@ import { getConfigPath } from './paths.js';
 
 const EXPERIMENTAL_FEATURES_FILEPATH = getConfigPath('clever-tools-experimental-features.json');
 
+/**
+ * @typedef {object} ExperimentalFeature
+ * @property {'beta'} status
+ * @property {boolean} defaultValue - Value used when the feature is not explicitly set by the user
+ * @property {string} description
+ * @property {string} [instructions]
+ */
+
+/** @type {Record<string, ExperimentalFeature>} */
 export const EXPERIMENTAL_FEATURES = {
   'system-git': {
     status: 'beta',
+    defaultValue: false,
     description: 'Use system git instead of current JS implementation for git operations',
     instructions: dedent`
       This feature switches from the current JS implementation to using
@@ -21,6 +31,7 @@ export const EXPERIMENTAL_FEATURES = {
   },
   k8s: {
     status: 'beta',
+    defaultValue: false,
     description: 'Deploy and manage Kubernetes clusters on Clever Cloud',
     instructions: dedent`
       - Create a Kubernetes cluster:
@@ -48,6 +59,7 @@ export const EXPERIMENTAL_FEATURES = {
   },
   kv: {
     status: 'beta',
+    defaultValue: false,
     description:
       'Send commands to databases such as Materia KV or Redis® directly from Clever Tools, without other dependencies',
     instructions: dedent`
@@ -64,6 +76,7 @@ export const EXPERIMENTAL_FEATURES = {
   },
   ng: {
     status: 'beta',
+    defaultValue: false,
     description: 'Manage Network Groups to manage applications, add-ons, external peers through a WireGuard network',
     instructions: dedent`
       - Create a Network Group:
@@ -92,6 +105,7 @@ export const EXPERIMENTAL_FEATURES = {
   },
   operators: {
     status: 'beta',
+    defaultValue: false,
     description: 'Manage operators and their features such as Keycloak, Matomo, Metabase, Otoroshi',
     instructions: dedent`
       clever keycloak
@@ -161,11 +175,12 @@ export async function setFeature(feature, value) {
 
 /**
  * Checks if an experimental feature is enabled.
+ * Falls back to the feature's `defaultValue` when the user hasn't set it explicitly.
  * @param {string} feature - The name of the feature to check
- * @returns {boolean} True if the feature is explicitly enabled, false otherwise
+ * @returns {boolean} True if the feature is enabled
  */
 export function isFeatureEnabled(feature) {
-  return userFeatures[feature] === true;
+  return userFeatures[feature] ?? EXPERIMENTAL_FEATURES[feature]?.defaultValue ?? false;
 }
 
 /**
