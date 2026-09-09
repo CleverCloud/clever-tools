@@ -1,4 +1,4 @@
-import { EXPERIMENTAL_FEATURES, getFeatures } from '../../config/features.js';
+import { getAllFeatures } from '../../config/features.js';
 import { formatTable } from '../../format-table.js';
 import { defineCommand } from '../../lib/define-command.js';
 import { Logger } from '../../logger.js';
@@ -14,22 +14,15 @@ export const featuresListCommand = defineCommand({
   async handler(options) {
     const { format } = options;
 
-    const featuresConf = await getFeatures();
-    // Add status from configuration file and remove instructions
-    const features = Object.entries(EXPERIMENTAL_FEATURES).map(([id, feature]) => {
-      const enabled = featuresConf[id] === true;
-      return {
-        id,
-        status: feature.status,
-        description: feature.description,
-        enabled,
-      };
-    });
+    const features = getAllFeatures();
 
     // For each feature, print the object with the id, status, description and enabled
     switch (format) {
       case 'json': {
-        Logger.printJson(features);
+        // Only expose what's relevant to the user, instructions are printed by the enable/disable commands
+        Logger.printJson(
+          features.map(({ id, status, description, enabled }) => ({ id, status, description, enabled })),
+        );
         break;
       }
       case 'human':

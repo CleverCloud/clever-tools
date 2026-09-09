@@ -14,7 +14,7 @@ import {
   verboseOption,
   versionOption,
 } from '../src/commands/global.options.js';
-import { EXPERIMENTAL_FEATURES, getFeatures } from '../src/config/features.js';
+import { EXPERIMENTAL_FEATURES, isFeatureEnabled } from '../src/config/features.js';
 import { cliparse } from '../src/lib/cliparse-patched.js';
 import { styleText } from '../src/lib/style-text.js';
 import { getDefault, getEnumValues, isBoolean, isRequired } from '../src/lib/zod-utils.js';
@@ -47,14 +47,10 @@ if (process.argv[2] === 'curl') {
 }
 
 async function run() {
-  // Get enabled experimental features
-  /** @type {Record<string, boolean>} */
-  const featuresFromConf = await getFeatures();
-
   // Build all commands from globalCommands
   const commands = [];
   for (const [name, entry] of /** @type {[string, CommandEntry][]} */ (Object.entries(globalCommands))) {
-    const command = buildCommand(name, entry, featuresFromConf);
+    const command = buildCommand(name, entry);
     if (command != null) {
       commands.push(command);
     }
@@ -96,10 +92,9 @@ async function run() {
  * Recursively build commands from the global commands structure
  * @param {string} name - Command name
  * @param {CommandEntry} commandEntry - Command entry (either a command object or [command, subcommands])
- * @param {Record<string, boolean>} featuresFromConf - Enabled features configuration
  * @returns {Object|null} cliparse command or null if filtered out
  */
-function buildCommand(name, commandEntry, featuresFromConf) {
+function buildCommand(name, commandEntry) {
   /** @type {CommandDefinition} */
   let commandDef;
   /** @type {Record<string, CommandEntry>} */
@@ -113,14 +108,14 @@ function buildCommand(name, commandEntry, featuresFromConf) {
   }
 
   // Check if this is an experimental feature that needs to be enabled
-  if (commandDef.featureFlag && !featuresFromConf[commandDef.featureFlag]) {
+  if (commandDef.featureFlag && !isFeatureEnabled(commandDef.featureFlag)) {
     return null;
   }
 
   // Build subcommands recursively
   const subcommands = [];
   for (const [subName, subEntry] of Object.entries(subcommandsMap)) {
-    const subcommand = buildCommand(subName, subEntry, featuresFromConf);
+    const subcommand = buildCommand(subName, subEntry);
     if (subcommand != null) {
       subcommands.push(subcommand);
     }
