@@ -62,7 +62,7 @@
     "lodash": "4.18.1",
     "open": "10.2.0",
     "semver": "7.8.5",
-    "simple-git": "3.30.0",
+    "simple-git": "3.36.0",
     "slugify": "1.6.9",
     "tldts": "7.4.12",
     "undici": "7.24.4",
