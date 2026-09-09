@@ -19,14 +19,17 @@ const EXPERIMENTAL_FEATURES_FILEPATH = getConfigPath('clever-tools-experimental-
 export const EXPERIMENTAL_FEATURES = {
   'system-git': {
     status: 'beta',
-    defaultValue: false,
-    description: 'Use system git instead of current JS implementation for git operations',
+    defaultValue: true,
+    description: 'Use system git instead of the pure JS implementation for git operations',
     instructions: dedent`
-      This feature switches from the current JS implementation to using
-      the git installed on your system.
+      This feature switches from the pure JS implementation to using
+      the git installed on your system. It is enabled by default since v5.0.0.
 
       Requirements:
         - git must be installed and available in your PATH
+
+      Disable it to fall back to the previous pure JS implementation:
+        clever features disable system-git
     `,
   },
   k8s: {

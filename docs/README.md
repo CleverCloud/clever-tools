@@ -98,9 +98,9 @@ clever <command>
 
 ### Git-based deployments
 
-`clever deploy` pushes over HTTPS and verifies certificates too. By default it relies on its JS git implementation (running on Node.js), so it trusts the OS certificate store and `NODE_EXTRA_CA_CERTS` exactly like API calls — nothing more to do.
+`clever deploy` pushes over HTTPS and verifies certificates too. By default it delegates to your system `git` binary, which **ignores** `NODE_EXTRA_CA_CERTS` and follows its own TLS configuration: the OS certificate store (recommended), or an explicit CA file set with `git config --global http.sslCAInfo /path/to/corporate-ca.pem` (equivalent to the `GIT_SSL_CAINFO` environment variable).
 
-If you switch to the system git backend (`clever features enable system-git`), `clever` delegates to your system `git` binary instead. That binary **ignores** `NODE_EXTRA_CA_CERTS` and follows its own TLS configuration: the OS certificate store (recommended), or an explicit CA file set with `git config --global http.sslCAInfo /path/to/corporate-ca.pem` (equivalent to the `GIT_SSL_CAINFO` environment variable).
+If you fall back to the previous JS git implementation (`clever features disable system-git`), `clever` runs on Node.js instead, so it trusts the OS certificate store and `NODE_EXTRA_CA_CERTS` exactly like API calls — nothing more to do.
 
 > [!TIP]
 > Installing your CA in the OS certificate store is the most reliable option: it covers both API calls and Git deployments, in every mode, for both binary and npm installs.
@@ -133,7 +133,7 @@ export no_proxy=localhost,127.0.0.1,.internal.example.com
 ```
 
 > [!NOTE]
-> Like the TLS variables above, proxy variables are read at startup: set them in your shell or inline before the command, not in a `.env` file. With the `system-git` feature enabled, `clever deploy` delegates to your system `git`, which follows its own proxy configuration (`git config --global http.proxy …` or the same `http_proxy`/`https_proxy` variables).
+> Like the TLS variables above, proxy variables are read at startup: set them in your shell or inline before the command, not in a `.env` file. By default, `clever deploy` delegates to your system `git`, which follows its own proxy configuration (`git config --global http.proxy …` or the same `http_proxy`/`https_proxy` variables).
 
 ## features
 
