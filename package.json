@@ -64,7 +64,7 @@
     "semver": "7.8.5",
     "simple-git": "3.30.0",
     "slugify": "1.6.9",
-    "tldts": "7.0.19",
+    "tldts": "7.4.12",
     "undici": "7.24.4",
     "update-notifier": "7.3.1",
     "xdg": "0.1.1",
