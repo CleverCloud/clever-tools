@@ -1,6 +1,7 @@
 import { ApplicationAccessLogStream } from '@clevercloud/client/esm/streams/access-logs.js';
 import { formatTable } from '../../format-table.js';
 import { formatClf } from '../../lib/access-logs-clf.js';
+import { guessAccessLogTransport } from '../../lib/access-logs-transport.js';
 import { defineCommand } from '../../lib/define-command.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
@@ -23,6 +24,15 @@ const THROTTLE_PER_IN_MILLISECONDS = 100;
 
 const CITY_MAX_LENGTH = 20;
 
+/**
+ * Format an access log as a human readable table row.
+ *
+ * Non-HTTP access logs (TCP redirections, SSH connections, or HTTP connections cut before the
+ * proxy could answer) have no `http` section: their status and request columns are omitted.
+ *
+ * @param {object} log an access log, as emitted by `ApplicationAccessLogStream`
+ * @returns {string}
+ */
 function formatHuman(log) {
   const { date, http, source } = log;
   const country = source.countryCode ?? '(unknown)';
@@ -30,18 +40,24 @@ function formatHuman(log) {
 
   const columns = [
     styleText('grey', date.toISOString(date)),
+    guessAccessLogTransport(log),
     source.ip,
     `${country}${hasSourceCity ? '/' + truncateWithEllipsis(CITY_MAX_LENGTH, source.city) : ''}`,
-    colorStatusCode(http.response.statusCode),
-    http.request.method,
-    http.request.path,
   ];
+
+  if (http != null) {
+    columns.push(colorStatusCode(http.response.statusCode));
+    columns.push(http.request.method);
+    columns.push(http.request.path);
+  }
 
   return formatTable([columns], ACCESSLOG_COLUMN_WIDTHS);
 }
 
 const ACCESSLOG_COLUMN_WIDTHS = [
   '2024-06-24T08:05:43.880Z',
+  // longest transport name
+  'HTTP',
   '255.255.255.255',
   // country / city
   2 + 1 + CITY_MAX_LENGTH,
@@ -131,7 +147,7 @@ export const accesslogsCommand = defineCommand({
             Logger.printJson(log);
             break;
           case 'clf':
-            // when the connection is cut too early, or for TCP redirections, we don't have HTTP section
+            // CLF only describes HTTP requests, so logs without an HTTP section are skipped
             if (log.http == null) {
               break;
             }
@@ -140,11 +156,6 @@ export const accesslogsCommand = defineCommand({
             break;
           case 'human':
           default:
-            // when the connection is cut too early, or for TCP redirections, we don't have HTTP section
-            if (log.http == null) {
-              break;
-            }
-
             Logger.println(formatHuman(log));
             break;
         }

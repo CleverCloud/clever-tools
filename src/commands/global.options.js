@@ -31,7 +31,7 @@ export const logsFormatOption = defineOption({
 export const accessLogsFormatOption = defineOption({
   name: 'format',
   schema: z.enum(['human', 'json', 'json-stream', 'clf']).default('human'),
-  description: 'Output format',
+  description: 'Output format (clf only outputs HTTP access logs)',
   aliases: ['F'],
   placeholder: 'format',
 });
