@@ -131,11 +131,11 @@ export const deployCommand = defineCommand({
     if (remoteHeadCommitId == null || deployedCommitId == null) {
       Logger.println(`   ${styleText('yellow', '!')} App is brand new, no commits on remote yet`);
     } else {
-      Logger.println(`   Remote head     ${styleText('yellow', remoteHeadCommitId)} (${branchRefspec})`);
+      Logger.println(`   Remote head     ${styleText('yellow', remoteHeadCommitId)}`);
       Logger.println(`   Deployed commit ${styleText('yellow', deployedCommitId)}`);
     }
     Logger.println(
-      `   Local commit    ${styleText('yellow', commitIdToPush)} ${styleText('blue', '[will be deployed]')}`,
+      `   Local commit    ${styleText('yellow', commitIdToPush)} (${branchRefspec}) ${styleText('blue', '[will be deployed]')}`,
     );
 
     Logger.println();
