@@ -44,16 +44,14 @@ export class GitSystem extends Git {
     if (commitId == null) {
       return null;
     }
-    const git = await this.#getSimpleGit();
-    try {
-      const fullOid = await git.revparse([commitId]);
-      return fullOid.trim();
-    } catch (e) {
-      if (e.message.includes('unknown revision') || e.message.includes('ambiguous argument')) {
-        throw new Error(`Commit id ${commitId} is ambiguous`);
-      }
-      throw e;
+    // A full SHA resolves even if the object is not local: `restart --commit` relies on it, so do not add `^{commit}`.
+    const fullOid = await this.#verifyRev(commitId);
+    if (fullOid == null) {
+      throw new Error(
+        `Could not resolve commit id ${commitId} in this repository (unknown or ambiguous, try a longer id)`,
+      );
     }
+    return fullOid;
   }
 
   async getRemoteCommit(remoteUrl) {
