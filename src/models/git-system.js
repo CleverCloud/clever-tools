@@ -99,9 +99,24 @@ export class GitSystem extends Git {
   async getBranchCommit(refspec) {
     this._debug('getBranchCommit', refspec);
     const git = await this.#getSimpleGit();
-    // Use rev-parse with ^{commit} to dereference tags to their commit
-    const oid = await git.revparse([`${refspec}^{commit}`]);
-    return oid.trim();
+    // `^{commit}` dereferences an annotated tag to the commit it points at. Plain `rev-parse` used
+    // to run it bare, so on a repository with no commit the user got git's own words back — the
+    // multi-line "Use '--' to separate paths from revisions" hint, quoting the
+    // `<refspec>^{commit}` we built rather than anything they typed.
+    //
+    // `--verify --quiet` separates the two outcomes worth telling apart: a refspec that resolves
+    // to nothing exits non-zero with an empty stderr, which simple-git hands back as empty stdout
+    // rather than an error, while an unreadable repository or a malformed `.git/config` still
+    // rejects and keeps git's diagnostic, which is the one thing here worth showing verbatim.
+    //
+    // Only the ref is named. Failing to resolve `HEAD` says nothing about the repository holding
+    // commits — `git checkout --orphan` leaves HEAD unborn in a repository full of them — so
+    // there is no inference to draw beyond the ref that was asked for.
+    const oid = (await git.revparse(['--verify', '--quiet', '--end-of-options', `${refspec}^{commit}`])).trim();
+    if (oid === '') {
+      throw new Error(`Could not resolve ${refspec} to a commit`);
+    }
+    return oid;
   }
 
   async isExistingTag(tag) {
