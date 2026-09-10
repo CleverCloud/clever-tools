@@ -36,16 +36,20 @@ export const formatTable = (data, columnWidth = []) => {
   return data
     .map((row) => row.map((cell) => String(cell)))
     .map((row) => {
-      return row
-        .map((cell, index) => {
-          const isLastColumn = index === row.length - 1;
-          if (isLastColumn) {
-            return cell;
-          }
-          const rightPaddingLength = columnSizes[index] - stringLength(cell) ?? 0;
-          return cell + ' '.repeat(rightPaddingLength);
-        })
-        .join(SEPARATOR);
+      return (
+        row
+          .map((cell, index) => {
+            const isLastColumn = index === row.length - 1;
+            if (isLastColumn) {
+              return cell;
+            }
+            const rightPaddingLength = columnSizes[index] - stringLength(cell) ?? 0;
+            return cell + ' '.repeat(rightPaddingLength);
+          })
+          .join(SEPARATOR)
+          // empty trailing cells would otherwise pad the line with meaningless spaces
+          .trimEnd()
+      );
     })
     .join('\n');
 };
