@@ -167,8 +167,8 @@ export class GitSystem extends Git {
 class GitNotFoundError extends Error {
   constructor() {
     super(
-      'The system git feature requires git to be installed and available in your PATH\n' +
-        'Either install git or disable this feature with: clever features disable system-git',
+      'git was not found in your PATH\n' +
+        'Either install git, or fall back to the previous JS implementation with: clever features disable system-git',
     );
     this.name = 'GitNotFoundError';
   }

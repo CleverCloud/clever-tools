@@ -1,26 +1,40 @@
 import dedent from 'dedent';
 import z from 'zod';
-import { readJson, writeJson } from '../lib/fs.js';
+import { readJsonSync, writeJson } from '../lib/fs.js';
 import { Logger } from '../logger.js';
 import { config } from './config.js';
 import { getConfigPath } from './paths.js';
 
 const EXPERIMENTAL_FEATURES_FILEPATH = getConfigPath('clever-tools-experimental-features.json');
 
+/**
+ * @typedef {object} ExperimentalFeature
+ * @property {'beta'} status
+ * @property {boolean} defaultValue - Value used when the feature is not explicitly set by the user
+ * @property {string} description
+ * @property {string} [instructions]
+ */
+
+/** @type {Record<string, ExperimentalFeature>} */
 export const EXPERIMENTAL_FEATURES = {
   'system-git': {
     status: 'beta',
-    description: 'Use system git instead of current JS implementation for git operations',
+    defaultValue: true,
+    description: 'Use system git instead of the pure JS implementation for git operations',
     instructions: dedent`
-      This feature switches from the current JS implementation to using
-      the git installed on your system.
+      This feature switches from the pure JS implementation to using
+      the git installed on your system. It is enabled by default since v5.0.0.
 
       Requirements:
         - git must be installed and available in your PATH
+
+      Disable it to fall back to the previous pure JS implementation:
+        clever features disable system-git
     `,
   },
   k8s: {
     status: 'beta',
+    defaultValue: false,
     description: 'Deploy and manage Kubernetes clusters on Clever Cloud',
     instructions: dedent`
       - Create a Kubernetes cluster:
@@ -48,6 +62,7 @@ export const EXPERIMENTAL_FEATURES = {
   },
   kv: {
     status: 'beta',
+    defaultValue: false,
     description:
       'Send commands to databases such as Materia KV or Redis® directly from Clever Tools, without other dependencies',
     instructions: dedent`
@@ -64,6 +79,7 @@ export const EXPERIMENTAL_FEATURES = {
   },
   ng: {
     status: 'beta',
+    defaultValue: false,
     description: 'Manage Network Groups to manage applications, add-ons, external peers through a WireGuard network',
     instructions: dedent`
       - Create a Network Group:
@@ -92,6 +108,7 @@ export const EXPERIMENTAL_FEATURES = {
   },
   operators: {
     status: 'beta',
+    defaultValue: false,
     description: 'Manage operators and their features such as Keycloak, Matomo, Metabase, Otoroshi',
     instructions: dedent`
       clever keycloak
@@ -116,52 +133,67 @@ const FeaturesConfigSchema = z
  */
 
 /**
- * Gets the current experimental features configuration.
- * Returns an empty object if the features file doesn't exist or is invalid.
- * @returns {Promise<FeaturesConfig>} The features configuration object
+ * The features explicitly set by the user, loaded synchronously at startup.
+ * @type {FeaturesConfig}
  */
-export async function getFeatures() {
-  Logger.debug(`Get features configuration from ${EXPERIMENTAL_FEATURES_FILEPATH}`);
-  try {
-    const rawFeatures = await readJson(EXPERIMENTAL_FEATURES_FILEPATH);
-    const parsed = FeaturesConfigSchema.safeParse(rawFeatures);
-    if (!parsed.success) {
-      Logger.info(`Invalid features format in ${EXPERIMENTAL_FEATURES_FILEPATH}`);
-      return {};
-    }
-    return parsed.data;
-  } catch (error) {
-    if (error.code !== 'ENOENT') {
-      throw new Error(`Cannot get experimental features configuration from ${EXPERIMENTAL_FEATURES_FILEPATH}`);
-    }
+let userFeatures = loadFeatures();
+
+/**
+ * Reads and parses the features file.
+ * Returns an empty object if the file doesn't exist or is invalid.
+ * @returns {FeaturesConfig} The features configuration object
+ */
+function loadFeatures() {
+  Logger.debug(`Load features configuration from ${EXPERIMENTAL_FEATURES_FILEPATH}`);
+  const rawFeatures = readJsonSync(EXPERIMENTAL_FEATURES_FILEPATH);
+  if (rawFeatures == null) {
     return {};
   }
+  const parsed = FeaturesConfigSchema.safeParse(rawFeatures);
+  if (!parsed.success) {
+    Logger.info(`Invalid features format in ${EXPERIMENTAL_FEATURES_FILEPATH}`);
+    return {};
+  }
+  return parsed.data;
 }
 
 /**
  * Sets an experimental feature to the specified value.
- * Creates the configuration directory and features file if they don't exist.
+ * Creates the configuration directory and features file if they don't exist,
+ * then reloads the in-memory configuration.
  * @param {string} feature - The name of the feature to set
  * @param {boolean} value - The value to set for the feature
  * @returns {Promise<void>}
  * @throws {Error} If the features file cannot be written
  */
 export async function setFeature(feature, value) {
-  const currentFeatures = await getFeatures();
-  const newFeatures = { ...currentFeatures, [feature]: value };
+  const newFeatures = { ...userFeatures, [feature]: value };
   try {
     await writeJson(EXPERIMENTAL_FEATURES_FILEPATH, newFeatures, { mode: 0o700 });
   } catch (error) {
     throw new Error(`Cannot write experimental features configuration to ${EXPERIMENTAL_FEATURES_FILEPATH}`);
   }
+  userFeatures = loadFeatures();
 }
 
 /**
  * Checks if an experimental feature is enabled.
+ * Falls back to the feature's `defaultValue` when the user hasn't set it explicitly.
  * @param {string} feature - The name of the feature to check
- * @returns {Promise<boolean>} True if the feature is explicitly enabled, false otherwise
+ * @returns {boolean} True if the feature is enabled
  */
-export async function isFeatureEnabled(feature) {
-  const features = await getFeatures();
-  return features[feature] === true;
+export function isFeatureEnabled(feature) {
+  return userFeatures[feature] ?? EXPERIMENTAL_FEATURES[feature]?.defaultValue ?? false;
+}
+
+/**
+ * Lists all experimental features with their current status.
+ * @returns {Array<{ id: string, status: string, description: string, instructions?: string, enabled: boolean }>}
+ */
+export function getAllFeatures() {
+  return Object.entries(EXPERIMENTAL_FEATURES).map(([id, feature]) => ({
+    id,
+    ...feature,
+    enabled: isFeatureEnabled(id),
+  }));
 }

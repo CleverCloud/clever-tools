@@ -30,7 +30,7 @@ export class Git {
    */
   static async get() {
     if (Git.#instance == null) {
-      const useSystemGit = await isFeatureEnabled('system-git');
+      const useSystemGit = isFeatureEnabled('system-git');
       if (useSystemGit) {
         const { GitSystem } = await import('./git-system.js');
         Git.#instance = new GitSystem();

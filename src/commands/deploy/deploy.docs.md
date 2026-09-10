@@ -23,21 +23,21 @@ clever deploy [options]
 
 ### 🧪 Experimental: System git backend
 
-Clever Tools uses a current JS implementation for git operations. This works without requiring git to be installed on your system, but has some limitations:
+Clever Tools uses the `git` command installed on your system for git operations (it must be in your `PATH` environment variable).
+
+If `git` is not available, or you experience an issue with this backend, you can fall back to the previous pure JS implementation. This works without requiring git to be installed on your system, but has some limitations:
 
 * **HTTP-only**: cannot use SSH-based git protocols
 * **Slow performance** on repositories with rewritten history (rebases, squashes)
 * **Connection timeouts** on large repositories or when pushing big files, due to HTTP-based transfers
-* **No git worktree support**: deploying from a linked git worktree (`git worktree add`) fails with `Could not find HEAD`. The system git backend deploys from worktrees just like from the main working tree
-
-If you experience any of these issues, you can enable the **system git backend** which uses the `git` command installed on your system (it must be in your `PATH` environment variable).
-
-```bash
-clever features enable system-git
-```
-
-To disable and return to the current JS implementation:
+* **No git worktree support**: deploying from a linked git worktree (`git worktree add`) fails with `Could not find HEAD`
 
 ```bash
 clever features disable system-git
+```
+
+To switch back to the system git backend:
+
+```bash
+clever features enable system-git
 ```
