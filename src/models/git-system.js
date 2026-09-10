@@ -96,12 +96,23 @@ export class GitSystem extends Git {
     }
   }
 
+  // Returns the object id of `rev`, or null if it resolves to nothing.
+  // With `--verify --quiet`, an unknown or ambiguous rev gives an empty output,
+  // while a real git failure (unreadable repository, broken config) still rejects with git's own message.
+  async #verifyRev(rev) {
+    const git = await this.#getSimpleGit();
+    const oid = (await git.revparse(['--verify', '--quiet', '--end-of-options', rev])).trim();
+    return oid === '' ? null : oid;
+  }
+
   async getBranchCommit(refspec) {
     this._debug('getBranchCommit', refspec);
-    const git = await this.#getSimpleGit();
-    // Use rev-parse with ^{commit} to dereference tags to their commit
-    const oid = await git.revparse([`${refspec}^{commit}`]);
-    return oid.trim();
+    // `^{commit}` dereferences an annotated tag to its commit.
+    const oid = await this.#verifyRev(`${refspec}^{commit}`);
+    if (oid == null) {
+      throw new Error(`Could not resolve ${refspec} to a commit`);
+    }
+    return oid;
   }
 
   async isExistingTag(tag) {
