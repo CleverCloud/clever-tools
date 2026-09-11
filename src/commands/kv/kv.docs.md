@@ -1,9 +1,5 @@
 # 📖 `clever kv` command reference
 
-> [!NOTE]
-> 🧪 **Experimental**: This command may change or be removed in future versions.
-> Enable with: `clever features enable kv`
-
 ## ➡️ `clever kv` <kbd>Since 3.11.0</kbd>
 
 Send a raw command to a Materia KV or Redis® add-on

@@ -219,8 +219,6 @@ async function sendCommand(url, command) {
 export const kvCommand = defineCommand({
   description: 'Send a raw command to a Materia KV or Redis® add-on',
   since: '3.11.0',
-  isExperimental: true,
-  featureFlag: 'kv',
   options: {
     org: orgaIdOrNameOption,
     format: humanJsonOutputFormatOption,
