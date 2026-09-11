@@ -164,6 +164,16 @@ async function sendCommand(url, command) {
 
 export const kvCommand = defineCommand({
   description: 'Send a raw command to a Materia KV or Redis® add-on',
+  examples: [
+    'clever kv myMateriaKV SET myKey myValue',
+    'clever kv kv_xxxxxxxx GET myKey -F json',
+    'clever kv addon_xxxxx SET myTempKey myTempValue EX 120',
+    'clever kv myMateriaKV -o myOrg TTL myTempKey',
+    '',
+    '# Use -- so arguments starting with a dash are not read as Clever Tools options',
+    'clever kv redis_xxxxx -- LRANGE myList 0 -1',
+    'clever kv redis_xxxxx -- EXPIRE myKey -1',
+  ],
   since: '3.11.0',
   options: {
     org: orgaIdOrNameOption,
@@ -177,7 +187,7 @@ export const kvCommand = defineCommand({
     }),
     defineArgument({
       schema: z.string(),
-      description: 'The raw command to send to the Materia KV or Redis® add-on',
+      description: 'The raw command to send, followed by its own arguments',
       placeholder: 'command',
     }),
   ],

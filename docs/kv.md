@@ -33,6 +33,14 @@ clever kv ADDON_NAME_OR_ID TTL myKey                  # It will respond (integer
 > [!Tip]
 > You can get a list of all supported commands with `clever kv ADDON_NAME_OR_ID COMMANDS`
 
+Some commands take arguments starting with a dash, which Clever Tools would otherwise read as its
+own options. Put `--` before the command so they reach the add-on untouched:
+
+```bash
+clever kv ADDON_NAME_OR_ID -- LRANGE myList 0 -1
+clever kv ADDON_NAME_OR_ID -- EXPIRE myKey -1
+```
+
 You can pass the result of JSON stringified values to tools like `jq` to query them, for example:
 
 ```bash
