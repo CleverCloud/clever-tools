@@ -56,6 +56,7 @@ These options are available for all commands:
 |[`clever restart`](./restart/restart.docs.md)|Start or restart an application|
 |[`clever scale`](./scale/scale.docs.md)|Change scalability of an application|
 |[`clever service`](./service/service.docs.md)|Manage service dependencies|
+|[`clever service-tokens`](./service-tokens/service-tokens.docs.md)|Manage organisation service tokens for machine-to-machine authentication|
 |[`clever ssh`](./ssh/ssh.docs.md)|Connect to running instances through SSH|
 |[`clever ssh-keys`](./ssh-keys/ssh-keys.docs.md)|Manage SSH keys of the current user|
 |[`clever status`](./status/status.docs.md)|See the status of an application|
