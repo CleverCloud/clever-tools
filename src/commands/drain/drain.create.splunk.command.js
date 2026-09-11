@@ -9,7 +9,7 @@ import { drainUrlArg } from './drain.args.js';
 
 export const drainCreateSplunkCommand = defineCommand({
   description: 'Create a Splunk HEC drain',
-  since: null,
+  since: '5.0.0',
   options: {
     token: defineOption({
       name: 'hec-token',
