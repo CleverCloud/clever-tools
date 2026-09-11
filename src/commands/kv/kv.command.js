@@ -104,6 +104,37 @@ function formatHuman(reply, insideList = false, indent = '') {
 }
 
 /**
+ * Say so when an integer reply may not have survived the trip exactly.
+ *
+ * Integer replies are read as JavaScript numbers, which represent whole values exactly only within
+ * the safe integer range. Outside it some values still come through untouched — 9007199254740992 is
+ * printed exactly as sent — while others are rounded: `INCR` on 9223372036854775806 answered
+ * 9223372036854775807 to `redis-cli` and 9223372036854778000 here. We cannot tell the two apart
+ * after the fact, since the rounding happened before the value reached us, so the warning says what
+ * is actually known: the digits printed may not be the digits sent.
+ *
+ * Only whole numbers are considered: a `ZSCORE` answers 1.5 as a number too, and it is not an
+ * integer that lost anything. And only the top-level reply is checked — an unsafe integer nested in
+ * a list goes by unannounced.
+ *
+ * `Logger.warn` would be the house style, but it writes to stdout: a piped `--format json` would
+ * then carry the warning into the JSON and break whatever reads it. So the warning goes to stderr,
+ * wearing the same `/!\` a reader already sees elsewhere in the CLI.
+ *
+ * @param {unknown} reply
+ */
+function warnOnUnsafeInteger(reply) {
+  if (Number.isInteger(reply) && !Number.isSafeInteger(reply)) {
+    Logger.printErrorLine(
+      styleText(
+        'yellow',
+        `/!\\ This integer is outside JavaScript's safe integer range (±${Number.MAX_SAFE_INTEGER}) and may have lost precision on the way out. Read the value back as text to see it exactly.`,
+      ),
+    );
+  }
+}
+
+/**
  * Run one command on a fresh connection and close it.
  *
  * Only the command name is logged. The arguments and the reply are the customer's data — an
@@ -187,6 +218,7 @@ export const kvCommand = defineCommand({
     Logger.debug(`Extracted command: ${command[0]} with ${command.length - 1} argument(s)`);
 
     const result = await sendCommand(url, command);
+    warnOnUnsafeInteger(result);
 
     switch (format) {
       case 'json': {
