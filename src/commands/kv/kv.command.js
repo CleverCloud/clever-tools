@@ -37,6 +37,21 @@ const CONNECTION_OPTIONS = {
  */
 const RAW_TYPE_MAPPING = { [RESP_TYPES.MAP]: Array };
 
+/**
+ * Commands node-redis answers itself instead of handing the reply back.
+ *
+ * Subscribing parks the connection in a mode node-redis owns: it routes the confirmation to its own
+ * pub/sub machinery and settles the pending promise through a counter that only `client.subscribe()`
+ * sets. A raw `sendCommand` never sets it, so the command waits forever — with one channel as with
+ * ten.
+ *
+ * These six names are node-redis' own, the ones `@redis/client` keys its pub/sub table by, and so
+ * the ones that decide the hang. Asking the server instead looks better, since command flags need
+ * no maintaining — but `pubsub` marks the family, not the mode: `PUBLISH` and `SPUBLISH` carry it
+ * too, and they answer a plain integer that one connection serves perfectly well.
+ */
+const SUBSCRIPTION_COMMANDS = ['subscribe', 'unsubscribe', 'psubscribe', 'punsubscribe', 'ssubscribe', 'sunsubscribe'];
+
 async function getAddonUrl(ownerId, addonId) {
   const envVars = await getAllEnvVars({ id: ownerId, addonId }).then(sendToApi);
   const redisUrl = envVars.find((env) => env.name === URL_ENV_KEY)?.value;
@@ -135,6 +150,33 @@ function warnOnUnsafeInteger(reply) {
 }
 
 /**
+ * Refuse the commands whose reply would never reach us.
+ *
+ * A subscription is answered by node-redis rather than handed back, and `CLIENT REPLY OFF` or
+ * `CLIENT REPLY SKIP` ask the server itself to stop answering. Either way the command would hang;
+ * refusing before connecting turns that into a sentence the reader can act on.
+ *
+ * @param {string} commandName
+ * @param {string[]} commandArgs
+ */
+function assertOneShotCommand(commandName, commandArgs) {
+  const name = commandName.toLowerCase();
+
+  if (SUBSCRIPTION_COMMANDS.includes(name)) {
+    throw new Error(
+      `${commandName} needs a connection that outlives the command, and ${styleText('blue', 'clever kv')} sends one command then returns. Use a Redis® client for pub/sub.`,
+    );
+  }
+
+  const argAt = (index) => (typeof commandArgs[index] === 'string' ? commandArgs[index].toUpperCase() : '');
+  if (name === 'client' && argAt(0) === 'REPLY' && ['OFF', 'SKIP'].includes(argAt(1))) {
+    throw new Error(
+      `CLIENT REPLY ${argAt(1)} tells the server to stop answering, and ${styleText('blue', 'clever kv')} waits for exactly one reply`,
+    );
+  }
+}
+
+/**
  * Run one command on a fresh connection and close it.
  *
  * Only the command name is logged. The arguments and the reply are the customer's data — an
@@ -149,7 +191,8 @@ function warnOnUnsafeInteger(reply) {
  * @returns {Promise<unknown>}
  */
 async function sendCommand(url, command) {
-  const [commandName] = command;
+  const [commandName, ...commandArgs] = command;
+  assertOneShotCommand(commandName, commandArgs);
 
   Logger.debug(`Sending ${commandName} to ${describeTarget(url)}`);
   const client = createClient({ url, ...CONNECTION_OPTIONS });
