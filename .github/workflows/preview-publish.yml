@@ -37,7 +37,7 @@ jobs:
       contents: read
       pull-requests: write
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - uses: ./.github/actions/setup-node
       - uses: ./.github/actions/download-artifacts
         with: { pattern: build-* }
@@ -50,6 +50,6 @@ jobs:
           ./scripts/preview.js pr-comment ${{ github.event.pull_request.head.ref }} >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
       - name: 'Add comment with preview links to PR'
-        uses: marocchino/sticky-pull-request-comment@v2
+        uses: marocchino/sticky-pull-request-comment@v3.0.5
         with:
           message: ${{ steps.preview-links.outputs.links }}
