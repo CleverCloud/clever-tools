@@ -1,5 +1,32 @@
 # clever-tools changelog
 
+## [5.0.0](https://github.com/CleverCloud/clever-tools/compare/4.11.0...5.0.0) (2026-09-11)
+
+
+### ⚠ BREAKING CHANGES
+
+* **node:** Node.js 22 -> 24. Users installing via npm now need Node.js 24+ (binary users are unaffected, Node is embedded).
+
+### 📦 Release
+
+* **aur:** publish a Node.js flavored clever-tools package ([e7d3739](https://github.com/CleverCloud/clever-tools/commit/e7d37391bb374a6017959e979365c289451c6381))
+
+### 🚀 Features
+
+* **accesslogs:** display TCP and SSH access logs ([2303f5a](https://github.com/CleverCloud/clever-tools/commit/2303f5ab22e63594a8a7bce3f96909deaf5c7ac1))
+* **accesslogs:** keep HTTP paths aligned whatever the method length ([f52c75b](https://github.com/CleverCloud/clever-tools/commit/f52c75ba2a66222dcb9732af02f494fae602bef6))
+* **drain:** support Splunk HEC as a drain target ([3ceced3](https://github.com/CleverCloud/clever-tools/commit/3ceced38d423677d278b9effd731587bf6827458))
+* **features:** enable and mark the system git backend as stable ([4dd190a](https://github.com/CleverCloud/clever-tools/commit/4dd190ac0e4628c605a0c9182523f70d401f91ac), [3d9ebf5](https://github.com/CleverCloud/clever-tools/commit/3d9ebf5c09cc25aac6cb46337d158cc6a945edce))
+* notify updates, even in binary builds, with the new update documentation page ([aa40bbf](https://github.com/CleverCloud/clever-tools/commit/aa40bbf43680ebc34ef1043bd13ab0181ff89cc0), [046e4d9](https://github.com/CleverCloud/clever-tools/commit/046e4d984371f8b3136b664451237a8863ab2c57))
+* **proxy:** honor http_proxy/https_proxy environment variables ([d7fe1bf](https://github.com/CleverCloud/clever-tools/commit/d7fe1bf3a18c3846592f5e7c3467f83be4846cd3)), closes [#1050](https://github.com/CleverCloud/clever-tools/issues/1050)
+
+
+### 🐛 Bug Fixes
+
+* **login:** continue when browser launch fails ([2e6cfea](https://github.com/CleverCloud/clever-tools/commit/2e6cfeaefb8154692a670153d0d3b44b69741eec)), closes [#939](https://github.com/CleverCloud/clever-tools/issues/939)
+* **ssh:** forbid password authentication fallback ([80efad0](https://github.com/CleverCloud/clever-tools/commit/80efad068ab1e889cbbb5d1cd7244096725b4b01))
+* **ssh:** make --identity-file actually present the requested key ([ce23abc](https://github.com/CleverCloud/clever-tools/commit/ce23abc8cc3099e15052e94fd4fa1655025caa78))
+
 ## [4.11.0](https://github.com/CleverCloud/clever-tools/compare/4.10.0...4.11.0) (2026-06-30)
 
 
