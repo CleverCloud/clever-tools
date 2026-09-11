@@ -45,15 +45,27 @@ export class GitSystem extends Git {
       return null;
     }
     const git = await this.#getSimpleGit();
-    try {
-      const fullOid = await git.revparse([commitId]);
-      return fullOid.trim();
-    } catch (e) {
-      if (e.message.includes('unknown revision') || e.message.includes('ambiguous argument')) {
-        throw new Error(`Commit id ${commitId} is ambiguous`);
-      }
-      throw e;
+    // The failure used to be recognised from git's own words ("unknown revision", "ambiguous
+    // argument"), and git translates that one — it comes from `die(_("ambiguous argument '%s':
+    // unknown revision or path not in the working tree…"))` in git's setup.c, wrapped in `_()`.
+    // On a git built with its l10n catalogs, the norm on Debian and Ubuntu which ship `git-l10n`,
+    // the match failed and the raw git error reached the user instead of a message of ours.
+    //
+    // `--verify --quiet` answers without prose instead: an id that resolves to nothing exits
+    // non-zero with an empty stderr, which simple-git hands back as empty stdout rather than an
+    // error, while a genuine failure — an unreadable repository, a malformed `.git/config` — still
+    // rejects and carries git's own diagnostic, which deserves to reach the user untouched.
+    //
+    // This resolves an id, it does not prove the object is here: a full 40-character SHA comes
+    // back as itself even when the repository holds no such object, exactly as the previous
+    // `rev-parse` call did. `restart --commit` leans on that — the commit it names lives on the
+    // remote and need not have been fetched — so do not tighten this into an existence check
+    // (`^{commit}`) without looking at that command first.
+    const fullOid = (await git.revparse(['--verify', '--quiet', '--end-of-options', commitId])).trim();
+    if (fullOid === '') {
+      throw new Error(`Could not resolve commit id ${commitId} in this repository`);
     }
+    return fullOid;
   }
 
   async getRemoteCommit(remoteUrl) {
@@ -99,9 +111,24 @@ export class GitSystem extends Git {
   async getBranchCommit(refspec) {
     this._debug('getBranchCommit', refspec);
     const git = await this.#getSimpleGit();
-    // Use rev-parse with ^{commit} to dereference tags to their commit
-    const oid = await git.revparse([`${refspec}^{commit}`]);
-    return oid.trim();
+    // `^{commit}` dereferences an annotated tag to the commit it points at. Plain `rev-parse` used
+    // to run it bare, so on a repository with no commit the user got git's own words back — the
+    // multi-line "Use '--' to separate paths from revisions" hint, quoting the
+    // `<refspec>^{commit}` we built rather than anything they typed.
+    //
+    // `--verify --quiet` separates the two outcomes worth telling apart: a refspec that resolves
+    // to nothing exits non-zero with an empty stderr, which simple-git hands back as empty stdout
+    // rather than an error, while an unreadable repository or a malformed `.git/config` still
+    // rejects and keeps git's diagnostic, which is the one thing here worth showing verbatim.
+    //
+    // Only the ref is named. Failing to resolve `HEAD` says nothing about the repository holding
+    // commits — `git checkout --orphan` leaves HEAD unborn in a repository full of them — so
+    // there is no inference to draw beyond the ref that was asked for.
+    const oid = (await git.revparse(['--verify', '--quiet', '--end-of-options', `${refspec}^{commit}`])).trim();
+    if (oid === '') {
+      throw new Error(`Could not resolve ${refspec} to a commit`);
+    }
+    return oid;
   }
 
   async isExistingTag(tag) {
