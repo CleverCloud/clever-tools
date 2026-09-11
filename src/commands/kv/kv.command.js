@@ -1,5 +1,5 @@
 import { getAllEnvVars } from '@clevercloud/client/esm/api/v2/addon.js';
-import Redis from 'ioredis';
+import { RESP_TYPES, createClient } from '@redis/client';
 import { z } from 'zod';
 import { ambiguousNameError } from '../../lib/ambiguous-name-error.js';
 import { defineArgument } from '../../lib/define-argument.js';
@@ -12,7 +12,21 @@ import { humanJsonOutputFormatOption, orgaIdOrNameOption } from '../global.optio
 
 const URL_ENV_KEY = 'REDIS_URL';
 
-const MAX_RETRIES_PER_REQUEST = 1;
+/**
+ * One connection, one attempt: never reconnect and never queue a command while disconnected.
+ * A reconnecting client could replay a write the server already applied (an `INCR` counted twice),
+ * so a dropped connection must surface as an error instead.
+ */
+const CONNECTION_OPTIONS = {
+  socket: { reconnectStrategy: false },
+  disableOfflineQueue: true,
+};
+
+/**
+ * Return map replies as the flat `[field, value, ...]` array the server sent, as a raw command should,
+ * instead of the object node-redis builds by default.
+ */
+const RAW_TYPE_MAPPING = { [RESP_TYPES.MAP]: Array };
 
 async function getAddonUrl(ownerId, addonId) {
   const envVars = await getAllEnvVars({ id: ownerId, addonId }).then(sendToApi);
@@ -27,15 +41,49 @@ async function getAddonUrl(ownerId, addonId) {
   return redisUrl;
 }
 
-async function sendCommand(url, command) {
-  Logger.debug(`Sending command '${command.join(' ')}' to ${url}`);
-  const client = new Redis(url, { maxRetriesPerRequest: MAX_RETRIES_PER_REQUEST });
+/**
+ * `REDIS_URL` carries the password, so only its host and port may be logged.
+ *
+ * @param {string} url
+ * @returns {string} host and port only
+ */
+function describeTarget(url) {
   try {
-    const result = await client.call(...command);
-    Logger.debug(`Command result: ${result}`);
+    const { hostname, port } = new URL(url);
+    return port ? `${hostname}:${port}` : hostname;
+  } catch {
+    return 'the add-on';
+  }
+}
+
+/**
+ * Run one command on a fresh connection and close it.
+ * Debug logs carry the command name only: arguments and replies are customer data (secrets included)
+ * and debug output gets pasted into issues.
+ *
+ * @param {string} url
+ * @param {string[]} command
+ * @returns {Promise<unknown>}
+ */
+async function sendCommand(url, command) {
+  const [commandName] = command;
+
+  Logger.debug(`Sending ${commandName} to ${describeTarget(url)}`);
+  const client = createClient({ url, ...CONNECTION_OPTIONS });
+  // Without a listener the `error` event crashes the process; the rejected promise already carries the reason.
+  client.on('error', () => {});
+
+  try {
+    await client.connect();
+    const result = await client.withTypeMapping(RAW_TYPE_MAPPING).sendCommand(command);
+    Logger.debug(`${commandName} answered`);
     return result;
   } finally {
-    await client.disconnect();
+    try {
+      client.destroy();
+    } catch {
+      // never connected or already gone, nothing to close
+    }
     Logger.debug('Disconnected from server');
   }
 }
@@ -83,8 +131,8 @@ export const kvCommand = defineCommand({
 
     const url = await getAddonUrl(ownerId, addonId);
 
-    Logger.debug(`Extracted command: ${restArgs.join(' ')}`);
     const command = restArgs;
+    Logger.debug(`Extracted command: ${command[0]} with ${command.length - 1} argument(s)`);
 
     const result = await sendCommand(url, command);
 
