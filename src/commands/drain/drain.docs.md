@@ -244,7 +244,7 @@ clever drain create raw-http "https://<HOST>/<PATH>"
 clever drain create raw-http "https://<HOST>/<PATH>" --username <USERNAME> --password <PASSWORD>
 ```
 
-## ➡️ `clever drain create splunk` <kbd>Unreleased</kbd>
+## ➡️ `clever drain create splunk` <kbd>Since 5.0.0</kbd>
 
 Create a Splunk HEC drain
 
@@ -269,22 +269,6 @@ clever drain create splunk --hec-token <hec-token> <drain-url> [options]
 |`--index` `<index>`|Optional target index, the HEC token's own index is used if not set|
 |`--sourcetype` `<sourcetype>`|Optional sourcetype, the HEC token's own sourcetype is used if not set|
 |`--tls-verification` `<tls-verification>`|TLS verification mode, use `trustful` to accept a self-signed certificate (default, trustful)|
-
-### Examples
-
-Splunk drains send events to the [HTTP Event Collector](https://docs.splunk.com/Documentation/Splunk/latest/Data/UsetheHTTPEventCollector) (HEC). The URL is the full collector endpoint, the token is the one bound to your HEC input:
-
-```bash
-clever drain create splunk "https://<HOST>:8088/services/collector/event" --hec-token <HEC_TOKEN>
-```
-
-`--index` and `--sourcetype` are optional: when they are not set, the values configured on the HEC token itself apply. When they are set, they override it for every forwarded event.
-
-A self-hosted Splunk ships a self-signed certificate on port 8088 by default. If you didn't replace it, add `--tls-verification trustful` so the drain doesn't fail on certificate verification:
-
-```bash
-clever drain create splunk "https://<HOST>:8088/services/collector/event" --hec-token <HEC_TOKEN> --tls-verification trustful
-```
 
 ## ➡️ `clever drain create syslog-tcp` <kbd>Since 0.9.0</kbd>
 

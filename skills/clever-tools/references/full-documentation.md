@@ -1278,7 +1278,7 @@ drain-url                      Drain URL
 
 **Description:** Create a Splunk HEC drain
 
-**Since:** Unreleased
+**Since:** 5.0.0
 
 **Usage**
 ```
