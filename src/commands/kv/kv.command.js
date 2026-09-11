@@ -28,6 +28,13 @@ const CONNECTION_OPTIONS = {
  */
 const RAW_TYPE_MAPPING = { [RESP_TYPES.MAP]: Array };
 
+/**
+ * Commands whose reply node-redis keeps for its own pub/sub handling, so a raw `sendCommand` never settles.
+ * Matched by name because these are the keys of node-redis' pub/sub table.
+ * The server's `pubsub` command flag is not usable: `PUBLISH` and `SPUBLISH` carry it and work fine here.
+ */
+const SUBSCRIPTION_COMMANDS = ['subscribe', 'unsubscribe', 'psubscribe', 'punsubscribe', 'ssubscribe', 'sunsubscribe'];
+
 async function getAddonUrl(ownerId, addonId) {
   const envVars = await getAllEnvVars({ id: ownerId, addonId }).then(sendToApi);
   const redisUrl = envVars.find((env) => env.name === URL_ENV_KEY)?.value;
@@ -99,6 +106,30 @@ function warnOnUnsafeInteger(reply) {
 }
 
 /**
+ * Refuse, before connecting, the commands that would hang waiting for a reply that never comes:
+ * subscriptions, and `CLIENT REPLY OFF|SKIP`.
+ *
+ * @param {string} commandName
+ * @param {string[]} commandArgs
+ */
+function assertOneShotCommand(commandName, commandArgs) {
+  const name = commandName.toLowerCase();
+
+  if (SUBSCRIPTION_COMMANDS.includes(name)) {
+    throw new Error(
+      `${commandName} needs a connection that outlives the command, and ${styleText('blue', 'clever kv')} sends one command then returns. Use a Redis® client for pub/sub.`,
+    );
+  }
+
+  const argAt = (index) => (typeof commandArgs[index] === 'string' ? commandArgs[index].toUpperCase() : '');
+  if (name === 'client' && argAt(0) === 'REPLY' && ['OFF', 'SKIP'].includes(argAt(1))) {
+    throw new Error(
+      `CLIENT REPLY ${argAt(1)} tells the server to stop answering, and ${styleText('blue', 'clever kv')} waits for exactly one reply`,
+    );
+  }
+}
+
+/**
  * Run one command on a fresh connection and close it.
  * Debug logs carry the command name only: arguments and replies are customer data (secrets included)
  * and debug output gets pasted into issues.
@@ -108,7 +139,8 @@ function warnOnUnsafeInteger(reply) {
  * @returns {Promise<unknown>}
  */
 async function sendCommand(url, command) {
-  const [commandName] = command;
+  const [commandName, ...commandArgs] = command;
+  assertOneShotCommand(commandName, commandArgs);
 
   Logger.debug(`Sending ${commandName} to ${describeTarget(url)}`);
   const client = createClient({ url, ...CONNECTION_OPTIONS });
