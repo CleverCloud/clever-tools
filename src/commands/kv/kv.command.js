@@ -81,6 +81,24 @@ function formatHuman(reply, insideList = false, indent = '') {
 }
 
 /**
+ * Integer replies are decoded as JS numbers, so outside the safe range they may already be rounded
+ * and we cannot tell. Only a top-level integer reply is checked.
+ * Written to stderr, not with `Logger.warn` (stdout), so it never corrupts piped `--format json` output.
+ *
+ * @param {unknown} reply
+ */
+function warnOnUnsafeInteger(reply) {
+  if (Number.isInteger(reply) && !Number.isSafeInteger(reply)) {
+    Logger.printErrorLine(
+      styleText(
+        'yellow',
+        `/!\\ This integer is outside JavaScript's safe integer range (±${Number.MAX_SAFE_INTEGER}) and may have lost precision on the way out. Read the value back as text to see it exactly.`,
+      ),
+    );
+  }
+}
+
+/**
  * Run one command on a fresh connection and close it.
  * Debug logs carry the command name only: arguments and replies are customer data (secrets included)
  * and debug output gets pasted into issues.
@@ -159,6 +177,7 @@ export const kvCommand = defineCommand({
     Logger.debug(`Extracted command: ${command[0]} with ${command.length - 1} argument(s)`);
 
     const result = await sendCommand(url, command);
+    warnOnUnsafeInteger(result);
 
     switch (format) {
       case 'json': {
