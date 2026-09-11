@@ -57,6 +57,30 @@ function describeTarget(url) {
 }
 
 /**
+ * Human view of a reply: one list element per line so the output can be piped, nested lists indented.
+ * Lossy on purpose (a nil and the string `null` look the same, sub-list bounds are not shown);
+ * `--format json` is the format to script against.
+ *
+ * @param {unknown} reply
+ * @param {boolean} [insideList]
+ * @param {string} [indent]
+ * @returns {string}
+ */
+function formatHuman(reply, insideList = false, indent = '') {
+  if (Array.isArray(reply)) {
+    if (reply.length === 0) {
+      return `${indent}(empty list)`;
+    }
+    return reply.map((item) => formatHuman(item, true, Array.isArray(item) ? `${indent}  ` : indent)).join('\n');
+  }
+  if (!insideList) {
+    return `${indent}${reply}`;
+  }
+  // Escape backslash, LF and CR inside lists so one element always stays on one line.
+  return `${indent}${String(reply).replaceAll('\\', '\\\\').replaceAll('\n', '\\n').replaceAll('\r', '\\r')}`;
+}
+
+/**
  * Run one command on a fresh connection and close it.
  * Debug logs carry the command name only: arguments and replies are customer data (secrets included)
  * and debug output gets pasted into issues.
@@ -143,7 +167,7 @@ export const kvCommand = defineCommand({
       }
       case 'human':
       default: {
-        Logger.println(result);
+        Logger.println(formatHuman(result));
       }
     }
   },
