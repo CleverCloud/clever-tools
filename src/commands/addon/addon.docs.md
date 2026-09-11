@@ -55,7 +55,7 @@ clever addon delete <addon-id|addon-name> [options]
 
 |Name|Description|
 |---|---|
-|`addon-id|addon-name`|Add-on ID (or name, if unambiguous)|
+|`addon-id\|addon-name`|Add-on ID (or name, if unambiguous)|
 
 ### ⚙️ Options
 
@@ -148,7 +148,7 @@ clever addon rename <addon-id|addon-name> <addon-name> [options]
 
 |Name|Description|
 |---|---|
-|`addon-id|addon-name`|Add-on ID (or name, if unambiguous)|
+|`addon-id\|addon-name`|Add-on ID (or name, if unambiguous)|
 |`addon-name`|Add-on name|
 
 ### ⚙️ Options

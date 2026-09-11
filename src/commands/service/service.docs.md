@@ -31,7 +31,7 @@ clever service link-addon <addon-id|addon-name> [options]
 
 |Name|Description|
 |---|---|
-|`addon-id|addon-name`|Add-on ID (or name, if unambiguous)|
+|`addon-id\|addon-name`|Add-on ID (or name, if unambiguous)|
 
 ### ⚙️ Options
 
@@ -52,7 +52,7 @@ clever service link-app <app-id|app-name> [options]
 
 |Name|Description|
 |---|---|
-|`app-id|app-name`|Application ID (or name, if unambiguous)|
+|`app-id\|app-name`|Application ID (or name, if unambiguous)|
 
 ### ⚙️ Options
 
@@ -73,7 +73,7 @@ clever service unlink-addon <addon-id|addon-name> [options]
 
 |Name|Description|
 |---|---|
-|`addon-id|addon-name`|Add-on ID (or name, if unambiguous)|
+|`addon-id\|addon-name`|Add-on ID (or name, if unambiguous)|
 
 ### ⚙️ Options
 
@@ -94,7 +94,7 @@ clever service unlink-app <app-id|app-name> [options]
 
 |Name|Description|
 |---|---|
-|`app-id|app-name`|Application ID (or name, if unambiguous)|
+|`app-id\|app-name`|Application ID (or name, if unambiguous)|
 
 ### ⚙️ Options
 

@@ -46,7 +46,7 @@ clever oauth-consumers delete <consumer-key|consumer-name> [options]
 
 |Name|Description|
 |---|---|
-|`consumer-key|consumer-name`|OAuth consumer key (or name, if unambiguous)|
+|`consumer-key\|consumer-name`|OAuth consumer key (or name, if unambiguous)|
 
 ### ⚙️ Options
 
@@ -66,7 +66,7 @@ clever oauth-consumers get <consumer-key|consumer-name> [options]
 
 |Name|Description|
 |---|---|
-|`consumer-key|consumer-name`|OAuth consumer key (or name, if unambiguous)|
+|`consumer-key\|consumer-name`|OAuth consumer key (or name, if unambiguous)|
 
 ### ⚙️ Options
 
@@ -101,7 +101,7 @@ clever oauth-consumers open <consumer-key|consumer-name>
 
 |Name|Description|
 |---|---|
-|`consumer-key|consumer-name`|OAuth consumer key (or name, if unambiguous)|
+|`consumer-key\|consumer-name`|OAuth consumer key (or name, if unambiguous)|
 
 ## ➡️ `clever oauth-consumers update` <kbd>Since 4.8.0</kbd>
 
@@ -115,7 +115,7 @@ clever oauth-consumers update <consumer-key|consumer-name> [options]
 
 |Name|Description|
 |---|---|
-|`consumer-key|consumer-name`|OAuth consumer key (or name, if unambiguous)|
+|`consumer-key\|consumer-name`|OAuth consumer key (or name, if unambiguous)|
 
 ### ⚙️ Options
 

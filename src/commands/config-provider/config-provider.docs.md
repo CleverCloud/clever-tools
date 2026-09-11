@@ -20,7 +20,7 @@ clever config-provider get <addon-id|config-provider-id|addon-name> [options]
 
 |Name|Description|
 |---|---|
-|`addon-id|config-provider-id|addon-name`|Add-on ID, real ID (config_xxx) or name (if unambiguous)|
+|`addon-id\|config-provider-id\|addon-name`|Add-on ID, real ID (config_xxx) or name (if unambiguous)|
 
 ### ⚙️ Options
 
@@ -41,7 +41,7 @@ clever config-provider import <addon-id|config-provider-id|addon-name> [options]
 
 |Name|Description|
 |---|---|
-|`addon-id|config-provider-id|addon-name`|Add-on ID, real ID (config_xxx) or name (if unambiguous)|
+|`addon-id\|config-provider-id\|addon-name`|Add-on ID, real ID (config_xxx) or name (if unambiguous)|
 
 ### ⚙️ Options
 
@@ -75,7 +75,7 @@ clever config-provider open <addon-id|config-provider-id|addon-name>
 
 |Name|Description|
 |---|---|
-|`addon-id|config-provider-id|addon-name`|Add-on ID, real ID (config_xxx) or name (if unambiguous)|
+|`addon-id\|config-provider-id\|addon-name`|Add-on ID, real ID (config_xxx) or name (if unambiguous)|
 
 ## ➡️ `clever config-provider rm` <kbd>Since 4.6.0</kbd>
 
@@ -89,7 +89,7 @@ clever config-provider rm <addon-id|config-provider-id|addon-name> <variable-nam
 
 |Name|Description|
 |---|---|
-|`addon-id|config-provider-id|addon-name`|Add-on ID, real ID (config_xxx) or name (if unambiguous)|
+|`addon-id\|config-provider-id\|addon-name`|Add-on ID, real ID (config_xxx) or name (if unambiguous)|
 |`variable-name`|Name of the environment variable|
 
 ## ➡️ `clever config-provider set` <kbd>Since 4.6.0</kbd>
@@ -104,6 +104,6 @@ clever config-provider set <addon-id|config-provider-id|addon-name> <variable-na
 
 |Name|Description|
 |---|---|
-|`addon-id|config-provider-id|addon-name`|Add-on ID, real ID (config_xxx) or name (if unambiguous)|
+|`addon-id\|config-provider-id\|addon-name`|Add-on ID, real ID (config_xxx) or name (if unambiguous)|
 |`variable-name`|Name of the environment variable|
 |`variable-value`|Value of the environment variable|

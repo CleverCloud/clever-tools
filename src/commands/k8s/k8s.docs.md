@@ -24,7 +24,7 @@ clever k8s activity <cluster-id|cluster-name> [options]
 
 |Name|Description|
 |---|---|
-|`cluster-id|cluster-name`|Kubernetes cluster ID or name|
+|`cluster-id\|cluster-name`|Kubernetes cluster ID or name|
 
 ### ⚙️ Options
 
@@ -46,7 +46,7 @@ clever k8s add-persistent-storage <cluster-id|cluster-name> [options]
 
 |Name|Description|
 |---|---|
-|`cluster-id|cluster-name`|Kubernetes cluster ID or name|
+|`cluster-id\|cluster-name`|Kubernetes cluster ID or name|
 
 ### ⚙️ Options
 
@@ -97,7 +97,7 @@ clever k8s delete <cluster-id|cluster-name> [options]
 
 |Name|Description|
 |---|---|
-|`cluster-id|cluster-name`|Kubernetes cluster ID or name|
+|`cluster-id\|cluster-name`|Kubernetes cluster ID or name|
 
 ### ⚙️ Options
 
@@ -118,7 +118,7 @@ clever k8s get <cluster-id|cluster-name> [options]
 
 |Name|Description|
 |---|---|
-|`cluster-id|cluster-name`|Kubernetes cluster ID or name|
+|`cluster-id\|cluster-name`|Kubernetes cluster ID or name|
 
 ### ⚙️ Options
 
@@ -139,7 +139,7 @@ clever k8s get-kubeconfig <cluster-id|cluster-name> [options]
 
 |Name|Description|
 |---|---|
-|`cluster-id|cluster-name`|Kubernetes cluster ID or name|
+|`cluster-id\|cluster-name`|Kubernetes cluster ID or name|
 
 ### ⚙️ Options
 
@@ -182,7 +182,7 @@ clever k8s nodegroups create <cluster-id|cluster-name> <nodegroup-name> <flavor:
 
 |Name|Description|
 |---|---|
-|`cluster-id|cluster-name`|Kubernetes cluster ID or name|
+|`cluster-id\|cluster-name`|Kubernetes cluster ID or name|
 |`nodegroup-name`|Node group name (lowercase RFC 1123, max 63 chars)|
 |`flavor:count`|Node group flavor and target node count (format: <flavor>:<count>, e.g.: XS:3)|
 
@@ -209,8 +209,8 @@ clever k8s nodegroups delete <cluster-id|cluster-name> <nodegroup-id|nodegroup-n
 
 |Name|Description|
 |---|---|
-|`cluster-id|cluster-name`|Kubernetes cluster ID or name|
-|`nodegroup-id|nodegroup-name`|Kubernetes node group ID or name|
+|`cluster-id\|cluster-name`|Kubernetes cluster ID or name|
+|`nodegroup-id\|nodegroup-name`|Kubernetes node group ID or name|
 
 ### ⚙️ Options
 
@@ -231,8 +231,8 @@ clever k8s nodegroups get <cluster-id|cluster-name> <nodegroup-id|nodegroup-name
 
 |Name|Description|
 |---|---|
-|`cluster-id|cluster-name`|Kubernetes cluster ID or name|
-|`nodegroup-id|nodegroup-name`|Kubernetes node group ID or name|
+|`cluster-id\|cluster-name`|Kubernetes cluster ID or name|
+|`nodegroup-id\|nodegroup-name`|Kubernetes node group ID or name|
 
 ### ⚙️ Options
 
@@ -253,7 +253,7 @@ clever k8s nodegroups list <cluster-id|cluster-name> [options]
 
 |Name|Description|
 |---|---|
-|`cluster-id|cluster-name`|Kubernetes cluster ID or name|
+|`cluster-id\|cluster-name`|Kubernetes cluster ID or name|
 
 ### ⚙️ Options
 
@@ -274,8 +274,8 @@ clever k8s nodegroups update <cluster-id|cluster-name> <nodegroup-id|nodegroup-n
 
 |Name|Description|
 |---|---|
-|`cluster-id|cluster-name`|Kubernetes cluster ID or name|
-|`nodegroup-id|nodegroup-name`|Kubernetes node group ID or name|
+|`cluster-id\|cluster-name`|Kubernetes cluster ID or name|
+|`nodegroup-id\|nodegroup-name`|Kubernetes node group ID or name|
 
 ### ⚙️ Options
 
@@ -317,7 +317,7 @@ clever k8s update <cluster-id|cluster-name> [options]
 
 |Name|Description|
 |---|---|
-|`cluster-id|cluster-name`|Kubernetes cluster ID or name|
+|`cluster-id\|cluster-name`|Kubernetes cluster ID or name|
 
 ### ⚙️ Options
 
@@ -342,7 +342,7 @@ clever k8s version <cluster-id|cluster-name> [options]
 
 |Name|Description|
 |---|---|
-|`cluster-id|cluster-name`|Kubernetes cluster ID or name|
+|`cluster-id\|cluster-name`|Kubernetes cluster ID or name|
 
 ### ⚙️ Options
 
@@ -363,7 +363,7 @@ clever k8s version check <cluster-id|cluster-name> [options]
 
 |Name|Description|
 |---|---|
-|`cluster-id|cluster-name`|Kubernetes cluster ID or name|
+|`cluster-id\|cluster-name`|Kubernetes cluster ID or name|
 
 ### ⚙️ Options
 
@@ -384,7 +384,7 @@ clever k8s version update <cluster-id|cluster-name> [options]
 
 |Name|Description|
 |---|---|
-|`cluster-id|cluster-name`|Kubernetes cluster ID or name|
+|`cluster-id\|cluster-name`|Kubernetes cluster ID or name|
 
 ### ⚙️ Options
 

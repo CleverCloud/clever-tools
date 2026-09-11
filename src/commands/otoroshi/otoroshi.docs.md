@@ -30,7 +30,7 @@ clever otoroshi disable-ng <addon-id|addon-name>
 
 |Name|Description|
 |---|---|
-|`addon-id|addon-name`|Add-on ID (or name, if unambiguous)|
+|`addon-id\|addon-name`|Add-on ID (or name, if unambiguous)|
 
 ## ➡️ `clever otoroshi enable-ng` <kbd>Since 3.13.0</kbd>
 
@@ -44,7 +44,7 @@ clever otoroshi enable-ng <addon-id|addon-name>
 
 |Name|Description|
 |---|---|
-|`addon-id|addon-name`|Add-on ID (or name, if unambiguous)|
+|`addon-id\|addon-name`|Add-on ID (or name, if unambiguous)|
 
 ## ➡️ `clever otoroshi get` <kbd>Since 3.13.0</kbd>
 
@@ -58,7 +58,7 @@ clever otoroshi get <addon-id|addon-name> [options]
 
 |Name|Description|
 |---|---|
-|`addon-id|addon-name`|Add-on ID (or name, if unambiguous)|
+|`addon-id\|addon-name`|Add-on ID (or name, if unambiguous)|
 
 ### ⚙️ Options
 
@@ -78,7 +78,7 @@ clever otoroshi get-config <addon-id|addon-name>
 
 |Name|Description|
 |---|---|
-|`addon-id|addon-name`|Add-on ID (or name, if unambiguous)|
+|`addon-id\|addon-name`|Add-on ID (or name, if unambiguous)|
 
 ## ➡️ `clever otoroshi open` <kbd>Since 3.13.0</kbd>
 
@@ -92,7 +92,7 @@ clever otoroshi open <addon-id|addon-name>
 
 |Name|Description|
 |---|---|
-|`addon-id|addon-name`|Add-on ID (or name, if unambiguous)|
+|`addon-id\|addon-name`|Add-on ID (or name, if unambiguous)|
 
 ## ➡️ `clever otoroshi open logs` <kbd>Since 3.13.0</kbd>
 
@@ -106,7 +106,7 @@ clever otoroshi open logs <addon-id|addon-name>
 
 |Name|Description|
 |---|---|
-|`addon-id|addon-name`|Add-on ID (or name, if unambiguous)|
+|`addon-id\|addon-name`|Add-on ID (or name, if unambiguous)|
 
 ## ➡️ `clever otoroshi open swaggerui` <kbd>Since 4.9.0</kbd>
 
@@ -120,7 +120,7 @@ clever otoroshi open swaggerui <addon-id|addon-name>
 
 |Name|Description|
 |---|---|
-|`addon-id|addon-name`|Add-on ID (or name, if unambiguous)|
+|`addon-id\|addon-name`|Add-on ID (or name, if unambiguous)|
 
 ## ➡️ `clever otoroshi open webui` <kbd>Since 3.13.0</kbd>
 
@@ -134,7 +134,7 @@ clever otoroshi open webui <addon-id|addon-name>
 
 |Name|Description|
 |---|---|
-|`addon-id|addon-name`|Add-on ID (or name, if unambiguous)|
+|`addon-id\|addon-name`|Add-on ID (or name, if unambiguous)|
 
 ## ➡️ `clever otoroshi rebuild` <kbd>Since 3.13.0</kbd>
 
@@ -148,7 +148,7 @@ clever otoroshi rebuild <addon-id|addon-name>
 
 |Name|Description|
 |---|---|
-|`addon-id|addon-name`|Add-on ID (or name, if unambiguous)|
+|`addon-id\|addon-name`|Add-on ID (or name, if unambiguous)|
 
 ## ➡️ `clever otoroshi restart` <kbd>Since 3.13.0</kbd>
 
@@ -162,7 +162,7 @@ clever otoroshi restart <addon-id|addon-name>
 
 |Name|Description|
 |---|---|
-|`addon-id|addon-name`|Add-on ID (or name, if unambiguous)|
+|`addon-id\|addon-name`|Add-on ID (or name, if unambiguous)|
 
 ## ➡️ `clever otoroshi version` <kbd>Since 3.13.0</kbd>
 
@@ -176,7 +176,7 @@ clever otoroshi version <addon-id|addon-name> [options]
 
 |Name|Description|
 |---|---|
-|`addon-id|addon-name`|Add-on ID (or name, if unambiguous)|
+|`addon-id\|addon-name`|Add-on ID (or name, if unambiguous)|
 
 ### ⚙️ Options
 
@@ -196,7 +196,7 @@ clever otoroshi version check <addon-id|addon-name> [options]
 
 |Name|Description|
 |---|---|
-|`addon-id|addon-name`|Add-on ID (or name, if unambiguous)|
+|`addon-id\|addon-name`|Add-on ID (or name, if unambiguous)|
 
 ### ⚙️ Options
 
@@ -216,7 +216,7 @@ clever otoroshi version update <addon-id|addon-name> [options]
 
 |Name|Description|
 |---|---|
-|`addon-id|addon-name`|Add-on ID (or name, if unambiguous)|
+|`addon-id\|addon-name`|Add-on ID (or name, if unambiguous)|
 
 ### ⚙️ Options
 

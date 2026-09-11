@@ -12,7 +12,7 @@ clever link <app-id|app-name> [options]
 
 |Name|Description|
 |---|---|
-|`app-id|app-name`|Application ID (or name, if unambiguous)|
+|`app-id\|app-name`|Application ID (or name, if unambiguous)|
 
 ### ⚙️ Options
 

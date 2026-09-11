@@ -30,7 +30,7 @@ clever keycloak disable-ng <addon-id|addon-name>
 
 |Name|Description|
 |---|---|
-|`addon-id|addon-name`|Add-on ID (or name, if unambiguous)|
+|`addon-id\|addon-name`|Add-on ID (or name, if unambiguous)|
 
 ## ➡️ `clever keycloak enable-ng` <kbd>Since 3.13.0</kbd>
 
@@ -44,7 +44,7 @@ clever keycloak enable-ng <addon-id|addon-name>
 
 |Name|Description|
 |---|---|
-|`addon-id|addon-name`|Add-on ID (or name, if unambiguous)|
+|`addon-id\|addon-name`|Add-on ID (or name, if unambiguous)|
 
 ## ➡️ `clever keycloak get` <kbd>Since 3.13.0</kbd>
 
@@ -58,7 +58,7 @@ clever keycloak get <addon-id|addon-name> [options]
 
 |Name|Description|
 |---|---|
-|`addon-id|addon-name`|Add-on ID (or name, if unambiguous)|
+|`addon-id\|addon-name`|Add-on ID (or name, if unambiguous)|
 
 ### ⚙️ Options
 
@@ -78,7 +78,7 @@ clever keycloak open <addon-id|addon-name>
 
 |Name|Description|
 |---|---|
-|`addon-id|addon-name`|Add-on ID (or name, if unambiguous)|
+|`addon-id\|addon-name`|Add-on ID (or name, if unambiguous)|
 
 ## ➡️ `clever keycloak open logs` <kbd>Since 3.13.0</kbd>
 
@@ -92,7 +92,7 @@ clever keycloak open logs <addon-id|addon-name>
 
 |Name|Description|
 |---|---|
-|`addon-id|addon-name`|Add-on ID (or name, if unambiguous)|
+|`addon-id\|addon-name`|Add-on ID (or name, if unambiguous)|
 
 ## ➡️ `clever keycloak open webui` <kbd>Since 3.13.0</kbd>
 
@@ -106,7 +106,7 @@ clever keycloak open webui <addon-id|addon-name>
 
 |Name|Description|
 |---|---|
-|`addon-id|addon-name`|Add-on ID (or name, if unambiguous)|
+|`addon-id\|addon-name`|Add-on ID (or name, if unambiguous)|
 
 ## ➡️ `clever keycloak rebuild` <kbd>Since 3.13.0</kbd>
 
@@ -120,7 +120,7 @@ clever keycloak rebuild <addon-id|addon-name>
 
 |Name|Description|
 |---|---|
-|`addon-id|addon-name`|Add-on ID (or name, if unambiguous)|
+|`addon-id\|addon-name`|Add-on ID (or name, if unambiguous)|
 
 ## ➡️ `clever keycloak restart` <kbd>Since 3.13.0</kbd>
 
@@ -134,7 +134,7 @@ clever keycloak restart <addon-id|addon-name>
 
 |Name|Description|
 |---|---|
-|`addon-id|addon-name`|Add-on ID (or name, if unambiguous)|
+|`addon-id\|addon-name`|Add-on ID (or name, if unambiguous)|
 
 ## ➡️ `clever keycloak version` <kbd>Since 3.13.0</kbd>
 
@@ -148,7 +148,7 @@ clever keycloak version <addon-id|addon-name> [options]
 
 |Name|Description|
 |---|---|
-|`addon-id|addon-name`|Add-on ID (or name, if unambiguous)|
+|`addon-id\|addon-name`|Add-on ID (or name, if unambiguous)|
 
 ### ⚙️ Options
 
@@ -168,7 +168,7 @@ clever keycloak version check <addon-id|addon-name> [options]
 
 |Name|Description|
 |---|---|
-|`addon-id|addon-name`|Add-on ID (or name, if unambiguous)|
+|`addon-id\|addon-name`|Add-on ID (or name, if unambiguous)|
 
 ### ⚙️ Options
 
@@ -188,7 +188,7 @@ clever keycloak version update <addon-id|addon-name> [options]
 
 |Name|Description|
 |---|---|
-|`addon-id|addon-name`|Add-on ID (or name, if unambiguous)|
+|`addon-id\|addon-name`|Add-on ID (or name, if unambiguous)|
 
 ### ⚙️ Options
 

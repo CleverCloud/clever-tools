@@ -20,7 +20,7 @@ clever database backups <database-id|addon-id> [options]
 
 |Name|Description|
 |---|---|
-|`database-id|addon-id`|Any database ID (format: addon_UUID, postgresql_UUID, mysql_UUID, ...)|
+|`database-id\|addon-id`|Any database ID (format: addon_UUID, postgresql_UUID, mysql_UUID, ...)|
 
 ### ⚙️ Options
 
@@ -41,7 +41,7 @@ clever database backups download <database-id|addon-id> <backup-id> [options]
 
 |Name|Description|
 |---|---|
-|`database-id|addon-id`|Any database ID (format: addon_UUID, postgresql_UUID, mysql_UUID, ...)|
+|`database-id\|addon-id`|Any database ID (format: addon_UUID, postgresql_UUID, mysql_UUID, ...)|
 |`backup-id`|A Database backup ID (format: UUID)|
 
 ### ⚙️ Options
