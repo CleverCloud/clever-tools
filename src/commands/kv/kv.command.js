@@ -68,6 +68,42 @@ function describeTarget(url) {
 }
 
 /**
+ * Render a reply for a person reading a terminal.
+ *
+ * A reply that is not a list prints as itself. A list prints one element per line, so `KEYS`,
+ * `LRANGE` and `HGETALL` can be piped into the next command — `Logger.println` hands an array
+ * straight to `console.log`, which used to print the JavaScript literal, quotes and all
+ * (`[ 'a', 'b' ]`). Nested lists, as `SCAN` returns, are indented under their parent, so the
+ * cursor stays readable next to the keys it goes with.
+ *
+ * This view is lossy on purpose and several replies render the same way: the indentation shows
+ * depth but not where a sub-list starts and stops, a missing key and the string `null` both print
+ * `null`, and a value that is not valid UTF-8 comes out as replacement characters. `--format json`
+ * is the one to script against; this is the human view.
+ *
+ * @param {unknown} reply
+ * @param {boolean} [insideList]
+ * @param {string} [indent]
+ * @returns {string}
+ */
+function formatHuman(reply, insideList = false, indent = '') {
+  if (Array.isArray(reply)) {
+    if (reply.length === 0) {
+      return `${indent}(empty list)`;
+    }
+    return reply.map((item) => formatHuman(item, true, Array.isArray(item) ? `${indent}  ` : indent)).join('\n');
+  }
+  if (!insideList) {
+    return `${indent}${reply}`;
+  }
+  // One element per line only means something while an element cannot itself contain a line
+  // break: a value holding "a\nb" would otherwise read as two elements. Inside a list, backslashes,
+  // LF and CR are escaped — and only those, so a tab or an ANSI escape sequence still reaches the
+  // terminal as-is. A top-level reply is printed as text without this escaping.
+  return `${indent}${String(reply).replaceAll('\\', '\\\\').replaceAll('\n', '\\n').replaceAll('\r', '\\r')}`;
+}
+
+/**
  * Run one command on a fresh connection and close it.
  *
  * Only the command name is logged. The arguments and the reply are the customer's data — an
@@ -159,7 +195,7 @@ export const kvCommand = defineCommand({
       }
       case 'human':
       default: {
-        Logger.println(result);
+        Logger.println(formatHuman(result));
       }
     }
   },
