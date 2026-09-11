@@ -66,7 +66,10 @@ export const sshCommand = defineCommand({
       sshParams.push('-t');
     }
     if (identityFile != null) {
+      // -i adds the key to the ones ssh may offer, but doesn't guarantee it's the one used
       sshParams.push('-i', identityFile);
+      // IdentitiesOnly forces ssh to only offer this key, ignoring agent/default ones
+      sshParams.push('-o', 'IdentitiesOnly=yes');
     }
     sshParams.push(config.SSH_GATEWAY, sshTarget);
 
