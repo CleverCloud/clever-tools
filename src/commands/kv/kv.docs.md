@@ -16,7 +16,7 @@ clever kv <kv-id|addon-id|addon-name> <command> [options]
 
 |Name|Description|
 |---|---|
-|`kv-id|addon-id|addon-name`|Add-on/Real ID (or name, if unambiguous) of a Materia KV or Redis® add-on|
+|`kv-id\|addon-id\|addon-name`|Add-on/Real ID (or name, if unambiguous) of a Materia KV or Redis® add-on|
 |`command`|The raw command to send to the Materia KV or Redis® add-on|
 
 ### ⚙️ Options

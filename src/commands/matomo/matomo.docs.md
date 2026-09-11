@@ -30,7 +30,7 @@ clever matomo get <addon-id|addon-name> [options]
 
 |Name|Description|
 |---|---|
-|`addon-id|addon-name`|Add-on ID (or name, if unambiguous)|
+|`addon-id\|addon-name`|Add-on ID (or name, if unambiguous)|
 
 ### ⚙️ Options
 
@@ -50,7 +50,7 @@ clever matomo open <addon-id|addon-name>
 
 |Name|Description|
 |---|---|
-|`addon-id|addon-name`|Add-on ID (or name, if unambiguous)|
+|`addon-id\|addon-name`|Add-on ID (or name, if unambiguous)|
 
 ## ➡️ `clever matomo open logs` <kbd>Since 3.13.0</kbd>
 
@@ -64,7 +64,7 @@ clever matomo open logs <addon-id|addon-name>
 
 |Name|Description|
 |---|---|
-|`addon-id|addon-name`|Add-on ID (or name, if unambiguous)|
+|`addon-id\|addon-name`|Add-on ID (or name, if unambiguous)|
 
 ## ➡️ `clever matomo open webui` <kbd>Since 3.13.0</kbd>
 
@@ -78,7 +78,7 @@ clever matomo open webui <addon-id|addon-name>
 
 |Name|Description|
 |---|---|
-|`addon-id|addon-name`|Add-on ID (or name, if unambiguous)|
+|`addon-id\|addon-name`|Add-on ID (or name, if unambiguous)|
 
 ## ➡️ `clever matomo rebuild` <kbd>Since 3.13.0</kbd>
 
@@ -92,7 +92,7 @@ clever matomo rebuild <addon-id|addon-name>
 
 |Name|Description|
 |---|---|
-|`addon-id|addon-name`|Add-on ID (or name, if unambiguous)|
+|`addon-id\|addon-name`|Add-on ID (or name, if unambiguous)|
 
 ## ➡️ `clever matomo restart` <kbd>Since 3.13.0</kbd>
 
@@ -106,4 +106,4 @@ clever matomo restart <addon-id|addon-name>
 
 |Name|Description|
 |---|---|
-|`addon-id|addon-name`|Add-on ID (or name, if unambiguous)|
+|`addon-id\|addon-name`|Add-on ID (or name, if unambiguous)|

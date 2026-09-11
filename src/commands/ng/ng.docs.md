@@ -55,7 +55,7 @@ clever ng create external <external-peer-label> <ng-id|ng-label> <public-key> [o
 |Name|Description|
 |---|---|
 |`external-peer-label`|External peer label|
-|`ng-id|ng-label`|Network Group ID or label|
+|`ng-id\|ng-label`|Network Group ID or label|
 |`public-key`|WireGuard public key of the external peer to link to a Network Group|
 
 ### ⚙️ Options
@@ -76,7 +76,7 @@ clever ng delete <ng-id|ng-label> [options]
 
 |Name|Description|
 |---|---|
-|`ng-id|ng-label`|Network Group ID or label|
+|`ng-id\|ng-label`|Network Group ID or label|
 
 ### ⚙️ Options
 
@@ -96,8 +96,8 @@ clever ng delete external <peer-id|peer-label> <ng-id|ng-label> [options]
 
 |Name|Description|
 |---|---|
-|`peer-id|peer-label`|External peer ID or label|
-|`ng-id|ng-label`|Network Group ID or label|
+|`peer-id\|peer-label`|External peer ID or label|
+|`ng-id\|ng-label`|Network Group ID or label|
 
 ### ⚙️ Options
 
@@ -117,7 +117,7 @@ clever ng get <id|label> [options]
 
 |Name|Description|
 |---|---|
-|`id|label`|ID or Label of a Network Group, a member or an (external) peer|
+|`id\|label`|ID or Label of a Network Group, a member or an (external) peer|
 
 ### ⚙️ Options
 
@@ -139,8 +139,8 @@ clever ng get-config <peer-id|peer-label> <ng-id|ng-label> [options]
 
 |Name|Description|
 |---|---|
-|`peer-id|peer-label`|External peer ID or label|
-|`ng-id|ng-label`|Network Group ID or label|
+|`peer-id\|peer-label`|External peer ID or label|
+|`ng-id\|ng-label`|Network Group ID or label|
 
 ### ⚙️ Options
 
@@ -161,7 +161,7 @@ clever ng link <id> <ng-id|ng-label> [options]
 |Name|Description|
 |---|---|
 |`id`|ID of a resource to (un)link to a Network Group|
-|`ng-id|ng-label`|Network Group ID or label|
+|`ng-id\|ng-label`|Network Group ID or label|
 
 ### ⚙️ Options
 
@@ -181,7 +181,7 @@ clever ng search <id|label> [options]
 
 |Name|Description|
 |---|---|
-|`id|label`|ID or Label of a Network Group, a member or an (external) peer|
+|`id\|label`|ID or Label of a Network Group, a member or an (external) peer|
 
 ### ⚙️ Options
 
@@ -204,7 +204,7 @@ clever ng unlink <id> <ng-id|ng-label> [options]
 |Name|Description|
 |---|---|
 |`id`|ID of a resource to (un)link to a Network Group|
-|`ng-id|ng-label`|Network Group ID or label|
+|`ng-id\|ng-label`|Network Group ID or label|
 
 ### ⚙️ Options
 

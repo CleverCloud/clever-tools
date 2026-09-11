@@ -208,7 +208,7 @@ export function getSubCommandMarkdown(path, definition, subCommandNodes) {
       let description = arg.description;
       if (arg.enumValues) description += ` (${arg.enumValues.join(', ')})`;
       if (arg.optional) description += ` *${arg.optional}*`;
-      return `|\`${arg.name}\`|${escapeTableCell(description)}|`;
+      return `|\`${escapeTableCell(arg.name)}\`|${escapeTableCell(description)}|`;
     });
     parts.push(dedent`
       ### 📥 Arguments

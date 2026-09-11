@@ -30,7 +30,7 @@ clever metabase get <addon-id|addon-name> [options]
 
 |Name|Description|
 |---|---|
-|`addon-id|addon-name`|Add-on ID (or name, if unambiguous)|
+|`addon-id\|addon-name`|Add-on ID (or name, if unambiguous)|
 
 ### ⚙️ Options
 
@@ -50,7 +50,7 @@ clever metabase open <addon-id|addon-name>
 
 |Name|Description|
 |---|---|
-|`addon-id|addon-name`|Add-on ID (or name, if unambiguous)|
+|`addon-id\|addon-name`|Add-on ID (or name, if unambiguous)|
 
 ## ➡️ `clever metabase open logs` <kbd>Since 3.13.0</kbd>
 
@@ -64,7 +64,7 @@ clever metabase open logs <addon-id|addon-name>
 
 |Name|Description|
 |---|---|
-|`addon-id|addon-name`|Add-on ID (or name, if unambiguous)|
+|`addon-id\|addon-name`|Add-on ID (or name, if unambiguous)|
 
 ## ➡️ `clever metabase open webui` <kbd>Since 3.13.0</kbd>
 
@@ -78,7 +78,7 @@ clever metabase open webui <addon-id|addon-name>
 
 |Name|Description|
 |---|---|
-|`addon-id|addon-name`|Add-on ID (or name, if unambiguous)|
+|`addon-id\|addon-name`|Add-on ID (or name, if unambiguous)|
 
 ## ➡️ `clever metabase rebuild` <kbd>Since 3.13.0</kbd>
 
@@ -92,7 +92,7 @@ clever metabase rebuild <addon-id|addon-name>
 
 |Name|Description|
 |---|---|
-|`addon-id|addon-name`|Add-on ID (or name, if unambiguous)|
+|`addon-id\|addon-name`|Add-on ID (or name, if unambiguous)|
 
 ## ➡️ `clever metabase restart` <kbd>Since 3.13.0</kbd>
 
@@ -106,7 +106,7 @@ clever metabase restart <addon-id|addon-name>
 
 |Name|Description|
 |---|---|
-|`addon-id|addon-name`|Add-on ID (or name, if unambiguous)|
+|`addon-id\|addon-name`|Add-on ID (or name, if unambiguous)|
 
 ## ➡️ `clever metabase version` <kbd>Since 3.13.0</kbd>
 
@@ -120,7 +120,7 @@ clever metabase version <addon-id|addon-name> [options]
 
 |Name|Description|
 |---|---|
-|`addon-id|addon-name`|Add-on ID (or name, if unambiguous)|
+|`addon-id\|addon-name`|Add-on ID (or name, if unambiguous)|
 
 ### ⚙️ Options
 
@@ -140,7 +140,7 @@ clever metabase version check <addon-id|addon-name> [options]
 
 |Name|Description|
 |---|---|
-|`addon-id|addon-name`|Add-on ID (or name, if unambiguous)|
+|`addon-id\|addon-name`|Add-on ID (or name, if unambiguous)|
 
 ### ⚙️ Options
 
@@ -160,7 +160,7 @@ clever metabase version update <addon-id|addon-name> [options]
 
 |Name|Description|
 |---|---|
-|`addon-id|addon-name`|Add-on ID (or name, if unambiguous)|
+|`addon-id\|addon-name`|Add-on ID (or name, if unambiguous)|
 
 ### ⚙️ Options
 
