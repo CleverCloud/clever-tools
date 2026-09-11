@@ -9,7 +9,6 @@ clever addon create kv ADDON_NAME
 And immediately use it with `clever kv` command:
 
 ```bash
-clever features enable kv                # KV command is in testing stage
 clever kv ADDON_NAME_OR_ID PING          # It will answer PONG
 clever kv ADDON_NAME_OR_ID PING Hello    # It will answer Hello
 ```
