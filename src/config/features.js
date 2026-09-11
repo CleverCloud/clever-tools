@@ -9,7 +9,7 @@ const EXPERIMENTAL_FEATURES_FILEPATH = getConfigPath('clever-tools-experimental-
 
 /**
  * @typedef {object} ExperimentalFeature
- * @property {'beta'} status
+ * @property {'beta'|'stable'} status
  * @property {boolean} defaultValue - Value used when the feature is not explicitly set by the user
  * @property {string} description
  * @property {string} [instructions]
@@ -18,7 +18,7 @@ const EXPERIMENTAL_FEATURES_FILEPATH = getConfigPath('clever-tools-experimental-
 /** @type {Record<string, ExperimentalFeature>} */
 export const EXPERIMENTAL_FEATURES = {
   'system-git': {
-    status: 'beta',
+    status: 'stable',
     defaultValue: true,
     description: 'Use system git instead of the pure JS implementation for git operations',
     instructions: dedent`
