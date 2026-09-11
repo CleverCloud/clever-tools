@@ -1,5 +1,5 @@
 import { getAllEnvVars } from '@clevercloud/client/esm/api/v2/addon.js';
-import Redis from 'ioredis';
+import { RESP_TYPES, createClient } from 'redis';
 import { z } from 'zod';
 import { defineArgument } from '../../lib/define-argument.js';
 import { defineCommand } from '../../lib/define-command.js';
@@ -11,7 +11,31 @@ import { humanJsonOutputFormatOption, orgaIdOrNameOption } from '../global.optio
 
 const URL_ENV_KEY = 'REDIS_URL';
 
-const MAX_RETRIES_PER_REQUEST = 1;
+/**
+ * Connection options for a single command, then goodbye.
+ *
+ * A client that reconnects is a client that can send the same command twice: when the connection
+ * drops after the server ran it but before its reply came back, a reconnecting client sends it
+ * again, a server that already applied `INCR` applies it twice, and we print the second result as
+ * a success. `reconnectStrategy: false` gives up rather than reconnect, and `disableOfflineQueue`
+ * refuses to hold a command for a connection that does not exist yet.
+ *
+ * One connection, one attempt, and a plain error when it breaks. Whoever ran a write then knows to
+ * check whether it landed, rather than being told it worked twice.
+ */
+const CONNECTION_OPTIONS = {
+  socket: { reconnectStrategy: false },
+  disableOfflineQueue: true,
+};
+
+/**
+ * Hand back the reply the server sent, not the one node-redis finds friendlier.
+ *
+ * `HGETALL` answers a flat array of field and value; node-redis reads it as a map and returns an
+ * object. Mapping `MAP` back to `Array` keeps `["field", "value", …]` — the shape a raw command
+ * should produce, and the one `--format json` has always emitted.
+ */
+const RAW_TYPE_MAPPING = { [RESP_TYPES.MAP]: Array };
 
 async function getAddonUrl(ownerId, addonId) {
   const envVars = await getAllEnvVars({ id: ownerId, addonId }).then(sendToApi);
@@ -26,15 +50,58 @@ async function getAddonUrl(ownerId, addonId) {
   return redisUrl;
 }
 
-async function sendCommand(url, command) {
-  Logger.debug(`Sending command '${command.join(' ')}' to ${url}`);
-  const client = new Redis(url, { maxRetriesPerRequest: MAX_RETRIES_PER_REQUEST });
+/**
+ * Describe where we are connecting without handing out the way in.
+ *
+ * `REDIS_URL` carries the password, so it can never be logged as-is.
+ *
+ * @param {string} url
+ * @returns {string} host and port only
+ */
+function describeTarget(url) {
   try {
-    const result = await client.call(...command);
-    Logger.debug(`Command result: ${result}`);
+    const { hostname, port } = new URL(url);
+    return port ? `${hostname}:${port}` : hostname;
+  } catch {
+    return 'the add-on';
+  }
+}
+
+/**
+ * Run one command on a fresh connection and close it.
+ *
+ * Only the command name is logged. The arguments and the reply are the customer's data — an
+ * `AUTH`, a `SET` on a secret, a `GET` reading one back — and debug output ends up pasted into
+ * issues and support tickets. Same reason the URL never appears: it holds the password. Nothing
+ * scrubs the error either, because node-redis raises replies as errors carrying no properties of
+ * their own — only the message the server chose to send, which is the answer and not ours to
+ * rewrite.
+ *
+ * @param {string} url
+ * @param {string[]} command
+ * @returns {Promise<unknown>}
+ */
+async function sendCommand(url, command) {
+  const [commandName] = command;
+
+  Logger.debug(`Sending ${commandName} to ${describeTarget(url)}`);
+  const client = createClient({ url, ...CONNECTION_OPTIONS });
+  // node-redis throws an unhandled `error` event when nobody listens. The rejection raised by
+  // `connect()` or `sendCommand()` already carries the reason, so this listener only keeps the
+  // event from taking the process down before we get to report it.
+  client.on('error', () => {});
+
+  try {
+    await client.connect();
+    const result = await client.withTypeMapping(RAW_TYPE_MAPPING).sendCommand(command);
+    Logger.debug(`${commandName} answered`);
     return result;
   } finally {
-    await client.disconnect();
+    try {
+      client.destroy();
+    } catch {
+      // the connection was never established, or is already gone — nothing left to close
+    }
     Logger.debug('Disconnected from server');
   }
 }
@@ -80,8 +147,8 @@ export const kvCommand = defineCommand({
 
     const url = await getAddonUrl(ownerId, addonId);
 
-    Logger.debug(`Extracted command: ${restArgs.join(' ')}`);
     const command = restArgs;
+    Logger.debug(`Extracted command: ${command[0]} with ${command.length - 1} argument(s)`);
 
     const result = await sendCommand(url, command);
 
