@@ -3768,10 +3768,11 @@ clever ssh [options]
 
 **Options**
 ```
--a, --alias <alias>                    Short name for the application
-    --app <app-id|app-name>            Application to manage by its ID (or name, if unambiguous)
--c, --command <command>                Execute a command on the remote instance and exit
--i, --identity-file <identity-file>    SSH identity file
+-a, --alias <alias>                        Short name for the application
+    --app <app-id|app-name>                Application to manage by its ID (or name, if unambiguous)
+-c, --command <command>                    Execute a command on the remote instance and exit
+-i, --identity-file <identity-file>        SSH identity file
+    --instance <instance-id|number|any>    Instance to connect to, by ID or number, or `any` (skips interactive selection)
 ```
 
 ## ssh-keys
