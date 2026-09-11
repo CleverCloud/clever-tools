@@ -28,8 +28,6 @@ export const k8sNodeGroupGetCommand = defineCommand({
           Status: nodeGroup.status,
           Flavor: nodeGroup.flavor,
           Nodes: `${nodeGroup.currentNodeCount}/${nodeGroup.targetNodeCount}`,
-          Autoscaling: nodeGroup.autoscalingEnabled ? 'enabled' : 'disabled',
-          'Min / Max': `${nodeGroup.minNodeCount} / ${nodeGroup.maxNodeCount}${nodeGroup.autoscalingEnabled ? '' : ' (inactive)'}`,
           Created: formatDate(nodeGroup.createdAt),
         };
         const createdFmt = formatDate(nodeGroup.createdAt);

@@ -3,7 +3,7 @@ import { typewriterLogo } from '../../lib/ascii.js';
 import { defineArgument } from '../../lib/define-argument.js';
 import { defineCommand } from '../../lib/define-command.js';
 import { defineOption } from '../../lib/define-option.js';
-import { getK8sCluster, k8sCreate, k8sGetProduct } from '../../lib/k8s.js';
+import { NODE_AUTOPROVISIONING_HINT, getK8sCluster, k8sCreate, k8sGetProduct } from '../../lib/k8s.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
 import { flavorCount, tags } from '../../parsers.js';
@@ -37,10 +37,10 @@ export const k8sCreateCommand = defineCommand({
       description: 'Semantic tags (comma-separated, e.g.: env:prod,team:platform)',
       placeholder: 'tag[,tag...]',
     }),
-    autoscaling: defineOption({
-      name: 'autoscaling',
+    nodeAutoprovisioning: defineOption({
+      name: 'node-autoprovisioning',
       schema: z.boolean().default(false),
-      description: 'Enable the cluster autoscaler',
+      description: 'Enable node autoscaling via node auto-provisioning, powered by Karpenter',
     }),
     persistentStorage: defineOption({
       name: 'persistent-storage',
@@ -111,7 +111,7 @@ export const k8sCreateCommand = defineCommand({
         version: options.clusterVersion,
         description: options.description,
         tags: options.tag,
-        autoscaling: options.autoscaling,
+        nodeAutoprovisioning: options.nodeAutoprovisioning,
         persistentStorage: options.persistentStorage,
         topology: options.topology,
         flavor: options.flavor,
@@ -154,6 +154,9 @@ export const k8sCreateCommand = defineCommand({
       const orgMessageComplement = orgIdOrName ? `--org "${orgIdOrName.orga_id || orgIdOrName.orga_name}"` : '';
 
       Logger.println('');
+      if (options.nodeAutoprovisioning) {
+        Logger.printInfo(NODE_AUTOPROVISIONING_HINT);
+      }
       Logger.println(
         `You can get its information with ${styleText('blue', `clever k8s get ${cluster.id} ${orgMessageComplement}`)}`,
       );

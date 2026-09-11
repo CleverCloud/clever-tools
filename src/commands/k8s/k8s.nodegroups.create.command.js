@@ -25,23 +25,6 @@ export const k8sNodeGroupCreateCommand = defineCommand({
       description: 'Arbitrary tag attached to the node group',
       placeholder: 'tag',
     }),
-    autoscaling: defineOption({
-      name: 'autoscaling',
-      schema: z.boolean().default(false),
-      description: 'Enable cluster autoscaler for this node group (requires --min and --max)',
-    }),
-    min: defineOption({
-      name: 'min',
-      schema: z.coerce.number().int().min(0).max(256).optional(),
-      description: 'Minimum node count when autoscaling is enabled',
-      placeholder: 'min',
-    }),
-    max: defineOption({
-      name: 'max',
-      schema: z.coerce.number().int().min(0).max(256).optional(),
-      description: 'Maximum node count when autoscaling is enabled',
-      placeholder: 'max',
-    }),
     org: orgaIdOrNameOption,
   },
   args: [
@@ -70,9 +53,6 @@ export const k8sNodeGroupCreateCommand = defineCommand({
       targetNodeCount: spec.targetNodeCount,
       description: options.description,
       tag: options.tag,
-      autoscaling: options.autoscaling,
-      min: options.min,
-      max: options.max,
     });
     Logger.println(`🚀 Node group ${styleText('white', `${nodeGroup.name} (${nodeGroup.id})`)} is being deployed`);
   },

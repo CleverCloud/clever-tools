@@ -48,7 +48,7 @@ export async function isK8sClusterActive(orgIdOrName, clusterIdOrName) {
  * @param {string} [options.version] The Kubernetes version to deploy
  * @param {string} [options.description] A free-form description
  * @param {string[]} [options.tags] Semantic tags ("tag" or "key:value")
- * @param {boolean} [options.autoscaling] Enable the cluster autoscaler
+ * @param {boolean} [options.nodeAutoprovisioning] Enable node auto-provisioning (Karpenter)
  * @param {boolean} [options.persistentStorage] Enable the Ceph CSI persistent storage
  * @param {string} [options.topology] Topology kind (ALL_IN_ONE, DEDICATED_COMPUTE, DISTRIBUTED)
  * @param {string} [options.flavor] Control plane flavor
@@ -57,6 +57,7 @@ export async function isK8sClusterActive(orgIdOrName, clusterIdOrName) {
  * @returns {Promise<object>}
  */
 export async function k8sCreate(name, orgIdOrName, options = {}) {
+  const features = buildClusterFeaturesPatch(options);
   const ownerId = await getOwnerIdFromOrgIdOrName(orgIdOrName);
   const product = await k8sGetProduct();
 
@@ -71,8 +72,6 @@ export async function k8sCreate(name, orgIdOrName, options = {}) {
   if (options.description != null) body.description = options.description;
   if (options.tags?.length) body.tags = options.tags;
 
-  const features = {};
-  if (options.autoscaling) features.autoscalingEnabled = true;
   if (options.persistentStorage) features.csi = true;
   if (Object.keys(features).length > 0) body.features = features;
 
@@ -210,6 +209,92 @@ export async function k8sUpdate(orgIdOrName, clusterIdOrName, updates) {
   return updateK8sCluster({ ownerId, clusterId }, updates).then(sendToApi);
 }
 
+const K8S_DOC_URL = 'https://www.clever.cloud/doc/kubernetes/';
+
+/**
+ * What to tell a user who just enabled node auto-provisioning: the feature installs
+ * Karpenter, and Karpenter provisions nothing until the cluster carries their own
+ * NodePool and CleverNodeClass resources.
+ */
+export const NODE_AUTOPROVISIONING_HINT = `Karpenter only provisions nodes once you create your own NodePool and CleverNodeClass resources, see ${styleText('blue', K8S_DOC_URL)}`;
+
+/**
+ * Build the features part of a cluster update
+ *
+ * The API merges features as a RFC 7386 merge patch: an absent field is kept as is and
+ * `null` erases it. Only the features the user asked for are mentioned, so an update
+ * never touches (nor erases) the ones it doesn't name.
+ * @param {object} options
+ * @param {boolean} [options.nodeAutoprovisioning] Enable node auto-provisioning
+ * @param {boolean} [options.disableNodeAutoprovisioning] Disable node auto-provisioning
+ * @returns {object} The features merge patch, empty when no feature is asked for
+ */
+export function buildClusterFeaturesPatch({ nodeAutoprovisioning, disableNodeAutoprovisioning }) {
+  if (nodeAutoprovisioning && disableNodeAutoprovisioning) {
+    throw new Error('--node-autoprovisioning and --disable-node-autoprovisioning are mutually exclusive');
+  }
+
+  const features = {};
+  if (nodeAutoprovisioning) features.nodeAutoprovisioning = true;
+  if (disableNodeAutoprovisioning) features.nodeAutoprovisioning = false;
+
+  return features;
+}
+
+/**
+ * Format the state of a cluster feature
+ *
+ * The API reports features by installation evidence, not by requested value, and it doesn't
+ * say which way a reconciling cluster is heading: an installation that hasn't landed yet and
+ * a removal that has already happened look the same. A `RECONCILING` cluster is therefore
+ * shown with the state it currently has, flagged as still moving, rather than guessed.
+ * @param {boolean} [installed] The feature value reported by the API
+ * @param {string} [clusterStatus] The cluster status
+ * @returns {string} The state to display
+ */
+export function formatFeatureState(installed, clusterStatus) {
+  const state = installed === true ? 'enabled' : 'disabled';
+
+  return clusterStatus === 'RECONCILING' ? `${state} (cluster reconciling)` : state;
+}
+
+/**
+ * Turn a rejected cluster features update into an actionable error
+ * @param {Error & {response?: {status?: number}}} error The error raised by the API
+ * @param {string|object} clusterIdOrName The cluster ID or name, as the user typed it
+ * @param {object} context
+ * @param {boolean} [context.disabling] Whether the update was disabling node auto-provisioning
+ * @returns {Error} The error to throw back
+ */
+export function processFeaturesError(error, clusterIdOrName, { disabling }) {
+  const name = getClusterDisplayName(clusterIdOrName);
+
+  switch (error.response?.status) {
+    case 400:
+      return new Error(
+        `Node auto-provisioning can't run alongside the node group autoscaler of ${styleText('red', name)}, both would provision nodes for the same workloads. Disable the autoscaler from the Console or the API first`,
+        { cause: error },
+      );
+    case 409:
+      return disabling
+        ? new Error(
+            `Cluster ${styleText('red', name)} still carries Karpenter resources. Delete its NodePools, NodeOverlays and CleverNodeClasses, let Karpenter drain the nodes, then try again`,
+            { cause: error },
+          )
+        : new Error(
+            `Cluster ${styleText('red', name)} already runs a Karpenter Clever Cloud didn't install, remove it before enabling node auto-provisioning`,
+            { cause: error },
+          );
+    case 412:
+      return new Error(
+        `Cluster features are locked while ${styleText('red', name)} is deploying or reconciling, check its status with ${styleText('blue', `clever k8s get ${name}`)} and try again`,
+        { cause: error },
+      );
+    default:
+      return error;
+  }
+}
+
 /**
  * Delete a kubernetes cluster
  * @param {string} orgIdOrName The organisation ID or name
@@ -328,9 +413,6 @@ export async function k8sListNodeGroups(orgIdOrName, clusterIdOrName) {
  * @param {number} options.targetNodeCount Target node count
  * @param {string} [options.description]
  * @param {string} [options.tag]
- * @param {boolean} [options.autoscaling]
- * @param {number} [options.min] Minimum node count (autoscaling)
- * @param {number} [options.max] Maximum node count (autoscaling)
  * @returns {Promise<object>}
  */
 export async function k8sCreateNodeGroup(orgIdOrName, clusterIdOrName, options) {
@@ -343,22 +425,9 @@ export async function k8sCreateNodeGroup(orgIdOrName, clusterIdOrName, options) 
     throw new Error(`Flavor "${options.flavor}" is not a valid node group flavor. Supported: ${supported.join(', ')}`);
   }
 
-  const wantsAutoscaling = options.autoscaling || options.min != null || options.max != null;
-  if (wantsAutoscaling && (options.min == null || options.max == null)) {
-    throw new Error('--autoscaling requires both --min and --max');
-  }
-  if (wantsAutoscaling && options.min > options.max) {
-    throw new Error('--min must be less than or equal to --max');
-  }
-
   const body = { name: options.name, flavor: options.flavor, targetNodeCount: options.targetNodeCount };
   if (options.description != null) body.description = options.description;
   if (options.tag != null) body.tag = options.tag;
-  if (wantsAutoscaling) {
-    body.autoscalingEnabled = true;
-    body.minNodeCount = options.min;
-    body.maxNodeCount = options.max;
-  }
 
   return createK8sNodeGroup({ ownerId, clusterId }, body).then(sendToApi);
 }
@@ -373,7 +442,7 @@ function getNodeGroupFlavors(product) {
  * @param {object} orgIdOrName The organisation ID or name
  * @param {string|object} clusterIdOrName The cluster ID or name
  * @param {string} nodeGroupIdOrName The node group ID or name
- * @param {object} updates Patch fields (targetNodeCount, minNodeCount, maxNodeCount, autoscalingEnabled, description, tag)
+ * @param {object} updates Patch fields (targetNodeCount, description, tag)
  * @returns {Promise<object>}
  */
 export async function k8sUpdateNodeGroup(orgIdOrName, clusterIdOrName, nodeGroupIdOrName, updates) {
