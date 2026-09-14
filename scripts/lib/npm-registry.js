@@ -1,8 +1,8 @@
 import { highlight } from './terminal.js';
 
 const REGISTRY_URL = 'https://registry.npmjs.org';
-const RETRY_COUNT = 3;
-const RETRY_DELAY = 5000;
+const RETRY_COUNT = 30;
+const RETRY_DELAY = 10000;
 
 /**
  * Gets the SHA512 hash of a package tarball published on the npm registry.
