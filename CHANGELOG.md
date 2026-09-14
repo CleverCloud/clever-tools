@@ -1,5 +1,17 @@
 # clever-tools changelog
 
+## [5.0.1](https://github.com/CleverCloud/clever-tools/compare/5.0.0...5.0.1) (2026-09-14)
+
+
+### 🐛 Bug Fixes
+
+* **docker:** add git dependency now that the CLI uses system-git by default ([5acc798](https://github.com/CleverCloud/clever-tools/commit/5acc79837cbdeb2112c6a49b658a761db7d5d975))
+
+### 🤖 Continuous Integration
+
+* **aur:** widen npm registry retry window to survive publish delay ([6319356](https://github.com/CleverCloud/clever-tools/commit/63193564a72b98257d06fca46c7d227f6979661d))
+* bump github actions to their latest majors, silence node20 warnings ([3b5d22e](https://github.com/CleverCloud/clever-tools/commit/3b5d22e30755401f9daa1b8f7dbafaf4fbd105e0))
+
 ## [5.0.0](https://github.com/CleverCloud/clever-tools/compare/4.11.0...5.0.0) (2026-09-11)
 
 
