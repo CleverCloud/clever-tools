@@ -22,6 +22,16 @@ const THROTTLE_ELEMENTS = 2000;
 
 const THROTTLE_PER_IN_MILLISECONDS = 100;
 
+// Same policy as `clever logs` (src/models/log.js): a redeployment of the API cuts the stream
+// without an END_OF_STREAM, which the client only notices through its heartbeat watchdog.
+// Without retry that ends the command; with it the stream reconnects and resumes from the
+// last event id.
+const RETRY_CONFIGURATION = {
+  enabled: true,
+  initRetryTimeout: 3000,
+  maxRetryCount: 10,
+};
+
 const CITY_MAX_LENGTH = 20;
 
 /**
@@ -111,6 +121,8 @@ export const accesslogsCommand = defineCommand({
       tokens,
       ownerId,
       appId,
+      connectionTimeout: 10_000,
+      retryConfiguration: RETRY_CONFIGURATION,
       since,
       until,
       throttleElements: THROTTLE_ELEMENTS,
