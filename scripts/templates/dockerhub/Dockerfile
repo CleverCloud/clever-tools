@@ -3,7 +3,7 @@ FROM debian AS build
 RUN apt-get update && apt-get install -y \
 	libtool \
 	curl \
-  git
+	git
 
 RUN curl --output clever-tools_linux.tar.gz <%= downloadUrl %> \
 	&& mkdir clever-tools_linux \
