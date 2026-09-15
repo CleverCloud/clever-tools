@@ -1,5 +1,14 @@
 # clever-tools changelog
 
+## [5.0.2](https://github.com/CleverCloud/clever-tools/compare/5.0.1...5.0.2) (2026-09-15)
+
+
+### 🐛 Bug Fixes
+
+* **accesslogs:** only close the JSON array when it has been opened ([8678763](https://github.com/CleverCloud/clever-tools/commit/8678763b1a87105dc34b1c68a0545bbbdfcde38a))
+* **accesslogs:** open the JSON array once across reconnections ([bb7def6](https://github.com/CleverCloud/clever-tools/commit/bb7def6ceb4612d618e26788d7d978f498af423a))
+* **accesslogs:** reconnect the stream when the API cuts it ([6ee77bb](https://github.com/CleverCloud/clever-tools/commit/6ee77bb584f667f575abe64ded75e46b673e6273))
+
 ## [5.0.1](https://github.com/CleverCloud/clever-tools/compare/5.0.0...5.0.1) (2026-09-14)
 
 
