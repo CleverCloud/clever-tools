@@ -4,9 +4,15 @@
 export class JsonArray {
   constructor() {
     this._isFirst = true;
+    this._isOpen = false;
   }
 
+  // Streams emit "open" again after each reconnection, the array must only be opened once
   open() {
+    if (this._isOpen) {
+      return;
+    }
+    this._isOpen = true;
     process.stdout.write('[\n');
   }
 
@@ -20,6 +26,10 @@ export class JsonArray {
   }
 
   close() {
+    if (!this._isOpen) {
+      return;
+    }
+    this._isOpen = false;
     process.stdout.write('\n]');
   }
 }
