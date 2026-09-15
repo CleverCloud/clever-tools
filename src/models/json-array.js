@@ -26,6 +26,10 @@ export class JsonArray {
   }
 
   close() {
+    if (!this._isOpen) {
+      return;
+    }
+    this._isOpen = false;
     process.stdout.write('\n]');
   }
 }
