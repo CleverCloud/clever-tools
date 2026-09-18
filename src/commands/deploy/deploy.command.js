@@ -131,11 +131,15 @@ export const deployCommand = defineCommand({
     if (remoteHeadCommitId == null || deployedCommitId == null) {
       Logger.println(`   ${styleText('yellow', '!')} App is brand new, no commits on remote yet`);
     } else {
-      Logger.println(`   Remote head     ${styleText('yellow', remoteHeadCommitId)} (${branchRefspec})`);
+      // No refspec here: the remote head is always `refs/heads/master` on Clever Cloud's side,
+      // whatever local branch or tag is being pushed. Labelling it with `branchRefspec` read as
+      // if that local ref existed on the remote — a tag deploy printed `(refs/tags/v2.0.0)` next
+      // to a commit that is on the remote's master. The refspec belongs to the local commit.
+      Logger.println(`   Remote head     ${styleText('yellow', remoteHeadCommitId)}`);
       Logger.println(`   Deployed commit ${styleText('yellow', deployedCommitId)}`);
     }
     Logger.println(
-      `   Local commit    ${styleText('yellow', commitIdToPush)} ${styleText('blue', '[will be deployed]')}`,
+      `   Local commit    ${styleText('yellow', commitIdToPush)} (${branchRefspec}) ${styleText('blue', '[will be deployed]')}`,
     );
 
     Logger.println();
