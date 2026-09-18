@@ -41,5 +41,7 @@ jobs:
         run: npm run format:check
       - name: 'Check for type issues with TypeScript and JSDoc'
         run: npm run typecheck
+      - name: 'Run unit tests'
+        run: npm test
       - name: 'Check generated docs are up to date'
         run: npm run docs:check
