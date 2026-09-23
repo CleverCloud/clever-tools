@@ -36,6 +36,7 @@ These options are available for all commands:
 |[`clever env`](./env/env.docs.md)|Manage environment variables of an application|
 |[`clever features`](./features/features.docs.md)|Manage Clever Tools experimental features|
 |[`clever help`](./help/help.docs.md)|Display help about the Clever Cloud CLI|
+|[`clever instances`](./instances/instances.docs.md)|List instances of an application|
 |[`clever k8s`](./k8s/k8s.docs.md)|Manage Kubernetes clusters|
 |[`clever keycloak`](./keycloak/keycloak.docs.md)|Manage Clever Cloud Keycloak services|
 |[`clever kv`](./kv/kv.docs.md)|Send a raw command to a Materia KV or Redis® add-on|

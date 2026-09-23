@@ -23,5 +23,6 @@ clever ssh [options]
 ```bash
 clever ssh --instance 0 -c hostname     # instance number 0
 clever ssh --instance any -c hostname   # any running instance, a build VM only if nothing else runs
+clever instances                        # during a deployment, the build VM shows as `build`
 clever ssh --instance <build-vm-id>     # connect to a build VM
 ```
