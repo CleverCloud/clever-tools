@@ -6,6 +6,7 @@ import { config } from '../../config/config.js';
 import { defineCommand } from '../../lib/define-command.js';
 import { defineOption } from '../../lib/define-option.js';
 import { selectAnswer } from '../../lib/prompts.js';
+import { styleText } from '../../lib/style-text.js';
 import * as Application from '../../models/application.js';
 import { sendToApi } from '../../models/send-to-api.js';
 import { aliasOption, appIdOrNameOption } from '../global.options.js';
@@ -30,9 +31,12 @@ export const sshCommand = defineCommand({
     }),
     instance: defineOption({
       name: 'instance',
-      schema: z.string().min(1).optional(),
-      description: 'Instance ID to connect to (skips interactive selection)',
-      placeholder: 'instance-id',
+      // Most specific first: z.union keeps the first match and an ID accepts any string
+      schema: z
+        .union([z.literal('any'), z.string().regex(/^\d+$/).transform(Number).pipe(z.int()), z.string().min(1)])
+        .optional(),
+      description: 'Instance to connect to, by ID or number, or `any` (skips interactive selection)',
+      placeholder: 'instance-id|number|any',
     }),
     alias: aliasOption,
     app: appIdOrNameOption,
@@ -48,25 +52,32 @@ export const sshCommand = defineCommand({
       throw new Error('No running instances found for this application');
     }
 
+    // Instances without a number go last, can happen at the very beginning of booting
+    const sortedInstances = instances.toSorted((a, b) => {
+      return (a.instanceNumber ?? Infinity) - (b.instanceNumber ?? Infinity);
+    });
+
+    if (instance == null && sortedInstances.length > 1 && !process.stdin.isTTY) {
+      throw new Error(`Multiple instances are running, pick one with --instance:\n${formatInstances(sortedInstances)}`);
+    }
+
     let sshTarget;
     if (instance != null) {
-      const match = instances.find((inst) => inst.id === instance);
-      if (match == null) {
-        throw new Error(`Instance ${instance} is not a running instance of this application`);
+      const selectedInstance = selectInstance(sortedInstances, instance);
+      if (selectedInstance == null) {
+        throw new Error(
+          `No instance ${styleText('red', String(instance))} on this application, pick one with --instance:\n${formatInstances(sortedInstances)}`,
+        );
       }
-      sshTarget = match.id;
-    } else if (instances.length === 1) {
-      sshTarget = instances[0].id;
-    } else if (process.stdin.isTTY) {
-      const choices = instances
-        .sort((a, b) => a.instanceNumber - b.instanceNumber)
-        .map((inst) => ({
-          name: `${inst.displayName} - Instance ${inst.instanceNumber} - ${inst.state} (${inst.id})`,
-          value: inst.id,
-        }));
-      sshTarget = await selectAnswer('Select an instance:', choices);
+      sshTarget = selectedInstance.id;
+    } else if (sortedInstances.length === 1) {
+      sshTarget = sortedInstances[0].id;
     } else {
-      throw new Error('Multiple instances are running. Cannot select in non-interactive mode.');
+      const choices = sortedInstances.map((i) => ({
+        name: `${i.displayName} - Instance ${i.instanceNumber} - ${i.state} (${i.id})`,
+        value: i.id,
+      }));
+      sshTarget = await selectAnswer('Select an instance:', choices);
     }
 
     const sshParams = [];
@@ -138,3 +149,43 @@ export const sshCommand = defineCommand({
     process.exit(exitCode);
   },
 });
+
+/**
+ * Pick the instance the caller asked for, by ID, by number, or `any`, or nothing when none match.
+ *
+ * Numbers are not unique: while a deployment rolls, the instance going away and the one coming up
+ * carry the same number. `UP` ones are preferred among them, and `any` prefers an `UP` one over the
+ * lowest number.
+ *
+ * @param {Array<{ id: string, instanceNumber?: number, state: string }>} sortedInstances - sorted by instance number
+ * @param {string | number | 'any'} wanted - an instance ID, an instance number or `any`
+ * @returns {{ id: string, instanceNumber?: number, state: string } | null}
+ */
+function selectInstance(sortedInstances, wanted) {
+  if (wanted === 'any') {
+    return getReadiestInstance(sortedInstances);
+  }
+  if (typeof wanted === 'number') {
+    return getReadiestInstance(sortedInstances.filter((i) => i.instanceNumber === wanted));
+  }
+  return sortedInstances.find((i) => i.id === wanted) ?? null;
+}
+
+/**
+ * The first serving instance, or the first one when none is serving.
+ * @param {Array<{ id: string, instanceNumber?: number, state: string }>} sortedInstances - sorted by instance number
+ * @returns {{ id: string, instanceNumber?: number, state: string } | null}
+ */
+function getReadiestInstance(sortedInstances) {
+  return sortedInstances.find((i) => i.state === 'UP') ?? sortedInstances[0] ?? null;
+}
+
+/**
+ * One line per instance, to help the caller pick one with `--instance`.
+ * @param {Array<{ id: string, instanceNumber?: number, state: string }>} instances
+ * @returns {string}
+ */
+function formatInstances(instances) {
+  const lines = instances.map((i) => `  - ${i.instanceNumber} ${i.id} (${i.state})`);
+  return styleText('grey', lines.join('\n'));
+}
