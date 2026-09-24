@@ -1,6 +1,7 @@
 import { getAllEnvVars } from '@clevercloud/client/esm/api/v2/addon.js';
 import Redis from 'ioredis';
 import { z } from 'zod';
+import { ambiguousNameError } from '../../lib/ambiguous-name-error.js';
 import { defineArgument } from '../../lib/define-argument.js';
 import { defineCommand } from '../../lib/define-command.js';
 import { styleText } from '../../lib/style-text.js';
@@ -70,10 +71,12 @@ export const kvCommand = defineCommand({
     }
 
     if (addons.length > 1) {
-      const formattedAddons = addons
-        .map(({ addonId, ownerId }) => `\n${styleText('grey', `- ${addonId} (${ownerId})`)}`)
-        .join('');
-      throw new Error(`Several add-ons found for '${addonIdOrRealIdOrName}', use ID instead:${formattedAddons}`);
+      const candidates = addons.map(({ name, addonId, ownerId }) => ({
+        name,
+        id: addonId,
+        details: `owner ${ownerId}`,
+      }));
+      throw ambiguousNameError(addonIdOrRealIdOrName, candidates);
     }
 
     const { addonId, ownerId } = addons[0];
