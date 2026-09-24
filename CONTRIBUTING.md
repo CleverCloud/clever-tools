@@ -18,7 +18,7 @@ Welcome to the clever-tools project! We're happy you're interested in contributi
 ## Requirements
 
 - Git
-- Node.js 22 or higher (includes npm)
+- Node.js 24 or higher (includes npm)
 - System tools for local builds: `tar`, `zip` (usually pre-installed)
 - A [Clever Cloud account](https://console.clever-cloud.com/users/me/information) (needed to test CLI commands)
 
@@ -257,7 +257,7 @@ import { appIdOrNameOption } from '../global.options.js';
 
 export const demoSetCommand = defineCommand({
   description: 'Set a demo variable',
-  since: '1.0.0',
+  since: null,
   options: {
     app: appIdOrNameOption,
   },
@@ -304,8 +304,9 @@ export const myCommand = defineCommand({
   // Human-readable description shown in help text
   description: 'What this command does',
 
-  // Version when this command was first added
-  since: '0.5.0',
+  // Version when this command was first added, `null` for a new command:
+  // the release workflow sets it to the upcoming version (scripts/resolve-since.js)
+  since: null,
 
   // Options (named parameters with -- prefix)
   options: {
@@ -426,7 +427,7 @@ export const commands = [
 
 ### Command Groups
 
-For related commands, create a hierarchy. For example, `addon create`, `addon list`, `addon delete`:
+For related commands, create a hierarchy. For example, `addon create`, `addon list`, `addon delete` (these are released commands, so they keep their version; a new command uses `since: null`):
 
 ```javascript
 // src/commands/addon/addon.command.js
@@ -513,7 +514,7 @@ The documentation system maintains three types of documentation:
    - Auto-generated table linking to each command's documentation
    - Maintained by the generator
 
-3. **LLM Documentation** (`docs/llms-documentation.md`)
+3. **LLM Documentation** (`skills/clever-tools/references/full-documentation.md`)
    - Optimized documentation for language models
    - Includes setup guides, available runtimes, add-ons, and zones
    - Auto-generated from API data + command definitions
@@ -534,7 +535,7 @@ The documentation system maintains three types of documentation:
 Example structure that works with regeneration:
 
 ```markdown
-## ➡️ `clever my-command` <kbd>Since 1.0.0</kbd>
+## ➡️ `clever my-command` <kbd>Unreleased</kbd>
 
 Description here
 
