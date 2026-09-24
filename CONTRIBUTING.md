@@ -640,7 +640,7 @@ This keeps documentation always in sync with the actual command behavior while a
 
 - Provide clear description of changes
 - Mark as draft if work is in progress
-- Reference the issue in your PR description
+- Reference the issue in your PR description (`Closes #N`) and fill in the [PR template](.github/pull_request_template.md)
 - Include testing instructions if applicable
 
 ### 3. Preview Builds
