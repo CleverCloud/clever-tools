@@ -1,4 +1,5 @@
 import dedent from 'dedent';
+import { ambiguousNameError } from './ambiguous-name-error.js';
 import { ask, confirm, selectAnswer } from './prompts.js';
 import { styleText } from './style-text.js';
 
@@ -244,10 +245,7 @@ export async function getClusterIdFromAddonIdOrName(addonIdOrName, ownerId) {
       throw new Error(`No Kubernetes cluster found with the name ${styleText('red', name)}`);
     }
     if (matches.length > 1) {
-      const listing = matches.map((c) => `- ${c.name} (${c.id})`).join('\n');
-      throw new Error(
-        `Multiple Kubernetes clusters found with the name ${styleText('red', name)}, use the ID instead:\n${styleText('grey', listing)}`,
-      );
+      throw ambiguousNameError(name, matches);
     }
     return matches[0].id;
   } else {
@@ -436,10 +434,7 @@ async function resolveNodeGroupId(ownerId, clusterId, nodeGroupIdOrName) {
     throw new Error(`No node group found with name ${styleText('red', nodeGroupIdOrName)}`);
   }
   if (matches.length > 1) {
-    const listing = matches.map((ng) => `- ${ng.name} (${ng.id})`).join('\n');
-    throw new Error(
-      `Multiple node groups found with the name ${styleText('red', nodeGroupIdOrName)}, use the ID instead:\n${styleText('grey', listing)}`,
-    );
+    throw ambiguousNameError(nodeGroupIdOrName, matches);
   }
   return matches[0].id;
 }
