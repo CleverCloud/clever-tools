@@ -138,11 +138,10 @@ export function durationInSeconds(durationStr = '') {
   try {
     return parseSimpleDuration(durationStr);
   } catch {
-    const n = Number.parseInt(durationStr);
-    if (isNaN(n) || n < 0) {
+    if (!/^\d+$/.test(durationStr)) {
       throw new Error(errorMessage);
     }
-    return n;
+    return Number(durationStr);
   }
 }
 
@@ -165,6 +164,7 @@ function parseSimpleDuration(durationStr) {
     const d = ISO8601.parse(isoDuration);
     return ISO8601.toSeconds(d);
   }
+  throw new Error(`Unknown duration unit in "${durationStr}"`);
 }
 
 // Network Groups parsers
