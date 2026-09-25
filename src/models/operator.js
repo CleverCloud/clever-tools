@@ -1,5 +1,5 @@
-import dedent from 'dedent';
 import { getOperator } from '../clever-client/operators.js';
+import { ambiguousNameError } from '../lib/ambiguous-name-error.js';
 import { styleText } from '../lib/style-text.js';
 import { findAddonsByNameOrId } from './ids-resolver.js';
 import { sendToApi } from './send-to-api.js';
@@ -36,10 +36,8 @@ export async function getSingleRealId(operatorIdOrName) {
   }
 
   if (operators.length > 1) {
-    throw new Error(dedent`
-      Ambiguous name ${styleText('red', name)}, use the real ID instead:
-        ${styleText('grey', operators.map((otoroshi) => `- ${otoroshi.name} (${otoroshi.realId})`).join('\n'))}
-    `);
+    const candidates = operators.map((o) => ({ name: o.name, id: o.realId }));
+    throw ambiguousNameError(name, candidates, 'real ID');
   }
 
   return operators[0].realId;

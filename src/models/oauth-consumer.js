@@ -1,5 +1,6 @@
 import { get as getOauthConsumer } from '@clevercloud/client/esm/api/v2/oauth-consumer.js';
 import { getSummary } from '@clevercloud/client/esm/api/v2/user.js';
+import { ambiguousNameError } from '../lib/ambiguous-name-error.js';
 import { promptCheckbox } from '../lib/prompts.js';
 import { styleText } from '../lib/style-text.js';
 import { findOauthConsumersByKeyOrName } from './ids-resolver.js';
@@ -67,8 +68,8 @@ export async function resolveOauthConsumer(keyOrName) {
   }
 
   if (candidates.length > 1) {
-    const list = candidates.map((c) => `  - ${c.name} ${styleText('grey', `(${c.key})`)}`).join('\n');
-    throw new Error(`Ambiguous name ${styleText('red', keyOrName)}, use the key instead:\n${list}`);
+    const consumers = candidates.map((c) => ({ name: c.name, id: c.key }));
+    throw ambiguousNameError(keyOrName, consumers, 'key');
   }
 
   const { ownerId, key } = candidates[0];

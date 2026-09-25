@@ -7,6 +7,7 @@ import {
 } from '@clevercloud/client/esm/api/v4/network-group.js';
 import crypto from 'node:crypto';
 import { searchNetworkGroupOrResource } from '../clever-client/ng.js';
+import { ambiguousNameError } from '../lib/ambiguous-name-error.js';
 import { styleText } from '../lib/style-text.js';
 import { Logger } from '../logger.js';
 import { getOwnerIdFromOrgIdOrName } from './ids-resolver.js';
@@ -189,8 +190,8 @@ export async function searchNgOrResource(idOrLabel, orgaIdOrName, type = 'all', 
   }
 
   if (filtered.length > 1 && type !== 'all') {
-    throw new Error(`Multiple resources found for ${styleText('red', query)}, use ID instead:
-${filtered.map((f) => ` • ${f.id} ${styleText('grey', `(${f.domainName || f.label} - ${f.type})`)}`).join('\n')}`);
+    const candidates = filtered.map((f) => ({ name: f.domainName || f.label, id: f.id, details: f.type }));
+    throw ambiguousNameError(query, candidates);
   }
 
   // Deduplicate results
