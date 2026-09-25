@@ -32,7 +32,7 @@ export const k8sGetCommand = defineCommand({
           Version: k8sInfo.version,
           Topology: formatTopology(topo),
           Autoscaling: k8sInfo.features?.autoscalingEnabled ? 'enabled' : 'disabled',
-          'Persistent storage': k8sInfo.features?.csi != null ? 'enabled' : 'disabled',
+          'Persistent storage': k8sInfo.features?.csi ? 'enabled' : 'disabled',
         };
         if (k8sInfo.tags?.length) overview.Tags = k8sInfo.tags.join(', ');
         if (k8sInfo.description) overview.Description = k8sInfo.description;
