@@ -1,5 +1,22 @@
 # clever-tools changelog
 
+## [5.1.0](https://github.com/CleverCloud/clever-tools/compare/5.0.2...5.1.0) (2026-09-25)
+
+
+### 🚀 Features
+
+* **ssh:** add --instance option to target a running instance by ID ([764b5b0](https://github.com/CleverCloud/clever-tools/commit/764b5b0f3cdebf6b6e652be33dc2f4ac9f744b97))
+* **ssh:** select an instance by number or with any ([8502e02](https://github.com/CleverCloud/clever-tools/commit/8502e02b0c2043ebe5658abfd2295bd3a0274936))
+
+
+### 🐛 Bug Fixes
+
+* accept a plain number of seconds as a duration ([2f7426a](https://github.com/CleverCloud/clever-tools/commit/2f7426aa4d810dac67ce15d70f6c7685df19dbea))
+* **k8s:** report an ambiguous name like other commands ([2bf0d1b](https://github.com/CleverCloud/clever-tools/commit/2bf0d1bbe0196fbe9b20524a6d2293dba3dc121c))
+* **kv:** report an ambiguous name like other commands ([13624fa](https://github.com/CleverCloud/clever-tools/commit/13624fa48d161a9f8184a62f7242fa7c446a9465))
+* **ng:** report an ambiguous name like other commands ([f8eea4d](https://github.com/CleverCloud/clever-tools/commit/f8eea4dea37e55551ea18b6cdf95d518868b6353))
+* **operator:** align candidates listed for an ambiguous name ([1287999](https://github.com/CleverCloud/clever-tools/commit/12879999406aed6b9a898cf19aa44510c0162810))
+
 ## [5.0.2](https://github.com/CleverCloud/clever-tools/compare/5.0.1...5.0.2) (2026-09-15)
 
 
