@@ -1,4 +1,3 @@
-import { getAllInstances } from '@clevercloud/client/esm/api/v2/application.js';
 import { spawn } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
 import { z } from 'zod';
@@ -8,8 +7,10 @@ import { defineOption } from '../../lib/define-option.js';
 import { selectAnswer } from '../../lib/prompts.js';
 import { styleText } from '../../lib/style-text.js';
 import * as Application from '../../models/application.js';
-import { sendToApi } from '../../models/send-to-api.js';
+import { listInstances } from '../../models/instances.js';
 import { aliasOption, appIdOrNameOption } from '../global.options.js';
+
+/** @typedef {import('../../models/instances.js').Instance} Instance */
 
 export const sshCommand = defineCommand({
   description: 'Connect to running instances through SSH',
@@ -35,7 +36,8 @@ export const sshCommand = defineCommand({
       schema: z
         .union([z.literal('any'), z.string().regex(/^\d+$/).transform(Number).pipe(z.int()), z.string().min(1)])
         .optional(),
-      description: 'Instance to connect to, by ID or number, or `any` (skips interactive selection)',
+      description:
+        'Instance to connect to, by ID or number, or `any` (skips interactive selection). Build VMs are only picked by ID, or by `any` when no other instance is running',
       placeholder: 'instance-id|number|any',
     }),
     alias: aliasOption,
@@ -46,15 +48,21 @@ export const sshCommand = defineCommand({
     const { alias, app: appIdOrName, identityFile, command, instance } = options;
     const { appId, ownerId } = await Application.resolveId(appIdOrName, alias);
 
-    const instances = await getAllInstances({ id: ownerId, appId }).then(sendToApi);
+    const instances = await listInstances({ ownerId, appId, onlyRunning: true });
 
     if (instances.length === 0) {
       throw new Error('No running instances found for this application');
     }
 
-    // Instances without a number go last, can happen at the very beginning of booting
+    // Build VMs also carry number 0, keep them last
+    // Instances have no number at the very beginning of booting
+    // Numbers restart at 0 on each deployment, instances sharing a number are ordered newest first
     const sortedInstances = instances.toSorted((a, b) => {
-      return (a.instanceNumber ?? Infinity) - (b.instanceNumber ?? Infinity);
+      return (
+        Number(a.isBuildVm) - Number(b.isBuildVm) ||
+        (a.instanceNumber ?? Infinity) - (b.instanceNumber ?? Infinity) ||
+        b.createdAt.localeCompare(a.createdAt)
+      );
     });
 
     if (instance == null && sortedInstances.length > 1 && !process.stdin.isTTY) {
@@ -74,7 +82,7 @@ export const sshCommand = defineCommand({
       sshTarget = sortedInstances[0].id;
     } else {
       const choices = sortedInstances.map((i) => ({
-        name: `${i.displayName} - Instance ${i.instanceNumber} - ${i.state} (${i.id})`,
+        name: `${i.name ?? '?'} - ${i.isBuildVm ? 'Build instance' : `Instance ${i.instanceNumber ?? '?'}`} - ${i.state} (${i.id})`,
         value: i.id,
       }));
       sshTarget = await selectAnswer('Select an instance:', choices);
@@ -154,27 +162,29 @@ export const sshCommand = defineCommand({
  * Pick the instance the caller asked for, by ID, by number, or `any`, or nothing when none match.
  *
  * Numbers are not unique: while a deployment rolls, the instance going away and the one coming up
- * carry the same number. `UP` ones are preferred among them, and `any` prefers an `UP` one over the
- * lowest number.
+ * carry the same number. `UP` ones are preferred among them, the most recent first, and `any` prefers
+ * an `UP` one over the lowest number. Build VMs are also numbered 0, so a number never picks them,
+ * and `any` only falls back to them when no other instance is running.
  *
- * @param {Array<{ id: string, instanceNumber?: number, state: string }>} sortedInstances - sorted by instance number
+ * @param {Array<Instance>} sortedInstances - build VMs last, then sorted by instance number, most recent first
  * @param {string | number | 'any'} wanted - an instance ID, an instance number or `any`
- * @returns {{ id: string, instanceNumber?: number, state: string } | null}
+ * @returns {Instance | null}
  */
 function selectInstance(sortedInstances, wanted) {
+  const runtimeInstances = sortedInstances.filter((i) => !i.isBuildVm);
   if (wanted === 'any') {
-    return getReadiestInstance(sortedInstances);
+    return getReadiestInstance(runtimeInstances) ?? getReadiestInstance(sortedInstances);
   }
   if (typeof wanted === 'number') {
-    return getReadiestInstance(sortedInstances.filter((i) => i.instanceNumber === wanted));
+    return getReadiestInstance(runtimeInstances.filter((i) => i.instanceNumber === wanted));
   }
   return sortedInstances.find((i) => i.id === wanted) ?? null;
 }
 
 /**
  * The first serving instance, or the first one when none is serving.
- * @param {Array<{ id: string, instanceNumber?: number, state: string }>} sortedInstances - sorted by instance number
- * @returns {{ id: string, instanceNumber?: number, state: string } | null}
+ * @param {Array<Instance>} sortedInstances - sorted by instance number, then most recent first
+ * @returns {Instance | null}
  */
 function getReadiestInstance(sortedInstances) {
   return sortedInstances.find((i) => i.state === 'UP') ?? sortedInstances[0] ?? null;
@@ -182,10 +192,10 @@ function getReadiestInstance(sortedInstances) {
 
 /**
  * One line per instance, to help the caller pick one with `--instance`.
- * @param {Array<{ id: string, instanceNumber?: number, state: string }>} instances
+ * @param {Array<Instance>} instances
  * @returns {string}
  */
 function formatInstances(instances) {
-  const lines = instances.map((i) => `  - ${i.instanceNumber} ${i.id} (${i.state})`);
+  const lines = instances.map((i) => `  - ${i.isBuildVm ? 'build' : (i.instanceNumber ?? '?')} ${i.id} (${i.state})`);
   return styleText('grey', lines.join('\n'));
 }
