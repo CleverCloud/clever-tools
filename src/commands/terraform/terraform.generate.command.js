@@ -26,6 +26,7 @@ const APP_RESOURCE_BY_VARIANT = {
   haskell: 'haskell',
   jar: 'java_jar',
   linux: 'linux',
+  maven: 'java_maven',
   node: 'nodejs',
   php: 'php',
   play2: 'play2',
