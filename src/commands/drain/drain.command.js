@@ -48,6 +48,7 @@ export const drainCommand = defineCommand({
         const formattedDrains = drains.map((drain) => {
           return {
             ID: drain.id,
+            Kind: drain.kind,
             Status: drain.status.status,
             'Execution status': drain.execution.status,
             URL: drain.recipient.url,

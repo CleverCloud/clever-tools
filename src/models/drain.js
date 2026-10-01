@@ -75,6 +75,7 @@ function formatThroughput(bytesPerSecond) {
 export function formatDrain(rawDrain) {
   const drainDetails = [
     ['ID', rawDrain.id],
+    ['Kind', rawDrain.kind],
     ['Status', rawDrain.status.status],
     ['Execution status', rawDrain.execution.status],
     ['URL', rawDrain.recipient.url],
