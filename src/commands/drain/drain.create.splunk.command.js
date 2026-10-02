@@ -6,6 +6,7 @@ import { Logger } from '../../logger.js';
 import { createLogDrain, resolveDrainResource } from '../../models/drain.js';
 import { addonIdOrRealIdOption, aliasOption, appIdOrNameOption } from '../global.options.js';
 import { drainUrlArg } from './drain.args.js';
+import { drainKindOption } from './drain.options.js';
 
 export const drainCreateSplunkCommand = defineCommand({
   description: 'Create a Splunk HEC drain',
@@ -38,16 +39,17 @@ export const drainCreateSplunkCommand = defineCommand({
       description: 'TLS verification mode, use `trustful` to accept a self-signed certificate',
       placeholder: 'tls-verification',
     }),
+    kind: drainKindOption,
     alias: aliasOption,
     appIdOrName: appIdOrNameOption,
     addonIdOrRealId: addonIdOrRealIdOption,
   },
   args: [drainUrlArg],
   async handler(options, url) {
-    const { alias, appIdOrName, addonIdOrRealId, token, index, sourcetype, tlsVerification } = options;
+    const { kind, alias, appIdOrName, addonIdOrRealId, token, index, sourcetype, tlsVerification } = options;
     const { ownerId, resourceId } = await resolveDrainResource(alias, appIdOrName, addonIdOrRealId);
 
-    const drain = await createLogDrain('SPLUNK', ownerId, resourceId, url, {
+    const drain = await createLogDrain('SPLUNK', kind, ownerId, resourceId, url, {
       token,
       index,
       sourcetype,

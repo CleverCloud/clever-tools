@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { defineOption } from '../../lib/define-option.js';
+import { DRAIN_KINDS } from '../../models/drain.js';
 
 export const drainUsernameOption = defineOption({
   name: 'username',
@@ -23,4 +24,11 @@ export const drainSdParamsOption = defineOption({
   description: 'RFC5424 structured data parameters, e.g.: `token=\\\"REDACTED\\\"`',
   aliases: ['s'],
   placeholder: 'sd-params',
+});
+
+export const drainKindOption = defineOption({
+  name: 'kind',
+  schema: z.enum(DRAIN_KINDS).default('LOG'),
+  description: 'Kind of logs sent to the drain',
+  placeholder: 'kind',
 });

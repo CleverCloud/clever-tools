@@ -17,16 +17,19 @@ export async function resolveDrainResource(alias, appIdOrName, addonIdOrRealId) 
   return { ownerId, resourceId: appId };
 }
 
+export const DRAIN_KINDS = /** @type {const} */ (['LOG', 'ACCESSLOG']);
+
 /**
- * Creates a log drain, the recipient options that are not set are left out of the payload.
+ * Creates a drain, the recipient options that are not set are left out of the payload.
  * @param {string} type - Drain type, as expected by the API
+ * @param {typeof DRAIN_KINDS[number]} kind - Kind of logs sent to the drain
  * @param {string} ownerId
  * @param {string} resourceId
  * @param {string} url - Drain URL
  * @param {Record<string, unknown>} [recipientOptions] - Extra recipient fields, `null` and `undefined` ones are ignored
  */
-export function createLogDrain(type, ownerId, resourceId, url, recipientOptions = {}) {
-  const body = { kind: 'LOG', recipient: { type, url } };
+export function createLogDrain(type, kind, ownerId, resourceId, url, recipientOptions = {}) {
+  const body = { kind, recipient: { type, url } };
 
   for (const key in recipientOptions) {
     if (recipientOptions[key] != null) {

@@ -1150,6 +1150,7 @@ drain-url                            Drain URL
     --addon <addon-id>               Add-on ID or real ID
 -a, --alias <alias>                  Short name for the application
     --app <app-id|app-name>          Application to manage by its ID (or name, if unambiguous)
+    --kind <kind>                    Kind of logs sent to the drain (LOG, ACCESSLOG) (default: LOG)
 ```
 
 #### drain create datadog
@@ -1173,6 +1174,7 @@ drain-url                      Drain URL
     --addon <addon-id>         Add-on ID or real ID
 -a, --alias <alias>            Short name for the application
     --app <app-id|app-name>    Application to manage by its ID (or name, if unambiguous)
+    --kind <kind>              Kind of logs sent to the drain (LOG, ACCESSLOG) (default: LOG)
 ```
 
 #### drain create elasticsearch
@@ -1197,6 +1199,7 @@ drain-url                            Drain URL, must end with '/_bulk'
     --addon <addon-id>               Add-on ID or real ID
 -a, --alias <alias>                  Short name for the application
     --app <app-id|app-name>          Application to manage by its ID (or name, if unambiguous)
+    --kind <kind>                    Kind of logs sent to the drain (LOG, ACCESSLOG) (default: LOG)
 -p, --password <password>            Basic auth password
 -u, --username <username>            Basic auth username
 ```
@@ -1223,6 +1226,7 @@ drain-url                      Drain URL
     --addon <addon-id>         Add-on ID or real ID
 -a, --alias <alias>            Short name for the application
     --app <app-id|app-name>    Application to manage by its ID (or name, if unambiguous)
+    --kind <kind>              Kind of logs sent to the drain (LOG, ACCESSLOG) (default: LOG)
 ```
 
 #### drain create ovh-tcp
@@ -1246,6 +1250,7 @@ drain-url                      Drain URL
     --addon <addon-id>         Add-on ID or real ID
 -a, --alias <alias>            Short name for the application
     --app <app-id|app-name>    Application to manage by its ID (or name, if unambiguous)
+    --kind <kind>              Kind of logs sent to the drain (LOG, ACCESSLOG) (default: LOG)
 -s, --sd-params <sd-params>    RFC5424 structured data parameters, e.g.: `token=\"REDACTED\"`
 ```
 
@@ -1270,6 +1275,7 @@ drain-url                      Drain URL
     --addon <addon-id>         Add-on ID or real ID
 -a, --alias <alias>            Short name for the application
     --app <app-id|app-name>    Application to manage by its ID (or name, if unambiguous)
+    --kind <kind>              Kind of logs sent to the drain (LOG, ACCESSLOG) (default: LOG)
 -p, --password <password>      Basic auth password
 -u, --username <username>      Basic auth username
 ```
@@ -1297,6 +1303,7 @@ drain-url                                    Drain URL
 -a, --alias <alias>                          Short name for the application
     --app <app-id|app-name>                  Application to manage by its ID (or name, if unambiguous)
     --index <index>                          Optional target index, the HEC token's own index is used if not set
+    --kind <kind>                            Kind of logs sent to the drain (LOG, ACCESSLOG) (default: LOG)
     --sourcetype <sourcetype>                Optional sourcetype, the HEC token's own sourcetype is used if not set
     --tls-verification <tls-verification>    TLS verification mode, use `trustful` to accept a self-signed certificate (default, trustful)
 ```
@@ -1322,6 +1329,7 @@ drain-url                      Drain URL
     --addon <addon-id>         Add-on ID or real ID
 -a, --alias <alias>            Short name for the application
     --app <app-id|app-name>    Application to manage by its ID (or name, if unambiguous)
+    --kind <kind>              Kind of logs sent to the drain (LOG, ACCESSLOG) (default: LOG)
 -s, --sd-params <sd-params>    RFC5424 structured data parameters, e.g.: `token=\"REDACTED\"`
 ```
 
@@ -1346,6 +1354,7 @@ drain-url                      Drain URL
     --addon <addon-id>         Add-on ID or real ID
 -a, --alias <alias>            Short name for the application
     --app <app-id|app-name>    Application to manage by its ID (or name, if unambiguous)
+    --kind <kind>              Kind of logs sent to the drain (LOG, ACCESSLOG) (default: LOG)
 -s, --sd-params <sd-params>    RFC5424 structured data parameters, e.g.: `token=\"REDACTED\"`
 ```
 

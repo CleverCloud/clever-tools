@@ -6,6 +6,7 @@ import { Logger } from '../../logger.js';
 import { createLogDrain, resolveDrainResource } from '../../models/drain.js';
 import { addonIdOrRealIdOption, aliasOption, appIdOrNameOption } from '../global.options.js';
 import { drainUrlArg } from './drain.args.js';
+import { drainKindOption } from './drain.options.js';
 
 export const drainCreateNewRelicCommand = defineCommand({
   description: 'Create a New Relic drain',
@@ -18,16 +19,17 @@ export const drainCreateNewRelicCommand = defineCommand({
       aliases: ['k'],
       placeholder: 'api-key',
     }),
+    kind: drainKindOption,
     alias: aliasOption,
     appIdOrName: appIdOrNameOption,
     addonIdOrRealId: addonIdOrRealIdOption,
   },
   args: [drainUrlArg],
   async handler(options, url) {
-    const { alias, appIdOrName, addonIdOrRealId, apiKey } = options;
+    const { kind, alias, appIdOrName, addonIdOrRealId, apiKey } = options;
     const { ownerId, resourceId } = await resolveDrainResource(alias, appIdOrName, addonIdOrRealId);
 
-    const drain = await createLogDrain('NEWRELIC', ownerId, resourceId, url, { apiKey });
+    const drain = await createLogDrain('NEWRELIC', kind, ownerId, resourceId, url, { apiKey });
 
     Logger.printSuccess(
       `New Relic drain ${styleText(['bold', 'green'], drain.id)} has been successfully created and enabled!`,
