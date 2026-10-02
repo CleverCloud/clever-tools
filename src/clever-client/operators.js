@@ -1,6 +1,25 @@
 // TODO: Move this to the Clever Cloud JS Client
 
 /**
+ * GET /v2/providers/{provider}/{addonId}
+ * The add-on provider's own view of an add-on, which exposes what it provisioned
+ * on the side: an Elasticsearch reports its Kibana application there.
+ * @param {Object} params
+ * @param {String} params.provider
+ * @param {String} params.addonId
+ */
+export function getProviderAddon(params) {
+  // no multipath for /self or /organisations/{id}
+  return Promise.resolve({
+    method: 'get',
+    url: `/v2/providers/${params.provider}/${params.addonId}`,
+    headers: { Accept: 'application/json' },
+    // no queryParams
+    // no body
+  });
+}
+
+/**
  * GET /v4/addon-providers/addon-{provider}/addons/{realId}
  * @param {Object} params
  * @param {String} params.provider
