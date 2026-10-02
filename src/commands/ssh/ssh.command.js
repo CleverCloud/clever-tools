@@ -1,11 +1,14 @@
 import { spawn } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
+import os from 'node:os';
+import { StringDecoder } from 'node:string_decoder';
 import { z } from 'zod';
 import { config } from '../../config/config.js';
 import { defineCommand } from '../../lib/define-command.js';
 import { defineOption } from '../../lib/define-option.js';
 import { selectAnswer } from '../../lib/prompts.js';
 import { styleText } from '../../lib/style-text.js';
+import { Logger } from '../../logger.js';
 import * as Application from '../../models/application.js';
 import { listInstances } from '../../models/instances.js';
 import { aliasOption, appIdOrNameOption } from '../global.options.js';
@@ -115,6 +118,8 @@ export const sshCommand = defineCommand({
 
     // Single command mode (pipe stdio to filter gateway noise via a marker)
     const sshProcess = spawn('ssh', sshParams, { stdio: 'pipe' });
+    // ssh may exit before reading stdin (e.g. auth failure): ignore EPIPE, its output tells why
+    sshProcess.stdin.on('error', () => {});
 
     // We can't pass the command directly via `ssh gateway 'cmd'` because appId already occupies
     // the remote command slot (used by the gateway for routing). So we write into stdin and use
@@ -122,39 +127,64 @@ export const sshCommand = defineCommand({
     const marker = `__CLEVER_${randomUUID()}__`;
     sshProcess.stdin.write(`echo '${marker}'\n`);
 
-    // `exec $SHELL --login -c` ensures the full login environment is loaded (.bashrc, env vars)
-    // while keeping stdout clean (no PTY = no prompt/ANSI noise).
+    // Like interactive sessions: bash if available, else /bin/sh ($SHELL may be unset or wrong in Docker containers).
+    // Resolved in a fresh /bin/sh so no profile alias or function shadows bash. Login shell (-l, as dash rejects --login)
+    // to load profiles and env vars, without PTY to keep stdout free of prompt/ANSI noise.
     const escapedCommand = command.replaceAll("'", "'\\''");
-    sshProcess.stdin.write(`exec $SHELL --login -c '${escapedCommand}'\n`);
+    sshProcess.stdin.write(`exec "$(/bin/sh -c 'command -v bash' || echo /bin/sh)" -l -c '${escapedCommand}'\n`);
     sshProcess.stdin.end();
 
-    // Skip gateway/login noise on both stdout and stderr, stream after the marker
+    // Hold output back until the marker, stream after it: noise on success, the only diagnostics if the session fails before
+    // Kept as bytes so multibyte characters split across chunks survive
+    const markerLine = Buffer.from(`${marker}\n`);
     let started = false;
-    let buf = '';
+    let buf = Buffer.alloc(0);
+    // Both streams, in arrival order, for the error message (one decoder per stream, as chunks interleave)
+    let heldOutput = '';
+    const stdoutDecoder = new StringDecoder('utf8');
+    const stderrDecoder = new StringDecoder('utf8');
     sshProcess.stdout.on('data', (chunk) => {
       if (started) {
         process.stdout.write(chunk);
         return;
       }
-      buf += chunk.toString();
-      const idx = buf.indexOf(marker + '\n');
+      buf = Buffer.concat([buf, chunk]);
+      heldOutput += stdoutDecoder.write(chunk);
+      const idx = buf.indexOf(markerLine);
       if (idx !== -1) {
         started = true;
-        const rest = buf.slice(idx + marker.length + 1);
-        if (rest) process.stdout.write(rest);
-        buf = '';
+        const rest = buf.subarray(idx + markerLine.length);
+        if (rest.length > 0) process.stdout.write(rest);
+        buf = Buffer.alloc(0);
       }
     });
 
-    // Discard stderr noise before the marker, forward after
     sshProcess.stderr.on('data', (chunk) => {
       if (started) {
         process.stderr.write(chunk);
+        return;
       }
+      heldOutput += stderrDecoder.write(chunk);
     });
 
-    const exitCode = await new Promise((resolve) => sshProcess.on('exit', resolve));
-    process.exit(exitCode);
+    // Unlike 'exit', 'close' fires once stdio is drained, so no output is lost
+    const { code, signal } = await new Promise((resolve, reject) => {
+      sshProcess.on('error', reject);
+      sshProcess.on('close', (code, signal) => resolve({ code, signal }));
+    });
+
+    // Keep the ssh exit code, and never report success for a session killed by a signal
+    // process.exitCode instead of process.exit() (or throwing, which ends in one) lets piped output flush before exiting
+    const exitCode = code ?? 128 + (os.constants.signals[signal] ?? 0);
+
+    if (!started) {
+      const details = (heldOutput + stdoutDecoder.end() + stderrDecoder.end()).trim();
+      Logger.error(`SSH session ended before the command could run${details ? `:\n${details}` : ''}`);
+      process.exitCode = exitCode || 1;
+      return;
+    }
+
+    process.exitCode = exitCode;
   },
 });
 
