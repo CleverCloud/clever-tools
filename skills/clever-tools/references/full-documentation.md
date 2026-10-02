@@ -1742,7 +1742,7 @@ clever help
 
 **Description:** List instances of an application
 
-**Since:** Unreleased
+**Since:** 5.1.0
 
 **Usage**
 ```

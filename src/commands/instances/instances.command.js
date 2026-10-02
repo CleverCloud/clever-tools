@@ -11,7 +11,7 @@ import { aliasOption, appIdOrNameOption, humanJsonOutputFormatOption } from '../
 
 export const instancesCommand = defineCommand({
   description: 'List instances of an application',
-  since: null,
+  since: '5.1.0',
   options: {
     all: defineOption({
       name: 'all',

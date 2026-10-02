@@ -1,5 +1,22 @@
 # clever-tools changelog
 
+## [5.1.0](https://github.com/CleverCloud/clever-tools/compare/5.0.2...5.1.0) (2026-10-02)
+
+
+### 🚀 Features
+
+* **drain:** add `--kind` option to create access logs drains, and display the drain kind in `list` and `get` ([8fa9afc](https://github.com/CleverCloud/clever-tools/commit/8fa9afc2c3e93c40649d862d80afc74b87faca6e), [9c12726](https://github.com/CleverCloud/clever-tools/commit/9c1272630b3afd6675468f91ed8429213713764b))
+* **instances:** add command to list application instances ([928edf9](https://github.com/CleverCloud/clever-tools/commit/928edf951b7427beeb5d8ea4ccb2d47b5107f9da))
+* **ssh:** add `--instance` option to target a running instance by ID, by number or with `any` ([764b5b0](https://github.com/CleverCloud/clever-tools/commit/764b5b0f3cdebf6b6e652be33dc2f4ac9f744b97), [8502e02](https://github.com/CleverCloud/clever-tools/commit/8502e02b0c2043ebe5658abfd2295bd3a0274936))
+* **ssh:** include build VMs when selecting an instance ([6b3b2be](https://github.com/CleverCloud/clever-tools/commit/6b3b2be1f81e9c5ac4e981969e84e2eb0e73cd66))
+
+
+### 🐛 Bug Fixes
+
+* **logs, accesslogs, instances, tokens:** accept a plain number of seconds as a duration in `--since`, `--until` and `--expiration` ([2f7426a](https://github.com/CleverCloud/clever-tools/commit/2f7426aa4d810dac67ce15d70f6c7685df19dbea))
+* **docker:** ship git in the final image ([8442de5](https://github.com/CleverCloud/clever-tools/commit/8442de59e68f60e9e2f1e8959cffe22e2f0d1831), [7a101d8](https://github.com/CleverCloud/clever-tools/commit/7a101d8cdcbc3b1bc2e630e87a860e4de2d44441)), closes [#1155](https://github.com/CleverCloud/clever-tools/issues/1155)
+* **k8s, kv, ng, operator:** report an ambiguous name like other commands, with the same list of candidates ([2bf0d1b](https://github.com/CleverCloud/clever-tools/commit/2bf0d1bbe0196fbe9b20524a6d2293dba3dc121c), [13624fa](https://github.com/CleverCloud/clever-tools/commit/13624fa48d161a9f8184a62f7242fa7c446a9465), [f8eea4d](https://github.com/CleverCloud/clever-tools/commit/f8eea4dea37e55551ea18b6cdf95d518868b6353), [1287999](https://github.com/CleverCloud/clever-tools/commit/12879999406aed6b9a898cf19aa44510c0162810))
+
 ## [5.0.2](https://github.com/CleverCloud/clever-tools/compare/5.0.1...5.0.2) (2026-09-15)
 
 
