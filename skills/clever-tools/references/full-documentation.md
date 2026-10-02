@@ -270,7 +270,7 @@ Applications deployment zones (region): `par`, `parhds`, `fr-north-hds`, `grahds
   - zones: `par`, `fr-north-hds`, `grahds`, `mtl`, `rbx`, `rbxhds`, `scw`, `sgp`, `syd`, `wsw`
 
 - `postgresql-addon`:
-  - plans: `dev`, `xxs_tny`, `xxs_sml`, `xxs_hug`, `xxs_med`, `xxs_gnt`, `xxs_big`, `xs_tny`, `xxs_tit`, `xs_sml`, `xs_med`, `xs_big`, `xs_hug`, `xs_gnt`, `s_tny`, `s_sml`, `s_med`, `s_big`, `xs_tit`, `s_hug`, `s_gnt`, `m_sml`, `m_med`, `m_big`, `l_sml`, `l_med`, `l_big`, `l_hug`, `xl_sml`, `l_gnt`, `xl_med`, `xl_big`, `xl_hug`, `xl_gnt`, `xxl_sml`, `xxl_med`, `xxl_big`, `xxl_hug`, `xxxl_sml`, `xxxl_med`, `xxxl_big`, `4xl_sml`, `xxxl_hug`, `4xl_med`, `5xl_sml`, `4xl_big`, `5xl_med`, `4xl_hug`, `6xl_sml`, `5xl_big`, `6xl_med`, `6xl_big`, `5xl_tit`
+  - plans: `dev`, `xxs_tny`, `xxs_sml`, `xxs_hug`, `xxs_med`, `xxs_gnt`, `xxs_big`, `xs_tny`, `xxs_tit`, `xs_sml`, `xs_med`, `xs_big`, `xs_hug`, `xs_gnt`, `s_tny`, `s_sml`, `s_med`, `s_big`, `xs_tit`, `s_hug`, `s_gnt`, `m_sml`, `m_med`, `m_big`, `s_tit`, `m_hug`, `m_gnt`, `l_sml`, `l_med`, `l_big`, `l_hug`, `xl_sml`, `l_gnt`, `xl_med`, `xl_big`, `l_tit`, `xl_hug`, `xl_gnt`, `xxl_sml`, `xxl_med`, `xxl_big`, `xxl_hug`, `xxxl_sml`, `xxxl_med`, `xxxl_big`, `4xl_sml`, `xxxl_hug`, `4xl_med`, `5xl_sml`, `4xl_big`, `5xl_med`, `4xl_hug`, `6xl_sml`, `5xl_big`, `6xl_med`, `6xl_big`, `5xl_tit`
   - zones: `par`, `parhds`, `grahds`, `ldn`, `mtl`, `rbx`, `rbxhds`, `scw`, `sgp`, `syd`, `wsw`
 
 - `redis-addon`:
