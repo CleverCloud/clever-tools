@@ -65,6 +65,35 @@ Classic response is a table:
 └─────────┴─────────────────────────────────────────┘
 ```
 
+## Enable node auto-provisioning
+
+Instead of sizing node groups yourself, you can let the cluster autoscale its nodes: node auto-provisioning creates and deletes nodes to fit the pods waiting to be scheduled. It's powered by [Karpenter](https://karpenter.sh), installed in the cluster by Clever Cloud. Enable it at creation time, or later on an `ACTIVE` cluster:
+
+```
+clever k8s create myKubeCluster --node-autoprovisioning
+clever k8s update myKubeCluster --node-autoprovisioning
+```
+
+Karpenter provisions nothing until you create your own `NodePool` and `CleverNodeClass` resources in the cluster.
+
+A cluster is reported with the features it has installed, not with the ones it was asked for. Right after an activation, `clever k8s get` shows `disabled (cluster reconciling)` while the cluster is `RECONCILING`, then `enabled` once Karpenter is in place. A deactivation reads the same way in reverse: `enabled (cluster reconciling)`, then `disabled`.
+
+To disable it, which really uninstalls Karpenter:
+
+```
+clever k8s update myKubeCluster --disable-node-autoprovisioning
+```
+
+Delete your `NodePool`, `NodeOverlay` and `CleverNodeClass` resources and let Karpenter drain the nodes first, otherwise the command is refused.
+
+Node auto-provisioning can't run alongside the node group autoscaler. If it is enabled on an existing cluster, disable it before enabling node auto-provisioning:
+
+```
+clever k8s update myKubeCluster --disable-autoscaling
+```
+
+The existing `--autoscaling`, `--disable-autoscaling`, `--min` and `--max` options remain available for managing the node group autoscaler. `--autoscaling` and `--node-autoprovisioning` cannot be enabled together.
+
 ## Add persistent storage to a Cluster
 
 You can add persistent storage to an `ACTIVE` cluster with:
