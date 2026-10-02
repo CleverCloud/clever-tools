@@ -1,6 +1,6 @@
 # 📖 `clever instances` command reference
 
-## ➡️ `clever instances` <kbd>Unreleased</kbd>
+## ➡️ `clever instances` <kbd>Since 5.1.0</kbd>
 
 List instances of an application
 
@@ -20,18 +20,3 @@ clever instances [options]
 |`--deployment-id` `<deployment-id>`|List instances created by this deployment, in any state|
 |`-F`, `--format` `<format>`|Output format (human, json) (default: human)|
 |`--limit` `<limit>`|Maximum number of instances to list, keeping the most recent ones (1 to 1000) (default: 100)|
-
-### How it works
-
-* By default, only running instances are listed. `--all`, `--after`, `--before` and `--deployment-id` also include stopped and deleted instances, and filters combine.
-* `--limit` keeps the most recent instances, which are then listed from oldest to newest.
-* `#` is the instance number within its deployment: it restarts at 0 on each deployment, `build` marks a build VM and `?` a number not known yet, at the very beginning of booting. Dates are in UTC.
-
-### Examples
-
-```bash
-clever instances                                   # running instances
-clever instances --all --limit 10                  # last 10 instances, any state
-clever instances --deployment-id <deployment-id>   # instances created by a deployment
-clever instances --after 1d                        # instances that existed during the last day
-```
