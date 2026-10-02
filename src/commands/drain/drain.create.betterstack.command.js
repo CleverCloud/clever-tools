@@ -6,6 +6,7 @@ import { Logger } from '../../logger.js';
 import { createLogDrain, resolveDrainResource } from '../../models/drain.js';
 import { addonIdOrRealIdOption, aliasOption, appIdOrNameOption } from '../global.options.js';
 import { drainUrlArg } from './drain.args.js';
+import { drainKindOption } from './drain.options.js';
 
 export const drainCreateBetterstackCommand = defineCommand({
   description: 'Create a Better Stack drain',
@@ -18,16 +19,17 @@ export const drainCreateBetterstackCommand = defineCommand({
       aliases: ['t'],
       placeholder: 'source-token',
     }),
+    kind: drainKindOption,
     alias: aliasOption,
     appIdOrName: appIdOrNameOption,
     addonIdOrRealId: addonIdOrRealIdOption,
   },
   args: [drainUrlArg],
   async handler(options, url) {
-    const { alias, appIdOrName, addonIdOrRealId, sourceToken } = options;
+    const { kind, alias, appIdOrName, addonIdOrRealId, sourceToken } = options;
     const { ownerId, resourceId } = await resolveDrainResource(alias, appIdOrName, addonIdOrRealId);
 
-    const drain = await createLogDrain('BETTERSTACK', ownerId, resourceId, url, { sourceToken });
+    const drain = await createLogDrain('BETTERSTACK', kind, ownerId, resourceId, url, { sourceToken });
 
     Logger.printSuccess(
       `Better Stack drain ${styleText(['bold', 'green'], drain.id)} has been successfully created and enabled!`,

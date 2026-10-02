@@ -70,6 +70,7 @@ clever drain create betterstack --source-token <source-token> <drain-url> [optio
 |`--addon` `<addon-id>`|Add-on ID or real ID|
 |`-a`, `--alias` `<alias>`|Short name for the application|
 |`--app` `<app-id\|app-name>`|Application to manage by its ID (or name, if unambiguous)|
+|`--kind` `<kind>`|Kind of logs sent to the drain (LOG, ACCESSLOG) (default: LOG)|
 
 ### Examples
 
@@ -100,6 +101,7 @@ clever drain create datadog <drain-url> [options]
 |`--addon` `<addon-id>`|Add-on ID or real ID|
 |`-a`, `--alias` `<alias>`|Short name for the application|
 |`--app` `<app-id\|app-name>`|Application to manage by its ID (or name, if unambiguous)|
+|`--kind` `<kind>`|Kind of logs sent to the drain (LOG, ACCESSLOG) (default: LOG)|
 
 ### Examples
 
@@ -136,6 +138,7 @@ clever drain create elasticsearch --index-prefix <index-prefix> <drain-url> [opt
 |`--addon` `<addon-id>`|Add-on ID or real ID|
 |`-a`, `--alias` `<alias>`|Short name for the application|
 |`--app` `<app-id\|app-name>`|Application to manage by its ID (or name, if unambiguous)|
+|`--kind` `<kind>`|Kind of logs sent to the drain (LOG, ACCESSLOG) (default: LOG)|
 |`-p`, `--password` `<password>`|Basic auth password|
 |`-u`, `--username` `<username>`|Basic auth username|
 
@@ -171,6 +174,7 @@ clever drain create newrelic --api-key <api-key> <drain-url> [options]
 |`--addon` `<addon-id>`|Add-on ID or real ID|
 |`-a`, `--alias` `<alias>`|Short name for the application|
 |`--app` `<app-id\|app-name>`|Application to manage by its ID (or name, if unambiguous)|
+|`--kind` `<kind>`|Kind of logs sent to the drain (LOG, ACCESSLOG) (default: LOG)|
 
 ### Examples
 
@@ -201,6 +205,7 @@ clever drain create ovh-tcp <drain-url> [options]
 |`--addon` `<addon-id>`|Add-on ID or real ID|
 |`-a`, `--alias` `<alias>`|Short name for the application|
 |`--app` `<app-id\|app-name>`|Application to manage by its ID (or name, if unambiguous)|
+|`--kind` `<kind>`|Kind of logs sent to the drain (LOG, ACCESSLOG) (default: LOG)|
 |`-s`, `--sd-params` `<sd-params>`|RFC5424 structured data parameters, e.g.: `token=\"REDACTED\"`|
 
 ### Examples
@@ -232,6 +237,7 @@ clever drain create raw-http <drain-url> [options]
 |`--addon` `<addon-id>`|Add-on ID or real ID|
 |`-a`, `--alias` `<alias>`|Short name for the application|
 |`--app` `<app-id\|app-name>`|Application to manage by its ID (or name, if unambiguous)|
+|`--kind` `<kind>`|Kind of logs sent to the drain (LOG, ACCESSLOG) (default: LOG)|
 |`-p`, `--password` `<password>`|Basic auth password|
 |`-u`, `--username` `<username>`|Basic auth username|
 
@@ -267,6 +273,7 @@ clever drain create splunk --hec-token <hec-token> <drain-url> [options]
 |`-a`, `--alias` `<alias>`|Short name for the application|
 |`--app` `<app-id\|app-name>`|Application to manage by its ID (or name, if unambiguous)|
 |`--index` `<index>`|Optional target index, the HEC token's own index is used if not set|
+|`--kind` `<kind>`|Kind of logs sent to the drain (LOG, ACCESSLOG) (default: LOG)|
 |`--sourcetype` `<sourcetype>`|Optional sourcetype, the HEC token's own sourcetype is used if not set|
 |`--tls-verification` `<tls-verification>`|TLS verification mode, use `trustful` to accept a self-signed certificate (default, trustful)|
 
@@ -291,6 +298,7 @@ clever drain create syslog-tcp <drain-url> [options]
 |`--addon` `<addon-id>`|Add-on ID or real ID|
 |`-a`, `--alias` `<alias>`|Short name for the application|
 |`--app` `<app-id\|app-name>`|Application to manage by its ID (or name, if unambiguous)|
+|`--kind` `<kind>`|Kind of logs sent to the drain (LOG, ACCESSLOG) (default: LOG)|
 |`-s`, `--sd-params` `<sd-params>`|RFC5424 structured data parameters, e.g.: `token=\"REDACTED\"`|
 
 ### Examples
@@ -323,6 +331,7 @@ clever drain create syslog-udp <drain-url> [options]
 |`--addon` `<addon-id>`|Add-on ID or real ID|
 |`-a`, `--alias` `<alias>`|Short name for the application|
 |`--app` `<app-id\|app-name>`|Application to manage by its ID (or name, if unambiguous)|
+|`--kind` `<kind>`|Kind of logs sent to the drain (LOG, ACCESSLOG) (default: LOG)|
 |`-s`, `--sd-params` `<sd-params>`|RFC5424 structured data parameters, e.g.: `token=\"REDACTED\"`|
 
 ### Examples

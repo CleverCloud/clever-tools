@@ -4,21 +4,23 @@ import { Logger } from '../../logger.js';
 import { createLogDrain, resolveDrainResource } from '../../models/drain.js';
 import { addonIdOrRealIdOption, aliasOption, appIdOrNameOption } from '../global.options.js';
 import { drainUrlArg } from './drain.args.js';
+import { drainKindOption } from './drain.options.js';
 
 export const drainCreateDatadogCommand = defineCommand({
   description: 'Create a Datadog drain',
   since: '0.9.0',
   options: {
+    kind: drainKindOption,
     alias: aliasOption,
     appIdOrName: appIdOrNameOption,
     addonIdOrRealId: addonIdOrRealIdOption,
   },
   args: [drainUrlArg],
   async handler(options, url) {
-    const { alias, appIdOrName, addonIdOrRealId } = options;
+    const { kind, alias, appIdOrName, addonIdOrRealId } = options;
     const { ownerId, resourceId } = await resolveDrainResource(alias, appIdOrName, addonIdOrRealId);
 
-    const drain = await createLogDrain('DATADOG', ownerId, resourceId, url);
+    const drain = await createLogDrain('DATADOG', kind, ownerId, resourceId, url);
 
     Logger.printSuccess(
       `Datadog drain ${styleText(['bold', 'green'], drain.id)} has been successfully created and enabled!`,

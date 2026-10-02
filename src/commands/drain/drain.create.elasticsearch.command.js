@@ -6,7 +6,7 @@ import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
 import { createLogDrain, resolveDrainResource } from '../../models/drain.js';
 import { addonIdOrRealIdOption, aliasOption, appIdOrNameOption } from '../global.options.js';
-import { drainPasswordOption, drainUsernameOption } from './drain.options.js';
+import { drainKindOption, drainPasswordOption, drainUsernameOption } from './drain.options.js';
 
 export const drainCreateElasticsearchCommand = defineCommand({
   description: 'Create an Elasticsearch drain',
@@ -21,6 +21,7 @@ export const drainCreateElasticsearchCommand = defineCommand({
     }),
     username: drainUsernameOption,
     password: drainPasswordOption,
+    kind: drainKindOption,
     alias: aliasOption,
     appIdOrName: appIdOrNameOption,
     addonIdOrRealId: addonIdOrRealIdOption,
@@ -36,10 +37,10 @@ export const drainCreateElasticsearchCommand = defineCommand({
     }),
   ],
   async handler(options, url) {
-    const { alias, appIdOrName, addonIdOrRealId, index, username, password } = options;
+    const { kind, alias, appIdOrName, addonIdOrRealId, index, username, password } = options;
     const { ownerId, resourceId } = await resolveDrainResource(alias, appIdOrName, addonIdOrRealId);
 
-    const drain = await createLogDrain('ELASTICSEARCH', ownerId, resourceId, url, { index, username, password });
+    const drain = await createLogDrain('ELASTICSEARCH', kind, ownerId, resourceId, url, { index, username, password });
 
     Logger.printSuccess(
       `Elasticsearch drain ${styleText(['bold', 'green'], drain.id)} has been successfully created and enabled!`,
