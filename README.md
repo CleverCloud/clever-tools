@@ -159,7 +159,7 @@ clever --format json <command> # JSON output for scripting
 Clever Tools can be used with AI coding assistants (Claude Code, Cursor, Codex, GitHub Copilot, etc.):
 
 ```bash
-npx add-skill CleverCloud/clever-tools
+npx skills add CleverCloud/clever-tools
 ```
 
 This installs the Clever Tools skill, giving your AI assistant knowledge of all commands and Clever Cloud concepts.
