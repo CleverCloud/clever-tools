@@ -34,7 +34,7 @@ export const drainCommand = defineCommand({
       case 'human':
       default: {
         if (drains.length === 0) {
-          const resourceLabel = addonIdOrRealId ?? appIdOrName ?? resourceId;
+          const resourceLabel = addonIdOrRealId ?? appIdOrName?.app_id ?? appIdOrName?.app_name ?? resourceId;
           Logger.println(`There are no drains for ${resourceLabel}`);
           return;
         }
