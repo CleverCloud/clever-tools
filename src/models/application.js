@@ -129,21 +129,17 @@ export async function deleteApp(app, skipConfirmation) {
 }
 
 export async function getAllApps(ownerId) {
-  const summary = await getSummary().then(sendToApi);
+  const owners = await Organisation.listOwners(ownerId == null ? null : { orga_id: ownerId });
 
   const orgaWithApps = await Promise.all(
-    summary.organisations
-      // If owner ID is present, only keep the matching org
-      .filter((org) => ownerId == null || org.id === ownerId)
-      .sort((a, b) => a.name.localeCompare(b.name))
-      .map(async (org) => {
-        const applications = await getApplicationsForOwner(org.id);
-        return {
-          id: org.id,
-          name: org.name,
-          applications: applications.sort((a, b) => a.name.localeCompare(b.name)),
-        };
-      }),
+    owners.map(async (org) => {
+      const applications = await getApplicationsForOwner(org.id);
+      return {
+        id: org.id,
+        name: org.name,
+        applications: applications.sort((a, b) => a.name.localeCompare(b.name)),
+      };
+    }),
   );
 
   return orgaWithApps;
