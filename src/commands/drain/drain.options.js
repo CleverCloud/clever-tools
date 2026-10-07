@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { defineOption } from '../../lib/define-option.js';
-import { DRAIN_KINDS } from '../../models/drain.js';
+import { DRAIN_KINDS, DRAIN_TYPES } from '../../models/drain.js';
 
 export const drainUsernameOption = defineOption({
   name: 'username',
@@ -31,4 +31,16 @@ export const drainKindOption = defineOption({
   schema: z.enum(DRAIN_KINDS).default('LOG'),
   description: 'Kind of logs sent to the drain',
   placeholder: 'kind',
+});
+
+const DRAIN_TYPE_CLI_CODES = Object.values(DRAIN_TYPES).map(({ cliCode }) => cliCode);
+
+export const drainTypeFilterOption = defineOption({
+  name: 'type',
+  schema: z
+    .enum(DRAIN_TYPE_CLI_CODES)
+    .transform((cliCode) => Object.values(DRAIN_TYPES).find((drainType) => drainType.cliCode === cliCode))
+    .optional(),
+  description: 'Only list drains of this type',
+  placeholder: 'drain-type',
 });
