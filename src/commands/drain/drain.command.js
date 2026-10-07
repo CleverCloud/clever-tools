@@ -1,7 +1,7 @@
 import { getDrains } from '../../clever-client/drains.js';
 import { defineCommand } from '../../lib/define-command.js';
 import { Logger } from '../../logger.js';
-import { formatDrain, resolveDrainResource } from '../../models/drain.js';
+import { formatDrain, formatDrainRow, resolveDrainResource } from '../../models/drain.js';
 import { sendToApi } from '../../models/send-to-api.js';
 import {
   addonIdOrRealIdOption,
@@ -45,17 +45,7 @@ export const drainCommand = defineCommand({
           return;
         }
 
-        const formattedDrains = drains.map((drain) => {
-          return {
-            ID: drain.id,
-            Kind: drain.kind,
-            Status: drain.status.status,
-            'Execution status': drain.execution.status,
-            URL: drain.recipient.url,
-          };
-        });
-
-        console.table(formattedDrains);
+        console.table(drains.map((drain) => formatDrainRow(drain)));
       }
     }
   },

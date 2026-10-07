@@ -410,6 +410,21 @@ clever drain get <drain-id> [options]
 |`--app` `<app-id\|app-name>`|Application to manage by its ID (or name, if unambiguous)|
 |`-F`, `--format` `<format>`|Output format (human, json) (default: human)|
 
+## ➡️ `clever drain list` <kbd>Unreleased</kbd>
+
+List the drains of all applications and add-ons
+
+```bash
+clever drain list [options]
+```
+
+### ⚙️ Options
+
+|Name|Description|
+|---|---|
+|`-F`, `--format` `<format>`|Output format (human, json) (default: human)|
+|`-o`, `--org`, `--owner` `<org-id\|org-name>`|Organisation to target by its ID (or name, if unambiguous)|
+
 ## ➡️ `clever drain remove` <kbd>Since 0.9.0</kbd>
 
 Remove a drain

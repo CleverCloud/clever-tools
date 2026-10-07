@@ -54,6 +54,7 @@ import { drainCreateSyslogUdpCommand } from './drain/drain.create.syslog-udp.com
 import { drainDisableCommand } from './drain/drain.disable.command.js';
 import { drainEnableCommand } from './drain/drain.enable.command.js';
 import { drainGetCommand } from './drain/drain.get.command.js';
+import { drainListCommand } from './drain/drain.list.command.js';
 import { drainRemoveCommand } from './drain/drain.remove.command.js';
 import { emailsAddCommand } from './emails/emails.add.command.js';
 import { emailsCommand } from './emails/emails.command.js';
@@ -297,6 +298,7 @@ export const globalCommands = {
       disable: drainDisableCommand,
       enable: drainEnableCommand,
       get: drainGetCommand,
+      list: drainListCommand,
       remove: drainRemoveCommand,
     },
   ],
