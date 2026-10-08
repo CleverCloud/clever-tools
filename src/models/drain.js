@@ -73,34 +73,40 @@ function formatThroughput(bytesPerSecond) {
 }
 
 export function formatDrain(rawDrain) {
-  const drainDetails = [
-    ['ID', rawDrain.id],
-    ['Kind', rawDrain.kind],
-    ['Status', rawDrain.status.status],
-    ['Execution status', rawDrain.execution.status],
-    ['URL', rawDrain.recipient.url],
-    ['Type', DRAIN_TYPE_LABELS[rawDrain.recipient.type]],
-    ['Custom index', rawDrain.recipient.index],
-    ['Sourcetype', rawDrain.recipient.sourcetype],
-    // DEFAULT is the implicit norm, only a relaxed verification is worth showing
-    [
-      'TLS verification',
-      rawDrain.recipient.tlsVerification === 'TRUSTFUL' ? 'Trustful (certificate not verified)' : null,
-    ],
-    ['SD parameters', rawDrain.recipient.rfc5424StructuredDataParameters],
-    ['Message output rate', formatRate(rawDrain.backlog.msgRateOut)],
-    ['Message throughput', formatThroughput(rawDrain.backlog.msgThroughputOut)],
-    ['Backlog', rawDrain.backlog.msgBacklog + ' pending messages'],
-    [
-      'Retry attempts',
-      rawDrain.execution.attempt != null && rawDrain.execution.maxAttempt != null
-        ? `${rawDrain.execution.attempt}/${rawDrain.execution.maxAttempt}`
-        : null,
-    ],
-    ['Last attempt at', rawDrain.execution.lastAttemptAt],
-    ['Next attempt at', rawDrain.execution.nextAttemptAt],
-    ['Retrying since', rawDrain.execution.retryingSince],
-    ['Last error', rawDrain.execution.lastError],
-  ];
-  return Object.fromEntries(drainDetails.filter(([_name, value]) => value != null));
+  const details = [];
+
+  details.push(['ID', rawDrain.id]);
+  details.push(['Kind', rawDrain.kind]);
+  details.push(['Status', rawDrain.status.status]);
+  details.push(['Execution status', rawDrain.execution.status]);
+  details.push(['URL', rawDrain.recipient.url]);
+  details.push(['Type', DRAIN_TYPE_LABELS[rawDrain.recipient.type]]);
+  details.push(['Custom index', rawDrain.recipient.index]);
+  details.push(['Sourcetype', rawDrain.recipient.sourcetype]);
+
+  // DEFAULT is the implicit norm, only a relaxed verification is worth showing
+  if (rawDrain.recipient.tlsVerification === 'TRUSTFUL') {
+    details.push(['TLS verification', 'Trustful (certificate not verified)']);
+  }
+
+  details.push(['SD parameters', rawDrain.recipient.rfc5424StructuredDataParameters]);
+
+  // backlog is null when the API cannot get the drain subscription stats
+  // (e.g. not created yet, or disabled drain whose subscription was cleaned up)
+  if (rawDrain.backlog != null) {
+    details.push(['Message output rate', formatRate(rawDrain.backlog.msgRateOut)]);
+    details.push(['Message throughput', formatThroughput(rawDrain.backlog.msgThroughputOut)]);
+    details.push(['Backlog', rawDrain.backlog.msgBacklog + ' pending messages']);
+  }
+
+  if (rawDrain.execution.attempt != null && rawDrain.execution.maxAttempt != null) {
+    details.push(['Retry attempts', `${rawDrain.execution.attempt}/${rawDrain.execution.maxAttempt}`]);
+  }
+
+  details.push(['Last attempt at', rawDrain.execution.lastAttemptAt]);
+  details.push(['Next attempt at', rawDrain.execution.nextAttemptAt]);
+  details.push(['Retrying since', rawDrain.execution.retryingSince]);
+  details.push(['Last error', rawDrain.execution.lastError]);
+
+  return Object.fromEntries(details.filter(([_name, value]) => value != null));
 }
