@@ -42,8 +42,9 @@ const ConfigFileSchema = z.object({
 
 const ConfigSchema = z
   .object({
-    CONFIGURATION_FILE: z.string().default(getConfigPath('clever-tools.json')),
-    EXPERIMENTAL_FEATURES_FILE: z.string().default(getConfigPath('clever-tools-experimental-features.json')),
+    CONFIGURATION_FILE: z.string().default(() => getConfigPath('clever-tools.json')),
+    EXPERIMENTAL_FEATURES_FILE: z.string().default(() => getConfigPath('clever-tools-experimental-features.json')),
+    IDS_CACHE_FILE: z.string().default(() => getConfigPath('ids-cache.json')),
     APP_CONFIGURATION_FILE: z.string().default(() => path.resolve('.', '.clever.json')),
 
     API_HOST: z.url().default('https://api.clever-cloud.com'),

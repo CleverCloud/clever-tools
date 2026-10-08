@@ -1,9 +1,7 @@
 import { z } from 'zod';
 import { readJson, writeJson } from '../lib/fs.js';
 import { Logger } from '../logger.js';
-import { getConfigPath } from './paths.js';
-
-const IDS_CACHE_FILEPATH = getConfigPath('ids-cache.json');
+import { baseConfig } from './config.js';
 
 const IdsCacheSchema = z.object({
   owners: z.record(z.string(), z.string()),
@@ -29,17 +27,18 @@ const EMPTY_CACHE = { owners: {}, addons: {} };
  * @returns {Promise<IdsCache>} The cached IDs or empty cache structure
  */
 export async function loadIdsCache() {
-  Logger.debug(`Get cache ID from ${IDS_CACHE_FILEPATH}`);
+  const filePath = baseConfig.IDS_CACHE_FILE;
+  Logger.debug(`Get cache ID from ${filePath}`);
   try {
-    const rawIdsCache = await readJson(IDS_CACHE_FILEPATH);
+    const rawIdsCache = await readJson(filePath);
     const parsed = IdsCacheSchema.safeParse(rawIdsCache);
     if (!parsed.success) {
-      Logger.info(`Invalid IDs cache format in ${IDS_CACHE_FILEPATH}`);
+      Logger.info(`Invalid IDs cache format in ${filePath}`);
       return EMPTY_CACHE;
     }
     return parsed.data;
   } catch (error) {
-    Logger.info(`Cannot load IDs cache from ${IDS_CACHE_FILEPATH}`);
+    Logger.info(`Cannot load IDs cache from ${filePath}`);
     return EMPTY_CACHE;
   }
 }
@@ -52,9 +51,10 @@ export async function loadIdsCache() {
  * @throws {Error} If the cache file cannot be written
  */
 export async function writeIdsCache(ids) {
+  const filePath = baseConfig.IDS_CACHE_FILE;
   try {
-    await writeJson(IDS_CACHE_FILEPATH, ids, { mode: 0o700 });
+    await writeJson(filePath, ids, { mode: 0o700 });
   } catch (error) {
-    throw new Error(`Cannot write IDs cache to ${IDS_CACHE_FILEPATH}\n${error.message}`);
+    throw new Error(`Cannot write IDs cache to ${filePath}\n${error.message}`);
   }
 }
