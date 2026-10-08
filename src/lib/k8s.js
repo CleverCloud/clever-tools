@@ -415,7 +415,9 @@ export async function k8sGetNodeGroup(orgIdOrName, clusterIdOrName, nodeGroupIdO
   return getK8sNodeGroup({ ownerId, clusterId, nodeGroupId }).then(sendToApi);
 }
 
-const NODE_GROUP_ID_REGEX = /^node_group_[0-9A-HJ-NP-TV-Z]{26}$/i;
+// `node_group_<ULID>` today; the API is moving to `nodeGroup_<UUID>`, and either prefix can carry either body
+const NODE_GROUP_ID_REGEX =
+  /^(node_group|nodeGroup)_([0-9A-HJ-NP-TV-Z]{26}|[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$/i;
 
 /**
  * Resolve a node group ID from either an ID or a name (scoped to a cluster)

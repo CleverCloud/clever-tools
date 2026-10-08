@@ -70,13 +70,15 @@ export function orgaIdOrName(string) {
 const addonIdRegex = /^addon_[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const operatorIdRegex =
   /^(keycloak|otoroshi|matomo|metabase)_[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-const ulidRegex = /^(kubernetes)_[0-9A-HJ-NP-TV-Z]{26}$/i;
+// A Kubernetes cluster ID carries a ULID, or a UUID on clusters created since the API moved to them
+const kubernetesIdRegex =
+  /^kubernetes_([0-9A-HJ-NP-TV-Z]{26}|[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$/i;
 
 export function addonIdOrName(string) {
   if (string.match(addonIdRegex)) {
     return { addon_id: string };
   }
-  if (string.match(operatorIdRegex) || string.match(ulidRegex)) {
+  if (string.match(operatorIdRegex) || string.match(kubernetesIdRegex)) {
     return { operator_id: string };
   }
   return { addon_name: string };
