@@ -1,7 +1,7 @@
 import { getDrains } from '../../clever-client/drains.js';
 import { defineCommand } from '../../lib/define-command.js';
 import { Logger } from '../../logger.js';
-import { formatDrain, resolveDrainResource } from '../../models/drain.js';
+import { formatDrain, formatDrainRow, resolveDrainResource } from '../../models/drain.js';
 import { sendToApi } from '../../models/send-to-api.js';
 import {
   addonIdOrRealIdOption,
@@ -34,7 +34,7 @@ export const drainCommand = defineCommand({
       case 'human':
       default: {
         if (drains.length === 0) {
-          const resourceLabel = addonIdOrRealId ?? appIdOrName ?? resourceId;
+          const resourceLabel = addonIdOrRealId ?? appIdOrName?.app_id ?? appIdOrName?.app_name ?? resourceId;
           Logger.println(`There are no drains for ${resourceLabel}`);
           return;
         }
@@ -45,17 +45,7 @@ export const drainCommand = defineCommand({
           return;
         }
 
-        const formattedDrains = drains.map((drain) => {
-          return {
-            ID: drain.id,
-            Kind: drain.kind,
-            Status: drain.status.status,
-            'Execution status': drain.execution.status,
-            URL: drain.recipient.url,
-          };
-        });
-
-        console.table(formattedDrains);
+        console.table(drains.map((drain) => formatDrainRow(drain)));
       }
     }
   },

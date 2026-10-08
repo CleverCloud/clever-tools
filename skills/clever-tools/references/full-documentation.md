@@ -1428,6 +1428,23 @@ drain-id                       Drain ID
 -F, --format <format>          Output format (human, json) (default: human)
 ```
 
+### drain list
+
+**Description:** List the drains of all applications and add-ons
+
+**Since:** Unreleased
+
+**Usage**
+```
+clever drain list [options]
+```
+
+**Options**
+```
+-F, --format <format>                   Output format (human, json) (default: human)
+-o, --org, --owner <org-id|org-name>    Organisation to target by its ID (or name, if unambiguous)
+```
+
 ### drain remove
 
 **Description:** Remove a drain
