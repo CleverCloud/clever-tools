@@ -1,0 +1,8 @@
+{
+  "all": true,
+  "include": ["src/**/*.js"],
+  "exclude": ["src/**/*.test.ts", "src/**/*.types.d.ts"],
+  "reporter": ["text", "text-summary", "html", "lcovonly", "json-summary"],
+  "reports-dir": "coverage",
+  "check-coverage": false
+}

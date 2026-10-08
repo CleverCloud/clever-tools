@@ -2,6 +2,7 @@ node_modules/
 .clever.json
 build/
 git-*/
+coverage/
 .idea/
 .s3cfg*
 *.gpg.key

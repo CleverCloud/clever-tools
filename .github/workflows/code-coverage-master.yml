@@ -1,0 +1,31 @@
+name: Publish master code coverage
+
+on:
+  push:
+    branches:
+      - master
+    paths-ignore:
+      - '**/*.md'
+
+concurrency:
+  group: code-coverage-master
+  cancel-in-progress: true
+
+env:
+  CC_CLEVER_TOOLS_PREVIEWS_CELLAR_BUCKET: ${{ vars.CC_CLEVER_TOOLS_PREVIEWS_CELLAR_BUCKET }}
+  CC_CLEVER_TOOLS_PREVIEWS_CELLAR_KEY_ID: ${{ secrets.CC_CLEVER_TOOLS_PREVIEWS_CELLAR_KEY_ID }}
+  CC_CLEVER_TOOLS_PREVIEWS_CELLAR_SECRET_KEY: ${{ secrets.CC_CLEVER_TOOLS_PREVIEWS_CELLAR_SECRET_KEY }}
+
+jobs:
+  code-coverage:
+    name: 'Publish master code coverage'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v5
+      - uses: ./.github/actions/setup-node
+      - name: 'Run tests with coverage'
+        run: npm run test:coverage
+      - name: 'Publish master code coverage report'
+        run: ./scripts/code-coverage.js publish master
