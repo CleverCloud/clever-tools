@@ -1,5 +1,19 @@
 # clever-tools changelog
 
+## [5.1.1](https://github.com/CleverCloud/clever-tools/compare/5.1.0...5.1.1) (2026-10-08)
+
+
+### 🐛 Bug Fixes
+
+* **cli:** clear FORCE_COLOR when disabling colors ([af6eb3a](https://github.com/CleverCloud/clever-tools/commit/af6eb3a81373882e0a795e49a48b6b13ca966d56))
+* **drain:** don't crash when drain backlog is null ([31955ce](https://github.com/CleverCloud/clever-tools/commit/31955cea0647b8c36280af3148e6f40a9f7cbedc)), closes [#1174](https://github.com/CleverCloud/clever-tools/issues/1174)
+* **git:** pick agent matching the URL scheme ([bb1052e](https://github.com/CleverCloud/clever-tools/commit/bb1052e779243d4e243bba5fdc5512c834f03bb3))
+* **ssh-keys:** don't report success when add fails ([8848bd9](https://github.com/CleverCloud/clever-tools/commit/8848bd939a29d0823ec29593e00a1494c1d7e85b))
+* **ssh-keys:** remove leftover debug console.log ([84a8077](https://github.com/CleverCloud/clever-tools/commit/84a807767347e23149d2b4e918725f9f4286e754))
+* **ssh:** report why the session failed in --command mode ([64ba040](https://github.com/CleverCloud/clever-tools/commit/64ba040087f58ebf63d15598853cde19b6662f32))
+* **ssh:** run --command in bash when available, /bin/sh otherwise, instead of $SHELL ([b116cd7](https://github.com/CleverCloud/clever-tools/commit/b116cd7eb0eca6b33231dee83180c6ae118270fa))
+* **tokens:** read error code from wrapped 401 error ([c4d0c25](https://github.com/CleverCloud/clever-tools/commit/c4d0c2520d66edbd54ddc08984af6f733ec041a9))
+
 ## [5.1.0](https://github.com/CleverCloud/clever-tools/compare/5.0.2...5.1.0) (2026-10-02)
 
 
