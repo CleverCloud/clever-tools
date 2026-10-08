@@ -91,9 +91,13 @@ export function formatDrain(rawDrain) {
 
   details.push(['SD parameters', rawDrain.recipient.rfc5424StructuredDataParameters]);
 
-  details.push(['Message output rate', formatRate(rawDrain.backlog.msgRateOut)]);
-  details.push(['Message throughput', formatThroughput(rawDrain.backlog.msgThroughputOut)]);
-  details.push(['Backlog', rawDrain.backlog.msgBacklog + ' pending messages']);
+  // backlog is null when the API cannot get the drain subscription stats
+  // (e.g. not created yet, or disabled drain whose subscription was cleaned up)
+  if (rawDrain.backlog != null) {
+    details.push(['Message output rate', formatRate(rawDrain.backlog.msgRateOut)]);
+    details.push(['Message throughput', formatThroughput(rawDrain.backlog.msgThroughputOut)]);
+    details.push(['Backlog', rawDrain.backlog.msgBacklog + ' pending messages']);
+  }
 
   if (rawDrain.execution.attempt != null && rawDrain.execution.maxAttempt != null) {
     details.push(['Retry attempts', `${rawDrain.execution.attempt}/${rawDrain.execution.maxAttempt}`]);
