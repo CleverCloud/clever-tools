@@ -1,13 +1,14 @@
 import { spawn } from 'node:child_process';
-import { randomUUID } from 'node:crypto';
 import { z } from 'zod';
 import { config } from '../../config/config.js';
 import { defineCommand } from '../../lib/define-command.js';
 import { defineOption } from '../../lib/define-option.js';
 import { selectAnswer } from '../../lib/prompts.js';
 import { styleText } from '../../lib/style-text.js';
+import { Logger } from '../../logger.js';
 import * as Application from '../../models/application.js';
 import { listInstances } from '../../models/instances.js';
+import { runSshCommand } from '../../models/run-ssh-command.js';
 import { aliasOption, appIdOrNameOption } from '../global.options.js';
 
 /** @typedef {import('../../models/instances.js').Instance} Instance */
@@ -113,49 +114,19 @@ export const sshCommand = defineCommand({
       });
     }
 
-    // Single command mode (pipe stdio to filter gateway noise via a marker)
+    // Single command mode (piped stdio, gateway noise filtered out)
     const sshProcess = spawn('ssh', sshParams, { stdio: 'pipe' });
+    const result = await runSshCommand({ sshProcess, command });
 
-    // We can't pass the command directly via `ssh gateway 'cmd'` because appId already occupies
-    // the remote command slot (used by the gateway for routing). So we write into stdin and use
-    // a marker to delimit the start of real output from gateway/login noise.
-    const marker = `__CLEVER_${randomUUID()}__`;
-    sshProcess.stdin.write(`echo '${marker}'\n`);
+    // process.exitCode instead of process.exit() (or throwing, which ends in one) lets piped output flush before exiting
+    if (result.status === 'session-failed') {
+      const { sshOutput } = result;
+      Logger.error(`SSH session ended before the command could run${sshOutput ? `:\n${sshOutput}` : ''}`);
+      process.exitCode = result.exitCode || 1;
+      return;
+    }
 
-    // Like interactive sessions: bash if available, else /bin/sh ($SHELL may be unset or wrong in Docker containers).
-    // Resolved in a fresh /bin/sh so no profile alias or function shadows bash. Login shell (-l, as dash rejects --login)
-    // to load profiles and env vars, without PTY to keep stdout free of prompt/ANSI noise.
-    const escapedCommand = command.replaceAll("'", "'\\''");
-    sshProcess.stdin.write(`exec "$(/bin/sh -c 'command -v bash' || echo /bin/sh)" -l -c '${escapedCommand}'\n`);
-    sshProcess.stdin.end();
-
-    // Skip gateway/login noise on both stdout and stderr, stream after the marker
-    let started = false;
-    let buf = '';
-    sshProcess.stdout.on('data', (chunk) => {
-      if (started) {
-        process.stdout.write(chunk);
-        return;
-      }
-      buf += chunk.toString();
-      const idx = buf.indexOf(marker + '\n');
-      if (idx !== -1) {
-        started = true;
-        const rest = buf.slice(idx + marker.length + 1);
-        if (rest) process.stdout.write(rest);
-        buf = '';
-      }
-    });
-
-    // Discard stderr noise before the marker, forward after
-    sshProcess.stderr.on('data', (chunk) => {
-      if (started) {
-        process.stderr.write(chunk);
-      }
-    });
-
-    const exitCode = await new Promise((resolve) => sshProcess.on('exit', resolve));
-    process.exit(exitCode);
+    process.exitCode = result.exitCode;
   },
 });
 
