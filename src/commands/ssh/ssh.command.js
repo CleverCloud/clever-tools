@@ -122,10 +122,11 @@ export const sshCommand = defineCommand({
     const marker = `__CLEVER_${randomUUID()}__`;
     sshProcess.stdin.write(`echo '${marker}'\n`);
 
-    // `exec $SHELL --login -c` ensures the full login environment is loaded (.bashrc, env vars)
-    // while keeping stdout clean (no PTY = no prompt/ANSI noise).
+    // Like interactive sessions: bash if available, else /bin/sh ($SHELL may be unset or wrong in Docker containers).
+    // Resolved in a fresh /bin/sh so no profile alias or function shadows bash. Login shell (-l, as dash rejects --login)
+    // to load profiles and env vars, without PTY to keep stdout free of prompt/ANSI noise.
     const escapedCommand = command.replaceAll("'", "'\\''");
-    sshProcess.stdin.write(`exec $SHELL --login -c '${escapedCommand}'\n`);
+    sshProcess.stdin.write(`exec "$(/bin/sh -c 'command -v bash' || echo /bin/sh)" -l -c '${escapedCommand}'\n`);
     sshProcess.stdin.end();
 
     // Skip gateway/login noise on both stdout and stderr, stream after the marker
