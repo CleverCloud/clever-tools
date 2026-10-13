@@ -3,7 +3,7 @@ import { defineCommand } from '../../lib/define-command.js';
 import { defineOption } from '../../lib/define-option.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
-import { createLogDrain, resolveDrainResource } from '../../models/drain.js';
+import { createLogDrain, DRAIN_TYPES, resolveDrainResource } from '../../models/drain.js';
 import { addonIdOrRealIdOption, aliasOption, appIdOrNameOption } from '../global.options.js';
 import { drainUrlArg } from './drain.args.js';
 import { drainKindOption } from './drain.options.js';
@@ -49,7 +49,7 @@ export const drainCreateSplunkCommand = defineCommand({
     const { kind, alias, appIdOrName, addonIdOrRealId, token, index, sourcetype, tlsVerification } = options;
     const { ownerId, resourceId } = await resolveDrainResource(alias, appIdOrName, addonIdOrRealId);
 
-    const drain = await createLogDrain('SPLUNK', kind, ownerId, resourceId, url, {
+    const drain = await createLogDrain(DRAIN_TYPES.SPLUNK.apiCode, kind, ownerId, resourceId, url, {
       token,
       index,
       sourcetype,
