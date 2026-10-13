@@ -16,6 +16,7 @@ clever drain [options]
 |`-a`, `--alias` `<alias>`|Short name for the application|
 |`--app` `<app-id\|app-name>`|Application to manage by its ID (or name, if unambiguous)|
 |`-F`, `--format` `<format>`|Output format (human, json) (default: human)|
+|`--type` `<drain-type>`|Only list drains of this type (betterstack, datadog, elasticsearch, newrelic, ovh-tcp, raw-http, splunk, syslog-tcp, syslog-udp)|
 
 ## ➡️ `clever drain check` <kbd>Since 4.11.0</kbd>
 
