@@ -1,7 +1,11 @@
 import commonjs from '@rollup/plugin-commonjs';
 import json from '@rollup/plugin-json';
 import { nodeResolve } from '@rollup/plugin-node-resolve';
+import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'rollup';
+
+// Only our own package.json carries the version to patch, dependencies can import theirs too
+const ROOT_PACKAGE_JSON = fileURLToPath(new URL('./package.json', import.meta.url));
 
 export default defineConfig({
   input: 'bin/clever.js',
@@ -24,7 +28,7 @@ export default defineConfig({
     {
       transform(code, id) {
         if (
-          id.includes('/package.json') &&
+          id === ROOT_PACKAGE_JSON &&
           process.env.CLEVER_TOOLS_PREVIEW_VERSION &&
           process.env.CLEVER_TOOLS_COMMIT_ID
         ) {
