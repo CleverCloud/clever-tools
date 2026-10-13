@@ -143,8 +143,9 @@ export function getRootCommandMarkdown(name, command, ast) {
 
   const subCommands = getSubCommands(name, command);
   for (const sc of subCommands) {
-    const heading = getSubCommandHeading(sc.path, sc.definition);
-    const subCommandNodes = ast ? getNodesBetweenH2(ast.children, heading) : [];
+    // Match on the command path only, so custom sections survive a `since` change (Unreleased -> Since X.Y.Z)
+    const headingPrefix = getSubCommandHeadingPrefix(sc.path);
+    const subCommandNodes = ast ? getNodesBetweenH2(ast.children, headingPrefix) : [];
     parts.push(getSubCommandMarkdown(sc.path, sc.definition, subCommandNodes));
   }
 
@@ -179,6 +180,15 @@ function getSubCommands(name, command, parentPath = []) {
 }
 
 /**
+ * Generates the start of the H2 heading for a subcommand, without the version badge.
+ * @param {string[]} commandPath
+ * @returns {string}
+ */
+function getSubCommandHeadingPrefix(commandPath) {
+  return `## ➡️ \`clever ${commandPath.join(' ')}\``;
+}
+
+/**
  * Generates the H2 heading for a subcommand.
  * @param {string[]} commandPath
  * @param {CommandDefinition} definition
@@ -186,7 +196,7 @@ function getSubCommands(name, command, parentPath = []) {
  */
 export function getSubCommandHeading(commandPath, definition) {
   const since = definition.since == null ? 'Unreleased' : `Since ${definition.since}`;
-  return `## ➡️ \`clever ${commandPath.join(' ')}\` <kbd>${since}</kbd>`;
+  return `${getSubCommandHeadingPrefix(commandPath)} <kbd>${since}</kbd>`;
 }
 
 /**
