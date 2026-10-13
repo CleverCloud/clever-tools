@@ -1,3 +1,4 @@
+import { DRAIN_TYPES } from '../models/drain.js';
 import { accesslogsCommand } from './accesslogs/accesslogs.command.js';
 import { activityCommand } from './activity/activity.command.js';
 import { addonCommand } from './addon/addon.command.js';
@@ -283,15 +284,15 @@ export const globalCommands = {
       create: [
         drainCreateCommand,
         {
-          betterstack: drainCreateBetterstackCommand,
-          datadog: drainCreateDatadogCommand,
-          elasticsearch: drainCreateElasticsearchCommand,
-          newrelic: drainCreateNewRelicCommand,
-          'ovh-tcp': drainCreateOvhTcpCommand,
-          'raw-http': drainCreateRawHttpCommand,
-          splunk: drainCreateSplunkCommand,
-          'syslog-tcp': drainCreateSyslogTcpCommand,
-          'syslog-udp': drainCreateSyslogUdpCommand,
+          [DRAIN_TYPES.BETTERSTACK.cliCode]: drainCreateBetterstackCommand,
+          [DRAIN_TYPES.DATADOG.cliCode]: drainCreateDatadogCommand,
+          [DRAIN_TYPES.ELASTICSEARCH.cliCode]: drainCreateElasticsearchCommand,
+          [DRAIN_TYPES.NEWRELIC.cliCode]: drainCreateNewRelicCommand,
+          [DRAIN_TYPES.OVH_TCP.cliCode]: drainCreateOvhTcpCommand,
+          [DRAIN_TYPES.RAW_HTTP.cliCode]: drainCreateRawHttpCommand,
+          [DRAIN_TYPES.SPLUNK.cliCode]: drainCreateSplunkCommand,
+          [DRAIN_TYPES.SYSLOG_TCP.cliCode]: drainCreateSyslogTcpCommand,
+          [DRAIN_TYPES.SYSLOG_UDP.cliCode]: drainCreateSyslogUdpCommand,
         },
       ],
       disable: drainDisableCommand,

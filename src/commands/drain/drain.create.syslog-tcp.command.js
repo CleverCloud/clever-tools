@@ -1,7 +1,7 @@
 import { defineCommand } from '../../lib/define-command.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
-import { createLogDrain, resolveDrainResource } from '../../models/drain.js';
+import { createLogDrain, DRAIN_TYPES, resolveDrainResource } from '../../models/drain.js';
 import { addonIdOrRealIdOption, aliasOption, appIdOrNameOption } from '../global.options.js';
 import { drainUrlArg } from './drain.args.js';
 import { drainKindOption, drainSdParamsOption } from './drain.options.js';
@@ -21,7 +21,7 @@ export const drainCreateSyslogTcpCommand = defineCommand({
     const { kind, alias, appIdOrName, addonIdOrRealId, rfc5424StructuredDataParameters } = options;
     const { ownerId, resourceId } = await resolveDrainResource(alias, appIdOrName, addonIdOrRealId);
 
-    const drain = await createLogDrain('SYSLOG_TCP', kind, ownerId, resourceId, url, {
+    const drain = await createLogDrain(DRAIN_TYPES.SYSLOG_TCP.apiCode, kind, ownerId, resourceId, url, {
       rfc5424StructuredDataParameters,
     });
 

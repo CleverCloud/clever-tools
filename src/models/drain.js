@@ -40,16 +40,16 @@ export function createLogDrain(type, kind, ownerId, resourceId, url, recipientOp
   return createDrain({ ownerId, resourceId, body }).then(sendToApi);
 }
 
-export const DRAIN_TYPE_LABELS = {
-  BETTERSTACK: 'Better Stack',
-  DATADOG: 'Datadog',
-  ELASTICSEARCH: 'Elasticsearch',
-  NEWRELIC: 'New Relic',
-  OVH_TCP: 'OVH TCP',
-  RAW_HTTP: 'Raw HTTP',
-  SPLUNK: 'Splunk',
-  SYSLOG_TCP: 'Syslog TCP',
-  SYSLOG_UDP: 'Syslog UDP',
+export const DRAIN_TYPES = {
+  BETTERSTACK: { apiCode: 'BETTERSTACK', cliCode: 'betterstack', label: 'Better Stack' },
+  DATADOG: { apiCode: 'DATADOG', cliCode: 'datadog', label: 'Datadog' },
+  ELASTICSEARCH: { apiCode: 'ELASTICSEARCH', cliCode: 'elasticsearch', label: 'Elasticsearch' },
+  NEWRELIC: { apiCode: 'NEWRELIC', cliCode: 'newrelic', label: 'New Relic' },
+  OVH_TCP: { apiCode: 'OVH_TCP', cliCode: 'ovh-tcp', label: 'OVH TCP' },
+  RAW_HTTP: { apiCode: 'RAW_HTTP', cliCode: 'raw-http', label: 'Raw HTTP' },
+  SPLUNK: { apiCode: 'SPLUNK', cliCode: 'splunk', label: 'Splunk' },
+  SYSLOG_TCP: { apiCode: 'SYSLOG_TCP', cliCode: 'syslog-tcp', label: 'Syslog TCP' },
+  SYSLOG_UDP: { apiCode: 'SYSLOG_UDP', cliCode: 'syslog-udp', label: 'Syslog UDP' },
 };
 
 function formatRate(messagesPerSecond) {
@@ -80,7 +80,7 @@ export function formatDrain(rawDrain) {
   details.push(['Status', rawDrain.status.status]);
   details.push(['Execution status', rawDrain.execution.status]);
   details.push(['URL', rawDrain.recipient.url]);
-  details.push(['Type', DRAIN_TYPE_LABELS[rawDrain.recipient.type]]);
+  details.push(['Type', DRAIN_TYPES[rawDrain.recipient.type]?.label]);
   details.push(['Custom index', rawDrain.recipient.index]);
   details.push(['Sourcetype', rawDrain.recipient.sourcetype]);
 

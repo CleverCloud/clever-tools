@@ -4,7 +4,7 @@ import { defineCommand } from '../../lib/define-command.js';
 import { defineOption } from '../../lib/define-option.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
-import { createLogDrain, resolveDrainResource } from '../../models/drain.js';
+import { createLogDrain, DRAIN_TYPES, resolveDrainResource } from '../../models/drain.js';
 import { addonIdOrRealIdOption, aliasOption, appIdOrNameOption } from '../global.options.js';
 import { drainKindOption, drainPasswordOption, drainUsernameOption } from './drain.options.js';
 
@@ -40,7 +40,11 @@ export const drainCreateElasticsearchCommand = defineCommand({
     const { kind, alias, appIdOrName, addonIdOrRealId, index, username, password } = options;
     const { ownerId, resourceId } = await resolveDrainResource(alias, appIdOrName, addonIdOrRealId);
 
-    const drain = await createLogDrain('ELASTICSEARCH', kind, ownerId, resourceId, url, { index, username, password });
+    const drain = await createLogDrain(DRAIN_TYPES.ELASTICSEARCH.apiCode, kind, ownerId, resourceId, url, {
+      index,
+      username,
+      password,
+    });
 
     Logger.printSuccess(
       `Elasticsearch drain ${styleText(['bold', 'green'], drain.id)} has been successfully created and enabled!`,
