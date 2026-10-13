@@ -47,8 +47,10 @@ export class GitIsomorphic extends Git {
       const repo = await this.#getRepo();
       return await git.expandOid({ ...repo, oid: commitId });
     } catch (e) {
-      if (e.code === 'ShortOidNotFound') {
-        throw new Error(`Commit id ${commitId} is ambiguous`);
+      if (e.code === 'NotFoundError' || e.code === 'AmbiguousError') {
+        throw new Error(
+          `Could not resolve commit id ${commitId} in this repository (unknown or ambiguous, try a longer id)`,
+        );
       }
       throw e;
     }
@@ -78,11 +80,18 @@ export class GitIsomorphic extends Git {
   async getBranchCommit(refspec) {
     this._debug('getBranchCommit', refspec);
     const repo = await this.#getRepo();
-    const oid = await git.resolveRef({ ...repo, ref: refspec });
-    // When a refspec refers to an annotated tag, the OID ref represents the annotation and not the commit directly,
-    // that's why we need a call to `readCommit`.
-    const res = await git.readCommit({ ...repo, ref: refspec, oid });
-    return res.oid;
+    try {
+      const oid = await git.resolveRef({ ...repo, ref: refspec });
+      // When a refspec refers to an annotated tag, the OID ref represents the annotation and not the commit directly,
+      // that's why we need a call to `readCommit`.
+      const res = await git.readCommit({ ...repo, ref: refspec, oid });
+      return res.oid;
+    } catch (e) {
+      if (e.code === 'NotFoundError') {
+        throw new Error(`Could not resolve ${refspec} to a commit`);
+      }
+      throw e;
+    }
   }
 
   async isExistingTag(tag) {
