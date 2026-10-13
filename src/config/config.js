@@ -5,9 +5,9 @@ import { Logger } from '../logger.js';
 import { getConfigPath } from './paths.js';
 
 const OverridesSchema = z.object({
-  API_HOST: z.string().url().optional(),
-  CONSOLE_URL: z.string().url().optional(),
-  AUTH_BRIDGE_HOST: z.string().url().optional(),
+  API_HOST: z.url().optional(),
+  CONSOLE_URL: z.url().optional(),
+  AUTH_BRIDGE_HOST: z.url().optional(),
   SSH_GATEWAY: z.string().optional(),
   OAUTH_CONSUMER_KEY: z.string().optional(),
   OAUTH_CONSUMER_SECRET: z.string().optional(),

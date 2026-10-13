@@ -112,19 +112,19 @@ export const loginCommand = defineCommand({
     }),
     apiHost: defineOption({
       name: 'api-host',
-      schema: z.string().url().optional(),
+      schema: z.url().optional(),
       description: 'API host URL override',
       placeholder: 'url',
     }),
     consoleUrl: defineOption({
       name: 'console-url',
-      schema: z.string().url().optional(),
+      schema: z.url().optional(),
       description: 'Console URL override',
       placeholder: 'url',
     }),
     authBridgeHost: defineOption({
       name: 'auth-bridge-host',
-      schema: z.string().url().optional(),
+      schema: z.url().optional(),
       description: 'Auth bridge URL override',
       placeholder: 'url',
     }),
