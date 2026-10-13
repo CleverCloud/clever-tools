@@ -1,5 +1,5 @@
 import { getAllEnvVars } from '@clevercloud/client/esm/api/v2/addon.js';
-import Redis from 'ioredis';
+import { RESP_TYPES, createClient } from '@redis/client';
 import { z } from 'zod';
 import { ambiguousNameError } from '../../lib/ambiguous-name-error.js';
 import { defineArgument } from '../../lib/define-argument.js';
@@ -12,7 +12,28 @@ import { humanJsonOutputFormatOption, orgaIdOrNameOption } from '../global.optio
 
 const URL_ENV_KEY = 'REDIS_URL';
 
-const MAX_RETRIES_PER_REQUEST = 1;
+/**
+ * One connection, one attempt: never reconnect and never queue a command while disconnected.
+ * A reconnecting client could replay a write the server already applied (an `INCR` counted twice),
+ * so a dropped connection must surface as an error instead.
+ */
+const CONNECTION_OPTIONS = {
+  socket: { reconnectStrategy: false },
+  disableOfflineQueue: true,
+};
+
+/**
+ * Return map replies as the flat `[field, value, ...]` array the server sent, as a raw command should,
+ * instead of the object node-redis builds by default.
+ */
+const RAW_TYPE_MAPPING = { [RESP_TYPES.MAP]: Array };
+
+/**
+ * Commands whose reply node-redis keeps for its own pub/sub handling, so a raw `sendCommand` never settles.
+ * Matched by name because these are the keys of node-redis' pub/sub table.
+ * The server's `pubsub` command flag is not usable: `PUBLISH` and `SPUBLISH` carry it and work fine here.
+ */
+const SUBSCRIPTION_COMMANDS = ['subscribe', 'unsubscribe', 'psubscribe', 'punsubscribe', 'ssubscribe', 'sunsubscribe'];
 
 async function getAddonUrl(ownerId, addonId) {
   const envVars = await getAllEnvVars({ id: ownerId, addonId }).then(sendToApi);
@@ -27,24 +48,133 @@ async function getAddonUrl(ownerId, addonId) {
   return redisUrl;
 }
 
-async function sendCommand(url, command) {
-  Logger.debug(`Sending command '${command.join(' ')}' to ${url}`);
-  const client = new Redis(url, { maxRetriesPerRequest: MAX_RETRIES_PER_REQUEST });
+/**
+ * `REDIS_URL` carries the password, so only its host and port may be logged.
+ *
+ * @param {string} url
+ * @returns {string} host and port only
+ */
+function describeTarget(url) {
   try {
-    const result = await client.call(...command);
-    Logger.debug(`Command result: ${result}`);
+    const { hostname, port } = new URL(url);
+    return port ? `${hostname}:${port}` : hostname;
+  } catch {
+    return 'the add-on';
+  }
+}
+
+/**
+ * Human view of a reply: one list element per line so the output can be piped, nested lists indented.
+ * Lossy on purpose (a nil and the string `null` look the same, sub-list bounds are not shown);
+ * `--format json` is the format to script against.
+ *
+ * @param {unknown} reply
+ * @param {boolean} [insideList]
+ * @param {string} [indent]
+ * @returns {string}
+ */
+function formatHuman(reply, insideList = false, indent = '') {
+  if (Array.isArray(reply)) {
+    if (reply.length === 0) {
+      return `${indent}(empty list)`;
+    }
+    return reply.map((item) => formatHuman(item, true, Array.isArray(item) ? `${indent}  ` : indent)).join('\n');
+  }
+  if (!insideList) {
+    return `${indent}${reply}`;
+  }
+  // Escape backslash, LF and CR inside lists so one element always stays on one line.
+  return `${indent}${String(reply).replaceAll('\\', '\\\\').replaceAll('\n', '\\n').replaceAll('\r', '\\r')}`;
+}
+
+/**
+ * Integer replies are decoded as JS numbers, so outside the safe range they may already be rounded
+ * and we cannot tell. Only a top-level integer reply is checked.
+ * Written to stderr, not with `Logger.warn` (stdout), so it never corrupts piped `--format json` output.
+ *
+ * @param {unknown} reply
+ */
+function warnOnUnsafeInteger(reply) {
+  if (Number.isInteger(reply) && !Number.isSafeInteger(reply)) {
+    Logger.printErrorLine(
+      styleText(
+        'yellow',
+        `/!\\ This integer is outside JavaScript's safe integer range (±${Number.MAX_SAFE_INTEGER}) and may have lost precision on the way out. Read the value back as text to see it exactly.`,
+      ),
+    );
+  }
+}
+
+/**
+ * Refuse, before connecting, the commands that would hang waiting for a reply that never comes:
+ * subscriptions, and `CLIENT REPLY OFF|SKIP`.
+ *
+ * @param {string} commandName
+ * @param {string[]} commandArgs
+ */
+function assertOneShotCommand(commandName, commandArgs) {
+  const name = commandName.toLowerCase();
+
+  if (SUBSCRIPTION_COMMANDS.includes(name)) {
+    throw new Error(
+      `${commandName} needs a connection that outlives the command, and ${styleText('blue', 'clever kv')} sends one command then returns. Use a Redis® client for pub/sub.`,
+    );
+  }
+
+  const argAt = (index) => (typeof commandArgs[index] === 'string' ? commandArgs[index].toUpperCase() : '');
+  if (name === 'client' && argAt(0) === 'REPLY' && ['OFF', 'SKIP'].includes(argAt(1))) {
+    throw new Error(
+      `CLIENT REPLY ${argAt(1)} tells the server to stop answering, and ${styleText('blue', 'clever kv')} waits for exactly one reply`,
+    );
+  }
+}
+
+/**
+ * Run one command on a fresh connection and close it.
+ * Debug logs carry the command name only: arguments and replies are customer data (secrets included)
+ * and debug output gets pasted into issues.
+ *
+ * @param {string} url
+ * @param {string[]} command
+ * @returns {Promise<unknown>}
+ */
+async function sendCommand(url, command) {
+  const [commandName, ...commandArgs] = command;
+  assertOneShotCommand(commandName, commandArgs);
+
+  Logger.debug(`Sending ${commandName} to ${describeTarget(url)}`);
+  const client = createClient({ url, ...CONNECTION_OPTIONS });
+  // Without a listener the `error` event crashes the process; the rejected promise already carries the reason.
+  client.on('error', () => {});
+
+  try {
+    await client.connect();
+    const result = await client.withTypeMapping(RAW_TYPE_MAPPING).sendCommand(command);
+    Logger.debug(`${commandName} answered`);
     return result;
   } finally {
-    await client.disconnect();
+    try {
+      client.destroy();
+    } catch {
+      // never connected or already gone, nothing to close
+    }
     Logger.debug('Disconnected from server');
   }
 }
 
 export const kvCommand = defineCommand({
   description: 'Send a raw command to a Materia KV or Redis® add-on',
+  examples: [
+    'clever kv myMateriaKV SET myKey myValue',
+    'clever kv kv_xxxxxxxx GET myKey -F json',
+    'clever kv addon_xxxxx SET myTempKey myTempValue EX 120',
+    'clever kv myMateriaKV -o myOrg TTL myTempKey',
+    '',
+    '# Use -- so arguments starting with a dash are not read as Clever Tools options',
+    'clever kv redis_xxxxx -- LRANGE myList 0 -1',
+    'clever kv redis_xxxxx -- EXPIRE myKey -1',
+  ],
   since: '3.11.0',
-  isExperimental: true,
-  featureFlag: 'kv',
   options: {
     org: orgaIdOrNameOption,
     format: humanJsonOutputFormatOption,
@@ -57,7 +187,7 @@ export const kvCommand = defineCommand({
     }),
     defineArgument({
       schema: z.string(),
-      description: 'The raw command to send to the Materia KV or Redis® add-on',
+      description: 'The raw command to send, followed by its own arguments',
       placeholder: 'command',
     }),
   ],
@@ -83,10 +213,11 @@ export const kvCommand = defineCommand({
 
     const url = await getAddonUrl(ownerId, addonId);
 
-    Logger.debug(`Extracted command: ${restArgs.join(' ')}`);
     const command = restArgs;
+    Logger.debug(`Extracted command: ${command[0]} with ${command.length - 1} argument(s)`);
 
     const result = await sendCommand(url, command);
+    warnOnUnsafeInteger(result);
 
     switch (format) {
       case 'json': {
@@ -95,7 +226,7 @@ export const kvCommand = defineCommand({
       }
       case 'human':
       default: {
-        Logger.println(result);
+        Logger.println(formatHuman(result));
       }
     }
   },

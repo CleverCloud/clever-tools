@@ -9,7 +9,6 @@ clever addon create kv ADDON_NAME
 And immediately use it with `clever kv` command:
 
 ```bash
-clever features enable kv                # KV command is in testing stage
 clever kv ADDON_NAME_OR_ID PING          # It will answer PONG
 clever kv ADDON_NAME_OR_ID PING Hello    # It will answer Hello
 ```
@@ -32,7 +31,20 @@ clever kv ADDON_NAME_OR_ID TTL myKey                  # It will respond (integer
 ```
 
 > [!Tip]
-> You can get a list of all supported commands with `clever kv ADDON_NAME_OR_ID COMMANDS`
+> You can get a list of all supported commands with `clever kv ADDON_NAME_OR_ID COMMAND LIST`
+
+Each call opens a connection, sends one command and closes it. Commands that only make sense while
+a connection stays open are refused rather than silently doing nothing: `SUBSCRIBE` and its
+variants need a client that keeps listening, and `CLIENT REPLY OFF` asks the server to stop
+answering. Commands that wait for a single reply, such as `BLPOP` or `WAIT`, work as usual.
+
+Some commands take arguments starting with a dash, which Clever Tools would otherwise read as its
+own options. Put `--` before the command so they reach the add-on untouched:
+
+```bash
+clever kv ADDON_NAME_OR_ID -- LRANGE myList 0 -1
+clever kv ADDON_NAME_OR_ID -- EXPIRE myKey -1
+```
 
 You can pass the result of JSON stringified values to tools like `jq` to query them, for example:
 
