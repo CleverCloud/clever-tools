@@ -12,21 +12,21 @@ export const descriptionOption = defineOption({
 
 export const urlOption = defineOption({
   name: 'url',
-  schema: z.string().url().optional(),
+  schema: z.url().optional(),
   description: 'Application home URL',
   placeholder: 'url',
 });
 
 export const pictureOption = defineOption({
   name: 'picture',
-  schema: z.string().url().optional(),
+  schema: z.url().optional(),
   description: 'Application logo URL',
   placeholder: 'url',
 });
 
 export const baseUrlOption = defineOption({
   name: 'base-url',
-  schema: z.string().url().optional(),
+  schema: z.url().optional(),
   description: 'OAuth callback base URL',
   placeholder: 'url',
 });

@@ -12,7 +12,7 @@ export const profileCommand = defineCommand({
     format: humanJsonOutputFormatOption,
   },
   async handler(options) {
-    const [activeProfile] = config.profiles;
+    const activeProfile = config.activeProfile;
     if (activeProfile == null) {
       throw new Error(`No profile found, use ${styleText('red', 'clever login')} command`);
     }

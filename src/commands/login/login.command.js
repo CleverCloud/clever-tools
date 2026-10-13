@@ -112,19 +112,19 @@ export const loginCommand = defineCommand({
     }),
     apiHost: defineOption({
       name: 'api-host',
-      schema: z.string().url().optional(),
+      schema: z.url().optional(),
       description: 'API host URL override',
       placeholder: 'url',
     }),
     consoleUrl: defineOption({
       name: 'console-url',
-      schema: z.string().url().optional(),
+      schema: z.url().optional(),
       description: 'Console URL override',
       placeholder: 'url',
     }),
     authBridgeHost: defineOption({
       name: 'auth-bridge-host',
-      schema: z.string().url().optional(),
+      schema: z.url().optional(),
       description: 'Auth bridge URL override',
       placeholder: 'url',
     }),
@@ -157,8 +157,8 @@ export const loginCommand = defineCommand({
       throw new Error('Both `--token` and `--secret` must be defined');
     }
 
-    const apiHost = options.apiHost ?? baseConfig.API_HOST;
-    const consoleUrl = options.consoleUrl ? `${options.consoleUrl}/cli-oauth` : baseConfig.CONSOLE_TOKEN_URL;
+    const apiHost = options.apiHost ?? baseConfig.get('API_HOST');
+    const consoleUrl = options.consoleUrl ? `${options.consoleUrl}/cli-oauth` : baseConfig.get('CONSOLE_TOKEN_URL');
 
     if (!hasToken && existingTargetProfile != null) {
       // KO fallback wording (3 lines):
@@ -178,8 +178,8 @@ export const loginCommand = defineCommand({
         token: oauthData.token,
         secret: oauthData.secret,
         apiHost,
-        consumerKey: options.consumerKey ?? baseConfig.OAUTH_CONSUMER_KEY,
-        consumerSecret: options.consumerSecret ?? baseConfig.OAUTH_CONSUMER_SECRET,
+        consumerKey: options.consumerKey ?? baseConfig.get('OAUTH_CONSUMER_KEY'),
+        consumerSecret: options.consumerSecret ?? baseConfig.get('OAUTH_CONSUMER_SECRET'),
       }),
     );
 

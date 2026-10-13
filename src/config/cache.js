@@ -27,7 +27,7 @@ const EMPTY_CACHE = { owners: {}, addons: {} };
  * @returns {Promise<IdsCache>} The cached IDs or empty cache structure
  */
 export async function loadIdsCache() {
-  const filePath = baseConfig.IDS_CACHE_FILE;
+  const filePath = baseConfig.get('IDS_CACHE_FILE');
   Logger.debug(`Get cache ID from ${filePath}`);
   try {
     const rawIdsCache = await readJson(filePath);
@@ -51,7 +51,7 @@ export async function loadIdsCache() {
  * @throws {Error} If the cache file cannot be written
  */
 export async function writeIdsCache(ids) {
-  const filePath = baseConfig.IDS_CACHE_FILE;
+  const filePath = baseConfig.get('IDS_CACHE_FILE');
   try {
     await writeJson(filePath, ids, { mode: 0o700 });
   } catch (error) {

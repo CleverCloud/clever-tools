@@ -54,7 +54,7 @@ export const EXPERIMENTAL_FEATURES = {
       - Delete a Kubernetes cluster:
           clever k8s delete my-cluster
 
-      Learn more about Clever Kubernetes: ${config.DOC_URL}/kubernetes/
+      Learn more about Clever Kubernetes: ${config.get('DOC_URL')}/kubernetes/
     `,
   },
   kv: {
@@ -71,7 +71,7 @@ export const EXPERIMENTAL_FEATURES = {
           clever kv myMateriaKV -o myOrg TTL myTempKey
           clever kv redis_xxxxx --org org_xxxxx PING
 
-      Learn more about Materia KV: ${config.DOC_URL}/addons/materia-kv/
+      Learn more about Materia KV: ${config.get('DOC_URL')}/addons/materia-kv/
     `,
   },
   ng: {
@@ -100,7 +100,7 @@ export const EXPERIMENTAL_FEATURES = {
       - Search Network Groups, members or peers:
           clever ng search myQuery
 
-      Learn more about Network Groups: ${config.DOC_URL}/develop/network-groups/
+      Learn more about Network Groups: ${config.get('DOC_URL')}/develop/network-groups/
     `,
   },
   operators: {
@@ -141,7 +141,7 @@ let userFeatures = loadFeatures();
  * @returns {FeaturesConfig} The features configuration object
  */
 function loadFeatures() {
-  const filePath = config.EXPERIMENTAL_FEATURES_FILE;
+  const filePath = config.get('EXPERIMENTAL_FEATURES_FILE');
   Logger.debug(`Load features configuration from ${filePath}`);
   const rawFeatures = readJsonSync(filePath);
   if (rawFeatures == null) {
@@ -165,7 +165,7 @@ function loadFeatures() {
  * @throws {Error} If the features file cannot be written
  */
 export async function setFeature(feature, value) {
-  const filePath = config.EXPERIMENTAL_FEATURES_FILE;
+  const filePath = config.get('EXPERIMENTAL_FEATURES_FILE');
   const newFeatures = { ...userFeatures, [feature]: value };
   try {
     await writeJson(filePath, newFeatures, { mode: 0o700 });
