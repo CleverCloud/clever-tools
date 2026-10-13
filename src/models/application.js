@@ -319,7 +319,7 @@ export async function setScalability(appId, ownerId, scalabilityParameters, buil
   Logger.info('Scaling the app: ' + appId);
 
   const app = await getApplication({ id: ownerId, appId }).then(sendToApi);
-  const instance = _.cloneDeep(app.instance);
+  const instance = structuredClone(app.instance);
 
   instance.minFlavor = instance.minFlavor.name;
   instance.maxFlavor = instance.maxFlavor.name;
