@@ -1,7 +1,7 @@
 import { getDrains } from '../../clever-client/drains.js';
 import { defineCommand } from '../../lib/define-command.js';
 import { Logger } from '../../logger.js';
-import { formatDrain, resolveDrainResource } from '../../models/drain.js';
+import { DRAIN_TYPES, formatDrain, resolveDrainResource } from '../../models/drain.js';
 import { sendToApi } from '../../models/send-to-api.js';
 import {
   addonIdOrRealIdOption,
@@ -49,6 +49,7 @@ export const drainCommand = defineCommand({
           return {
             ID: drain.id,
             Kind: drain.kind,
+            Type: DRAIN_TYPES[drain.recipient.type]?.label ?? drain.recipient.type,
             Status: drain.status.status,
             'Execution status': drain.execution.status,
             URL: drain.recipient.url,
