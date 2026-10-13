@@ -10,7 +10,7 @@ export default [
   {
     name: 'global config',
     ...cleverCloud.configs.node,
-    files: ['bin/*.js', 'src/**/*.js', 'scripts/**/*.js'],
+    files: ['bin/*.js', 'src/**/*.js', 'scripts/**/*.js', '.claude/hooks/*.js'],
     languageOptions: {
       ecmaVersion: 2025,
       sourceType: 'module',
@@ -66,7 +66,7 @@ export default [
   },
   {
     name: 'no-extraneous-dependencies',
-    files: ['scripts/**/*.js'],
+    files: ['scripts/**/*.js', '.claude/hooks/*.js'],
     rules: {
       'import-x/no-extraneous-dependencies': [
         'error',
@@ -80,7 +80,7 @@ export default [
   },
   {
     name: 'hashbang',
-    files: ['bin/*.js', 'scripts/**/*.js'],
+    files: ['bin/*.js', 'scripts/**/*.js', '.claude/hooks/*.js'],
     rules: {
       'n/hashbang': 'off',
     },
