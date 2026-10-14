@@ -52,6 +52,18 @@ export const DRAIN_TYPES = {
   SYSLOG_UDP: { apiCode: 'SYSLOG_UDP', cliCode: 'syslog-udp', label: 'Syslog UDP' },
 };
 
+/**
+ * Keeps the drains sent to the given type, or all of them when no type is given.
+ * @param {Array<{ recipient: { type: string } }>} drains
+ * @param {typeof DRAIN_TYPES[keyof typeof DRAIN_TYPES] | undefined} drainType
+ */
+export function filterDrainsByType(drains, drainType) {
+  if (drainType == null) {
+    return drains;
+  }
+  return drains.filter((drain) => drain.recipient.type === drainType.apiCode);
+}
+
 function formatRate(messagesPerSecond) {
   if (messagesPerSecond < 1) {
     return Math.floor(messagesPerSecond * 3600) + ' messages/hour';
