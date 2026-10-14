@@ -30,6 +30,10 @@ export function buildFlavor(flavorOrDisabled) {
 }
 
 export function date(dateString) {
+  if (dateString.toLowerCase() === 'now') {
+    return new Date();
+  }
+
   const date = new Date(dateString);
   if (isNaN(dateString) && !isNaN(date.getTime())) {
     return date;

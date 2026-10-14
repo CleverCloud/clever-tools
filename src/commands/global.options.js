@@ -39,7 +39,8 @@ export const accessLogsFormatOption = defineOption({
 export const beforeOption = defineOption({
   name: 'before',
   schema: z.string().transform(date).optional(),
-  description: 'Fetch logs before this date/time (ISO8601 date, positive number in seconds or duration, e.g.: 1h)',
+  description:
+    'Fetch logs before this date/time (ISO8601 date, positive number in seconds, duration, e.g.: 1h, or now)',
   aliases: ['until'],
   placeholder: 'before',
 });
@@ -47,7 +48,7 @@ export const beforeOption = defineOption({
 export const afterOption = defineOption({
   name: 'after',
   schema: z.string().transform(date).optional(),
-  description: 'Fetch logs after this date/time (ISO8601 date, positive number in seconds or duration, e.g.: 1h)',
+  description: 'Fetch logs after this date/time (ISO8601 date, positive number in seconds, duration, e.g.: 1h, or now)',
   aliases: ['since'],
   placeholder: 'after',
 });

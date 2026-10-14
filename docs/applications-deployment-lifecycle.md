@@ -95,12 +95,18 @@ clever logs
 You can also get logs from a specific timeline, deployment or add-on through options:
 
 ```
-[--before, --until] BEFORE          Fetch logs before this date/time (ISO8601 date, positive number in seconds or duration, e.g.: 1h)
-[--after, --since] AFTER            Fetch logs after this date/time (ISO8601 date, positive number in seconds or duration, e.g.: 1h)
+[--before, --until] BEFORE          Fetch logs before this date/time (ISO8601 date, positive number in seconds, duration, e.g.: 1h, or now)
+[--after, --since] AFTER            Fetch logs after this date/time (ISO8601 date, positive number in seconds, duration, e.g.: 1h, or now)
 [--search] SEARCH                   Fetch logs matching this pattern
 [--deployment-id] DEPLOYMENT_ID     Fetch logs for a given deployment
 [--addon] ADDON_ID                  Add-on ID
 [--format, -F] FORMAT               Output format (human, json, json-stream) (default: human)
+```
+
+By default, logs keep streaming. Use `--until` (or `--before`) to set an end time. To read the last 15 minutes and exit, use:
+
+```
+clever logs --since 15m --until now
 ```
 
 ## access logs
@@ -117,8 +123,8 @@ clever accesslogs
 You can also get access logs from a specific timeline or add-on through options, in multiple formats:
 
 ```
-[--before, --until] BEFORE     Fetch logs before this date/time (ISO8601 date, positive number in seconds or duration, e.g.: 1h)
-[--after, --since] AFTER       Fetch logs after this date/time (ISO8601 date, positive number in seconds or duration, e.g.: 1h)
+[--before, --until] BEFORE     Fetch logs before this date/time (ISO8601 date, positive number in seconds, duration, e.g.: 1h, or now)
+[--after, --since] AFTER       Fetch logs after this date/time (ISO8601 date, positive number in seconds, duration, e.g.: 1h, or now)
 [--format, -F] FORMAT          Output format (human, json, json-stream) (default: human)
 ```
 You can for example get access logs in JSON stream format for the last hour with:
