@@ -22,7 +22,7 @@ export const instancesCommand = defineCommand({
       name: 'after',
       schema: z.string().transform(date).optional(),
       description:
-        'List instances that existed after this date/time, in any state (ISO8601 date, positive number in seconds or duration, e.g.: 1h)',
+        'List instances that existed after this date/time, in any state (ISO8601 date, positive number in seconds, duration, e.g.: 1h, or now)',
       aliases: ['since'],
       placeholder: 'after',
     }),
@@ -30,7 +30,7 @@ export const instancesCommand = defineCommand({
       name: 'before',
       schema: z.string().transform(date).optional(),
       description:
-        'List instances that existed before this date/time, in any state (ISO8601 date, positive number in seconds or duration, e.g.: 1h)',
+        'List instances that existed before this date/time, in any state (ISO8601 date, positive number in seconds, duration, e.g.: 1h, or now)',
       aliases: ['until'],
       placeholder: 'before',
     }),
