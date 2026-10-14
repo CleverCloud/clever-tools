@@ -1,17 +1,9 @@
 import { addOauthHeader } from '@clevercloud/client/esm/oauth.js';
 import { prefixUrl } from '@clevercloud/client/esm/prefix-url.js';
 import { request } from '@clevercloud/client/esm/request.fetch.js';
-import { subtle as cryptoSubtle } from 'node:crypto';
 import { config } from '../config/config.js';
 import { styleText } from '../lib/style-text.js';
 import { Logger } from '../logger.js';
-
-// Required for @clevercloud/client with "old" Node.js
-if (globalThis.crypto == null) {
-  globalThis.crypto = {
-    subtle: cryptoSubtle,
-  };
-}
 
 export async function sendToApi(requestParams) {
   return executeRequest(requestParams);
