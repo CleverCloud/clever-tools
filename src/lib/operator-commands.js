@@ -37,7 +37,7 @@ export async function operatorCheckVersion(provider, addonIdOrName, format) {
       break;
     case 'human':
     default:
-      if (!versions.needUpdate || (provider === 'metabase' && versions.installed === 'community-latest')) {
+      if (!versions.needUpdate) {
         Logger.printSuccess(`${styleText('green', name)} is up-to-date (${styleText('green', versions.installed)})`);
       } else {
         Logger.println(dedent`
