@@ -1,5 +1,39 @@
 # clever-tools changelog
 
+## [5.2.0](https://github.com/CleverCloud/clever-tools/compare/5.1.1...5.2.0) (2026-10-15)
+
+
+### 🚀 Features
+
+* **drain:** add `--type` option to `clever drain` to filter drains by recipient type ([2ab3fed](https://github.com/CleverCloud/clever-tools/commit/2ab3fede05ede4d3bdc57df3629f903b107de903))
+* **drain:** show the recipient type in a new `Type` column of the `clever drain` table ([9939653](https://github.com/CleverCloud/clever-tools/commit/99396535d8b0525e47738315a3608a64bc193f54))
+* **kv:** make the command generally available ([13abf42](https://github.com/CleverCloud/clever-tools/commit/13abf428692a06c259cb0c7471402d5437de41a4))
+* **kv:** run commands through node-redis, some outputs differ from before (see [notes](#520-notes) below) ([1fbebd7](https://github.com/CleverCloud/clever-tools/commit/1fbebd7a064a84a254f01960b4f9a5efdd51b237))
+* **logs:** accept `now` as a value for `--since` and `--until` ([e03443c](https://github.com/CleverCloud/clever-tools/commit/e03443c408a99ca9463e68fa21493e8f1a737bfb))
+
+
+### 🐛 Bug Fixes
+
+* **deploy:** show the pushed refspec on the local commit, not the remote head ([f11a7e7](https://github.com/CleverCloud/clever-tools/commit/f11a7e7716f01c4e3fa70cd497e7125bdc384472))
+* **drain:** print the app ID or name instead of `[object Object]` when `--app` targets an app without drains ([63cfbff](https://github.com/CleverCloud/clever-tools/commit/63cfbff82ded1f57fdec1d0506aa25a279355a11))
+* **git:** report unresolved commits and refs with a clear error, whichever git backend is used, and whatever the language of git ([2ace81c](https://github.com/CleverCloud/clever-tools/commit/2ace81c43cb893eebf101e850eb9f9a94d820597), [d094522](https://github.com/CleverCloud/clever-tools/commit/d094522be148c0bc6c3fc299d78406c4fa9f0bdc), [fa84d5b](https://github.com/CleverCloud/clever-tools/commit/fa84d5b02dce35632ed2911ff9e27bc4a05d803e))
+* **k8s:** recognise UUID cluster and node group IDs ([483b65c](https://github.com/CleverCloud/clever-tools/commit/483b65ce9186fc2745d6de35fc6fad521377e123))
+* **kv:** print list replies one element per line ([41e6882](https://github.com/CleverCloud/clever-tools/commit/41e688298ee89522d2abe17067a21031b5cd1214))
+* **kv:** refuse the commands a single connection cannot serve ([897e7a9](https://github.com/CleverCloud/clever-tools/commit/897e7a9d91761d0b7d6f519d818c669f73e7811b))
+* **kv:** warn when an integer reply may have lost precision ([42fcf8a](https://github.com/CleverCloud/clever-tools/commit/42fcf8ab6df56368ba26e8ea9b1f2d50bbeb929c))
+* **operators:** rely on the API to report rolling version tags as up to date ([cb15c2f](https://github.com/CleverCloud/clever-tools/commit/cb15c2f5e9d1baabe01211fd077205d6fe0726e1))
+
+<a id="520-notes"></a>
+#### Notes: `kv` output changes
+
+`clever kv` now talks to the database through node-redis instead of ioredis. Replies and errors can differ from 5.1.x:
+
+* Replies no longer depend on the case the command was typed in: `hgetall` and `HGETALL` both print the flat `["field", "value", ...]` list sent by the server.
+* `ZRANGE ... WITHSCORES` prints nested `[member, score]` pairs with numeric scores. An `inf` score prints `Infinity` (`null` with `--format json`).
+* Integers outside the safe range may be rounded (`INCR` on `9223372036854775806` prints `9223372036854776000`). A warning is now printed on stderr.
+* A write is never sent twice: if the connection drops, the command fails with an error, check whether it landed before retrying.
+* Errors no longer include the arguments sent, and debug output (`CLEVER_VERBOSE`) only shows the command name, never its arguments or replies.
+
 ## [5.1.1](https://github.com/CleverCloud/clever-tools/compare/5.1.0...5.1.1) (2026-10-08)
 
 
@@ -1272,4 +1306,3 @@ Apply bug fixes from dependencies
 ## 0.2.0 (2015-07-28)
 
 Initial public release
-
