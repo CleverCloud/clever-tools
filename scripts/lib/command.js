@@ -73,7 +73,7 @@ function extractUsage(filePath) {
     const lines = content.split('\n');
 
     let inUsageBlock = false;
-    let usageLines = [];
+    const usageLines = [];
 
     for (const line of lines) {
       // Stop at the first import/require or actual code

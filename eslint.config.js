@@ -23,6 +23,7 @@ export default [
       // config replaces them all instead of merging with them
       ...cleverCloud.configs.node.rules,
       'n/prefer-node-protocol': 'error',
+      'prefer-const': 'error',
       // Custom camelcase rule with project-specific allowances
       camelcase: [
         'error',
