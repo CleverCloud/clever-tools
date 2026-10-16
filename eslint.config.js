@@ -29,6 +29,7 @@ export default [
       'object-shorthand': 'error',
       'no-lonely-if': 'error',
       'no-else-return': 'error',
+      radix: 'error',
       // Custom camelcase rule with project-specific allowances
       camelcase: [
         'error',
