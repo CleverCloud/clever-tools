@@ -43,7 +43,7 @@ export const formatTable = (data, columnWidth = []) => {
             if (isLastColumn) {
               return cell;
             }
-            const rightPaddingLength = columnSizes[index] - stringLength(cell) ?? 0;
+            const rightPaddingLength = columnSizes[index] - stringLength(cell);
             return cell + ' '.repeat(rightPaddingLength);
           })
           .join(SEPARATOR)
