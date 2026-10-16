@@ -20,10 +20,11 @@ export const domainFavouriteCommand = defineCommand({
     const favouriteDomain = await getFavouriteDomain({ ownerId, appId });
 
     switch (format) {
-      case 'json':
+      case 'json': {
         const domain = getDomainObject(favouriteDomain, favouriteDomain);
         Logger.printJson(domain);
         break;
+      }
       default:
         if (favouriteDomain == null) {
           return Logger.println('No favourite domain set');
