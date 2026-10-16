@@ -32,7 +32,7 @@ export const k8sAddPersistentStorageCommand = defineCommand({
       Logger.printSuccess(
         `Persistent storage successfully activated on cluster ${styleText('green', clusterIdOrName.addon_name || clusterIdOrName.operator_id)}`,
       );
-    } catch (error) {
+    } catch {
       Logger.error("Failed to add persistent storage, check if it's not already activated");
     }
   },
