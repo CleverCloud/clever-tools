@@ -178,7 +178,7 @@ export async function k8sList(orgIdOrName) {
   const ownerId = await getOwnerIdFromOrgIdOrName(orgIdOrName);
   const deployed = await listK8sClusters({ ownerId }).then(sendToApi);
 
-  return deployed.filter((op) => op.status != 'DELETED');
+  return deployed.filter((op) => op.status !== 'DELETED');
 }
 
 /**
