@@ -59,7 +59,7 @@ runCommand(async () => {
  * Generates the main README with the list of commands.
  * @param {Array<[string, unknown]>} commands
  * @param {boolean} checkMode
- * @return {Promise<FileResult>}
+ * @returns {Promise<FileResult>}
  */
 async function generateCommandsReadme(commands, checkMode) {
   const readmePath = path.resolve(import.meta.dirname, '../src/commands/README.md');
@@ -75,7 +75,7 @@ async function generateCommandsReadme(commands, checkMode) {
  * Generates documentation for each command.
  * @param {Array<[string, unknown]>} commands
  * @param {boolean} checkMode
- * @return {Promise<FileResult[]>}
+ * @returns {Promise<FileResult[]>}
  */
 async function generateCommandDocs(commands, checkMode) {
   const commandsDir = path.resolve(import.meta.dirname, '../src/commands');
@@ -100,7 +100,7 @@ async function generateCommandDocs(commands, checkMode) {
  * Generates LLM-optimized documentation.
  * @param {Array<[string, unknown]>} commands
  * @param {boolean} checkMode
- * @return {Promise<FileResult>}
+ * @returns {Promise<FileResult>}
  */
 async function generateLlmsDocs(commands, checkMode) {
   const llmsDocumentationPath = path.resolve(
@@ -175,7 +175,7 @@ function reportResults(results, checkMode) {
  * @param {string | null} existingContent
  * @param {string} newContent
  * @param {boolean} checkMode
- * @return {Promise<FileResult>}
+ * @returns {Promise<FileResult>}
  */
 async function processFile(filePath, existingContent, newContent, checkMode) {
   const changed = existingContent !== newContent;

@@ -166,7 +166,7 @@ export class HtmlPreviews {
 
   /**
    * Renders a single preview row in the table.
-   * @return {string}
+   * @returns {string}
    */
   #renderManifest() {
     if (Object.keys(this.#manifest.previews).length === 0) {
@@ -193,7 +193,7 @@ export class HtmlPreviews {
    * Renders a single preview row in the HTML index.
    * @param {string} name
    * @param {Preview} preview
-   * @return {string}
+   * @returns {string}
    */
   #renderPreview(name, preview) {
     const builds = SUPPORTED_OS.filter((os) => preview.builds[os])
@@ -218,7 +218,7 @@ export class HtmlPreviews {
    * Renders a single preview URL in the HTML index.
    * @param {OS} os
    * @param {PreviewBuild} build
-   * @return {string}
+   * @returns {string}
    */
   #renderPreviewBuild(os, build) {
     return dedent`

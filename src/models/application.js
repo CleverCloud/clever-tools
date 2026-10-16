@@ -207,7 +207,7 @@ function getFromSelf(appId) {
 /**
  * @param {{app_id: string}|{app_name: string}} appIdOrName
  * @param {string} alias
- * @return {Promise<{appId: string, ownerId: string}>}
+ * @returns {Promise<{appId: string, ownerId: string}>}
  */
 export async function resolveId(appIdOrName, alias) {
   if (appIdOrName != null && alias != null) {

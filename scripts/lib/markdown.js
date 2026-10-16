@@ -12,7 +12,7 @@ import { unified } from 'unified';
 /**
  * Parses markdown content into an AST.
  * @param {string} content
- * @return {MdastRoot}
+ * @returns {MdastRoot}
  */
 export function parseMarkdown(content) {
   return unified().use(remarkParse).parse(content);
@@ -21,7 +21,7 @@ export function parseMarkdown(content) {
 /**
  * Stringifies a markdown AST node.
  * @param {MdastRoot | MdastRootContent | { type: 'root', children: MdastRootContent[] }} node
- * @return {string}
+ * @returns {string}
  */
 export function stringifyMarkdown(node) {
   // @ts-expect-error - unified stringify accepts any mdast node but types are strict
@@ -32,7 +32,7 @@ export function stringifyMarkdown(node) {
  * Extracts nodes between an H2 matching the heading and the next H2 (or end of doc).
  * @param {MdastRootContent[]} children
  * @param {string} generatedHeading - The expected H2 heading text
- * @return {MdastRootContent[]}
+ * @returns {MdastRootContent[]}
  */
 export function getNodesBetweenH2(children, generatedHeading) {
   let startIndex = -1;
@@ -61,7 +61,7 @@ export function getNodesBetweenH2(children, generatedHeading) {
 /**
  * Escapes pipe characters and newlines for markdown tables.
  * @param {string} str
- * @return {string}
+ * @returns {string}
  */
 export function escapeTableCell(str) {
   if (str == null) return '-';
@@ -71,7 +71,7 @@ export function escapeTableCell(str) {
 /**
  * Formats a list of items as inline code.
  * @param {string[]} items
- * @return {string}
+ * @returns {string}
  */
 export function formatCodeList(items) {
   return items.map((item) => `\`${item}\``).join(', ');

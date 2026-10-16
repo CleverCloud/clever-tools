@@ -5,7 +5,7 @@ import { styleText } from '../../src/lib/style-text.js';
  * Runs a function and catches any errors, logging them to the console.
  * Handles help flags (-h, --help) and shows usage for ArgumentError, EnvironmentVariableError, and UnknownCommandError.
  * @param {Function} fn - The async function to run
- * @return {void}
+ * @returns {void}
  */
 export function runCommand(fn) {
   // Check for help flags

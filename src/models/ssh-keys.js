@@ -2,7 +2,7 @@ import { todo_getSshKeys as getSshKeys } from '@clevercloud/client/esm/api/v2/us
 import { sendToApi } from './send-to-api.js';
 
 /**
- * @return {Promise<Array<{ name: string, key: string, fingerprint: string }>>}
+ * @returns {Promise<Array<{ name: string, key: string, fingerprint: string }>>}
  */
 export async function getUserSshKeys() {
   const rawKeys = await getSshKeys().then(sendToApi);

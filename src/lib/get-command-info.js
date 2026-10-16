@@ -13,7 +13,7 @@ import { getDefault, getEnumValues, isBoolean, isRequired } from './zod-utils.js
  * This function provides a shared source of truth for CLI help, reference docs, and LLM docs.
  * @param {string[]} path - Command path (e.g., ['env', 'set'])
  * @param {CommandDefinition} definition
- * @return {CommandInfo}
+ * @returns {CommandInfo}
  */
 export function getCommandInfo(path, definition) {
   const usageParts = ['clever', ...path];

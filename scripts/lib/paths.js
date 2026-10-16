@@ -12,7 +12,7 @@ export const LOCAL_MANIFEST_PATH = `${LOCAL_PREVIEW_DIR}/manifest.json`;
  * @param {string} version - The version
  * @param {'build'|'preview'|'release'|'local'} location - Location type
  * @param {'linux'|'macos'|'win'} [os] - Operating system
- * @return {string}
+ * @returns {string}
  */
 function getDirectory(type, version, location, os) {
   switch (location) {
@@ -44,7 +44,7 @@ function getDirectory(type, version, location, os) {
  * @param {string} version - The version
  * @param {'build'|'preview'|'release'|'local'} [location] - Location type (affects binary naming for local)
  * @param {'linux'|'macos'|'win'} [os] - Operating system
- * @return {string}
+ * @returns {string}
  */
 function getFilename(type, version, location, os) {
   switch (type) {
@@ -70,7 +70,7 @@ function getFilename(type, version, location, os) {
  * @param {string} version - The version
  * @param {'build'|'preview'|'release'|'local'} location - Where the asset should be located
  * @param {'linux'|'macos'|'win'} [os] - Operating system (required for binary/archive)
- * @return {{ directory: string, filename: string }}
+ * @returns {{ directory: string, filename: string }}
  */
 export function getAssetParts(type, version, location, os) {
   const filename = getFilename(type, version, location, os);
@@ -84,7 +84,7 @@ export function getAssetParts(type, version, location, os) {
  * @param {string} version - The version
  * @param {'build'|'preview'|'release'|'local'} location - Where the asset should be located
  * @param {'linux'|'macos'|'win'} [os] - Operating system (required for binary/archive)
- * @return {string}
+ * @returns {string}
  */
 export function getAssetPath(type, version, location, os) {
   const { directory, filename } = getAssetParts(type, version, location, os);

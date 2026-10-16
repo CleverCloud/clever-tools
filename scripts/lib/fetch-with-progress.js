@@ -2,7 +2,7 @@
  * Fetch data from a URL with progress reporting.
  * @param {string} url - The URL to fetch data from
  * @param {(progress: string) => void} onProgress - Callback function called with the download progress
- * @return {Promise<Buffer>}
+ * @returns {Promise<Buffer>}
  */
 export async function fetchWithProgress(url, onProgress) {
   const response = await fetch(url);

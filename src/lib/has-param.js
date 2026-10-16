@@ -2,7 +2,7 @@
  * Check if a specific parameter exists in the command line arguments.
  * @param {string} param
  * @param {string} [paramValue]
- * @return {boolean}
+ * @returns {boolean}
  */
 export function hasParam(param, paramValue) {
   const index = process.argv.indexOf(param);
