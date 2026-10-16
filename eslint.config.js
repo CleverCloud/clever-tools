@@ -26,7 +26,6 @@ export default [
       curly: 'off',
       'no-unused-vars': 'off',
       'no-useless-escape': 'off',
-      'no-undef': 'off',
       'no-case-declarations': 'off',
       'no-constant-binary-expression': 'off',
       eqeqeq: 'off',
