@@ -23,7 +23,7 @@ import { styleText } from './style-text.js';
  * Check the version of an operator
  * @param {string} provider The operator's provider
  * @param {{ addon_name?: string, operator_id?: string, addon_id?: string }} addonIdOrName The operator's name or ID
- * @param {string} params.options.format The output format
+ * @param {string} format The output format
  * @returns {Promise<void>}
  */
 export async function operatorCheckVersion(provider, addonIdOrName, format) {
@@ -214,7 +214,6 @@ export async function operatorOpenSwaggerUi(addonIdOrName) {
 
 /**
  * Reboot an operator
- * @param {object} params The command's parameters
  * @param {string} provider The operator's provider
  * @param {{ addon_name?: string, operator_id?: string, addon_id?: string }} addonIdOrName The operator's name or ID
  * @returns {Promise<void>}
@@ -228,7 +227,6 @@ export async function operatorReboot(provider, addonIdOrName) {
 
 /**
  * Rebuild an operator
- * @param {object} params The command's parameters
  * @param {string} provider The operator's provider
  * @param {{ addon_name?: string, operator_id?: string, addon_id?: string }} addonIdOrName The operator's name or ID
  * @returns {Promise<void>}

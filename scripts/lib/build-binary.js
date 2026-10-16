@@ -16,7 +16,7 @@ const ARCHS = {
 };
 
 /**
- * Build a binary with @yao-pkg/pkg
+ * Build a binary with `@yao-pkg/pkg`
  * @param {string} version - The version to build
  * @param {'linux'|'macos'|'win'} os - The operating system
  * @returns {Promise<void>}

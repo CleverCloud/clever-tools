@@ -171,7 +171,7 @@ export async function k8sGetProduct() {
 
 /**
  * List all kubernetes addons
- * @param {string} format The output format
+ * @param {string} orgIdOrName The organisation ID or name
  * @returns {Promise<void>}
  */
 export async function k8sList(orgIdOrName) {

@@ -134,11 +134,9 @@ export async function findAddonsByNameOrId(addonIdOrRealIdOrName, ownerNameOrId)
 }
 
 /**
- * Get the IDs and owners of found add-ons from a name, ID or real ID
- * @param {string} addonIdOrRealIdOrName
- * @throws {Error} if no add-on is found
- * @throws {Error} if several add-ons are found
- * @returns {Object} The name, IDs and owner ID of the add-on { name, addonId, realId, ownerId }
+ * Get the IDs and owners of every add-on of a provider, across the user and its organisations
+ * @param {string} provider The add-on provider ID
+ * @returns {Promise<Array<Object>>} The name, IDs and owner of each add-on { name, addonId, realId, ownerId, ownerName }
  */
 export async function findAddonsByAddonProvider(provider) {
   const summary = await getSummary().then(sendToApi);
