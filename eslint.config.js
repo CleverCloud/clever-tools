@@ -22,8 +22,6 @@ export default [
       // The shared rules must be spread here: a `rules` key placed after the spread
       // config replaces them all instead of merging with them
       ...cleverCloud.configs.node.rules,
-      // TODO: existing violations, fixed in the next commits
-      'import-x/extensions': 'off',
       // Custom camelcase rule with project-specific allowances
       camelcase: [
         'error',
