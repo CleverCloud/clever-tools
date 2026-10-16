@@ -1,3 +1,6 @@
+import { styleText } from '../lib/style-text.js';
+import { Logger } from '../logger.js';
+
 export function get(follow, exitOnDeploy) {
   if (follow) {
     if (exitOnDeploy === 'deploy-start') {
