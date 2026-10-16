@@ -24,6 +24,8 @@ export default [
       ...cleverCloud.configs.node.rules,
       'n/prefer-node-protocol': 'error',
       'prefer-const': 'error',
+      // @ts-expect-error fails once the error is gone, @ts-ignore stays silently
+      'no-warning-comments': ['error', { terms: ['@ts-ignore'], location: 'anywhere' }],
       // Custom camelcase rule with project-specific allowances
       camelcase: [
         'error',
