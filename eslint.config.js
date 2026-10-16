@@ -30,6 +30,16 @@ export default [
       'no-lonely-if': 'error',
       'no-else-return': 'error',
       radix: 'error',
+      // Conventions the code already follows
+      'no-var': 'error',
+      'prefer-arrow-callback': 'error',
+      'import-x/no-default-export': 'error',
+      'import-x/no-commonjs': 'error',
+      // Likely bugs, not reported by the shared config
+      'array-callback-return': 'error',
+      'no-template-curly-in-string': 'error',
+      'no-throw-literal': 'error',
+      'no-unused-expressions': 'error',
       // Custom camelcase rule with project-specific allowances
       camelcase: [
         'error',
