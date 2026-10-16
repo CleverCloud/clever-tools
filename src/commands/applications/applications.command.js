@@ -3,7 +3,7 @@ import { defineCommand } from '../../lib/define-command.js';
 import { defineOption } from '../../lib/define-option.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
-import * as AppConfig from '../../models/app_configuration.js';
+import * as CleverJson from '../../models/clever-json.js';
 
 function formatApps(apps, onlyAliases, json) {
   if (json) {
@@ -51,7 +51,7 @@ export const applicationsCommand = defineCommand({
   async handler(options) {
     const { onlyAliases, json } = options;
 
-    const { apps } = await AppConfig.loadApplicationConf();
+    const { apps } = await CleverJson.loadApplicationConf();
 
     const formattedApps = formatApps(apps, onlyAliases, json);
     Logger.println(formattedApps);

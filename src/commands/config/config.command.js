@@ -1,6 +1,6 @@
 import { defineCommand } from '../../lib/define-command.js';
+import * as ApplicationConfig from '../../models/application-config.js';
 import * as Application from '../../models/application.js';
-import * as ApplicationConfiguration from '../../models/application_configuration.js';
 import { aliasOption, appIdOrNameOption } from '../global.options.js';
 
 export const configCommand = defineCommand({
@@ -15,6 +15,6 @@ export const configCommand = defineCommand({
     const { alias, app: appIdOrName } = options;
     const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
     const app = await Application.get(ownerId, appId);
-    ApplicationConfiguration.printAllValues(app);
+    ApplicationConfig.printAllValues(app);
   },
 });

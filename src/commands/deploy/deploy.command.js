@@ -6,8 +6,8 @@ import { defineOption } from '../../lib/define-option.js';
 import { slugify } from '../../lib/slugify.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
-import * as AppConfig from '../../models/app_configuration.js';
 import * as Application from '../../models/application.js';
+import * as CleverJson from '../../models/clever-json.js';
 import * as ExitStrategy from '../../models/exit-strategy-option.js';
 import { Git } from '../../models/git.js';
 import * as Log from '../../models/log.js';
@@ -83,7 +83,7 @@ export const deployCommand = defineCommand({
     const exitStrategy = ExitStrategy.get(follow, exitOnDeploy);
     const git = await Git.get();
 
-    const appData = await AppConfig.getAppDetails({ alias });
+    const appData = await CleverJson.getAppDetails({ alias });
     const { ownerId, appId } = appData;
 
     const branchRefspec = await getBranchToDeploy(git, branchName, tagName);

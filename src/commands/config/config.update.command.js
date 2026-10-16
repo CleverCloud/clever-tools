@@ -1,8 +1,8 @@
 import { z } from 'zod';
 import { defineCommand } from '../../lib/define-command.js';
 import { defineOption } from '../../lib/define-option.js';
+import * as ApplicationConfig from '../../models/application-config.js';
 import * as Application from '../../models/application.js';
-import * as ApplicationConfiguration from '../../models/application_configuration.js';
 import { aliasOption, appIdOrNameOption } from '../global.options.js';
 
 export const configUpdateCommand = defineCommand({
@@ -75,7 +75,7 @@ export const configUpdateCommand = defineCommand({
   async handler(options) {
     const { alias, appIdOrName, ...rawOptions } = options;
     const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
-    const newOptions = ApplicationConfiguration.parseOptions(rawOptions);
+    const newOptions = ApplicationConfig.parseOptions(rawOptions);
 
     if (Object.keys(newOptions).length === 0) {
       throw new Error('No configuration to update');
@@ -83,6 +83,6 @@ export const configUpdateCommand = defineCommand({
 
     const app = await Application.updateOptions(ownerId, appId, newOptions);
 
-    ApplicationConfiguration.printAllValues(app);
+    ApplicationConfig.printAllValues(app);
   },
 });

@@ -2,8 +2,8 @@ import { formatTable } from '../../format-table.js';
 import { defineCommand } from '../../lib/define-command.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
-import * as AppConfig from '../../models/app_configuration.js';
 import * as Application from '../../models/application.js';
+import * as CleverJson from '../../models/clever-json.js';
 import * as Organisation from '../../models/organisation.js';
 import { truncateWithEllipsis } from '../../models/utils.js';
 import { humanJsonOutputFormatOption, orgaIdOrNameOption } from '../global.options.js';
@@ -23,7 +23,7 @@ export const applicationsListCommand = defineCommand({
   async handler(options) {
     const { org: orgaIdOrName, format } = options;
 
-    const linkedApps = await AppConfig.loadApplicationConf().then((conf) => conf.apps);
+    const linkedApps = await CleverJson.loadApplicationConf().then((conf) => conf.apps);
 
     const ownerId =
       orgaIdOrName != null && orgaIdOrName.orga_name !== '' ? await Organisation.getId(orgaIdOrName) : null;

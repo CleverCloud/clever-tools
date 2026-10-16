@@ -1,7 +1,7 @@
 import { defineCommand } from '../../lib/define-command.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
-import * as AppConfig from '../../models/app_configuration.js';
+import * as CleverJson from '../../models/clever-json.js';
 import { aliasArg } from '../global.args.js';
 
 export const makeDefaultCommand = defineCommand({
@@ -10,7 +10,7 @@ export const makeDefaultCommand = defineCommand({
   options: {},
   args: [aliasArg],
   async handler(_options, alias) {
-    await AppConfig.setDefault(alias);
+    await CleverJson.setDefault(alias);
 
     Logger.printSuccess(`The application ${styleText('green', alias)} has been set as default`);
   },
