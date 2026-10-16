@@ -22,7 +22,7 @@ import { formatCodeList, parseMarkdown } from './markdown.js';
  * Generates LLM-optimized documentation for all commands.
  * @param {Array<[string, unknown]>} commands - Command entries from Object.entries(globalCommands)
  * @param {LlmsDocumentationData} data - Data for generating documentation
- * @return {string} Generated markdown documentation
+ * @returns {string} Generated markdown documentation
  */
 export function getLlmsDocumentation(commands, { rawSetupContent, instances, deploymentZones, addonProviders }) {
   const parts = [
@@ -69,7 +69,7 @@ export function getLlmsDocumentation(commands, { rawSetupContent, instances, dep
  * - Increases heading levels by 1
  * - Removes TOC (lists with links to /docs/setup-systems.md#)
  * @param {string} markdown
- * @return {string}
+ * @returns {string}
  */
 function getSetupContent(markdown) {
   // Increase heading levels with regex (# → ##, ## → ###, etc.)
@@ -97,7 +97,7 @@ function getSetupContent(markdown) {
  * Generates the "Application types and zones" section content.
  * @param {ProductRuntime[]} instances
  * @param {Zone[]} deploymentZones
- * @return {string}
+ * @returns {string}
  */
 function getApplicationsSection(instances, deploymentZones) {
   // Application types (sorted alphabetically)
@@ -143,7 +143,7 @@ function getApplicationsSection(instances, deploymentZones) {
  * Comparator to sort zones with 'par' first, then alphabetically.
  * @param {string} a
  * @param {string} b
- * @return {number}
+ * @returns {number}
  */
 function sortZones(a, b) {
   if (a.startsWith('par') !== b.startsWith('par')) {
@@ -155,7 +155,7 @@ function sortZones(a, b) {
 /**
  * Generates the "Add-on providers" section content.
  * @param {ProductAddon[]} addonProviders
- * @return {string}
+ * @returns {string}
  */
 function getAddonsSection(addonProviders) {
   const providerListItems = addonProviders
@@ -194,7 +194,7 @@ function getAddonsSection(addonProviders) {
 /**
  * Generates documentation for all commands.
  * @param {Array<[string, unknown]>} commands - Command entries from Object.entries(globalCommands)
- * @return {string}
+ * @returns {string}
  */
 function getCommandsSection(commands) {
   return flattenCommands(commands)
@@ -210,7 +210,7 @@ function getCommandsSection(commands) {
  * Flattens nested command structure into a sorted array of {path, definition}.
  * @param {Array<[string, unknown]> | Record<string, unknown>} commands
  * @param {string[]} [parentPath]
- * @return {Array<{path: string[], definition: CommandDefinition}>}
+ * @returns {Array<{path: string[], definition: CommandDefinition}>}
  */
 function flattenCommands(commands, parentPath = []) {
   const entries = Array.isArray(commands) ? commands : Object.entries(commands);
@@ -230,7 +230,7 @@ function flattenCommands(commands, parentPath = []) {
  * @param {string} heading
  * @param {string[]} path
  * @param {CommandDefinition} definition
- * @return {string}
+ * @returns {string}
  */
 function getCommandSection(heading, path, definition) {
   const commandInfo = getCommandInfo(path, definition);

@@ -8,7 +8,7 @@
  * Checks if a Zod schema is a boolean.
  * Handles wrapped schemas (default, optional, nullable).
  * @param {ZodSchemaLike} schema
- * @return {boolean}
+ * @returns {boolean}
  */
 export function isBoolean(schema) {
   const schemaType = schema._def?.type;
@@ -23,7 +23,7 @@ export function isBoolean(schema) {
 /**
  * Checks if a Zod schema is required (no default, not optional, not nullable).
  * @param {ZodSchemaLike} schema
- * @return {boolean}
+ * @returns {boolean}
  */
 export function isRequired(schema) {
   const schemaType = schema._def?.type;
@@ -42,7 +42,7 @@ export function isRequired(schema) {
  * Extracts enum values from a Zod schema.
  * Handles wrapped schemas (default, optional, nullable, pipe).
  * @param {ZodSchemaLike} schema
- * @return {string[] | null}
+ * @returns {string[] | null}
  */
 export function getEnumValues(schema) {
   /** @type {ZodSchemaLike | undefined} */
@@ -68,7 +68,7 @@ export function getEnumValues(schema) {
 /**
  * Unwraps optional/nullable/default/pipe wrappers to get the inner schema.
  * @param {ZodSchemaLike} schema
- * @return {ZodSchemaLike}
+ * @returns {ZodSchemaLike}
  */
 export function unwrapSchema(schema) {
   /** @type {ZodSchemaLike | undefined} */
@@ -92,7 +92,7 @@ export function unwrapSchema(schema) {
  * Extracts the default value from a Zod schema.
  * Handles wrapped schemas (optional, nullable, pipe).
  * @param {ZodSchemaLike} schema
- * @return {unknown}
+ * @returns {unknown}
  */
 export function getDefault(schema) {
   /** @type {ZodSchemaLike | undefined} */

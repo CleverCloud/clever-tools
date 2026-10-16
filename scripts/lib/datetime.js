@@ -2,7 +2,7 @@
  * Utility functions for handling date and time formatting.
  * Provides functions to convert date strings to local date and time formats.
  * @param {string} dateString - The date string to convert, in ISO format.
- * @return {[string, string]} - An array containing the formatted date and time strings.
+ * @returns {[string, string]} - An array containing the formatted date and time strings.
  * The first element is the date in 'YYYY-MM-DD' format, and the second is the time in 'HH:MM' format.
  */
 export function getLocalDateAndTime(dateString) {

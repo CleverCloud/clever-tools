@@ -42,7 +42,7 @@ export async function getCurrentAuthor() {
  * @param {string} author - The author of the commit in the format "Name <email>"
  * @param {string} version - The version to commit
  * @param {string} [message] - Optional commit message, defaults to "Update to {version}"
- * @return {Promise<void>}
+ * @returns {Promise<void>}
  */
 export async function commitAndPush(gitPath, gitUrl, author, version, message) {
   const git = simpleGit(gitPath);
@@ -64,7 +64,7 @@ export async function commitAndPush(gitPath, gitUrl, author, version, message) {
  * @param {string} gitPath
  * @param {string} gitUrl
  * @param {string} tagName
- * @return {Promise<void>}
+ * @returns {Promise<void>}
  */
 export async function tagAndPush(gitPath, gitUrl, tagName) {
   const git = simpleGit(gitPath);

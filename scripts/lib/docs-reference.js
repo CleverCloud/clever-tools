@@ -13,7 +13,7 @@ import { escapeTableCell, formatCodeList, getNodesBetweenH2, stringifyMarkdown }
 /**
  * Returns the relative path for a root command's doc file.
  * @param {string} rootName
- * @return {string}
+ * @returns {string}
  */
 export function getDocRelativePath(rootName) {
   return `./${rootName}/${rootName}.docs.md`;
@@ -24,7 +24,7 @@ export function getDocRelativePath(rootName) {
  * @param {Array<[string, unknown]>} commands
  * @param {{ colorOption: OptionDefinition, verboseOption: OptionDefinition, updateNotifierOption: OptionDefinition }} globalOptions
  * @param {(rootName: string) => string} getDocRelativePath
- * @return {string}
+ * @returns {string}
  */
 export function getReadmeMarkdown(commands, globalOptions, getDocRelativePath) {
   const { colorOption, verboseOption, updateNotifierOption } = globalOptions;
@@ -65,7 +65,7 @@ export function getReadmeMarkdown(commands, globalOptions, getDocRelativePath) {
  * @param {string} name
  * @param {OptionDefinition} option
  * @param {(schema: any) => boolean} [isBooleanFn]
- * @return {string}
+ * @returns {string}
  */
 export function getOptionAliases(name, option, isBooleanFn) {
   const parts = [];
@@ -109,7 +109,7 @@ export function getOptionAliases(name, option, isBooleanFn) {
 /**
  * Generates the experimental note for a command.
  * @param {CommandDefinition} definition
- * @return {string}
+ * @returns {string}
  */
 export function getExperimentalNote(definition) {
   if (!definition.isExperimental) {
@@ -130,7 +130,7 @@ export function getExperimentalNote(definition) {
  * @param {string} name
  * @param {unknown} command
  * @param {MdastRoot | null} ast
- * @return {string}
+ * @returns {string}
  */
 export function getRootCommandMarkdown(name, command, ast) {
   const parts = [`# 📖 \`clever ${name}\` command reference`];
@@ -156,7 +156,7 @@ export function getRootCommandMarkdown(name, command, ast) {
  * @param {string} name
  * @param {unknown} command
  * @param {string[]} [parentPath=[]]
- * @return {SubCommandEntry[]}
+ * @returns {SubCommandEntry[]}
  */
 function getSubCommands(name, command, parentPath = []) {
   const result = [];
@@ -182,7 +182,7 @@ function getSubCommands(name, command, parentPath = []) {
  * Generates the H2 heading for a subcommand.
  * @param {string[]} commandPath
  * @param {CommandDefinition} definition
- * @return {string}
+ * @returns {string}
  */
 export function getSubCommandHeading(commandPath, definition) {
   const since = definition.since == null ? 'Unreleased' : `Since ${definition.since}`;
@@ -194,7 +194,7 @@ export function getSubCommandHeading(commandPath, definition) {
  * @param {string[]} path
  * @param {CommandDefinition} definition
  * @param {MdastRootContent[]} subCommandNodes
- * @return {string}
+ * @returns {string}
  */
 export function getSubCommandMarkdown(path, definition, subCommandNodes) {
   const commandInfo = getCommandInfo(path, definition);
@@ -253,7 +253,7 @@ export function getSubCommandMarkdown(path, definition, subCommandNodes) {
 /**
  * Extracts custom H3 sections (not Arguments or Options) from subcommand nodes.
  * @param {MdastRootContent[]} nodes
- * @return {Array<{heading: MdastRootContent, nodes: MdastRootContent[]}>}
+ * @returns {Array<{heading: MdastRootContent, nodes: MdastRootContent[]}>}
  */
 function getCustomH3Sections(nodes) {
   /** @type {Array<{heading: MdastRootContent, nodes: MdastRootContent[]}>} */
