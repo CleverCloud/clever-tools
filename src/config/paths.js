@@ -1,5 +1,5 @@
 import path from 'node:path';
-// @ts-ignore - no types available for this module
+// @ts-expect-error - no types available for this module
 import xdg from 'xdg';
 
 /**

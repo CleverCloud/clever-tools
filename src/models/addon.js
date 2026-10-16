@@ -119,12 +119,11 @@ function validateAddonVersionAndOptions(region, version, addonOptions, providerI
       version: chosenVersion,
       ...addonOptions,
     };
-  } else {
-    if (version != null) {
-      throw new Error("You provided a version for an add-on that doesn't support choosing the version.");
-    }
-    return {};
   }
+  if (version != null) {
+    throw new Error("You provided a version for an add-on that doesn't support choosing the version.");
+  }
+  return {};
 }
 
 export async function create({ ownerId, name, providerName, planName, region, version, addonOptions }) {

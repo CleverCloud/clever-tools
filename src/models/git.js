@@ -86,67 +86,67 @@ export class Git {
 
   /**
    * Add a remote to the repository
-   * @param {string} remoteName
-   * @param {string} url
+   * @param {string} _remoteName
+   * @param {string} _url
    * @returns {Promise<void>}
    */
-  async addRemote(remoteName, url) {
+  async addRemote(_remoteName, _url) {
     throw new Error('Not implemented');
   }
 
   /**
    * Resolve a short commit ID to its full form
-   * @param {string | null} commitId
+   * @param {string | null} _commitId
    * @returns {Promise<string | null>}
    */
-  async resolveFullCommitId(commitId) {
+  async resolveFullCommitId(_commitId) {
     throw new Error('Not implemented');
   }
 
   /**
    * Get the commit SHA of the master branch on a remote
-   * @param {string} remoteUrl
+   * @param {string} _remoteUrl
    * @returns {Promise<string | undefined>}
    */
-  async getRemoteCommit(remoteUrl) {
+  async getRemoteCommit(_remoteUrl) {
     throw new Error('Not implemented');
   }
 
   /**
    * Get the full ref name for a branch
-   * @param {string} branchName - Branch name, or empty string for current branch
+   * @param {string} _branchName - Branch name, or empty string for current branch
    * @returns {Promise<string>}
    */
-  async getFullBranch(branchName) {
+  async getFullBranch(_branchName) {
     throw new Error('Not implemented');
   }
 
   /**
    * Get the commit SHA for a branch or tag
-   * @param {string} refspec
+   * @param {string} _refspec
    * @returns {Promise<string>}
    */
-  async getBranchCommit(refspec) {
+  async getBranchCommit(_refspec) {
     throw new Error('Not implemented');
   }
 
   /**
    * Check if a tag exists
-   * @param {string} tag
+   * @param {string} _tag
    * @returns {Promise<boolean>}
    */
-  async isExistingTag(tag) {
+  async isExistingTag(_tag) {
     throw new Error('Not implemented');
   }
 
   /**
    * Push to a remote repository
-   * @param {string} remoteUrl
-   * @param {string} branchRefspec
-   * @param {boolean} force
+   * @param {string} _remoteUrl
+   * @param {string} _branchRefspec
+   * @param {boolean} _force
    * @returns {Promise<object>}
    */
-  async push(remoteUrl, branchRefspec, force) {
+  async push(_remoteUrl, _branchRefspec, _force) {
     throw new Error('Not implemented');
   }
 

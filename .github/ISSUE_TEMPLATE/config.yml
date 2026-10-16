@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Clever Cloud support
+    url: https://console.clever-cloud.com/ticket-center-choice
+    about: Problems specific to your account, applications or add-ons, where you may need to share private information.
+  - name: Documentation
+    url: https://www.clever.cloud/developers/doc/cli/
+    about: How to install and use clever-tools.

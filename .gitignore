@@ -9,3 +9,6 @@ git-*/
 
 # macOS system files
 .DS_Store
+
+# Claude Code local files
+.claude/settings.local.json

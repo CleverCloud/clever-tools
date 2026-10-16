@@ -29,19 +29,20 @@ export function stringifyMarkdown(node) {
 }
 
 /**
- * Extracts nodes between an H2 matching the heading and the next H2 (or end of doc).
+ * Extracts nodes between an H2 starting with the heading prefix and the next H2 (or end of doc).
+ * Matching on a prefix lets the end of the heading (like a version badge) change between runs.
  * @param {MdastRootContent[]} children
- * @param {string} generatedHeading - The expected H2 heading text
+ * @param {string} headingPrefix - The expected start of the H2 heading text, up to a space or the end
  * @returns {MdastRootContent[]}
  */
-export function getNodesBetweenH2(children, generatedHeading) {
+export function getNodesBetweenH2(children, headingPrefix) {
   let startIndex = -1;
 
   for (let i = 0; i < children.length; i++) {
     const node = children[i];
     if (node.type === 'heading' && node.depth === 2) {
       const parsedHeading = stringifyMarkdown(node);
-      if (parsedHeading === generatedHeading) {
+      if (parsedHeading === headingPrefix || parsedHeading.startsWith(`${headingPrefix} `)) {
         startIndex = i + 1;
       } else if (startIndex !== -1) {
         // Next H2 found, return slice
@@ -64,7 +65,9 @@ export function getNodesBetweenH2(children, generatedHeading) {
  * @returns {string}
  */
 export function escapeTableCell(str) {
-  if (str == null) return '-';
+  if (str == null) {
+    return '-';
+  }
   return String(str).replace(/\|/g, '\\|').replace(/\n/g, ' ');
 }
 

@@ -124,7 +124,7 @@ export const exitOnDeployOption = defineOption({
 export const importAsJsonOption = defineOption({
   name: 'json',
   schema: z.boolean().default(false),
-  description: 'Import variables as JSON (an array of { \"name\": \"THE_NAME\", \"value\": \"THE_VALUE\" } objects)',
+  description: 'Import variables as JSON (an array of { "name": "THE_NAME", "value": "THE_VALUE" } objects)',
 });
 
 export const targetVersionOption = defineOption({

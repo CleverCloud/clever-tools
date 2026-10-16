@@ -21,7 +21,7 @@ export const drainPasswordOption = defineOption({
 export const drainSdParamsOption = defineOption({
   name: 'sd-params',
   schema: z.string().min(1).optional(),
-  description: 'RFC5424 structured data parameters, e.g.: `token=\\\"REDACTED\\\"`',
+  description: 'RFC5424 structured data parameters, e.g.: `token=\\"REDACTED\\"`',
   aliases: ['s'],
   placeholder: 'sd-params',
 });

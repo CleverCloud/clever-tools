@@ -20,6 +20,7 @@
   },
   "include": [
     "scripts",
+    ".claude/hooks",
     "src/lib/define-**",
     "src/logger.js",
     "src/lib/fs.js",

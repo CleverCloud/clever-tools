@@ -98,8 +98,12 @@ cliparseCommandModule.help = function (context) {
   if (commandInfo.args) {
     argumentsRows = commandInfo.args.map((arg) => {
       let description = arg.description;
-      if (arg.enumValues) description += ` (${arg.enumValues.join(', ')})`;
-      if (arg.optional) description += ` ${styleText('dim', arg.optional)}`;
+      if (arg.enumValues) {
+        description += ` (${arg.enumValues.join(', ')})`;
+      }
+      if (arg.optional) {
+        description += ` ${styleText('dim', arg.optional)}`;
+      }
       return [arg.name, description];
     });
     allRows.push(...argumentsRows);
@@ -112,10 +116,18 @@ cliparseCommandModule.help = function (context) {
       const aliasesPadding = opt.aliases[0].length === 2 ? '' : '    ';
       const aliases = aliasesPadding + opt.aliases.join(', ') + placeholder;
       let description = opt.description;
-      if (opt.enumValues) description += ` (${opt.enumValues.join(', ')})`;
-      if (opt.deprecated) description += ` ${styleText('dim', opt.deprecated)}`;
-      if (opt.required) description += ` ${styleText('dim', opt.required)}`;
-      if (opt.default) description += ` ${styleText('dim', opt.default)}`;
+      if (opt.enumValues) {
+        description += ` (${opt.enumValues.join(', ')})`;
+      }
+      if (opt.deprecated) {
+        description += ` ${styleText('dim', opt.deprecated)}`;
+      }
+      if (opt.required) {
+        description += ` ${styleText('dim', opt.required)}`;
+      }
+      if (opt.default) {
+        description += ` ${styleText('dim', opt.default)}`;
+      }
       return [aliases, description];
     });
     allRows.push(...optionsRows);

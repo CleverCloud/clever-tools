@@ -11,24 +11,22 @@ function formatApps(apps, onlyAliases, json) {
       apps = apps.map((a) => a.alias);
     }
     return JSON.stringify(apps, null, 2);
-  } else {
-    if (onlyAliases) {
-      return apps.map((a) => a.alias).join('\n');
-    } else {
-      return apps
-        .map((app) => {
-          const sshUrl = app.git_ssh_url ?? app.deploy_url.replace('https://', 'git+ssh://git@');
-          return [
-            `Application ${app.name}`,
-            `  alias: ${styleText('bold', app.alias)}`,
-            `  ID: ${app.app_id}`,
-            `  deployment URL: ${app.deploy_url}`,
-            `  git+ssh URL: ${sshUrl}`,
-          ].join('\n');
-        })
-        .join('\n\n');
-    }
   }
+  if (onlyAliases) {
+    return apps.map((a) => a.alias).join('\n');
+  }
+  return apps
+    .map((app) => {
+      const sshUrl = app.git_ssh_url ?? app.deploy_url.replace('https://', 'git+ssh://git@');
+      return [
+        `Application ${app.name}`,
+        `  alias: ${styleText('bold', app.alias)}`,
+        `  ID: ${app.app_id}`,
+        `  deployment URL: ${app.deploy_url}`,
+        `  git+ssh URL: ${sshUrl}`,
+      ].join('\n');
+    })
+    .join('\n\n');
 }
 
 export const applicationsCommand = defineCommand({
