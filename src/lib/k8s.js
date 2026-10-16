@@ -258,9 +258,8 @@ export async function getClusterIdFromAddonIdOrName(addonIdOrName, ownerId) {
       throw ambiguousNameError(name, matches);
     }
     return matches[0].id;
-  } else {
-    throw new Error('Invalid Kubernetes Cluster identifier provided');
   }
+  throw new Error('Invalid Kubernetes Cluster identifier provided');
 }
 
 /**

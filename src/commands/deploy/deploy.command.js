@@ -28,9 +28,8 @@ async function getBranchToDeploy(git, branchName, tagName) {
     if (useTag) {
       const tagRefspec = await git.getFullBranch(tagName);
       return tagRefspec;
-    } else {
-      throw new Error(`Tag ${tagName} doesn't exist locally`);
     }
+    throw new Error(`Tag ${tagName} doesn't exist locally`);
   } else {
     return await git.getFullBranch(branchName);
   }

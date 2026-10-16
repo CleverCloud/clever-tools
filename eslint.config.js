@@ -28,6 +28,7 @@ export default [
       'no-warning-comments': ['error', { terms: ['@ts-ignore'], location: 'anywhere' }],
       'object-shorthand': 'error',
       'no-lonely-if': 'error',
+      'no-else-return': 'error',
       // Custom camelcase rule with project-specific allowances
       camelcase: [
         'error',
