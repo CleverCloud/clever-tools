@@ -1,3 +1,4 @@
+import { Logger } from '../logger.js';
 import { styleText } from './style-text.js';
 
 const LOGO = styleText(
@@ -41,7 +42,7 @@ export async function typewriterLogo() {
       process.stdout.write(char);
       await sleep();
     }
-    console.log();
+    Logger.println();
   }
 
   showCursor();
