@@ -24,7 +24,6 @@ export default [
       ...cleverCloud.configs.node.rules,
       // TODO: existing violations, fixed in the next commits
       'no-unused-vars': 'off',
-      'no-useless-escape': 'off',
       'no-case-declarations': 'off',
       'no-constant-binary-expression': 'off',
       eqeqeq: 'off',
