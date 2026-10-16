@@ -19,6 +19,20 @@ export default [
       },
     },
     rules: {
+      // The shared rules must be spread here: a `rules` key placed after the spread
+      // config replaces them all instead of merging with them
+      ...cleverCloud.configs.node.rules,
+      // TODO: existing violations, fixed in the next commits
+      curly: 'off',
+      'no-unused-vars': 'off',
+      'no-useless-escape': 'off',
+      'no-undef': 'off',
+      'no-case-declarations': 'off',
+      'no-constant-binary-expression': 'off',
+      eqeqeq: 'off',
+      'import-x/no-named-as-default': 'off',
+      'import-x/no-useless-path-segments': 'off',
+      'import-x/extensions': 'off',
       // Custom camelcase rule with project-specific allowances
       camelcase: [
         'error',
