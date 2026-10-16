@@ -23,7 +23,6 @@ export default [
       // config replaces them all instead of merging with them
       ...cleverCloud.configs.node.rules,
       // TODO: existing violations, fixed in the next commits
-      'no-constant-binary-expression': 'off',
       eqeqeq: 'off',
       'import-x/no-named-as-default': 'off',
       'import-x/no-useless-path-segments': 'off',
