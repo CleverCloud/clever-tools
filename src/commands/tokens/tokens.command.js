@@ -21,23 +21,21 @@ export const tokensCommand = defineCommand({
 
     if (format === 'json') {
       Logger.printJson(tokens);
+    } else if (tokens.length === 0) {
+      Logger.println(`ℹ️  No API token found, create one with ${styleText('blue', 'clever tokens create')} command`);
     } else {
-      if (tokens.length === 0) {
-        Logger.println(`ℹ️  No API token found, create one with ${styleText('blue', 'clever tokens create')} command`);
-      } else {
-        console.table(
-          tokens.map((token) => {
-            return {
-              'API token ID': token.apiTokenId,
-              Name: token.name,
-              'Creation IP address': token.ip,
-              Creation: formatDate(token.creationDate),
-              Expiration: formatDate(token.expirationDate),
-              State: token.state,
-            };
-          }),
-        );
-      }
+      console.table(
+        tokens.map((token) => {
+          return {
+            'API token ID': token.apiTokenId,
+            Name: token.name,
+            'Creation IP address': token.ip,
+            Creation: formatDate(token.creationDate),
+            Expiration: formatDate(token.expirationDate),
+            State: token.state,
+          };
+        }),
+      );
     }
   },
 });
