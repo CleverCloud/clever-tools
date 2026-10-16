@@ -12,10 +12,14 @@
  */
 export function isBoolean(schema) {
   const schemaType = schema._def?.type;
-  if (schemaType === 'boolean') return true;
+  if (schemaType === 'boolean') {
+    return true;
+  }
   if (schemaType === 'default' || schemaType === 'optional' || schemaType === 'nullable') {
     const innerType = schema._def?.innerType;
-    if (innerType) return isBoolean(innerType);
+    if (innerType) {
+      return isBoolean(innerType);
+    }
   }
   return false;
 }
@@ -33,7 +37,9 @@ export function isRequired(schema) {
   // For pipe schemas (created by .transform()), check the input schema
   if (schemaType === 'pipe') {
     const inputSchema = schema._def?.in;
-    if (inputSchema) return isRequired(inputSchema);
+    if (inputSchema) {
+      return isRequired(inputSchema);
+    }
   }
   return true;
 }

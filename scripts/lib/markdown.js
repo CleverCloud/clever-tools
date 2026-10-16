@@ -64,7 +64,9 @@ export function getNodesBetweenH2(children, generatedHeading) {
  * @returns {string}
  */
 export function escapeTableCell(str) {
-  if (str == null) return '-';
+  if (str == null) {
+    return '-';
+  }
   return String(str).replace(/\|/g, '\\|').replace(/\n/g, ' ');
 }
 

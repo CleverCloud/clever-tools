@@ -34,8 +34,12 @@ export const k8sGetCommand = defineCommand({
           Autoscaling: k8sInfo.features?.autoscalingEnabled ? 'enabled' : 'disabled',
           'Persistent storage': k8sInfo.features?.csi != null ? 'enabled' : 'disabled',
         };
-        if (k8sInfo.tags?.length) overview.Tags = k8sInfo.tags.join(', ');
-        if (k8sInfo.description) overview.Description = k8sInfo.description;
+        if (k8sInfo.tags?.length) {
+          overview.Tags = k8sInfo.tags.join(', ');
+        }
+        if (k8sInfo.description) {
+          overview.Description = k8sInfo.description;
+        }
         if (k8sInfo.storageUsageBytes != null) {
           overview.Storage = `${Math.round((k8sInfo.storageUsageBytes / 1024 ** 3) * 100) / 100} GB`;
         }
@@ -98,7 +102,11 @@ export const k8sGetCommand = defineCommand({
 });
 
 function formatTopology(topo) {
-  if (topo == null) return '-';
-  if (topo.topology === 'DISTRIBUTED') return 'DISTRIBUTED';
+  if (topo == null) {
+    return '-';
+  }
+  if (topo.topology === 'DISTRIBUTED') {
+    return 'DISTRIBUTED';
+  }
   return `${topo.topology} (${topo.flavor}, rf=${topo.replicationFactor})`;
 }

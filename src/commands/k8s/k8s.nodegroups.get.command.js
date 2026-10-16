@@ -37,8 +37,12 @@ export const k8sNodeGroupGetCommand = defineCommand({
         if (nodeGroup.updatedAt && updatedFmt !== createdFmt) {
           overview.Updated = updatedFmt;
         }
-        if (nodeGroup.description) overview.Description = nodeGroup.description;
-        if (nodeGroup.tag) overview.Tag = nodeGroup.tag;
+        if (nodeGroup.description) {
+          overview.Description = nodeGroup.description;
+        }
+        if (nodeGroup.tag) {
+          overview.Tag = nodeGroup.tag;
+        }
         console.table(overview);
 
         const labels = Object.entries(nodeGroup.labels ?? {});
@@ -61,6 +65,8 @@ export const k8sNodeGroupGetCommand = defineCommand({
 });
 
 function formatDate(iso) {
-  if (iso == null) return '-';
+  if (iso == null) {
+    return '-';
+  }
   return `${iso.slice(0, 16).replace('T', ' ')}Z`;
 }
