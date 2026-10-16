@@ -117,7 +117,8 @@ function formatPeer(peer, full = false) {
   return peerToPrint;
 }
 
-/** Print the results of a search or get action
+/**
+ * Print the results of a search or get action
  * @param {object} idOrLabel ID or label of the Network Group, a member or a peer
  * @param {object} org Organisation ID or name
  * @param {string} format Output format

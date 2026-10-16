@@ -217,8 +217,9 @@ export function constructMembers(ngId, membersIds) {
  * Poll Network Groups to check its status and members
  * @param {string} ownerId The owner ID
  * @param {string} ngId The Network Group ID
- * @param {Array<string>} waitForMembers The members IDs to wait for
- * @param {boolean} waitForDeletion Wait for the Network Group deletion
+ * @param {object} [options]
+ * @param {Array<string>} [options.waitForMembers] The members IDs to wait for
+ * @param {boolean} [options.waitForDeletion] Wait for the Network Group deletion
  * @throws {Error} When timeout is reached
  * @returns {Promise<void>}
  */
