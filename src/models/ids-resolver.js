@@ -1,9 +1,9 @@
 import { getSummary } from '@clevercloud/client/esm/api/v2/user.js';
 import { loadIdsCache, writeIdsCache } from '../config/cache.js';
 import { Logger } from '../logger.js';
-import * as User from '../models/user.js';
 import * as Organisation from './organisation.js';
 import { sendToApi } from './send-to-api.js';
+import * as User from './user.js';
 
 /*
 This system uses a simplified representation of the summary to expose IDs links:
@@ -34,7 +34,9 @@ export async function resolveOwnerId(id) {
 export async function resolveAddon(addonIdOrRealId) {
   const result = await getIdFromCacheOrSummary((ids) => {
     const addon = ids.addons[addonIdOrRealId];
-    if (addon == null) return null;
+    if (addon == null) {
+      return null;
+    }
     const ownerId = ids.owners[addon.realId];
     return { ownerId, addonId: addon.addonId, realId: addon.realId };
   });
@@ -132,11 +134,9 @@ export async function findAddonsByNameOrId(addonIdOrRealIdOrName, ownerNameOrId)
 }
 
 /**
- * Get the IDs and owners of found add-ons from a name, ID or real ID
- * @param {string} addonIdOrRealIdOrName
- * @throws {Error} if no add-on is found
- * @throws {Error} if several add-ons are found
- * @returns {Object} The name, IDs and owner ID of the add-on { name, addonId, realId, ownerId }
+ * Get the IDs and owners of every add-on of a provider, across the user and its organisations
+ * @param {string} provider The add-on provider ID
+ * @returns {Promise<Array<Object>>} The name, IDs and owner of each add-on { name, addonId, realId, ownerId, ownerName }
  */
 export async function findAddonsByAddonProvider(provider) {
   const summary = await getSummary().then(sendToApi);

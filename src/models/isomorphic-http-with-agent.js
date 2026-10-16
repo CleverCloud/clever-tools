@@ -1,3 +1,4 @@
+// eslint-disable-next-line import-x/extensions -- subpath export, the package does not expose a .js path
 import * as git from 'isomorphic-git/http/node';
 import http from 'node:http';
 import https from 'node:https';

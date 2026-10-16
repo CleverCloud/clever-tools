@@ -15,7 +15,7 @@ export async function fetchWithProgress(url, onProgress) {
   }
 
   const contentLength = response.headers.get('content-length');
-  const totalBytes = contentLength ? parseInt(contentLength) : null;
+  const totalBytes = contentLength ? parseInt(contentLength, 10) : null;
 
   let downloadedBytes = 0;
   const chunks = [];

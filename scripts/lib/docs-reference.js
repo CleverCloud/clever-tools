@@ -206,8 +206,12 @@ export function getSubCommandMarkdown(path, definition, subCommandNodes) {
   if (commandInfo.args) {
     const rows = commandInfo.args.map((arg) => {
       let description = arg.description;
-      if (arg.enumValues) description += ` (${arg.enumValues.join(', ')})`;
-      if (arg.optional) description += ` *${arg.optional}*`;
+      if (arg.enumValues) {
+        description += ` (${arg.enumValues.join(', ')})`;
+      }
+      if (arg.optional) {
+        description += ` *${arg.optional}*`;
+      }
       return `|\`${escapeTableCell(arg.name)}\`|${escapeTableCell(description)}|`;
     });
     parts.push(dedent`
@@ -225,10 +229,18 @@ export function getSubCommandMarkdown(path, definition, subCommandNodes) {
         const placeholder = opt.placeholder ? ` \`${opt.placeholder}\`` : '';
         const aliases = formatCodeList(opt.aliases) + placeholder;
         let description = opt.description;
-        if (opt.enumValues) description += ` (${opt.enumValues.join(', ')})`;
-        if (opt.deprecated) description += ` *${opt.deprecated}*`;
-        if (opt.required) description += ` **${opt.required}**`;
-        if (opt.default) description += ` ${opt.default}`;
+        if (opt.enumValues) {
+          description += ` (${opt.enumValues.join(', ')})`;
+        }
+        if (opt.deprecated) {
+          description += ` *${opt.deprecated}*`;
+        }
+        if (opt.required) {
+          description += ` **${opt.required}**`;
+        }
+        if (opt.default) {
+          description += ` ${opt.default}`;
+        }
         return `|${escapeTableCell(aliases)}|${escapeTableCell(description)}|`;
       });
       parts.push(dedent`

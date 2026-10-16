@@ -48,6 +48,8 @@ export const k8sActivityCommand = defineCommand({
 });
 
 function formatDate(iso) {
-  if (iso == null) return '-';
+  if (iso == null) {
+    return '-';
+  }
   return `${iso.slice(0, 19).replace('T', ' ')}Z`;
 }

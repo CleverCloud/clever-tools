@@ -8,8 +8,8 @@ import { buildFlavor, flavor } from '../../parsers.js';
 import { aliasOption, appIdOrNameOption } from '../global.options.js';
 
 function validateOptions(options) {
-  let { flavor, minFlavor, maxFlavor } = options;
-  let { instances, minInstances, maxInstances, buildFlavor } = options;
+  const { flavor, instances, buildFlavor } = options;
+  let { minFlavor, maxFlavor, minInstances, maxInstances } = options;
 
   if ([flavor, minFlavor, maxFlavor, instances, minInstances, maxInstances, buildFlavor].every((v) => v == null)) {
     throw new Error('You should provide at least 1 option');
