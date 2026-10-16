@@ -15,7 +15,7 @@ import _ from 'lodash';
 import { confirmAnswer } from '../lib/prompts.js';
 import { styleText } from '../lib/style-text.js';
 import { Logger } from '../logger.js';
-import * as AppConfiguration from './app_configuration.js';
+import * as CleverJson from './clever-json.js';
 import { resolveOwnerId } from './ids-resolver.js';
 import * as Organisation from './organisation.js';
 import { sendToApi } from './send-to-api.js';
@@ -55,7 +55,7 @@ export function listAvailableZones() {
 }
 
 export function listAvailableAliases() {
-  return AppConfiguration.loadApplicationConf().then(({ apps }) => _.map(apps, 'alias'));
+  return CleverJson.loadApplicationConf().then(({ apps }) => _.map(apps, 'alias'));
 }
 
 export function listAvailableFlavors() {
@@ -217,7 +217,7 @@ export async function resolveId(appIdOrName, alias) {
   // -- resolve by linked app
 
   if (appIdOrName == null) {
-    const appDetails = await AppConfiguration.getAppDetails({ alias });
+    const appDetails = await CleverJson.getAppDetails({ alias });
     return { appId: appDetails.appId, ownerId: appDetails.ownerId };
   }
 
@@ -267,12 +267,12 @@ export async function linkRepo(app, orgaIdOrName, alias, ignoreParentConfig) {
 
   const appData = app.app_id != null ? await getFromSelf(app.app_id) : await getByName(ownerId, app.app_name);
 
-  return AppConfiguration.addLinkedApplication(appData, alias, ignoreParentConfig);
+  return CleverJson.addLinkedApplication(appData, alias, ignoreParentConfig);
 }
 
 export function unlinkRepo(alias) {
   Logger.debug(`Unlinking current repository from the app: ${alias}`);
-  return AppConfiguration.removeLinkedApplication({ alias });
+  return CleverJson.removeLinkedApplication({ alias });
 }
 
 export function redeploy(ownerId, appId, commit, withoutCache) {

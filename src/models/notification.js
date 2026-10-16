@@ -1,4 +1,4 @@
-import * as AppConfig from './app_configuration.js';
+import * as CleverJson from './clever-json.js';
 import * as Organisation from './organisation.js';
 import * as User from './user.js';
 
@@ -11,7 +11,7 @@ export async function getOwnerAndApp(org, useLinkedApp) {
     return { ownerId: await Organisation.getId(org) };
   }
   if (useLinkedApp) {
-    return AppConfig.getAppDetails({});
+    return CleverJson.getAppDetails({});
   }
   return { ownerId: await User.getCurrentId() };
 }

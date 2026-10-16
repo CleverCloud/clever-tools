@@ -8,8 +8,8 @@ import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
 import * as Addon from '../../models/addon.js';
 import { completePlan, completeRegion, parseAddonOptions } from '../../models/addon.js';
-import * as AppConfig from '../../models/app_configuration.js';
 import { listAvailableAliases } from '../../models/application.js';
+import * as CleverJson from '../../models/clever-json.js';
 import { getOwnerIdFromOrgIdOrName } from '../../models/ids-resolver.js';
 import { sendToApi } from '../../models/send-to-api.js';
 import { addonOptions } from '../../parsers.js';
@@ -131,7 +131,7 @@ export const addonCreateCommand = defineCommand({
 
     const ownerId = await getOwnerIdFromOrgIdOrName(orgaIdOrName);
     if (linkedAppAlias != null) {
-      const linkedAppData = await AppConfig.getAppDetails({ alias: linkedAppAlias });
+      const linkedAppData = await CleverJson.getAppDetails({ alias: linkedAppAlias });
       if (orgaIdOrName != null && linkedAppData.ownerId !== ownerId && format === 'human') {
         Logger.warn(
           'The specified application does not belong to the specified organisation. Ignoring the `--org` option',
@@ -145,7 +145,7 @@ export const addonCreateCommand = defineCommand({
     const newAddon = await Addon.create(addonToCreate);
 
     if (linkedAppAlias != null) {
-      const linkedAppData = await AppConfig.getAppDetails({ alias: linkedAppAlias });
+      const linkedAppData = await CleverJson.getAppDetails({ alias: linkedAppAlias });
       await Addon.link(linkedAppData.ownerId, linkedAppData.appId, { addon_id: newAddon.id });
     }
 

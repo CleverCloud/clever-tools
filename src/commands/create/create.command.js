@@ -6,9 +6,9 @@ import { defineCommand } from '../../lib/define-command.js';
 import { defineOption } from '../../lib/define-option.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
-import * as AppConfig from '../../models/app_configuration.js';
 import * as Application from '../../models/application.js';
 import { AVAILABLE_ZONES, listAvailableTypes, listAvailableZones } from '../../models/application.js';
+import * as CleverJson from '../../models/clever-json.js';
 import { LinkedWorktreeNotSupportedError } from '../../models/git-isomorphic.js';
 import { Git } from '../../models/git.js';
 import { aliasCreationOption, humanJsonOutputFormatOption, orgaIdOrNameOption } from '../global.options.js';
@@ -147,7 +147,7 @@ export const createCommand = defineCommand({
     const { type: typeName } = options;
 
     const { org: orgaIdOrName, alias, region, github: githubOwnerRepo, format, task: taskCommand } = options;
-    const { apps } = await AppConfig.loadApplicationConf();
+    const { apps } = await CleverJson.loadApplicationConf();
 
     // Application name is optionnal, use current directory name if not specified (empty string)
     const name = rawName !== '' ? rawName : getCurrentDirectoryName();
@@ -155,11 +155,11 @@ export const createCommand = defineCommand({
     const isTask = taskCommand != null;
     const envVars = isTask ? { CC_RUN_COMMAND: taskCommand } : {};
 
-    AppConfig.checkAlreadyLinked(apps, name, alias);
+    CleverJson.checkAlreadyLinked(apps, name, alias);
 
     const github = getGithubDetails(githubOwnerRepo);
     const app = await Application.create(name, typeName, region, orgaIdOrName, github, isTask, envVars);
-    await AppConfig.addLinkedApplication(app, alias);
+    await CleverJson.addLinkedApplication(app, alias);
 
     switch (format) {
       case 'json': {

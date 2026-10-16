@@ -3,8 +3,8 @@ import { defineCommand } from '../../lib/define-command.js';
 import { defineOption } from '../../lib/define-option.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
-import * as AppConfig from '../../models/app_configuration.js';
 import * as Application from '../../models/application.js';
+import * as CleverJson from '../../models/clever-json.js';
 import { aliasOption, appIdOrNameOption } from '../global.options.js';
 
 export const deleteCommand = defineCommand({
@@ -35,7 +35,7 @@ export const deleteCommand = defineCommand({
     Logger.printSuccess(`Application ${styleText('green', styleText('bold', `${app.name}`))} successfully deleted!`);
     Logger.println(`  ${styleText('grey', '•')} Application ID: ${styleText('grey', app.id)}`);
 
-    const wasUnlinked = await AppConfig.removeLinkedApplication({ appId, alias });
+    const wasUnlinked = await CleverJson.removeLinkedApplication({ appId, alias });
     if (wasUnlinked) {
       Logger.println(`  ${styleText('blue', '→')} Local alias ${styleText('blue', alias || app.name)} unlinked`);
     }

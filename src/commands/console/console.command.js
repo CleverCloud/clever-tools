@@ -1,7 +1,7 @@
 import { defineCommand } from '../../lib/define-command.js';
 import { styleText } from '../../lib/style-text.js';
-import * as AppConfig from '../../models/app_configuration.js';
 import * as Application from '../../models/application.js';
+import * as CleverJson from '../../models/clever-json.js';
 import { openBrowser } from '../../models/utils.js';
 import { aliasOption, appIdOrNameOption } from '../global.options.js';
 
@@ -16,7 +16,7 @@ export const consoleCommand = defineCommand({
   async handler(options) {
     const { alias, app: appIdOrName } = options;
 
-    const { apps } = await AppConfig.loadApplicationConf();
+    const { apps } = await CleverJson.loadApplicationConf();
     // If no app is linked or asked, open the Console without any context
     if (apps.length === 0 && !appIdOrName) {
       await openBrowser('/', 'Opening the Console in the browser…');

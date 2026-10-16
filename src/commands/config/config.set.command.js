@@ -3,8 +3,8 @@ import { defineArgument } from '../../lib/define-argument.js';
 import { defineCommand } from '../../lib/define-command.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
+import * as ApplicationConfig from '../../models/application-config.js';
 import * as Application from '../../models/application.js';
-import * as ApplicationConfiguration from '../../models/application_configuration.js';
 import { aliasOption, appIdOrNameOption } from '../global.options.js';
 import { configurationNameArg } from './config.args.js';
 
@@ -26,13 +26,13 @@ export const configSetCommand = defineCommand({
   async handler(options, configurationName, configurationValue) {
     const { alias, app: appIdOrName } = options;
     const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
-    const appConfig = ApplicationConfiguration.getById(configurationName);
+    const appConfig = ApplicationConfig.getById(configurationName);
     const newOptions = {
-      [appConfig.name]: ApplicationConfiguration.parse(appConfig, configurationValue),
+      [appConfig.name]: ApplicationConfig.parse(appConfig, configurationValue),
     };
     const app = await Application.updateOptions(ownerId, appId, newOptions);
     Logger.printSuccess(
-      `Config ${styleText('green', appConfig.id)} successfully updated to ${styleText('green', ApplicationConfiguration.formatValue(appConfig, app[appConfig.name]).toString())}!`,
+      `Config ${styleText('green', appConfig.id)} successfully updated to ${styleText('green', ApplicationConfig.formatValue(appConfig, app[appConfig.name]).toString())}!`,
     );
   },
 });

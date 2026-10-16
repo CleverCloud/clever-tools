@@ -1,8 +1,8 @@
 import { defineCommand } from '../../lib/define-command.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
-import * as AppConfig from '../../models/app_configuration.js';
 import * as Application from '../../models/application.js';
+import * as CleverJson from '../../models/clever-json.js';
 import { aliasArg } from '../global.args.js';
 
 export const unlinkCommand = defineCommand({
@@ -11,7 +11,7 @@ export const unlinkCommand = defineCommand({
   options: {},
   args: [aliasArg],
   async handler(_options, alias) {
-    const app = await AppConfig.getAppDetails({ alias });
+    const app = await CleverJson.getAppDetails({ alias });
 
     await Application.unlinkRepo(app.alias);
     Logger.printSuccess(
