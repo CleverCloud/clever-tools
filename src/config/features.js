@@ -1,5 +1,5 @@
 import dedent from 'dedent';
-import z from 'zod';
+import { z } from 'zod';
 import { readJsonSync, writeJson } from '../lib/fs.js';
 import { Logger } from '../logger.js';
 import { config } from './config.js';
