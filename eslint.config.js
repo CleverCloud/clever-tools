@@ -22,6 +22,7 @@ export default [
       // The shared rules must be spread here: a `rules` key placed after the spread
       // config replaces them all instead of merging with them
       ...cleverCloud.configs.node.rules,
+      'n/prefer-node-protocol': 'error',
       // Custom camelcase rule with project-specific allowances
       camelcase: [
         'error',
