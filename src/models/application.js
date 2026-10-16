@@ -100,7 +100,7 @@ export async function create(name, typeName, region, orgaIdOrName, github, isTas
     maxInstances: 1,
     minFlavor: instanceType.defaultFlavor.name,
     minInstances: 1,
-    name: name,
+    name,
     zone: region,
     instanceLifetime: isTask ? 'TASK' : 'REGULAR',
     env: envVars,

@@ -145,7 +145,7 @@ export async function getAppDetails({ alias }) {
   const ownerId = app.org_id != null ? app.org_id : await User.getCurrentId();
   return {
     appId: app.app_id,
-    ownerId: ownerId,
+    ownerId,
     deployUrl: app.deploy_url,
     name: app.name,
     alias: app.alias,

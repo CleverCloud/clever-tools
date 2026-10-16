@@ -26,6 +26,7 @@ export default [
       'prefer-const': 'error',
       // @ts-expect-error fails once the error is gone, @ts-ignore stays silently
       'no-warning-comments': ['error', { terms: ['@ts-ignore'], location: 'anywhere' }],
+      'object-shorthand': 'error',
       // Custom camelcase rule with project-specific allowances
       camelcase: [
         'error',
