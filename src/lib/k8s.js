@@ -69,13 +69,23 @@ export async function k8sCreate(name, orgIdOrName, options = {}) {
     }
     body.version = options.version;
   }
-  if (options.description != null) body.description = options.description;
-  if (options.tags?.length) body.tags = options.tags;
+  if (options.description != null) {
+    body.description = options.description;
+  }
+  if (options.tags?.length) {
+    body.tags = options.tags;
+  }
 
   const features = {};
-  if (options.autoscaling) features.autoscalingEnabled = true;
-  if (options.persistentStorage) features.csi = true;
-  if (Object.keys(features).length > 0) body.features = features;
+  if (options.autoscaling) {
+    features.autoscalingEnabled = true;
+  }
+  if (options.persistentStorage) {
+    features.csi = true;
+  }
+  if (Object.keys(features).length > 0) {
+    body.features = features;
+  }
 
   body.topologyConfig = resolveTopologyConfig(options, product);
 
@@ -350,8 +360,12 @@ export async function k8sCreateNodeGroup(orgIdOrName, clusterIdOrName, options) 
   }
 
   const body = { name: options.name, flavor: options.flavor, targetNodeCount: options.targetNodeCount };
-  if (options.description != null) body.description = options.description;
-  if (options.tag != null) body.tag = options.tag;
+  if (options.description != null) {
+    body.description = options.description;
+  }
+  if (options.tag != null) {
+    body.tag = options.tag;
+  }
   if (wantsAutoscaling) {
     body.autoscalingEnabled = true;
     body.minNodeCount = options.min;

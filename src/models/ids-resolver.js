@@ -34,7 +34,9 @@ export async function resolveOwnerId(id) {
 export async function resolveAddon(addonIdOrRealId) {
   const result = await getIdFromCacheOrSummary((ids) => {
     const addon = ids.addons[addonIdOrRealId];
-    if (addon == null) return null;
+    if (addon == null) {
+      return null;
+    }
     const ownerId = ids.owners[addon.realId];
     return { ownerId, addonId: addon.addonId, realId: addon.realId };
   });

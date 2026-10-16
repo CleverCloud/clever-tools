@@ -79,7 +79,9 @@ function getSetupContent(markdown) {
   const ast = parseMarkdown(result);
   const tocRanges = ast.children
     .filter((node) => {
-      if (node.type !== 'list' || !node.position) return false;
+      if (node.type !== 'list' || !node.position) {
+        return false;
+      }
       const listText = result.slice(node.position.start.offset, node.position.end.offset);
       return listText.includes('/docs/setup-systems.md#');
     })
@@ -241,8 +243,12 @@ function getCommandSection(heading, path, definition) {
   if (commandInfo.args) {
     argumentsRows = commandInfo.args.map((arg) => {
       let description = arg.description;
-      if (arg.enumValues) description += ` (${arg.enumValues.join(', ')})`;
-      if (arg.optional) description += ` ${arg.optional}`;
+      if (arg.enumValues) {
+        description += ` (${arg.enumValues.join(', ')})`;
+      }
+      if (arg.optional) {
+        description += ` ${arg.optional}`;
+      }
       return [arg.name, description];
     });
     allRows.push(...argumentsRows);
@@ -255,10 +261,18 @@ function getCommandSection(heading, path, definition) {
       const aliasesPadding = opt.aliases[0].length === 2 ? '' : '    ';
       const aliases = aliasesPadding + opt.aliases.join(', ') + placeholder;
       let description = opt.description;
-      if (opt.enumValues) description += ` (${opt.enumValues.join(', ')})`;
-      if (opt.deprecated) description += ` ${opt.deprecated}`;
-      if (opt.required) description += ` ${opt.required}`;
-      if (opt.default) description += ` ${opt.default}`;
+      if (opt.enumValues) {
+        description += ` (${opt.enumValues.join(', ')})`;
+      }
+      if (opt.deprecated) {
+        description += ` ${opt.deprecated}`;
+      }
+      if (opt.required) {
+        description += ` ${opt.required}`;
+      }
+      if (opt.default) {
+        description += ` ${opt.default}`;
+      }
       return [aliases, description];
     });
     allRows.push(...optionsRows);

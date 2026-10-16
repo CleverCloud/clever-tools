@@ -67,7 +67,9 @@ export async function runSshCommand({ sshProcess, command, outStream = process.s
     if (idx !== -1) {
       markerReceived = true;
       const rest = markerSearchBuffer.subarray(idx + markerLine.length);
-      if (rest.length > 0) outStream.write(rest);
+      if (rest.length > 0) {
+        outStream.write(rest);
+      }
       markerSearchBuffer = Buffer.alloc(0);
     }
   });
