@@ -33,12 +33,12 @@ export const databaseBackupsCommand = defineCommand({
       case 'json': {
         const formattedBackups = sortedBackups.map((backup) => {
           return {
-            addonId: addonId,
+            addonId,
             backupId: backup.backup_id,
             creationDate: backup.creation_date,
             downloadUrl: backup.download_url,
-            ownerId: ownerId,
-            realId: realId,
+            ownerId,
+            realId,
             status: backup.status,
           };
         });

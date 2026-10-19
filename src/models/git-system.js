@@ -123,8 +123,12 @@ export class GitSystem extends Git {
   #redactUrl(url) {
     const urlObj = typeof url === 'string' ? new URL(url) : url;
     const redacted = new URL(urlObj.toString());
-    if (redacted.username) redacted.username = '***';
-    if (redacted.password) redacted.password = '***';
+    if (redacted.username) {
+      redacted.username = '***';
+    }
+    if (redacted.password) {
+      redacted.password = '***';
+    }
     return redacted.toString();
   }
 

@@ -62,13 +62,27 @@ export const k8sNodeGroupUpdateCommand = defineCommand({
     }
 
     const updates = {};
-    if (options.count != null) updates.targetNodeCount = options.count;
-    if (options.min != null) updates.minNodeCount = options.min;
-    if (options.max != null) updates.maxNodeCount = options.max;
-    if (options.autoscaling) updates.autoscalingEnabled = true;
-    if (options.disableAutoscaling) updates.autoscalingEnabled = false;
-    if (options.description != null) updates.description = options.description;
-    if (options.tag != null) updates.tag = options.tag;
+    if (options.count != null) {
+      updates.targetNodeCount = options.count;
+    }
+    if (options.min != null) {
+      updates.minNodeCount = options.min;
+    }
+    if (options.max != null) {
+      updates.maxNodeCount = options.max;
+    }
+    if (options.autoscaling) {
+      updates.autoscalingEnabled = true;
+    }
+    if (options.disableAutoscaling) {
+      updates.autoscalingEnabled = false;
+    }
+    if (options.description != null) {
+      updates.description = options.description;
+    }
+    if (options.tag != null) {
+      updates.tag = options.tag;
+    }
 
     if (Object.keys(updates).length === 0) {
       throw new Error(

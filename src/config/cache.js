@@ -37,7 +37,7 @@ export async function loadIdsCache() {
       return EMPTY_CACHE;
     }
     return parsed.data;
-  } catch (error) {
+  } catch {
     Logger.info(`Cannot load IDs cache from ${filePath}`);
     return EMPTY_CACHE;
   }

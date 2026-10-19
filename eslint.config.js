@@ -19,6 +19,27 @@ export default [
       },
     },
     rules: {
+      // The shared rules must be spread here: a `rules` key placed after the spread
+      // config replaces them all instead of merging with them
+      ...cleverCloud.configs.node.rules,
+      'n/prefer-node-protocol': 'error',
+      'prefer-const': 'error',
+      // @ts-expect-error fails once the error is gone, @ts-ignore stays silently
+      'no-warning-comments': ['error', { terms: ['@ts-ignore'], location: 'anywhere' }],
+      'object-shorthand': 'error',
+      'no-lonely-if': 'error',
+      'no-else-return': 'error',
+      radix: 'error',
+      // Conventions the code already follows
+      'no-var': 'error',
+      'prefer-arrow-callback': 'error',
+      'import-x/no-default-export': 'error',
+      'import-x/no-commonjs': 'error',
+      // Likely bugs, not reported by the shared config
+      'array-callback-return': 'error',
+      'no-template-curly-in-string': 'error',
+      'no-throw-literal': 'error',
+      'no-unused-expressions': 'error',
       // Custom camelcase rule with project-specific allowances
       camelcase: [
         'error',

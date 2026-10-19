@@ -132,7 +132,7 @@ export const diagCommand = defineCommand({
         }
 
         if (formattedDiag.profileOverrides != null) {
-          const overrideEntries = Object.entries(formattedDiag.profileOverrides).filter(([k, v]) => v != null);
+          const overrideEntries = Object.entries(formattedDiag.profileOverrides).filter(([_k, v]) => v != null);
           if (overrideEntries.length > 0) {
             const maxKeyLength = Math.max(...overrideEntries.map(([key]) => key.length));
             const pad = maxKeyLength + 2;

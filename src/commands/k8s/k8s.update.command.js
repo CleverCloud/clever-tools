@@ -51,14 +51,26 @@ export const k8sUpdateCommand = defineCommand({
     }
 
     const updates = {};
-    if (options.name != null) updates.name = options.name;
-    if (options.description != null) updates.description = options.description;
-    if (options.tag != null) updates.tags = options.tag;
+    if (options.name != null) {
+      updates.name = options.name;
+    }
+    if (options.description != null) {
+      updates.description = options.description;
+    }
+    if (options.tag != null) {
+      updates.tags = options.tag;
+    }
 
     const features = {};
-    if (options.autoscaling) features.autoscalingEnabled = true;
-    if (options.disableAutoscaling) features.autoscalingEnabled = false;
-    if (Object.keys(features).length > 0) updates.features = features;
+    if (options.autoscaling) {
+      features.autoscalingEnabled = true;
+    }
+    if (options.disableAutoscaling) {
+      features.autoscalingEnabled = false;
+    }
+    if (Object.keys(features).length > 0) {
+      updates.features = features;
+    }
 
     if (Object.keys(updates).length === 0) {
       throw new Error(

@@ -1,5 +1,5 @@
 import dedent from 'dedent';
-import z from 'zod';
+import { z } from 'zod';
 import { readJsonSync, writeJson } from '../lib/fs.js';
 import { Logger } from '../logger.js';
 import { config } from './config.js';
@@ -152,7 +152,7 @@ export async function setFeature(feature, value) {
   const newFeatures = { ...userFeatures, [feature]: value };
   try {
     await writeJson(filePath, newFeatures, { mode: 0o700 });
-  } catch (error) {
+  } catch {
     throw new Error(`Cannot write experimental features configuration to ${filePath}`);
   }
   userFeatures = loadFeatures();

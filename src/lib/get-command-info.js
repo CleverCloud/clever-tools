@@ -57,7 +57,9 @@ export function getCommandInfo(path, definition) {
         .sort((optA, optB) => {
           const aRequired = isRequired(optA.schema);
           const bRequired = isRequired(optB.schema);
-          if (aRequired !== bRequired) return aRequired ? -1 : 1;
+          if (aRequired !== bRequired) {
+            return aRequired ? -1 : 1;
+          }
           return optA.name.localeCompare(optB.name);
         })
         .map((option) => {
