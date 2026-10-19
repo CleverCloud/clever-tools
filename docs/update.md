@@ -20,6 +20,7 @@ The command to update Clever Tools depends on how you installed it. If you're no
   - [WinGet](#winget)
   - [Binary (.zip)](#binary-zip)
 - [Docker](#docker)
+- [Mise package manager](#mise-package-manager)
 - [Nix package manager](#nix-package-manager)
 
 ## Node.js
@@ -138,6 +139,22 @@ Pull the image again to get the latest tag:
 ```
 docker pull clevercloud/clever-tools
 ```
+
+## Mise package manager
+
+If your configuration tracks `latest`, which `mise use` sets by default, install the newest release:
+
+```
+mise upgrade github:CleverCloud/clever-tools
+```
+
+If you pinned a version, bump it in your configuration file to the latest release:
+
+```
+mise upgrade --bump github:CleverCloud/clever-tools
+```
+
+Run these commands from the project directory to update its configuration, or add `--global` to update only the global configuration.
 
 ## Nix package manager
 

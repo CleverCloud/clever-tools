@@ -193,6 +193,29 @@ In your `Dockerfile` copy `clever-tools` from the image itself with a simple one
 COPY --from=clevercloud/clever-tools /bin/clever /usr/local/bin/clever
 ```
 
+### Mise package manager
+
+If you use [Mise](https://mise.jdx.dev), install Clever Tools globally from its GitHub releases through the [GitHub backend](https://mise.jdx.dev/dev-tools/backends/github.html):
+
+```
+mise use -g github:CleverCloud/clever-tools
+```
+
+To install a specific version globally, add it after `@`:
+
+```
+mise use -g github:CleverCloud/clever-tools@5.2.0
+```
+
+Mise selects the release archive for your operating system. These binaries target x64 on Linux and Windows, and Apple Silicon on macOS; for other architectures, use the npm package.
+
+To pin a version for a project, add it to its `mise.toml`:
+
+```toml
+[tools]
+"github:CleverCloud/clever-tools" = "5.2.0"
+```
+
 ### Nix package manager
 
 If you are using Nix on NixOS or any other compatible system, the package is available in both `stable` and `unstable` channels. Follow [these instructions](https://search.nixos.org/packages?channel=unstable&show=clever-tools&from=0&size=50&sort=relevance&type=packages&query=clever-tools).

@@ -20,6 +20,7 @@ Clever Tools is available as a npm package, through package managers, or as a st
   - [WinGet](/docs/setup-systems.md#winget)
   - [Binary (.zip)](/docs/setup-systems.md#binary-zip)
 - [Docker](/docs/setup-systems.md#docker)
+- [Mise package manager](/docs/setup-systems.md#mise-package-manager)
 - [Nix package manager](/docs/setup-systems.md#nix-package-manager)
 
 ## Node.js
@@ -187,6 +188,29 @@ In your `Dockerfile` copy `clever-tools` from the image itself with a simple one
 
 ```Dockerfile
 COPY --from=clevercloud/clever-tools /bin/clever /usr/local/bin/clever
+```
+
+## Mise package manager
+
+If you use [Mise](https://mise.jdx.dev), install Clever Tools globally from its GitHub releases through the [GitHub backend](https://mise.jdx.dev/dev-tools/backends/github.html):
+
+```
+mise use -g github:CleverCloud/clever-tools
+```
+
+To install a specific version globally, add it after `@`:
+
+```
+mise use -g github:CleverCloud/clever-tools@5.2.0
+```
+
+Mise selects the release archive for your operating system. These binaries target x64 on Linux and Windows, and Apple Silicon on macOS; for other architectures, use the npm package.
+
+To pin a version for a project, add it to its `mise.toml`:
+
+```toml
+[tools]
+"github:CleverCloud/clever-tools" = "5.2.0"
 ```
 
 ## Nix package manager
