@@ -6,6 +6,7 @@ import { defineCommand } from '../../lib/define-command.js';
 import { Logger } from '../../logger.js';
 import * as Application from '../../models/application.js';
 import { sendToApi } from '../../models/send-to-api.js';
+import { commaSeparated } from '../../parsers.js';
 import { aliasOption, appIdOrNameOption } from '../global.options.js';
 
 export const envImportVarsCommand = defineCommand({
@@ -18,7 +19,7 @@ export const envImportVarsCommand = defineCommand({
   },
   args: [
     defineArgument({
-      schema: z.string(),
+      schema: z.string().transform(commaSeparated),
       description: 'Comma separated list of names of the environment variables',
       placeholder: 'variable-names',
     }),
