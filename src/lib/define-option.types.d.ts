@@ -1,5 +1,5 @@
-import { z } from 'zod';
-import { CompletionFunction } from './define-common.types.js';
+import type { z } from 'zod';
+import type { CompletionFunction } from './define-common.types.js';
 
 /** Define a CLI option with full type inference from Zod schema. */
 export function defineOption<S extends z.ZodType>(definition: OptionDefinition<S>): OptionDefinition<S>;

@@ -1,7 +1,7 @@
-import { z } from 'zod';
+import type { z } from 'zod';
 
-import { ArgumentDefinition } from './define-argument.types.js';
-import { OptionDefinition } from './define-option.types.js';
+import type { ArgumentDefinition } from './define-argument.types.js';
+import type { OptionDefinition } from './define-option.types.js';
 
 /** Define a CLI command with full type inference from option and argument definitions. */
 // The `const` modifier on `A` is critical: it tells TypeScript to infer the exact

@@ -105,6 +105,14 @@ export default defineConfig([
       // Rewrites `./x.js` to `./x.ts` for `.ts` files, so imports of `.js` modules are reported as missing.
       // `npm run typecheck` already checks that imports resolve.
       'n/no-missing-import': 'off',
+      // Enforce the use of 'import type' for importing types
+      '@typescript-eslint/consistent-type-imports': [
+        'error',
+        {
+          fixStyle: 'inline-type-imports',
+          disallowTypeAnnotations: false,
+        },
+      ],
       // Enforce the use of top-level import type qualifier when an import only has specifiers with inline type qualifiers
       '@typescript-eslint/no-import-type-side-effects': 'error',
       '@typescript-eslint/no-unused-vars': [
