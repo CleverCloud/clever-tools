@@ -10,7 +10,7 @@ const { setup, mockConfigFile, mockEnv, importFreshConfig } = (() => {
 
   return {
     /** Install the fs and env mocks with a blank state, to call before each test. */
-    setup() {
+    setup: () => {
       fakeConfigFile = null;
       fakeEnv = { HOME };
       mock.property(process, 'env', fakeEnv);
@@ -23,15 +23,15 @@ const { setup, mockConfigFile, mockEnv, importFreshConfig } = (() => {
       });
     },
 
-    mockConfigFile(data: unknown) {
+    mockConfigFile: (data: unknown) => {
       fakeConfigFile = data;
     },
 
-    mockEnv(env: Record<string, string>) {
+    mockEnv: (env: Record<string, string>) => {
       Object.assign(fakeEnv, env);
     },
 
-    importFreshConfig(): Promise<typeof import('./config.js')> {
+    importFreshConfig: (): Promise<typeof import('./config.js')> => {
       // `config.js` reads `process.env` and the config file when it is evaluated, and ESM evaluates a module only once per URL.
       // The mocks only affect imports made after them, so a cached `config.js` would keep the previous env and file data.
       // A unique query string forces a fresh evaluation, so each test gets a `config` built from its own env and file data.
