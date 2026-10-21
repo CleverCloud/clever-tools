@@ -17,7 +17,4 @@ export interface ArgumentDefinition<S extends z.ZodType = z.ZodType> {
 
   /** Shell completion function. Can be sync or async. */
   complete?: CompletionFunction;
-
-  /** Mark as deprecated. `true` for generic warning, or a string with migration instructions. */
-  deprecated?: boolean | string;
 }
