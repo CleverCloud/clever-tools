@@ -54,8 +54,10 @@ export const DRAIN_TYPES = {
 
 /**
  * Keeps the drains sent to the given type, or all of them when no type is given.
- * @param {Array<{ recipient: { type: string } }>} drains
+ * @template {{ recipient: { type: string } }} Drain
+ * @param {Array<Drain>} drains
  * @param {typeof DRAIN_TYPES[keyof typeof DRAIN_TYPES] | undefined} drainType
+ * @returns {Array<Drain>}
  */
 export function filterDrainsByType(drains, drainType) {
   if (drainType == null) {
