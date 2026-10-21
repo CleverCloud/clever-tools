@@ -17,7 +17,7 @@ const { setup, mockConfigFile, mockEnv, importFreshConfig } = (() => {
       mock.module('../lib/fs.js', {
         namedExports: {
           readJsonSync: () => fakeConfigFile,
-          readJson: async () => fakeConfigFile,
+          readJson: () => Promise.resolve(fakeConfigFile),
           writeJson: async () => {},
         },
       });

@@ -129,7 +129,6 @@ export default defineConfig([
       ],
       '@typescript-eslint/strict-boolean-expressions': 'error',
       // Not enabled yet: the existing code does not comply, one commit per rule enables it
-      '@typescript-eslint/require-await': 'off',
       '@typescript-eslint/no-unsafe-return': 'off',
       'no-restricted-syntax': [
         'error',
