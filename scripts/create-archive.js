@@ -13,7 +13,7 @@
 //
 // REQUIRED SYSTEM BINARIES:
 //   tar             For creating tar.gz archives (Unix-like systems)
-//   zip             For creating zip archives (Windows)
+//   powershell      For creating zip archives with Compress-Archive (Windows)
 //
 // EXAMPLES:
 //   create-archive.js 1.2.3 true
