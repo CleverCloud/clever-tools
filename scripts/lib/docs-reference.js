@@ -2,6 +2,10 @@ import dedent from 'dedent';
 import { getCommandInfo } from '../../src/lib/get-command-info.js';
 import { escapeTableCell, formatCodeList, getNodesBetweenH2, stringifyMarkdown } from './markdown.js';
 
+// Headings of the generated sections, every other H3 under a command is custom and kept as is
+const ARGUMENTS_HEADING = '### 📥 Arguments';
+const OPTIONS_HEADING = '### ⚙️ Options';
+
 /**
  * @typedef {import('../../src/lib/define-option.types.js').OptionDefinition} OptionDefinition
  * @typedef {import('../../src/lib/define-command.types.js').CommandDefinition} CommandDefinition
@@ -225,7 +229,7 @@ export function getSubCommandMarkdown(path, definition, subCommandNodes) {
       return `|\`${escapeTableCell(arg.name)}\`|${escapeTableCell(description)}|`;
     });
     parts.push(dedent`
-      ### 📥 Arguments
+      ${ARGUMENTS_HEADING}
 
       |Name|Description|
       |---|---|
@@ -254,7 +258,7 @@ export function getSubCommandMarkdown(path, definition, subCommandNodes) {
         return `|${escapeTableCell(aliases)}|${escapeTableCell(description)}|`;
       });
       parts.push(dedent`
-        ### ⚙️ Options
+        ${OPTIONS_HEADING}
 
         |Name|Description|
         |---|---|
@@ -286,7 +290,7 @@ function getCustomH3Sections(nodes) {
   for (const node of nodes) {
     if (node.type === 'heading' && node.depth === 3) {
       const text = stringifyMarkdown(node);
-      const isGenerated = text.includes('Arguments') || text.includes('Options');
+      const isGenerated = text === ARGUMENTS_HEADING || text === OPTIONS_HEADING;
 
       if (currentSection && !currentSection.isGenerated) {
         sections.push({ heading: currentSection.heading, nodes: currentSection.nodes });
