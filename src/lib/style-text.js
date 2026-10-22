@@ -12,11 +12,11 @@ function getColorDisabled() {
   if (hasParam('--color', 'true')) {
     return false;
   }
-  if (!process.stdout.isTTY) {
-    return true;
-  }
   if (process.env.FORCE_COLOR != null) {
     return !VALID_FORCE_COLOR_VALUES.includes(process.env.FORCE_COLOR);
+  }
+  if (!process.stdout.isTTY) {
+    return true;
   }
   if (process.env.NO_COLOR) {
     return true;
