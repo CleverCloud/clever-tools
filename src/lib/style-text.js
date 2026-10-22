@@ -9,6 +9,9 @@ function getColorDisabled() {
   if (hasParam('--no-color') || hasParam('--color', 'false')) {
     return true;
   }
+  if (hasParam('--color', 'true')) {
+    return false;
+  }
   if (!process.stdout.isTTY) {
     return true;
   }

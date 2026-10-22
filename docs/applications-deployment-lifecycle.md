@@ -109,6 +109,12 @@ By default, logs keep streaming. Use `--until` (or `--before`) to set an end tim
 clever logs --since 15m --until now
 ```
 
+Colors are disabled when the output is not a terminal. To keep them in a pager, use `--color true`:
+
+```
+clever logs --since 15m --until now --color true | less -R
+```
+
 ## access logs
 
 When you deploy an application on Clever Cloud, we collect its access logs, hosted in our internal Pulsar stack, all included. To listen to the stream, use:

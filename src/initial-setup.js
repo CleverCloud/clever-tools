@@ -30,4 +30,7 @@ if (hasParam('--autocomplete-index')) {
 if (IS_COLOR_DISABLED) {
   process.env.NO_COLOR = '1';
   delete process.env.FORCE_COLOR;
+} else {
+  process.env.FORCE_COLOR = '1';
+  delete process.env.NO_COLOR;
 }
