@@ -1,6 +1,6 @@
 import { EnvHttpProxyAgent, setGlobalDispatcher } from 'undici';
 import { hasParam } from './lib/has-param.js';
-import { IS_COLOR_DISABLED } from './lib/style-text.js';
+import { IS_COLOR_DISABLED, VALID_FORCE_COLOR_VALUES } from './lib/style-text.js';
 
 // Node's global fetch() ignores the http_proxy/https_proxy environment variables,
 // unlike most CLI tools (curl, kubectl, s3cmd…). When such a variable is set, install
@@ -27,10 +27,13 @@ if (hasParam('--autocomplete-index')) {
 
 // These need to be set before other stuffs
 // Dependencies and child processes read these variables, they don't know about IS_COLOR_DISABLED
+// FORCE_COLOR is the only one all of them understand (chalk in update-notifier ignores NO_COLOR),
+// and Node warns when both are set
+// When colors are enabled, a valid FORCE_COLOR set by the user (1, 2, 3, true or empty) is kept to preserve the requested color depth
+// Otherwise (unset, 0, false, invalid) it is set to 1, so that --color true wins over FORCE_COLOR=0
 if (IS_COLOR_DISABLED) {
-  process.env.NO_COLOR = '1';
-  delete process.env.FORCE_COLOR;
-} else {
+  process.env.FORCE_COLOR = '0';
+} else if (!VALID_FORCE_COLOR_VALUES.includes(process.env.FORCE_COLOR)) {
   process.env.FORCE_COLOR = '1';
-  delete process.env.NO_COLOR;
 }
+delete process.env.NO_COLOR;
