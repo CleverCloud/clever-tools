@@ -92,6 +92,6 @@ Node scripts for development and the CI (build, docs, previews, publication), be
 - [api-client.md](api-client.md): calling the API and adding a missing endpoint.
 - [docs-generation.md](docs-generation.md): generated files and what you can edit.
 - [code-quality.md](code-quality.md): the checks run by `npm run validate` and the CI, and what each npm script does.
-- [testing.md](testing.md): unit tests and manual testing.
+- [testing.md](testing.md): command tests, unit tests and manual testing.
 - [issues-commits-and-prs.md](issues-commits-and-prs.md): issues, commit messages and pull requests.
 - [build-ci-and-release.md](build-ci-and-release.md): workflows, release, and what each script of `scripts/` does.

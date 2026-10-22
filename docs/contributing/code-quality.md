@@ -13,9 +13,9 @@ The `code-quality.yml` workflow runs on every PR (except release-please PRs), in
 | Formatting (Prettier) | `npm run format:check` |
 | Type checking (TypeScript) | `npm run typecheck` |
 | Generated documentation is up to date | `npm run docs:check` |
-| Unit tests | `npm test` |
+| Unit, framework and command tests | `npm test` |
 
-Run the last five locally with `npm run validate`, and fix what can be fixed automatically with `npm run fix-all` (see [npm scripts](#npm-scripts)). The commit checks are described in [issues-commits-and-prs.md](issues-commits-and-prs.md), the documentation check in [docs-generation.md](docs-generation.md), the unit tests in [testing.md](testing.md).
+Run the lint, format, type and documentation checks and the unit tests locally with `npm run validate` (it skips the command tests, see [testing.md](testing.md#running-the-tests)), and fix what can be fixed automatically with `npm run fix-all` (see [npm scripts](#npm-scripts)). The commit checks are described in [issues-commits-and-prs.md](issues-commits-and-prs.md), the documentation check in [docs-generation.md](docs-generation.md), the tests in [testing.md](testing.md).
 
 ## npm scripts
 
@@ -26,10 +26,12 @@ Run the last five locally with `npm run validate`, and fix what can be fixed aut
 | `npm run format` | Formats every file with Prettier (Markdown excluded). |
 | `npm run format:check` | Checks the formatting without changing files. |
 | `npm run typecheck` | Typechecks the files listed in the `include` of `tsconfig.json` and the files they import. |
-| `npm test` | Runs the unit tests (`src/**/*.test.ts`) with the Node.js test runner (see [testing.md](testing.md)). Modules are mocked with the native `node:test` mocks, still experimental, hence `--experimental-test-module-mocks`. |
+| `npm test` | Runs `test:unit`, then `test:commands`, like the CI (see [testing.md](testing.md)). |
+| `npm run test:unit` | Runs the unit tests (`src/**/*.test.ts`, command tests excluded) and the framework tests (`test/**/*.test.ts`) with the Node.js test runner. Modules are mocked with the native `node:test` mocks, still experimental, hence `--experimental-test-module-mocks`. |
+| `npm run test:commands` | Runs the command tests (`src/**/*.command.test.ts`): each test spawns `bin/clever.js` in a sandbox, so the suite is slower. |
 | `npm run docs` | Regenerates the documentation from the command definitions (see [docs-generation.md](docs-generation.md)). Calls the public Clever Cloud API. |
 | `npm run docs:check` | Checks that the generated documentation is up to date, without writing files. |
-| `npm run validate` | Runs `lint`, `format:check`, `typecheck`, `docs:check` and `test`, like the CI. |
+| `npm run validate` | Runs `lint`, `format:check`, `typecheck`, `docs:check` and `test:unit`: the CI also runs `test:commands`. |
 | `npm run fix-all` | Runs `lint:fix`, `docs` and `format`. |
 | `npm run install-local:cliparse` | Packs `../cliparse-node` and installs it in place of the published `cliparse`. Rewrites `package.json`: undo it before committing. |
 
@@ -47,7 +49,7 @@ The Node.js scripts of `scripts/` (build, previews, release) are described in [b
 
 [TypeScript](https://www.typescriptlang.org): the code is plain JavaScript typed with JSDoc comments (plus a few `*.types.d.ts` declaration files), checked by `tsc` without transpilation. `npm run typecheck` checks the files listed in the `include` of `tsconfig.json` and the files they import: run `npx tsc -p tsconfig.json --listFiles` before assuming a file is checked or not.
 
-For now, source files stay `.js` with JSDoc types: don't write new code in `.ts` or convert an existing file. A move of every file to `.ts` is planned, the JSDoc types are the first step (see [code-style.md](code-style.md#types)). The only `.ts` files are the unit tests (`*.test.ts`, see [testing.md](testing.md)).
+For now, source files stay `.js` with JSDoc types: don't write new code in `.ts` or convert an existing file. A move of every file to `.ts` is planned, the JSDoc types are the first step (see [code-style.md](code-style.md#types)). The only `.ts` files are the tests (`*.test.ts`) and their helpers in `test/` (see [testing.md](testing.md)).
 
 ## Claude Code hook
 
