@@ -11,7 +11,7 @@
 
 | Workflow | Trigger | What it does |
 |---|---|---|
-| `code-quality.yml` | PR | Commits, rebase, lint, format, types, generated docs, unit tests |
+| `code-quality.yml` | PR | Commits, rebase, lint, format, types, generated docs, unit and command tests |
 | `preview-publish.yml` | PR (not Markdown-only), `build:win` label | Builds with `build.yml`, uploads to Cellar, comments the download links on the PR |
 | `preview-cleanup.yml` | PR closed | Deletes the preview from Cellar, updates the PR comment |
 | `release-please.yml` | Push to `master` | Opens or updates the release PR, resolves `since`, regenerates the docs |

@@ -1,7 +1,7 @@
 # clever-tools
 
 The official Clever Cloud CLI (`clever`), published on npm as `clever-tools` and as self-contained binaries (Homebrew, AUR, WinGet, Docker, DEB/RPM…).
-Plain JavaScript checked with `tsc` (JSDoc types, plus a few `*.types.d.ts` declaration files for complex types), no TypeScript compiled at runtime (unit tests are `*.test.ts` files run natively by Node), ESM only, Node 24+, `npm` as package manager, exact Node/npm versions pinned in `mise.toml`.
+Plain JavaScript checked with `tsc` (JSDoc types, plus a few `*.types.d.ts` declaration files for complex types), no TypeScript compiled at runtime (tests and their helpers are `.ts` files run natively by Node), ESM only, Node 24+, `npm` as package manager, exact Node/npm versions pinned in `mise.toml`.
 
 This file is the canonical instruction set for AI coding agents.
 
@@ -10,10 +10,11 @@ This file is the canonical instruction set for AI coding agents.
 - **Once you consider the work finished, not after each edit, run `npm run fix-all` then `npm run validate`, and fix what it reports.**
   - `fix-all` fixes lint issues, formats the code and regenerates the documentation of the commands: commit the generated files with the change.
   - The user guides in `docs/*.md` and the custom sections of `<command>.docs.md` (examples, notes) are written by hand: when a behaviour they describe changes, update them too.
-  - `validate` checks lint, format, types, generated docs and unit tests.
+  - `validate` checks lint, format, types, generated docs and unit tests (`test:unit`). It skips the command tests: run those of the commands you changed with `node --test src/commands/<command>/*.command.test.ts`. The CI runs every test (`npm test`).
   - Claude Code lints and formats the files it changes with Edit or Write through a hook, so it can skip `fix-all` for those, but it still runs `npm run docs` after changing a command, then `validate`.
-- **A unit test suite is being built, don't add tests to existing code now.** A few unit tests exist and run in the CI (`npm test`), so the setup is ready, but work in progress will add many tests at once, and the rest will be handled later.
+- **A unit test suite is being built, don't add unit tests to existing code now.** A few unit tests exist and run in the CI (`npm test`), so the setup is ready, but work in progress will add many tests at once, and the rest will be handled later.
   - Exception: a brand new standalone util or helper can come with its unit test.
+  - Command tests (`<command>.command.test.ts` or `<command>.<sub>.command.test.ts`, see `docs/contributing/testing.md`) are black box tests run in a sandbox. Only commands that make no API call are covered for now (`version`, `help`, `features`): there is no fake API yet.
   - To verify a behaviour change, run the affected command from source with `node bin/clever.js <command>`, read-only commands first (see "Running the CLI").
 - **Before your first edit for any task that adds or changes a command, subcommand, option, argument, accepted value or command behaviour, read `docs/contributing/commands.md`, however small the change.** If the change calls an API endpoint, read `docs/contributing/api-client.md` too. Neighbouring code shows how one command is written; the doc gives the rules it doesn't show (shared options, `since`, where validation goes, docs regeneration). Questions that need no edit don't need it.
 - **Then copy the closest neighbour** (naming, file layout, output format, error messages) rather than inventing a pattern.
@@ -35,6 +36,7 @@ This file is the canonical instruction set for AI coding agents.
 | `src/config/` | Runtime configuration (env vars, profiles, config file paths), experimental features |
 | `src/parsers.js` | Zod transformers used by options and arguments |
 | `src/logger.js` | `Logger`, the only way commands print |
+| `test/` | Test framework (sandbox, file system and env mocks), command tests live next to their command in `src/commands/` |
 | `scripts/` | Development and CI scripts (build, docs, previews, publication), mostly typechecked JavaScript. Only the `*.sh` shell completion scripts are shipped in the package |
 | `skills/clever-tools/` | Agent skill shipped **to CLI users** (`npx skills add CleverCloud/clever-tools`), not instructions for this repository |
 | `docs/` | User guides, ADRs (`docs/adr/`) and contributor docs (`docs/contributing/`) |
@@ -73,7 +75,7 @@ Commands are declared with `defineCommand()` / `defineOption()` / `defineArgumen
 
 | | |
 |---|---|
-| **Safe** | `npm run lint`, `lint:fix`, `format`, `format:check`, `typecheck`, `test`, `docs`, `docs:check`, `validate`, `fix-all`, `node scripts/check-github-actions.js` |
+| **Safe** | `npm run lint`, `lint:fix`, `format`, `format:check`, `typecheck`, `test`, `test:unit`, `test:commands`, `docs`, `docs:check`, `validate`, `fix-all`, `node scripts/check-github-actions.js` |
 | **Slow** | `scripts/bundle-cjs.js`, `scripts/build-binary.js`, `scripts/preview.js build` (bundle and compile binaries locally), `scripts/preview.js update` (downloads missing or outdated previews for this OS, and may ask which local ones to delete) |
 | **Never run unasked** | `scripts/preview.js publish\|delete\|pr-comment`, `scripts/resolve-since.js`, `scripts/publish-*.js`, `scripts/update-github-release.js`, `npm publish`: CI runs them, most publish to shared Cellar buckets, package registries or GitHub and need secrets |
 
@@ -107,7 +109,7 @@ Read these when the task matches. The first row is mandatory before editing a co
 | Understand where things are, in detail | `docs/contributing/codebase-map.md` |
 | Call the API, add a missing endpoint, test a local client build | `docs/contributing/api-client.md` |
 | Lint, format, typecheck, what CI checks, what an npm script does | `docs/contributing/code-quality.md` |
-| Write unit tests, test a change by hand, test with another account | `docs/contributing/testing.md` |
+| Write command or unit tests, test a change by hand, test with another account | `docs/contributing/testing.md` |
 | Write commits, open an issue or a PR | `docs/contributing/issues-commits-and-prs.md`, `.github/ISSUE_TEMPLATE/`, `.github/pull_request_template.md` |
 | CI, previews, release, packaging, what a script of `scripts/` does | `docs/contributing/build-ci-and-release.md`, `.github/workflows/` |
 | User-facing behaviour of a command | `src/commands/<command>/<command>.docs.md`, `docs/*.md` |
