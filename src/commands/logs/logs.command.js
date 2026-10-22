@@ -32,6 +32,11 @@ export const logsCommand = defineCommand({
       description: 'Fetch logs for a given deployment',
       placeholder: 'deployment-id',
     }),
+    stripAnsi: defineOption({
+      name: 'strip-ansi',
+      schema: z.boolean().default(false),
+      description: 'Remove the ANSI codes contained in log messages',
+    }),
     alias: aliasOption,
     app: appIdOrNameOption,
     before: beforeOption,
@@ -50,6 +55,7 @@ export const logsCommand = defineCommand({
       search,
       deploymentId,
       format,
+      stripAnsi,
     } = options;
 
     // ignore --search ""
@@ -62,7 +68,7 @@ export const logsCommand = defineCommand({
         Logger.println(styleText('blue', 'Waiting for addon logs…'));
       }
       const deferred = new Deferred();
-      await Log.displayLogs({ ownerId, addonId: realId, since, until, filter, format, deferred });
+      await Log.displayLogs({ ownerId, addonId: realId, since, until, filter, format, stripAnsi, deferred });
       return deferred.promise;
     }
 
@@ -73,7 +79,7 @@ export const logsCommand = defineCommand({
     }
 
     const deferred = new Deferred();
-    await Log.displayLogs({ ownerId, appId, since, until, filter, deploymentId, format, deferred });
+    await Log.displayLogs({ ownerId, appId, since, until, filter, deploymentId, format, stripAnsi, deferred });
     return deferred.promise;
   },
 });

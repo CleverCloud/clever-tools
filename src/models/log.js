@@ -26,9 +26,10 @@ const retryConfiguration = {
 export async function displayLogs(params) {
   const deferred = params.deferred || new Deferred();
   const { apiHost, tokens } = await getHostAndTokens();
-  const { ownerId, appId, addonId, filter, since, until, format = 'human' } = params;
+  const { ownerId, appId, addonId, filter, since, until, format = 'human', stripAnsi = false } = params;
   // The human format is only meant to be displayed, so disabled colors also apply to the log messages
-  const shouldStripAnsi = format === 'human' && IS_COLOR_DISABLED;
+  // The json formats are data, they only lose the ANSI codes when explicitly requested
+  const shouldStripAnsi = stripAnsi || (format === 'human' && IS_COLOR_DISABLED);
   // deploymentId only applies to apps
   const deploymentId = addonId != null ? undefined : params.deploymentId;
 
