@@ -15,7 +15,7 @@ function getColorDisabled() {
   if (process.env.FORCE_COLOR != null) {
     return !VALID_FORCE_COLOR_VALUES.includes(process.env.FORCE_COLOR);
   }
-  if (process.env.NO_COLOR != null) {
+  if (process.env.NO_COLOR) {
     return true;
   }
   return process.env.TERM === 'dumb';
