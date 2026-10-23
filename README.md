@@ -7,7 +7,7 @@ The official CLI for [Clever Cloud](https://www.clever.cloud) - Deploy and manag
 
 ## Quick Start
 
-**Prerequisites:** Node.js 22+
+**Prerequisites:** Node.js 24+
 
 ```bash
 # Install globally
