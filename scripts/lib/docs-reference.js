@@ -2,6 +2,10 @@ import dedent from 'dedent';
 import { getCommandInfo } from '../../src/lib/get-command-info.js';
 import { escapeTableCell, formatCodeList, getNodesBetweenH2, stringifyMarkdown } from './markdown.js';
 
+// Headings of the generated sections, every other H3 under a command is custom and kept as is
+const ARGUMENTS_HEADING = '### 📥 Arguments';
+const OPTIONS_HEADING = '### ⚙️ Options';
+
 /**
  * @typedef {import('../../src/lib/define-option.types.js').OptionDefinition} OptionDefinition
  * @typedef {import('../../src/lib/define-command.types.js').CommandDefinition} CommandDefinition
@@ -143,8 +147,9 @@ export function getRootCommandMarkdown(name, command, ast) {
 
   const subCommands = getSubCommands(name, command);
   for (const sc of subCommands) {
-    const heading = getSubCommandHeading(sc.path, sc.definition);
-    const subCommandNodes = ast ? getNodesBetweenH2(ast.children, heading) : [];
+    // Match on the command path only, so custom sections survive a `since` change (Unreleased -> Since X.Y.Z)
+    const headingPrefix = getSubCommandHeadingPrefix(sc.path);
+    const subCommandNodes = ast ? getNodesBetweenH2(ast.children, headingPrefix) : [];
     parts.push(getSubCommandMarkdown(sc.path, sc.definition, subCommandNodes));
   }
 
@@ -179,6 +184,15 @@ function getSubCommands(name, command, parentPath = []) {
 }
 
 /**
+ * Generates the start of the H2 heading for a subcommand, without the version badge.
+ * @param {string[]} commandPath
+ * @returns {string}
+ */
+function getSubCommandHeadingPrefix(commandPath) {
+  return `## ➡️ \`clever ${commandPath.join(' ')}\``;
+}
+
+/**
  * Generates the H2 heading for a subcommand.
  * @param {string[]} commandPath
  * @param {CommandDefinition} definition
@@ -186,7 +200,7 @@ function getSubCommands(name, command, parentPath = []) {
  */
 export function getSubCommandHeading(commandPath, definition) {
   const since = definition.since == null ? 'Unreleased' : `Since ${definition.since}`;
-  return `## ➡️ \`clever ${commandPath.join(' ')}\` <kbd>${since}</kbd>`;
+  return `${getSubCommandHeadingPrefix(commandPath)} <kbd>${since}</kbd>`;
 }
 
 /**
@@ -215,7 +229,7 @@ export function getSubCommandMarkdown(path, definition, subCommandNodes) {
       return `|\`${escapeTableCell(arg.name)}\`|${escapeTableCell(description)}|`;
     });
     parts.push(dedent`
-      ### 📥 Arguments
+      ${ARGUMENTS_HEADING}
 
       |Name|Description|
       |---|---|
@@ -244,7 +258,7 @@ export function getSubCommandMarkdown(path, definition, subCommandNodes) {
         return `|${escapeTableCell(aliases)}|${escapeTableCell(description)}|`;
       });
       parts.push(dedent`
-        ### ⚙️ Options
+        ${OPTIONS_HEADING}
 
         |Name|Description|
         |---|---|
@@ -276,7 +290,7 @@ function getCustomH3Sections(nodes) {
   for (const node of nodes) {
     if (node.type === 'heading' && node.depth === 3) {
       const text = stringifyMarkdown(node);
-      const isGenerated = text.includes('Arguments') || text.includes('Options');
+      const isGenerated = text === ARGUMENTS_HEADING || text === OPTIONS_HEADING;
 
       if (currentSection && !currentSection.isGenerated) {
         sections.push({ heading: currentSection.heading, nodes: currentSection.nodes });
