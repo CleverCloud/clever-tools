@@ -1,0 +1,156 @@
+[
+  {
+    "role": "user",
+    "content": "Add a `clever k8s version` group with a `check` subcommand (is a newer Kubernetes version available?) and an `update` subcommand (upgrade the version of the cluster)."
+  },
+  {
+    "role": "tool_call",
+    "name": "Bash",
+    "content": "{\n  \"command\": \"ls src/commands/k8s/ src/clever-client/ && grep -n \\\"k8s\\\" src/commands/global.commands.js && grep -rn \\\"k8s\\\\|kubernetes\\\" src/lib/*.js -il; grep -rn \\\"version\\\" src/commands/k8s/*.js | head -30\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "src/clever-client/:\nauth-bridge.js\ndrains.js\nk8s.js\nng.js\noperators.js\n\nsrc/commands/k8s/:\nk8s.activity.command.js\nk8s.add-persistent-storage.command.js\nk8s.args.js\nk8s.command.js\nk8s.create.command.js\nk8s.delete.command.js\nk8s.docs.md\nk8s.get-kubeconfig.command.js\nk8s.get.command.js\nk8s.list.command.js\nk8s.quota.command.js\nk8s.update.command.js\n65:import { k8sActivityCommand } from './k8s/k8s.activity.command.js';\n66:import { k8sAddPersistentStorageCommand } from './k8s/k8s.add-persistent-storage.command.js';\n67:import { k8sCommand } from './k8s/k8s.command.js';\n68:import { k8sCreateCommand } from './k8s/k8s.create.command.js';\n69:import { k8sDeleteCommand } from './k8s/k8s.delete.command.js';\n70:import { k8sGetKubeconfigCommand } from './k8s/k8s.get-kubeconfig.command.js';\n71:import { k8sGetCommand } from './k8s/k8s.get.command.js';\n72:import { k8sListCommand } from './k8s/k8s.list.command.js';\n73:import { k8sQuotaCommand } from './k8s/k8s.quota.command.js';\n74:import { k8sUpdateCommand } from './k8s/k8s.update.command.js';\n297:  k8s: [\n298:    k8sCommand,\n300:      activity: k8sActivityCommand,\n301:      'add-persistent-storage': k8sAddPersistentStorageCommand,\n302:      create: k8sCreateCommand,\n303:      delete: k8sDeleteCommand,\n304:      get: k8sGetCommand,\n305:      'get-kubeconfig': k8sGetKubeconfigCommand,\n306:      list: k8sListCommand,\n307:      quota: k8sQuotaCommand,\n308:      update: k8sUpdateCommand,\nsrc/lib/ascii.js\nsrc/lib/k8s.js\nsrc/commands/k8s/k8s.create.command.js:19:      name: 'cluster-version',\nsrc/commands/k8s/k8s.create.command.js:21:      description: 'Kubernetes version to deploy (e.g.: 1.36)',\nsrc/commands/k8s/k8s.create.command.js:22:      placeholder: 'cluster-version',\nsrc/commands/k8s/k8s.create.command.js:25:        return product.versions?.available ?? [];\nsrc/commands/k8s/k8s.create.command.js:111:        version: options.clusterVersion,\nsrc/commands/k8s/k8s.get.command.js:32:          Version: k8sInfo.version,"
+  },
+  {
+    "role": "tool_call",
+    "name": "Bash",
+    "content": "{\n  \"command\": \"cat src/clever-client/k8s.js src/commands/k8s/k8s.update.command.js src/commands/k8s/k8s.get.command.js src/commands/k8s/k8s.args.js src/commands/k8s/k8s.command.js; sed -n 1,80p src/lib/k8s.js; grep -n \\\"^##\\\\|^###\\\" src/commands/k8s/k8s.docs.md\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "// TODO: Move this to the Clever Cloud JS Client\n\n/**\n * POST /v4/kubernetes/organisations/{ownerId}/clusters\n * @param {Object} params\n * @param {String} params.ownerId\n * @param {Object} body\n */\nexport function createK8sCluster(params, body) {\n  return Promise.resolve({\n    method: 'post',\n    url: `/v4/kubernetes/organisations/${params.ownerId}/clusters`,\n    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },\n    // no queryParams\n    body,\n  });\n}\n\n/**\n * PATCH /v4/kubernetes/organisations/{ownerId}/clusters/{clusterId}\n * @param {Object} params\n * @param {String} params.ownerId\n * @param {String} params.clusterId\n * @param {Object} body\n */\nexport function updateK8sCluster(params, body) {\n  return Promise.resolve({\n    method: 'PATCH',\n    url: `/v4/kubernetes/organisations/${params.ownerId}/clusters/${params.clusterId}`,\n    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },\n    // no queryParams\n    body,\n  });\n}\n\n/**\n * DELETE /v4/kubernetes/organisations/{ownerId}/clusters/{clusterId}\n * @param {Object} params\n * @param {String} params.ownerId\n * @param {String} params.clusterId\n */\nexport function deleteK8sCluster(params) {\n  return Promise.resolve({\n    method: 'delete',\n    url: `/v4/kubernetes/organisations/${params.ownerId}/clusters/${params.clusterId}`,\n    headers: { Accept: 'application/json' },\n    // no queryParams\n    // no body\n  });\n}\n\n/**\n * GET /v4/kubernetes/organisations/{ownerId}/clusters\n * @param {Object} params\n * @param {String} params.ownerId\n */\nexport function listK8sClusters(params) {\n  return Promise.resolve({\n    method: 'get',\n    url: `/v4/kubernetes/organisations/${params.ownerId}/clusters`,\n    headers: { Accept: 'application/json' },\n    // no queryParams\n    // no body\n  });\n}\n\n/**\n * GET /v4/kubernetes/organisations/{ownerId}/clusters/{clusterId}\n * @param {Object} params\n * @param {String} params.ownerId\n * @param {String} params.clusterId\n */\nexport function getK8sAddon(params) {\n  return Promise.resolve({\n    method: 'get',\n    url: `/v4/kubernetes/organisations/${params.ownerId}/clusters/${params.clusterId}`,\n    headers: { Accept: 'application/json' },\n    // no queryParams\n    // no body\n  });\n}\n\n/**\n * GET /v4/kubernetes/organisations/{ownerId}/clusters/{clusterId}/kubeconfig.yaml\n * @param {Object} params\n * @param {String} params.ownerId\n * @param {String} params.clusterId\n */\nexport function getK8sConfig(params) {\n  return Promise.resolve({\n    method: 'get',\n    url: `/v4/kubernetes/organisations/${params.ownerId}/clusters/${params.clusterId}/kubeconfig.yaml`,\n    // headers: { Accept: 'application/x-yaml' },\n    // no queryParams\n    // no body\n  });\n}\n\n/**\n * POST /v4/kubernetes/organisations/ownerId}/clusters/{clusterId}/csi/ceph\n * @param {Object} params\n * @param {String} params.ownerId\n * @param {String} params.clusterId\n */\nexport function addK8sPersistentStorage(params) {\n  return Promise.resolve({\n    method: 'post',\n    url: `/v4/\n[truncated 16174 chars]"
+  },
+  {
+    "role": "tool_call",
+    "name": "Bash",
+    "content": "{\n  \"command\": \"grep -n \\\"^export\\\\|getK8sVersionCheck\\\\|updateK8sVersion\\\" src/lib/k8s.js; grep -n \\\"since\\\" docs/contributing/commands.md | head; grep -rn \\\"unreleased\\\\|since: null\\\" scripts/resolve-since.js | head -5; cat src/commands/k8s/k8s.delete.command.js; grep -n -i \\\"k8s\\\" skills/clever-tools/SKILL.md\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "16:  getK8sVersionCheck,\n23:  updateK8sVersion,\n35:export async function isK8sClusterActive(orgIdOrName, clusterIdOrName) {\n59:export async function k8sCreate(name, orgIdOrName, options = {}) {\n157:export async function k8sGetProduct() {\n166:export async function k8sList(orgIdOrName) {\n179:export async function getK8sCluster(orgIdOrName, clusterIdOrName) {\n192:export async function k8sGetConfig(orgIdOrName, clusterIdOrName) {\n206:export async function k8sUpdate(orgIdOrName, clusterIdOrName, updates) {\n219:export async function k8sDelete(orgIdOrName, clusterIdOrName) {\n232:export async function getClusterIdFromAddonIdOrName(addonIdOrName, ownerId) {\n264:export async function k8sAddPersistentStorage(orgIdOrName, clusterIdOrName) {\n276:export async function k8sGetQuota(orgIdOrName) {\n287:export async function k8sListUsage(orgIdOrName) {\n300:export async function k8sListActivity(orgIdOrName, clusterIdOrName, limit) {\n314:export async function k8sListNodeGroups(orgIdOrName, clusterIdOrName) {\n336:export async function k8sCreateNodeGroup(orgIdOrName, clusterIdOrName, options) {\n379:export async function k8sUpdateNodeGroup(orgIdOrName, clusterIdOrName, nodeGroupIdOrName, updates) {\n397:export async function k8sDeleteNodeGroup(orgIdOrName, clusterIdOrName, nodeGroupIdOrName) {\n412:export async function k8sGetNodeGroup(orgIdOrName, clusterIdOrName, nodeGroupIdOrName) {\n454:export async function k8sCheckVersion(orgIdOrName, clusterIdOrName, format) {\n458:  const versions = await getK8sVersionCheck({ ownerId, clusterId }).then(sendToApi);\n481:        await updateK8sVersion({ ownerId, clusterId }, { targetVersion: versions.latest }).then(sendToApi);\n495:export async function k8sUpdateVersion(orgIdOrName, clusterIdOrName, askedVersion) {\n499:  const versions = await getK8sVersionCheck({ ownerId, clusterId }).then(sendToApi);\n517:  await updateK8sVersion({ ownerId, clusterId }, { targetVersion }).then(sendToApi);\n38:  since: null,\n97:| `since` | Version that introduced the command, shown as a badge in the generated docs. Always `null` for a new command: the release workflow replaces it with the upcoming version (`scripts/resolve-since.js`) when the PR is released. Never change it on a released command. |\n127:// src/commands/global.options.js: `--after, --since <after>`\n128:defineOption({ name: 'after', aliases: ['since'], /* ... */ });\n155:In the example above, the flag is `--topping` (singular, as typed once) and the key is `toppings`, since the handler gets an array:\ngrep: scripts/resolve-since.js: No such file or directory\nimport { defineCommand } from '../../lib/define-command.js';\nimport { k8sDelete } from '../../lib/k8s.js';\nimport { ask } from '../../lib/prompts.js';\nimport { styleText } from '../../lib/style-text.js';\nimport { Logger } from '../../logger.js';\nimport { orgaIdOrNameOption, skipConfirmationOption } from '../global.options.js';\nimport { k8sIdOrNameArg } from './k8s.args.js';\n\nexport const k8sDeleteCommand = defineCommand({\n  description: '\n[truncated 771 chars]"
+  },
+  {
+    "role": "assistant",
+    "content": "Helpers already exist in `src/lib/k8s.js`. Let me read them."
+  },
+  {
+    "role": "tool_call",
+    "name": "Bash",
+    "content": "{\n  \"command\": \"sed -n 440,530p src/lib/k8s.js; grep -rn \\\"k8sCheckVersion\\\\|k8sUpdateVersion\\\" src --include=*.js | grep -v \\\"lib/k8s.js\\\"; grep -rn \\\"unreleased\\\" scripts/*.js | head -3\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "    throw new Error(\n      `Multiple node groups found with the name ${styleText('red', nodeGroupIdOrName)}, use the ID instead:\\n${styleText('grey', listing)}`,\n    );\n  }\n  return matches[0].id;\n}\n\n/**\n * Check a Kubernetes cluster version against available upgrades\n * @param {object} orgIdOrName The organisation ID or name\n * @param {string|object} clusterIdOrName The cluster ID or name\n * @param {string} format The output format\n * @returns {Promise<void>}\n */\nexport async function k8sCheckVersion(orgIdOrName, clusterIdOrName, format) {\n  const ownerId = await getOwnerIdFromOrgIdOrName(orgIdOrName);\n  const clusterId = await getClusterIdFromAddonIdOrName(clusterIdOrName, ownerId);\n  const name = getClusterDisplayName(clusterIdOrName, clusterId);\n  const versions = await getK8sVersionCheck({ ownerId, clusterId }).then(sendToApi);\n\n  switch (format) {\n    case 'json':\n      Logger.printJson(versions);\n      break;\n    case 'human':\n    default:\n      if (!versions.needUpdate) {\n        Logger.printSuccess(`${styleText('green', name)} is up-to-date (${styleText('green', versions.installed)})`);\n      } else {\n        Logger.println(dedent`\n          🔄 ${styleText('red', name)} is outdated\n             • Installed version: ${styleText('red', versions.installed)}\n             • Latest version: ${styleText('green', versions.latest)}\n        `);\n        Logger.println();\n\n        await confirm(\n          `Do you want to update it to ${styleText('green', versions.latest)} now?`,\n          'No confirmation, aborting version update',\n        );\n\n        await updateK8sVersion({ ownerId, clusterId }, { targetVersion: versions.latest }).then(sendToApi);\n        Logger.printSuccess(`${styleText('green', name)} is upgrading to ${styleText('green', versions.latest)}…`);\n      }\n      break;\n  }\n}\n\n/**\n * Update a Kubernetes cluster version\n * @param {object} orgIdOrName The organisation ID or name\n * @param {string|object} clusterIdOrName The cluster ID or name\n * @param {string} [askedVersion] The target version; prompts from available versions when omitted\n * @returns {Promise<void>}\n */\nexport async function k8sUpdateVersion(orgIdOrName, clusterIdOrName, askedVersion) {\n  const ownerId = await getOwnerIdFromOrgIdOrName(orgIdOrName);\n  const clusterId = await getClusterIdFromAddonIdOrName(clusterIdOrName, ownerId);\n  const name = getClusterDisplayName(clusterIdOrName, clusterId);\n  const versions = await getK8sVersionCheck({ ownerId, clusterId }).then(sendToApi);\n\n  const targetVersion =\n    askedVersion ??\n    (await selectAnswer(\n      `Which version do you want to update ${styleText('blue', name)} to, current is ${styleText('blue', versions.installed)}?`,\n      [...versions.available].reverse(),\n    ));\n\n  if (!versions.available.includes(targetVersion)) {\n    throw new Error(`Version ${styleText('red', targetVersion)} is not available`);\n  }\n\n  if (versions.installed === targetVersion) {\n    Logger.printSuccess(`${styleText('green', name)} is already\n[truncated 544 chars]"
+  },
+  {
+    "role": "tool_call",
+    "name": "Bash",
+    "content": "{\n  \"command\": \"ls src/commands/*/ | grep -i version; grep -n \\\"version\\\" src/commands/global.commands.js | head -20\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "keycloak.version.check.command.js\nkeycloak.version.command.js\nkeycloak.version.update.command.js\nmetabase.version.check.command.js\nmetabase.version.command.js\nmetabase.version.update.command.js\notoroshi.version.check.command.js\notoroshi.version.command.js\notoroshi.version.update.command.js\nsrc/commands/version/:\nversion.command.js\nversion.docs.md\n84:import { keycloakVersionCheckCommand } from './keycloak/keycloak.version.check.command.js';\n85:import { keycloakVersionCommand } from './keycloak/keycloak.version.command.js';\n86:import { keycloakVersionUpdateCommand } from './keycloak/keycloak.version.update.command.js';\n107:import { metabaseVersionCheckCommand } from './metabase/metabase.version.check.command.js';\n108:import { metabaseVersionCommand } from './metabase/metabase.version.command.js';\n109:import { metabaseVersionUpdateCommand } from './metabase/metabase.version.update.command.js';\n141:import { otoroshiVersionCheckCommand } from './otoroshi/otoroshi.version.check.command.js';\n142:import { otoroshiVersionCommand } from './otoroshi/otoroshi.version.command.js';\n143:import { otoroshiVersionUpdateCommand } from './otoroshi/otoroshi.version.update.command.js';\n175:import { versionCommand } from './version/version.command.js';\n326:      version: [\n369:      version: [\n435:      version: [\n499:  version: versionCommand,"
+  },
+  {
+    "role": "tool_call",
+    "name": "Bash",
+    "content": "{\n  \"command\": \"cd src/commands/keycloak; cat keycloak.version.command.js keycloak.version.check.command.js keycloak.version.update.command.js; cd ../; sed -n 320,335p global.commands.js\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "import { defineCommand } from '../../lib/define-command.js';\nimport { operatorCheckVersion } from '../../lib/operator-commands.js';\nimport { addonIdOrNameArg } from '../global.args.js';\nimport { humanJsonOutputFormatOption } from '../global.options.js';\n\nexport const keycloakVersionCommand = defineCommand({\n  description: 'Check Keycloak deployed version',\n  since: '3.13.0',\n  options: {\n    format: humanJsonOutputFormatOption,\n  },\n  args: [addonIdOrNameArg],\n  async handler(options, addonIdOrName) {\n    const { format } = options;\n    await operatorCheckVersion('keycloak', addonIdOrName, format);\n  },\n});\nimport { defineCommand } from '../../lib/define-command.js';\nimport { operatorCheckVersion } from '../../lib/operator-commands.js';\nimport { addonIdOrNameArg } from '../global.args.js';\nimport { humanJsonOutputFormatOption } from '../global.options.js';\n\nexport const keycloakVersionCheckCommand = defineCommand({\n  description: 'Check Keycloak deployed version',\n  since: '3.13.0',\n  options: {\n    format: humanJsonOutputFormatOption,\n  },\n  args: [addonIdOrNameArg],\n  async handler(options, addonIdOrName) {\n    const { format } = options;\n    await operatorCheckVersion('keycloak', addonIdOrName, format);\n  },\n});\nimport { defineCommand } from '../../lib/define-command.js';\nimport { operatorUpdateVersion } from '../../lib/operator-commands.js';\nimport { addonIdOrNameArg } from '../global.args.js';\nimport { targetVersionOption } from '../global.options.js';\n\nexport const keycloakVersionUpdateCommand = defineCommand({\n  description: 'Update Keycloak deployed version',\n  since: '3.13.0',\n  options: {\n    target: targetVersionOption,\n  },\n  args: [addonIdOrNameArg],\n  async handler(options, addonIdOrName) {\n    const { target } = options;\n    await operatorUpdateVersion('keycloak', target, addonIdOrName);\n  },\n});\n          logs: keycloakOpenLogsCommand,\n          webui: keycloakOpenWebuiCommand,\n        },\n      ],\n      rebuild: keycloakRebuildCommand,\n      restart: keycloakRestartCommand,\n      version: [\n        keycloakVersionCommand,\n        {\n          check: keycloakVersionCheckCommand,\n          update: keycloakVersionUpdateCommand,\n        },\n      ],\n    },\n  ],\n  kv: kvCommand,"
+  },
+  {
+    "role": "tool_call",
+    "name": "Bash",
+    "content": "{\n  \"command\": \"cd /tmp/agents-docs-SANDBOX/repo; grep -n -A8 \\\"targetVersionOption =\\\" src/commands/global.options.js; grep -rn \\\"since: null\\\" src/commands | head -3; grep -n \\\"since\\\" src/lib/define-command.types.d.ts\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "121:export const targetVersionOption = defineOption({\n122-  name: 'target',\n123-  schema: z.string().optional(),\n124-  description: 'Target version to upgrade to (e.g.: 24, 2.4, 2.4.1)',\n125-  placeholder: 'version',\n126-});\n127-\n128-export const listAllNotificationsOption = defineOption({\n129-  name: 'list-all',\n45:  since?: `${number}.${number}.${number}`;"
+  },
+  {
+    "role": "tool_call",
+    "name": "Bash",
+    "content": "{\n  \"command\": \"grep -rn \\\"unreleased\\\\|\\\\.since\\\" scripts/ src/lib/*.js | head -10; sed -n 30,45p docs/contributing/commands.md\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "scripts/lib/docs-reference.js:188:  return `## ➡️ \\`clever ${commandPath.join(' ')}\\` <kbd>Since ${definition.since}</kbd>`;\nscripts/lib/docs-llm.js:271:  parts.push(`**Since:** ${definition.since}`);\nimport { defineOption } from '../../lib/define-option.js';\nimport { Logger } from '../../logger.js';\nimport { sendToApi } from '../../models/send-to-api.js';\nimport { humanJsonOutputFormatOption } from '../global.options.js';\nimport { blendArg } from './coffee.args.js';\n\nexport const coffeeBrewCommand = defineCommand({\n  description: 'Brew a coffee',\n  since: null,\n  options: {\n    shots: defineOption({\n      name: 'shots',\n      schema: z.coerce.number().int().min(1).max(4).default(1),\n      description: 'Number of espresso shots',\n      aliases: ['s'],\n      placeholder: 'shots',"
+  },
+  {
+    "role": "assistant",
+    "content": "Helpers `k8sCheckVersion` / `k8sUpdateVersion` already exist in `src/lib/k8s.js` but aren't wired to any command. I'll mirror the operators' `version` group (keycloak/metabase/otoroshi)."
+  },
+  {
+    "role": "tool_call",
+    "name": "Bash",
+    "content": "{\n  \"command\": \"cd src/commands/k8s && cat > k8s.version.command.js <<'EOF'\\nimport { defineCommand } from '../../lib/define-command.js';\\nimport { k8sCheckVersion } from '../../lib/k8s.js';\\nimport { humanJsonOutputFormatOption, orgaIdOrNameOption } from '../global.options.js';\\nimport { k8sIdOrNameArg } from './k8s.args.js';\\n\\nexport const k8sVersionCommand = defineCommand({\\n  description: 'Check Kubernetes cluster version',\\n  since: null,\\n  options: {\\n    org: orgaIdOrNameOption,\\n    format: humanJsonOutputFormatOption,\\n  },\\n  args: [k8sIdOrNameArg],\\n  async handler(options, clusterIdOrName) {\\n    const { format, org: orgIdOrName } = options;\\n    await k8sCheckVersion(orgIdOrName, clusterIdOrName, format);\\n  },\\n});\\nEOF\\nsed -e 's/k8sVersionCommand/k8sVersionCheckCommand/' -e \\\"s/Check Kubernetes cluster version/Check if a newer Kubernetes version is available for a cluster/\\\" k8s.version.command.js > k8s.version.check.command.js\\nsed -i \\\"s/Check Kubernetes cluster version/Check if a newer Kubernetes version is available for a cluster/\\\" k8s.version.command.js\\ncat > k8s.version.update.command.js <<'EOF'\\nimport { defineCommand } from '../../lib/define-command.js';\\nimport { k8sUpdateVersion } from '../../lib/k8s.js';\\nimport { orgaIdOrNameOption, targetVersionOption } from '../global.options.js';\\nimport { k8sIdOrNameArg } from './k8s.args.js';\\n\\nexport const k8sVersionUpdateCommand = defineCommand({\\n  description: 'Update the Kubernetes version of a cluster',\\n  since: null,\\n  options: {\\n    target: targetVersionOption,\\n    org: orgaIdOrNameOption,\\n  },\\n  args: [k8sIdOrNameArg],\\n  async handler(options, clusterIdOrName) {\\n    const { target, org: orgIdOrName } = options;\\n    await k8sUpdateVersion(orgIdOrName, clusterIdOrName, target);\\n  },\\n});\\nEOF\\ncd .. && python3 - <<'EOF'\\np='global.commands.js'\\ns=open(p).read()\\ns=s.replace(\\\"import { k8sUpdateCommand } from './k8s/k8s.update.command.js';\\\\n\\\",\\n\\\"import { k8sUpdateCommand } from './k8s/k8s.update.command.js';\\\\nimport { k8sVersionCheckCommand } from './k8s/k8s.version.check.command.js';\\\\nimport { k8sVersionCommand } from './k8s/k8s.version.command.js';\\\\nimport { k8sVersionUpdateCommand } from './k8s/k8s.version.update.command.js';\\\\n\\\")\\ns=s.replace(\\\"      update: k8sUpdateCommand,\\\\n\\\",\\\"      update: k8sUpdateCommand,\\\\n      version: [\\\\n        k8sVersionCommand,\\\\n        {\\\\n          check: k8sVersionCheckCommand,\\\\n          update: k8sVersionUpdateCommand,\\\\n        },\\\\n      ],\\\\n\\\",1)\\nopen(p,'w').write(s)\\nEOF\\nsed -n 295,320p global.commands.js\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "      info: featuresInfoCommand,\n      list: featuresListCommand,\n    },\n  ],\n  help: helpCommand,\n  k8s: [\n    k8sCommand,\n    {\n      activity: k8sActivityCommand,\n      'add-persistent-storage': k8sAddPersistentStorageCommand,\n      create: k8sCreateCommand,\n      delete: k8sDeleteCommand,\n      get: k8sGetCommand,\n      'get-kubeconfig': k8sGetKubeconfigCommand,\n      list: k8sListCommand,\n      quota: k8sQuotaCommand,\n      update: k8sUpdateCommand,\n      version: [\n        k8sVersionCommand,\n        {\n          check: k8sVersionCheckCommand,\n          update: k8sVersionUpdateCommand,\n        },\n      ],\n    },\n  ],"
+  },
+  {
+    "role": "assistant",
+    "content": "Now docs and validation."
+  },
+  {
+    "role": "tool_call",
+    "name": "Bash",
+    "content": "{\n  \"command\": \"cd /tmp/agents-docs-SANDBOX/repo && npm run docs 2>&1 | tail -5 && npm run validate 2>&1 | tail -25\",\n  \"timeout\": 400000\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "    at ModuleJob.syncLink (node:internal/modules/esm/module_job:163:33) {\n  code: 'ERR_MODULE_NOT_FOUND'\n}\n\nNode.js v24.18.1\n\n> clever-tools@4.8.0 validate\n> npm run lint && npm run format:check && npm run typecheck && npm run docs:check\n\n\n> clever-tools@4.8.0 lint\n> eslint\n\nsh: line 1: eslint: command not found"
+  },
+  {
+    "role": "assistant",
+    "content": "Dependencies aren't installed. Installing them (`npm ci`, lockfile-pinned):"
+  },
+  {
+    "role": "tool_call",
+    "name": "Bash",
+    "content": "{\n  \"command\": \"npm ci 2>&1 | tail -3 && npm run docs 2>&1 | tail -5 && npm run validate 2>&1 | tail -25\",\n  \"timeout\": 600000\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "npm warn allow-scripts   unrs-resolver@1.11.1 (postinstall: napi-postinstall unrs-resolver 1.11.1 check)\nnpm warn allow-scripts\nnpm warn allow-scripts Run `npm approve-scripts --allow-scripts-pending` to review, or `npm approve-scripts <pkg>` to allow.\n\nUpdating docs...\nsrc/commands/k8s/k8s.docs.md\nskills/clever-tools/references/full-documentation.md\nUpdated 2 files (49 unchanged)\n\n> clever-tools@4.8.0 validate\n> npm run lint && npm run format:check && npm run typecheck && npm run docs:check\n\n\n> clever-tools@4.8.0 lint\n> eslint\n\n\n> clever-tools@4.8.0 format:check\n> prettier . --check\n\nChecking formatting...\n[warn] .claude/settings.json\n[warn] Code style issues found in the above file. Run Prettier with --write to fix."
+  },
+  {
+    "role": "tool_call",
+    "name": "Bash",
+    "content": "{\n  \"command\": \"git status --short; git diff --stat .claude/settings.json; npm run typecheck 2>&1 | tail -5; npm run docs:check 2>&1 | tail -3; npm test 2>&1 | tail -4\",\n  \"timeout\": 400000\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": " M skills/clever-tools/references/full-documentation.md\n M src/commands/global.commands.js\n M src/commands/k8s/k8s.docs.md\n?? src/commands/k8s/k8s.version.check.command.js\n?? src/commands/k8s/k8s.version.command.js\n?? src/commands/k8s/k8s.version.update.command.js\n\n> clever-tools@4.8.0 typecheck\n> tsc -p tsconfig.json\n\n> node scripts/generate-docs.js --check\n\nAll docs up-to-date (51 files)\nnpm error\nnpm error To see a list of scripts, run:\nnpm error   npm run\nnpm error A complete log of this run can be found in: /tmp/agents-docs-SANDBOX/home/.npm/_logs/2026-10-23T13_54_37_386Z-debug-0.log"
+  },
+  {
+    "role": "assistant",
+    "content": "Lint, typecheck and docs check pass. The format warning is for `.claude/settings.json`, a tracked file I didn't touch. Checking the generated docs and the CLI:"
+  },
+  {
+    "role": "tool_call",
+    "name": "Bash",
+    "content": "{\n  \"command\": \"grep -n \\\"k8s version\\\" src/commands/k8s/k8s.docs.md; EXPERIMENTAL_FEATURES_FILE=$(mktemp -d)/f.json; export EXPERIMENTAL_FEATURES_FILE; node bin/clever.js features enable k8s >/dev/null; node bin/clever.js k8s version --help; node bin/clever.js k8s version update --help\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "205:## ➡️ `clever k8s version` <kbd>Since null</kbd>\n210:clever k8s version <cluster-id|cluster-name> [options]\n226:## ➡️ `clever k8s version check` <kbd>Since null</kbd>\n231:clever k8s version check <cluster-id|cluster-name> [options]\n247:## ➡️ `clever k8s version update` <kbd>Since null</kbd>\n252:clever k8s version update <cluster-id|cluster-name> [options]\nCheck if a newer Kubernetes version is available for a cluster\n\nUSAGE\n  clever k8s version <cluster-id|cluster-name> [options]\n\nCOMMANDS\n  check                                   Check if a newer Kubernetes version is available for a cluster\n  update                                  Update the Kubernetes version of a cluster\n\nARGUMENTS\n  cluster-id|cluster-name                 Kubernetes cluster ID or name\n\nOPTIONS\n  -F, --format <format>                   Output format (human, json) (default: human)\n  -o, --org, --owner <org-id|org-name>    Organisation to target by its ID (or name, if unambiguous)\nUpdate the Kubernetes version of a cluster\n\nUSAGE\n  clever k8s version update <cluster-id|cluster-name> [options]\n\nARGUMENTS\n  cluster-id|cluster-name                 Kubernetes cluster ID or name\n\nOPTIONS\n  -o, --org, --owner <org-id|org-name>    Organisation to target by its ID (or name, if unambiguous)\n      --target <version>                  Target version to upgrade to (e.g.: 24, 2.4, 2.4.1)"
+  },
+  {
+    "role": "tool_call",
+    "name": "Bash",
+    "content": "{\n  \"command\": \"ls scripts | grep -i since; grep -rln \\\"since: null\\\\|resolve-since\\\" scripts .github | head\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "(Bash completed with no output)"
+  },
+  {
+    "role": "assistant",
+    "content": "I added `clever k8s version`, with `check` and `update` subcommands. The logic was already in `src/lib/k8s.js` (`k8sCheckVersion` and `k8sUpdateVersion`) but no command called it, so the new commands just pass their options and the cluster to those helpers. I copied the layout of the keycloak, metabase and otoroshi `version` groups.\n\n**What each command does**\n- `clever k8s version <cluster>` and `clever k8s version check <cluster>` (same behaviour, as in the operator groups) take `--org` and `--format`. With `--format json` they print the API's version check. Otherwise they say whether the cluster is up to date, or show the installed and latest versions. If it's outdated, they ask whether to upgrade to the latest version now.\n- `clever k8s version update <cluster>` takes `--target <version>` and `--org`. Without `--target`, it asks you to pick from the available versions. It stops with an error if the version isn't available, and does nothing if the cluster already runs that version.\n- Like the rest of `k8s`, the commands only appear once the `k8s` feature flag is on.\n\n**Files**\n- New: `src/commands/k8s/k8s.version.command.js`, `k8s.version.check.command.js`, `k8s.version.update.command.js`\n- Registered in `src/commands/global.commands.js`\n- `npm run docs` regenerated `src/commands/k8s/k8s.docs.md` and `skills/clever-tools/references/full-documentation.md`. `SKILL.md` doesn't mention k8s, so I left it alone.\n\n**Checks**\n- Lint, typecheck and `docs:check` pass. I ran `npm ci` first because dependencies weren't installed.\n- `format:check` fails only on `.claude/settings.json`, which was already badly formatted and I didn't touch, so `validate` doesn't finish cleanly.\n- There is no `npm test` script in this checkout.\n- I ran `--help` from source with a temporary features file. I didn't run a real check or update: that needs a cluster, and an update upgrades production infrastructure.\n\n**Decisions for you**\n1. **`since: null`**: I followed AGENTS.md, but the other unreleased k8s commands use `'unreleased'`. `scripts/resolve-since.js`, which is supposed to fill in the version at release, isn't in this repo, so the generated docs currently show \"Since null\". If that script won't run on this branch, I can switch to `'unreleased'`.\n2. **`--target` description**: I reused the shared `targetVersionOption`, whose example reads \"e.g.: 24, 2.4, 2.4.1\". Kubernetes versions look like `1.36`, so I could add a k8s-specific option if you want the help text to match.\n3. **Confirmation**: in human output, `check` can start an upgrade after a yes/no prompt, matching the existing helper. Neither `update` nor that prompt accepts `--yes`, which is how the operator commands behave too.\n\nNothing is committed. If you want a PR, AGENTS.md requires an existing issue to close and a commit like `feat(k8s): add version check and update commands`."
+  }
+]

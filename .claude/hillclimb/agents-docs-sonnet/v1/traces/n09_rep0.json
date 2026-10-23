@@ -1,0 +1,149 @@
+[
+  {
+    "role": "user",
+    "content": "Add a `clever otoroshi open swaggerui` subcommand that opens the Swagger UI of an Otoroshi instance in the browser."
+  },
+  {
+    "role": "tool_call",
+    "name": "Read",
+    "content": "{\n  \"file_path\": \"/tmp/agents-docs-SANDBOX/repo/docs/contributing/commands.md\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "1\t# Creating a command\n2\t\n3\tCommands are declared with `defineCommand`, `defineOption` and `defineArgument`, on top of `cliparse`. Options and arguments are validated and parsed by [Zod](https://zod.dev) schemas, and their types flow into the handler. The reasons behind this design are explained in [ADR 0001](../adr/adr-0001-rework-file-structure.md).\n4\t\n5\tBefore writing a command, look at a similar one and copy its naming, file layout, output format and error messages. `src/commands/drain/` is a good example of a command group with shared arguments and options.\n6\t\n7\t## Example\n8\t\n9\tA fictional `clever coffee brew <blend>` subcommand, part of a `coffee` group (neither exists in the CLI). The `<blend>` argument is shared by several `coffee` subcommands, so it lives in `coffee.args.js`:\n10\t\n11\t```js\n12\t// src/commands/coffee/coffee.args.js\n13\timport { z } from 'zod';\n14\timport { defineArgument } from '../../lib/define-argument.js';\n15\t\n16\texport const blendArg = defineArgument({\n17\t  schema: z.string().regex(/^[a-z0-9-]+$/, 'Use lowercase letters, digits and dashes'),\n18\t  description: 'Blend of coffee',\n19\t  placeholder: 'blend',\n20\t});\n21\t```\n22\t\n23\t`--shots`, `--milk` and `--topping` are only used by this subcommand, so they are defined inline. `--format` comes from `global.options.js`:\n24\t\n25\t```js\n26\t// src/commands/coffee/coffee.brew.command.js\n27\timport { z } from 'zod';\n28\timport { brewCoffee } from '../../clever-client/coffee.js';\n29\timport { defineCommand } from '../../lib/define-command.js';\n30\timport { defineOption } from '../../lib/define-option.js';\n31\timport { Logger } from '../../logger.js';\n32\timport { sendToApi } from '../../models/send-to-api.js';\n33\timport { humanJsonOutputFormatOption } from '../global.options.js';\n34\timport { blendArg } from './coffee.args.js';\n35\t\n36\texport const coffeeBrewCommand = defineCommand({\n37\t  description: 'Brew a coffee',\n38\t  since: null,\n39\t  options: {\n40\t    shots: defineOption({\n41\t      name: 'shots',\n42\t      schema: z.coerce.number().int().min(1).max(4).default(1),\n43\t      description: 'Number of espresso shots',\n44\t      aliases: ['s'],\n45\t      placeholder: 'shots',\n46\t    }),\n47\t    milk: defineOption({\n48\t      name: 'milk',\n49\t      schema: z.enum(['none', 'whole', 'oat']).default('none'),\n50\t      description: 'Kind of milk',\n51\t      placeholder: 'milk',\n52\t    }),\n53\t    toppings: defineOption({\n54\t      name: 'topping',\n55\t      schema: z\n56\t        .union([z.string(), z.array(z.string())])\n57\t        .transform((value) => (typeof value === 'string' ? [value] : value))\n58\t        .optional(),\n59\t      description: 'Topping to add. Multiple --topping can be passed',\n60\t      placeholder: 'topping',\n61\t    }),\n62\t    format: humanJsonOutputFormatOption,\n63\t  },\n64\t  args: [blendArg],\n65\t  async handler(options, blend) {\n66\t    const { shots, milk, toppings, format } = options;\n67\t\n68\t    const coffee = await brewCoffee({ blend, shots, milk, toppings: toppings ?? [] }).then(sendToApi\n[truncated 8591 chars]"
+  },
+  {
+    "role": "tool_call",
+    "name": "Glob",
+    "content": "{\n  \"pattern\": \"src/commands/otoroshi*/*\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "src/commands/otoroshi/otoroshi.version.update.command.js\nsrc/commands/otoroshi/otoroshi.version.command.js\nsrc/commands/otoroshi/otoroshi.version.check.command.js\nsrc/commands/otoroshi/otoroshi.restart.command.js\nsrc/commands/otoroshi/otoroshi.rebuild.command.js\nsrc/commands/otoroshi/otoroshi.open.webui.command.js\nsrc/commands/otoroshi/otoroshi.open.logs.command.js\nsrc/commands/otoroshi/otoroshi.open.command.js\nsrc/commands/otoroshi/otoroshi.get.command.js\nsrc/commands/otoroshi/otoroshi.get-config.command.js\nsrc/commands/otoroshi/otoroshi.enable-ng.command.js\nsrc/commands/otoroshi/otoroshi.docs.md\nsrc/commands/otoroshi/otoroshi.disable-ng.command.js\nsrc/commands/otoroshi/otoroshi.command.js"
+  },
+  {
+    "role": "tool_call",
+    "name": "Read",
+    "content": "{\n  \"file_path\": \"/tmp/agents-docs-SANDBOX/repo/src/commands/otoroshi/otoroshi.open.webui.command.js\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "1\timport { defineCommand } from '../../lib/define-command.js';\n2\timport { operatorOpenWebUi } from '../../lib/operator-commands.js';\n3\timport { addonIdOrNameArg } from '../global.args.js';\n4\t\n5\texport const otoroshiOpenWebuiCommand = defineCommand({\n6\t  description: 'Open the Otoroshi admin console in your browser',\n7\t  since: '3.13.0',\n8\t  options: {},\n9\t  args: [addonIdOrNameArg],\n10\t  async handler(_options, addonIdOrName) {\n11\t    await operatorOpenWebUi('otoroshi', addonIdOrName);\n12\t  },\n13\t});\n14\t"
+  },
+  {
+    "role": "tool_call",
+    "name": "Read",
+    "content": "{\n  \"file_path\": \"/tmp/agents-docs-SANDBOX/repo/src/commands/otoroshi/otoroshi.open.command.js\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "1\timport { defineCommand } from '../../lib/define-command.js';\n2\timport { operatorOpen } from '../../lib/operator-commands.js';\n3\timport { addonIdOrNameArg } from '../global.args.js';\n4\t\n5\texport const otoroshiOpenCommand = defineCommand({\n6\t  description: 'Open the Otoroshi dashboard in Clever Cloud Console',\n7\t  since: '3.13.0',\n8\t  options: {},\n9\t  args: [addonIdOrNameArg],\n10\t  async handler(_options, addonIdOrName) {\n11\t    await operatorOpen('otoroshi', addonIdOrName);\n12\t  },\n13\t});\n14\t"
+  },
+  {
+    "role": "tool_call",
+    "name": "Grep",
+    "content": "{\n  \"pattern\": \"otoroshi\",\n  \"path\": \"/tmp/agents-docs-SANDBOX/repo/src/commands/global.commands.js\",\n  \"output_mode\": \"content\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "140:import { otoroshiCommand } from './otoroshi/otoroshi.command.js';\n141:import { otoroshiDisableNgCommand } from './otoroshi/otoroshi.disable-ng.command.js';\n142:import { otoroshiEnableNgCommand } from './otoroshi/otoroshi.enable-ng.command.js';\n143:import { otoroshiGetConfigCommand } from './otoroshi/otoroshi.get-config.command.js';\n144:import { otoroshiGetCommand } from './otoroshi/otoroshi.get.command.js';\n145:import { otoroshiOpenCommand } from './otoroshi/otoroshi.open.command.js';\n146:import { otoroshiOpenLogsCommand } from './otoroshi/otoroshi.open.logs.command.js';\n147:import { otoroshiOpenWebuiCommand } from './otoroshi/otoroshi.open.webui.command.js';\n148:import { otoroshiRebuildCommand } from './otoroshi/otoroshi.rebuild.command.js';\n149:import { otoroshiRestartCommand } from './otoroshi/otoroshi.restart.command.js';\n150:import { otoroshiVersionCheckCommand } from './otoroshi/otoroshi.version.check.command.js';\n151:import { otoroshiVersionCommand } from './otoroshi/otoroshi.version.command.js';\n152:import { otoroshiVersionUpdateCommand } from './otoroshi/otoroshi.version.update.command.js';\n445:  otoroshi: [\n446:    otoroshiCommand,\n448:      'disable-ng': otoroshiDisableNgCommand,\n449:      'enable-ng': otoroshiEnableNgCommand,\n450:      get: otoroshiGetCommand,\n451:      'get-config': otoroshiGetConfigCommand,\n453:        otoroshiOpenCommand,\n455:          logs: otoroshiOpenLogsCommand,\n456:          webui: otoroshiOpenWebuiCommand,\n459:      rebuild: otoroshiRebuildCommand,\n460:      restart: otoroshiRestartCommand,\n462:        otoroshiVersionCommand,\n464:          check: otoroshiVersionCheckCommand,\n465:          update: otoroshiVersionUpdateCommand,"
+  },
+  {
+    "role": "tool_call",
+    "name": "Grep",
+    "content": "{\n  \"pattern\": \"operatorOpen|swagger|export (async )?function\",\n  \"path\": \"/tmp/agents-docs-SANDBOX/repo/src/lib/operator-commands.js\",\n  \"output_mode\": \"content\",\n  \"-i\": true\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "29:export async function operatorCheckVersion(provider, addonIdOrName, format) {\n69:export async function operatorUpdateVersion(provider, askedVersion, addonIdOrName) {\n102:export async function operatorNgDisable(provider, addonIdOrName) {\n122:export async function operatorNgEnable(provider, addonIdOrName) {\n142:export async function operatorList(provider, format) {\n168:export async function operatorOpen(provider, addonIdOrName) {\n182:export async function operatorOpenLogs(provider, addonIdOrName) {\n196:export async function operatorOpenWebUi(provider, addonIdOrName) {\n208:export async function operatorReboot(provider, addonIdOrName) {\n222:export async function operatorRebuild(provider, addonIdOrName) {\n236:export async function operatorPrint(provider, addonIdOrName, format = 'human') {\n260:    dataToPrint['Swagger URL'] = operator.api.swaggerUrl;"
+  },
+  {
+    "role": "tool_call",
+    "name": "Grep",
+    "content": "{\n  \"pattern\": \"swagger\",\n  \"path\": \"/tmp/agents-docs-SANDBOX/repo\",\n  \"-i\": true,\n  \"glob\": \"!node_modules/**\",\n  \"output_mode\": \"files_with_matches\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "Found 1 file\nsrc/lib/operator-commands.js"
+  },
+  {
+    "role": "tool_call",
+    "name": "Read",
+    "content": "{\n  \"file_path\": \"/tmp/agents-docs-SANDBOX/repo/src/lib/operator-commands.js\",\n  \"offset\": 160,\n  \"limit\": 110\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "160\t}\n161\t\n162\t/**\n163\t * Open an operator dashboard in the Clever Cloud Console in the browser\n164\t * @param {string} provider The operator's provider\n165\t * @param {{ addon_name?: string, operator_id?: string, addon_id?: string }} addonIdOrName The operator's name or ID\n166\t * @returns {Promise<void>}\n167\t */\n168\texport async function operatorOpen(provider, addonIdOrName) {\n169\t  const operator = await Operator.getDetails(provider, addonIdOrName);\n170\t  await openBrowser(\n171\t    `${config.GOTO_URL}/${operator.addonId}`,\n172\t    `Opening ${styleText('blue', operator.addonId)} in the browser…`,\n173\t  );\n174\t}\n175\t\n176\t/**\n177\t * Open the Logs section of an operator application in the Clever Cloud Console\n178\t * @param {string} provider The operator's provider\n179\t * @param {{ addon_name?: string, operator_id?: string, addon_id?: string }} addonIdOrName The operator's name or ID\n180\t * @returns {Promise<void>}\n181\t */\n182\texport async function operatorOpenLogs(provider, addonIdOrName) {\n183\t  const operator = await Operator.getDetails(provider, addonIdOrName);\n184\t  await openBrowser(\n185\t    `/organisations/${operator.ownerId}/applications/${operator.resources.entrypoint}/logs`,\n186\t    `Opening ${styleText('blue', operator.addonId)} logs in the browser…`,\n187\t  );\n188\t}\n189\t\n190\t/**\n191\t * Open an operator Web UI in the browser\n192\t * @param {string} provider The operator's provider\n193\t * @param {{ addon_name?: string, operator_id?: string, addon_id?: string }} addonIdOrName The operator's name or ID\n194\t * @returns {Promise<void>}\n195\t */\n196\texport async function operatorOpenWebUi(provider, addonIdOrName) {\n197\t  const operator = await Operator.getDetails(provider, addonIdOrName);\n198\t  await openBrowser(operator.accessUrl, `Opening ${styleText('blue', operator.addonId)} web UI in the browser…`);\n199\t}\n200\t\n201\t/**\n202\t * Reboot an operator\n203\t * @param {object} params The command's parameters\n204\t * @param {string} provider The operator's provider\n205\t * @param {{ addon_name?: string, operator_id?: string, addon_id?: string }} addonIdOrName The operator's name or ID\n206\t * @returns {Promise<void>}\n207\t */\n208\texport async function operatorReboot(provider, addonIdOrName) {\n209\t  const name = getDisplayName(addonIdOrName);\n210\t  const realId = await Operator.getSingleRealId(addonIdOrName);\n211\t  await rebootOperator({ provider, realId }).then(sendToApi);\n212\t  Logger.println(`🔄 Restarting ${styleText('blue', name)}…`);\n213\t}\n214\t\n215\t/**\n216\t * Rebuild an operator\n217\t * @param {object} params The command's parameters\n218\t * @param {string} provider The operator's provider\n219\t * @param {{ addon_name?: string, operator_id?: string, addon_id?: string }} addonIdOrName The operator's name or ID\n220\t * @returns {Promise<void>}\n221\t */\n222\texport async function operatorRebuild(provider, addonIdOrName) {\n223\t  const name = getDisplayName(addonIdOrName);\n224\t  const realId = await Operator.getSingleRealId(addonIdOrName);\n225\t  await rebuildOperato\n[truncated 1586 chars]"
+  },
+  {
+    "role": "tool_call",
+    "name": "Grep",
+    "content": "{\n  \"pattern\": \"swaggerUrl\",\n  \"path\": \"/tmp/agents-docs-SANDBOX/repo\",\n  \"output_mode\": \"content\",\n  \"glob\": \"!package-lock.json\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "src/lib/operator-commands.js:260:    dataToPrint['Swagger URL'] = operator.api.swaggerUrl;"
+  },
+  {
+    "role": "tool_call",
+    "name": "Read",
+    "content": "{\n  \"file_path\": \"/tmp/agents-docs-SANDBOX/repo/src/lib/operator-commands.js\",\n  \"limit\": 28\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "1\timport dedent from 'dedent';\n2\timport _ from 'lodash';\n3\timport {\n4\t  getOtoroshiConfig,\n5\t  ngDisableOperator,\n6\t  ngEnableOperator,\n7\t  rebootOperator,\n8\t  rebuildOperator,\n9\t  versionCheck,\n10\t  versionUpdate,\n11\t} from '../clever-client/operators.js';\n12\timport { config } from '../config/config.js';\n13\timport { Logger } from '../logger.js';\n14\timport { findAddonsByAddonProvider } from '../models/ids-resolver.js';\n15\timport * as Operator from '../models/operator.js';\n16\timport { sendToApi } from '../models/send-to-api.js';\n17\timport { openBrowser } from '../models/utils.js';\n18\timport { printItemsByOwner } from './print-items-by-owner.js';\n19\timport { confirm, selectAnswer } from './prompts.js';\n20\timport { styleText } from './style-text.js';\n21\t\n22\t/**\n23\t * Check the version of an operator\n24\t * @param {string} provider The operator's provider\n25\t * @param {{ addon_name?: string, operator_id?: string, addon_id?: string }} addonIdOrName The operator's name or ID\n26\t * @param {string} params.options.format The output format\n27\t * @returns {Promise<void>}\n28\t */"
+  },
+  {
+    "role": "tool_call",
+    "name": "Read",
+    "content": "{\n  \"file_path\": \"/tmp/agents-docs-SANDBOX/repo/src/commands/global.commands.js\",\n  \"offset\": 444,\n  \"limit\": 18\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "444\t  open: openCommand,\n445\t  otoroshi: [\n446\t    otoroshiCommand,\n447\t    {\n448\t      'disable-ng': otoroshiDisableNgCommand,\n449\t      'enable-ng': otoroshiEnableNgCommand,\n450\t      get: otoroshiGetCommand,\n451\t      'get-config': otoroshiGetConfigCommand,\n452\t      open: [\n453\t        otoroshiOpenCommand,\n454\t        {\n455\t          logs: otoroshiOpenLogsCommand,\n456\t          webui: otoroshiOpenWebuiCommand,\n457\t        },\n458\t      ],\n459\t      rebuild: otoroshiRebuildCommand,\n460\t      restart: otoroshiRestartCommand,\n461\t      version: ["
+  },
+  {
+    "role": "assistant",
+    "content": "Adding a shared helper next to `operatorOpenWebUi`, then the command and its registration."
+  },
+  {
+    "role": "tool_call",
+    "name": "Edit",
+    "content": "{\n  \"replace_all\": false,\n  \"file_path\": \"/tmp/agents-docs-SANDBOX/repo/src/lib/operator-commands.js\",\n  \"old_string\": \"/**\\n * Reboot an operator\\n * @param {object} params The command's parameters\",\n  \"new_string\": \"/**\\n * Open the Swagger UI of an Otoroshi operator in the browser\\n * @param {string} provider The operator's provider\\n * @param {{ addon_name?: string, operator_id?: string, addon_id?: string }} addonIdOrName The operator's name or ID\\n * @returns {Promise<void>}\\n */\\nexport async function operatorOpenSwaggerUi(provider, addonIdOrName) {\\n  const operator = await Operator.getDetails(provider, addonIdOrName);\\n  await openBrowser(operator.api.swaggerUrl, `Opening ${styleText('blue', operator.addonId)} Swagger UI in the browser…`);\\n}\\n\\n/**\\n * Reboot an operator\\n * @param {object} params The command's parameters\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "Claude requested permissions to write to /tmp/agents-docs-SANDBOX/repo/src/lib/operator-commands.js, but you haven't granted it yet."
+  },
+  {
+    "role": "tool_call",
+    "name": "Write",
+    "content": "{\n  \"file_path\": \"/tmp/agents-docs-SANDBOX/repo/src/commands/otoroshi/otoroshi.open.swaggerui.command.js\",\n  \"content\": \"import { defineCommand } from '../../lib/define-command.js';\\nimport { operatorOpenSwaggerUi } from '../../lib/operator-commands.js';\\nimport { addonIdOrNameArg } from '../global.args.js';\\n\\nexport const otoroshiOpenSwaggeruiCommand = defineCommand({\\n  description: 'Open the Otoroshi Swagger UI in your browser',\\n  since: null,\\n  options: {},\\n  args: [addonIdOrNameArg],\\n  async handler(_options, addonIdOrName) {\\n    await operatorOpenSwaggerUi('otoroshi', addonIdOrName);\\n  },\\n});\\n\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "Claude requested permissions to write to /tmp/agents-docs-SANDBOX/repo/src/commands/otoroshi/otoroshi.open.swaggerui.command.js, but you haven't granted it yet."
+  },
+  {
+    "role": "tool_call",
+    "name": "Edit",
+    "content": "{\n  \"replace_all\": false,\n  \"file_path\": \"/tmp/agents-docs-SANDBOX/repo/src/commands/global.commands.js\",\n  \"old_string\": \"          logs: otoroshiOpenLogsCommand,\\n          webui: otoroshiOpenWebuiCommand,\",\n  \"new_string\": \"          logs: otoroshiOpenLogsCommand,\\n          swaggerui: otoroshiOpenSwaggeruiCommand,\\n          webui: otoroshiOpenWebuiCommand,\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "Claude requested permissions to write to /tmp/agents-docs-SANDBOX/repo/src/commands/global.commands.js, but you haven't granted it yet."
+  },
+  {
+    "role": "tool_call",
+    "name": "Edit",
+    "content": "{\n  \"replace_all\": false,\n  \"file_path\": \"/tmp/agents-docs-SANDBOX/repo/src/commands/global.commands.js\",\n  \"old_string\": \"import { otoroshiOpenWebuiCommand }\",\n  \"new_string\": \"import { otoroshiOpenSwaggeruiCommand } from './otoroshi/otoroshi.open.swaggerui.command.js';\\nimport { otoroshiOpenWebuiCommand }\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "Claude requested permissions to write to /tmp/agents-docs-SANDBOX/repo/src/commands/global.commands.js, but you haven't granted it yet."
+  },
+  {
+    "role": "assistant",
+    "content": "I couldn't add the `clever otoroshi open swaggerui` subcommand. Every write was denied, so nothing in the repo has changed. I haven't run `npm run docs` or `npm run validate` either.\n\nHere is what I would add, copying the existing `otoroshi open webui` command:\n\n1. **Helper:** `operatorOpenSwaggerUi(provider, addonIdOrName)` in `src/lib/operator-commands.js`, next to `operatorOpenWebUi`. It would call `Operator.getDetails(...)` and open `operator.api.swaggerUrl` with `openBrowser`. `operatorPrint` already prints that same URL as \"Swagger URL\".\n2. **Command file:** `src/commands/otoroshi/otoroshi.open.swaggerui.command.js`.\n   - It would export `otoroshiOpenSwaggeruiCommand` with the description \"Open the Otoroshi Swagger UI in your browser\".\n   - It would use `since: null`, take no options, and take `addonIdOrNameArg` as its argument.\n3. **Registration:** import it in `src/commands/global.commands.js` and add `swaggerui: otoroshiOpenSwaggeruiCommand` to the `open` subcommands, between `logs` and `webui`.\n4. **Afterwards:** run `npm run docs`, which needs network, then `npm run validate`. I'd also check whether `skills/clever-tools/SKILL.md` mentions the other `otoroshi open` subcommands, and update it if so.\n\nIf you grant write permission, I'll make these edits and run the checks. If you'd rather apply them yourself, the changes are small."
+  }
+]

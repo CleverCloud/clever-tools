@@ -1,0 +1,64 @@
+[
+  {
+    "role": "user",
+    "content": "In `clever ssh`, let the user pick an instance by its number in the list, or with `any`."
+  },
+  {
+    "role": "tool_call",
+    "name": "Read",
+    "content": "{\n  \"file_path\": \"/tmp/agents-docs-SANDBOX/repo/docs/contributing/commands.md\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "1\t# Creating a command\n2\t\n3\tCommands are declared with `defineCommand`, `defineOption` and `defineArgument`, on top of `cliparse`. Options and arguments are validated and parsed by [Zod](https://zod.dev) schemas, and their types flow into the handler. The reasons behind this design are explained in [ADR 0001](../adr/adr-0001-rework-file-structure.md).\n4\t\n5\tBefore writing a command, look at a similar one and copy its naming, file layout, output format and error messages. `src/commands/drain/` is a good example of a command group with shared arguments and options.\n6\t\n7\t## Example\n8\t\n9\tA fictional `clever coffee brew <blend>` subcommand, part of a `coffee` group (neither exists in the CLI). The `<blend>` argument is shared by several `coffee` subcommands, so it lives in `coffee.args.js`:\n10\t\n11\t```js\n12\t// src/commands/coffee/coffee.args.js\n13\timport { z } from 'zod';\n14\timport { defineArgument } from '../../lib/define-argument.js';\n15\t\n16\texport const blendArg = defineArgument({\n17\t  schema: z.string().regex(/^[a-z0-9-]+$/, 'Use lowercase letters, digits and dashes'),\n18\t  description: 'Blend of coffee',\n19\t  placeholder: 'blend',\n20\t});\n21\t```\n22\t\n23\t`--shots`, `--milk` and `--topping` are only used by this subcommand, so they are defined inline. `--format` comes from `global.options.js`:\n24\t\n25\t```js\n26\t// src/commands/coffee/coffee.brew.command.js\n27\timport { z } from 'zod';\n28\timport { brewCoffee } from '../../clever-client/coffee.js';\n29\timport { defineCommand } from '../../lib/define-command.js';\n30\timport { defineOption } from '../../lib/define-option.js';\n31\timport { Logger } from '../../logger.js';\n32\timport { sendToApi } from '../../models/send-to-api.js';\n33\timport { humanJsonOutputFormatOption } from '../global.options.js';\n34\timport { blendArg } from './coffee.args.js';\n35\t\n36\texport const coffeeBrewCommand = defineCommand({\n37\t  description: 'Brew a coffee',\n38\t  since: null,\n39\t  options: {\n40\t    shots: defineOption({\n41\t      name: 'shots',\n42\t      schema: z.coerce.number().int().min(1).max(4).default(1),\n43\t      description: 'Number of espresso shots',\n44\t      aliases: ['s'],\n45\t      placeholder: 'shots',\n46\t    }),\n47\t    milk: defineOption({\n48\t      name: 'milk',\n49\t      schema: z.enum(['none', 'whole', 'oat']).default('none'),\n50\t      description: 'Kind of milk',\n51\t      placeholder: 'milk',\n52\t    }),\n53\t    toppings: defineOption({\n54\t      name: 'topping',\n55\t      schema: z\n56\t        .union([z.string(), z.array(z.string())])\n57\t        .transform((value) => (typeof value === 'string' ? [value] : value))\n58\t        .optional(),\n59\t      description: 'Topping to add. Multiple --topping can be passed',\n60\t      placeholder: 'topping',\n61\t    }),\n62\t    format: humanJsonOutputFormatOption,\n63\t  },\n64\t  args: [blendArg],\n65\t  async handler(options, blend) {\n66\t    const { shots, milk, toppings, format } = options;\n67\t\n68\t    const coffee = await brewCoffee({ blend, shots, milk, toppings: toppings ?? [] }).then(sendToApi\n[truncated 8591 chars]"
+  },
+  {
+    "role": "tool_call",
+    "name": "Glob",
+    "content": "{\n  \"pattern\": \"src/commands/ssh/*\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "src/commands/ssh/ssh.docs.md\nsrc/commands/ssh/ssh.command.js"
+  },
+  {
+    "role": "tool_call",
+    "name": "Read",
+    "content": "{\n  \"file_path\": \"/tmp/agents-docs-SANDBOX/repo/src/commands/ssh/ssh.command.js\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "1\timport { getAllInstances } from '@clevercloud/client/esm/api/v2/application.js';\n2\timport { spawn } from 'node:child_process';\n3\timport { randomUUID } from 'node:crypto';\n4\timport { z } from 'zod';\n5\timport { config } from '../../config/config.js';\n6\timport { defineCommand } from '../../lib/define-command.js';\n7\timport { defineOption } from '../../lib/define-option.js';\n8\timport { selectAnswer } from '../../lib/prompts.js';\n9\timport * as Application from '../../models/application.js';\n10\timport { sendToApi } from '../../models/send-to-api.js';\n11\timport { aliasOption, appIdOrNameOption } from '../global.options.js';\n12\t\n13\texport const sshCommand = defineCommand({\n14\t  description: 'Connect to running instances through SSH',\n15\t  since: '0.7.0',\n16\t  options: {\n17\t    identityFile: defineOption({\n18\t      name: 'identity-file',\n19\t      schema: z.string().optional(),\n20\t      description: 'SSH identity file',\n21\t      aliases: ['i'],\n22\t      placeholder: 'identity-file',\n23\t    }),\n24\t    command: defineOption({\n25\t      name: 'command',\n26\t      schema: z.string().optional(),\n27\t      description: 'Execute a command on the remote instance and exit',\n28\t      aliases: ['c'],\n29\t      placeholder: 'command',\n30\t    }),\n31\t    instance: defineOption({\n32\t      name: 'instance',\n33\t      schema: z.string().min(1).optional(),\n34\t      description: 'Instance ID to connect to (skips interactive selection)',\n35\t      placeholder: 'instance-id',\n36\t    }),\n37\t    alias: aliasOption,\n38\t    app: appIdOrNameOption,\n39\t  },\n40\t  args: [],\n41\t  async handler(options) {\n42\t    const { alias, app: appIdOrName, identityFile, command, instance } = options;\n43\t    const { appId, ownerId } = await Application.resolveId(appIdOrName, alias);\n44\t\n45\t    const instances = await getAllInstances({ id: ownerId, appId }).then(sendToApi);\n46\t\n47\t    if (instances.length === 0) {\n48\t      throw new Error('No running instances found for this application');\n49\t    }\n50\t\n51\t    let sshTarget;\n52\t    if (instance != null) {\n53\t      const match = instances.find((inst) => inst.id === instance);\n54\t      if (match == null) {\n55\t        throw new Error(`Instance ${instance} is not a running instance of this application`);\n56\t      }\n57\t      sshTarget = match.id;\n58\t    } else if (instances.length === 1) {\n59\t      sshTarget = instances[0].id;\n60\t    } else if (process.stdin.isTTY) {\n61\t      const choices = instances\n62\t        .sort((a, b) => a.instanceNumber - b.instanceNumber)\n63\t        .map((inst) => ({\n64\t          name: `${inst.displayName} - Instance ${inst.instanceNumber} - ${inst.state} (${inst.id})`,\n65\t          value: inst.id,\n66\t        }));\n67\t      sshTarget = await selectAnswer('Select an instance:', choices);\n68\t    } else {\n69\t      throw new Error('Multiple instances are running. Cannot select in non-interactive mode.');\n70\t    }\n71\t\n72\t    const sshParams = [];\n73\t    // Clever Cloud SSH only accepts key auth. Disable password fallback so a missing\n74\t    \n[truncated 2946 chars]"
+  },
+  {
+    "role": "tool_call",
+    "name": "Read",
+    "content": "{\n  \"file_path\": \"/tmp/agents-docs-SANDBOX/repo/src/commands/ssh/ssh.docs.md\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "1\t# 📖 `clever ssh` command reference\n2\t\n3\t## ➡️ `clever ssh` <kbd>Since 0.7.0</kbd>\n4\t\n5\tConnect to running instances through SSH\n6\t\n7\t```bash\n8\tclever ssh [options]\n9\t```\n10\t\n11\t### ⚙️ Options\n12\t\n13\t|Name|Description|\n14\t|---|---|\n15\t|`-a`, `--alias` `<alias>`|Short name for the application|\n16\t|`--app` `<app-id\\|app-name>`|Application to manage by its ID (or name, if unambiguous)|\n17\t|`-c`, `--command` `<command>`|Execute a command on the remote instance and exit|\n18\t|`-i`, `--identity-file` `<identity-file>`|SSH identity file|\n19\t|`--instance` `<instance-id>`|Instance ID to connect to (skips interactive selection)|\n20\t"
+  },
+  {
+    "role": "tool_call",
+    "name": "Edit",
+    "content": "{\n  \"replace_all\": false,\n  \"file_path\": \"/tmp/agents-docs-SANDBOX/repo/src/commands/ssh/ssh.command.js\",\n  \"old_string\": \"    let sshTarget;\\n    if (instance != null) {\\n      const match = instances.find((inst) => inst.id === instance);\\n      if (match == null) {\\n        throw new Error(`Instance ${instance} is not a running instance of this application`);\\n      }\\n      sshTarget = match.id;\\n    } else if (instances.length === 1) {\\n      sshTarget = instances[0].id;\\n    } else if (process.stdin.isTTY) {\\n      const choices = instances\\n        .sort((a, b) => a.instanceNumber - b.instanceNumber)\\n        .map((inst) => ({\",\n  \"new_string\": \"    instances.sort((a, b) => a.instanceNumber - b.instanceNumber);\\n\\n    let sshTarget;\\n    if (instance === 'any') {\\n      sshTarget = instances[0].id;\\n    } else if (instance != null) {\\n      const match = /^\\\\d+$/.test(instance)\\n        ? instances.find((inst) => inst.instanceNumber === Number(instance))\\n        : instances.find((inst) => inst.id === instance);\\n      if (match == null) {\\n        throw new Error(`Instance ${instance} is not a running instance of this application`);\\n      }\\n      sshTarget = match.id;\\n    } else if (instances.length === 1) {\\n      sshTarget = instances[0].id;\\n    } else if (process.stdin.isTTY) {\\n      const choices = instances\\n        .map((inst) => ({\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "Claude requested permissions to write to /tmp/agents-docs-SANDBOX/repo/src/commands/ssh/ssh.command.js, but you haven't granted it yet."
+  },
+  {
+    "role": "tool_call",
+    "name": "Edit",
+    "content": "{\n  \"replace_all\": false,\n  \"file_path\": \"/tmp/agents-docs-SANDBOX/repo/src/commands/ssh/ssh.command.js\",\n  \"old_string\": \"'Instance ID to connect to (skips interactive selection)',\\n      placeholder: 'instance-id',\",\n  \"new_string\": \"'Instance to connect to, by its ID, its number in the list or \\\"any\\\" (skips interactive selection)',\\n      placeholder: 'instance',\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "Claude requested permissions to write to /tmp/agents-docs-SANDBOX/repo/src/commands/ssh/ssh.command.js, but you haven't granted it yet."
+  },
+  {
+    "role": "assistant",
+    "content": "I couldn't change `clever ssh`: both edits to `src/commands/ssh/ssh.command.js` were denied because write permission hasn't been granted. Nothing is modified, and I haven't run `npm run docs` or `npm run validate`.\n\nThis is what I would change in the `--instance` option:\n\n- **`any`:** connects to the first instance, sorted by instance number.\n- **A number** (digits only, for example `2`): matches the `Instance N` shown in the interactive list, using `instanceNumber`.\n- **Anything else:** still treated as an instance ID, as today.\n- **No match:** the existing \"is not a running instance\" error is thrown.\n- **Description and placeholder:** the description would become `Instance to connect to, by its ID, its number in the list or \"any\" (skips interactive selection)`, and the placeholder would change from `instance-id` to `instance`.\n- **Sorting:** the instances would be sorted once before any lookup, so the interactive list and `any` use the same order.\n\nAfter the edit I would run `npm run docs` to regenerate `ssh.docs.md`, then `npm run validate`. I read `docs/contributing/commands.md` first, as the project instructions require.\n\nDo you want to grant write access so I can apply this? Or do you prefer a different meaning for \"number in the list\", such as the position in the list rather than the instance number?"
+  }
+]

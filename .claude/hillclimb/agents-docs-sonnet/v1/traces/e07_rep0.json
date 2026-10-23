@@ -1,0 +1,100 @@
+[
+  {
+    "role": "user",
+    "content": "The date options of the log commands should accept the value `now`."
+  },
+  {
+    "role": "tool_call",
+    "name": "Read",
+    "content": "{\n  \"file_path\": \"/tmp/agents-docs-SANDBOX/repo/docs/contributing/commands.md\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "1\t# Creating a command\n2\t\n3\tCommands are declared with `defineCommand`, `defineOption` and `defineArgument`, on top of `cliparse`. Options and arguments are validated and parsed by [Zod](https://zod.dev) schemas, and their types flow into the handler. The reasons behind this design are explained in [ADR 0001](../adr/adr-0001-rework-file-structure.md).\n4\t\n5\tBefore writing a command, look at a similar one and copy its naming, file layout, output format and error messages. `src/commands/drain/` is a good example of a command group with shared arguments and options.\n6\t\n7\t## Example\n8\t\n9\tA fictional `clever coffee brew <blend>` subcommand, part of a `coffee` group (neither exists in the CLI). The `<blend>` argument is shared by several `coffee` subcommands, so it lives in `coffee.args.js`:\n10\t\n11\t```js\n12\t// src/commands/coffee/coffee.args.js\n13\timport { z } from 'zod';\n14\timport { defineArgument } from '../../lib/define-argument.js';\n15\t\n16\texport const blendArg = defineArgument({\n17\t  schema: z.string().regex(/^[a-z0-9-]+$/, 'Use lowercase letters, digits and dashes'),\n18\t  description: 'Blend of coffee',\n19\t  placeholder: 'blend',\n20\t});\n21\t```\n22\t\n23\t`--shots`, `--milk` and `--topping` are only used by this subcommand, so they are defined inline. `--format` comes from `global.options.js`:\n24\t\n25\t```js\n26\t// src/commands/coffee/coffee.brew.command.js\n27\timport { z } from 'zod';\n28\timport { brewCoffee } from '../../clever-client/coffee.js';\n29\timport { defineCommand } from '../../lib/define-command.js';\n30\timport { defineOption } from '../../lib/define-option.js';\n31\timport { Logger } from '../../logger.js';\n32\timport { sendToApi } from '../../models/send-to-api.js';\n33\timport { humanJsonOutputFormatOption } from '../global.options.js';\n34\timport { blendArg } from './coffee.args.js';\n35\t\n36\texport const coffeeBrewCommand = defineCommand({\n37\t  description: 'Brew a coffee',\n38\t  since: null,\n39\t  options: {\n40\t    shots: defineOption({\n41\t      name: 'shots',\n42\t      schema: z.coerce.number().int().min(1).max(4).default(1),\n43\t      description: 'Number of espresso shots',\n44\t      aliases: ['s'],\n45\t      placeholder: 'shots',\n46\t    }),\n47\t    milk: defineOption({\n48\t      name: 'milk',\n49\t      schema: z.enum(['none', 'whole', 'oat']).default('none'),\n50\t      description: 'Kind of milk',\n51\t      placeholder: 'milk',\n52\t    }),\n53\t    toppings: defineOption({\n54\t      name: 'topping',\n55\t      schema: z\n56\t        .union([z.string(), z.array(z.string())])\n57\t        .transform((value) => (typeof value === 'string' ? [value] : value))\n58\t        .optional(),\n59\t      description: 'Topping to add. Multiple --topping can be passed',\n60\t      placeholder: 'topping',\n61\t    }),\n62\t    format: humanJsonOutputFormatOption,\n63\t  },\n64\t  args: [blendArg],\n65\t  async handler(options, blend) {\n66\t    const { shots, milk, toppings, format } = options;\n67\t\n68\t    const coffee = await brewCoffee({ blend, shots, milk, toppings: toppings ?? [] }).then(sendToApi\n[truncated 8591 chars]"
+  },
+  {
+    "role": "tool_call",
+    "name": "Grep",
+    "content": "{\n  \"pattern\": \"since|before|after|[dD]ate\",\n  \"path\": \"/tmp/agents-docs-SANDBOX/repo/src\",\n  \"glob\": \"*{parsers,global.options,logs.options,activity.options}*.js\",\n  \"output_mode\": \"content\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "src/commands/global.options.js:5:import { appIdOrName, date, orgaIdOrName } from '../parsers.js';\nsrc/commands/global.options.js:39:export const beforeOption = defineOption({\nsrc/commands/global.options.js:40:  name: 'before',\nsrc/commands/global.options.js:41:  schema: z.string().transform(date).optional(),\nsrc/commands/global.options.js:42:  description: 'Fetch logs before this date/time (ISO8601 date, positive number in seconds or duration, e.g.: 1h)',\nsrc/commands/global.options.js:44:  placeholder: 'before',\nsrc/commands/global.options.js:47:export const afterOption = defineOption({\nsrc/commands/global.options.js:48:  name: 'after',\nsrc/commands/global.options.js:49:  schema: z.string().transform(date).optional(),\nsrc/commands/global.options.js:50:  description: 'Fetch logs after this date/time (ISO8601 date, positive number in seconds or duration, e.g.: 1h)',\nsrc/commands/global.options.js:51:  aliases: ['since'],\nsrc/commands/global.options.js:52:  placeholder: 'after',\nsrc/commands/global.options.js:111:  description: 'Continue to follow logs after deployment has ended',\nsrc/commands/global.options.js:183:export const updateNotifierOption = defineOption({\nsrc/commands/global.options.js:184:  name: 'update-notifier',\nsrc/commands/global.options.js:186:  description: 'Choose whether to use update notifier or not. You can also use --no-update-notifier',\nsrc/parsers.js:32:export function date(dateString) {\nsrc/parsers.js:33:  const date = new Date(dateString);\nsrc/parsers.js:34:  if (isNaN(dateString) && !isNaN(date.getTime())) {\nsrc/parsers.js:35:    return date;\nsrc/parsers.js:38:  const seconds = durationInSeconds(dateString);\nsrc/parsers.js:39:  return new Date(Date.now() - seconds * 1000);\nsrc/parsers.js:42:export function futureDateOrDuration(dateString) {\nsrc/parsers.js:43:  const date = new Date(dateString);\nsrc/parsers.js:44:  if (isNaN(dateString) && !isNaN(date.getTime())) {\nsrc/parsers.js:45:    return date;\nsrc/parsers.js:48:  const seconds = durationInSeconds(dateString);\nsrc/parsers.js:49:  return new Date(Date.now() + seconds * 1000);\nsrc/parsers.js:73:// A Kubernetes cluster ID carries a ULID, or a UUID on clusters created since the API moved to them"
+  },
+  {
+    "role": "tool_call",
+    "name": "Read",
+    "content": "{\n  \"file_path\": \"/tmp/agents-docs-SANDBOX/repo/src/parsers.js\",\n  \"offset\": 1,\n  \"limit\": 55\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "1\timport ISO8601 from 'iso8601-duration';\n2\timport * as Application from './models/application.js';\n3\timport { NG_MEMBER_PREFIXES } from './models/ng.js';\n4\t\n5\tconst addonOptionsRegex = /^[\\w-]+=.+$/;\n6\t\n7\texport function addonOptions(options) {\n8\t  const optionsArray = typeof options === 'string' ? [options] : options;\n9\t  for (const option of optionsArray) {\n10\t    if (!option.match(addonOptionsRegex)) {\n11\t      throw new Error('Invalid option: ' + option);\n12\t    }\n13\t  }\n14\t  return optionsArray.join(',');\n15\t}\n16\t\n17\texport function flavor(flavor) {\n18\t  const flavors = Application.listAvailableFlavors();\n19\t  if (flavors.includes(flavor)) {\n20\t    return flavor;\n21\t  }\n22\t  throw new Error('Invalid value: ' + flavor);\n23\t}\n24\t\n25\texport function buildFlavor(flavorOrDisabled) {\n26\t  if (flavorOrDisabled === 'disabled') {\n27\t    return flavorOrDisabled;\n28\t  }\n29\t  return flavor(flavorOrDisabled);\n30\t}\n31\t\n32\texport function date(dateString) {\n33\t  const date = new Date(dateString);\n34\t  if (isNaN(dateString) && !isNaN(date.getTime())) {\n35\t    return date;\n36\t  }\n37\t\n38\t  const seconds = durationInSeconds(dateString);\n39\t  return new Date(Date.now() - seconds * 1000);\n40\t}\n41\t\n42\texport function futureDateOrDuration(dateString) {\n43\t  const date = new Date(dateString);\n44\t  if (isNaN(dateString) && !isNaN(date.getTime())) {\n45\t    return date;\n46\t  }\n47\t\n48\t  const seconds = durationInSeconds(dateString);\n49\t  return new Date(Date.now() + seconds * 1000);\n50\t}\n51\t\n52\tconst appIdRegex = /^app_[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;\n53\t\n54\texport function appIdOrName(string) {\n55\t  if (string.match(appIdRegex)) {"
+  },
+  {
+    "role": "tool_call",
+    "name": "Grep",
+    "content": "{\n  \"pattern\": \"durationInSeconds|futureDateOrDuration|\\\\bdate\\\\b.*parsers\",\n  \"path\": \"/tmp/agents-docs-SANDBOX/repo/src\",\n  \"output_mode\": \"content\",\n  \"glob\": \"*.js\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "src/commands/global.options.js:5:import { appIdOrName, date, orgaIdOrName } from '../parsers.js';\nsrc/commands/instances/instances.command.js:9:import { date } from '../../parsers.js';\nsrc/commands/tokens/tokens.create.command.js:14:import { futureDateOrDuration } from '../../parsers.js';\nsrc/commands/tokens/tokens.create.command.js:23:      schema: z.string().default('1y').transform(futureDateOrDuration),\nsrc/parsers.js:38:  const seconds = durationInSeconds(dateString);\nsrc/parsers.js:42:export function futureDateOrDuration(dateString) {\nsrc/parsers.js:48:  const seconds = durationInSeconds(dateString);\nsrc/parsers.js:128:export function durationInSeconds(durationStr = '') {"
+  },
+  {
+    "role": "tool_call",
+    "name": "Bash",
+    "content": "{\n  \"command\": \"grep -rn \\\"transform(date)\\\" src | grep -v global.options; grep -rn \\\"ISO8601 date, positive\\\" src docs skills --include=* -l\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "src/commands/instances/instances.command.js:23:      schema: z.string().transform(date).optional(),\nsrc/commands/instances/instances.command.js:31:      schema: z.string().transform(date).optional(),\n(eval):1: no matches found: --include=*"
+  },
+  {
+    "role": "tool_call",
+    "name": "Bash",
+    "content": "{\n  \"command\": \"sed -n 18,36p src/commands/instances/instances.command.js; grep -rln \\\"ISO8601 date, positive\\\" src docs skills\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "      schema: z.boolean().default(false),\n      description: 'List instances in any state, including deleted ones (default: only running instances)',\n    }),\n    since: defineOption({\n      name: 'after',\n      schema: z.string().transform(date).optional(),\n      description:\n        'List instances that existed after this date/time, in any state (ISO8601 date, positive number in seconds or duration, e.g.: 1h)',\n      aliases: ['since'],\n      placeholder: 'after',\n    }),\n    until: defineOption({\n      name: 'before',\n      schema: z.string().transform(date).optional(),\n      description:\n        'List instances that existed before this date/time, in any state (ISO8601 date, positive number in seconds or duration, e.g.: 1h)',\n      aliases: ['until'],\n      placeholder: 'before',\n    }),\nsrc/commands/logs/logs.docs.md\nsrc/commands/instances/instances.docs.md\nsrc/commands/instances/instances.command.js\nsrc/commands/global.options.js\nsrc/commands/accesslogs/accesslogs.docs.md\ndocs/applications-deployment-lifecycle.md\nskills/clever-tools/references/full-documentation.md"
+  },
+  {
+    "role": "tool_call",
+    "name": "Bash",
+    "content": "{\n  \"command\": \"python3 - <<'E'\\np='src/parsers.js'\\ns=open(p).read()\\ns=s.replace(\\\"\\\"\\\"export function date(dateString) {\\n  const date\\\"\\\"\\\",\\\"\\\"\\\"export function date(dateString) {\\n  if (dateString === 'now') {\\n    return new Date();\\n  }\\n\\n  const date\\\"\\\"\\\",1)\\nopen(p,'w').write(s)\\np='src/commands/global.options.js'\\ns=open(p).read()\\ns=s.replace(\\\"(ISO8601 date, positive number in seconds or duration, e.g.: 1h)\\\",\\\"(ISO8601 date, positive number in seconds or duration, e.g.: 1h, or now)\\\")\\nopen(p,'w').write(s)\\nE\\nnpm run docs 2>&1 | tail -5; npm run validate 2>&1 | tail -15; git status --short\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "    at ModuleJob.syncLink (node:internal/modules/esm/module_job:163:33) {\n  code: 'ERR_MODULE_NOT_FOUND'\n}\n\nNode.js v24.18.1\n\n> clever-tools@5.1.1 validate\n> npm run lint && npm run format:check && npm run typecheck && npm run docs:check && npm run test\n\n\n> clever-tools@5.1.1 lint\n> eslint\n\nsh: line 1: eslint: command not found\n M src/commands/global.options.js\n M src/parsers.js"
+  },
+  {
+    "role": "tool_call",
+    "name": "Bash",
+    "content": "{\n  \"command\": \"npm ci 2>&1 | tail -3; npm run docs 2>&1 | tail -3; npm run validate 2>&1 | tail -15; git status --short\",\n  \"timeout\": 400000\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "npm warn allow-scripts   unrs-resolver@1.11.1 (postinstall: napi-postinstall unrs-resolver 1.11.1 check)\nnpm warn allow-scripts\nnpm warn allow-scripts Run `npm approve-scripts --allow-scripts-pending` to review, or `npm approve-scripts <pkg>` to allow.\nsrc/commands/logs/logs.docs.md\nskills/clever-tools/references/full-documentation.md\nUpdated 3 files (49 unchanged)\n> clever-tools@5.1.1 validate\n> npm run lint && npm run format:check && npm run typecheck && npm run docs:check && npm run test\n\n\n> clever-tools@5.1.1 lint\n> eslint\n\n\n> clever-tools@5.1.1 format:check\n> prettier . --check\n\nChecking formatting...\n[warn] .claude/settings.json\n[warn] src/commands/global.options.js\n[warn] Code style issues found in 2 files. Run Prettier with --write to fix.\n M skills/clever-tools/references/full-documentation.md\n M src/commands/accesslogs/accesslogs.docs.md\n M src/commands/global.options.js\n M src/commands/logs/logs.docs.md\n M src/parsers.js"
+  },
+  {
+    "role": "tool_call",
+    "name": "Bash",
+    "content": "{\n  \"command\": \"npx prettier --write src/commands/global.options.js src/parsers.js >/dev/null; npm run docs 2>&1 | tail -1; npm run validate 2>&1 | tail -8; node -e \\\"import('./src/parsers.js').then(m=>console.log(m.date('now')))\\\"\",\n  \"timeout\": 300000\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "All files up-to-date (52 files)\n\n\n> clever-tools@5.1.1 format:check\n> prettier . --check\n\nChecking formatting...\n[warn] .claude/settings.json\n[warn] Code style issues found in the above file. Run Prettier with --write to fix.\n2026-10-23T14:32:20.243Z"
+  },
+  {
+    "role": "tool_call",
+    "name": "Bash",
+    "content": "{\n  \"command\": \"npm run typecheck 2>&1 | tail -3; npm run docs:check 2>&1 | tail -2; npm test 2>&1 | tail -6\",\n  \"timeout\": 300000\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "> clever-tools@5.1.1 typecheck\n> tsc -p tsconfig.json\n\n\nAll docs up-to-date (52 files)\nℹ pass 26\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 291.445112"
+  },
+  {
+    "role": "assistant",
+    "content": "`--before` and `--after` (and their aliases `--until` and `--since`) now accept `now`. For example, `clever logs --since 1h --until now` works.\n\nLint, typecheck, docs check and unit tests pass. `npm run validate` still stops at its format check, which flags `.claude/settings.json`. That file isn't one I changed, and I left it alone. I checked that `date('now')` returns the current time. I didn't run `clever logs` or `clever accesslogs` against the API.\n\n- **Parser:** `date()` in `src/parsers.js` returns the current time when the value is `now`.\n- **Help text:** the option descriptions in `src/commands/global.options.js` now end with \"or now\".\n- **Docs:** I regenerated the docs. The changes are in the `logs` and `accesslogs` docs and `skills/clever-tools/references/full-documentation.md`.\n\n`clever instances` uses the same `date()` parser, so its `--after` and `--before` accept `now` too. I didn't update its help text, so that behaviour isn't documented there.\n\nI ran `npm ci` first because the dependencies weren't installed."
+  }
+]

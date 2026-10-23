@@ -1,0 +1,95 @@
+[
+  {
+    "role": "user",
+    "content": "Add a `clever otoroshi open swaggerui` subcommand that opens the Swagger UI of an Otoroshi instance in the browser."
+  },
+  {
+    "role": "tool_call",
+    "name": "Bash",
+    "content": "{\n  \"command\": \"cd /tmp/agents-docs-SANDBOX/repo; ls src/commands/otoroshi/; cat src/commands/otoroshi/*open*.js; grep -n -i otoroshi src/commands/global.commands.js\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "otoroshi.command.js\notoroshi.disable-ng.command.js\notoroshi.docs.md\notoroshi.enable-ng.command.js\notoroshi.get-config.command.js\notoroshi.get.command.js\notoroshi.open.command.js\notoroshi.open.logs.command.js\notoroshi.open.webui.command.js\notoroshi.rebuild.command.js\notoroshi.restart.command.js\notoroshi.version.check.command.js\notoroshi.version.command.js\notoroshi.version.update.command.js\nimport { defineCommand } from '../../lib/define-command.js';\nimport { operatorOpen } from '../../lib/operator-commands.js';\nimport { addonIdOrNameArg } from '../global.args.js';\n\nexport const otoroshiOpenCommand = defineCommand({\n  description: 'Open the Otoroshi dashboard in Clever Cloud Console',\n  since: '3.13.0',\n  options: {},\n  args: [addonIdOrNameArg],\n  async handler(_options, addonIdOrName) {\n    await operatorOpen('otoroshi', addonIdOrName);\n  },\n});\nimport { defineCommand } from '../../lib/define-command.js';\nimport { operatorOpenLogs } from '../../lib/operator-commands.js';\nimport { addonIdOrNameArg } from '../global.args.js';\n\nexport const otoroshiOpenLogsCommand = defineCommand({\n  description: 'Open the Otoroshi application logs in Clever Cloud Console',\n  since: '3.13.0',\n  options: {},\n  args: [addonIdOrNameArg],\n  async handler(_options, addonIdOrName) {\n    await operatorOpenLogs('otoroshi', addonIdOrName);\n  },\n});\nimport { defineCommand } from '../../lib/define-command.js';\nimport { operatorOpenWebUi } from '../../lib/operator-commands.js';\nimport { addonIdOrNameArg } from '../global.args.js';\n\nexport const otoroshiOpenWebuiCommand = defineCommand({\n  description: 'Open the Otoroshi admin console in your browser',\n  since: '3.13.0',\n  options: {},\n  args: [addonIdOrNameArg],\n  async handler(_options, addonIdOrName) {\n    await operatorOpenWebUi('otoroshi', addonIdOrName);\n  },\n});\n140:import { otoroshiCommand } from './otoroshi/otoroshi.command.js';\n141:import { otoroshiDisableNgCommand } from './otoroshi/otoroshi.disable-ng.command.js';\n142:import { otoroshiEnableNgCommand } from './otoroshi/otoroshi.enable-ng.command.js';\n143:import { otoroshiGetConfigCommand } from './otoroshi/otoroshi.get-config.command.js';\n144:import { otoroshiGetCommand } from './otoroshi/otoroshi.get.command.js';\n145:import { otoroshiOpenCommand } from './otoroshi/otoroshi.open.command.js';\n146:import { otoroshiOpenLogsCommand } from './otoroshi/otoroshi.open.logs.command.js';\n147:import { otoroshiOpenWebuiCommand } from './otoroshi/otoroshi.open.webui.command.js';\n148:import { otoroshiRebuildCommand } from './otoroshi/otoroshi.rebuild.command.js';\n149:import { otoroshiRestartCommand } from './otoroshi/otoroshi.restart.command.js';\n150:import { otoroshiVersionCheckCommand } from './otoroshi/otoroshi.version.check.command.js';\n151:import { otoroshiVersionCommand } from './otoroshi/otoroshi.version.command.js';\n152:import { otoroshiVersionUpdateCommand } from './otoroshi/otoroshi.version.update.command.js';\n445:  otoroshi: [\n446:    otoroshiCommand,\n448:      'disable-\n[truncated 512 chars]"
+  },
+  {
+    "role": "tool_call",
+    "name": "Bash",
+    "content": "{\n  \"command\": \"cd /tmp/agents-docs-SANDBOX/repo; cat src/lib/operator-commands.js; grep -rn -i swagger src docs --include=*.js --include=*.md | head -30\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "import dedent from 'dedent';\nimport _ from 'lodash';\nimport {\n  getOtoroshiConfig,\n  ngDisableOperator,\n  ngEnableOperator,\n  rebootOperator,\n  rebuildOperator,\n  versionCheck,\n  versionUpdate,\n} from '../clever-client/operators.js';\nimport { config } from '../config/config.js';\nimport { Logger } from '../logger.js';\nimport { findAddonsByAddonProvider } from '../models/ids-resolver.js';\nimport * as Operator from '../models/operator.js';\nimport { sendToApi } from '../models/send-to-api.js';\nimport { openBrowser } from '../models/utils.js';\nimport { printItemsByOwner } from './print-items-by-owner.js';\nimport { confirm, selectAnswer } from './prompts.js';\nimport { styleText } from './style-text.js';\n\n/**\n * Check the version of an operator\n * @param {string} provider The operator's provider\n * @param {{ addon_name?: string, operator_id?: string, addon_id?: string }} addonIdOrName The operator's name or ID\n * @param {string} params.options.format The output format\n * @returns {Promise<void>}\n */\nexport async function operatorCheckVersion(provider, addonIdOrName, format) {\n  const realId = await Operator.getSingleRealId(addonIdOrName);\n  const name = getDisplayName(addonIdOrName);\n  const versions = await versionCheck({ provider, realId }).then(sendToApi);\n\n  switch (format) {\n    case 'json':\n      Logger.printJson(versions);\n      break;\n    case 'human':\n    default:\n      if (!versions.needUpdate || (provider === 'metabase' && versions.installed === 'community-latest')) {\n        Logger.printSuccess(`${styleText('green', name)} is up-to-date (${styleText('green', versions.installed)})`);\n      } else {\n        Logger.println(dedent`\n          🔄 ${styleText('red', name)} is outdated\n             • Installed version: ${styleText('red', versions.installed)}\n             • Latest version: ${styleText('green', versions.latest)}\n        `);\n        Logger.println();\n\n        await confirm(\n          `Do you want to update it to ${styleText('green', versions.latest)} now?`,\n          'No confirmation, aborting version update',\n        );\n\n        await versionUpdate({ provider, realId }, { targetVersion: versions.latest }).then(sendToApi);\n        Logger.printSuccess(`${styleText('green', name)} is up-to-date and being rebuilt…`);\n      }\n      break;\n  }\n}\n\n/**\n * Update the version of an operator\n * @param {string} provider The operator's provider\n * @param {string} askedVersion The version to update to\n * @param {{ addon_name?: string, operator_id?: string, addon_id?: string }} addonIdOrName The operator's name or ID\n * @returns {Promise<void>}\n */\nexport async function operatorUpdateVersion(provider, askedVersion, addonIdOrName) {\n  const realId = await Operator.getSingleRealId(addonIdOrName);\n  const name = getDisplayName(addonIdOrName);\n\n  const versions = await versionCheck({ provider, realId }).then(sendToApi);\n\n  const targetVersion =\n    askedVersion ??\n    (await selectAnswer(\n      `Which version do you want to update ${styleText('blue', na\n[truncated 7575 chars]"
+  },
+  {
+    "role": "tool_call",
+    "name": "Bash",
+    "content": "{\n  \"command\": \"cd /tmp/agents-docs-SANDBOX/repo; sed -n 440,470p src/commands/global.commands.js; grep -n \\\"open\\\" skills/clever-tools/SKILL.md docs/*.md | grep -i otoroshi; grep -n \\\"^#\\\" src/commands/otoroshi/otoroshi.docs.md\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "      add: notifyEmailAddCommand,\n      remove: notifyEmailRemoveCommand,\n    },\n  ],\n  open: openCommand,\n  otoroshi: [\n    otoroshiCommand,\n    {\n      'disable-ng': otoroshiDisableNgCommand,\n      'enable-ng': otoroshiEnableNgCommand,\n      get: otoroshiGetCommand,\n      'get-config': otoroshiGetConfigCommand,\n      open: [\n        otoroshiOpenCommand,\n        {\n          logs: otoroshiOpenLogsCommand,\n          webui: otoroshiOpenWebuiCommand,\n        },\n      ],\n      rebuild: otoroshiRebuildCommand,\n      restart: otoroshiRestartCommand,\n      version: [\n        otoroshiVersionCommand,\n        {\n          check: otoroshiVersionCheckCommand,\n          update: otoroshiVersionUpdateCommand,\n        },\n      ],\n    },\n  ],\n  profile: [\ndocs/operators.md:46:clever otoroshi open logs myOtoroshi\ndocs/operators.md:47:clever otoroshi open webui otoroshi_id\n1:# 📖 `clever otoroshi` command reference\n7:## ➡️ `clever otoroshi` <kbd>Since 3.13.0</kbd>\n15:### ⚙️ Options\n21:## ➡️ `clever otoroshi disable-ng` <kbd>Since 3.13.0</kbd>\n29:### 📥 Arguments\n35:## ➡️ `clever otoroshi enable-ng` <kbd>Since 3.13.0</kbd>\n43:### 📥 Arguments\n49:## ➡️ `clever otoroshi get` <kbd>Since 3.13.0</kbd>\n57:### 📥 Arguments\n63:### ⚙️ Options\n69:## ➡️ `clever otoroshi get-config` <kbd>Since 4.4.0</kbd>\n77:### 📥 Arguments\n83:## ➡️ `clever otoroshi open` <kbd>Since 3.13.0</kbd>\n91:### 📥 Arguments\n97:## ➡️ `clever otoroshi open logs` <kbd>Since 3.13.0</kbd>\n105:### 📥 Arguments\n111:## ➡️ `clever otoroshi open webui` <kbd>Since 3.13.0</kbd>\n119:### 📥 Arguments\n125:## ➡️ `clever otoroshi rebuild` <kbd>Since 3.13.0</kbd>\n133:### 📥 Arguments\n139:## ➡️ `clever otoroshi restart` <kbd>Since 3.13.0</kbd>\n147:### 📥 Arguments\n153:## ➡️ `clever otoroshi version` <kbd>Since 3.13.0</kbd>\n161:### 📥 Arguments\n167:### ⚙️ Options\n173:## ➡️ `clever otoroshi version check` <kbd>Since 3.13.0</kbd>\n181:### 📥 Arguments\n187:### ⚙️ Options\n193:## ➡️ `clever otoroshi version update` <kbd>Since 3.13.0</kbd>\n201:### 📥 Arguments\n207:### ⚙️ Options"
+  },
+  {
+    "role": "tool_call",
+    "name": "Bash",
+    "content": "{\n  \"command\": \"cd /tmp/agents-docs-SANDBOX/repo; sed -n 30,60p docs/operators.md; grep -n -i \\\"otoroshi\\\" skills/clever-tools/SKILL.md\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "To restart or rebuild (restart without cache) a deployed service, use:\n\n```\nclever metabase restart myMetabase\nclever otoroshi rebuild otoroshi_id\n```\n\nTo open the deployed service dashboard in Clever Cloud Console, use:\n\n```\nclever keycloak open myKeycloak\n```\n\nYou can also open the service web management interface or logs of the underlying application:\n\n```\nclever otoroshi open logs myOtoroshi\nclever otoroshi open webui otoroshi_id\n```\n\n## Version management\n\nTo check the version of a deployed service, use:\n\n```\nclever matomo version check matomo_id\nclever metabase version check myMetabase --format json\n```\n\nTo update to a specific version, use:"
+  },
+  {
+    "role": "assistant",
+    "content": "I'll add a helper next to `operatorOpenWebUi`, then the command, registration, and a docs line."
+  },
+  {
+    "role": "tool_call",
+    "name": "Edit",
+    "content": "{\n  \"replace_all\": false,\n  \"file_path\": \"/tmp/agents-docs-SANDBOX/repo/src/lib/operator-commands.js\",\n  \"old_string\": \"  await openBrowser(operator.accessUrl, `Opening ${styleText('blue', operator.addonId)} web UI in the browser…`);\\n}\",\n  \"new_string\": \"  await openBrowser(operator.accessUrl, `Opening ${styleText('blue', operator.addonId)} web UI in the browser…`);\\n}\\n\\n/**\\n * Open an operator Swagger UI in the browser\\n * @param {string} provider The operator's provider\\n * @param {{ addon_name?: string, operator_id?: string, addon_id?: string }} addonIdOrName The operator's name or ID\\n * @returns {Promise<void>}\\n * @throws {Error} If the operator has no Swagger UI\\n */\\nexport async function operatorOpenSwaggerUi(provider, addonIdOrName) {\\n  const operator = await Operator.getDetails(provider, addonIdOrName);\\n  const swaggerUrl = operator.api?.swaggerUrl;\\n  if (swaggerUrl == null) {\\n    throw new Error(`No Swagger UI available for ${styleText('red', operator.addonId)}`);\\n  }\\n  await openBrowser(swaggerUrl, `Opening ${styleText('blue', operator.addonId)} Swagger UI in the browser…`);\\n}\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "Claude requested permissions to write to /tmp/agents-docs-SANDBOX/repo/src/lib/operator-commands.js, but you haven't granted it yet."
+  },
+  {
+    "role": "tool_call",
+    "name": "Write",
+    "content": "{\n  \"file_path\": \"/tmp/agents-docs-SANDBOX/repo/src/commands/otoroshi/otoroshi.open.swaggerui.command.js\",\n  \"content\": \"import { defineCommand } from '../../lib/define-command.js';\\nimport { operatorOpenSwaggerUi } from '../../lib/operator-commands.js';\\nimport { addonIdOrNameArg } from '../global.args.js';\\n\\nexport const otoroshiOpenSwaggeruiCommand = defineCommand({\\n  description: 'Open the Otoroshi API Swagger UI in your browser',\\n  since: null,\\n  options: {},\\n  args: [addonIdOrNameArg],\\n  async handler(_options, addonIdOrName) {\\n    await operatorOpenSwaggerUi('otoroshi', addonIdOrName);\\n  },\\n});\\n\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "Claude requested permissions to write to /tmp/agents-docs-SANDBOX/repo/src/commands/otoroshi/otoroshi.open.swaggerui.command.js, but you haven't granted it yet."
+  },
+  {
+    "role": "tool_call",
+    "name": "Edit",
+    "content": "{\n  \"replace_all\": false,\n  \"file_path\": \"/tmp/agents-docs-SANDBOX/repo/src/commands/global.commands.js\",\n  \"old_string\": \"          logs: otoroshiOpenLogsCommand,\\n          webui: otoroshiOpenWebuiCommand,\",\n  \"new_string\": \"          logs: otoroshiOpenLogsCommand,\\n          swaggerui: otoroshiOpenSwaggeruiCommand,\\n          webui: otoroshiOpenWebuiCommand,\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "Claude requested permissions to write to /tmp/agents-docs-SANDBOX/repo/src/commands/global.commands.js, but you haven't granted it yet."
+  },
+  {
+    "role": "tool_call",
+    "name": "Edit",
+    "content": "{\n  \"replace_all\": false,\n  \"file_path\": \"/tmp/agents-docs-SANDBOX/repo/src/commands/global.commands.js\",\n  \"old_string\": \"import { otoroshiOpenLogsCommand } from './otoroshi/otoroshi.open.logs.command.js';\\n\",\n  \"new_string\": \"import { otoroshiOpenLogsCommand } from './otoroshi/otoroshi.open.logs.command.js';\\nimport { otoroshiOpenSwaggeruiCommand } from './otoroshi/otoroshi.open.swaggerui.command.js';\\n\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "Claude requested permissions to write to /tmp/agents-docs-SANDBOX/repo/src/commands/global.commands.js, but you haven't granted it yet."
+  },
+  {
+    "role": "tool_call",
+    "name": "Edit",
+    "content": "{\n  \"replace_all\": false,\n  \"file_path\": \"/tmp/agents-docs-SANDBOX/repo/docs/operators.md\",\n  \"old_string\": \"clever otoroshi open webui otoroshi_id\\n```\",\n  \"new_string\": \"clever otoroshi open webui otoroshi_id\\n```\\n\\nFor Otoroshi, you can also open the Swagger UI of its API:\\n\\n```\\nclever otoroshi open swaggerui myOtoroshi\\n```\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "Claude requested permissions to write to /tmp/agents-docs-SANDBOX/repo/docs/operators.md, but you haven't granted it yet."
+  },
+  {
+    "role": "assistant",
+    "content": "I couldn't add `clever otoroshi open swaggerui` because all my file writes were blocked. I haven't changed anything, so nothing has been run or validated. If you allow writes to the repo, I'll apply the changes below, then run `npm run docs` and `npm run validate`.\n\n**What I found:** the Otoroshi details from `Operator.getDetails()` already include `api.swaggerUrl`, and `clever otoroshi get` prints it as \"Swagger URL\". The new command only needs to open that URL in the browser, the same way `open webui` opens `accessUrl`.\n\n**Planned changes:**\n\n1. **`src/lib/operator-commands.js`**: add a helper next to `operatorOpenWebUi`. It throws an error you can act on if the add-on has no Swagger URL.\n   ```js\n   export async function operatorOpenSwaggerUi(provider, addonIdOrName) {\n     const operator = await Operator.getDetails(provider, addonIdOrName);\n     const swaggerUrl = operator.api?.swaggerUrl;\n     if (swaggerUrl == null) {\n       throw new Error(`No Swagger UI available for ${styleText('red', operator.addonId)}`);\n     }\n     await openBrowser(swaggerUrl, `Opening ${styleText('blue', operator.addonId)} Swagger UI in the browser…`);\n   }\n   ```\n2. **New `src/commands/otoroshi/otoroshi.open.swaggerui.command.js`**: a copy of `otoroshi.open.webui.command.js` that calls `operatorOpenSwaggerUi('otoroshi', addonIdOrName)`. It uses `since: null`, as new commands must.\n3. **`src/commands/global.commands.js`**: import it and register `swaggerui: otoroshiOpenSwaggeruiCommand` under `otoroshi.open`, between `logs` and `webui`.\n4. **`docs/operators.md`**: add a `clever otoroshi open swaggerui myOtoroshi` example after the `open logs` / `open webui` examples.\n\n`skills/clever-tools/SKILL.md` doesn't mention the Otoroshi open commands, so it needs no change. The command reference (`otoroshi.docs.md`) is generated by `npm run docs`, which calls the public Clever Cloud API and so needs network access.\n\nThe repo rules say every PR must close an existing issue (`Closes #N`), so I'll need an issue number when you want to open one."
+  }
+]

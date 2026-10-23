@@ -1,0 +1,55 @@
+[
+  {
+    "role": "user",
+    "content": "Add an `--instance` option to `clever ssh` to connect to a given running instance by its ID."
+  },
+  {
+    "role": "tool_call",
+    "name": "Bash",
+    "content": "{\n  \"command\": \"ls src/commands/ssh && cat src/commands/ssh/*.command.js && cat src/commands/ssh/ssh.docs.md && grep -rn \\\"instance\\\" src/commands/*/*.options.js src/commands/global.options.js | head -20\",\n  \"description\": \"Inspect ssh command files\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "ssh.command.js\nssh.docs.md\nimport { getAllInstances } from '@clevercloud/client/esm/api/v2/application.js';\nimport { spawn } from 'node:child_process';\nimport { randomUUID } from 'node:crypto';\nimport { z } from 'zod';\nimport { config } from '../../config/config.js';\nimport { defineCommand } from '../../lib/define-command.js';\nimport { defineOption } from '../../lib/define-option.js';\nimport { selectAnswer } from '../../lib/prompts.js';\nimport * as Application from '../../models/application.js';\nimport { sendToApi } from '../../models/send-to-api.js';\nimport { aliasOption, appIdOrNameOption } from '../global.options.js';\n\nexport const sshCommand = defineCommand({\n  description: 'Connect to running instances through SSH',\n  since: '0.7.0',\n  options: {\n    identityFile: defineOption({\n      name: 'identity-file',\n      schema: z.string().optional(),\n      description: 'SSH identity file',\n      aliases: ['i'],\n      placeholder: 'identity-file',\n    }),\n    command: defineOption({\n      name: 'command',\n      schema: z.string().optional(),\n      description: 'Execute a command on the remote instance and exit',\n      aliases: ['c'],\n      placeholder: 'command',\n    }),\n    alias: aliasOption,\n    app: appIdOrNameOption,\n  },\n  args: [],\n  async handler(options) {\n    const { alias, app: appIdOrName, identityFile, command } = options;\n    const { appId, ownerId } = await Application.resolveId(appIdOrName, alias);\n\n    const instances = await getAllInstances({ id: ownerId, appId }).then(sendToApi);\n\n    if (instances.length === 0) {\n      throw new Error('No running instances found for this application');\n    }\n\n    let sshTarget;\n    if (instances.length === 1) {\n      sshTarget = instances[0].id;\n    } else if (process.stdin.isTTY) {\n      const choices = instances\n        .sort((a, b) => a.instanceNumber - b.instanceNumber)\n        .map((inst) => ({\n          name: `${inst.displayName} - Instance ${inst.instanceNumber} - ${inst.state} (${inst.id})`,\n          value: inst.id,\n        }));\n      sshTarget = await selectAnswer('Select an instance:', choices);\n    } else {\n      throw new Error('Multiple instances are running. Cannot select in non-interactive mode.');\n    }\n\n    const sshParams = [];\n    // Clever Cloud SSH only accepts key auth. Disable password fallback so a missing\n    // or unregistered key fails fast instead of prompting for a password that cannot work.\n    sshParams.push('-o', 'PreferredAuthentications=publickey', '-o', 'PasswordAuthentication=no');\n    // -t: force PTY allocation (SSH skips it by default because appId is passed as a command for gateway routing)\n    if (command == null) {\n      sshParams.push('-t');\n    }\n    if (identityFile != null) {\n      // -i adds the key to the ones ssh may offer, but doesn't guarantee it's the one used\n      sshParams.push('-i', identityFile);\n      // IdentitiesOnly forces ssh to only offer this key, ignoring agent/default ones\n      sshParams.push('-o', 'IdentitiesOnly=yes');\n    }\n  \n[truncated 2521 chars]"
+  },
+  {
+    "role": "tool_call",
+    "name": "Edit",
+    "content": "{\n  \"replace_all\": false,\n  \"file_path\": \"/tmp/agents-docs-SANDBOX/repo/src/commands/ssh/ssh.command.js\",\n  \"old_string\": \"      placeholder: 'command',\\n    }),\\n    alias: aliasOption,\",\n  \"new_string\": \"      placeholder: 'command',\\n    }),\\n    instance: defineOption({\\n      name: 'instance',\\n      schema: z.string().optional(),\\n      description: 'ID of the running instance to connect to',\\n      placeholder: 'instance-id',\\n    }),\\n    alias: aliasOption,\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "Claude requested permissions to write to /tmp/agents-docs-SANDBOX/repo/src/commands/ssh/ssh.command.js, but you haven't granted it yet."
+  },
+  {
+    "role": "tool_call",
+    "name": "Edit",
+    "content": "{\n  \"replace_all\": false,\n  \"file_path\": \"/tmp/agents-docs-SANDBOX/repo/src/commands/ssh/ssh.command.js\",\n  \"old_string\": \"    const { alias, app: appIdOrName, identityFile, command } = options;\",\n  \"new_string\": \"    const { alias, app: appIdOrName, identityFile, command, instance: instanceId } = options;\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "Claude requested permissions to write to /tmp/agents-docs-SANDBOX/repo/src/commands/ssh/ssh.command.js, but you haven't granted it yet."
+  },
+  {
+    "role": "tool_call",
+    "name": "Edit",
+    "content": "{\n  \"replace_all\": false,\n  \"file_path\": \"/tmp/agents-docs-SANDBOX/repo/src/commands/ssh/ssh.command.js\",\n  \"old_string\": \"    let sshTarget;\\n    if (instances.length === 1) {\",\n  \"new_string\": \"    let sshTarget;\\n    if (instanceId != null) {\\n      const instance = instances.find((inst) => inst.id === instanceId);\\n      if (instance == null) {\\n        const availableIds = instances.map((inst) => inst.id).join(', ');\\n        throw new Error(`Instance ${instanceId} is not running for this application. Running instances: ${availableIds}`);\\n      }\\n      sshTarget = instance.id;\\n    } else if (instances.length === 1) {\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "Claude requested permissions to write to /tmp/agents-docs-SANDBOX/repo/src/commands/ssh/ssh.command.js, but you haven't granted it yet."
+  },
+  {
+    "role": "tool_call",
+    "name": "Grep",
+    "content": "{\n  \"pattern\": \"ssh\",\n  \"path\": \"skills/clever-tools/SKILL.md\",\n  \"output_mode\": \"content\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "174:clever ssh\n177:clever ssh --command \"ls -la\""
+  },
+  {
+    "role": "assistant",
+    "content": "I haven't added `--instance` yet: you didn't grant write permission for `src/commands/ssh/ssh.command.js`, so none of my edits were applied and the file is unchanged.\n\nHere is what I'd change in that file:\n\n1. **New option**, next to `--command`:\n   ```js\n   instance: defineOption({\n     name: 'instance',\n     schema: z.string().optional(),\n     description: 'ID of the running instance to connect to',\n     placeholder: 'instance-id',\n   }),\n   ```\n2. **Choosing the instance:** when `--instance` is given, the command looks for that ID among the app's running instances and connects to it, with no prompt. If the ID isn't one of them, it stops with an error that lists the running instance IDs. Without the option, it works as today: one instance is used directly, several get a prompt in a terminal, and outside a terminal it fails.\n\nAfter that I'd run `npm run docs` to regenerate `ssh.docs.md` and `npm run validate`. I'd also add a `clever ssh --instance <instance-id>` example to `skills/clever-tools/SKILL.md`, which already shows `clever ssh` examples around line 174.\n\nIf you grant write access to `src/commands/ssh/`, I'll make these changes and run the checks."
+  }
+]

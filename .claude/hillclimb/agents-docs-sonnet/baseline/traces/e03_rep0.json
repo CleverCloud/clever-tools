@@ -1,0 +1,64 @@
+[
+  {
+    "role": "user",
+    "content": "Add a `--command` option to `clever ssh` to run a remote command instead of opening an interactive shell."
+  },
+  {
+    "role": "tool_call",
+    "name": "Bash",
+    "content": "{\n  \"command\": \"cd /tmp/agents-docs-SANDBOX/repo/src/commands/ssh && ls && cat ssh.command.js && cat ssh.docs.md\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "ssh.command.js\nssh.docs.md\nimport { getAllInstances } from '@clevercloud/client/esm/api/v2/application.js';\nimport { spawn } from 'node:child_process';\nimport { z } from 'zod';\nimport { config } from '../../config/config.js';\nimport { defineCommand } from '../../lib/define-command.js';\nimport { defineOption } from '../../lib/define-option.js';\nimport { selectAnswer } from '../../lib/prompts.js';\nimport * as Application from '../../models/application.js';\nimport { sendToApi } from '../../models/send-to-api.js';\nimport { aliasOption, appIdOrNameOption } from '../global.options.js';\n\nexport const sshCommand = defineCommand({\n  description: 'Connect to running instances through SSH',\n  since: '0.7.0',\n  options: {\n    identityFile: defineOption({\n      name: 'identity-file',\n      schema: z.string().optional(),\n      description: 'SSH identity file',\n      aliases: ['i'],\n      placeholder: 'identity-file',\n    }),\n    alias: aliasOption,\n    app: appIdOrNameOption,\n  },\n  args: [],\n  async handler(options) {\n    const { alias, app: appIdOrName, identityFile } = options;\n    const { appId, ownerId } = await Application.resolveId(appIdOrName, alias);\n\n    const instances = await getAllInstances({ id: ownerId, appId }).then(sendToApi);\n\n    if (instances.length === 0) {\n      throw new Error('No running instances found for this application');\n    }\n\n    let sshTarget;\n    if (instances.length === 1) {\n      sshTarget = instances[0].id;\n    } else if (process.stdout.isTTY) {\n      const choices = instances\n        .sort((a, b) => a.instanceNumber - b.instanceNumber)\n        .map((inst) => ({\n          name: `${inst.displayName} - Instance ${inst.instanceNumber} - ${inst.state} (${inst.id})`,\n          value: inst.id,\n        }));\n      sshTarget = await selectAnswer('Select an instance:', choices);\n    } else {\n      throw new Error('Multiple instances are running. Cannot select in non-interactive mode.');\n    }\n\n    const sshParams = [];\n    // -t: force PTY allocation (SSH skips it by default because appId is passed as a command for gateway routing)\n    sshParams.push('-t');\n    if (identityFile != null) {\n      sshParams.push('-i', identityFile);\n    }\n    sshParams.push(config.SSH_GATEWAY, sshTarget);\n\n    return new Promise((resolve, reject) => {\n      const sshProcess = spawn('ssh', sshParams, { stdio: 'inherit' });\n      sshProcess.on('exit', resolve);\n      sshProcess.on('error', reject);\n    });\n  },\n});\n# 📖 `clever ssh` command reference\n\n## ➡️ `clever ssh` <kbd>Since 0.7.0</kbd>\n\nConnect to running instances through SSH\n\n```bash\nclever ssh [options]\n```\n\n### ⚙️ Options\n\n|Name|Description|\n|---|---|\n|`-a`, `--alias` `<alias>`|Short name for the application|\n|`--app` `<app-id\\|app-name>`|Application to manage by its ID (or name, if unambiguous)|\n|`-i`, `--identity-file` `<identity-file>`|SSH identity file|"
+  },
+  {
+    "role": "tool_call",
+    "name": "Bash",
+    "content": "{\n  \"command\": \"cd /tmp/agents-docs-SANDBOX/repo && grep -rn \\\"ssh\\\" src/models/ssh*.js | head -30; ls src/models | grep -i ssh\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "ssh-keys.js"
+  },
+  {
+    "role": "tool_call",
+    "name": "Grep",
+    "content": "{\n  \"pattern\": \"SSH_GATEWAY|ssh -t|ssh-gateway\",\n  \"path\": \"/tmp/agents-docs-SANDBOX/repo\",\n  \"glob\": \"!node_modules/**\",\n  \"output_mode\": \"content\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "docs/profiles.md:46:  --ssh-gateway ssh@sshgateway-clevercloud-customers.services.clever-cloud.com\nsrc/config/config.js:11:  SSH_GATEWAY: z.string().optional(),\nsrc/config/config.js:51:    SSH_GATEWAY: z.string().default('ssh@sshgateway-clevercloud-customers.services.clever-cloud.com'),\nskills/clever-tools/references/full-documentation.md:1873:    --ssh-gateway <address>             SSH gateway override\nsrc/commands/login/login.command.js:120:      name: 'ssh-gateway',\nsrc/commands/login/login.command.js:178:      SSH_GATEWAY: options.sshGateway,\nsrc/commands/login/login.docs.md:22:|`--ssh-gateway` `<address>`|SSH gateway override|\nsrc/commands/ssh/ssh.command.js:58:    sshParams.push(config.SSH_GATEWAY, sshTarget);"
+  },
+  {
+    "role": "tool_call",
+    "name": "Bash",
+    "content": "{\n  \"command\": \"cd /tmp/agents-docs-SANDBOX/repo/src/commands/ssh && python3 - <<'E'\\np='ssh.command.js'\\ns=open(p).read()\\ns=s.replace(\\\"\\\"\\\"    alias: aliasOption,\\\"\\\"\\\",\\\"\\\"\\\"    command: defineOption({\\n      name: 'command',\\n      schema: z.string().optional(),\\n      description: 'Remote command to run instead of opening an interactive shell',\\n      aliases: ['c'],\\n      placeholder: 'command',\\n    }),\\n    alias: aliasOption,\\\"\\\"\\\",1)\\ns=s.replace(\\\"{ alias, app: appIdOrName, identityFile }\\\",\\\"{ alias, app: appIdOrName, identityFile, command }\\\")\\ns=s.replace(\\\"\\\"\\\"    // -t: force PTY allocation (SSH skips it by default because appId is passed as a command for gateway routing)\\n    sshParams.push('-t');\\n\\\"\\\"\\\",\\\"\\\"\\\"    if (command == null) {\\n      // -t: force PTY allocation (SSH skips it by default because appId is passed as a command for gateway routing)\\n      sshParams.push('-t');\\n    }\\n\\\"\\\"\\\")\\ns=s.replace(\\\"\\\"\\\"    sshParams.push(config.SSH_GATEWAY, sshTarget);\\n\\\"\\\"\\\",\\\"\\\"\\\"    sshParams.push(config.SSH_GATEWAY, sshTarget);\\n    if (command != null) {\\n      sshParams.push(command);\\n    }\\n\\\"\\\"\\\")\\ns=s.replace(\\\"sshProcess.on('exit', resolve);\\\",\\\"\\\"\\\"sshProcess.on('exit', (code) => {\\n        process.exitCode = code ?? 1;\\n        resolve();\\n      });\\\"\\\"\\\")\\nopen(p,'w').write(s)\\nE\\ncd ../../.. && npm run docs 2>&1 | tail -5; npm run validate 2>&1 | tail -15; git status --short\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "    at ModuleJob.syncLink (node:internal/modules/esm/module_job:163:33) {\n  code: 'ERR_MODULE_NOT_FOUND'\n}\n\nNode.js v24.18.1\n\n> clever-tools@4.6.1 validate\n> npm run lint && npm run format:check && npm run typecheck && npm run docs:check\n\n\n> clever-tools@4.6.1 lint\n> eslint\n\nsh: line 1: eslint: command not found\n M src/commands/ssh/ssh.command.js"
+  },
+  {
+    "role": "tool_call",
+    "name": "Bash",
+    "content": "{\n  \"command\": \"python3 - <<'E'\\np='src/commands/ssh/ssh.docs.md'\\ns=open(p).read()\\ns=s.replace(\\\"|`-i`,\\\",\\\"|`-c`, `--command` `<command>`|Remote command to run instead of opening an interactive shell|\\\\n|`-i`,\\\")\\nopen(p,'w').write(s)\\nE\\ngrep -n \\\"identity-file\\\" skills/clever-tools/references/full-documentation.md src/commands/README.md | head; git diff --stat\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "skills/clever-tools/references/full-documentation.md:3068:-i, --identity-file <identity-file>    SSH identity file\n src/commands/ssh/ssh.command.js | 23 +++++++++++++++++++----\n src/commands/ssh/ssh.docs.md    |  1 +\n 2 files changed, 20 insertions(+), 4 deletions(-)"
+  },
+  {
+    "role": "tool_call",
+    "name": "Bash",
+    "content": "{\n  \"command\": \"sed -n 3060,3070p skills/clever-tools/references/full-documentation.md\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "```\nclever ssh [options]\n```\n\n**Options**\n```\n-a, --alias <alias>                    Short name for the application\n    --app <app-id|app-name>            Application to manage by its ID (or name, if unambiguous)\n-i, --identity-file <identity-file>    SSH identity file\n```"
+  },
+  {
+    "role": "assistant",
+    "content": "I added `-c, --command <command>` to `clever ssh` in `src/commands/ssh/ssh.command.js`. I haven't run it against a real instance. I also couldn't run `npm run validate`, because dependencies aren't installed (`eslint: command not found`) and `npm run docs` failed with `ERR_MODULE_NOT_FOUND`.\n\n- **With `--command`:** the command is appended after the instance ID in the `ssh` arguments, and the `-t` flag is dropped, so no pseudo-terminal is forced. Without `--command`, behaviour is unchanged.\n- **Exit code:** the command's exit code now becomes the `clever ssh` exit code (`process.exitCode`). This applies to interactive sessions too. Previously `clever ssh` didn't forward it.\n- **Docs:** I added the option row to `src/commands/ssh/ssh.docs.md` by hand.\n\n- **Gateway behaviour is unverified:** the instance ID is what routes the connection at the SSH gateway. I assumed the gateway forwards an extra argument after the ID to the instance. Please try `clever ssh --command \"ls\"` on a test app before merging.\n- **Generated doc is stale:** `skills/clever-tools/references/full-documentation.md` still lacks the new option. It's generated, so it needs `npm install` then `npm run fix-all` and `npm run validate`, which also catches any difference from my hand edit.\n\nI haven't committed anything."
+  }
+]

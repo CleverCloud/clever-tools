@@ -1,0 +1,73 @@
+[
+  {
+    "role": "user",
+    "content": "Add a `--command` option to `clever ssh` to run a remote command instead of opening an interactive shell."
+  },
+  {
+    "role": "tool_call",
+    "name": "Glob",
+    "content": "{\n  \"pattern\": \"src/commands/ssh/*\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "src/commands/ssh/ssh.docs.md\nsrc/commands/ssh/ssh.command.js"
+  },
+  {
+    "role": "tool_call",
+    "name": "Read",
+    "content": "{\n  \"file_path\": \"/tmp/agents-docs-SANDBOX/repo/src/commands/ssh/ssh.command.js\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "1\timport { getAllInstances } from '@clevercloud/client/esm/api/v2/application.js';\n2\timport { spawn } from 'node:child_process';\n3\timport { z } from 'zod';\n4\timport { config } from '../../config/config.js';\n5\timport { defineCommand } from '../../lib/define-command.js';\n6\timport { defineOption } from '../../lib/define-option.js';\n7\timport { selectAnswer } from '../../lib/prompts.js';\n8\timport * as Application from '../../models/application.js';\n9\timport { sendToApi } from '../../models/send-to-api.js';\n10\timport { aliasOption, appIdOrNameOption } from '../global.options.js';\n11\t\n12\texport const sshCommand = defineCommand({\n13\t  description: 'Connect to running instances through SSH',\n14\t  since: '0.7.0',\n15\t  options: {\n16\t    identityFile: defineOption({\n17\t      name: 'identity-file',\n18\t      schema: z.string().optional(),\n19\t      description: 'SSH identity file',\n20\t      aliases: ['i'],\n21\t      placeholder: 'identity-file',\n22\t    }),\n23\t    alias: aliasOption,\n24\t    app: appIdOrNameOption,\n25\t  },\n26\t  args: [],\n27\t  async handler(options) {\n28\t    const { alias, app: appIdOrName, identityFile } = options;\n29\t    const { appId, ownerId } = await Application.resolveId(appIdOrName, alias);\n30\t\n31\t    const instances = await getAllInstances({ id: ownerId, appId }).then(sendToApi);\n32\t\n33\t    if (instances.length === 0) {\n34\t      throw new Error('No running instances found for this application');\n35\t    }\n36\t\n37\t    let sshTarget;\n38\t    if (instances.length === 1) {\n39\t      sshTarget = instances[0].id;\n40\t    } else if (process.stdout.isTTY) {\n41\t      const choices = instances\n42\t        .sort((a, b) => a.instanceNumber - b.instanceNumber)\n43\t        .map((inst) => ({\n44\t          name: `${inst.displayName} - Instance ${inst.instanceNumber} - ${inst.state} (${inst.id})`,\n45\t          value: inst.id,\n46\t        }));\n47\t      sshTarget = await selectAnswer('Select an instance:', choices);\n48\t    } else {\n49\t      throw new Error('Multiple instances are running. Cannot select in non-interactive mode.');\n50\t    }\n51\t\n52\t    const sshParams = [];\n53\t    // -t: force PTY allocation (SSH skips it by default because appId is passed as a command for gateway routing)\n54\t    sshParams.push('-t');\n55\t    if (identityFile != null) {\n56\t      sshParams.push('-i', identityFile);\n57\t    }\n58\t    sshParams.push(config.SSH_GATEWAY, sshTarget);\n59\t\n60\t    return new Promise((resolve, reject) => {\n61\t      const sshProcess = spawn('ssh', sshParams, { stdio: 'inherit' });\n62\t      sshProcess.on('exit', resolve);\n63\t      sshProcess.on('error', reject);\n64\t    });\n65\t  },\n66\t});\n67\t"
+  },
+  {
+    "role": "tool_call",
+    "name": "Grep",
+    "content": "{\n  \"pattern\": \"SSH_GATEWAY|ssh-gateway\",\n  \"glob\": \"!*.md\",\n  \"output_mode\": \"content\",\n  \"head_limit\": 20\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "src/config/config.js:11:  SSH_GATEWAY: z.string().optional(),\nsrc/config/config.js:51:    SSH_GATEWAY: z.string().default('ssh@sshgateway-clevercloud-customers.services.clever-cloud.com'),\nsrc/commands/login/login.command.js:120:      name: 'ssh-gateway',\nsrc/commands/login/login.command.js:178:      SSH_GATEWAY: options.sshGateway,\nsrc/commands/ssh/ssh.command.js:58:    sshParams.push(config.SSH_GATEWAY, sshTarget);"
+  },
+  {
+    "role": "tool_call",
+    "name": "Read",
+    "content": "{\n  \"file_path\": \"/tmp/agents-docs-SANDBOX/repo/src/commands/ssh/ssh.docs.md\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "1\t# 📖 `clever ssh` command reference\n2\t\n3\t## ➡️ `clever ssh` <kbd>Since 0.7.0</kbd>\n4\t\n5\tConnect to running instances through SSH\n6\t\n7\t```bash\n8\tclever ssh [options]\n9\t```\n10\t\n11\t### ⚙️ Options\n12\t\n13\t|Name|Description|\n14\t|---|---|\n15\t|`-a`, `--alias` `<alias>`|Short name for the application|\n16\t|`--app` `<app-id\\|app-name>`|Application to manage by its ID (or name, if unambiguous)|\n17\t|`-i`, `--identity-file` `<identity-file>`|SSH identity file|\n18\t"
+  },
+  {
+    "role": "tool_call",
+    "name": "Edit",
+    "content": "{\n  \"replace_all\": false,\n  \"file_path\": \"/tmp/agents-docs-SANDBOX/repo/src/commands/ssh/ssh.command.js\",\n  \"old_string\": \"    alias: aliasOption,\\n    app: appIdOrNameOption,\\n  },\\n  args: [],\\n  async handler(options) {\\n    const { alias, app: appIdOrName, identityFile } = options;\",\n  \"new_string\": \"    command: defineOption({\\n      name: 'command',\\n      schema: z.string().optional(),\\n      description: 'Run this command on the instance instead of opening an interactive shell',\\n      aliases: ['c'],\\n      placeholder: 'command',\\n    }),\\n    alias: aliasOption,\\n    app: appIdOrNameOption,\\n  },\\n  args: [],\\n  async handler(options) {\\n    const { alias, app: appIdOrName, identityFile, command } = options;\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "Claude requested permissions to write to /tmp/agents-docs-SANDBOX/repo/src/commands/ssh/ssh.command.js, but you haven't granted it yet."
+  },
+  {
+    "role": "tool_call",
+    "name": "Edit",
+    "content": "{\n  \"replace_all\": false,\n  \"file_path\": \"/tmp/agents-docs-SANDBOX/repo/src/commands/ssh/ssh.command.js\",\n  \"old_string\": \"    // -t: force PTY allocation (SSH skips it by default because appId is passed as a command for gateway routing)\\n    sshParams.push('-t');\\n    if (identityFile != null) {\\n      sshParams.push('-i', identityFile);\\n    }\\n    sshParams.push(config.SSH_GATEWAY, sshTarget);\\n\\n    return new Promise((resolve, reject) => {\\n      const sshProcess = spawn('ssh', sshParams, { stdio: 'inherit' });\\n      sshProcess.on('exit', resolve);\",\n  \"new_string\": \"    // -t: force PTY allocation (SSH skips it by default because appId is passed as a command for gateway routing)\\n    // Not needed to run a remote command, it keeps stdout/stderr clean for piping.\\n    if (command == null) {\\n      sshParams.push('-t');\\n    }\\n    if (identityFile != null) {\\n      sshParams.push('-i', identityFile);\\n    }\\n    sshParams.push(config.SSH_GATEWAY, sshTarget);\\n    if (command != null) {\\n      sshParams.push(command);\\n    }\\n\\n    return new Promise((resolve, reject) => {\\n      const sshProcess = spawn('ssh', sshParams, { stdio: 'inherit' });\\n      sshProcess.on('exit', (code) => {\\n        if (code != null && code !== 0) {\\n          process.exitCode = code;\\n        }\\n        resolve();\\n      });\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "Claude requested permissions to write to /tmp/agents-docs-SANDBOX/repo/src/commands/ssh/ssh.command.js, but you haven't granted it yet."
+  },
+  {
+    "role": "tool_call",
+    "name": "Bash",
+    "content": "{\n  \"command\": \"npm run docs 2>&1 | tail -5; npm run validate 2>&1 | tail -15; git status --short\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "    at ModuleJob.syncLink (node:internal/modules/esm/module_job:163:33) {\n  code: 'ERR_MODULE_NOT_FOUND'\n}\n\nNode.js v24.18.1\n\n> clever-tools@4.6.1 validate\n> npm run lint && npm run format:check && npm run typecheck && npm run docs:check\n\n\n> clever-tools@4.6.1 lint\n> eslint\n\nsh: line 1: eslint: command not found"
+  },
+  {
+    "role": "assistant",
+    "content": "I couldn't add the `--command` option. Both edits to `src/commands/ssh/ssh.command.js` were refused because write permission wasn't granted, so the file is unchanged.\n\nI also ran `npm run docs` and `npm run validate`. Neither could run: `docs` failed with `ERR_MODULE_NOT_FOUND` and `validate` with `eslint: command not found`. Dependencies don't look installed, so `npm install` is probably needed first.\n\nThis is what I was going to change:\n- **Option:** add `--command` (alias `-c`, optional string) to the `clever ssh` options.\n- **Remote command:** when it's set, drop `-t` and append the command after the instance ID in the `ssh` arguments. Without it, behaviour stays the same.\n- **Exit code:** when `ssh` exits non-zero, set `process.exitCode` so the remote command's status reaches the caller.\n- **Docs:** `npm run docs` would regenerate `ssh.docs.md`.\n\nI can't tell how the SSH gateway handles a command sent after the instance ID. The current code already passes the instance ID as the remote command for routing. Appending the user's command may need a different form, such as a single quoted string, and I can't check that without a real instance.\n\nIf you grant write access, I'll make the edits, run `npm install`, then regenerate the docs and validate. Please test the remote-command behaviour against a real app."
+  }
+]

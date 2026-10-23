@@ -1,0 +1,83 @@
+[
+  {
+    "role": "user",
+    "content": "Support Splunk HEC as a drain target of `clever drain create`."
+  },
+  {
+    "role": "tool_call",
+    "name": "Bash",
+    "content": "{\n  \"command\": \"ls src/commands/drain/ && cat src/commands/drain/drain.create.command.js && grep -rn -i \\\"datadog\\\\|newrelic\\\\|elastic\\\\|ovh\\\" src --include=*.js -l\",\n  \"description\": \"Inspect drain command files\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "drain.args.js\ndrain.check.command.js\ndrain.command.js\ndrain.create.command.js\ndrain.disable.command.js\ndrain.docs.md\ndrain.enable.command.js\ndrain.get.command.js\ndrain.remove.command.js\nimport { z } from 'zod';\nimport { createDrain } from '../../clever-client/drains.js';\nimport { defineArgument } from '../../lib/define-argument.js';\nimport { defineCommand } from '../../lib/define-command.js';\nimport { defineOption } from '../../lib/define-option.js';\nimport { styleText } from '../../lib/style-text.js';\nimport { Logger } from '../../logger.js';\nimport { DRAIN_TYPE_CLI_CODES, DRAIN_TYPES, resolveDrainResource } from '../../models/drain.js';\nimport { sendToApi } from '../../models/send-to-api.js';\nimport { addonIdOrRealIdOption, aliasOption, appIdOrNameOption } from '../global.options.js';\n\nexport const drainCreateCommand = defineCommand({\n  description: 'Create a drain',\n  since: '0.9.0',\n  options: {\n    username: defineOption({\n      name: 'username',\n      schema: z.string().optional(),\n      description: 'Basic auth username (for elasticsearch or raw-http)',\n      aliases: ['u'],\n      placeholder: 'username',\n    }),\n    password: defineOption({\n      name: 'password',\n      schema: z.string().optional(),\n      description: 'Basic auth password (for elasticsearch or raw-http)',\n      aliases: ['p'],\n      placeholder: 'password',\n    }),\n    apiKey: defineOption({\n      name: 'api-key',\n      schema: z.string().optional(),\n      description: 'API key (for newrelic)',\n      aliases: ['k'],\n      placeholder: 'api-key',\n    }),\n    sourceToken: defineOption({\n      name: 'source-token',\n      schema: z.string().optional(),\n      description: 'Source token (for betterstack)',\n      aliases: ['t'],\n      placeholder: 'source-token',\n    }),\n    indexPrefix: defineOption({\n      name: 'index-prefix',\n      schema: z.string().optional(),\n      description: 'Optional index prefix (for elasticsearch), `logstash` value is used if not set',\n      aliases: ['i'],\n      placeholder: 'index-prefix',\n    }),\n    rfc5424StructuredDataParameters: defineOption({\n      name: 'sd-params',\n      schema: z.string().optional(),\n      description: 'RFC5424 structured data parameters (for ovh-tcp), e.g.: `X-OVH-TOKEN=\\\\\\\"REDACTED\\\\\\\"`',\n      aliases: ['s'],\n      placeholder: 'sd-params',\n    }),\n    alias: aliasOption,\n    appIdOrName: appIdOrNameOption,\n    addonIdOrRealId: addonIdOrRealIdOption,\n  },\n  args: [\n    defineArgument({\n      schema: z.enum(DRAIN_TYPE_CLI_CODES),\n      description: 'Drain type',\n      placeholder: 'drain-type',\n    }),\n    defineArgument({\n      schema: z.string(),\n      description: 'Drain URL',\n      placeholder: 'drain-url',\n    }),\n  ],\n  async handler(options, drainTypeCliCode, url) {\n    const { alias, appIdOrName, addonIdOrRealId } = options;\n    const { username, password, apiKey, sourceToken, indexPrefix, rfc5424StructuredDataParameters } = options;\n\n    const drainType = Object.values(DRAIN_TYPES).find((drainType) => drainTyp\n[truncated 2080 chars]"
+  },
+  {
+    "role": "tool_call",
+    "name": "Bash",
+    "content": "{\n  \"command\": \"cat src/models/drain.js src/clever-client/drains.js | head -150; grep -rn -i \\\"betterstack\\\\|BETTERSTACK\\\" --exclude-dir=node_modules . | grep -v \\\"^./src/commands/drain/drain.create\\\" | head -30\",\n  \"description\": \"Inspect drain model and betterstack references\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "import * as Application from './application.js';\nimport { resolveAddon } from './ids-resolver.js';\n\nexport async function resolveDrainResource(alias, appIdOrName, addonIdOrRealId) {\n  if (addonIdOrRealId != null && (appIdOrName != null || alias != null)) {\n    throw new Error('`--addon` cannot be combined with `--app` or `--alias`');\n  }\n\n  if (addonIdOrRealId != null) {\n    const { ownerId, realId } = await resolveAddon(addonIdOrRealId);\n    return { ownerId, resourceId: realId };\n  }\n\n  const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);\n  return { ownerId, resourceId: appId };\n}\n\nexport const DRAIN_TYPES = {\n  BETTERSTACK: { apiCode: 'BETTERSTACK', cliCode: 'betterstack', label: 'Better Stack' },\n  DATADOG: { apiCode: 'DATADOG', cliCode: 'datadog', label: 'Datadog' },\n  ELASTICSEARCH: { apiCode: 'ELASTICSEARCH', cliCode: 'elasticsearch', label: 'Elasticsearch' },\n  NEWRELIC: { apiCode: 'NEWRELIC', cliCode: 'newrelic', label: 'New Relic' },\n  OVH_TCP: { apiCode: 'OVH_TCP', cliCode: 'ovh-tcp', label: 'OVH TCP' },\n  RAW_HTTP: { apiCode: 'RAW_HTTP', cliCode: 'raw-http', label: 'Raw HTTP' },\n  SYSLOG_TCP: { apiCode: 'SYSLOG_TCP', cliCode: 'syslog-tcp', label: 'Syslog TCP' },\n  SYSLOG_UDP: { apiCode: 'SYSLOG_UDP', cliCode: 'syslog-udp', label: 'Syslog UDP' },\n};\n\nexport const DRAIN_TYPE_CLI_CODES = Object.values(DRAIN_TYPES).map(({ cliCode }) => cliCode);\n\nfunction formatRate(messagesPerSecond) {\n  if (messagesPerSecond < 1) {\n    return Math.floor(messagesPerSecond * 3600) + ' messages/hour';\n  }\n  if (messagesPerSecond < 60) {\n    return Math.floor(messagesPerSecond * 60) + ' messages/minute';\n  }\n  return Math.floor(messagesPerSecond) + ' messages/second';\n}\n\nfunction formatThroughput(bytesPerSecond) {\n  if (bytesPerSecond < 1024) {\n    return Math.floor(bytesPerSecond) + ' bytes/second';\n  }\n  if (bytesPerSecond < 1024 * 1024) {\n    return (bytesPerSecond / 1024).toFixed(2) + ' KiB/second';\n  }\n  return (bytesPerSecond / (1024 * 1024)).toFixed(2) + ' MiB/second';\n}\n\nexport function formatDrain(rawDrain) {\n  const drainType = DRAIN_TYPES[rawDrain.recipient.type];\n  const drainDetails = [\n    ['ID', rawDrain.id],\n    ['Status', rawDrain.status.status],\n    ['Execution status', rawDrain.execution.status],\n    ['URL', rawDrain.recipient.url],\n    ['Type', drainType.label],\n    ['Custom index', rawDrain.recipient.index],\n    ['SD parameters', rawDrain.recipient.rfc5424StructuredDataParameters],\n    ['Message output rate', formatRate(rawDrain.backlog.msgRateOut)],\n    ['Message throughput', formatThroughput(rawDrain.backlog.msgThroughputOut)],\n    ['Backlog', rawDrain.backlog.msgBacklog + ' pending messages'],\n    [\n      'Retry attempts',\n      rawDrain.execution.attempt != null && rawDrain.execution.maxAttempt != null\n        ? `${rawDrain.execution.attempt}/${rawDrain.execution.maxAttempt}`\n        : null,\n    ],\n    ['Last attempt at', rawDrain.execution.lastAttemptAt],\n    ['Next attempt at', rawDrain.execution.nextAttempt\n[truncated 3426 chars]"
+  },
+  {
+    "role": "tool_call",
+    "name": "Bash",
+    "content": "{\n  \"command\": \"grep -rn -i \\\"splunk\\\" --exclude-dir=.git . 2>/dev/null | head -20; grep -rln -i \\\"BETTERSTACK\\\\|sourceToken\\\" node_modules/@clevercloud 2>/dev/null | head; ls docs\",\n  \"description\": \"Search for any Splunk references and drain API types\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "README.md\naddons-backups.md\nadr\napplications-config.md\napplications-deployment-lifecycle.md\napplications-management.md\ncontributing\nkubernetes.md\nkv.md\nnexus-config.md\nng.md\noperators.md\nprofiles.md\nservices-depedencies.md\nservices-logs-drains.md\nservices-notifications-webhooks.md\nsetup-systems.md"
+  },
+  {
+    "role": "tool_call",
+    "name": "Bash",
+    "content": "{\n  \"command\": \"gh issue list -R CleverCloud/clever-tools --search splunk --state all 2>&1 | head; gh pr list -R CleverCloud/clever-tools --search splunk --state all 2>&1 | head\",\n  \"description\": \"Search GitHub issues and PRs for Splunk\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "To get started with GitHub CLI, please run:  gh auth login\nAlternatively, populate the GH_TOKEN environment variable with a GitHub API authentication token.\nTo get started with GitHub CLI, please run:  gh auth login\nAlternatively, populate the GH_TOKEN environment variable with a GitHub API authentication token."
+  },
+  {
+    "role": "tool_call",
+    "name": "ToolSearch",
+    "content": "{\n  \"query\": \"select:WebFetch,WebSearch\",\n  \"max_results\": 2\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "\n"
+  },
+  {
+    "role": "tool_call",
+    "name": "WebSearch",
+    "content": "{\n  \"query\": \"Clever Cloud drains Splunk HEC recipient type API v4\"\n}",
+    "thinking": "No Splunk references found in the repo or the installed client, so I'll check Clever Cloud's public docs for the drains API's exact recipient type and fields for Splunk.\n\n"
+  },
+  {
+    "role": "tool_result",
+    "content": "Claude requested permissions to use WebSearch, but you haven't granted it yet."
+  },
+  {
+    "role": "tool_call",
+    "name": "WebFetch",
+    "content": "{\n  \"url\": \"https://www.clever-cloud.com/developers/doc/administrate/log-management/\",\n  \"prompt\": \"List every log drain type supported, especially Splunk / HEC, and the exact parameters (API recipient type code, fields like token, index, url format). Quote verbatim.\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "Claude requested permissions to use WebFetch, but you haven't granted it yet."
+  },
+  {
+    "role": "tool_call",
+    "name": "Grep",
+    "content": "{\n  \"pattern\": \"(?i)drain|token|hec\",\n  \"path\": \"/tmp/agents-docs-SANDBOX/repo/docs/services-logs-drains.md\",\n  \"output_mode\": \"content\",\n  \"head_limit\": 40\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "1:# Clever Cloud Logs Drains\n3:You can use Clever Tools to control logs drains, through following commands. Each can target a specific application, adding `--app APP_ID_OR_NAME` or a local alias (`--alias`, `-a`):\n6:clever drain\n7:clever drain -F json\n8:clever drain create <DRAIN-TYPE> <DRAIN-URL>\n9:clever drain get <DRAIN-ID>\n10:clever drain get <DRAIN-ID> --format json\n11:clever drain remove <DRAIN-ID>\n12:clever drain enable <DRAIN-ID>\n13:clever drain disable <DRAIN-ID>\n16:Where `DRAIN-TYPE` is one of:\n26:Drain creation supports the following options:\n33:[--sd-params, -s] SD_PARAMS           RFC5424 structured data parameters (for ovh-tcp), e.g.: `X-OVH-TOKEN=\\\"REDACTED\\\"`\n36:## ElasticSearch logs drains\n38:ElasticSearch drains use the Elastic bulk API. To match this endpoint, specify `/_bulk` at the end of your ElasticSearch endpoint.\n40:## Datadog logs drains\n44:To create a [Datadog](https://docs.datadoghq.com/api/?lang=python#send-logs-over-http) drain, you just need to use one of the following command depending on your zone:\n48:clever drain create DatadogHTTP \"https://http-intake.logs.datadoghq.eu/v1/input/<API_KEY>?ddsource=clevercloud&service=<SERVICE>&host=<HOST>\"\n50:clever drain create DatadogHTTP \"https://http-intake.logs.datadoghq.com/v1/input/<API_KEY>?ddsource=clevercloud&service=<SERVICE>&host=<HOST>\"\n55:## NewRelic logs drains\n59:To create a [NewRelic](https://docs.newrelic.com/docs/logs/log-api/introduction-log-api/) drain, you just need to use:\n62:clever drain create NewRelicHTTP \"https://log-api.eu.newrelic.com/log/v1\" --api-key <API_KEY>"
+  },
+  {
+    "role": "assistant",
+    "content": "I haven't made any changes yet. One thing blocks me: I can't confirm what the Clever Cloud drains API expects for a Splunk drain.\n\n**What I found**\n- Every drain type is declared in `DRAIN_TYPES` (`src/models/drain.js:18`). Each has an `apiCode`, which is sent as `recipient.type` to `POST /v4/drains/...`. The type-specific fields are set in `src/commands/drain/drain.create.command.js`, for example `apiKey` for New Relic and `sourceToken` for Better Stack.\n- Splunk doesn't appear anywhere: not in the repo, the installed `@clevercloud/client`, or `docs/services-logs-drains.md`. You declined web access, so I couldn't check Clever Cloud's API docs, and `gh` isn't logged in, so I couldn't look for an issue.\n\nIf I guessed the API code and field names, the CLI would let users create drains the API rejects or sets up wrong. So I need these from you (or from the API spec or the API team):\n1. The `recipient.type` value for Splunk (`SPLUNK`? `SPLUNK_HEC`?).\n2. The name of the HEC token field (`token`? `hecToken`?), and whether it's required.\n3. Any optional fields the API supports, such as `index`, `source`, `sourcetype` or TLS verification.\n4. Whether the URL has to end with a particular path, like `/services/collector/event`, the way Elasticsearch drains have to end with `/_bulk`.\n5. The issue number this work closes. `AGENTS.md` requires one for the PR.\n\n**Plan once I have those**\n- Add `SPLUNK: { apiCode, cliCode: 'splunk', label: 'Splunk' }` to `DRAIN_TYPES`.\n- In `drain.create`, add a `--hec-token` option, or reuse an existing one if the API field matches. Check that it's set, along with any optional fields and URL rule, matching how the other drain types are handled.\n- Show the Splunk-specific fields in `formatDrain`, but never the token.\n- Add a \"Splunk logs drains\" section with an example to `docs/services-logs-drains.md`, add `splunk` to its list of drain types, and update `skills/clever-tools/SKILL.md` if it lists drain types.\n- Run `npm run docs` and `npm run validate`, then check the result with `node bin/clever.js drain create --help`. I won't actually create a drain unless you confirm and the active profile is a test account.\n\nIf you'd rather I look it up myself, allow WebFetch for `clever-cloud.com` / `api.clever-cloud.com` and I'll get the API spec."
+  }
+]

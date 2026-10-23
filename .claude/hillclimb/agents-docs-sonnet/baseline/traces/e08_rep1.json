@@ -1,0 +1,55 @@
+[
+  {
+    "role": "user",
+    "content": "In `clever ssh`, let the user pick an instance by its number in the list, or with `any`."
+  },
+  {
+    "role": "tool_call",
+    "name": "Bash",
+    "content": "{\n  \"command\": \"cd /tmp/agents-docs-SANDBOX/repo/src/commands/ssh && ls && cat ssh.command.js && cat ssh.docs.md\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "ssh.command.js\nssh.docs.md\nimport { getAllInstances } from '@clevercloud/client/esm/api/v2/application.js';\nimport { spawn } from 'node:child_process';\nimport { randomUUID } from 'node:crypto';\nimport { z } from 'zod';\nimport { config } from '../../config/config.js';\nimport { defineCommand } from '../../lib/define-command.js';\nimport { defineOption } from '../../lib/define-option.js';\nimport { selectAnswer } from '../../lib/prompts.js';\nimport * as Application from '../../models/application.js';\nimport { sendToApi } from '../../models/send-to-api.js';\nimport { aliasOption, appIdOrNameOption } from '../global.options.js';\n\nexport const sshCommand = defineCommand({\n  description: 'Connect to running instances through SSH',\n  since: '0.7.0',\n  options: {\n    identityFile: defineOption({\n      name: 'identity-file',\n      schema: z.string().optional(),\n      description: 'SSH identity file',\n      aliases: ['i'],\n      placeholder: 'identity-file',\n    }),\n    command: defineOption({\n      name: 'command',\n      schema: z.string().optional(),\n      description: 'Execute a command on the remote instance and exit',\n      aliases: ['c'],\n      placeholder: 'command',\n    }),\n    instance: defineOption({\n      name: 'instance',\n      schema: z.string().min(1).optional(),\n      description: 'Instance ID to connect to (skips interactive selection)',\n      placeholder: 'instance-id',\n    }),\n    alias: aliasOption,\n    app: appIdOrNameOption,\n  },\n  args: [],\n  async handler(options) {\n    const { alias, app: appIdOrName, identityFile, command, instance } = options;\n    const { appId, ownerId } = await Application.resolveId(appIdOrName, alias);\n\n    const instances = await getAllInstances({ id: ownerId, appId }).then(sendToApi);\n\n    if (instances.length === 0) {\n      throw new Error('No running instances found for this application');\n    }\n\n    let sshTarget;\n    if (instance != null) {\n      const match = instances.find((inst) => inst.id === instance);\n      if (match == null) {\n        throw new Error(`Instance ${instance} is not a running instance of this application`);\n      }\n      sshTarget = match.id;\n    } else if (instances.length === 1) {\n      sshTarget = instances[0].id;\n    } else if (process.stdin.isTTY) {\n      const choices = instances\n        .sort((a, b) => a.instanceNumber - b.instanceNumber)\n        .map((inst) => ({\n          name: `${inst.displayName} - Instance ${inst.instanceNumber} - ${inst.state} (${inst.id})`,\n          value: inst.id,\n        }));\n      sshTarget = await selectAnswer('Select an instance:', choices);\n    } else {\n      throw new Error('Multiple instances are running. Cannot select in non-interactive mode.');\n    }\n\n    const sshParams = [];\n    // Clever Cloud SSH only accepts key auth. Disable password fallback so a missing\n    // or unregistered key fails fast instead of prompting for a password that cannot work.\n    sshParams.push('-o', 'PreferredAuthentications=publickey', '-o', 'PasswordAuthentication=no');\n[truncated 3096 chars]"
+  },
+  {
+    "role": "tool_call",
+    "name": "Bash",
+    "content": "{\n  \"command\": \"python3 - <<'E'\\np='ssh.command.js'\\ns=open(p).read()\\ns=s.replace(\\\"description: 'Instance ID to connect to (skips interactive selection)',\\\\n      placeholder: 'instance-id',\\\",\\\"description: 'Instance to connect to, by ID, by number in the list, or `any` (skips interactive selection)',\\\\n      placeholder: 'instance',\\\")\\ns=s.replace(\\\"\\\"\\\"      const match = instances.find((inst) => inst.id === instance);\\n      if (match == null) {\\n        throw new Error(`Instance ${instance} is not a running instance of this application`);\\n      }\\\"\\\"\\\",\\\"\\\"\\\"      const sorted = [...instances].sort((a, b) => a.instanceNumber - b.instanceNumber);\\n      const match =\\n        instance === 'any'\\n          ? sorted[0]\\n          : (sorted.find((inst) => inst.id === instance) ??\\n            (/^\\\\\\\\d+$/.test(instance) ? sorted.find((inst) => inst.instanceNumber === Number(instance)) : undefined));\\n      if (match == null) {\\n        throw new Error(`Instance ${instance} is not a running instance of this application`);\\n      }\\\"\\\"\\\")\\nopen(p,'w').write(s)\\nE\\ncd ../../.. && npm run docs 2>&1 | tail -5; npm run validate 2>&1 | tail -15; git status --short\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "    at ModuleJob.syncLink (node:internal/modules/esm/module_job:163:33) {\n  code: 'ERR_MODULE_NOT_FOUND'\n}\n\nNode.js v24.18.1\n\n> clever-tools@5.0.2 validate\n> npm run lint && npm run format:check && npm run typecheck && npm run docs:check\n\n\n> clever-tools@5.0.2 lint\n> eslint\n\nsh: line 1: eslint: command not found\n M src/commands/ssh/ssh.command.js"
+  },
+  {
+    "role": "tool_call",
+    "name": "Bash",
+    "content": "{\n  \"command\": \"grep -rn \\\"instance-id\\\" --include=*.md --include=*.sh . 2>/dev/null | grep -v node_modules | grep -i \\\"instance\\\\` \\\\`<instance-id\\\" \"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "(eval):1: no matches found: --include=*.md"
+  },
+  {
+    "role": "tool_call",
+    "name": "Grep",
+    "content": "{\n  \"pattern\": \"Instance ID to connect to\",\n  \"output_mode\": \"content\",\n  \"glob\": \"!node_modules\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "skills/clever-tools/references/full-documentation.md:3775:    --instance <instance-id>           Instance ID to connect to (skips interactive selection)\nsrc/commands/ssh/ssh.docs.md:19:|`--instance` `<instance-id>`|Instance ID to connect to (skips interactive selection)|"
+  },
+  {
+    "role": "tool_call",
+    "name": "Bash",
+    "content": "{\n  \"command\": \"sed -i 's/`--instance` `<instance-id>`|Instance ID to connect to (skips interactive selection)/`--instance` `<instance>`|Instance to connect to, by ID, by number in the list, or `any` (skips interactive selection)/' src/commands/ssh/ssh.docs.md\\nsed -i '3775s/.*/    --instance <instance>              Instance to connect to, by ID, by number in the list, or `any` (skips interactive selection)/' skills/clever-tools/references/full-documentation.md\\nsed -n 3770,3777p skills/clever-tools/references/full-documentation.md; git diff --stat\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "```\n-a, --alias <alias>                    Short name for the application\n    --app <app-id|app-name>            Application to manage by its ID (or name, if unambiguous)\n-c, --command <command>                Execute a command on the remote instance and exit\n-i, --identity-file <identity-file>    SSH identity file\n    --instance <instance>              Instance to connect to, by ID, by number in the list, or `any` (skips interactive selection)\n```\n\n skills/clever-tools/references/full-documentation.md |  2 +-\n src/commands/ssh/ssh.command.js                      | 11 ++++++++---\n src/commands/ssh/ssh.docs.md                         |  2 +-\n 3 files changed, 10 insertions(+), 5 deletions(-)"
+  },
+  {
+    "role": "assistant",
+    "content": "`clever ssh --instance` now accepts a number from the list or `any`, as well as an instance ID. I haven't run it or the checks, because `node_modules` isn't installed here. `npm run docs` and `npm run validate` both failed (`ERR_MODULE_NOT_FOUND`, `eslint: command not found`). Once you've run `npm install`, run `npm run fix-all` and `npm run validate`.\n\n- **`any`:** picks the lowest-numbered running instance.\n- **Number:** a value such as `2` matches the instance with that number, which is the one the interactive prompt prints as \"Instance 2\". An ID still works the same way.\n- **No match:** it fails with the existing \"not a running instance\" error.\n- **Help text:** the option placeholder is now `<instance>` instead of `<instance-id>`, and the description lists the three forms.\n\nI edited the docs by hand because `npm run docs` couldn't run. I changed the option row in `src/commands/ssh/ssh.docs.md` and the matching line in `skills/clever-tools/references/full-documentation.md`. The code change is in `src/commands/ssh/ssh.command.js`. When you regenerate the docs, check that they come out the same.\n\nI only changed the `--instance` flag. The interactive prompt for choosing an instance is unchanged."
+  }
+]

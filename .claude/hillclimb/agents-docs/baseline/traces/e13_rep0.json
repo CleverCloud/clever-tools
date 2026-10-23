@@ -1,0 +1,55 @@
+[
+  {
+    "role": "user",
+    "content": "Support Better Stack as a drain target of `clever drain create`."
+  },
+  {
+    "role": "tool_call",
+    "name": "Bash",
+    "content": "{\n  \"command\": \"ls src/commands/drain/ && grep -rn -i \\\"datadog\\\\|newrelic\\\\|NEWRELIC\\\\|DRAIN_TYPE\\\" src --include=*.js | head -50\",\n  \"description\": \"List drain files and grep drain types\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "drain.args.js\ndrain.command.js\ndrain.create.command.js\ndrain.disable.command.js\ndrain.docs.md\ndrain.enable.command.js\ndrain.get.command.js\ndrain.remove.command.js\n(eval):1: no matches found: --include=*.js"
+  },
+  {
+    "role": "tool_call",
+    "name": "Bash",
+    "content": "{\n  \"command\": \"cat src/commands/drain/drain.create.command.js src/commands/drain/drain.args.js; grep -rn -i \\\"datadog\\\" src docs skills --exclude-dir=node_modules | grep -v full-documentation | head -40\",\n  \"description\": \"Read drain create command and find drain type references\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "import { z } from 'zod';\nimport { createDrain } from '../../clever-client/drains.js';\nimport { defineArgument } from '../../lib/define-argument.js';\nimport { defineCommand } from '../../lib/define-command.js';\nimport { defineOption } from '../../lib/define-option.js';\nimport { styleText } from '../../lib/style-text.js';\nimport { Logger } from '../../logger.js';\nimport { DRAIN_TYPE_CLI_CODES, DRAIN_TYPES, resolveDrainResource } from '../../models/drain.js';\nimport { sendToApi } from '../../models/send-to-api.js';\nimport { addonIdOrRealIdOption, aliasOption, appIdOrNameOption } from '../global.options.js';\n\nexport const drainCreateCommand = defineCommand({\n  description: 'Create a drain',\n  since: '0.9.0',\n  options: {\n    username: defineOption({\n      name: 'username',\n      schema: z.string().optional(),\n      description: 'Basic auth username (for elasticsearch or raw-http)',\n      aliases: ['u'],\n      placeholder: 'username',\n    }),\n    password: defineOption({\n      name: 'password',\n      schema: z.string().optional(),\n      description: 'Basic auth password (for elasticsearch or raw-http)',\n      aliases: ['p'],\n      placeholder: 'password',\n    }),\n    apiKey: defineOption({\n      name: 'api-key',\n      schema: z.string().optional(),\n      description: 'API key (for newrelic)',\n      aliases: ['k'],\n      placeholder: 'api-key',\n    }),\n    indexPrefix: defineOption({\n      name: 'index-prefix',\n      schema: z.string().optional(),\n      description: 'Optional index prefix (for elasticsearch), `logstash` value is used if not set',\n      aliases: ['i'],\n      placeholder: 'index-prefix',\n    }),\n    rfc5424StructuredDataParameters: defineOption({\n      name: 'sd-params',\n      schema: z.string().optional(),\n      description: 'RFC5424 structured data parameters (for ovh-tcp), e.g.: `X-OVH-TOKEN=\\\\\\\"REDACTED\\\\\\\"`',\n      aliases: ['s'],\n      placeholder: 'sd-params',\n    }),\n    alias: aliasOption,\n    appIdOrName: appIdOrNameOption,\n    addonIdOrRealId: addonIdOrRealIdOption,\n  },\n  args: [\n    defineArgument({\n      schema: z.enum(DRAIN_TYPE_CLI_CODES),\n      description: 'Drain type',\n      placeholder: 'drain-type',\n    }),\n    defineArgument({\n      schema: z.string(),\n      description: 'Drain URL',\n      placeholder: 'drain-url',\n    }),\n  ],\n  async handler(options, drainTypeCliCode, url) {\n    const { alias, appIdOrName, addonIdOrRealId } = options;\n    const { username, password, apiKey, indexPrefix, rfc5424StructuredDataParameters } = options;\n\n    const drainType = Object.values(DRAIN_TYPES).find((drainType) => drainType.cliCode === drainTypeCliCode);\n\n    const { ownerId, resourceId } = await resolveDrainResource(alias, appIdOrName, addonIdOrRealId);\n\n    const body = {\n      kind: 'LOG',\n      recipient: {\n        type: drainType.apiCode,\n        url,\n      },\n    };\n\n    if (drainTypeCliCode === DRAIN_TYPES.ELASTICSEARCH.cliCode) {\n      if (!indexPrefix) {\n        throw new Error(\n          `${DRAIN_TYPES.ELASTICSEARCH.cl\n[truncated 2912 chars]"
+  },
+  {
+    "role": "tool_call",
+    "name": "Bash",
+    "content": "{\n  \"command\": \"cat src/models/drain.js; cat src/clever-client/drains.js | head -60; grep -rli \\\"betterstack\\\\|better.stack\\\\|logtail\\\" node_modules/@clevercloud src docs 2>/dev/null | head; git log --oneline -3; gh issue list -R CleverCloud/clever-tools --search \\\"better stack\\\" --state all 2>&1 | head\",\n  \"description\": \"Read drain model/client and search for Better Stack refs\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "import * as Application from './application.js';\nimport { resolveAddon } from './ids-resolver.js';\n\nexport async function resolveDrainResource(alias, appIdOrName, addonIdOrRealId) {\n  if (addonIdOrRealId != null && (appIdOrName != null || alias != null)) {\n    throw new Error('`--addon` cannot be combined with `--app` or `--alias`');\n  }\n\n  if (addonIdOrRealId != null) {\n    const { ownerId, realId } = await resolveAddon(addonIdOrRealId);\n    return { ownerId, resourceId: realId };\n  }\n\n  const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);\n  return { ownerId, resourceId: appId };\n}\n\nexport const DRAIN_TYPES = {\n  DATADOG: { apiCode: 'DATADOG', cliCode: 'datadog', label: 'Datadog' },\n  ELASTICSEARCH: { apiCode: 'ELASTICSEARCH', cliCode: 'elasticsearch', label: 'Elasticsearch' },\n  NEWRELIC: { apiCode: 'NEWRELIC', cliCode: 'newrelic', label: 'New Relic' },\n  OVH_TCP: { apiCode: 'OVH_TCP', cliCode: 'ovh-tcp', label: 'OVH TCP' },\n  RAW_HTTP: { apiCode: 'RAW_HTTP', cliCode: 'raw-http', label: 'Raw HTTP' },\n  SYSLOG_TCP: { apiCode: 'SYSLOG_TCP', cliCode: 'syslog-tcp', label: 'Syslog TCP' },\n  SYSLOG_UDP: { apiCode: 'SYSLOG_UDP', cliCode: 'syslog-udp', label: 'Syslog UDP' },\n};\n\nexport const DRAIN_TYPE_CLI_CODES = Object.values(DRAIN_TYPES).map(({ cliCode }) => cliCode);\n\nfunction formatRate(messagesPerSecond) {\n  if (messagesPerSecond < 1) {\n    return Math.floor(messagesPerSecond * 3600) + ' messages/hour';\n  }\n  if (messagesPerSecond < 60) {\n    return Math.floor(messagesPerSecond * 60) + ' messages/minute';\n  }\n  return Math.floor(messagesPerSecond) + ' messages/second';\n}\n\nfunction formatThroughput(bytesPerSecond) {\n  if (bytesPerSecond < 1024) {\n    return Math.floor(bytesPerSecond) + ' bytes/second';\n  }\n  if (bytesPerSecond < 1024 * 1024) {\n    return (bytesPerSecond / 1024).toFixed(2) + ' KiB/second';\n  }\n  return (bytesPerSecond / (1024 * 1024)).toFixed(2) + ' MiB/second';\n}\n\nexport function formatDrain(rawDrain) {\n  const drainType = DRAIN_TYPES[rawDrain.recipient.type];\n  const drainDetails = [\n    ['ID', rawDrain.id],\n    ['Status', rawDrain.status.status],\n    ['Execution status', rawDrain.execution.status],\n    ['URL', rawDrain.recipient.url],\n    ['Type', drainType.label],\n    ['Custom index', rawDrain.recipient.index],\n    ['SD parameters', rawDrain.recipient.rfc5424StructuredDataParameters],\n    ['Message output rate', formatRate(rawDrain.backlog.msgRateOut)],\n    ['Message throughput', formatThroughput(rawDrain.backlog.msgThroughputOut)],\n    ['Backlog', rawDrain.backlog.msgBacklog + ' pending messages'],\n    [\n      'Retry attempts',\n      rawDrain.execution.attempt != null && rawDrain.execution.maxAttempt != null\n        ? `${rawDrain.execution.attempt}/${rawDrain.execution.maxAttempt}`\n        : null,\n    ],\n    ['Last attempt at', rawDrain.execution.lastAttemptAt],\n    ['Next attempt at', rawDrain.execution.nextAttemptAt],\n    ['Retrying since', rawDrain.execution.retryingSince],\n    ['Last error', rawDrain\n[truncated 2278 chars]"
+  },
+  {
+    "role": "tool_call",
+    "name": "ToolSearch",
+    "content": "{\n  \"query\": \"select:WebSearch,WebFetch\",\n  \"max_results\": 2\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "\n"
+  },
+  {
+    "role": "tool_call",
+    "name": "WebSearch",
+    "content": "{\n  \"query\": \"Clever Cloud drains Better Stack recipient type API\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "Claude requested permissions to use WebSearch, but you haven't granted it yet."
+  },
+  {
+    "role": "assistant",
+    "content": "I haven't changed any files yet. Adding Better Stack to the CLI is simple, but I'd have to guess what the drains API expects, and I'd rather ask than make that up.\n\n**Where the change goes:** the drain types are listed in `DRAIN_TYPES` in `src/models/drain.js:18`. That list feeds the argument choices in `clever drain create` and the labels in `drain get`. The handler in `src/commands/drain/drain.create.command.js` then adds fields to the request depending on the type (index prefix for elasticsearch, API key for newrelic…). After that, I'd run `npm run docs` and update `docs/services-logs-drains.md`.\n\n**What I couldn't confirm:** nothing in the repo or in `@clevercloud/client` mentions Better Stack. My web search was denied, and `gh` isn't logged in, so I couldn't look for an existing issue either. That leaves two open points:\n\n1. **The API's name for this type** (`recipient.type`): is it `BETTERSTACK`, `BETTER_STACK`, or something else? Or does the drains API not support Better Stack yet, in which case the backend has to add it first?\n2. **How the token is sent:** Better Stack expects its source token as `Authorization: Bearer <token>`. Does the API take it in a recipient field, and what is it called (`apiKey`, like newrelic, or `token`)?\n\nIf it's like newrelic (its own type plus `apiKey`), the change is:\n\n- add `BETTER_STACK: { apiCode: '<?>', cliCode: 'better-stack', label: 'Better Stack' }` to the list;\n- require `--api-key` for that type in the create handler;\n- mention it in the `--api-key` help text.\n\nIf you know the API contract, or can link the issue that asks for this (the PR will need `Closes #N`), I'll implement it. Otherwise, you can allow web search and I'll look up Clever Cloud's drains API docs."
+  }
+]

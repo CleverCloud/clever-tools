@@ -1,0 +1,73 @@
+[
+  {
+    "role": "user",
+    "content": "Add a `--command` option to `clever ssh` to run a remote command instead of opening an interactive shell."
+  },
+  {
+    "role": "tool_call",
+    "name": "Read",
+    "content": "{\n  \"file_path\": \"/tmp/agents-docs-SANDBOX/repo/docs/contributing/commands.md\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "1\t# Creating a command\n2\t\n3\tCommands are declared with `defineCommand`, `defineOption` and `defineArgument`, on top of `cliparse`. Options and arguments are validated and parsed by [Zod](https://zod.dev) schemas, and their types flow into the handler. The reasons behind this design are explained in [ADR 0001](../adr/adr-0001-rework-file-structure.md).\n4\t\n5\tBefore writing a command, look at a similar one and copy its naming, file layout, output format and error messages. `src/commands/drain/` is a good example of a command group with shared arguments and options.\n6\t\n7\t## Example\n8\t\n9\tA fictional `clever coffee brew <blend>` subcommand, part of a `coffee` group (neither exists in the CLI). The `<blend>` argument is shared by several `coffee` subcommands, so it lives in `coffee.args.js`:\n10\t\n11\t```js\n12\t// src/commands/coffee/coffee.args.js\n13\timport { z } from 'zod';\n14\timport { defineArgument } from '../../lib/define-argument.js';\n15\t\n16\texport const blendArg = defineArgument({\n17\t  schema: z.string().regex(/^[a-z0-9-]+$/, 'Use lowercase letters, digits and dashes'),\n18\t  description: 'Blend of coffee',\n19\t  placeholder: 'blend',\n20\t});\n21\t```\n22\t\n23\t`--shots`, `--milk` and `--topping` are only used by this subcommand, so they are defined inline. `--format` comes from `global.options.js`:\n24\t\n25\t```js\n26\t// src/commands/coffee/coffee.brew.command.js\n27\timport { z } from 'zod';\n28\timport { brewCoffee } from '../../clever-client/coffee.js';\n29\timport { defineCommand } from '../../lib/define-command.js';\n30\timport { defineOption } from '../../lib/define-option.js';\n31\timport { Logger } from '../../logger.js';\n32\timport { sendToApi } from '../../models/send-to-api.js';\n33\timport { humanJsonOutputFormatOption } from '../global.options.js';\n34\timport { blendArg } from './coffee.args.js';\n35\t\n36\texport const coffeeBrewCommand = defineCommand({\n37\t  description: 'Brew a coffee',\n38\t  since: null,\n39\t  options: {\n40\t    shots: defineOption({\n41\t      name: 'shots',\n42\t      schema: z.coerce.number().int().min(1).max(4).default(1),\n43\t      description: 'Number of espresso shots',\n44\t      aliases: ['s'],\n45\t      placeholder: 'shots',\n46\t    }),\n47\t    milk: defineOption({\n48\t      name: 'milk',\n49\t      schema: z.enum(['none', 'whole', 'oat']).default('none'),\n50\t      description: 'Kind of milk',\n51\t      placeholder: 'milk',\n52\t    }),\n53\t    toppings: defineOption({\n54\t      name: 'topping',\n55\t      schema: z\n56\t        .union([z.string(), z.array(z.string())])\n57\t        .transform((value) => (typeof value === 'string' ? [value] : value))\n58\t        .optional(),\n59\t      description: 'Topping to add. Multiple --topping can be passed',\n60\t      placeholder: 'topping',\n61\t    }),\n62\t    format: humanJsonOutputFormatOption,\n63\t  },\n64\t  args: [blendArg],\n65\t  async handler(options, blend) {\n66\t    const { shots, milk, toppings, format } = options;\n67\t\n68\t    const coffee = await brewCoffee({ blend, shots, milk, toppings: toppings ?? [] }).then(sendToApi\n[truncated 8591 chars]"
+  },
+  {
+    "role": "tool_call",
+    "name": "Read",
+    "content": "{\n  \"file_path\": \"/tmp/agents-docs-SANDBOX/repo/src/commands/ssh/ssh.command.js\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "1\timport { getAllInstances } from '@clevercloud/client/esm/api/v2/application.js';\n2\timport { spawn } from 'node:child_process';\n3\timport { z } from 'zod';\n4\timport { config } from '../../config/config.js';\n5\timport { defineCommand } from '../../lib/define-command.js';\n6\timport { defineOption } from '../../lib/define-option.js';\n7\timport { selectAnswer } from '../../lib/prompts.js';\n8\timport * as Application from '../../models/application.js';\n9\timport { sendToApi } from '../../models/send-to-api.js';\n10\timport { aliasOption, appIdOrNameOption } from '../global.options.js';\n11\t\n12\texport const sshCommand = defineCommand({\n13\t  description: 'Connect to running instances through SSH',\n14\t  since: '0.7.0',\n15\t  options: {\n16\t    identityFile: defineOption({\n17\t      name: 'identity-file',\n18\t      schema: z.string().optional(),\n19\t      description: 'SSH identity file',\n20\t      aliases: ['i'],\n21\t      placeholder: 'identity-file',\n22\t    }),\n23\t    alias: aliasOption,\n24\t    app: appIdOrNameOption,\n25\t  },\n26\t  args: [],\n27\t  async handler(options) {\n28\t    const { alias, app: appIdOrName, identityFile } = options;\n29\t    const { appId, ownerId } = await Application.resolveId(appIdOrName, alias);\n30\t\n31\t    const instances = await getAllInstances({ id: ownerId, appId }).then(sendToApi);\n32\t\n33\t    if (instances.length === 0) {\n34\t      throw new Error('No running instances found for this application');\n35\t    }\n36\t\n37\t    let sshTarget;\n38\t    if (instances.length === 1) {\n39\t      sshTarget = instances[0].id;\n40\t    } else if (process.stdout.isTTY) {\n41\t      const choices = instances\n42\t        .sort((a, b) => a.instanceNumber - b.instanceNumber)\n43\t        .map((inst) => ({\n44\t          name: `${inst.displayName} - Instance ${inst.instanceNumber} - ${inst.state} (${inst.id})`,\n45\t          value: inst.id,\n46\t        }));\n47\t      sshTarget = await selectAnswer('Select an instance:', choices);\n48\t    } else {\n49\t      throw new Error('Multiple instances are running. Cannot select in non-interactive mode.');\n50\t    }\n51\t\n52\t    const sshParams = [];\n53\t    // -t: force PTY allocation (SSH skips it by default because appId is passed as a command for gateway routing)\n54\t    sshParams.push('-t');\n55\t    if (identityFile != null) {\n56\t      sshParams.push('-i', identityFile);\n57\t    }\n58\t    sshParams.push(config.SSH_GATEWAY, sshTarget);\n59\t\n60\t    return new Promise((resolve, reject) => {\n61\t      const sshProcess = spawn('ssh', sshParams, { stdio: 'inherit' });\n62\t      sshProcess.on('exit', resolve);\n63\t      sshProcess.on('error', reject);\n64\t    });\n65\t  },\n66\t});\n67\t"
+  },
+  {
+    "role": "tool_call",
+    "name": "Grep",
+    "content": "{\n  \"pattern\": \"SSH_GATEWAY|clever ssh\",\n  \"glob\": \"!node_modules/**\",\n  \"output_mode\": \"content\",\n  \"head_limit\": 30\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "CHANGELOG.md:673:- Refactor `clever ssh` (less Bacon, more promise)\nCHANGELOG.md:929: - Add `-i` option to `clever ssh` to provide identify file (fixes #164)\nCHANGELOG.md:985: - Fix `clever ssh --alias` behaviour\ndocs/README.md:169:clever ssh-keys\ndocs/README.md:175:clever ssh-keys open\ndocs/README.md:181:clever ssh-keys add myPublicKey ~/.ssh/id_ecdsa.pub\ndocs/README.md:187:clever ssh-keys remove myPublicKey\ndocs/README.md:188:clever ssh-keys remove-all\ndocs/README.md:189:clever ssh-keys remove-all --yes\ndocs/applications-deployment-lifecycle.md:78:clever ssh [--identity-file, -i] IDENTITY-FILE\ndocs/applications-deployment-lifecycle.md:84:clever ssh --app APP_ID_OR_NAME\ndocs/contributing/codebase-map.md:67:| `run-ssh-command.js` | SSH sessions (`clever ssh`). |\nskills/clever-tools/SKILL.md:174:clever ssh\nskills/clever-tools/SKILL.md:177:clever ssh --command \"ls -la\"\nsrc/config/config.js:11:  SSH_GATEWAY: z.string().optional(),\nsrc/config/config.js:51:    SSH_GATEWAY: z.string().default('ssh@sshgateway-clevercloud-customers.services.clever-cloud.com'),\nsrc/commands/README.md:58:|[`clever ssh`](./ssh/ssh.docs.md)|Connect to running instances through SSH|\nsrc/commands/README.md:59:|[`clever ssh-keys`](./ssh-keys/ssh-keys.docs.md)|Manage SSH keys of the current user|\nsrc/commands/login/login.command.js:178:      SSH_GATEWAY: options.sshGateway,\nsrc/commands/ssh-keys/ssh-keys.command.js:38:              ${styleText('grey', 'clever ssh-keys add myNewKey ~/.ssh/id_ed25519_clever.pub')}\nsrc/commands/ssh-keys/ssh-keys.docs.md:1:# 📖 `clever ssh-keys` command reference\nsrc/commands/ssh-keys/ssh-keys.docs.md:3:## ➡️ `clever ssh-keys` <kbd>Since 3.13.0</kbd>\nsrc/commands/ssh-keys/ssh-keys.docs.md:8:clever ssh-keys [options]\nsrc/commands/ssh-keys/ssh-keys.docs.md:17:## ➡️ `clever ssh-keys add` <kbd>Since 3.13.0</kbd>\nsrc/commands/ssh-keys/ssh-keys.docs.md:22:clever ssh-keys add <ssh-key-name> <ssh-key-path>\nsrc/commands/ssh-keys/ssh-keys.docs.md:32:## ➡️ `clever ssh-keys open` <kbd>Since 3.13.0</kbd>\nsrc/commands/ssh-keys/ssh-keys.docs.md:37:clever ssh-keys open\nsrc/commands/ssh-keys/ssh-keys.docs.md:40:## ➡️ `clever ssh-keys remove` <kbd>Since 3.13.0</kbd>\nsrc/commands/ssh-keys/ssh-keys.docs.md:45:clever ssh-keys remove <ssh-key-name>\nsrc/commands/ssh-keys/ssh-keys.docs.md:54:## ➡️ `clever ssh-keys remove-all` <kbd>Since 3.13.0</kbd>\n\n[Showing results with pagination = limit: 30]"
+  },
+  {
+    "role": "tool_call",
+    "name": "Glob",
+    "content": "{\n  \"pattern\": \"src/commands/ssh/*\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "src/commands/ssh/ssh.docs.md\nsrc/commands/ssh/ssh.command.js"
+  },
+  {
+    "role": "tool_call",
+    "name": "Edit",
+    "content": "{\n  \"replace_all\": false,\n  \"file_path\": \"/tmp/agents-docs-SANDBOX/repo/src/commands/ssh/ssh.command.js\",\n  \"old_string\": \"    alias: aliasOption,\\n    app: appIdOrNameOption,\\n  },\\n  args: [],\\n  async handler(options) {\\n    const { alias, app: appIdOrName, identityFile } = options;\",\n  \"new_string\": \"    command: defineOption({\\n      name: 'command',\\n      schema: z.string().min(1).optional(),\\n      description: 'Run this command on the instance instead of opening an interactive shell',\\n      aliases: ['c'],\\n      placeholder: 'command',\\n    }),\\n    alias: aliasOption,\\n    app: appIdOrNameOption,\\n  },\\n  args: [],\\n  async handler(options) {\\n    const { alias, app: appIdOrName, identityFile, command } = options;\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "Claude requested permissions to write to /tmp/agents-docs-SANDBOX/repo/src/commands/ssh/ssh.command.js, but you haven't granted it yet."
+  },
+  {
+    "role": "tool_call",
+    "name": "Edit",
+    "content": "{\n  \"replace_all\": false,\n  \"file_path\": \"/tmp/agents-docs-SANDBOX/repo/src/commands/ssh/ssh.command.js\",\n  \"old_string\": \"    // -t: force PTY allocation (SSH skips it by default because appId is passed as a command for gateway routing)\\n    sshParams.push('-t');\\n    if (identityFile != null) {\\n      sshParams.push('-i', identityFile);\\n    }\\n    sshParams.push(config.SSH_GATEWAY, sshTarget);\\n\\n    return new Promise((resolve, reject) => {\\n      const sshProcess = spawn('ssh', sshParams, { stdio: 'inherit' });\\n      sshProcess.on('exit', resolve);\",\n  \"new_string\": \"    // -t: force PTY allocation (SSH skips it by default because appId is passed as a command for gateway routing)\\n    // Not needed to run a remote command, it keeps stdout/stderr clean for scripts\\n    if (command == null) {\\n      sshParams.push('-t');\\n    }\\n    if (identityFile != null) {\\n      sshParams.push('-i', identityFile);\\n    }\\n    sshParams.push(config.SSH_GATEWAY, sshTarget);\\n    if (command != null) {\\n      sshParams.push(command);\\n    }\\n\\n    return new Promise((resolve, reject) => {\\n      const sshProcess = spawn('ssh', sshParams, { stdio: 'inherit' });\\n      sshProcess.on('exit', (code) => {\\n        // Forward the remote command exit code\\n        if (code != null) {\\n          process.exitCode = code;\\n        }\\n        resolve();\\n      });\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "Claude requested permissions to write to /tmp/agents-docs-SANDBOX/repo/src/commands/ssh/ssh.command.js, but you haven't granted it yet."
+  },
+  {
+    "role": "tool_call",
+    "name": "Read",
+    "content": "{\n  \"file_path\": \"/tmp/agents-docs-SANDBOX/repo/docs/applications-deployment-lifecycle.md\",\n  \"offset\": 70,\n  \"limit\": 25\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "70\tclever cancel-deploy\n71\t```\n72\t\n73\t## ssh\n74\t\n75\tA Clever Cloud application is a running virtual machine you can ssh to, as a user (`bas`). By default, it will use `OpenSSH` configuration, but you can target a specific identity file:\n76\t\n77\t```\n78\tclever ssh [--identity-file, -i] IDENTITY-FILE\n79\t```\n80\t\n81\tTo ssh a specific application, use:\n82\t\n83\t```\n84\tclever ssh --app APP_ID_OR_NAME\n85\t```\n86\t\n87\t## logs\n88\t\n89\tWhen you deploy an application on Clever Cloud, we collect its logs, hosted in our internal Pulsar stack, all included. To listen to the stream, use:\n90\t\n91\t```\n92\tclever logs\n93\t```\n94\t"
+  },
+  {
+    "role": "assistant",
+    "content": "I couldn't edit `src/commands/ssh/ssh.command.js` because write permission was denied. I haven't changed any files.\n\nHere is the change I intended. I'd apply it once you grant write access:\n\n- **Option:** add `--command, -c <command>` as an optional string.\n- **Remote command:** when `--command` is set, the command is appended after the gateway and instance ID in the `ssh` arguments.\n- **No pseudo-terminal:** `-t` is only passed when there is no command, so output stays clean for scripts.\n- **Exit code:** the remote command's exit code is forwarded through `process.exitCode`.\n- **Docs:**\n  - Add a short `--command` example to `docs/applications-deployment-lifecycle.md`, under `## ssh`.\n  - Run `npm run docs`, which regenerates `ssh.docs.md`.\n  - Run `npm run validate` last.\n\n`skills/clever-tools/SKILL.md` already mentions `clever ssh --command \"ls -la\"`, so it needs no change.\n\nI haven't checked whether the SSH gateway accepts a remote command after the instance ID. The instance ID is already passed as the command so the gateway can route the connection. I'd test with `node bin/clever.js ssh --app <app> --command \"echo hi\"` on an app you name, since it opens a real SSH session.\n\nCan you grant write access to that file, or should I go ahead another way?"
+  }
+]

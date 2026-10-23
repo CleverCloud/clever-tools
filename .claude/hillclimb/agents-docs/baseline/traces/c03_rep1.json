@@ -1,0 +1,19 @@
+[
+  {
+    "role": "user",
+    "content": "How many root commands does `src/commands/global.commands.js` register? Just give the number."
+  },
+  {
+    "role": "tool_call",
+    "name": "Read",
+    "content": "{\n  \"file_path\": \"/tmp/agents-docs-SANDBOX/repo/src/commands/global.commands.js\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "1\timport { DRAIN_TYPES } from '../models/drain.js';\n2\timport { accesslogsCommand } from './accesslogs/accesslogs.command.js';\n3\timport { activityCommand } from './activity/activity.command.js';\n4\timport { addonCommand } from './addon/addon.command.js';\n5\timport { addonCreateCommand } from './addon/addon.create.command.js';\n6\timport { addonDeleteCommand } from './addon/addon.delete.command.js';\n7\timport { addonEnvCommand } from './addon/addon.env.command.js';\n8\timport { addonListCommand } from './addon/addon.list.command.js';\n9\timport { addonProvidersCommand } from './addon/addon.providers.command.js';\n10\timport { addonProvidersShowCommand } from './addon/addon.providers.show.command.js';\n11\timport { addonRenameCommand } from './addon/addon.rename.command.js';\n12\timport { applicationsCommand } from './applications/applications.command.js';\n13\timport { applicationsListCommand } from './applications/applications.list.command.js';\n14\timport { cancelDeployCommand } from './cancel-deploy/cancel-deploy.command.js';\n15\timport { configProviderCommand } from './config-provider/config-provider.command.js';\n16\timport { configProviderGetCommand } from './config-provider/config-provider.get.command.js';\n17\timport { configProviderImportCommand } from './config-provider/config-provider.import.command.js';\n18\timport { configProviderListCommand } from './config-provider/config-provider.list.command.js';\n19\timport { configProviderOpenCommand } from './config-provider/config-provider.open.command.js';\n20\timport { configProviderRmCommand } from './config-provider/config-provider.rm.command.js';\n21\timport { configProviderSetCommand } from './config-provider/config-provider.set.command.js';\n22\timport { configCommand } from './config/config.command.js';\n23\timport { configGetCommand } from './config/config.get.command.js';\n24\timport { configSetCommand } from './config/config.set.command.js';\n25\timport { configUpdateCommand } from './config/config.update.command.js';\n26\timport { consoleCommand } from './console/console.command.js';\n27\timport { createCommand } from './create/create.command.js';\n28\timport { curlCommand } from './curl/curl.command.js';\n29\timport { databaseBackupsCommand } from './database/database.backups.command.js';\n30\timport { databaseBackupsDownloadCommand } from './database/database.backups.download.command.js';\n31\timport { databaseCommand } from './database/database.command.js';\n32\timport { deleteCommand } from './delete/delete.command.js';\n33\timport { deployCommand } from './deploy/deploy.command.js';\n34\timport { diagCommand } from './diag/diag.command.js';\n35\timport { domainAddCommand } from './domain/domain.add.command.js';\n36\timport { domainCommand } from './domain/domain.command.js';\n37\timport { domainDiagCommand } from './domain/domain.diag.command.js';\n38\timport { domainFavouriteCommand } from './domain/domain.favourite.command.js';\n39\timport { domainFavouriteSetCommand } from './domain/domain.favourite.set.command.js';\n40\timport { domainFavouri\n[truncated 22637 chars]"
+  },
+  {
+    "role": "assistant",
+    "content": "**50**"
+  }
+]

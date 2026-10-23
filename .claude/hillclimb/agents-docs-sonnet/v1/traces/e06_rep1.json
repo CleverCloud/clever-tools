@@ -1,0 +1,64 @@
+[
+  {
+    "role": "user",
+    "content": "Add an `--org` option to `clever addon providers`."
+  },
+  {
+    "role": "tool_call",
+    "name": "Read",
+    "content": "{\n  \"file_path\": \"/tmp/agents-docs-SANDBOX/repo/docs/contributing/commands.md\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "1\t# Creating a command\n2\t\n3\tCommands are declared with `defineCommand`, `defineOption` and `defineArgument`, on top of `cliparse`. Options and arguments are validated and parsed by [Zod](https://zod.dev) schemas, and their types flow into the handler. The reasons behind this design are explained in [ADR 0001](../adr/adr-0001-rework-file-structure.md).\n4\t\n5\tBefore writing a command, look at a similar one and copy its naming, file layout, output format and error messages. `src/commands/drain/` is a good example of a command group with shared arguments and options.\n6\t\n7\t## Example\n8\t\n9\tA fictional `clever coffee brew <blend>` subcommand, part of a `coffee` group (neither exists in the CLI). The `<blend>` argument is shared by several `coffee` subcommands, so it lives in `coffee.args.js`:\n10\t\n11\t```js\n12\t// src/commands/coffee/coffee.args.js\n13\timport { z } from 'zod';\n14\timport { defineArgument } from '../../lib/define-argument.js';\n15\t\n16\texport const blendArg = defineArgument({\n17\t  schema: z.string().regex(/^[a-z0-9-]+$/, 'Use lowercase letters, digits and dashes'),\n18\t  description: 'Blend of coffee',\n19\t  placeholder: 'blend',\n20\t});\n21\t```\n22\t\n23\t`--shots`, `--milk` and `--topping` are only used by this subcommand, so they are defined inline. `--format` comes from `global.options.js`:\n24\t\n25\t```js\n26\t// src/commands/coffee/coffee.brew.command.js\n27\timport { z } from 'zod';\n28\timport { brewCoffee } from '../../clever-client/coffee.js';\n29\timport { defineCommand } from '../../lib/define-command.js';\n30\timport { defineOption } from '../../lib/define-option.js';\n31\timport { Logger } from '../../logger.js';\n32\timport { sendToApi } from '../../models/send-to-api.js';\n33\timport { humanJsonOutputFormatOption } from '../global.options.js';\n34\timport { blendArg } from './coffee.args.js';\n35\t\n36\texport const coffeeBrewCommand = defineCommand({\n37\t  description: 'Brew a coffee',\n38\t  since: null,\n39\t  options: {\n40\t    shots: defineOption({\n41\t      name: 'shots',\n42\t      schema: z.coerce.number().int().min(1).max(4).default(1),\n43\t      description: 'Number of espresso shots',\n44\t      aliases: ['s'],\n45\t      placeholder: 'shots',\n46\t    }),\n47\t    milk: defineOption({\n48\t      name: 'milk',\n49\t      schema: z.enum(['none', 'whole', 'oat']).default('none'),\n50\t      description: 'Kind of milk',\n51\t      placeholder: 'milk',\n52\t    }),\n53\t    toppings: defineOption({\n54\t      name: 'topping',\n55\t      schema: z\n56\t        .union([z.string(), z.array(z.string())])\n57\t        .transform((value) => (typeof value === 'string' ? [value] : value))\n58\t        .optional(),\n59\t      description: 'Topping to add. Multiple --topping can be passed',\n60\t      placeholder: 'topping',\n61\t    }),\n62\t    format: humanJsonOutputFormatOption,\n63\t  },\n64\t  args: [blendArg],\n65\t  async handler(options, blend) {\n66\t    const { shots, milk, toppings, format } = options;\n67\t\n68\t    const coffee = await brewCoffee({ blend, shots, milk, toppings: toppings ?? [] }).then(sendToApi\n[truncated 8591 chars]"
+  },
+  {
+    "role": "tool_call",
+    "name": "Bash",
+    "content": "{\n  \"command\": \"cd /tmp/agents-docs-SANDBOX/repo/src/commands/addon && ls && cat addon.providers.command.js && grep -n \\\"org\\\" ../global.options.js | head -20\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "addon.args.js\naddon.command.js\naddon.create.command.js\naddon.delete.command.js\naddon.docs.md\naddon.env.command.js\naddon.list.command.js\naddon.providers.command.js\naddon.providers.show.command.js\naddon.rename.command.js\nimport { formatTable } from '../../format-table.js';\nimport { defineCommand } from '../../lib/define-command.js';\nimport { styleText } from '../../lib/style-text.js';\nimport { Logger } from '../../logger.js';\nimport * as Addon from '../../models/addon.js';\nimport { humanJsonOutputFormatOption } from '../global.options.js';\n\nexport const addonProvidersCommand = defineCommand({\n  description: 'List available add-on providers',\n  since: '0.2.3',\n  options: {\n    format: humanJsonOutputFormatOption,\n  },\n  args: [],\n  async handler(options) {\n    const { format } = options;\n\n    const providers = await Addon.listProviders();\n\n    switch (format) {\n      case 'json': {\n        const formattedProviders = providers.map((provider) => ({\n          id: provider.id,\n          name: provider.name,\n          shortDesc: provider.shortDesc,\n          regions: provider.regions,\n          plans: provider.plans.map((plan) => ({\n            id: plan.id,\n            name: plan.name,\n            slug: plan.slug,\n          })),\n        }));\n        Logger.printJson(formattedProviders);\n        break;\n      }\n      case 'human':\n      default: {\n        const formattedProviders = providers.map((provider) => {\n          return [styleText('bold', provider.id), provider.name, provider.shortDesc || ''];\n        });\n        Logger.println(formatTable(formattedProviders));\n      }\n    }\n  },\n});\n5:import { appIdOrName, date, orgaIdOrName } from '../parsers.js';\n54:export const orgaIdOrNameOption = defineOption({\n55:  name: 'org',\n56:  schema: z.string().transform(orgaIdOrName).optional(),\n59:  placeholder: 'org-id|org-name',\n131:  description: \"List all notifications for your user or for an organisation with the '--org' option\",\n151:  description: 'Restrict notifications to specific applications and add-ons (requires --org)',"
+  },
+  {
+    "role": "tool_call",
+    "name": "Bash",
+    "content": "{\n  \"command\": \"cd /tmp/agents-docs-SANDBOX/repo && grep -n \\\"listProviders\\\" -A12 src/models/addon.js | head -40; sed -n 50,65p src/commands/global.options.js; grep -rn \\\"listProviders\\\\|getAddonProviders\\\" src --include=*.js | grep -v \\\"^src/models/addon.js\\\"; grep -n \\\"orgaIdOrNameOption\\\" -B3 -A10 src/commands/addon/addon.list.command.js | head -50\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "18:export function listProviders(orgaId) {\n19-  return getAllAddonProviders({ orgaId }).then(sendToApi);\n20-}\n21-\n22-export async function getProvider(providerName, orgaId) {\n23:  const providers = await listProviders(orgaId);\n24-  const provider = providers.find((p) => p.id === providerName);\n25-  if (provider == null) {\n26-    throw new Error(`Invalid provider name. Available providers: ${providers.map((p) => p.id).join(', ')}`);\n27-  }\n28-  return provider;\n29-}\n30-\n31-export function getProviderInfos(providerName) {\n32-  return getAddonProvider({ providerId: providerName })\n33-    .then(sendToApi)\n34-    .catch(() => {\n35-      // An error can occur because the add-on api doesn't implement this endpoint yet\n  description: 'Add-on ID or real ID',\n  placeholder: 'addon-id',\n});\n\nexport const orgaIdOrNameOption = defineOption({\n  name: 'org',\n  schema: z.string().transform(orgaIdOrName).optional(),\n  description: 'Organisation to target by its ID (or name, if unambiguous)',\n  aliases: ['o', 'owner'],\n  placeholder: 'org-id|org-name',\n});\n\nexport const humanJsonOutputFormatOption = defineOption({\n  name: 'format',\n  schema: z.enum(['human', 'json']).default('human'),\n  description: 'Output format',\n(eval):1: no matches found: --include=*.js\n4-import { Logger } from '../../logger.js';\n5-import * as Addon from '../../models/addon.js';\n6-import * as Organisation from '../../models/organisation.js';\n7:import { humanJsonOutputFormatOption, orgaIdOrNameOption } from '../global.options.js';\n8-\n9-export const addonListCommand = defineCommand({\n10-  description: 'List available add-ons',\n11-  since: '0.2.3',\n12-  options: {\n13:    org: orgaIdOrNameOption,\n14-    format: humanJsonOutputFormatOption,\n15-  },\n16-  args: [],\n17-  async handler(options) {\n18-    const { org: orgaIdOrName, format } = options;\n19-\n20-    const ownerId = await Organisation.getId(orgaIdOrName);\n21-    const addons = await Addon.list(ownerId);\n22-\n23-    switch (format) {"
+  },
+  {
+    "role": "tool_call",
+    "name": "Bash",
+    "content": "{\n  \"command\": \"python3 - <<'E'\\np='src/commands/addon/addon.providers.command.js'\\ns=open(p).read()\\ns=s.replace(\\\"import * as Addon from '../../models/addon.js';\\\\nimport { humanJsonOutputFormatOption }\\\",\\\"import * as Addon from '../../models/addon.js';\\\\nimport * as Organisation from '../../models/organisation.js';\\\\nimport { humanJsonOutputFormatOption, orgaIdOrNameOption }\\\")\\ns=s.replace(\\\"  options: {\\\\n\\\",\\\"  options: {\\\\n    org: orgaIdOrNameOption,\\\\n\\\")\\ns=s.replace(\\\"const { format } = options;\\\\n\\\\n    const providers = await Addon.listProviders();\\\",\\\"const { org: orgaIdOrName, format } = options;\\\\n\\\\n    const ownerId = await Organisation.getId(orgaIdOrName);\\\\n    const providers = await Addon.listProviders(ownerId);\\\")\\nopen(p,'w').write(s)\\nE\\ngit diff --stat; npm run docs 2>&1 | tail -5; npm run validate 2>&1 | tail -15\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": " src/commands/addon/addon.providers.command.js | 9 ++++++---\n 1 file changed, 6 insertions(+), 3 deletions(-)\n    at ModuleJob.syncLink (node:internal/modules/esm/module_job:163:33) {\n  code: 'ERR_MODULE_NOT_FOUND'\n}\n\nNode.js v24.18.1\n\n> clever-tools@4.9.0 validate\n> npm run lint && npm run format:check && npm run typecheck && npm run docs:check\n\n\n> clever-tools@4.9.0 lint\n> eslint\n\nsh: line 1: eslint: command not found"
+  },
+  {
+    "role": "tool_call",
+    "name": "Bash",
+    "content": "{\n  \"command\": \"npm ci 2>&1 | tail -3; npm run docs 2>&1 | tail -5; npm run validate 2>&1 | tail -15; git status --short\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "npm warn allow-scripts   unrs-resolver@1.11.1 (postinstall: napi-postinstall unrs-resolver 1.11.1 check)\nnpm warn allow-scripts\nnpm warn allow-scripts Run `npm approve-scripts --allow-scripts-pending` to review, or `npm approve-scripts <pkg>` to allow.\n\nUpdating docs...\nsrc/commands/addon/addon.docs.md\nskills/clever-tools/references/full-documentation.md\nUpdated 2 files (49 unchanged)\n\n> clever-tools@4.9.0 validate\n> npm run lint && npm run format:check && npm run typecheck && npm run docs:check\n\n\n> clever-tools@4.9.0 lint\n> eslint\n\n\n> clever-tools@4.9.0 format:check\n> prettier . --check\n\nChecking formatting...\n[warn] .claude/settings.json\n[warn] Code style issues found in the above file. Run Prettier with --write to fix.\n M skills/clever-tools/references/full-documentation.md\n M src/commands/addon/addon.docs.md\n M src/commands/addon/addon.providers.command.js"
+  },
+  {
+    "role": "tool_call",
+    "name": "Bash",
+    "content": "{\n  \"command\": \"npm run typecheck 2>&1 | tail -4; npm run docs:check 2>&1 | tail -4; npm test 2>&1 | grep -E \\\"^# (pass|fail)\\\"; node bin/clever.js addon providers --help | head -12\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "> clever-tools@4.9.0 typecheck\n> tsc -p tsconfig.json\n\n> clever-tools@4.9.0 docs:check\n> node scripts/generate-docs.js --check\n\nAll docs up-to-date (51 files)\nList available add-on providers\n\nUSAGE\n  clever addon providers [options]\n\nCOMMANDS\n  show                                    Show information about an add-on provider\n\nOPTIONS\n  -F, --format <format>                   Output format (human, json) (default: human)\n  -o, --org, --owner <org-id|org-name>    Organisation to target by its ID (or name, if unambiguous)"
+  },
+  {
+    "role": "assistant",
+    "content": "`clever addon providers` now takes `-o, --org, --owner <org-id|org-name>`, the same shared option `addon list` uses. When you pass it, the command passes that organisation's ID to `Addon.listProviders()`, which already accepted one. Without `--org`, behaviour is unchanged.\n\n`--help` shows the new option, and typecheck and `docs:check` pass. I haven't run the command against the API. I didn't see the unit test result, because my filter printed nothing.\n\n`npm run validate` stops at `format:check`, which flags `.claude/settings.json`. I didn't touch that file, so I left it alone.\n\nI ran `npm ci` because `node_modules` was missing. I ran `npm run docs`, which regenerated `addon.docs.md` and `skills/clever-tools/references/full-documentation.md`. The code change is in `src/commands/addon/addon.providers.command.js`. Nothing is committed."
+  }
+]

@@ -1,0 +1,23 @@
+diff --git a/AGENTS.md b/AGENTS.md
+index 7ff6ce6f..1a3e57b2 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -15,7 +15,8 @@ This file is the canonical instruction set for AI coding agents.
+ - **A unit test suite is being built, don't add tests to existing code now.** A few unit tests exist and run in the CI (`npm test`), so the setup is ready, but work in progress will add many tests at once, and the rest will be handled later.
+   - Exception: a brand new standalone util or helper can come with its unit test.
+   - To verify a behaviour change, run the affected command from source with `node bin/clever.js <command>`, read-only commands first (see "Running the CLI").
+-- **Before writing a new pattern, look at how a similar command does it.** Copy the closest neighbour (naming, file layout, output format, error messages) rather than inventing.
++- **Before your first edit for any task that adds or changes a command, subcommand, option, argument, accepted value or command behaviour, read `docs/contributing/commands.md`, however small the change.** If the change calls an API endpoint, read `docs/contributing/api-client.md` too. Neighbouring code shows how one command is written; the doc gives the rules it doesn't show (shared options, `since`, where validation goes, docs regeneration). Questions that need no edit don't need it.
++- **Then copy the closest neighbour** (naming, file layout, output format, error messages) rather than inventing a pattern.
+ - **Never add a dependency without discussing it in the issue first.** Prefer native JavaScript, and don't use `lodash` in new code (see `docs/contributing/code-style.md`).
+ - **Commit messages follow [conventional commits](https://www.conventionalcommits.org)**, scope = the command name: `fix(drain): ...`. Only `feat`, `fix`, `perf` and `revert` reach the CHANGELOG, so the type and scope are the release note. No `fixup!` / `squash!` commits, branch rebased on `master` (CI rejects both).
+ - **Every PR addresses an existing issue** (`Closes #N`) and follows `.github/pull_request_template.md`. Keep it limited to what the issue needs: unrelated fixes and refactors go in their own issue and PR.
+@@ -96,7 +97,7 @@ The repository is `CleverCloud/clever-tools`, the API client is `CleverCloud/cle
+
+ ## Load on demand
+
+-Read these when the task matches. For a small change to an existing command, the neighbouring code is usually enough.
++Read these when the task matches. The first row is mandatory before editing a command (see "Always do this").
+
+ | Task | Read |
+ |---|---|

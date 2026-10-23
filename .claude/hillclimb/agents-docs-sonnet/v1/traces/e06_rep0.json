@@ -1,0 +1,143 @@
+[
+  {
+    "role": "user",
+    "content": "Add an `--org` option to `clever addon providers`."
+  },
+  {
+    "role": "tool_call",
+    "name": "Read",
+    "content": "{\n  \"file_path\": \"/tmp/agents-docs-SANDBOX/repo/docs/contributing/commands.md\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "1\t# Creating a command\n2\t\n3\tCommands are declared with `defineCommand`, `defineOption` and `defineArgument`, on top of `cliparse`. Options and arguments are validated and parsed by [Zod](https://zod.dev) schemas, and their types flow into the handler. The reasons behind this design are explained in [ADR 0001](../adr/adr-0001-rework-file-structure.md).\n4\t\n5\tBefore writing a command, look at a similar one and copy its naming, file layout, output format and error messages. `src/commands/drain/` is a good example of a command group with shared arguments and options.\n6\t\n7\t## Example\n8\t\n9\tA fictional `clever coffee brew <blend>` subcommand, part of a `coffee` group (neither exists in the CLI). The `<blend>` argument is shared by several `coffee` subcommands, so it lives in `coffee.args.js`:\n10\t\n11\t```js\n12\t// src/commands/coffee/coffee.args.js\n13\timport { z } from 'zod';\n14\timport { defineArgument } from '../../lib/define-argument.js';\n15\t\n16\texport const blendArg = defineArgument({\n17\t  schema: z.string().regex(/^[a-z0-9-]+$/, 'Use lowercase letters, digits and dashes'),\n18\t  description: 'Blend of coffee',\n19\t  placeholder: 'blend',\n20\t});\n21\t```\n22\t\n23\t`--shots`, `--milk` and `--topping` are only used by this subcommand, so they are defined inline. `--format` comes from `global.options.js`:\n24\t\n25\t```js\n26\t// src/commands/coffee/coffee.brew.command.js\n27\timport { z } from 'zod';\n28\timport { brewCoffee } from '../../clever-client/coffee.js';\n29\timport { defineCommand } from '../../lib/define-command.js';\n30\timport { defineOption } from '../../lib/define-option.js';\n31\timport { Logger } from '../../logger.js';\n32\timport { sendToApi } from '../../models/send-to-api.js';\n33\timport { humanJsonOutputFormatOption } from '../global.options.js';\n34\timport { blendArg } from './coffee.args.js';\n35\t\n36\texport const coffeeBrewCommand = defineCommand({\n37\t  description: 'Brew a coffee',\n38\t  since: null,\n39\t  options: {\n40\t    shots: defineOption({\n41\t      name: 'shots',\n42\t      schema: z.coerce.number().int().min(1).max(4).default(1),\n43\t      description: 'Number of espresso shots',\n44\t      aliases: ['s'],\n45\t      placeholder: 'shots',\n46\t    }),\n47\t    milk: defineOption({\n48\t      name: 'milk',\n49\t      schema: z.enum(['none', 'whole', 'oat']).default('none'),\n50\t      description: 'Kind of milk',\n51\t      placeholder: 'milk',\n52\t    }),\n53\t    toppings: defineOption({\n54\t      name: 'topping',\n55\t      schema: z\n56\t        .union([z.string(), z.array(z.string())])\n57\t        .transform((value) => (typeof value === 'string' ? [value] : value))\n58\t        .optional(),\n59\t      description: 'Topping to add. Multiple --topping can be passed',\n60\t      placeholder: 'topping',\n61\t    }),\n62\t    format: humanJsonOutputFormatOption,\n63\t  },\n64\t  args: [blendArg],\n65\t  async handler(options, blend) {\n66\t    const { shots, milk, toppings, format } = options;\n67\t\n68\t    const coffee = await brewCoffee({ blend, shots, milk, toppings: toppings ?? [] }).then(sendToApi\n[truncated 8591 chars]"
+  },
+  {
+    "role": "tool_call",
+    "name": "Glob",
+    "content": "{\n  \"pattern\": \"src/commands/addon/addon.providers*\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "src/commands/addon/addon.providers.show.command.js\nsrc/commands/addon/addon.providers.command.js"
+  },
+  {
+    "role": "tool_call",
+    "name": "Read",
+    "content": "{\n  \"file_path\": \"/tmp/agents-docs-SANDBOX/repo/src/commands/addon/addon.providers.command.js\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "1\timport { formatTable } from '../../format-table.js';\n2\timport { defineCommand } from '../../lib/define-command.js';\n3\timport { styleText } from '../../lib/style-text.js';\n4\timport { Logger } from '../../logger.js';\n5\timport * as Addon from '../../models/addon.js';\n6\timport { humanJsonOutputFormatOption } from '../global.options.js';\n7\t\n8\texport const addonProvidersCommand = defineCommand({\n9\t  description: 'List available add-on providers',\n10\t  since: '0.2.3',\n11\t  options: {\n12\t    format: humanJsonOutputFormatOption,\n13\t  },\n14\t  args: [],\n15\t  async handler(options) {\n16\t    const { format } = options;\n17\t\n18\t    const providers = await Addon.listProviders();\n19\t\n20\t    switch (format) {\n21\t      case 'json': {\n22\t        const formattedProviders = providers.map((provider) => ({\n23\t          id: provider.id,\n24\t          name: provider.name,\n25\t          shortDesc: provider.shortDesc,\n26\t          regions: provider.regions,\n27\t          plans: provider.plans.map((plan) => ({\n28\t            id: plan.id,\n29\t            name: plan.name,\n30\t            slug: plan.slug,\n31\t          })),\n32\t        }));\n33\t        Logger.printJson(formattedProviders);\n34\t        break;\n35\t      }\n36\t      case 'human':\n37\t      default: {\n38\t        const formattedProviders = providers.map((provider) => {\n39\t          return [styleText('bold', provider.id), provider.name, provider.shortDesc || ''];\n40\t        });\n41\t        Logger.println(formatTable(formattedProviders));\n42\t      }\n43\t    }\n44\t  },\n45\t});\n46\t"
+  },
+  {
+    "role": "tool_call",
+    "name": "Grep",
+    "content": "{\n  \"pattern\": \"export const (org|orgaIdOrName)\\\\w*\",\n  \"path\": \"/tmp/agents-docs-SANDBOX/repo/src/commands/global.options.js\",\n  \"output_mode\": \"content\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "54:export const orgaIdOrNameOption = defineOption({"
+  },
+  {
+    "role": "tool_call",
+    "name": "Read",
+    "content": "{\n  \"file_path\": \"/tmp/agents-docs-SANDBOX/repo/docs/contributing/api-client.md\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "1\t# Clever Cloud API client\n2\t\n3\tclever-tools talks to the Clever Cloud API through [`clever-client.js`](https://github.com/CleverCloud/clever-client.js), published as `@clevercloud/client` and pinned in `package.json`.\n4\t\n5\t## The pattern used in `src/`\n6\t\n7\tEvery command and model uses the function-per-endpoint API of the client, combined with `sendToApi` from `src/models/send-to-api.js`:\n8\t\n9\t```js\n10\timport { updateEnvVar } from '@clevercloud/client/esm/api/v2/application.js';\n11\timport { sendToApi } from '../../models/send-to-api.js';\n12\t\n13\tawait updateEnvVar({ id: ownerId, appId, envName }, { value }).then(sendToApi);\n14\t```\n15\t\n16\tThe endpoint function only builds the request params (method, URL, headers, body). `sendToApi` then:\n17\t\n18\t- prefixes the URL with `API_HOST` (overridable per profile or with an env var),\n19\t- signs the request with the OAuth tokens of the active profile,\n20\t- logs the method and URL at debug level (`-v`),\n21\t- turns network, TLS and 401 errors into messages the user can act on (`processError`).\n22\t\n23\tOther API errors are rethrown as is, so their message depends on the endpoint. Run with `-v` to see the request.\n24\t\n25\tRelated helpers in the same file:\n26\t\n27\t- `sendToAuthBridge`: same pipeline against `AUTH_BRIDGE_HOST` (API tokens, see `src/commands/tokens/`).\n28\t- `sendToApiWithConfig`: same pipeline with explicit credentials, for a profile that is not the active one (`src/lib/profile.js`, login).\n29\t- `getHostAndTokens`: host and tokens for the streaming helpers (`@clevercloud/client/esm/streams/*`: logs and access logs, and `activity --follow` through a WebSocket).\n30\t\n31\t## Resolving IDs\n32\t\n33\tCommands accept names or IDs (`--app`, `--alias`, `--org`, add-on names…). Never resolve them by hand in a command:\n34\t\n35\t- `Application.resolveId(appIdOrName, alias)` (`src/models/application.js`) returns `{ ownerId, appId }`, falling back to the app linked in `.clever.json`.\n36\t- `src/models/ids-resolver.js` resolves owners, add-ons and OAuth consumers, with a local cache (`src/config/cache.js`, `IDS_CACHE_FILE`).\n37\t- Operators, k8s and network groups resolve names in their own models and throw the error built by `ambiguousNameError()` (`src/lib/ambiguous-name-error.js`) when a name matches several resources.\n38\t\n39\t## Endpoints missing from the client\n40\t\n41\t`src/clever-client/` holds endpoints that `@clevercloud/client` does not expose (auth bridge, drains, k8s, network groups, operators). The request-params part of `@clevercloud/client` is no longer updated, so adding an endpoint here is the normal way to get a missing one, no issue or PR on `clever-client.js` is needed.\n42\t\n43\tBefore adding one, check that the endpoint does not already exist in `@clevercloud/client` (`node_modules/@clevercloud/client/dist/esm/api/`).\n44\t\n45\tAn endpoint is a function returning `Promise.resolve({ method, url, headers, queryParams, body })`, with its HTTP method and path in the JSDoc, chained with `.then(sendToApi)`. From `sr\n[truncated 1635 chars]"
+  },
+  {
+    "role": "tool_call",
+    "name": "Grep",
+    "content": "{\n  \"pattern\": \"listProviders\",\n  \"path\": \"/tmp/agents-docs-SANDBOX/repo/src\",\n  \"output_mode\": \"content\",\n  \"-A\": 8\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "src/commands/addon/addon.providers.command.js:18:    const providers = await Addon.listProviders();\nsrc/commands/addon/addon.providers.command.js-19-\nsrc/commands/addon/addon.providers.command.js-20-    switch (format) {\nsrc/commands/addon/addon.providers.command.js-21-      case 'json': {\nsrc/commands/addon/addon.providers.command.js-22-        const formattedProviders = providers.map((provider) => ({\nsrc/commands/addon/addon.providers.command.js-23-          id: provider.id,\nsrc/commands/addon/addon.providers.command.js-24-          name: provider.name,\nsrc/commands/addon/addon.providers.command.js-25-          shortDesc: provider.shortDesc,\nsrc/commands/addon/addon.providers.command.js-26-          regions: provider.regions,\n--\nsrc/models/addon.js:18:export function listProviders(orgaId) {\nsrc/models/addon.js-19-  return getAllAddonProviders({ orgaId }).then(sendToApi);\nsrc/models/addon.js-20-}\nsrc/models/addon.js-21-\nsrc/models/addon.js-22-export async function getProvider(providerName, orgaId) {\nsrc/models/addon.js:23:  const providers = await listProviders(orgaId);\nsrc/models/addon.js-24-  const provider = providers.find((p) => p.id === providerName);\nsrc/models/addon.js-25-  if (provider == null) {\nsrc/models/addon.js-26-    throw new Error(`Invalid provider name. Available providers: ${providers.map((p) => p.id).join(', ')}`);\nsrc/models/addon.js-27-  }\nsrc/models/addon.js-28-  return provider;\nsrc/models/addon.js-29-}\nsrc/models/addon.js-30-\nsrc/models/addon.js-31-export function getProviderInfos(providerName) {"
+  },
+  {
+    "role": "tool_call",
+    "name": "Read",
+    "content": "{\n  \"file_path\": \"/tmp/agents-docs-SANDBOX/repo/src/commands/global.options.js\",\n  \"offset\": 45,\n  \"limit\": 25\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "45\t});\n46\t\n47\texport const addonIdOrRealIdOption = defineOption({\n48\t  name: 'addon',\n49\t  schema: z.string().optional(),\n50\t  description: 'Add-on ID or real ID',\n51\t  placeholder: 'addon-id',\n52\t});\n53\t\n54\texport const orgaIdOrNameOption = defineOption({\n55\t  name: 'org',\n56\t  schema: z.string().transform(orgaIdOrName).optional(),\n57\t  description: 'Organisation to target by its ID (or name, if unambiguous)',\n58\t  aliases: ['o', 'owner'],\n59\t  placeholder: 'org-id|org-name',\n60\t});\n61\t\n62\texport const humanJsonOutputFormatOption = defineOption({\n63\t  name: 'format',\n64\t  schema: z.enum(['human', 'json']).default('human'),\n65\t  description: 'Output format',\n66\t  aliases: ['F'],\n67\t  placeholder: 'format',\n68\t});\n69\t"
+  },
+  {
+    "role": "assistant",
+    "content": "Model already supports orgaId. See how another command resolves the org."
+  },
+  {
+    "role": "tool_call",
+    "name": "Grep",
+    "content": "{\n  \"pattern\": \"orgaIdOrName|getOwnerId|Organisation\\\\.\",\n  \"path\": \"/tmp/agents-docs-SANDBOX/repo/src/commands/addon/addon.create.command.js\",\n  \"output_mode\": \"content\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "13:import { getOwnerIdFromOrgIdOrName } from '../../models/ids-resolver.js';\n16:import { humanJsonOutputFormatOption, orgaIdOrNameOption } from '../global.options.js';\n106:    org: orgaIdOrNameOption,\n116:      org: orgaIdOrName,\n132:    const ownerId = await getOwnerIdFromOrgIdOrName(orgaIdOrName);\n135:      if (orgaIdOrName != null && linkedAppData.ownerId !== ownerId && format === 'human') {"
+  },
+  {
+    "role": "tool_call",
+    "name": "Bash",
+    "content": "{\n  \"command\": \"grep -n \\\"getOwnerIdFromOrgIdOrName\\\" -A12 src/models/ids-resolver.js | head -30\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "200:export async function getOwnerIdFromOrgIdOrName(orgIdOrName) {\n201-  return orgIdOrName != null ? Organisation.getId(orgIdOrName) : User.getCurrentId();\n202-}"
+  },
+  {
+    "role": "tool_call",
+    "name": "Bash",
+    "content": "{\n  \"command\": \"python3 - <<'E'\\np='src/commands/addon/addon.providers.command.js'\\ns=open(p).read()\\ns=s.replace(\\\"import { humanJsonOutputFormatOption } from\\\",\\\"import { getOwnerIdFromOrgIdOrName } from '../../models/ids-resolver.js';\\\\nimport { humanJsonOutputFormatOption, orgaIdOrNameOption } from\\\")\\ns=s.replace(\\\"    format: humanJsonOutputFormatOption,\\\\n\\\",\\\"    org: orgaIdOrNameOption,\\\\n    format: humanJsonOutputFormatOption,\\\\n\\\")\\ns=s.replace(\\\"const { format } = options;\\\\n\\\\n    const providers = await Addon.listProviders();\\\",\\\"const { org: orgaIdOrName, format } = options;\\\\n\\\\n    const ownerId = await getOwnerIdFromOrgIdOrName(orgaIdOrName);\\\\n    const providers = await Addon.listProviders(ownerId);\\\")\\nopen(p,'w').write(s)\\nE\\nnpm run docs 2>&1 | tail -5; npm run fix-all 2>&1 | tail -5; npm run validate 2>&1 | tail -15; git status --short\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "    at ModuleJob.syncLink (node:internal/modules/esm/module_job:163:33) {\n  code: 'ERR_MODULE_NOT_FOUND'\n}\n\nNode.js v24.18.1\n\n> clever-tools@4.9.0 lint:fix\n> eslint --fix\n\nsh: line 1: eslint: command not found\n\n> clever-tools@4.9.0 validate\n> npm run lint && npm run format:check && npm run typecheck && npm run docs:check\n\n\n> clever-tools@4.9.0 lint\n> eslint\n\nsh: line 1: eslint: command not found\n M src/commands/addon/addon.providers.command.js\n[This command modified 1 file you've previously read: src/commands/addon/addon.providers.command.js. Call Read before editing.]"
+  },
+  {
+    "role": "assistant",
+    "content": "Dependencies aren't installed, so I'll install them and rerun."
+  },
+  {
+    "role": "tool_call",
+    "name": "Bash",
+    "content": "{\n  \"command\": \"npm ci 2>&1 | tail -3; npm run docs 2>&1 | tail -5; npm run fix-all 2>&1 | tail -5; npm run validate 2>&1 | tail -15; git status --short\",\n  \"timeout\": 400000\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "npm warn allow-scripts   unrs-resolver@1.11.1 (postinstall: napi-postinstall unrs-resolver 1.11.1 check)\nnpm warn allow-scripts\nnpm warn allow-scripts Run `npm approve-scripts --allow-scripts-pending` to review, or `npm approve-scripts <pkg>` to allow.\n\nUpdating docs...\nsrc/commands/addon/addon.docs.md\nskills/clever-tools/references/full-documentation.md\nUpdated 2 files (49 unchanged)\nsrc/models/user.js 4ms (unchanged)\nsrc/models/utils.js 6ms (unchanged)\nsrc/models/variables.js 9ms (unchanged)\nsrc/parsers.js 12ms (unchanged)\ntsconfig.json 2ms (unchanged)\n\n> clever-tools@4.9.0 format:check\n> prettier . --check\n\nChecking formatting...\nAll matched files use Prettier code style!\n\n> clever-tools@4.9.0 typecheck\n> tsc -p tsconfig.json\n\n\n> clever-tools@4.9.0 docs:check\n> node scripts/generate-docs.js --check\n\nAll docs up-to-date (51 files)\n M .claude/settings.json\n M skills/clever-tools/references/full-documentation.md\n M src/commands/addon/addon.docs.md\n M src/commands/addon/addon.providers.command.js"
+  },
+  {
+    "role": "assistant",
+    "content": "`.claude/settings.json` changed unexpectedly; checking it."
+  },
+  {
+    "role": "tool_call",
+    "name": "Bash",
+    "content": "{\n  \"command\": \"git diff .claude/settings.json | head -20\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "diff --git a/.claude/settings.json b/.claude/settings.json\nindex a0a677f..361b11e 100644\n--- a/.claude/settings.json\n+++ b/.claude/settings.json\n@@ -1 +1,10 @@\n-{\"hooks\":{\"PreToolUse\":[{\"matcher\":\"Edit|Write|MultiEdit|NotebookEdit\",\"hooks\":[{\"type\":\"command\",\"command\":\"node /tmp/agents-docs-SANDBOX/stop-hook.js\"}]}]}}\n\\ No newline at end of file\n+{\n+  \"hooks\": {\n+    \"PreToolUse\": [\n+      {\n+        \"matcher\": \"Edit|Write|MultiEdit|NotebookEdit\",\n+        \"hooks\": [{ \"type\": \"command\", \"command\": \"node /tmp/agents-docs-SANDBOX/stop-hook.js\" }]\n+      }\n+    ]\n+  }\n+}"
+  },
+  {
+    "role": "assistant",
+    "content": "That's only Prettier reformatting from `fix-all`, which isn't part of this change, so I'll revert it."
+  },
+  {
+    "role": "tool_call",
+    "name": "Bash",
+    "content": "{\n  \"command\": \"git checkout .claude/settings.json && git status --short\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "Updated 1 path from the index\n M skills/clever-tools/references/full-documentation.md\n M src/commands/addon/addon.docs.md\n M src/commands/addon/addon.providers.command.js"
+  },
+  {
+    "role": "assistant",
+    "content": "`clever addon providers` now takes `--org` (alias `-o`, `--owner`), with the same behaviour as in `addon create`. I haven't run the command against the API, so the new option is untested end to end. `npm run validate` passes (lint, format, types, docs check).\n\n- **Change:** `src/commands/addon/addon.providers.command.js` now uses the shared `orgaIdOrNameOption`. It resolves the organisation with `getOwnerIdFromOrgIdOrName` and passes it to `Addon.listProviders`, which already accepted an org ID. Without `--org`, it uses the current user.\n- **Docs:** `npm run docs` regenerated `src/commands/addon/addon.docs.md` and `skills/clever-tools/references/full-documentation.md`.\n- **Install:** I ran `npm ci` because dependencies weren't installed.\n- **Reverted:** `fix-all` reformatted `.claude/settings.json`, so I restored it.\n- **Not done:** I haven't committed anything."
+  }
+]

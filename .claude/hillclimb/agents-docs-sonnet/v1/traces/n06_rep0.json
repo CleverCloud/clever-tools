@@ -1,0 +1,181 @@
+[
+  {
+    "role": "user",
+    "content": "Add a `clever k8s version` group with a `check` subcommand (is a newer Kubernetes version available?) and an `update` subcommand (upgrade the version of the cluster)."
+  },
+  {
+    "role": "tool_call",
+    "name": "Read",
+    "content": "{\n  \"file_path\": \"/tmp/agents-docs-SANDBOX/repo/docs/contributing/commands.md\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "1\t# Creating a command\n2\t\n3\tCommands are declared with `defineCommand`, `defineOption` and `defineArgument`, on top of `cliparse`. Options and arguments are validated and parsed by [Zod](https://zod.dev) schemas, and their types flow into the handler. The reasons behind this design are explained in [ADR 0001](../adr/adr-0001-rework-file-structure.md).\n4\t\n5\tBefore writing a command, look at a similar one and copy its naming, file layout, output format and error messages. `src/commands/drain/` is a good example of a command group with shared arguments and options.\n6\t\n7\t## Example\n8\t\n9\tA fictional `clever coffee brew <blend>` subcommand, part of a `coffee` group (neither exists in the CLI). The `<blend>` argument is shared by several `coffee` subcommands, so it lives in `coffee.args.js`:\n10\t\n11\t```js\n12\t// src/commands/coffee/coffee.args.js\n13\timport { z } from 'zod';\n14\timport { defineArgument } from '../../lib/define-argument.js';\n15\t\n16\texport const blendArg = defineArgument({\n17\t  schema: z.string().regex(/^[a-z0-9-]+$/, 'Use lowercase letters, digits and dashes'),\n18\t  description: 'Blend of coffee',\n19\t  placeholder: 'blend',\n20\t});\n21\t```\n22\t\n23\t`--shots`, `--milk` and `--topping` are only used by this subcommand, so they are defined inline. `--format` comes from `global.options.js`:\n24\t\n25\t```js\n26\t// src/commands/coffee/coffee.brew.command.js\n27\timport { z } from 'zod';\n28\timport { brewCoffee } from '../../clever-client/coffee.js';\n29\timport { defineCommand } from '../../lib/define-command.js';\n30\timport { defineOption } from '../../lib/define-option.js';\n31\timport { Logger } from '../../logger.js';\n32\timport { sendToApi } from '../../models/send-to-api.js';\n33\timport { humanJsonOutputFormatOption } from '../global.options.js';\n34\timport { blendArg } from './coffee.args.js';\n35\t\n36\texport const coffeeBrewCommand = defineCommand({\n37\t  description: 'Brew a coffee',\n38\t  since: null,\n39\t  options: {\n40\t    shots: defineOption({\n41\t      name: 'shots',\n42\t      schema: z.coerce.number().int().min(1).max(4).default(1),\n43\t      description: 'Number of espresso shots',\n44\t      aliases: ['s'],\n45\t      placeholder: 'shots',\n46\t    }),\n47\t    milk: defineOption({\n48\t      name: 'milk',\n49\t      schema: z.enum(['none', 'whole', 'oat']).default('none'),\n50\t      description: 'Kind of milk',\n51\t      placeholder: 'milk',\n52\t    }),\n53\t    toppings: defineOption({\n54\t      name: 'topping',\n55\t      schema: z\n56\t        .union([z.string(), z.array(z.string())])\n57\t        .transform((value) => (typeof value === 'string' ? [value] : value))\n58\t        .optional(),\n59\t      description: 'Topping to add. Multiple --topping can be passed',\n60\t      placeholder: 'topping',\n61\t    }),\n62\t    format: humanJsonOutputFormatOption,\n63\t  },\n64\t  args: [blendArg],\n65\t  async handler(options, blend) {\n66\t    const { shots, milk, toppings, format } = options;\n67\t\n68\t    const coffee = await brewCoffee({ blend, shots, milk, toppings: toppings ?? [] }).then(sendToApi\n[truncated 8591 chars]"
+  },
+  {
+    "role": "tool_call",
+    "name": "Read",
+    "content": "{\n  \"file_path\": \"/tmp/agents-docs-SANDBOX/repo/docs/contributing/api-client.md\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "1\t# Clever Cloud API client\n2\t\n3\tclever-tools talks to the Clever Cloud API through [`clever-client.js`](https://github.com/CleverCloud/clever-client.js), published as `@clevercloud/client` and pinned in `package.json`.\n4\t\n5\t## The pattern used in `src/`\n6\t\n7\tEvery command and model uses the function-per-endpoint API of the client, combined with `sendToApi` from `src/models/send-to-api.js`:\n8\t\n9\t```js\n10\timport { updateEnvVar } from '@clevercloud/client/esm/api/v2/application.js';\n11\timport { sendToApi } from '../../models/send-to-api.js';\n12\t\n13\tawait updateEnvVar({ id: ownerId, appId, envName }, { value }).then(sendToApi);\n14\t```\n15\t\n16\tThe endpoint function only builds the request params (method, URL, headers, body). `sendToApi` then:\n17\t\n18\t- prefixes the URL with `API_HOST` (overridable per profile or with an env var),\n19\t- signs the request with the OAuth tokens of the active profile,\n20\t- logs the method and URL at debug level (`-v`),\n21\t- turns network, TLS and 401 errors into messages the user can act on (`processError`).\n22\t\n23\tOther API errors are rethrown as is, so their message depends on the endpoint. Run with `-v` to see the request.\n24\t\n25\tRelated helpers in the same file:\n26\t\n27\t- `sendToAuthBridge`: same pipeline against `AUTH_BRIDGE_HOST` (API tokens, see `src/commands/tokens/`).\n28\t- `sendToApiWithConfig`: same pipeline with explicit credentials, for a profile that is not the active one (`src/lib/profile.js`, login).\n29\t- `getHostAndTokens`: host and tokens for the streaming helpers (`@clevercloud/client/esm/streams/*`: logs and access logs, and `activity --follow` through a WebSocket).\n30\t\n31\t## Resolving IDs\n32\t\n33\tCommands accept names or IDs (`--app`, `--alias`, `--org`, add-on names…). Never resolve them by hand in a command:\n34\t\n35\t- `Application.resolveId(appIdOrName, alias)` (`src/models/application.js`) returns `{ ownerId, appId }`, falling back to the app linked in `.clever.json`.\n36\t- `src/models/ids-resolver.js` resolves owners, add-ons and OAuth consumers, with a local cache (`src/config/cache.js`, `IDS_CACHE_FILE`).\n37\t- Operators, k8s and network groups resolve names in their own models and throw the error built by `ambiguousNameError()` (`src/lib/ambiguous-name-error.js`) when a name matches several resources.\n38\t\n39\t## Endpoints missing from the client\n40\t\n41\t`src/clever-client/` holds endpoints that `@clevercloud/client` does not expose (auth bridge, drains, k8s, network groups, operators). The request-params part of `@clevercloud/client` is no longer updated, so adding an endpoint here is the normal way to get a missing one, no issue or PR on `clever-client.js` is needed.\n42\t\n43\tBefore adding one, check that the endpoint does not already exist in `@clevercloud/client` (`node_modules/@clevercloud/client/dist/esm/api/`).\n44\t\n45\tAn endpoint is a function returning `Promise.resolve({ method, url, headers, queryParams, body })`, with its HTTP method and path in the JSDoc, chained with `.then(sendToApi)`. From `sr\n[truncated 1635 chars]"
+  },
+  {
+    "role": "tool_call",
+    "name": "Glob",
+    "content": "{\n  \"pattern\": \"src/commands/k8s/*\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "src/commands/k8s/k8s.update.command.js\nsrc/commands/k8s/k8s.quota.command.js\nsrc/commands/k8s/k8s.list.command.js\nsrc/commands/k8s/k8s.get.command.js\nsrc/commands/k8s/k8s.get-kubeconfig.command.js\nsrc/commands/k8s/k8s.docs.md\nsrc/commands/k8s/k8s.delete.command.js\nsrc/commands/k8s/k8s.create.command.js\nsrc/commands/k8s/k8s.command.js\nsrc/commands/k8s/k8s.args.js\nsrc/commands/k8s/k8s.add-persistent-storage.command.js\nsrc/commands/k8s/k8s.activity.command.js"
+  },
+  {
+    "role": "tool_call",
+    "name": "Grep",
+    "content": "{\n  \"pattern\": \"k8s|Kubernetes\",\n  \"path\": \"/tmp/agents-docs-SANDBOX/repo/src/clever-client\",\n  \"-i\": true,\n  \"output_mode\": \"files_with_matches\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "Found 1 file\nsrc/clever-client/k8s.js"
+  },
+  {
+    "role": "tool_call",
+    "name": "Read",
+    "content": "{\n  \"file_path\": \"/tmp/agents-docs-SANDBOX/repo/src/clever-client/k8s.js\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "1\t// TODO: Move this to the Clever Cloud JS Client\n2\t\n3\t/**\n4\t * POST /v4/kubernetes/organisations/{ownerId}/clusters\n5\t * @param {Object} params\n6\t * @param {String} params.ownerId\n7\t * @param {Object} body\n8\t */\n9\texport function createK8sCluster(params, body) {\n10\t  return Promise.resolve({\n11\t    method: 'post',\n12\t    url: `/v4/kubernetes/organisations/${params.ownerId}/clusters`,\n13\t    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },\n14\t    // no queryParams\n15\t    body,\n16\t  });\n17\t}\n18\t\n19\t/**\n20\t * PATCH /v4/kubernetes/organisations/{ownerId}/clusters/{clusterId}\n21\t * @param {Object} params\n22\t * @param {String} params.ownerId\n23\t * @param {String} params.clusterId\n24\t * @param {Object} body\n25\t */\n26\texport function updateK8sCluster(params, body) {\n27\t  return Promise.resolve({\n28\t    method: 'PATCH',\n29\t    url: `/v4/kubernetes/organisations/${params.ownerId}/clusters/${params.clusterId}`,\n30\t    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },\n31\t    // no queryParams\n32\t    body,\n33\t  });\n34\t}\n35\t\n36\t/**\n37\t * DELETE /v4/kubernetes/organisations/{ownerId}/clusters/{clusterId}\n38\t * @param {Object} params\n39\t * @param {String} params.ownerId\n40\t * @param {String} params.clusterId\n41\t */\n42\texport function deleteK8sCluster(params) {\n43\t  return Promise.resolve({\n44\t    method: 'delete',\n45\t    url: `/v4/kubernetes/organisations/${params.ownerId}/clusters/${params.clusterId}`,\n46\t    headers: { Accept: 'application/json' },\n47\t    // no queryParams\n48\t    // no body\n49\t  });\n50\t}\n51\t\n52\t/**\n53\t * GET /v4/kubernetes/organisations/{ownerId}/clusters\n54\t * @param {Object} params\n55\t * @param {String} params.ownerId\n56\t */\n57\texport function listK8sClusters(params) {\n58\t  return Promise.resolve({\n59\t    method: 'get',\n60\t    url: `/v4/kubernetes/organisations/${params.ownerId}/clusters`,\n61\t    headers: { Accept: 'application/json' },\n62\t    // no queryParams\n63\t    // no body\n64\t  });\n65\t}\n66\t\n67\t/**\n68\t * GET /v4/kubernetes/organisations/{ownerId}/clusters/{clusterId}\n69\t * @param {Object} params\n70\t * @param {String} params.ownerId\n71\t * @param {String} params.clusterId\n72\t */\n73\texport function getK8sAddon(params) {\n74\t  return Promise.resolve({\n75\t    method: 'get',\n76\t    url: `/v4/kubernetes/organisations/${params.ownerId}/clusters/${params.clusterId}`,\n77\t    headers: { Accept: 'application/json' },\n78\t    // no queryParams\n79\t    // no body\n80\t  });\n81\t}\n82\t\n83\t/**\n84\t * GET /v4/kubernetes/organisations/{ownerId}/clusters/{clusterId}/kubeconfig.yaml\n85\t * @param {Object} params\n86\t * @param {String} params.ownerId\n87\t * @param {String} params.clusterId\n88\t */\n89\texport function getK8sConfig(params) {\n90\t  return Promise.resolve({\n91\t    method: 'get',\n92\t    url: `/v4/kubernetes/organisations/${params.ownerId}/clusters/${params.clusterId}/kubeconfig.yaml`,\n93\t    // headers: { Accept: 'application/x-yaml' },\n94\t    // no queryParams\n95\t    // no body\n96\t  });\n97\t}\n98\t\n99\t/**\n[truncated 6489 chars]"
+  },
+  {
+    "role": "tool_call",
+    "name": "Read",
+    "content": "{\n  \"file_path\": \"/tmp/agents-docs-SANDBOX/repo/src/commands/k8s/k8s.update.command.js\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "1\timport { z } from 'zod';\n2\timport { defineCommand } from '../../lib/define-command.js';\n3\timport { defineOption } from '../../lib/define-option.js';\n4\timport { k8sUpdate } from '../../lib/k8s.js';\n5\timport { styleText } from '../../lib/style-text.js';\n6\timport { Logger } from '../../logger.js';\n7\timport { tags } from '../../parsers.js';\n8\timport { orgaIdOrNameOption } from '../global.options.js';\n9\timport { k8sIdOrNameArg } from './k8s.args.js';\n10\t\n11\texport const k8sUpdateCommand = defineCommand({\n12\t  description: 'Update a Kubernetes cluster metadata or features',\n13\t  since: 'unreleased',\n14\t  options: {\n15\t    name: defineOption({\n16\t      name: 'name',\n17\t      schema: z.string().max(128).optional(),\n18\t      description: 'Rename the cluster',\n19\t      placeholder: 'name',\n20\t    }),\n21\t    description: defineOption({\n22\t      name: 'description',\n23\t      schema: z.string().max(4096).optional(),\n24\t      description: 'Free-form cluster description',\n25\t      placeholder: 'description',\n26\t    }),\n27\t    tag: defineOption({\n28\t      name: 'tag',\n29\t      schema: z.string().transform(tags).optional(),\n30\t      description: 'Replace tags (comma-separated, e.g.: env:prod,team:platform)',\n31\t      placeholder: 'tag[,tag...]',\n32\t    }),\n33\t    autoscaling: defineOption({\n34\t      name: 'autoscaling',\n35\t      schema: z.boolean().default(false),\n36\t      description: 'Enable the cluster autoscaler',\n37\t    }),\n38\t    disableAutoscaling: defineOption({\n39\t      name: 'disable-autoscaling',\n40\t      schema: z.boolean().default(false),\n41\t      description: 'Disable the cluster autoscaler',\n42\t    }),\n43\t    org: orgaIdOrNameOption,\n44\t  },\n45\t  args: [k8sIdOrNameArg],\n46\t  async handler(options, clusterIdOrName) {\n47\t    const { org: orgIdOrName } = options;\n48\t\n49\t    if (options.autoscaling && options.disableAutoscaling) {\n50\t      throw new Error('--autoscaling and --disable-autoscaling are mutually exclusive');\n51\t    }\n52\t\n53\t    const updates = {};\n54\t    if (options.name != null) updates.name = options.name;\n55\t    if (options.description != null) updates.description = options.description;\n56\t    if (options.tag != null) updates.tags = options.tag;\n57\t\n58\t    const features = {};\n59\t    if (options.autoscaling) features.autoscalingEnabled = true;\n60\t    if (options.disableAutoscaling) features.autoscalingEnabled = false;\n61\t    if (Object.keys(features).length > 0) updates.features = features;\n62\t\n63\t    if (Object.keys(updates).length === 0) {\n64\t      throw new Error(\n65\t        'No update specified. Provide at least one of --name, --description, --tag, --autoscaling, --disable-autoscaling',\n66\t      );\n67\t    }\n68\t\n69\t    const cluster = await k8sUpdate(orgIdOrName, clusterIdOrName, updates);\n70\t    Logger.printSuccess(`Cluster ${styleText('green', cluster.name)} updated`);\n71\t  },\n72\t});\n73\t"
+  },
+  {
+    "role": "tool_call",
+    "name": "Read",
+    "content": "{\n  \"file_path\": \"/tmp/agents-docs-SANDBOX/repo/src/commands/k8s/k8s.args.js\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "1\timport { z } from 'zod';\n2\timport { defineArgument } from '../../lib/define-argument.js';\n3\timport { addonIdOrName } from '../../parsers.js';\n4\t\n5\texport const k8sIdOrNameArg = defineArgument({\n6\t  schema: z.string().transform(addonIdOrName),\n7\t  description: 'Kubernetes cluster ID or name',\n8\t  placeholder: 'cluster-id|cluster-name',\n9\t});\n10\t"
+  },
+  {
+    "role": "tool_call",
+    "name": "Grep",
+    "content": "{\n  \"pattern\": \"k8s\",\n  \"path\": \"/tmp/agents-docs-SANDBOX/repo/src/commands/global.commands.js\",\n  \"output_mode\": \"content\",\n  \"-n\": true,\n  \"-i\": true\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "65:import { k8sActivityCommand } from './k8s/k8s.activity.command.js';\n66:import { k8sAddPersistentStorageCommand } from './k8s/k8s.add-persistent-storage.command.js';\n67:import { k8sCommand } from './k8s/k8s.command.js';\n68:import { k8sCreateCommand } from './k8s/k8s.create.command.js';\n69:import { k8sDeleteCommand } from './k8s/k8s.delete.command.js';\n70:import { k8sGetKubeconfigCommand } from './k8s/k8s.get-kubeconfig.command.js';\n71:import { k8sGetCommand } from './k8s/k8s.get.command.js';\n72:import { k8sListCommand } from './k8s/k8s.list.command.js';\n73:import { k8sQuotaCommand } from './k8s/k8s.quota.command.js';\n74:import { k8sUpdateCommand } from './k8s/k8s.update.command.js';\n297:  k8s: [\n298:    k8sCommand,\n300:      activity: k8sActivityCommand,\n301:      'add-persistent-storage': k8sAddPersistentStorageCommand,\n302:      create: k8sCreateCommand,\n303:      delete: k8sDeleteCommand,\n304:      get: k8sGetCommand,\n305:      'get-kubeconfig': k8sGetKubeconfigCommand,\n306:      list: k8sListCommand,\n307:      quota: k8sQuotaCommand,\n308:      update: k8sUpdateCommand,"
+  },
+  {
+    "role": "tool_call",
+    "name": "Read",
+    "content": "{\n  \"file_path\": \"/tmp/agents-docs-SANDBOX/repo/src/lib/k8s.js\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "1\timport dedent from 'dedent';\n2\timport { ask, confirm, selectAnswer } from './prompts.js';\n3\timport { styleText } from './style-text.js';\n4\t\n5\timport {\n6\t  addK8sPersistentStorage,\n7\t  createK8sCluster,\n8\t  createK8sNodeGroup,\n9\t  deleteK8sCluster,\n10\t  deleteK8sNodeGroup,\n11\t  getK8sAddon,\n12\t  getK8sConfig,\n13\t  getK8sNodeGroup,\n14\t  getK8sProduct,\n15\t  getK8sQuota,\n16\t  getK8sVersionCheck,\n17\t  listK8sClusters,\n18\t  listK8sDeploymentEvents,\n19\t  listK8sNodeGroups,\n20\t  listK8sUsage,\n21\t  updateK8sCluster,\n22\t  updateK8sNodeGroup,\n23\t  updateK8sVersion,\n24\t} from '../clever-client/k8s.js';\n25\timport { Logger } from '../logger.js';\n26\timport { getOwnerIdFromOrgIdOrName } from '../models/ids-resolver.js';\n27\timport { sendToApi } from '../models/send-to-api.js';\n28\t\n29\t/**\n30\t * Check if a Kubernetes cluster status is ACTIVE\n31\t * @param {string} orgIdOrName The organisation ID or name\n32\t * @param {string} clusterIdOrName The cluster ID or name\n33\t * @returns {Promise<boolean>} True if the cluster is deployed, false otherwise\n34\t */\n35\texport async function isK8sClusterActive(orgIdOrName, clusterIdOrName) {\n36\t  const ownerId = await getOwnerIdFromOrgIdOrName(orgIdOrName);\n37\t  const clusterId = await getClusterIdFromAddonIdOrName(clusterIdOrName, ownerId);\n38\t  const cluster = await getK8sAddon({ ownerId, clusterId }).then(sendToApi);\n39\t\n40\t  return cluster.status === 'ACTIVE';\n41\t}\n42\t\n43\t/**\n44\t * Create a kubernetes cluster\n45\t * @param {string} name The name of the cluster\n46\t * @param {object} orgIdOrName The organisation ID or name\n47\t * @param {object} [options]\n48\t * @param {string} [options.version] The Kubernetes version to deploy\n49\t * @param {string} [options.description] A free-form description\n50\t * @param {string[]} [options.tags] Semantic tags (\"tag\" or \"key:value\")\n51\t * @param {boolean} [options.autoscaling] Enable the cluster autoscaler\n52\t * @param {boolean} [options.persistentStorage] Enable the Ceph CSI persistent storage\n53\t * @param {string} [options.topology] Topology kind (ALL_IN_ONE, DEDICATED_COMPUTE, DISTRIBUTED)\n54\t * @param {string} [options.flavor] Control plane flavor\n55\t * @param {number} [options.replicationFactor] Control plane replication factor\n56\t * @param {{flavor: string, targetNodeCount: number}} [options.nodeGroup] Initial node group\n57\t * @returns {Promise<object>}\n58\t */\n59\texport async function k8sCreate(name, orgIdOrName, options = {}) {\n60\t  const ownerId = await getOwnerIdFromOrgIdOrName(orgIdOrName);\n61\t  const product = await k8sGetProduct();\n62\t\n63\t  const body = { name };\n64\t  if (options.version != null) {\n65\t    const available = product.versions?.available ?? [];\n66\t    if (!available.includes(options.version)) {\n67\t      throw new Error(`Version \"${options.version}\" is not available. Supported: ${available.join(', ')}`);\n68\t    }\n69\t    body.version = options.version;\n70\t  }\n71\t  if (options.description != null) body.description = options.description;\n72\t  if (options.tags?.length) body.\n[truncated 19996 chars]"
+  },
+  {
+    "role": "tool_call",
+    "name": "Read",
+    "content": "{\n  \"file_path\": \"/tmp/agents-docs-SANDBOX/repo/src/commands/k8s/k8s.delete.command.js\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "1\timport { defineCommand } from '../../lib/define-command.js';\n2\timport { k8sDelete } from '../../lib/k8s.js';\n3\timport { ask } from '../../lib/prompts.js';\n4\timport { styleText } from '../../lib/style-text.js';\n5\timport { Logger } from '../../logger.js';\n6\timport { orgaIdOrNameOption, skipConfirmationOption } from '../global.options.js';\n7\timport { k8sIdOrNameArg } from './k8s.args.js';\n8\t\n9\texport const k8sDeleteCommand = defineCommand({\n10\t  description: 'Delete a Kubernetes cluster',\n11\t  since: '4.3.0',\n12\t  options: {\n13\t    org: orgaIdOrNameOption,\n14\t    yes: skipConfirmationOption,\n15\t  },\n16\t  args: [k8sIdOrNameArg],\n17\t  async handler(options, clusterIdOrName) {\n18\t    const { org: orgIdOrName, yes } = options;\n19\t    const display = clusterIdOrName.addon_name || clusterIdOrName.operator_id;\n20\t\n21\t    if (!yes) {\n22\t      const proceed = await ask(\n23\t        `Are you sure you want to delete the Kubernetes cluster ${styleText('blue', display)}?`,\n24\t        false,\n25\t      );\n26\t      if (!proceed) {\n27\t        Logger.println('Kubernetes cluster deletion cancelled');\n28\t        return;\n29\t      }\n30\t    }\n31\t\n32\t    await k8sDelete(orgIdOrName, clusterIdOrName);\n33\t    Logger.printSuccess(`Kubernetes cluster ${styleText('green', display)} successfully deleted`);\n34\t  },\n35\t});\n36\t"
+  },
+  {
+    "role": "tool_call",
+    "name": "Read",
+    "content": "{\n  \"file_path\": \"/tmp/agents-docs-SANDBOX/repo/src/commands/k8s/k8s.command.js\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "1\timport { defineCommand } from '../../lib/define-command.js';\n2\t\n3\texport const k8sCommand = defineCommand({\n4\t  description: 'Manage Kubernetes clusters',\n5\t  since: '4.3.0',\n6\t  isExperimental: true,\n7\t  featureFlag: 'k8s',\n8\t});\n9\t"
+  },
+  {
+    "role": "tool_call",
+    "name": "Read",
+    "content": "{\n  \"file_path\": \"/tmp/agents-docs-SANDBOX/repo/src/commands/global.commands.js\",\n  \"offset\": 290,\n  \"limit\": 30\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "290\t      disable: featuresDisableCommand,\n291\t      enable: featuresEnableCommand,\n292\t      info: featuresInfoCommand,\n293\t      list: featuresListCommand,\n294\t    },\n295\t  ],\n296\t  help: helpCommand,\n297\t  k8s: [\n298\t    k8sCommand,\n299\t    {\n300\t      activity: k8sActivityCommand,\n301\t      'add-persistent-storage': k8sAddPersistentStorageCommand,\n302\t      create: k8sCreateCommand,\n303\t      delete: k8sDeleteCommand,\n304\t      get: k8sGetCommand,\n305\t      'get-kubeconfig': k8sGetKubeconfigCommand,\n306\t      list: k8sListCommand,\n307\t      quota: k8sQuotaCommand,\n308\t      update: k8sUpdateCommand,\n309\t    },\n310\t  ],\n311\t  keycloak: [\n312\t    keycloakCommand,\n313\t    {\n314\t      'disable-ng': keycloakDisableNgCommand,\n315\t      'enable-ng': keycloakEnableNgCommand,\n316\t      get: keycloakGetCommand,\n317\t      open: [\n318\t        keycloakOpenCommand,\n319\t        {"
+  },
+  {
+    "role": "tool_call",
+    "name": "Grep",
+    "content": "{\n  \"pattern\": \"k8sCheckVersion|k8sUpdateVersion\",\n  \"output_mode\": \"content\",\n  \"-n\": true,\n  \"glob\": \"!node_modules\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "src/lib/k8s.js:454:export async function k8sCheckVersion(orgIdOrName, clusterIdOrName, format) {\nsrc/lib/k8s.js:495:export async function k8sUpdateVersion(orgIdOrName, clusterIdOrName, askedVersion) {"
+  },
+  {
+    "role": "tool_call",
+    "name": "Read",
+    "content": "{\n  \"file_path\": \"/tmp/agents-docs-SANDBOX/repo/src/commands/k8s/k8s.get.command.js\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "1\timport { defineCommand } from '../../lib/define-command.js';\n2\timport { getK8sCluster } from '../../lib/k8s.js';\n3\timport { styleText } from '../../lib/style-text.js';\n4\timport { Logger } from '../../logger.js';\n5\timport { humanJsonOutputFormatOption, orgaIdOrNameOption } from '../global.options.js';\n6\timport { k8sIdOrNameArg } from './k8s.args.js';\n7\t\n8\texport const k8sGetCommand = defineCommand({\n9\t  description: 'Get information about a Kubernetes cluster',\n10\t  since: '4.3.0',\n11\t  options: {\n12\t    org: orgaIdOrNameOption,\n13\t    format: humanJsonOutputFormatOption,\n14\t  },\n15\t  args: [k8sIdOrNameArg],\n16\t  async handler(options, clusterIdOrName) {\n17\t    const { format, org: orgIdOrName } = options;\n18\t\n19\t    const k8sInfo = await getK8sCluster(orgIdOrName, clusterIdOrName);\n20\t\n21\t    switch (format) {\n22\t      case 'json':\n23\t        Logger.printJson(k8sInfo);\n24\t        break;\n25\t      case 'human':\n26\t      default: {\n27\t        const topo = k8sInfo.topologyConfig;\n28\t        const overview = {\n29\t          Name: k8sInfo.name,\n30\t          ID: k8sInfo.id,\n31\t          Status: k8sInfo.status,\n32\t          Version: k8sInfo.version,\n33\t          Topology: formatTopology(topo),\n34\t          Autoscaling: k8sInfo.features?.autoscalingEnabled ? 'enabled' : 'disabled',\n35\t          'Persistent storage': k8sInfo.features?.csi != null ? 'enabled' : 'disabled',\n36\t        };\n37\t        if (k8sInfo.tags?.length) overview.Tags = k8sInfo.tags.join(', ');\n38\t        if (k8sInfo.description) overview.Description = k8sInfo.description;\n39\t        if (k8sInfo.storageUsageBytes != null) {\n40\t          overview.Storage = `${Math.round((k8sInfo.storageUsageBytes / 1024 ** 3) * 100) / 100} GB`;\n41\t        }\n42\t        console.table(overview);\n43\t\n44\t        if (topo?.topology === 'DISTRIBUTED' && topo.components) {\n45\t          Logger.println('');\n46\t          Logger.println('🧩 Control plane components');\n47\t          console.table(\n48\t            Object.fromEntries(\n49\t              Object.entries(topo.components).map(([name, c]) => [\n50\t                name,\n51\t                { Flavor: c?.flavor ?? '-', RF: c?.replicationFactor ?? '-' },\n52\t              ]),\n53\t            ),\n54\t          );\n55\t        }\n56\t\n57\t        if (k8sInfo.nodeGroups?.length) {\n58\t          Logger.println('');\n59\t          Logger.println(`🧮 Node groups (${k8sInfo.nodeGroups.length})`);\n60\t          console.table(\n61\t            Object.fromEntries(\n62\t              k8sInfo.nodeGroups.map((ng) => [\n63\t                ng.id,\n64\t                {\n65\t                  Name: ng.name,\n66\t                  Status: ng.status,\n67\t                  Flavor: ng.flavor,\n68\t                  Nodes: `${ng.currentNodeCount}/${ng.targetNodeCount}`,\n69\t                },\n70\t              ]),\n71\t            ),\n72\t          );\n73\t        }\n74\t\n75\t        if (k8sInfo.loadBalancers?.length) {\n76\t          Logger.println('');\n77\t          Logger.println(`🔀 Load balancers (${k8sInfo.loadBalancers.le\n[truncated 926 chars]"
+  },
+  {
+    "role": "tool_call",
+    "name": "Write",
+    "content": "{\n  \"file_path\": \"/tmp/agents-docs-SANDBOX/repo/src/commands/k8s/k8s.version.command.js\",\n  \"content\": \"import { defineCommand } from '../../lib/define-command.js';\\n\\nexport const k8sVersionCommand = defineCommand({\\n  description: 'Manage the Kubernetes version of a cluster',\\n  since: null,\\n});\\n\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "Claude requested permissions to write to /tmp/agents-docs-SANDBOX/repo/src/commands/k8s/k8s.version.command.js, but you haven't granted it yet."
+  },
+  {
+    "role": "tool_call",
+    "name": "Write",
+    "content": "{\n  \"file_path\": \"/tmp/agents-docs-SANDBOX/repo/src/commands/k8s/k8s.version.check.command.js\",\n  \"content\": \"import { defineCommand } from '../../lib/define-command.js';\\nimport { k8sCheckVersion } from '../../lib/k8s.js';\\nimport { humanJsonOutputFormatOption, orgaIdOrNameOption } from '../global.options.js';\\nimport { k8sIdOrNameArg } from './k8s.args.js';\\n\\nexport const k8sVersionCheckCommand = defineCommand({\\n  description: 'Check if a newer Kubernetes version is available for a cluster',\\n  since: null,\\n  options: {\\n    org: orgaIdOrNameOption,\\n    format: humanJsonOutputFormatOption,\\n  },\\n  args: [k8sIdOrNameArg],\\n  async handler(options, clusterIdOrName) {\\n    const { org: orgIdOrName, format } = options;\\n\\n    await k8sCheckVersion(orgIdOrName, clusterIdOrName, format);\\n  },\\n});\\n\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "Claude requested permissions to write to /tmp/agents-docs-SANDBOX/repo/src/commands/k8s/k8s.version.check.command.js, but you haven't granted it yet."
+  },
+  {
+    "role": "tool_call",
+    "name": "Write",
+    "content": "{\n  \"file_path\": \"/tmp/agents-docs-SANDBOX/repo/src/commands/k8s/k8s.version.update.command.js\",\n  \"content\": \"import { z } from 'zod';\\nimport { defineArgument } from '../../lib/define-argument.js';\\nimport { defineCommand } from '../../lib/define-command.js';\\nimport { k8sUpdateVersion } from '../../lib/k8s.js';\\nimport { orgaIdOrNameOption } from '../global.options.js';\\nimport { k8sIdOrNameArg } from './k8s.args.js';\\n\\nexport const k8sVersionUpdateCommand = defineCommand({\\n  description: 'Update the Kubernetes version of a cluster',\\n  since: null,\\n  options: {\\n    org: orgaIdOrNameOption,\\n  },\\n  args: [\\n    k8sIdOrNameArg,\\n    defineArgument({\\n      schema: z.string().optional(),\\n      description: 'Target Kubernetes version, asked interactively when omitted',\\n      placeholder: 'version',\\n    }),\\n  ],\\n  async handler(options, clusterIdOrName, version) {\\n    const { org: orgIdOrName } = options;\\n\\n    await k8sUpdateVersion(orgIdOrName, clusterIdOrName, version || undefined);\\n  },\\n});\\n\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "Claude requested permissions to write to /tmp/agents-docs-SANDBOX/repo/src/commands/k8s/k8s.version.update.command.js, but you haven't granted it yet."
+  },
+  {
+    "role": "tool_call",
+    "name": "Edit",
+    "content": "{\n  \"replace_all\": false,\n  \"file_path\": \"/tmp/agents-docs-SANDBOX/repo/src/commands/global.commands.js\",\n  \"old_string\": \"      update: k8sUpdateCommand,\\n    },\",\n  \"new_string\": \"      update: k8sUpdateCommand,\\n      version: [\\n        k8sVersionCommand,\\n        {\\n          check: k8sVersionCheckCommand,\\n          update: k8sVersionUpdateCommand,\\n        },\\n      ],\\n    },\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "Claude requested permissions to write to /tmp/agents-docs-SANDBOX/repo/src/commands/global.commands.js, but you haven't granted it yet."
+  },
+  {
+    "role": "tool_call",
+    "name": "Edit",
+    "content": "{\n  \"replace_all\": false,\n  \"file_path\": \"/tmp/agents-docs-SANDBOX/repo/src/commands/global.commands.js\",\n  \"old_string\": \"import { k8sUpdateCommand } from './k8s/k8s.update.command.js';\",\n  \"new_string\": \"import { k8sUpdateCommand } from './k8s/k8s.update.command.js';\\nimport { k8sVersionCheckCommand } from './k8s/k8s.version.check.command.js';\\nimport { k8sVersionCommand } from './k8s/k8s.version.command.js';\\nimport { k8sVersionUpdateCommand } from './k8s/k8s.version.update.command.js';\"\n}"
+  },
+  {
+    "role": "tool_result",
+    "content": "Claude requested permissions to write to /tmp/agents-docs-SANDBOX/repo/src/commands/global.commands.js, but you haven't granted it yet."
+  },
+  {
+    "role": "assistant",
+    "content": "I couldn't add `clever k8s version check` or `clever k8s version update`. Every write was denied: the three new command files and both edits to `src/commands/global.commands.js`. Nothing in the repo has changed.\n\nI haven't retried, since the denials mean you declined those writes. If you grant write access to `src/commands/`, I'll redo them.\n\nHere is what I'd write:\n- **Backend:** `src/clever-client/k8s.js` already has `getK8sVersionCheck` and `updateK8sVersion`. `src/lib/k8s.js` already has `k8sCheckVersion` and `k8sUpdateVersion`. Nothing calls them yet, so the commands only need to wrap them.\n- **`k8s.version.command.js`:** a group with no handler, `since: null`.\n- **`k8s.version.check.command.js`:** takes the cluster argument, `--org` and `--format`, and calls `k8sCheckVersion`. In human mode, `k8sCheckVersion` also offers to upgrade to the latest version when the cluster is outdated. I'd keep that as is, but say if you want `check` to be read-only.\n- **`k8s.version.update.command.js`:** takes the cluster argument, an optional `[version]` argument and `--org`, and calls `k8sUpdateVersion`. With no version given, it asks which one interactively.\n- **`global.commands.js`:** add `version: [k8sVersionCommand, { check, update }]` under `k8s`.\n\nAfter the writes, I'd run `npm run docs` to regenerate the command docs, then `npm run fix-all` and `npm run validate`. I'd also try `node bin/clever.js k8s version --help`, using a temporary `EXPERIMENTAL_FEATURES_FILE` with the `k8s` flag enabled. I'd leave the `update` subcommand alone, since it changes a real cluster."
+  }
+]
