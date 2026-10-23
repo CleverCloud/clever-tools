@@ -1,7 +1,8 @@
 import { ApplicationLogStream } from '@clevercloud/client/esm/streams/application-logs.js';
 import { ResourceLogStream } from '@clevercloud/client/esm/streams/resource-logs.js';
+import { stripVTControlCharacters } from 'node:util';
 import { config } from '../config/config.js';
-import { styleText } from '../lib/style-text.js';
+import { IS_COLOR_DISABLED, styleText } from '../lib/style-text.js';
 import { Logger } from '../logger.js';
 import { waitForDeploymentEnd, waitForDeploymentStart } from './deployments.js';
 import { getBest } from './domain.js';
@@ -25,7 +26,10 @@ const retryConfiguration = {
 export async function displayLogs(params) {
   const deferred = params.deferred || new Deferred();
   const { apiHost, tokens } = await getHostAndTokens();
-  const { ownerId, appId, addonId, filter, since, until, format } = params;
+  const { ownerId, appId, addonId, filter, since, until, format = 'human', stripAnsi = false } = params;
+  // The human format is only meant to be displayed, so disabled colors also apply to the log messages
+  // The json formats are data, they only lose the ANSI codes when explicitly requested
+  const shouldStripAnsi = stripAnsi || (format === 'human' && IS_COLOR_DISABLED);
   // deploymentId only applies to apps
   const deploymentId = addonId != null ? undefined : params.deploymentId;
 
@@ -69,7 +73,8 @@ export async function displayLogs(params) {
     .on('error', (event) => {
       Logger.debug(styleText('red', `Logs stream (error) ${event.error.message}`));
     })
-    .onLog((log) => {
+    .onLog((rawLog) => {
+      const log = shouldStripAnsi ? { ...rawLog, message: stripVTControlCharacters(rawLog.message) } : rawLog;
       switch (format) {
         case 'json':
           jsonArray.push(log);
@@ -79,10 +84,11 @@ export async function displayLogs(params) {
           return;
         case 'human':
         default:
-          if (log.message === RESET_COLOR) {
+          // Lines that only contained ANSI codes are now empty
+          if (log.message === (shouldStripAnsi ? '' : RESET_COLOR)) {
             return;
           }
-          Logger.println(formatLogLine(log));
+          Logger.println(formatLogLine(log, { appendAnsiReset: !shouldStripAnsi }));
       }
     });
 
@@ -170,7 +176,7 @@ export async function watchDeploymentAndDisplayLogs(options) {
   }
 }
 
-function formatLogLine(log) {
+function formatLogLine(log, { appendAnsiReset }) {
   const { date, message } = log;
   if (isDeploymentSuccessMessage(log)) {
     return `${date.toISOString()}: ${styleText(['bold', 'green'], message)}`;
@@ -179,7 +185,7 @@ function formatLogLine(log) {
   } else if (isBuildSuccessMessage(log)) {
     return `${date.toISOString()}: ${styleText(['bold', 'blue'], message)}`;
   }
-  return `${date.toISOString()}: ${message}${RESET_COLOR}`;
+  return `${date.toISOString()}: ${message}${appendAnsiReset ? RESET_COLOR : ''}`;
 }
 
 function isCleverMessage(log) {

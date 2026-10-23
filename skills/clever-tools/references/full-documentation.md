@@ -2517,6 +2517,7 @@ clever logs [options]
     --deployment-id <deployment-id>    Fetch logs for a given deployment
 -F, --format <format>                  Output format (human, json, json-stream) (default: human)
     --search <search>                  Fetch logs matching this pattern
+    --strip-ansi                       Remove the ANSI codes contained in log messages
 ```
 
 ## make-default

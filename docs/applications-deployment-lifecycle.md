@@ -101,12 +101,25 @@ You can also get logs from a specific timeline, deployment or add-on through opt
 [--deployment-id] DEPLOYMENT_ID     Fetch logs for a given deployment
 [--addon] ADDON_ID                  Add-on ID
 [--format, -F] FORMAT               Output format (human, json, json-stream) (default: human)
+[--strip-ansi]                      Remove the ANSI codes contained in log messages
 ```
 
 By default, logs keep streaming. Use `--until` (or `--before`) to set an end time. To read the last 15 minutes and exit, use:
 
 ```
 clever logs --since 15m --until now
+```
+
+Colors are disabled when the output is not a terminal. To keep them in a pager, use `--color true`:
+
+```
+clever logs --since 15m --until now --color true | less -R
+```
+
+Log messages can contain ANSI codes, for example to set colors, move the cursor or clear a line. In the `human` format, these codes are removed when colors are disabled (`--no-color`, a non-empty `NO_COLOR`, or an output that is not a terminal, unless `--color true` is set). The `json` and `json-stream` formats keep the messages as they were written. Use `--strip-ansi` to remove the codes in any format, for example to search an exported JSON file:
+
+```
+clever logs --since 1h --until now --format json --strip-ansi > logs.json
 ```
 
 ## access logs

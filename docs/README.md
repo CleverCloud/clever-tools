@@ -54,6 +54,12 @@ For each of them, you can add these parameters:
 > [!TIP]
 > For commands returning a list of items, you can use `--format json` or `-F json` to get a JSON output.
 
+Colors are disabled when the output is not a terminal (pipe, redirection) or when `NO_COLOR` is set to a non-empty value. To keep them anyway, for example to read logs in a pager, use `--color true` or `FORCE_COLOR=1`:
+
+```
+clever logs --color true | less -R
+```
+
 ## TLS certificates (corporate proxy / custom CA)
 
 Clever Tools verifies the TLS certificate of every HTTPS connection it makes, both for API calls and for Git-based deployments. Behind a corporate proxy that intercepts HTTPS, or when your endpoint relies on a private or self-signed Certificate Authority (CA), this verification can fail with an error such as:
