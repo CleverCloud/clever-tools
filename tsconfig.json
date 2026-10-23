@@ -16,7 +16,8 @@
     "declarationMap": false,
     "sourceMap": false,
     "lib": ["ES2024", "ESNext.Collection"],
-    "useUnknownInCatchVariables": false
+    "useUnknownInCatchVariables": false,
+    "allowImportingTsExtensions": true
   },
   "include": [
     "scripts",
@@ -25,7 +26,9 @@
     "src/logger.js",
     "src/lib/fs.js",
     "src/lib/date-utils.js",
-    "src/config/*"
+    "src/config/*",
+    "test",
+    "src/commands/**/*.command.test.ts"
   ],
   "exclude": ["build", "docs", "node_modules", "scripts/generate-docs.js"]
 }

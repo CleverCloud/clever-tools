@@ -12,9 +12,9 @@ Each rule is tagged **Observed** (what the code does today) or **Preferred** (th
 
 ## Types
 
-The codebase has always been plain JavaScript. We are in a transition phase: JSDoc types are added wherever possible, and each file that is fully typed is added to the `include` of `tsconfig.json`, so that `tsc` checks it (see [code-quality.md](code-quality.md#type-checking)). A larger step is planned afterwards: moving every file to `.ts`, with TypeScript syntax instead of JSDoc (Node.js runs `.ts` files natively, as it already does for the unit tests). The code is already type-checked by TypeScript through JSDoc, what changes is the file format.
+The codebase has always been plain JavaScript. We are in a transition phase: JSDoc types are added wherever possible, and each file that is fully typed is added to the `include` of `tsconfig.json`, so that `tsc` checks it (see [code-quality.md](code-quality.md#type-checking)). A larger step is planned afterwards: moving every file to `.ts`, with TypeScript syntax instead of JSDoc (Node.js runs `.ts` files natively, as it already does for the tests). The code is already type-checked by TypeScript through JSDoc, what changes is the file format.
 
-Until then, write everything in JavaScript, with JSDoc for anything new. Don't rename a file to `.ts` or write a new one in it (unit tests excepted).
+Until then, write everything in JavaScript, with JSDoc for anything new. Don't rename a file to `.ts` or write a new one in it (tests and their helpers in `test/` excepted).
 
 - **Observed:** Typechecking is opt-in per file: the `include` of `tsconfig.json` lists the entry points, and `tsc` also checks the files they import (`npx tsc -p tsconfig.json --listFiles` shows them all). The listed files have complete JSDoc, see `src/lib/date-utils.js`.
 - **Observed:** Complex shapes go in a `*.types.d.ts` next to the code (`src/lib/define-command.types.d.ts`).

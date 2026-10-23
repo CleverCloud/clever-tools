@@ -34,6 +34,7 @@
   "files": [
     "bin",
     "src",
+    "!src/**/*.test.ts",
     "scripts/*.sh"
   ],
   "scripts": {
@@ -45,9 +46,11 @@
     "install-local:cliparse": "(cd ../cliparse-node && npm pack) && mv ../cliparse-node/cliparse-*.tgz . && npm i -f ./cliparse-*.tgz",
     "lint": "eslint",
     "lint:fix": "eslint --fix",
-    "test": "node --experimental-test-module-mocks --test 'src/**/*.test.ts'",
+    "test": "npm run test:unit && npm run test:commands",
+    "test:commands": "node --test 'src/**/*.command.test.ts'",
+    "test:unit": "node --experimental-test-module-mocks --test 'src/**/!(*.command).test.ts' 'test/**/*.test.ts'",
     "typecheck": "tsc -p tsconfig.json",
-    "validate": "npm run lint && npm run format:check && npm run typecheck && npm run docs:check && npm run test"
+    "validate": "npm run lint && npm run format:check && npm run typecheck && npm run docs:check && npm run test:unit"
   },
   "dependencies": {
     "@clevercloud/client": "12.6.3",
