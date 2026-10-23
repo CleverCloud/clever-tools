@@ -1,5 +1,25 @@
 # clever-tools changelog
 
+## [5.3.0](https://github.com/CleverCloud/clever-tools/compare/5.2.0...5.3.0) (2026-10-23)
+
+
+### 🚀 Features
+
+* **logs:** add the --strip-ansi option ([80827c3](https://github.com/CleverCloud/clever-tools/commit/80827c3f68615f61abbfb89e78f5351a43245c21)), closes [#1198](https://github.com/CleverCloud/clever-tools/issues/1198)
+
+
+### 🐛 Bug Fixes
+
+* **color:** detect --param=value in the early argv parsing ([c596999](https://github.com/CleverCloud/clever-tools/commit/c59699919e76b5179f4c5259204fa2b3026a8c96))
+* **color:** honor --color true when stdout is not a TTY ([a6fead7](https://github.com/CleverCloud/clever-tools/commit/a6fead706934eac8a60c396474a50e7b28e963d0))
+* **color:** honor FORCE_COLOR when stdout is not a TTY ([8264ace](https://github.com/CleverCloud/clever-tools/commit/8264ace6b66afe9fbcfde1fb4d153220857bd115))
+* **color:** ignore an empty NO_COLOR ([5949f1a](https://github.com/CleverCloud/clever-tools/commit/5949f1a69cbe8090a53aa46529c288d557d71f1d))
+* **color:** turn off update-notifier colors with FORCE_COLOR=0 ([9c67834](https://github.com/CleverCloud/clever-tools/commit/9c678348508bede86c03ba516c5c3105a309d2be))
+* **deploy:** stop crashing with --quiet and --exit-on never ([2257b7b](https://github.com/CleverCloud/clever-tools/commit/2257b7b8e67c80ba2043d0aadc62b015bb0b8b23))
+* **deps:** bump Node.js to 24.22.1 and @yao-pkg/pkg to 6.24.0 ([7111c6d](https://github.com/CleverCloud/clever-tools/commit/7111c6d2015d848608543636aff3c08b581e96fd)), closes [#1201](https://github.com/CleverCloud/clever-tools/issues/1201)
+* **env:** split comma-separated names in import-vars ([c238e37](https://github.com/CleverCloud/clever-tools/commit/c238e375496a8a615859054eaf6f652eced8ed35)), closes [#1195](https://github.com/CleverCloud/clever-tools/issues/1195)
+* **logs:** strip ANSI codes when colors are disabled ([d49619c](https://github.com/CleverCloud/clever-tools/commit/d49619c271ecf53e0f71b1638c534c75b78d2a43))
+
 ## [5.2.0](https://github.com/CleverCloud/clever-tools/compare/5.1.1...5.2.0) (2026-10-15)
 
 
