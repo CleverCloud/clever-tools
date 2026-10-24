@@ -69,7 +69,7 @@ export default defineConfig([
   },
   {
     name: 'no-extraneous-dependencies',
-    files: ['scripts/**/*.js', '.claude/hooks/*.js'],
+    files: ['scripts/**/*.js', '.claude/hooks/*.js', 'test/**/*.ts', '**/*.test.ts'],
     rules: {
       'import-x/no-extraneous-dependencies': [
         'error',
