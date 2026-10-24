@@ -68,7 +68,7 @@ A test name uses `should` followed by an observable result: what is printed, the
 
 - Only flat calls: `fsMock.write*()`, `fsMock.setCwd()`, `envMock.set()`.
 - `fsMock` holds one temporary directory, the `HOME` and the default working directory of the CLI. By convention, config files go in `config/` (see `CLEVER_FILES`) and apps in `<app>/` (e.g. `myapp/.clever.json`). Use `fsMock.setCwd('myapp')` to run the CLI elsewhere, never an option of `runClever()`.
-- Clever files go through the typed helpers when one exists (`fsMock.writeExperimentalFeaturesFile()`), invalid contents included: a helper also accepts a string or any object (unknown key, broken JSON), so there is no raw variant. Add one to `CleverFsMock` once a test needs another file.
+- Clever files go through the typed helpers when one exists (`fsMock.writeConfigFile()`, `fsMock.writeAppConfigFile(appDir, …)`, `fsMock.writeExperimentalFeaturesFile()`), invalid contents included: a helper also accepts a string or any object (unknown key, broken JSON), so there is no raw variant. Add one to `CleverFsMock` once a test needs another file.
 - `envMock.set()` and `envMock.unset()` change the env vars of the CLI, on top of the hermetic env (`HOME`, `NO_COLOR`, `LANG`, the closed API hosts…).
 
 ### When
