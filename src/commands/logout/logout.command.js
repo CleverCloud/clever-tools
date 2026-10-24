@@ -40,7 +40,7 @@ export const logoutCommand = defineCommand({
     const newActiveProfile = await removeProfile(aliasToRemove);
     Logger.printSuccess(`Logged out of profile ${styleText('green', formatProfile(profileToRemove))}`);
 
-    if (newActiveProfile != null && newActiveProfile.alias !== activeProfile.alias) {
+    if (activeProfile.alias !== '$env' && newActiveProfile != null && newActiveProfile.alias !== activeProfile.alias) {
       Logger.printSuccess(`Switched active profile to ${styleText('green', formatProfile(newActiveProfile))}`);
     }
   },
