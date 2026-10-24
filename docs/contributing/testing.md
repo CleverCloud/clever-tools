@@ -24,7 +24,7 @@ node --test src/commands/version/*.command.test.ts
 
 ## Command tests
 
-Command tests are black box tests: they run `bin/clever.js` in a separate process, in a hermetic sandbox, against a fake API. `src/commands/version/version.command.test.ts` is the smallest example.
+Command tests are black box tests: they run `bin/clever.js` in a separate process, in a hermetic sandbox, against a fake API. `src/commands/version/version.command.test.ts` is the smallest example, `src/commands/stop/stop.command.test.ts` the smallest one calling the API.
 
 The sandbox points `API_HOST` at `apiMock`, started on a random port. A call no test mocked gets a 404 from it. `AUTH_BRIDGE_HOST` is a closed port (`http://127.0.0.1:2`): the root help prints it, so it stays fixed, and there is no fake auth bridge yet.
 
@@ -77,7 +77,7 @@ describe('clever features', () => {
 A test name uses `should` followed by an observable result: what is printed, the files written, the exit code. Never an implementation detail.
 
 - The root `describe` is the command as the user types it: `clever features enable`.
-- The second level is the category: `Happy path`, `CLI errors` (arguments and options), `Environment errors` (files, env vars), `API errors` (the API answers with an error).
+- The second level is the category: `Happy path`, `CLI errors` (arguments and options), `Environment errors` (files, env vars).
 - The condition always comes before `should`: `with no format, should print the human format`. A condition shared by several tests goes in a `describe('with …')`, a condition specific to one test is a prefix of its name.
 - Tests that only differ by the output format end with `in human format` / `in json format`.
 
