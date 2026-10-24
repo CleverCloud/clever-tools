@@ -14,7 +14,7 @@ This file is the canonical instruction set for AI coding agents.
   - Claude Code lints and formats the files it changes with Edit or Write through a hook, so it can skip `fix-all` for those, but it still runs `npm run docs` after changing a command, then `validate`.
 - **A unit test suite is being built, don't add unit tests to existing code now.** A few unit tests exist and run in the CI (`npm test`), so the setup is ready, but work in progress will add many tests at once, and the rest will be handled later.
   - Exception: a brand new standalone util or helper can come with its unit test.
-  - Command tests (`<command>.command.test.ts` or `<command>.<sub>.command.test.ts`, see `docs/contributing/testing.md`) are black box tests run in a sandbox. Only commands that make no API call are covered for now (`version`, `help`, `features`, `logout`): there is no fake API yet.
+  - Command tests (`<command>.command.test.ts` or `<command>.<sub>.command.test.ts`, see `docs/contributing/testing.md`) are black box tests run in a sandbox. They run against a fake API (`apiMock`), only a few commands are covered for now.
   - To verify a behaviour change, run the affected command from source with `node bin/clever.js <command>`, read-only commands first (see "Running the CLI").
 - **Before your first edit for any task that adds or changes a command, subcommand, option, argument, accepted value or command behaviour, read `docs/contributing/commands.md`, however small the change.** If the change calls an API endpoint, read `docs/contributing/api-client.md` too. Neighbouring code shows how one command is written; the doc gives the rules it doesn't show (shared options, `since`, where validation goes, docs regeneration). Questions that need no edit don't need it.
 - **Then copy the closest neighbour** (naming, file layout, output format, error messages) rather than inventing a pattern.
@@ -37,7 +37,7 @@ This file is the canonical instruction set for AI coding agents.
 | `src/config/` | Runtime configuration (env vars, profiles, config file paths), experimental features |
 | `src/parsers.js` | Zod transformers used by options and arguments |
 | `src/logger.js` | `Logger`, the only way commands print |
-| `test/` | Test framework (sandbox, file system and env mocks), command tests live next to their command in `src/commands/` |
+| `test/` | Test framework (sandbox, fake API, file system and env mocks), command tests live next to their command in `src/commands/` |
 | `scripts/` | Development and CI scripts (build, docs, previews, publication), mostly typechecked JavaScript. Only the `*.sh` shell completion scripts are shipped in the package |
 | `skills/clever-tools/` | Agent skill shipped **to CLI users** (`npx skills add CleverCloud/clever-tools`), not instructions for this repository |
 | `docs/` | User guides, ADRs (`docs/adr/`) and contributor docs (`docs/contributing/`) |
