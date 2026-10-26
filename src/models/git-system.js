@@ -3,6 +3,10 @@ import { config } from '../config/config.js';
 import { slugify } from '../lib/slugify.js';
 import { Git } from './git.js';
 
+// simple-git drops every ambient `GIT_*` variable before spawning git.
+// These ones only point git to extra CA certificates (corporate TLS proxies, see docs/README.md), so let them through.
+const ALLOWED_GIT_ENVIRONMENT = ['GIT_SSL_CAINFO', 'GIT_SSL_CAPATH'];
+
 export class GitSystem extends Git {
   #gitAvailabilityChecked = false;
 
@@ -24,7 +28,7 @@ export class GitSystem extends Git {
   async #getSimpleGit() {
     await this.#checkGitAvailability();
     const dir = await this._getRepoDir();
-    return simpleGit(dir);
+    return simpleGit({ baseDir: dir, allowEnvironment: ALLOWED_GIT_ENVIRONMENT });
   }
 
   async #checkGitAvailability() {

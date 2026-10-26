@@ -64,13 +64,13 @@
     "lodash": "4.18.1",
     "open": "11.0.2",
     "semver": "7.8.5",
-    "simple-git": "3.36.0",
+    "simple-git": "4.0.2",
     "slugify": "1.6.9",
     "tldts": "7.4.12",
-    "undici": "8.10.2",
+    "undici": "8.12.3",
     "update-notifier": "7.3.1",
     "xdg": "0.1.1",
-    "zod": "4.5.4"
+    "zod": "4.6.7"
   },
   "devDependencies": {
     "@aws-sdk/client-s3": "3.1128.0",
