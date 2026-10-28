@@ -1114,7 +1114,7 @@ clever drain [options]
 -a, --alias <alias>            Short name for the application
     --app <app-id|app-name>    Application to manage by its ID (or name, if unambiguous)
 -F, --format <format>          Output format (human, json) (default: human)
-    --type <drain-type>        Only list drains of this type (betterstack, datadog, elasticsearch, newrelic, ovh-tcp, raw-http, splunk, syslog-tcp, syslog-udp)
+    --type <drain-type>        Only list drains of this type (betterstack, datadog, elasticsearch, newrelic, ovh-tcp, raw-http, sekoia, splunk, syslog-tcp, syslog-udp)
 ```
 
 ### drain check
@@ -1304,6 +1304,32 @@ drain-url                      Drain URL
 -u, --username <username>      Basic auth username
 ```
 
+#### drain create sekoia
+
+**Description:** Create a Sekoia.io drain
+
+**Since:** Unreleased
+
+**Usage**
+```
+clever drain create sekoia --intake-key <intake-key> <drain-url> [options]
+```
+
+**Arguments**
+```
+drain-url                                    Drain URL
+```
+
+**Options**
+```
+    --intake-key <intake-key>                Intake key (required)
+    --addon <addon-id>                       Add-on ID or real ID
+-a, --alias <alias>                          Short name for the application
+    --app <app-id|app-name>                  Application to manage by its ID (or name, if unambiguous)
+    --kind <kind>                            Kind of logs sent to the drain (LOG, ACCESSLOG) (default: LOG)
+    --tls-verification <tls-verification>    TLS verification mode, use `trustful` for a self-hosted intake behind a private CA (default, trustful)
+```
+
 #### drain create splunk
 
 **Description:** Create a Splunk HEC drain
@@ -1467,7 +1493,7 @@ clever drain list [options]
 ```
 -F, --format <format>                   Output format (human, json) (default: human)
 -o, --org, --owner <org-id|org-name>    Organisation to target by its ID (or name, if unambiguous)
-    --type <drain-type>                 Only list drains of this type (betterstack, datadog, elasticsearch, newrelic, ovh-tcp, raw-http, splunk, syslog-tcp, syslog-udp)
+    --type <drain-type>                 Only list drains of this type (betterstack, datadog, elasticsearch, newrelic, ovh-tcp, raw-http, sekoia, splunk, syslog-tcp, syslog-udp)
 ```
 
 ### drain remove

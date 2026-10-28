@@ -49,6 +49,7 @@ import { drainCreateElasticsearchCommand } from './drain/drain.create.elasticsea
 import { drainCreateNewRelicCommand } from './drain/drain.create.newrelic.command.js';
 import { drainCreateOvhTcpCommand } from './drain/drain.create.ovh-tcp.command.js';
 import { drainCreateRawHttpCommand } from './drain/drain.create.raw-http.command.js';
+import { drainCreateSekoiaCommand } from './drain/drain.create.sekoia.command.js';
 import { drainCreateSplunkCommand } from './drain/drain.create.splunk.command.js';
 import { drainCreateSyslogTcpCommand } from './drain/drain.create.syslog-tcp.command.js';
 import { drainCreateSyslogUdpCommand } from './drain/drain.create.syslog-udp.command.js';
@@ -293,6 +294,7 @@ export const globalCommands = {
           [DRAIN_TYPES.NEWRELIC.cliCode]: drainCreateNewRelicCommand,
           [DRAIN_TYPES.OVH_TCP.cliCode]: drainCreateOvhTcpCommand,
           [DRAIN_TYPES.RAW_HTTP.cliCode]: drainCreateRawHttpCommand,
+          [DRAIN_TYPES.SEKOIA.cliCode]: drainCreateSekoiaCommand,
           [DRAIN_TYPES.SPLUNK.cliCode]: drainCreateSplunkCommand,
           [DRAIN_TYPES.SYSLOG_TCP.cliCode]: drainCreateSyslogTcpCommand,
           [DRAIN_TYPES.SYSLOG_UDP.cliCode]: drainCreateSyslogUdpCommand,

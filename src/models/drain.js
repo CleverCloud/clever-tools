@@ -95,6 +95,7 @@ export const DRAIN_TYPES = {
   NEWRELIC: { apiCode: 'NEWRELIC', cliCode: 'newrelic', label: 'New Relic' },
   OVH_TCP: { apiCode: 'OVH_TCP', cliCode: 'ovh-tcp', label: 'OVH TCP' },
   RAW_HTTP: { apiCode: 'RAW_HTTP', cliCode: 'raw-http', label: 'Raw HTTP' },
+  SEKOIA: { apiCode: 'SEKOIA', cliCode: 'sekoia', label: 'Sekoia.io' },
   SPLUNK: { apiCode: 'SPLUNK', cliCode: 'splunk', label: 'Splunk' },
   SYSLOG_TCP: { apiCode: 'SYSLOG_TCP', cliCode: 'syslog-tcp', label: 'Syslog TCP' },
   SYSLOG_UDP: { apiCode: 'SYSLOG_UDP', cliCode: 'syslog-udp', label: 'Syslog UDP' },

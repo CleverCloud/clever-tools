@@ -32,6 +32,7 @@ clever drain create elasticsearch <DRAIN-URL> --index-prefix INDEX_PREFIX [--use
 clever drain create newrelic <DRAIN-URL> --api-key API_KEY
 clever drain create ovh-tcp <DRAIN-URL> [--sd-params SD_PARAMS]
 clever drain create raw-http <DRAIN-URL> [--username USERNAME] [--password PASSWORD]
+clever drain create sekoia <DRAIN-URL> --intake-key INTAKE_KEY [--tls-verification MODE]
 clever drain create splunk <DRAIN-URL> --hec-token HEC_TOKEN [--index INDEX] [--sourcetype SOURCETYPE] [--tls-verification MODE]
 clever drain create syslog-tcp <DRAIN-URL> [--sd-params SD_PARAMS]
 clever drain create syslog-udp <DRAIN-URL> [--sd-params SD_PARAMS]
