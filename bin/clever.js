@@ -2,7 +2,7 @@
 
 // WARNING: this needs to run before other imports
 import { setupProxy } from '../src/initial-setup.js';
-import '../src/initial-update-notifier.js';
+import { notifyUpdate } from '../src/initial-update-notifier.js';
 // Other imports
 import pkg from '../package.json' with { type: 'json' };
 import { curl } from '../src/commands/curl/curl.command.js';
@@ -42,6 +42,7 @@ process.stdout.on('error', (error) => {
 // cliparse doesn't allow unknown options/arguments
 if (process.argv[2] === 'curl') {
   setupProxy()
+    .then(() => notifyUpdate())
     .then(() => curl())
     .catch(() => process.exit(1));
 } else {
@@ -50,6 +51,7 @@ if (process.argv[2] === 'curl') {
 
 async function run() {
   await setupProxy();
+  await notifyUpdate();
 
   // Build all commands from globalCommands
   const commands = [];
