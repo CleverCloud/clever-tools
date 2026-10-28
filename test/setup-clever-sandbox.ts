@@ -1,10 +1,26 @@
+import { join } from 'node:path';
 import { after, beforeEach } from 'node:test';
 import { fileURLToPath } from 'node:url';
+import { getCacheDir } from '../src/config/paths.js';
 import { CLEVER_FILES, CleverFsMock } from './clever-fs-mock.ts';
 import { runCli, type RunCliOptions, type RunCliResult } from './lib/cli/run-cli.ts';
 import { EnvMock } from './lib/env/env-mock.ts';
 
 const CLEVER_BIN = fileURLToPath(new URL('../bin/clever.js', import.meta.url));
+const COMPILE_CACHE_DIR = getCompileCacheDir();
+
+/**
+ * The compile cache of the user, the one `bin/clever.js` fills when it runs outside the tests. It is resolved here,
+ * from the real env, because the CLI runs with a temporary `HOME` and would otherwise start every test with a cold cache.
+ */
+function getCompileCacheDir(): string | undefined {
+  try {
+    return join(getCacheDir(), 'compile-cache');
+  } catch {
+    // No usable cache directory (HOME unset, for instance): the tests run without the compile cache
+    return undefined;
+  }
+}
 
 export interface CleverSandbox {
   /**
@@ -51,6 +67,9 @@ export function setupCleverSandbox(): CleverSandbox {
       LANG: 'en_US.UTF-8',
       NO_UPDATE_NOTIFIER: '1',
       NO_COLOR: '1',
+      // Node reuses the bytecode of the files it already compiled. It is outside the temporary directory of `fsMock`,
+      // which is recreated before each test, so the following runs of the suite start with a warm cache.
+      ...(COMPILE_CACHE_DIR != null ? { NODE_COMPILE_CACHE: COMPILE_CACHE_DIR } : {}),
     });
   });
 
