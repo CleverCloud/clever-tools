@@ -47,7 +47,7 @@ Run a command from source with `node bin/clever.js <command>` (or `cleverr`). It
 | [Documentation generation](docs/contributing/docs-generation.md) | What `npm run docs` generates and what you can edit by hand |
 | [API client](docs/contributing/api-client.md) | Calling the API, adding a missing endpoint, testing a local build of the client |
 | [Code quality](docs/contributing/code-quality.md) | ESLint, Prettier, TypeScript, npm scripts, what the CI checks on every PR |
-| [Testing](docs/contributing/testing.md) | Unit tests, running commands from source, testing without touching your account |
+| [Testing](docs/contributing/testing.md) | Command tests, unit tests, running commands from source, testing without touching your account |
 | [Issues, commits and pull requests](docs/contributing/issues-commits-and-prs.md) | Issue templates, Conventional Commits, PR process, preview builds |
 | [Build, CI and release](docs/contributing/build-ci-and-release.md) | Workflows, release-please, build system, scripts of `scripts/`, distribution channels |
 | [Architecture Decision Records](docs/adr/) | Why things are the way they are |
@@ -59,7 +59,7 @@ Run a command from source with `node bin/clever.js <command>` (or `cleverr`). It
 1. Open an issue (or comment on an existing one) to discuss the change before writing code. It avoids duplicate work and checks that the change fits the project.
 2. Create a branch from `master`, with a descriptive name.
 3. Make your change. Start from the [codebase map](docs/contributing/codebase-map.md) and the guide matching your task.
-4. Run `npm run validate`: it is what the CI runs (lint, format, types, generated docs, tests). `docs:check` calls the public Clever Cloud API, so it can fail because the API data changed, not because of your change.
+4. Run `npm run validate`: it runs the CI checks (lint, format, types, generated docs, unit tests) except the command tests: also run those of the commands you changed with `node --test src/commands/<command>/*.command.test.ts`. `docs:check` calls the public Clever Cloud API, so it can fail because the API data changed, not because of your change.
 5. Commit with [Conventional Commits](docs/contributing/issues-commits-and-prs.md): the scope is the command name, e.g. `fix(drain): ...`.
 6. Open a pull request that follows the template and closes the issue (`Closes #N`). Keep the branch rebased on `master`, without `fixup!` or `squash!` commits.
 7. For PRs opened from a branch of this repository, the CI publishes preview binaries so reviewers can try your change. PRs from forks get none: the publication needs secrets that GitHub doesn't expose to them.

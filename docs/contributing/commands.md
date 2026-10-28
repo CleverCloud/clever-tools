@@ -218,4 +218,4 @@ export const globalCommands = {
 };
 ```
 
-Then run `npm run docs` to generate `src/commands/coffee/coffee.docs.md` and update `src/commands/README.md` (see [docs-generation.md](docs-generation.md)), and try the command from source (see [testing.md](testing.md)).
+Then run `npm run docs` to generate `src/commands/coffee/coffee.docs.md` and update `src/commands/README.md` (see [docs-generation.md](docs-generation.md)), and try the command from source (see [testing.md](testing.md)). If the command has command tests (`src/commands/<command>/*.command.test.ts`), run them with `node --test` and update them when its behaviour changes (see [testing.md](testing.md#command-tests)).
