@@ -92,7 +92,7 @@ const tagOption = defineOption({
 
 export const terraformGenerateCommand = defineCommand({
   description: 'Generate terraform import file',
-  since: '5.1.0',
+  since: null,
   options: {
     org: orgaIdOrNameOption,
     app: appIdOrNameOption,
