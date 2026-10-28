@@ -5,6 +5,7 @@ import { config } from '../config/config.js';
 import { slugify } from '../lib/slugify.js';
 import { Git } from './git.js';
 import * as http from './isomorphic-http-with-agent.js';
+import { LinkedWorktreeNotSupportedError } from './linked-worktree-error.js';
 
 export class GitIsomorphic extends Git {
   constructor() {
@@ -162,16 +163,5 @@ export class GitIsomorphic extends Git {
         return (!isHidden || isCleverJson) && head !== workdir;
       }).length === 0;
     return isStatusEmpty;
-  }
-}
-
-export class LinkedWorktreeNotSupportedError extends Error {
-  constructor() {
-    super(
-      "Linked git worktrees aren't supported by the default JS git backend.\n" +
-        'Enable the system git backend (it uses your installed git):\n' +
-        '    clever features enable system-git',
-    );
-    this.name = 'LinkedWorktreeNotSupportedError';
   }
 }
