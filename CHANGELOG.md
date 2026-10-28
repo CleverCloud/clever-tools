@@ -1,5 +1,31 @@
 # clever-tools changelog
 
+## [5.3.0](https://github.com/CleverCloud/clever-tools/compare/5.2.0...5.3.0) (2026-10-28)
+
+
+### 🚨 Security
+
+* **deps:** bump Node.js to 24.22.1 and `@yao-pkg/pkg` to 6.24.0 ([7111c6d](https://github.com/CleverCloud/clever-tools/commit/7111c6d2015d848608543636aff3c08b581e96fd)), closes [#1201](https://github.com/CleverCloud/clever-tools/issues/1201)
+* **deps:** bump `simple-git` to 4.0.2, `undici` to 8.12.3 and `zod` to 4.6.7 ([d462170](https://github.com/CleverCloud/clever-tools/commit/d4621702ad293f9c6e69299becd49a12dfb2a406), [0d13fb5](https://github.com/CleverCloud/clever-tools/commit/0d13fb54f58ac67c4a4e673be990d7d008589b07), [613082e](https://github.com/CleverCloud/clever-tools/commit/613082ee34d5a2b00723321e99fdf2cdac35b8cd))
+
+
+### 🚀 Features
+
+* **drain:** add the `drain list` command to list the drains of every application and add-on ([6a3312e](https://github.com/CleverCloud/clever-tools/commit/6a3312e242fb3d8d8a543e8f745eceed696d139c))
+* **drain:** display drains in a bordered table with a single `STATUS` column and the recipient as `TARGET URL`, for `drain` and `drain list` ([0e107ac](https://github.com/CleverCloud/clever-tools/commit/0e107ac1010f3ed6c7f554f71fb48dc79e3116a4))
+* **drain:** support Sekoia.io as a drain target ([ddb4002](https://github.com/CleverCloud/clever-tools/commit/ddb4002eaeea256cb66272eca8b802915807d994))
+* **logs:** add the `--strip-ansi` option ([80827c3](https://github.com/CleverCloud/clever-tools/commit/80827c3f68615f61abbfb89e78f5351a43245c21)), closes [#1198](https://github.com/CleverCloud/clever-tools/issues/1198)
+* **terraform:** add the `terraform generate` command, with Java Maven support, as an experimental feature enabled with `clever features enable terraform` ([c71e7a4](https://github.com/CleverCloud/clever-tools/commit/c71e7a4560f350f0c5652a5d2fa511cf91e89a5e), [f1a5f12](https://github.com/CleverCloud/clever-tools/commit/f1a5f12610387fe86e294fad016dad081b461cb3), [c968b4c](https://github.com/CleverCloud/clever-tools/commit/c968b4cb4e85772de2d340eb68a6d468c4f7bfe3))
+
+
+### 🐛 Bug Fixes
+
+* **color:** honor `--color`, `FORCE_COLOR` and `NO_COLOR` consistently, including when stdout is not a TTY and with the `--param=value` syntax ([c596999](https://github.com/CleverCloud/clever-tools/commit/c59699919e76b5179f4c5259204fa2b3026a8c96), [a6fead7](https://github.com/CleverCloud/clever-tools/commit/a6fead706934eac8a60c396474a50e7b28e963d0), [8264ace](https://github.com/CleverCloud/clever-tools/commit/8264ace6b66afe9fbcfde1fb4d153220857bd115), [5949f1a](https://github.com/CleverCloud/clever-tools/commit/5949f1a69cbe8090a53aa46529c288d557d71f1d))
+* **color:** turn off the update-notifier colors with `FORCE_COLOR=0` ([9c67834](https://github.com/CleverCloud/clever-tools/commit/9c678348508bede86c03ba516c5c3105a309d2be))
+* **deploy:** stop crashing with `--quiet` and `--exit-on never` ([2257b7b](https://github.com/CleverCloud/clever-tools/commit/2257b7b8e67c80ba2043d0aadc62b015bb0b8b23))
+* **env:** split comma-separated names in `env import-vars` ([c238e37](https://github.com/CleverCloud/clever-tools/commit/c238e375496a8a615859054eaf6f652eced8ed35)), closes [#1195](https://github.com/CleverCloud/clever-tools/issues/1195)
+* **logs:** strip ANSI codes when colors are disabled ([d49619c](https://github.com/CleverCloud/clever-tools/commit/d49619c271ecf53e0f71b1638c534c75b78d2a43))
+
 ## [5.2.0](https://github.com/CleverCloud/clever-tools/compare/5.1.1...5.2.0) (2026-10-15)
 
 
