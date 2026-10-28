@@ -26,7 +26,8 @@ This file is the canonical instruction set for AI coding agents.
 
 | Path | What |
 |---|---|
-| `bin/clever.js` | Entry point: builds the `cliparse` tree from `globalCommands`, hides commands behind disabled feature flags |
+| `bin/clever.js` | Entry point: enables the Node compile cache, then imports `src/cli.js` |
+| `src/cli.js` | Builds the `cliparse` tree from `globalCommands`, hides commands behind disabled feature flags |
 | `src/commands/<command>/` | One directory per root command: `<command>.command.js`, `<command>.<sub>.command.js`, `<command>.args.js` and `<command>.options.js` when shared by several subcommands, generated `<command>.docs.md` |
 | `src/commands/global.commands.js` | Registry of every command, the tree the CLI and the docs generator walk |
 | `src/commands/global.options.js`, `global.args.js` | Options and arguments shared across commands (`--app`, `--alias`, `--org`, `--format`, `--yes`…) |
