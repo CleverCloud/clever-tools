@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 // WARNING: this needs to run before other imports
-import '../src/initial-setup.js';
+import { setupProxy } from '../src/initial-setup.js';
 import '../src/initial-update-notifier.js';
 // Other imports
 import pkg from '../package.json' with { type: 'json' };
@@ -18,6 +18,7 @@ import { EXPERIMENTAL_FEATURES, isFeatureEnabled } from '../src/config/features.
 import { cliparse } from '../src/lib/cliparse-patched.js';
 import { styleText } from '../src/lib/style-text.js';
 import { getDefault, getEnumValues, isBoolean, isRequired } from '../src/lib/zod-utils.js';
+import { Logger } from '../src/logger.js';
 
 /**
  * @typedef {import('../src/lib/define-command.types.js').CommandDefinition} CommandDefinition
@@ -38,12 +39,24 @@ process.stdout.on('error', (error) => {
   }
 });
 
-// Right now, this is the only way to do this properly
-// cliparse doesn't allow unknown options/arguments
-if (process.argv[2] === 'curl') {
-  curl().catch(() => process.exit(1));
-} else {
-  run().catch(() => process.exit(1));
+main().catch(() => process.exit(1));
+
+async function main() {
+  try {
+    await setupProxy();
+  } catch (error) {
+    // Commands print their own errors, but nothing does it for the setup
+    Logger.error(error);
+    throw error;
+  }
+
+  // Right now, this is the only way to do this properly
+  // cliparse doesn't allow unknown options/arguments
+  if (process.argv[2] === 'curl') {
+    await curl();
+  } else {
+    await run();
+  }
 }
 
 async function run() {
