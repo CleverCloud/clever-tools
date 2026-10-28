@@ -16,7 +16,7 @@ clever drain [options]
 |`-a`, `--alias` `<alias>`|Short name for the application|
 |`--app` `<app-id\|app-name>`|Application to manage by its ID (or name, if unambiguous)|
 |`-F`, `--format` `<format>`|Output format (human, json) (default: human)|
-|`--type` `<drain-type>`|Only list drains of this type (betterstack, datadog, elasticsearch, newrelic, ovh-tcp, raw-http, splunk, syslog-tcp, syslog-udp)|
+|`--type` `<drain-type>`|Only list drains of this type (betterstack, datadog, elasticsearch, newrelic, ovh-tcp, raw-http, sekoia, splunk, syslog-tcp, syslog-udp)|
 
 ## ➡️ `clever drain check` <kbd>Since 4.11.0</kbd>
 
@@ -251,6 +251,41 @@ clever drain create raw-http "https://<HOST>/<PATH>"
 clever drain create raw-http "https://<HOST>/<PATH>" --username <USERNAME> --password <PASSWORD>
 ```
 
+## ➡️ `clever drain create sekoia` <kbd>Unreleased</kbd>
+
+Create a Sekoia.io drain
+
+```bash
+clever drain create sekoia --intake-key <intake-key> <drain-url> [options]
+```
+
+### 📥 Arguments
+
+|Name|Description|
+|---|---|
+|`drain-url`|Drain URL|
+
+### ⚙️ Options
+
+|Name|Description|
+|---|---|
+|`--intake-key` `<intake-key>`|Intake key **(required)**|
+|`--addon` `<addon-id>`|Add-on ID or real ID|
+|`-a`, `--alias` `<alias>`|Short name for the application|
+|`--app` `<app-id\|app-name>`|Application to manage by its ID (or name, if unambiguous)|
+|`--kind` `<kind>`|Kind of logs sent to the drain (LOG, ACCESSLOG) (default: LOG)|
+|`--tls-verification` `<tls-verification>`|TLS verification mode, use `trustful` for a self-hosted intake behind a private CA (default, trustful)|
+
+### Examples
+
+[Sekoia.io](https://docs.sekoia.io/integration/ingestion_methods/https/overview/) drains post to the `/jsons` endpoint of an HTTPS intake, which reads each log as an event. The intake host depends on the region of your Sekoia.io workspace, FRA1 being the default:
+
+```bash
+clever drain create sekoia "https://intake.sekoia.io/jsons" --intake-key <INTAKE_KEY>
+```
+
+On other regions, use `https://intake.<REGION>.sekoia.io/api/v1/intake-http/jsons`. The intake key is sent in a header, don't add it to the URL as `?intake_key=`: the API refuses it, as it does a URL that is not `https` or doesn't end with `/jsons`.
+
 ## ➡️ `clever drain create splunk` <kbd>Since 5.0.0</kbd>
 
 Create a Splunk HEC drain
@@ -425,7 +460,7 @@ clever drain list [options]
 |---|---|
 |`-F`, `--format` `<format>`|Output format (human, json) (default: human)|
 |`-o`, `--org`, `--owner` `<org-id\|org-name>`|Organisation to target by its ID (or name, if unambiguous)|
-|`--type` `<drain-type>`|Only list drains of this type (betterstack, datadog, elasticsearch, newrelic, ovh-tcp, raw-http, splunk, syslog-tcp, syslog-udp)|
+|`--type` `<drain-type>`|Only list drains of this type (betterstack, datadog, elasticsearch, newrelic, ovh-tcp, raw-http, sekoia, splunk, syslog-tcp, syslog-udp)|
 
 ## ➡️ `clever drain remove` <kbd>Since 0.9.0</kbd>
 
