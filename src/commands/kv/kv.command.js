@@ -1,5 +1,4 @@
 import { getAllEnvVars } from '@clevercloud/client/esm/api/v2/addon.js';
-import { RESP_TYPES, createClient } from '@redis/client';
 import { z } from 'zod';
 import { ambiguousNameError } from '../../lib/ambiguous-name-error.js';
 import { defineArgument } from '../../lib/define-argument.js';
@@ -21,12 +20,6 @@ const CONNECTION_OPTIONS = {
   socket: { reconnectStrategy: false },
   disableOfflineQueue: true,
 };
-
-/**
- * Return map replies as the flat `[field, value, ...]` array the server sent, as a raw command should,
- * instead of the object node-redis builds by default.
- */
-const RAW_TYPE_MAPPING = { [RESP_TYPES.MAP]: Array };
 
 /**
  * Commands whose reply node-redis keeps for its own pub/sub handling, so a raw `sendCommand` never settles.
@@ -142,6 +135,12 @@ async function sendCommand(url, command) {
   const [commandName, ...commandArgs] = command;
   assertOneShotCommand(commandName, commandArgs);
 
+  // Loaded here, `@redis/client` is about 470 files that no other command needs
+  const { RESP_TYPES, createClient } = await import('@redis/client');
+  // Return map replies as the flat `[field, value, ...]` array the server sent, as a raw command should,
+  // instead of the object node-redis builds by default.
+  const rawTypeMapping = { [RESP_TYPES.MAP]: Array };
+
   Logger.debug(`Sending ${commandName} to ${describeTarget(url)}`);
   const client = createClient({ url, ...CONNECTION_OPTIONS });
   // Without a listener the `error` event crashes the process; the rejected promise already carries the reason.
@@ -149,7 +148,7 @@ async function sendCommand(url, command) {
 
   try {
     await client.connect();
-    const result = await client.withTypeMapping(RAW_TYPE_MAPPING).sendCommand(command);
+    const result = await client.withTypeMapping(rawTypeMapping).sendCommand(command);
     Logger.debug(`${commandName} answered`);
     return result;
   } finally {
