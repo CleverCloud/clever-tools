@@ -25,6 +25,29 @@ export function getDrains(params) {
 }
 
 /**
+ * GET /v4/drains/organisations/{ownerId}/drains?status={status}&executionStatus={executionStatus}&executionStatusNotIn={executionStatusNotIn}
+ * @param {Object} params
+ * @param {string} params.ownerId
+ * @param {string} [params.status]
+ * @param {string} [params.executionStatus]
+ * @param {string} [params.executionStatusNotIn]
+ */
+export function getOwnerDrains(params) {
+  // no multipath for /self or /organisations/{id}
+  return Promise.resolve({
+    method: 'get',
+    url: `/v4/drains/organisations/${params.ownerId}/drains`,
+    headers: { Accept: 'application/json' },
+    queryParams: {
+      status: params.status,
+      executionStatus: params.executionStatus,
+      executionStatusNotIn: params.executionStatusNotIn,
+    },
+    // no body
+  });
+}
+
+/**
  * POST /v4/drains/organisations/{ownerId}/resources/{resourceId}/drains
  * @param {Object} params
  * @param {String} params.ownerId
