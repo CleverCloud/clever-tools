@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 // WARNING: this needs to run before other imports
-import '../src/initial-setup.js';
+import { setupProxy } from '../src/initial-setup.js';
 import '../src/initial-update-notifier.js';
 // Other imports
 import pkg from '../package.json' with { type: 'json' };
@@ -41,12 +41,16 @@ process.stdout.on('error', (error) => {
 // Right now, this is the only way to do this properly
 // cliparse doesn't allow unknown options/arguments
 if (process.argv[2] === 'curl') {
-  curl().catch(() => process.exit(1));
+  setupProxy()
+    .then(() => curl())
+    .catch(() => process.exit(1));
 } else {
   run().catch(() => process.exit(1));
 }
 
 async function run() {
+  await setupProxy();
+
   // Build all commands from globalCommands
   const commands = [];
   for (const [name, entry] of /** @type {[string, CommandEntry][]} */ (Object.entries(globalCommands))) {
