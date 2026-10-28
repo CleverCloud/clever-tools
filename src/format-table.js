@@ -53,3 +53,46 @@ export const formatTable = (data, columnWidth = []) => {
     })
     .join('\n');
 };
+
+/**
+ * Format rows as a table with borders, like `console.table()` but without its index column nor quotes around strings.
+ * The first row is the header.
+ * @param {Array<Array<unknown>>} data
+ * @param {Array<number>} [columnWidth=[]] - Minimum width of each column, to align several tables
+ * @returns {string}
+ */
+export function formatBorderedTable(data, columnWidth = []) {
+  // Same as `formatTable()`: no rows, no table
+  if (data.length === 0) {
+    return '';
+  }
+
+  const [headers, ...rows] = data.map((row) => row.map((cell) => String(cell ?? '')));
+
+  const columnSizes = [...columnWidth];
+  for (const row of [headers, ...rows]) {
+    for (const [index, cell] of row.entries()) {
+      columnSizes[index] = Math.max(columnSizes[index] ?? 0, stringLength(cell));
+    }
+  }
+
+  function formatBorder(left, middle, right) {
+    return left + columnSizes.map((size) => '─'.repeat(size + 2)).join(middle) + right;
+  }
+
+  function formatRow(row) {
+    const cells = columnSizes.map((size, index) => {
+      const cell = row[index] ?? '';
+      return ` ${cell}${' '.repeat(size - stringLength(cell))} `;
+    });
+    return `│${cells.join('│')}│`;
+  }
+
+  return [
+    formatBorder('┌', '┬', '┐'),
+    formatRow(headers),
+    formatBorder('├', '┼', '┤'),
+    ...rows.map(formatRow),
+    formatBorder('└', '┴', '┘'),
+  ].join('\n');
+}

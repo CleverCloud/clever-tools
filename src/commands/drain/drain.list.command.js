@@ -1,7 +1,7 @@
 import { defineCommand } from '../../lib/define-command.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
-import { filterDrainsByType, formatDrainRow, getAllDrains } from '../../models/drain.js';
+import { filterDrainsByType, formatDrainsTable, getAllDrains } from '../../models/drain.js';
 import { humanJsonOutputFormatOption, orgaIdOrNameOption } from '../global.options.js';
 import { drainTypeFilterOption } from './drain.options.js';
 
@@ -71,9 +71,10 @@ export const drainListCommand = defineCommand({
             ),
           );
 
+          Logger.println();
           // A tenant-scoped drain (audit logs) has no resource, it belongs to the organisation itself
-          console.table(
-            owner.drains.map((drain) => formatDrainRow(drain, drain.resourceName ?? drain.resourceId ?? owner.name)),
+          Logger.println(
+            formatDrainsTable(owner.drains, (drain) => drain.resourceName ?? drain.resourceId ?? owner.name),
           );
         }
       }

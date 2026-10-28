@@ -1,5 +1,6 @@
 import { getSummary } from '@clevercloud/client/esm/api/v2/user.js';
 import { createDrain, getOwnerDrains } from '../clever-client/drains.js';
+import { formatBorderedTable } from '../format-table.js';
 import * as Application from './application.js';
 import { resolveAddon } from './ids-resolver.js';
 import * as Organisation from './organisation.js';
@@ -134,20 +135,23 @@ function formatThroughput(bytesPerSecond) {
 }
 
 /**
- * Format a drain as a row of the table listing several drains.
- * @param {Object} rawDrain
- * @param {string} [resourceLabel] - The resource the drain belongs to, when the table mixes several of them
+ * Format the table listing several drains.
+ * @param {Array<Object>} rawDrains
+ * @param {(rawDrain: Object) => string} [getResourceLabel] - The resource a drain belongs to, when the table mixes several of them
+ * @returns {string}
  */
-export function formatDrainRow(rawDrain, resourceLabel) {
-  return {
-    ID: rawDrain.id,
-    ...(resourceLabel != null ? { Resource: resourceLabel } : {}),
-    Kind: rawDrain.kind,
-    Type: DRAIN_TYPES[rawDrain.recipient.type]?.label ?? rawDrain.recipient.type,
-    Status: rawDrain.status.status,
-    'Execution status': rawDrain.execution.status,
-    URL: rawDrain.recipient.url,
-  };
+export function formatDrainsTable(rawDrains, getResourceLabel) {
+  const withResource = getResourceLabel != null;
+  const headers = ['DRAIN ID', ...(withResource ? ['RESOURCE'] : []), 'KIND', 'TYPE', 'STATUS', 'TARGET URL'];
+  const rows = rawDrains.map((rawDrain) => [
+    rawDrain.id,
+    ...(withResource ? [getResourceLabel(rawDrain)] : []),
+    rawDrain.kind,
+    DRAIN_TYPES[rawDrain.recipient.type]?.label ?? rawDrain.recipient.type,
+    `${rawDrain.status.status} / ${rawDrain.execution.status}`,
+    rawDrain.recipient.url,
+  ]);
+  return formatBorderedTable([headers, ...rows]);
 }
 
 export function formatDrain(rawDrain) {

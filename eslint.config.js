@@ -98,7 +98,7 @@ export default defineConfig([
     languageOptions: {
       parserOptions: {
         // Test files outside of `tsconfig.json` (which only lists the typed part of the code)
-        projectService: { allowDefaultProject: ['src/models/*.test.ts'] },
+        projectService: { allowDefaultProject: ['src/*.test.ts', 'src/models/*.test.ts'] },
       },
     },
     rules: {
