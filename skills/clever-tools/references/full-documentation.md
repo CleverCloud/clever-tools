@@ -1308,7 +1308,7 @@ drain-url                      Drain URL
 
 **Description:** Create a Sekoia.io drain
 
-**Since:** Unreleased
+**Since:** 5.3.0
 
 **Usage**
 ```
@@ -1482,7 +1482,7 @@ drain-id                       Drain ID
 
 **Description:** List the drains of all applications and add-ons
 
-**Since:** Unreleased
+**Since:** 5.3.0
 
 **Usage**
 ```
@@ -4068,7 +4068,7 @@ port                           port identifying the TCP redirection
 
 **Description:** Terraform commands
 
-**Since:** Unreleased
+**Since:** 5.3.0
 
 **Usage**
 ```
@@ -4079,7 +4079,7 @@ clever terraform
 
 **Description:** Generate terraform import file
 
-**Since:** Unreleased
+**Since:** 5.3.0
 
 **Usage**
 ```

@@ -2,7 +2,7 @@ import { defineCommand } from '../../lib/define-command.js';
 
 export const terraformCommand = defineCommand({
   description: 'Terraform commands',
-  since: null,
+  since: '5.3.0',
   isExperimental: true,
   featureFlag: 'terraform',
   options: {},

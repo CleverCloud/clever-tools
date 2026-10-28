@@ -251,7 +251,7 @@ clever drain create raw-http "https://<HOST>/<PATH>"
 clever drain create raw-http "https://<HOST>/<PATH>" --username <USERNAME> --password <PASSWORD>
 ```
 
-## ➡️ `clever drain create sekoia` <kbd>Unreleased</kbd>
+## ➡️ `clever drain create sekoia` <kbd>Since 5.3.0</kbd>
 
 Create a Sekoia.io drain
 
@@ -446,7 +446,7 @@ clever drain get <drain-id> [options]
 |`--app` `<app-id\|app-name>`|Application to manage by its ID (or name, if unambiguous)|
 |`-F`, `--format` `<format>`|Output format (human, json) (default: human)|
 
-## ➡️ `clever drain list` <kbd>Unreleased</kbd>
+## ➡️ `clever drain list` <kbd>Since 5.3.0</kbd>
 
 List the drains of all applications and add-ons
 

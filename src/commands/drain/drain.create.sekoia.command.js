@@ -10,7 +10,7 @@ import { drainKindOption } from './drain.options.js';
 
 export const drainCreateSekoiaCommand = defineCommand({
   description: 'Create a Sekoia.io drain',
-  since: null,
+  since: '5.3.0',
   options: {
     intakeKey: defineOption({
       name: 'intake-key',

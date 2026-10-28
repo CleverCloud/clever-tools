@@ -7,7 +7,7 @@ import { drainTypeFilterOption } from './drain.options.js';
 
 export const drainListCommand = defineCommand({
   description: 'List the drains of all applications and add-ons',
-  since: null,
+  since: '5.3.0',
   options: {
     org: orgaIdOrNameOption,
     drainType: drainTypeFilterOption,
