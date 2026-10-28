@@ -1,6 +1,9 @@
-import { createDrain } from '../clever-client/drains.js';
+import { getSummary } from '@clevercloud/client/esm/api/v2/user.js';
+import { createDrain, getOwnerDrains } from '../clever-client/drains.js';
+import { formatBorderedTable } from '../format-table.js';
 import * as Application from './application.js';
 import { resolveAddon } from './ids-resolver.js';
+import * as Organisation from './organisation.js';
 import { sendToApi } from './send-to-api.js';
 
 export async function resolveDrainResource(alias, appIdOrName, addonIdOrRealId) {
@@ -15,6 +18,51 @@ export async function resolveDrainResource(alias, appIdOrName, addonIdOrRealId) 
 
   const { ownerId, appId } = await Application.resolveId(appIdOrName, alias);
   return { ownerId, resourceId: appId };
+}
+
+/**
+ * List the drains of every resource an owner has, grouped by owner.
+ * When `orgaIdOrName` is null, all the owners the current user belongs to are listed.
+ * An owner whose drains cannot be listed is returned with its `error`, so that one
+ * unreachable organisation doesn't hide the drains of all the others.
+ * @param {{ orga_id: string } | { orga_name: string } | null} orgaIdOrName
+ * @returns {Promise<Array<{ id: string, name: string, drains: Array<Object>, error: Error | null }>>}
+ */
+export async function getAllDrains(orgaIdOrName) {
+  const summary = await getSummary().then(sendToApi);
+
+  // Drains are attached to applications by their ID and to add-ons by their real ID
+  const resourceNames = new Map(
+    [summary.user, ...summary.organisations].flatMap((owner) => [
+      ...owner.applications.map((app) => [app.id, app.name]),
+      ...owner.addons.map((addon) => [addon.realId, addon.name]),
+    ]),
+  );
+
+  const owners = Organisation.filterOwners(summary.organisations, orgaIdOrName);
+
+  // `filterOwners` keeps no owner for an unknown ID, it is not an empty result here
+  if (orgaIdOrName != null && owners.length === 0) {
+    throw new Error('Organisation not found');
+  }
+
+  return Promise.all(
+    owners.map(async (org) => {
+      try {
+        const drains = await getOwnerDrains({ ownerId: org.id }).then(sendToApi);
+        return {
+          id: org.id,
+          name: org.name,
+          drains: drains
+            .map((drain) => ({ ...drain, resourceName: resourceNames.get(drain.resourceId) }))
+            .sort((a, b) => (a.resourceName ?? '').localeCompare(b.resourceName ?? '')),
+          error: null,
+        };
+      } catch (error) {
+        return { id: org.id, name: org.name, drains: [], error };
+      }
+    }),
+  );
 }
 
 export const DRAIN_KINDS = /** @type {const} */ (['LOG', 'ACCESSLOG']);
@@ -84,6 +132,26 @@ function formatThroughput(bytesPerSecond) {
     return (bytesPerSecond / 1024).toFixed(2) + ' KiB/second';
   }
   return (bytesPerSecond / (1024 * 1024)).toFixed(2) + ' MiB/second';
+}
+
+/**
+ * Format the table listing several drains.
+ * @param {Array<Object>} rawDrains
+ * @param {(rawDrain: Object) => string} [getResourceLabel] - The resource a drain belongs to, when the table mixes several of them
+ * @returns {string}
+ */
+export function formatDrainsTable(rawDrains, getResourceLabel) {
+  const withResource = getResourceLabel != null;
+  const headers = ['DRAIN ID', ...(withResource ? ['RESOURCE'] : []), 'KIND', 'TYPE', 'STATUS', 'TARGET URL'];
+  const rows = rawDrains.map((rawDrain) => [
+    rawDrain.id,
+    ...(withResource ? [getResourceLabel(rawDrain)] : []),
+    rawDrain.kind,
+    DRAIN_TYPES[rawDrain.recipient.type]?.label ?? rawDrain.recipient.type,
+    `${rawDrain.status.status} / ${rawDrain.execution.status}`,
+    rawDrain.recipient.url,
+  ]);
+  return formatBorderedTable([headers, ...rows]);
 }
 
 export function formatDrain(rawDrain) {

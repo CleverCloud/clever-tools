@@ -15,6 +15,14 @@ clever drain enable <DRAIN-ID>
 clever drain disable <DRAIN-ID>
 ```
 
+To get an overview of the drains of every application and add-on you have access to, grouped by organisation, use `clever drain list`. You can restrict it to a single organisation with `--org` (`-o`, `--owner`):
+
+```
+clever drain list
+clever drain list --org <ORG_ID_OR_NAME>
+clever drain list --format json
+```
+
 There is one `clever drain create` subcommand per drain type, each exposing only the options it supports:
 
 ```

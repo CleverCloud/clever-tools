@@ -1,9 +1,7 @@
-import { z } from 'zod';
 import { getDrains } from '../../clever-client/drains.js';
 import { defineCommand } from '../../lib/define-command.js';
-import { defineOption } from '../../lib/define-option.js';
 import { Logger } from '../../logger.js';
-import { DRAIN_TYPES, filterDrainsByType, formatDrain, resolveDrainResource } from '../../models/drain.js';
+import { filterDrainsByType, formatDrain, formatDrainsTable, resolveDrainResource } from '../../models/drain.js';
 import { sendToApi } from '../../models/send-to-api.js';
 import {
   addonIdOrRealIdOption,
@@ -11,8 +9,7 @@ import {
   appIdOrNameOption,
   humanJsonOutputFormatOption,
 } from '../global.options.js';
-
-const DRAIN_TYPE_CLI_CODES = Object.values(DRAIN_TYPES).map(({ cliCode }) => cliCode);
+import { drainTypeFilterOption } from './drain.options.js';
 
 export const drainCommand = defineCommand({
   description: 'Manage drains',
@@ -21,15 +18,7 @@ export const drainCommand = defineCommand({
     alias: aliasOption,
     appIdOrName: appIdOrNameOption,
     addonIdOrRealId: addonIdOrRealIdOption,
-    drainType: defineOption({
-      name: 'type',
-      schema: z
-        .enum(DRAIN_TYPE_CLI_CODES)
-        .transform((cliCode) => Object.values(DRAIN_TYPES).find((drainType) => drainType.cliCode === cliCode))
-        .optional(),
-      description: 'Only list drains of this type',
-      placeholder: 'drain-type',
-    }),
+    drainType: drainTypeFilterOption,
     format: humanJsonOutputFormatOption,
   },
   args: [],
@@ -64,18 +53,7 @@ export const drainCommand = defineCommand({
           return;
         }
 
-        const formattedDrains = drains.map((drain) => {
-          return {
-            ID: drain.id,
-            Kind: drain.kind,
-            Type: DRAIN_TYPES[drain.recipient.type]?.label ?? drain.recipient.type,
-            Status: drain.status.status,
-            'Execution status': drain.execution.status,
-            URL: drain.recipient.url,
-          };
-        });
-
-        console.table(formattedDrains);
+        Logger.println(formatDrainsTable(drains));
       }
     }
   },
