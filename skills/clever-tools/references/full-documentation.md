@@ -4068,7 +4068,7 @@ port                           port identifying the TCP redirection
 
 **Description:** Terraform commands
 
-**Since:** 5.1.0
+**Since:** Unreleased
 
 **Usage**
 ```
@@ -4079,7 +4079,7 @@ clever terraform
 
 **Description:** Generate terraform import file
 
-**Since:** 5.1.0
+**Since:** Unreleased
 
 **Usage**
 ```

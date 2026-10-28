@@ -1,6 +1,10 @@
 # 📖 `clever terraform` command reference
 
-## ➡️ `clever terraform` <kbd>Since 5.1.0</kbd>
+> [!NOTE]
+> 🧪 **Experimental**: This command may change or be removed in future versions.
+> Enable with: `clever features enable terraform`
+
+## ➡️ `clever terraform` <kbd>Unreleased</kbd>
 
 Terraform commands
 
@@ -8,7 +12,7 @@ Terraform commands
 clever terraform
 ```
 
-## ➡️ `clever terraform generate` <kbd>Since 5.1.0</kbd>
+## ➡️ `clever terraform generate` <kbd>Unreleased</kbd>
 
 Generate terraform import file
 

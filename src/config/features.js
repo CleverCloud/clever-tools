@@ -102,6 +102,23 @@ export const EXPERIMENTAL_FEATURES = {
       clever otoroshi open logs myOtoroshi
     `,
   },
+  terraform: {
+    status: 'beta',
+    defaultValue: false,
+    description: 'Generate Terraform import blocks for existing applications and add-ons',
+    instructions: dedent`
+      - Generate the import blocks of a personal space or of an organisation:
+          clever terraform generate
+          clever terraform generate --org myOrg
+      - Generate the import blocks of an application, or of the resources with a tag:
+          clever terraform generate --app myApp
+          clever terraform generate --tag myTag
+      - Save them in a file of your Terraform configuration:
+          clever terraform generate > imports.tf
+
+      Learn more about the Terraform provider: ${config.get('DOC_URL')}/tools/terraform/
+    `,
+  },
 };
 
 const FeaturesConfigSchema = z
