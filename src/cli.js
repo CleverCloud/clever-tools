@@ -16,6 +16,7 @@ import { EXPERIMENTAL_FEATURES, isFeatureEnabled } from './config/features.js';
 import { cliparse } from './lib/cliparse-patched.js';
 import { styleText } from './lib/style-text.js';
 import { getDefault, getEnumValues, isBoolean, isRequired } from './lib/zod-utils.js';
+import { Logger } from './logger.js';
 
 /**
  * @typedef {import('./lib/define-command.types.js').CommandDefinition} CommandDefinition
@@ -36,21 +37,28 @@ process.stdout.on('error', (error) => {
   }
 });
 
-// Right now, this is the only way to do this properly
-// cliparse doesn't allow unknown options/arguments
-if (process.argv[2] === 'curl') {
-  setupProxy()
-    .then(() => notifyUpdate())
-    .then(() => curl())
-    .catch(() => process.exit(1));
-} else {
-  run().catch(() => process.exit(1));
+main().catch(() => process.exit(1));
+
+async function main() {
+  try {
+    await setupProxy();
+    await notifyUpdate();
+  } catch (error) {
+    // Commands print their own errors, but nothing does it for the setup
+    Logger.error(error);
+    throw error;
+  }
+
+  // Right now, this is the only way to do this properly
+  // cliparse doesn't allow unknown options/arguments
+  if (process.argv[2] === 'curl') {
+    await curl();
+  } else {
+    await run();
+  }
 }
 
 async function run() {
-  await setupProxy();
-  await notifyUpdate();
-
   // Build all commands from globalCommands
   const commands = [];
   for (const [name, entry] of /** @type {[string, CommandEntry][]} */ (Object.entries(globalCommands))) {
