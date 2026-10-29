@@ -9,8 +9,8 @@ import { Logger } from '../../logger.js';
 import * as Application from '../../models/application.js';
 import { AVAILABLE_ZONES, listAvailableTypes, listAvailableZones } from '../../models/application.js';
 import * as CleverJson from '../../models/clever-json.js';
-import { LinkedWorktreeNotSupportedError } from '../../models/git-isomorphic.js';
 import { Git } from '../../models/git.js';
+import { LinkedWorktreeNotSupportedError } from '../../models/linked-worktree-error.js';
 import { aliasCreationOption, humanJsonOutputFormatOption, orgaIdOrNameOption } from '../global.options.js';
 
 function getGithubDetails(githubOwnerRepo) {

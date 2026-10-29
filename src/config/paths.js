@@ -12,6 +12,17 @@ export function getConfigPath(configFile) {
 }
 
 /**
+ * Gets the cache directory path based on the operating system.
+ * On Windows, uses APPDATA/clever-cloud/cache, on other platforms uses XDG cache path.
+ * @returns {string} The absolute path to the cache directory
+ */
+export function getCacheDir() {
+  return process.platform === 'win32' && process.env.APPDATA != null
+    ? path.resolve(process.env.APPDATA, 'clever-cloud', 'cache')
+    : xdg.basedir.cachePath('clever-cloud');
+}
+
+/**
  * Gets the configuration directory path based on the operating system.
  * On Windows, uses APPDATA/clever-cloud, on other platforms uses XDG config path.
  * @returns {string} The absolute path to the configuration directory

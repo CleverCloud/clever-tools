@@ -1,3 +1,5 @@
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { after, beforeEach } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { CLEVER_FILES, CleverFsMock } from './clever-fs-mock.ts';
@@ -5,6 +7,7 @@ import { runCli, type RunCliOptions, type RunCliResult } from './lib/cli/run-cli
 import { EnvMock } from './lib/env/env-mock.ts';
 
 const CLEVER_BIN = fileURLToPath(new URL('../bin/clever.js', import.meta.url));
+const COMPILE_CACHE_DIR = join(tmpdir(), 'clever-tools-command-tests-compile-cache');
 
 export interface CleverSandbox {
   /**
@@ -51,6 +54,9 @@ export function setupCleverSandbox(): CleverSandbox {
       LANG: 'en_US.UTF-8',
       NO_UPDATE_NOTIFIER: '1',
       NO_COLOR: '1',
+      // Node reuses the bytecode of the files it already compiled. It is outside the temporary directory of `fsMock`,
+      // which is recreated before each test, so the following runs of the suite start with a warm cache.
+      NODE_COMPILE_CACHE: COMPILE_CACHE_DIR,
     });
   });
 
