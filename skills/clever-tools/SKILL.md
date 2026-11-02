@@ -202,6 +202,9 @@ clever ssh
 
 # Run a command
 clever ssh --command "ls -la"
+
+# Run a command from the application folder ($APP_HOME), not available for Docker applications
+clever ssh --app-home --command "mise run db:migrate"
 ```
 
 ### Applications Management

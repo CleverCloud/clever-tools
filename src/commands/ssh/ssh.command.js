@@ -31,6 +31,11 @@ export const sshCommand = defineCommand({
       aliases: ['c'],
       placeholder: 'command',
     }),
+    appHome: defineOption({
+      name: 'app-home',
+      schema: z.boolean().default(false),
+      description: 'Run the command from `$APP_HOME` (requires `--command`)',
+    }),
     instance: defineOption({
       name: 'instance',
       // Most specific first: z.union keeps the first match and an ID accepts any string
@@ -46,8 +51,24 @@ export const sshCommand = defineCommand({
   },
   args: [],
   async handler(options) {
-    const { alias, app: appIdOrName, identityFile, command, instance } = options;
+    const { alias, app: appIdOrName, identityFile, command, appHome, instance } = options;
+
+    // Interactive sessions get the app ID as their remote command, there is nowhere to inject a `cd`
+    if (appHome && command == null) {
+      throw new Error('--app-home requires --command');
+    }
+
     const { appId, ownerId } = await Application.resolveId(appIdOrName, alias);
+
+    if (appHome) {
+      // Docker sessions open in the container's WORKDIR, where $APP_HOME (a path on the host VM) doesn't exist
+      const app = await Application.get(ownerId, appId);
+      if (app.instance.variant.slug === 'docker') {
+        throw new Error(
+          "--app-home is not available for Docker applications, SSH sessions already open in the container's WORKDIR",
+        );
+      }
+    }
 
     const instances = await listInstances({ ownerId, appId, onlyRunning: true });
 
@@ -116,7 +137,7 @@ export const sshCommand = defineCommand({
 
     // Single command mode (piped stdio, gateway noise filtered out)
     const sshProcess = spawn('ssh', sshParams, { stdio: 'pipe' });
-    const result = await runSshCommand({ sshProcess, command });
+    const result = await runSshCommand({ sshProcess, command, appHome });
 
     // process.exitCode instead of process.exit() (or throwing, which ends in one) lets piped output flush before exiting
     if (result.status === 'session-failed') {
