@@ -31,7 +31,7 @@ if (hasParam('--autocomplete-index')) {
 
 // These need to be set before other stuffs
 // Dependencies and child processes read these variables, they don't know about IS_COLOR_DISABLED
-// FORCE_COLOR is the only one all of them understand (chalk in update-notifier ignores NO_COLOR),
+// FORCE_COLOR is the only one all of them understand (styleText of node:util, used by nano-updater, reads it too),
 // and Node warns when both are set
 // When colors are enabled, a valid FORCE_COLOR set by the user (1, 2, 3, true or empty) is kept to preserve the requested color depth
 // Otherwise (unset, 0, false, invalid) it is set to 1, so that --color true wins over FORCE_COLOR=0

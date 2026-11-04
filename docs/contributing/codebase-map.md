@@ -18,7 +18,7 @@ Files at the root of `src/`, outside any directory:
 | `logger.js` | `Logger`, the only way commands print. |
 | `parsers.js` | Zod transformers used by options and arguments. |
 | `format-table.js` | Table output. |
-| `initial-setup.js`, `initial-update-notifier.js` | Run at startup: HTTP proxy setup, update notifier. |
+| `initial-setup.js`, `setup-update-notifier.js` | Run at startup: HTTP proxy setup, update notifier. |
 
 ## `src/commands/`
 

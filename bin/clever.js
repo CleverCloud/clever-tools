@@ -2,7 +2,7 @@
 
 // WARNING: this needs to run before other imports
 import { setupProxy } from '../src/initial-setup.js';
-import '../src/initial-update-notifier.js';
+import { setupUpdateNotifier } from '../src/setup-update-notifier.js';
 // Other imports
 import pkg from '../package.json' with { type: 'json' };
 import { curl } from '../src/commands/curl/curl.command.js';
@@ -44,6 +44,7 @@ main().catch(() => process.exit(1));
 async function main() {
   try {
     await setupProxy();
+    await setupUpdateNotifier();
   } catch (error) {
     // Commands print their own errors, but nothing does it for the setup
     Logger.error(error);
