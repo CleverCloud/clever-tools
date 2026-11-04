@@ -7,6 +7,13 @@ import { StringDecoder } from 'node:string_decoder';
  *   | { status: 'session-failed', exitCode: number, sshOutput: string }} SshCommandResult
  */
 
+// Fails if $APP_HOME is unset, empty or can't be entered, so the command never runs from an unexpected folder.
+// A separate statement rather than a `cd … &&` prefix, which would only guard the first command of a list.
+const APP_HOME_PREFIX = [
+  `if [ -z "\${APP_HOME-}" ]; then echo 'APP_HOME is not set on this instance' >&2; exit 1; fi`,
+  'cd -- "$APP_HOME" || exit $?',
+].join('\n');
+
 /**
  * Run a single command over an already-spawned ssh subprocess and stream its
  * output to `outStream` / `errStream`, without the gateway/login noise.
@@ -19,12 +26,19 @@ import { StringDecoder } from 'node:string_decoder';
  * @param {object} args
  * @param {import('node:child_process').ChildProcessWithoutNullStreams} args.sshProcess
  * @param {string} args.command - User command; single quotes get shell-escaped.
+ * @param {boolean} [args.appHome] - Run the command from `$APP_HOME` instead of the home directory. Defaults to `false`.
  * @param {NodeJS.WritableStream} [args.outStream] - Defaults to `process.stdout`.
  * @param {NodeJS.WritableStream} [args.errStream] - Defaults to `process.stderr`.
  * @returns {Promise<SshCommandResult>} `exitCode` is ssh's exit code (128 + signal number if killed by a signal).
  *   `sshOutput` holds the trimmed output of both streams received before the session failed, in arrival order.
  */
-export async function runSshCommand({ sshProcess, command, outStream = process.stdout, errStream = process.stderr }) {
+export async function runSshCommand({
+  sshProcess,
+  command,
+  appHome = false,
+  outStream = process.stdout,
+  errStream = process.stderr,
+}) {
   // ssh may exit before reading stdin (e.g. auth failure): ignore EPIPE, its output tells why
   sshProcess.stdin.on('error', () => {});
 
@@ -38,7 +52,9 @@ export async function runSshCommand({ sshProcess, command, outStream = process.s
   // Like interactive sessions: bash if available, else /bin/sh ($SHELL may be unset or wrong in Docker containers).
   // Resolved in a fresh /bin/sh so no profile alias or function shadows bash. Login shell (-l, as dash rejects --login)
   // to load profiles and env vars, without PTY to keep stdout free of prompt/ANSI noise.
-  const escapedCommand = command.replaceAll("'", "'\\''");
+  // The $APP_HOME prefix runs in that same shell, after the profiles that set it.
+  const remoteCommand = appHome ? `${APP_HOME_PREFIX}\n${command}` : command;
+  const escapedCommand = remoteCommand.replaceAll("'", "'\\''");
   sshProcess.stdin.write(`exec "$(/bin/sh -c 'command -v bash' || echo /bin/sh)" -l -c '${escapedCommand}'\n`);
   sshProcess.stdin.end();
 
