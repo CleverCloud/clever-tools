@@ -4,7 +4,7 @@ Detailed map of the repository: where things live and how they are wired.
 
 ## From `clever <command>` to the API
 
-1. `bin/clever.js` walks `globalCommands` (`src/commands/global.commands.js`) and turns every `defineCommand()` into a `cliparse` command, skipping those behind a disabled feature flag (flags are declared in `EXPERIMENTAL_FEATURES`, `src/config/features.js`).
+1. `src/cli.js` walks `globalCommands` (`src/commands/global.commands.js`) and turns every `defineCommand()` into a `cliparse` command, skipping those behind a disabled feature flag (flags are declared in `EXPERIMENTAL_FEATURES`, `src/config/features.js`).
 2. `cliparse` (patched in `src/lib/cliparse-patched.js`) parses the command line. Each option and argument goes through its Zod `schema` (`src/lib/zod-utils.js`, `src/parsers.js`).
 3. The `handler(options, ...args)` of the command runs. It resolves names to IDs (`src/models/application.js`, `src/models/ids-resolver.js`), calls the API through a model or directly with `.then(sendToApi)`, and prints through `Logger`.
 4. A thrown `Error` is caught by `cliparse-patched.js`, printed with `Logger.error()` (stack trace with `-v`), and the process exits with code 1.
@@ -33,7 +33,7 @@ One directory per root command, files prefixed with the command name.
 
 Shared files at the root of `src/commands/`:
 
-- `global.commands.js`: the registry, a tree of `{ name: command }` or `{ name: [command, { sub: subcommand }] }`. `clever help` sorts the root commands alphabetically (`bin/clever.js`).
+- `global.commands.js`: the registry, a tree of `{ name: command }` or `{ name: [command, { sub: subcommand }] }`. `clever help` sorts the root commands alphabetically (`src/cli.js`).
 - `global.options.js`, `global.args.js`: options and arguments reused across commands. Check them before defining a new one.
 - `README.md`: **generated** index of every command.
 
