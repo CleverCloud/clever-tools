@@ -1,5 +1,22 @@
 # clever-tools changelog
 
+## [5.4.0](https://github.com/CleverCloud/clever-tools/compare/5.3.0...5.4.0) (2026-11-05)
+
+
+### 🚀 Features
+
+* **ssh:** add --app-home to run commands from the application folder ([a0acde8](https://github.com/CleverCloud/clever-tools/commit/a0acde8326da042d570b93c7e4839e68f1a4cb9d))
+
+
+### 💪 Performance Improvements
+
+* **bundle:** bundle with esbuild instead of Rollup ([c598b5b](https://github.com/CleverCloud/clever-tools/commit/c598b5b60ea452cbfa4ba0b72a6e9e9b35145061))
+* **cli:** enable the Node compile cache ([1be198f](https://github.com/CleverCloud/clever-tools/commit/1be198f838006c154e08566205e6cdfeaa3dd9e5))
+* **create:** load isomorphic-git only when the JS git backend runs ([eb5099f](https://github.com/CleverCloud/clever-tools/commit/eb5099f9bd112c1545552164dea2cb3a14c323b7))
+* **kv:** load @redis/client only when running a raw command ([03518ef](https://github.com/CleverCloud/clever-tools/commit/03518efc9db12c4f2619f4c7609b793c3fac4035))
+* **proxy:** load undici only when a proxy is configured ([fcc80b9](https://github.com/CleverCloud/clever-tools/commit/fcc80b9556bb83781b8b5414ef03be7569f5fef8))
+* **update-notifier:** replace update-notifier with nano-updater ([b012869](https://github.com/CleverCloud/clever-tools/commit/b012869facac304cd4338ab72c87216f00c173a6))
+
 ## [5.3.0](https://github.com/CleverCloud/clever-tools/compare/5.2.0...5.3.0) (2026-10-28)
 
 
