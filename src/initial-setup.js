@@ -1,4 +1,3 @@
-import { EnvHttpProxyAgent, setGlobalDispatcher } from 'undici';
 import { hasParam } from './lib/has-param.js';
 import { IS_COLOR_DISABLED, VALID_FORCE_COLOR_VALUES } from './lib/style-text.js';
 
@@ -8,10 +7,15 @@ import { IS_COLOR_DISABLED, VALID_FORCE_COLOR_VALUES } from './lib/style-text.js
 // checks…) routes through the proxy and honors no_proxy for exclusions. We only swap
 // the dispatcher when a proxy is actually configured, leaving the default behavior
 // untouched for everyone else.
-const hasProxyConfig =
-  process.env.http_proxy || process.env.https_proxy || process.env.HTTP_PROXY || process.env.HTTPS_PROXY;
-if (hasProxyConfig) {
-  setGlobalDispatcher(new EnvHttpProxyAgent());
+// `undici` is about 110 files, so it is imported only when a proxy is configured, and the entry point
+// has to await this function before its first fetch().
+export async function setupProxy() {
+  const hasProxyConfig =
+    process.env.http_proxy || process.env.https_proxy || process.env.HTTP_PROXY || process.env.HTTPS_PROXY;
+  if (hasProxyConfig) {
+    const { EnvHttpProxyAgent, setGlobalDispatcher } = await import('undici');
+    setGlobalDispatcher(new EnvHttpProxyAgent());
+  }
 }
 
 // These need to be set before Logger and other stuffs
@@ -27,7 +31,7 @@ if (hasParam('--autocomplete-index')) {
 
 // These need to be set before other stuffs
 // Dependencies and child processes read these variables, they don't know about IS_COLOR_DISABLED
-// FORCE_COLOR is the only one all of them understand (chalk in update-notifier ignores NO_COLOR),
+// FORCE_COLOR is the only one all of them understand (styleText of node:util, used by nano-updater, reads it too),
 // and Node warns when both are set
 // When colors are enabled, a valid FORCE_COLOR set by the user (1, 2, 3, true or empty) is kept to preserve the requested color depth
 // Otherwise (unset, 0, false, invalid) it is set to 1, so that --color true wins over FORCE_COLOR=0

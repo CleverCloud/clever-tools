@@ -83,7 +83,7 @@ New commands are declared with `since: null`. On every push to `master`, if a re
 
 ## Build
 
-- **Bundling**: `scripts/bundle-cjs.js` uses Rollup to create a single CommonJS file from the ESM source.
+- **Bundling**: `scripts/bundle-cjs.js` uses esbuild to create a single CommonJS file from the ESM source.
 - **Compilation**: `scripts/build-binary.js` uses [`@yao-pkg/pkg`](https://github.com/yao-pkg/pkg) to compile the bundle for Linux, macOS and Windows. The embedded Node.js major version comes from the `volta` field of `package.json`.[^volta]
 - **Packaging**: `scripts/create-archive.js` creates `.tar.gz` and `.zip` archives, `scripts/package-nfpm.js` the `.deb` and `.rpm` packages.
 
@@ -137,7 +137,7 @@ Run by the `build.yml` workflow, slow to run locally.
 
 | Script | What it does | Environment variables |
 |---|---|---|
-| `bundle-cjs.js <version> <isPreview>` | Bundles the ESM source into a single CommonJS file with Rollup. | |
+| `bundle-cjs.js <version> <isPreview>` | Bundles the ESM source into a single CommonJS file with esbuild. | |
 | `build-binary.js <version>` | Compiles the bundle into a native binary for the current OS with `@yao-pkg/pkg`. The architecture is hardcoded per OS (Linux x64, macOS arm64, Windows x64, `scripts/lib/build-binary.js`): on an arm64 Linux or an Intel Mac, the binary targets the wrong architecture. | |
 | `create-archive.js <version> <createLatest>` | Packages the binary into a `.tar.gz` or `.zip` archive. | |
 | `package-nfpm.js <version> <packager>` | Builds the RPM or DEB package with nfpm, GPG-signed. | `RPM_GPG_PRIVATE_KEY`, `RPM_GPG_PASSPHRASE` |

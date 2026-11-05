@@ -201,7 +201,7 @@ Reusable transformers (`appIdOrName`, `addonIdOrName`, `date`, `durationInSecond
 
 ## Registering the command
 
-Add it to the `globalCommands` tree of `src/commands/global.commands.js`. `clever help` sorts the root commands alphabetically (`bin/clever.js`), whatever their order in the tree.
+Add it to the `globalCommands` tree of `src/commands/global.commands.js`. `clever help` sorts the root commands alphabetically (`src/cli.js`), whatever their order in the tree.
 
 A command without subcommands is a plain entry, a group is a `[command, { subcommands }]` pair, and groups nest (`drain create` is a group inside `drain`):
 
