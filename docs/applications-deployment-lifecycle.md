@@ -61,6 +61,14 @@ By default, it will use its build cache when available. But you can override it 
 [--exit-on, -e] STEP       Step at which the logs streaming is ended, steps are: deploy-start, deploy-end, never (default: deploy-end)
 ```
 
+## rebuild
+
+To restart an application without using its build cache, use `rebuild`. It is the same as `clever restart --without-cache` and accepts the same options, except `--without-cache`:
+
+```
+clever rebuild
+```
+
 ## stop | cancel-deploy
 
 To stop an application or cancel any ongoing deployment, use:
