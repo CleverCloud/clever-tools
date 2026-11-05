@@ -65,6 +65,9 @@ clever restart --commit <commit-id>
 # Restart application
 clever restart
 
+# Restart application without using the build cache (same as `clever restart --without-cache`)
+clever rebuild
+
 # Stop application (scales to 0)
 clever stop
 
@@ -121,7 +124,7 @@ clever restart
 
 # A restart can reuse the build cache: rebuild when the build reads the changed
 # variable (build command, variables embedded in front-end assets…)
-clever restart --without-cache
+clever rebuild    # same as clever restart --without-cache
 
 # Export for shell
 clever env --format shell > .env

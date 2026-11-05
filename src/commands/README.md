@@ -54,6 +54,7 @@ These options are available for all commands:
 |[`clever otoroshi`](./otoroshi/otoroshi.docs.md)|Manage Clever Cloud Otoroshi services|
 |[`clever profile`](./profile/profile.docs.md)|Display the profile of the current user|
 |[`clever published-config`](./published-config/published-config.docs.md)|Manage the configuration made available to other applications by this application|
+|[`clever rebuild`](./rebuild/rebuild.docs.md)|Restart an application without using cache|
 |[`clever restart`](./restart/restart.docs.md)|Start or restart an application|
 |[`clever scale`](./scale/scale.docs.md)|Change scalability of an application|
 |[`clever service`](./service/service.docs.md)|Manage service dependencies|
