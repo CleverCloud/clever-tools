@@ -173,6 +173,7 @@ import { publishedConfigCommand } from './published-config/published-config.comm
 import { publishedConfigImportCommand } from './published-config/published-config.import.command.js';
 import { publishedConfigRmCommand } from './published-config/published-config.rm.command.js';
 import { publishedConfigSetCommand } from './published-config/published-config.set.command.js';
+import { rebuildCommand } from './rebuild/rebuild.command.js';
 import { restartCommand } from './restart/restart.command.js';
 import { scaleCommand } from './scale/scale.command.js';
 import { serviceCommand } from './service/service.command.js';
@@ -518,6 +519,7 @@ export const globalCommands = {
       set: publishedConfigSetCommand,
     },
   ],
+  rebuild: rebuildCommand,
   restart: restartCommand,
   scale: scaleCommand,
   service: [
