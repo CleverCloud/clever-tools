@@ -1,5 +1,12 @@
 # clever-tools changelog
 
+## [5.4.1](https://github.com/CleverCloud/clever-tools/compare/5.4.0...5.4.1) (2026-11-12)
+
+
+### 🐛 Bug Fixes
+
+* **logout:** don't announce a profile switch when the active profile comes from the environment ([0c7bd25](https://github.com/CleverCloud/clever-tools/commit/0c7bd25e6029cdbb43ffd7972eacd34cbb5b7fa6))
+
 ## [5.4.0](https://github.com/CleverCloud/clever-tools/compare/5.3.0...5.4.0) (2026-11-05)
 
 
