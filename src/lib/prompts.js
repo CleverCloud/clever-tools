@@ -63,6 +63,16 @@ export function promptTextOption(option, defaultValue) {
 }
 
 /**
+ * Prompt the user for a free text value.
+ * @param {string} message
+ * @param {(value: string) => true | string} [validate] Returns `true` when valid, an error message otherwise
+ * @returns {Promise<string>}
+ */
+export function promptText(message, validate) {
+  return input({ message, validate }).catch(exitOnPromptError);
+}
+
+/**
  * Throw an explicit error when no interactive terminal is available.
  *
  * Raw-mode prompts (select, checkbox) need a TTY on stdin. Without one (CI, scripts,

@@ -3368,6 +3368,36 @@ clever orgs list [options]
 -F, --format <format>    Output format (human, json) (default: human)
 ```
 
+### orgs update
+
+**Description:** Update the details of an organisation
+
+**Since:** Unreleased
+
+**Usage**
+```
+clever orgs update <org-id|org-name> [options]
+```
+
+**Arguments**
+```
+org-id|org-name                        Organisation ID (or exact name, if unambiguous)
+```
+
+**Options**
+```
+    --address <address>                Billing address
+    --billing-email <billing-email>    Email receiving the invoices
+    --billing-name <billing-name>      Billing contact name
+    --city <city>                      Billing city
+    --company <company>                Company name
+    --country <country-code>           Billing country, as a two-letter ISO code (e.g.: FR)
+    --description <description>        Organisation description
+    --name <name>                      Organisation name
+    --vat-number <vat-number>          VAT number, requires a company
+    --zipcode <zipcode>                Billing zipcode
+```
+
 ## otoroshi
 
 **Description:** Manage Clever Cloud Otoroshi services
