@@ -48,6 +48,7 @@ describe('clever help', () => {
             notify-email             Manage email notifications
             oauth-consumers          Manage OAuth consumers used with a Clever Cloud login
             open                     Open an application in the Console
+            orgs                     Manage organisations
             profile                  Display the profile of the current user
             published-config         Manage the configuration made available to other applications by this application
             rebuild                  Restart an application without using cache
@@ -164,6 +165,7 @@ describe('clever help', () => {
             notify-email             Manage email notifications
             oauth-consumers          Manage OAuth consumers used with a Clever Cloud login
             open                     Open an application in the Console
+            orgs                     Manage organisations
             profile                  Display the profile of the current user
             published-config         Manage the configuration made available to other applications by this application
             rebuild                  Restart an application without using cache
@@ -293,6 +295,7 @@ describe('clever help', () => {
             notify-email             Manage email notifications
             oauth-consumers          Manage OAuth consumers used with a Clever Cloud login
             open                     Open an application in the Console
+            orgs                     Manage organisations
             otoroshi                 Manage Clever Cloud Otoroshi services [BETA]
             profile                  Display the profile of the current user
             published-config         Manage the configuration made available to other applications by this application
@@ -362,6 +365,7 @@ describe('clever help', () => {
             notify-email             Manage email notifications
             oauth-consumers          Manage OAuth consumers used with a Clever Cloud login
             open                     Open an application in the Console
+            orgs                     Manage organisations
             profile                  Display the profile of the current user
             published-config         Manage the configuration made available to other applications by this application
             rebuild                  Restart an application without using cache
