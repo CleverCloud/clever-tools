@@ -154,6 +154,8 @@ import { openCommand } from './open/open.command.js';
 import { organisationsCommand } from './organisations/organisations.command.js';
 import { organisationsGetCommand } from './organisations/organisations.get.command.js';
 import { organisationsListCommand } from './organisations/organisations.list.command.js';
+import { organisationsMembersCommand } from './organisations/organisations.members.command.js';
+import { organisationsMembersListCommand } from './organisations/organisations.members.list.command.js';
 import { organisationsUpdateCommand } from './organisations/organisations.update.command.js';
 import { otoroshiCommand } from './otoroshi/otoroshi.command.js';
 import { otoroshiDisableNgCommand } from './otoroshi/otoroshi.disable-ng.command.js';
@@ -485,6 +487,12 @@ export const globalCommands = {
     {
       get: organisationsGetCommand,
       list: organisationsListCommand,
+      members: [
+        organisationsMembersCommand,
+        {
+          list: organisationsMembersListCommand,
+        },
+      ],
       update: organisationsUpdateCommand,
     },
   ],

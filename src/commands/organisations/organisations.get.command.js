@@ -1,7 +1,7 @@
 import { get as getOrganisation } from '@clevercloud/client/esm/api/v2/organisation.js';
 import { defineCommand } from '../../lib/define-command.js';
 import { formatOrganisation, formatVatNumber, isEmpty } from '../../lib/organisation-format.js';
-import { fetchMembers } from '../../lib/organisation-members.js';
+import { fetchMembersIfReadable } from '../../lib/organisation-members.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
 import { resolveOrganisation } from '../../models/organisation.js';
@@ -21,7 +21,7 @@ export const organisationsGetCommand = defineCommand({
 
     const organisation = await resolveOrganisation(orgaIdOrName);
     const rawOrganisation = await getOrganisation({ id: organisation.id }).then(sendToApi);
-    const members = organisation.isPersonal ? null : await fetchMembers(organisation.id, null);
+    const members = organisation.isPersonal ? null : await fetchMembersIfReadable(organisation.id, null);
     const details = toOrganisationDetails(rawOrganisation, organisation, members);
 
     switch (format) {

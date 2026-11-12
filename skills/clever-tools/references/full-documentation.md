@@ -3368,6 +3368,40 @@ clever organisations list [options]
 -F, --format <format>    Output format (human, json) (default: human)
 ```
 
+### organisations members
+
+**Description:** Manage the members of an organisation
+
+**Since:** Unreleased
+
+**Usage**
+```
+clever organisations members
+```
+
+#### organisations members list
+
+**Description:** List the members of an organisation
+
+**Since:** Unreleased
+
+**Usage**
+```
+clever organisations members list <org-id|org-name> [options]
+```
+
+**Arguments**
+```
+org-id|org-name          Organisation ID (or exact name, if unambiguous)
+```
+
+**Options**
+```
+-F, --format <format>    Output format (human, json) (default: human)
+    --role <role>        Only list the members with this role (admin, manager, developer, accounting)
+    --without-2fa        Only list the members without two-factor authentication enabled
+```
+
 ### organisations update
 
 **Description:** Update the details of an organisation
