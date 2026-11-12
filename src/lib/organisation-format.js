@@ -23,3 +23,33 @@ export function formatOrganisation(organisation) {
     id: (id) => styleText('grey', id),
   });
 }
+
+/**
+ * @param {string} vatNumber
+ * @param {string | null} vatState
+ * @returns {string} The VAT number, followed by its state when the API gives one
+ */
+export function formatVatNumber(vatNumber, vatState) {
+  return isEmpty(vatState) ? vatNumber : `${vatNumber} (${vatState})`;
+}
+
+/**
+ * @param {string | null | undefined} value
+ * @returns {boolean} Whether the value is missing or an empty string, as the API returns both for an unset field
+ */
+export function isEmpty(value) {
+  return value == null || value === '';
+}
+
+/**
+ * @param {string | null | undefined} countryCode - ISO 3166-1 alpha-2 code
+ * @param {string | null | undefined} countryName - Name returned by the API
+ * @returns {string | null} The code followed by the name, for example `FR (FRANCE)`, the one that is known when the
+ *   other is missing, `null` when both are
+ */
+export function formatCountry(countryCode, countryName) {
+  if (isEmpty(countryCode)) {
+    return countryName || null;
+  }
+  return countryName ? `${countryCode} (${countryName})` : countryCode;
+}

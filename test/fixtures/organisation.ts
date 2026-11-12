@@ -9,6 +9,7 @@ export interface RawOrganisation {
   city: string | null;
   zipcode: string | null;
   country: string | null;
+  countryCode: string | null;
   company: string | null;
   VAT: string | null;
   avatar: string | null;
@@ -31,6 +32,7 @@ export const ORGANISATION_FOO: RawOrganisation = {
   city: 'Nantes',
   zipcode: '44000',
   country: 'FRANCE',
+  countryCode: 'FR',
   company: null,
   VAT: null,
   avatar: null,
@@ -53,6 +55,7 @@ export const ORGANISATION_BAR: RawOrganisation = {
   city: 'Amsterdam',
   zipcode: '1012 LG',
   country: 'NETHERLANDS',
+  countryCode: 'NL',
   company: 'Bar B.V.',
   VAT: 'NL000000000B01',
   avatar: null,
@@ -80,6 +83,7 @@ export const ORGANISATION_SELF: RawOrganisation = {
   city: USER_SELF.city,
   zipcode: USER_SELF.zipcode,
   country: USER_SELF.country,
+  countryCode: 'FR',
   company: null,
   VAT: null,
   avatar: USER_SELF.avatar,
