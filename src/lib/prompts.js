@@ -71,7 +71,7 @@ export function promptTextOption(option, defaultValue) {
  * user pressing Ctrl+C. Guarding up front lets us surface a clear message instead.
  * @param {string} [hint] How to achieve the same result without a prompt (e.g. an option to use)
  */
-function assertInteractiveTerminal(hint) {
+export function assertInteractiveTerminal(hint) {
   if (!process.stdin.isTTY) {
     const suffix = hint != null ? ` ${hint}` : '';
     throw new Error(`This command requires an interactive terminal.${suffix}`);

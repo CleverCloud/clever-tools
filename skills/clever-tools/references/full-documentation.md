@@ -3424,6 +3424,28 @@ org-id|org-name          Organisation ID (or exact name, if unambiguous)
     --without-2fa        Only list the members without two-factor authentication enabled
 ```
 
+#### organisations members remove
+
+**Description:** Remove a member from an organisation, or leave it when the member is yourself
+
+**Since:** Unreleased
+
+**Usage**
+```
+clever organisations members remove <org-id|org-name> <member-id|email> [options]
+```
+
+**Arguments**
+```
+org-id|org-name    Organisation ID (or exact name, if unambiguous)
+member-id|email    Member ID (user_...) or email address
+```
+
+**Options**
+```
+-y, --yes          Skip confirmation prompts
+```
+
 #### organisations members update
 
 **Description:** Update the role of a member of an organisation

@@ -124,3 +124,18 @@ export function memberUpdateError(error, { memberLabel, role, orgaLabel }) {
   }
   return memberWriteError(error, 'demote', memberLabel, orgaLabel) ?? rawApiError(error);
 }
+
+/**
+ * Translate an error of `DELETE /v2/organisations/{id}/members/{userId}`.
+ * @param {ApiRequestError} error
+ * @param {Object} context
+ * @param {string} context.memberLabel - Email or ID of the member
+ * @param {string} context.orgaLabel - `<name> (<id>)` of the organisation
+ * @returns {Error}
+ */
+export function memberRemoveError(error, { memberLabel, orgaLabel }) {
+  if (getCode(error) === 6452) {
+    return new Error(`Cannot remove ${memberLabel}: your role does not allow removing this member`, { cause: error });
+  }
+  return memberWriteError(error, 'remove', memberLabel, orgaLabel) ?? rawApiError(error);
+}
