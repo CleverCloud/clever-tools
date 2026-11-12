@@ -3379,6 +3379,28 @@ clever organisations list [options]
 clever organisations members
 ```
 
+#### organisations members invite
+
+**Description:** Invite someone to join an organisation, by email
+
+**Since:** Unreleased
+
+**Usage**
+```
+clever organisations members invite <org-id|org-name> <email> [options]
+```
+
+**Arguments**
+```
+org-id|org-name      Organisation ID (or exact name, if unambiguous)
+email                Email address of the person to invite
+```
+
+**Options**
+```
+    --role <role>    Role of the new member (admin, manager, developer, accounting) (default: developer)
+```
+
 #### organisations members list
 
 **Description:** List the members of an organisation

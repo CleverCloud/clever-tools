@@ -104,3 +104,14 @@ export function resolveMember(members, memberIdOrEmail, orgaName) {
   }
   return member;
 }
+
+/**
+ * Refuse the personal space, which has no members to manage.
+ * @param {{ isPersonal: boolean }} organisation
+ * @throws {Error} If the organisation is the personal space
+ */
+export function assertNotPersonalSpace(organisation) {
+  if (organisation.isPersonal) {
+    throw new Error('Personal spaces have no members, use an organisation instead');
+  }
+}

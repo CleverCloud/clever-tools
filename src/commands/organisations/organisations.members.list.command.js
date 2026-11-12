@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { defineCommand } from '../../lib/define-command.js';
 import { defineOption } from '../../lib/define-option.js';
 import { formatOrganisation } from '../../lib/organisation-format.js';
-import { fetchMembers, sortMembers } from '../../lib/organisation-members.js';
+import { assertNotPersonalSpace, fetchMembers, sortMembers } from '../../lib/organisation-members.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
 import { resolveOrganisation } from '../../models/organisation.js';
@@ -28,9 +28,7 @@ export const organisationsMembersListCommand = defineCommand({
     const { role, withoutMfa, format } = options;
 
     const organisation = await resolveOrganisation(orgaIdOrName);
-    if (organisation.isPersonal) {
-      throw new Error('Personal spaces have no members, use an organisation instead');
-    }
+    assertNotPersonalSpace(organisation);
     const currentUserId = await User.getCurrentId();
     const members = sortMembers(await fetchMembers(organisation.id, currentUserId)).filter(
       (member) => (role == null || member.role === role) && (!withoutMfa || !member.isMfaEnabled),

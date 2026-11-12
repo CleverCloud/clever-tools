@@ -50,6 +50,27 @@ Manage the members of an organisation
 clever organisations members
 ```
 
+## ➡️ `clever organisations members invite` <kbd>Unreleased</kbd>
+
+Invite someone to join an organisation, by email
+
+```bash
+clever organisations members invite <org-id|org-name> <email> [options]
+```
+
+### 📥 Arguments
+
+|Name|Description|
+|---|---|
+|`org-id\|org-name`|Organisation ID (or exact name, if unambiguous)|
+|`email`|Email address of the person to invite|
+
+### ⚙️ Options
+
+|Name|Description|
+|---|---|
+|`--role` `<role>`|Role of the new member (admin, manager, developer, accounting) (default: developer)|
+
 ## ➡️ `clever organisations members list` <kbd>Unreleased</kbd>
 
 List the members of an organisation
