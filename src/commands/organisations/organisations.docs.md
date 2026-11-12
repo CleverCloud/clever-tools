@@ -93,6 +93,27 @@ clever organisations members list <org-id|org-name> [options]
 |`--role` `<role>`|Only list the members with this role (admin, manager, developer, accounting)|
 |`--without-2fa`|Only list the members without two-factor authentication enabled|
 
+## ➡️ `clever organisations members update` <kbd>Unreleased</kbd>
+
+Update the role of a member of an organisation
+
+```bash
+clever organisations members update --role <role> <org-id|org-name> <member-id|email> [options]
+```
+
+### 📥 Arguments
+
+|Name|Description|
+|---|---|
+|`org-id\|org-name`|Organisation ID (or exact name, if unambiguous)|
+|`member-id\|email`|Member ID (user_...) or email address|
+
+### ⚙️ Options
+
+|Name|Description|
+|---|---|
+|`--role` `<role>`|New role of the member (admin, manager, developer, accounting) **(required)**|
+
 ## ➡️ `clever organisations update` <kbd>Unreleased</kbd>
 
 Update the details of an organisation

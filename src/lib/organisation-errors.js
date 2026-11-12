@@ -86,3 +86,41 @@ export function memberInviteError(error, { email, role, orgaLabel }) {
   }
   return rawApiError(error);
 }
+
+/**
+ * Translate the errors shared by the member update and removal: unknown member, last admin or last member.
+ * @param {ApiRequestError} error
+ * @param {'remove' | 'demote'} action
+ * @param {string} memberLabel - Email or ID of the member
+ * @param {string} orgaLabel - `<name> (<id>)` of the organisation
+ * @returns {Error | null} `null` when the error is not one of them
+ */
+function memberWriteError(error, action, memberLabel, orgaLabel) {
+  if (getCode(error) === 6501) {
+    return new Error(`Member ${memberLabel} not found in ${orgaLabel}`, { cause: error });
+  }
+  // These refusals carry no business code, only a plain text message
+  if (getStatus(error) === 403 && /last admin/i.test(error?.message ?? '')) {
+    return new Error(`Cannot ${action} ${memberLabel}: ${orgaLabel} would have no admin left`, { cause: error });
+  }
+  if (getStatus(error) === 403 && /last member/i.test(error?.message ?? '')) {
+    return new Error(`Cannot ${action} ${memberLabel}: ${orgaLabel} would have no member left`, { cause: error });
+  }
+  return null;
+}
+
+/**
+ * Translate an error of `PUT /v2/organisations/{id}/members/{userId}`.
+ * @param {ApiRequestError} error
+ * @param {Object} context
+ * @param {string} context.memberLabel - Email or ID of the member
+ * @param {string} context.role - New role of the member
+ * @param {string} context.orgaLabel - `<name> (<id>)` of the organisation
+ * @returns {Error}
+ */
+export function memberUpdateError(error, { memberLabel, role, orgaLabel }) {
+  if (getCode(error) === 6453) {
+    return new Error(`Cannot assign role ${role}: your role cannot assign it`, { cause: error });
+  }
+  return memberWriteError(error, 'demote', memberLabel, orgaLabel) ?? rawApiError(error);
+}
