@@ -3320,6 +3320,17 @@ clever open [options]
     --app <app-id|app-name>    Application to manage by its ID (or name, if unambiguous)
 ```
 
+## organisations
+
+**Description:** Manage organisations
+
+**Since:** Unreleased
+
+**Usage**
+```
+clever organisations
+```
+
 ## otoroshi
 
 **Description:** Manage Clever Cloud Otoroshi services

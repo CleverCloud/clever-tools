@@ -151,6 +151,7 @@ import { oauthConsumersListCommand } from './oauth-consumers/oauth-consumers.lis
 import { oauthConsumersOpenCommand } from './oauth-consumers/oauth-consumers.open.command.js';
 import { oauthConsumersUpdateCommand } from './oauth-consumers/oauth-consumers.update.command.js';
 import { openCommand } from './open/open.command.js';
+import { organisationsCommand } from './organisations/organisations.command.js';
 import { otoroshiCommand } from './otoroshi/otoroshi.command.js';
 import { otoroshiDisableNgCommand } from './otoroshi/otoroshi.disable-ng.command.js';
 import { otoroshiEnableNgCommand } from './otoroshi/otoroshi.enable-ng.command.js';
@@ -476,6 +477,7 @@ export const globalCommands = {
     },
   ],
   open: openCommand,
+  organisations: [organisationsCommand, {}],
   otoroshi: [
     otoroshiCommand,
     {

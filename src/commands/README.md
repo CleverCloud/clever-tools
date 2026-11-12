@@ -51,6 +51,7 @@ These options are available for all commands:
 |[`clever oauth-consumers`](./oauth-consumers/oauth-consumers.docs.md)|Manage OAuth consumers used with a Clever Cloud login|
 |[`clever notify-email`](./notify-email/notify-email.docs.md)|Manage email notifications|
 |[`clever open`](./open/open.docs.md)|Open an application in the Console|
+|[`clever organisations`](./organisations/organisations.docs.md)|Manage organisations|
 |[`clever otoroshi`](./otoroshi/otoroshi.docs.md)|Manage Clever Cloud Otoroshi services|
 |[`clever profile`](./profile/profile.docs.md)|Display the profile of the current user|
 |[`clever published-config`](./published-config/published-config.docs.md)|Manage the configuration made available to other applications by this application|
