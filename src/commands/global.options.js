@@ -121,6 +121,13 @@ export const exitOnDeployOption = defineOption({
   placeholder: 'step',
 });
 
+export const restartCommitOption = defineOption({
+  name: 'commit',
+  schema: z.string().optional(),
+  description: 'Restart the application with a specific commit ID',
+  placeholder: 'commit-id',
+});
+
 export const importAsJsonOption = defineOption({
   name: 'json',
   schema: z.boolean().default(false),

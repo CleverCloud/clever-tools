@@ -48,6 +48,7 @@ Commands are declared with `defineCommand()` / `defineOption()` / `defineArgumen
 
 - One file per command or subcommand, exporting a `defineCommand({ description, since, options, args, handler })`. A pure group omits `handler`, a group can also run its own handler (`drain`, `env`).
 - Register it in `src/commands/global.commands.js`, then run `npm run docs`.
+- **A command never imports another command file.** Logic shared by several commands goes in `src/lib/` (`restart-application.js`, `operator-commands.js`), and each command calls it from its handler.
 - **A new command uses `since: null`.** The release workflow sets the version (`scripts/resolve-since.js`). Never change the `since` of a released command.
 - Reuse `global.options.js` / `global.args.js` before defining a new option. Arguments and options shared by several subcommands of the same command go in `<command>.args.js` / `<command>.options.js`.
 - Validation and parsing live in the Zod `schema` of the option or argument, not in the handler.
