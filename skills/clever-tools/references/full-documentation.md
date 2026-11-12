@@ -2712,6 +2712,28 @@ addon-id|addon-name    Add-on ID (or name, if unambiguous)
 clever members
 ```
 
+### members invite
+
+**Description:** Invite someone to an organisation
+
+**Since:** Unreleased
+
+**Usage**
+```
+clever members invite --role <role> <org-id|org-name> <email> [options]
+```
+
+**Arguments**
+```
+org-id|org-name      Organisation ID (or exact name, if unambiguous)
+email                Email address of the person to invite
+```
+
+**Options**
+```
+    --role <role>    Role of the new member (admin, manager, developer, accounting) (required)
+```
+
 ### members list
 
 **Description:** List the members of an organisation

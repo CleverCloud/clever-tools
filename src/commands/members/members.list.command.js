@@ -3,7 +3,7 @@ import { formatBorderedTable } from '../../format-table.js';
 import { defineCommand } from '../../lib/define-command.js';
 import { defineOption } from '../../lib/define-option.js';
 import { formatOrganisation } from '../../lib/organisation-format.js';
-import { fetchMembers, sortMembers } from '../../lib/organisation-members.js';
+import { assertNotPersonalSpace, fetchMembers, sortMembers } from '../../lib/organisation-members.js';
 import { Logger } from '../../logger.js';
 import { resolveOrganisationAndUser } from '../../models/organisation.js';
 import { orgaIdOrNameArg } from '../global.args.js';
@@ -32,9 +32,7 @@ export const membersListCommand = defineCommand({
     const { role, withoutMfa, format } = options;
 
     const { organisation, currentUserId } = await resolveOrganisationAndUser(orgaIdOrName);
-    if (organisation.isPersonal) {
-      throw new Error('Personal spaces have no members, use an organisation instead');
-    }
+    assertNotPersonalSpace(organisation);
     const members = sortMembers(await fetchMembers(organisation.id, currentUserId)).filter(
       (member) => (role == null || member.role === role) && (!withoutMfa || !member.isMfaEnabled),
     );

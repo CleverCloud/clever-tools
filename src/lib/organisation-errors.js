@@ -53,3 +53,30 @@ export function organisationUpdateError(error, orgaLabel) {
   }
   return rawApiError(error);
 }
+
+/**
+ * Translate an error of `POST /v2/organisations/{id}/members`.
+ * @param {ApiRequestError} error
+ * @param {Object} context
+ * @param {string} context.email - Address of the invited person
+ * @param {string} context.role - Role given to the invited person
+ * @param {string} context.orgaLabel - `<name> (<id>)` of the organisation
+ * @returns {Error}
+ */
+export function memberInviteError(error, { email, role, orgaLabel }) {
+  if (getStatus(error) === 403 && error?.message?.includes('Rate limit exceeded for member invitation')) {
+    return new Error('Invitation rate limit reached, retry later', { cause: error });
+  }
+  if (getCode(error) === 6451) {
+    return new Error(`Cannot invite ${email}: the OAuth right manage_organisations_members is missing`, {
+      cause: error,
+    });
+  }
+  if (getCode(error) === 6453) {
+    return new Error(`Cannot assign role ${role}: your role cannot assign it`, { cause: error });
+  }
+  if (getStatus(error) === 409) {
+    return new Error(`${email} is already a member of ${orgaLabel}`, { cause: error });
+  }
+  return rawApiError(error);
+}
