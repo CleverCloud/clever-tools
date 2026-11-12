@@ -88,6 +88,7 @@ When the handler runs, `blend` matches the regex, `shots` is an integer between 
 - One file per command or subcommand: `<command>.command.js`, `<command>.<sub>.command.js`. Deeper levels chain the names: `k8s.nodegroups.create.command.js`.
 - Arguments and options shared by several subcommands go in `<command>.args.js` and `<command>.options.js`. One used by a single command stays in its `.command.js` file.
 - Options and arguments shared across commands live in `src/commands/global.options.js` and `global.args.js` (`--app`, `--alias`, `--org`, `--format`, `--yes`…). Reuse them before defining a new one.
+- A command never imports another command file (`*.command.js`), only `global.commands.js` does. Logic shared by several commands goes in `src/lib/`: one file named after its function when there is one (`restartApplication()` in `restart-application.js`, used by `restart` and `rebuild`), one file per family when there are several (`operator-commands.js`). Each command then declares its own options and calls the shared function from its handler.
 
 ## `defineCommand`
 
