@@ -120,6 +120,8 @@ import { matomoOpenLogsCommand } from './matomo/matomo.open.logs.command.js';
 import { matomoOpenWebuiCommand } from './matomo/matomo.open.webui.command.js';
 import { matomoRebuildCommand } from './matomo/matomo.rebuild.command.js';
 import { matomoRestartCommand } from './matomo/matomo.restart.command.js';
+import { membersCommand } from './members/members.command.js';
+import { membersListCommand } from './members/members.list.command.js';
 import { metabaseCommand } from './metabase/metabase.command.js';
 import { metabaseGetCommand } from './metabase/metabase.get.command.js';
 import { metabaseOpenCommand } from './metabase/metabase.open.command.js';
@@ -416,6 +418,12 @@ export const globalCommands = {
       ],
       rebuild: matomoRebuildCommand,
       restart: matomoRestartCommand,
+    },
+  ],
+  members: [
+    membersCommand,
+    {
+      list: membersListCommand,
     },
   ],
   metabase: [

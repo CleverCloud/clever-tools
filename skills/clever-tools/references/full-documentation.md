@@ -2701,6 +2701,40 @@ clever matomo restart <addon-id|addon-name>
 addon-id|addon-name    Add-on ID (or name, if unambiguous)
 ```
 
+## members
+
+**Description:** Manage the members of an organisation
+
+**Since:** Unreleased
+
+**Usage**
+```
+clever members
+```
+
+### members list
+
+**Description:** List the members of an organisation
+
+**Since:** Unreleased
+
+**Usage**
+```
+clever members list <org-id|org-name> [options]
+```
+
+**Arguments**
+```
+org-id|org-name          Organisation ID (or exact name, if unambiguous)
+```
+
+**Options**
+```
+-F, --format <format>    Output format (human, json) (default: human)
+    --role <role>        Only list the members with this role (admin, manager, developer, accounting)
+    --without-2fa        Only list the members without 2FA
+```
+
 ## metabase
 
 **Description:** Manage Clever Cloud Metabase services

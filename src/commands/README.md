@@ -46,6 +46,7 @@ These options are available for all commands:
 |[`clever logs`](./logs/logs.docs.md)|Fetch application logs, continuously|
 |[`clever make-default`](./make-default/make-default.docs.md)|Make a linked application the default one|
 |[`clever matomo`](./matomo/matomo.docs.md)|Manage Clever Cloud Matomo services|
+|[`clever members`](./members/members.docs.md)|Manage the members of an organisation|
 |[`clever metabase`](./metabase/metabase.docs.md)|Manage Clever Cloud Metabase services|
 |[`clever ng`](./ng/ng.docs.md)|List Network Groups|
 |[`clever oauth-consumers`](./oauth-consumers/oauth-consumers.docs.md)|Manage OAuth consumers used with a Clever Cloud login|
