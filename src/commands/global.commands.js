@@ -123,6 +123,7 @@ import { matomoRestartCommand } from './matomo/matomo.restart.command.js';
 import { membersCommand } from './members/members.command.js';
 import { membersInviteCommand } from './members/members.invite.command.js';
 import { membersListCommand } from './members/members.list.command.js';
+import { membersUpdateCommand } from './members/members.update.command.js';
 import { metabaseCommand } from './metabase/metabase.command.js';
 import { metabaseGetCommand } from './metabase/metabase.get.command.js';
 import { metabaseOpenCommand } from './metabase/metabase.open.command.js';
@@ -426,6 +427,7 @@ export const globalCommands = {
     {
       invite: membersInviteCommand,
       list: membersListCommand,
+      update: membersUpdateCommand,
     },
   ],
   metabase: [

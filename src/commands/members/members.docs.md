@@ -50,3 +50,24 @@ clever members list <org-id|org-name> [options]
 |`-F`, `--format` `<format>`|Output format (human, json) (default: human)|
 |`--role` `<role>`|Only list the members with this role (admin, manager, developer, accounting)|
 |`--without-2fa`|Only list the members without 2FA|
+
+## ➡️ `clever members update` <kbd>Unreleased</kbd>
+
+Update the role of a member of an organisation
+
+```bash
+clever members update --role <role> <org-id|org-name> <member-id|email> [options]
+```
+
+### 📥 Arguments
+
+|Name|Description|
+|---|---|
+|`org-id\|org-name`|Organisation ID (or exact name, if unambiguous)|
+|`member-id\|email`|Member ID (user_...) or email address|
+
+### ⚙️ Options
+
+|Name|Description|
+|---|---|
+|`--role` `<role>`|New role of the member (admin, manager, developer, accounting) **(required)**|

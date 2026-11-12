@@ -2757,6 +2757,28 @@ org-id|org-name          Organisation ID (or exact name, if unambiguous)
     --without-2fa        Only list the members without 2FA
 ```
 
+### members update
+
+**Description:** Update the role of a member of an organisation
+
+**Since:** Unreleased
+
+**Usage**
+```
+clever members update --role <role> <org-id|org-name> <member-id|email> [options]
+```
+
+**Arguments**
+```
+org-id|org-name      Organisation ID (or exact name, if unambiguous)
+member-id|email      Member ID (user_...) or email address
+```
+
+**Options**
+```
+    --role <role>    New role of the member (admin, manager, developer, accounting) (required)
+```
+
 ## metabase
 
 **Description:** Manage Clever Cloud Metabase services
