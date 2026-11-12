@@ -3331,6 +3331,22 @@ clever open [options]
 clever organisations
 ```
 
+### organisations list
+
+**Description:** List the organisations you are a member of, your personal space included
+
+**Since:** Unreleased
+
+**Usage**
+```
+clever organisations list [options]
+```
+
+**Options**
+```
+-F, --format <format>    Output format (human, json) (default: human)
+```
+
 ## otoroshi
 
 **Description:** Manage Clever Cloud Otoroshi services
