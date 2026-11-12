@@ -1,11 +1,11 @@
 # Testing
 
-Automated tests are run with the [Node.js test runner](https://nodejs.org/api/test.html) (`node:test` and `node:assert`), with no extra dependency.
+Automated tests are run with the [Node.js test runner](https://nodejs.org/api/test.html) (`node:test` and `node:assert`). The fake API of the command tests runs on [doublure](https://www.npmjs.com/package/@clevercloud/doublure).
 They are written in TypeScript and run directly by Node.js, without a build step, and they are typechecked like the rest of the code (see [code-quality.md](code-quality.md#type-checking)).
 
 | Kind | Where | What |
 |---|---|---|
-| Command tests | `src/commands/<command>/<command>.command.test.ts` or `<command>.<sub>.command.test.ts`, next to the command file | Black box tests of one command or subcommand: they run `bin/clever.js` in a sandbox, see [Command tests](#command-tests) |
+| Command tests | `src/commands/<command>/<command>.command.test.ts` or `<command>.<sub>.command.test.ts`, next to the command file | Black box tests of one command or subcommand: they run `bin/clever.js` in a sandbox, against a fake API, see [Command tests](#command-tests) |
 | Unit tests | `*.test.ts` next to the module they cover (`src/config/config.test.ts` covers `src/config/config.js`) | One module imported and called directly, see [Unit tests](#unit-tests) |
 | Framework tests | `test/**/*.test.ts` next to the helper they cover | The test framework itself |
 
@@ -24,20 +24,37 @@ node --test src/commands/version/*.command.test.ts
 
 ## Command tests
 
-Command tests are black box tests: they run `bin/clever.js` in a separate process, in a hermetic sandbox. `src/commands/version/version.command.test.ts` is the smallest example.
+Command tests are black box tests: they run `bin/clever.js` in a separate process, in a hermetic sandbox, against a fake API. `src/commands/version/version.command.test.ts` is the smallest example, `src/commands/stop/stop.command.test.ts` the smallest one calling the API.
 
-The sandbox points `API_HOST` and `AUTH_BRIDGE_HOST` at two distinct closed ports (`http://127.0.0.1:1` and `http://127.0.0.1:2`, so an output tells which host was used): there is no fake API yet, so only commands that make no API call can be tested, and an unexpected call fails the run.
+The sandbox points `API_HOST` at `apiMock`, started on a random port. A call no test mocked gets a 404 from it. `AUTH_BRIDGE_HOST` is a closed port (`http://127.0.0.1:2`): the root help prints it, so it stays fixed, and there is no fake auth bridge yet.
 
 ### Layout of `test/`
 
 | Path | Content |
 |---|---|
-| `test/lib/` | Generic helpers, nothing specific to Clever: `runCli()`, `assertCliResult()`, the file system and env mocks, and the file assertions (`assertFile()`, `assertJsonFile()`, `assertNoFile()`) |
+| `test/lib/` | Generic helpers, nothing specific to Clever: `runCli()`, `assertCliResult()`, the file system and env mocks, the file assertions (`assertFile()`, `assertJsonFile()`, `assertNoFile()`) and `assertApiCalls()` |
 | `test/` (root) | Everything specific to the Clever CLI: `setupCleverSandbox()`, `CleverFsMock`, `assertCleverResult()` |
 
 ### Shape of a test
 
 ```ts
+describe('clever stop', () => {
+  const { apiMock, fsMock, runClever } = setupCleverSandbox();
+
+  it('with the linked application, should stop the application and print the success message', async () => {
+    fsMock.writeAppConfigFile('myapp', { apps: [LINKED_APP] });
+    await apiMock.respond('DELETE', `/v2/organisations/${USER_ID}/applications/${APP_ID}/instances`, 204);
+    fsMock.setCwd('myapp');
+
+    const result = await runClever(['stop']);
+
+    assertCleverResult(result, { exitCode: 0, stdoutText: '✓ Application successfully stopped!' });
+    assertApiCalls(await apiMock.getCalls(), [
+      { method: 'DELETE', path: `/v2/organisations/${USER_ID}/applications/${APP_ID}/instances` },
+    ]);
+  });
+});
+
 describe('clever features', () => {
   const { fsMock, runClever } = setupCleverSandbox();
 
@@ -52,7 +69,7 @@ describe('clever features', () => {
 });
 ```
 
-- One `setupCleverSandbox()` per file, at the top of the root `describe`. It returns `fsMock`, `envMock` and `runClever()`. `fsMock` and `envMock` are reset before each test.
+- One `setupCleverSandbox()` per file, at the top of the root `describe`. It returns `apiMock`, `fsMock`, `envMock` and `runClever()`. Every mock is reset before each test.
 - Three blocks, Given / When / Then, separated by one blank line. No blank line inside a block.
 
 ### Naming tests
@@ -66,10 +83,12 @@ A test name uses `should` followed by an observable result: what is printed, the
 
 ### Given
 
-- Only flat calls: `fsMock.write*()`, `fsMock.setCwd()`, `envMock.set()`.
+- Only flat calls: `apiMock.respond*()`, `fsMock.write*()`, `fsMock.setCwd()`, `envMock.set()`.
+- Everything explicit: no default method or status.
+- `apiMock.respond*()` takes positional values or a single object, same values in the same order. `delay` is in milliseconds before the response. `:name` in a path matches one segment.
 - `fsMock` holds one temporary directory, the `HOME` and the default working directory of the CLI. By convention, config files go in `config/` (see `CLEVER_FILES`) and apps in `<app>/` (e.g. `myapp/.clever.json`). Use `fsMock.setCwd('myapp')` to run the CLI elsewhere, never an option of `runClever()`.
 - Clever files go through the typed helpers when one exists (`fsMock.writeConfigFile()`, `fsMock.writeAppConfigFile(appDir, …)`, `fsMock.writeExperimentalFeaturesFile()`), invalid contents included: a helper also accepts a string or any object (unknown key, broken JSON), so there is no raw variant. Add one to `CleverFsMock` once a test needs another file.
-- `envMock.set()` and `envMock.unset()` change the env vars of the CLI, on top of the hermetic env (`HOME`, `NO_COLOR`, `LANG`, the closed API hosts…).
+- `envMock.set()` and `envMock.unset()` change the env vars of the CLI, on top of the hermetic env (`HOME`, `NO_COLOR`, `LANG`, the API hosts on `apiMock`…).
 
 ### When
 
@@ -81,6 +100,7 @@ A test name uses `should` followed by an observable result: what is printed, the
 - `assertCleverResult()` always states `exitCode`. An omitted output (`stdout*` or `stderr*`) must be empty.
 - Prefer the exact text (`stdoutText`, `stdoutJson`) to a regex. Keep `stdoutMatch` for what is really unpredictable.
 - Argument and option errors use `usageError`: only the error lines printed before the help are compared.
+- `assertApiCalls()` lists every expected call, in order, `[]` included when no call is expected. An omitted `query` or `body` must be absent, `headers` are only checked when listed.
 - Files: `assertJsonFile(path, value)` or `assertFile(path, text)` check a whole file, `assertNoFile(path)` checks that a file was not written. To check only a part, read it (`fsMock.read()`) and assert on the value.
 
 ### Sharing between tests
@@ -98,6 +118,7 @@ A test must read without scrolling up, nor knowing hidden setup.
 ### Known pitfalls
 
 - `stdoutText` is dedented, and `dedent` ignores the lines in column 0 when computing the common indentation: an interpolated text mixing lines in column 0 and indented lines loses the indentation of the latter.
+- doublure does not match a static path holding a reserved character (`;,@&=+$`) once encoded (`/emails/a%40b.com`), and rejects such a mock: mock a templated path (`/v2/self/emails/:email`), set the decoded value in `pathParams` if needed, and check the exact encoded path with `assertApiCalls()`.
 - A crash of the CLI only shows its message, not its stack trace (it needs `CLEVER_VERBOSE`, which also prints debug lines on stdout).
 - Windows is not handled yet: the env is hermetic, so the CLI lacks the OS vars it needs there (`SystemRoot`, `windir`, `TEMP`, `TMP`, `PATH`, `PATHEXT`, `COMSPEC`).
 

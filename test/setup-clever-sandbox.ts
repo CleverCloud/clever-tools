@@ -1,5 +1,6 @@
+import { ApiMock } from '@clevercloud/doublure';
 import { join } from 'node:path';
-import { after, beforeEach } from 'node:test';
+import { after, before, beforeEach } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { getCacheDir } from '../src/config/paths.js';
 import { CLEVER_FILES, CleverFsMock } from './clever-fs-mock.ts';
@@ -23,6 +24,8 @@ function getCompileCacheDir(): string | undefined {
 }
 
 export interface CleverSandbox {
+  /** Fake Clever Cloud API, the `API_HOST` of the CLI. */
+  apiMock: ApiMock;
   /**
    * Its temporary directory is the `HOME` and the default working directory of the CLI (see `fsMock.setCwd()`).
    * By convention, config files go in `config/` (see `CLEVER_FILES`), apps in `<app>/`.
@@ -31,32 +34,38 @@ export interface CleverSandbox {
   /** Env vars of the CLI, on top of the hermetic env. */
   envMock: EnvMock;
   /**
-   * Run `bin/clever.js` in the cwd of `fsMock`, with `HOME` in its temporary directory, `API_HOST` and
-   * `AUTH_BRIDGE_HOST` on two distinct closed ports (any API call fails the run), and the vars of `envMock`.
+   * Run `bin/clever.js` in the cwd of `fsMock`, with `HOME` in its temporary directory, `API_HOST` on `apiMock`,
+   * `AUTH_BRIDGE_HOST` on a closed port, and the vars of `envMock`.
    */
   runClever: (args: string[], options?: Partial<Pick<RunCliOptions, 'timeout' | 'stdin'>>) => Promise<RunCliResult>;
 }
 
 /**
- * Set up `fsMock` and `envMock` for the current `describe`, reset before each test, and return a `runClever()`
- * wired to them.
- * Must be called directly in the body of a `describe`: `node:test` attaches `beforeEach` and `after`
+ * Set up the mocks for the current `describe`, reset before each test, and return a `runClever()` wired to them.
+ * Must be called directly in the body of a `describe`: `node:test` attaches `before`, `beforeEach` and `after`
  * to the suite that is active at call time.
  */
 export function setupCleverSandbox(): CleverSandbox {
+  const apiMock = new ApiMock();
   const fsMock = new CleverFsMock();
   const envMock = new EnvMock();
 
-  beforeEach(() => {
+  before(async () => {
+    await apiMock.start();
+  });
+
+  beforeEach(async () => {
     fsMock.reset();
-    // Hermetic env: hosts point at closed ports, the home directory and every config file live in the temporary
-    // directory of `fsMock`, so the CLI cannot reach anything a test did not set up, nor leak state to the next run.
+    await apiMock.reset();
+    // Hermetic env: `API_HOST` points at the fake API, `AUTH_BRIDGE_HOST` at a closed port, the home directory and
+    // every config file live in the temporary directory of `fsMock`, so the CLI cannot reach anything a test did not
+    // set up, nor leak state to the next run.
     const homeDir = fsMock.getPath();
     envMock.reset({
       HOME: homeDir,
       APPDATA: homeDir,
-      // Two distinct ports, so an output or an error tells which host the CLI used.
-      API_HOST: 'http://127.0.0.1:1',
+      API_HOST: apiMock.getBaseUrl(),
+      // The root help embeds this host: a fixed closed port keeps its text stable.
       AUTH_BRIDGE_HOST: 'http://127.0.0.1:2',
       CONFIGURATION_FILE: fsMock.getPath(CLEVER_FILES.config),
       EXPERIMENTAL_FEATURES_FILE: fsMock.getPath(CLEVER_FILES.experimentalFeatures),
@@ -73,7 +82,8 @@ export function setupCleverSandbox(): CleverSandbox {
     });
   });
 
-  after(() => {
+  after(async () => {
+    await apiMock.stop();
     fsMock.stop();
   });
 
@@ -86,6 +96,7 @@ export function setupCleverSandbox(): CleverSandbox {
   }
 
   return {
+    apiMock,
     fsMock,
     envMock,
     runClever,
