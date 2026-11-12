@@ -51,6 +51,27 @@ clever members list <org-id|org-name> [options]
 |`--role` `<role>`|Only list the members with this role (admin, manager, developer, accounting)|
 |`--without-2fa`|Only list the members without 2FA|
 
+## ➡️ `clever members remove` <kbd>Unreleased</kbd>
+
+Remove a member from an organisation
+
+```bash
+clever members remove <org-id|org-name> <member-id|email> [options]
+```
+
+### 📥 Arguments
+
+|Name|Description|
+|---|---|
+|`org-id\|org-name`|Organisation ID (or exact name, if unambiguous)|
+|`member-id\|email`|Member ID (user_...) or email address|
+
+### ⚙️ Options
+
+|Name|Description|
+|---|---|
+|`-y`, `--yes`|Skip confirmation prompts|
+
 ## ➡️ `clever members update` <kbd>Unreleased</kbd>
 
 Update the role of a member of an organisation
