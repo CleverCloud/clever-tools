@@ -3331,6 +3331,27 @@ clever open [options]
 clever organisations
 ```
 
+### organisations get
+
+**Description:** Get the details of an organisation
+
+**Since:** Unreleased
+
+**Usage**
+```
+clever organisations get <org-id|org-name> [options]
+```
+
+**Arguments**
+```
+org-id|org-name          Organisation ID (or exact name, if unambiguous)
+```
+
+**Options**
+```
+-F, --format <format>    Output format (human, json) (default: human)
+```
+
 ### organisations list
 
 **Description:** List the organisations you are a member of, your personal space included

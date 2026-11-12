@@ -23,3 +23,20 @@ export function formatOrganisation(organisation) {
     id: (id) => styleText('grey', id),
   });
 }
+
+/**
+ * @param {string} vatNumber
+ * @param {string | null} vatState
+ * @returns {string} The VAT number, followed by its state when the API gives one
+ */
+export function formatVatNumber(vatNumber, vatState) {
+  return isEmpty(vatState) ? vatNumber : `${vatNumber} (${vatState})`;
+}
+
+/**
+ * @param {string | null | undefined} value
+ * @returns {boolean} Whether the value is missing or an empty string, as the API returns both for an unset field
+ */
+export function isEmpty(value) {
+  return value == null || value === '';
+}
