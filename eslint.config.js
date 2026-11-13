@@ -157,4 +157,12 @@ export default defineConfig([
       '@typescript-eslint/no-floating-promises': 'off',
     },
   },
+  {
+    name: 'test fixtures',
+    files: ['test/fixtures/**/*.ts'],
+    rules: {
+      // Fixtures mirror API payloads as is (`price_id`, `machine_learning`, `last_deploy`…)
+      camelcase: 'off',
+    },
+  },
 ]);
