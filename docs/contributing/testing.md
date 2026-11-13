@@ -34,6 +34,7 @@ The sandbox points `API_HOST` at `apiMock`, started on a random port. A call no 
 |---|---|
 | `test/lib/` | Generic helpers, nothing specific to Clever: `runCli()`, `assertCliResult()`, the file system and env mocks, the file assertions (`assertFile()`, `assertJsonFile()`, `assertNoFile()`) and `assertApiCalls()` |
 | `test/` (root) | Everything specific to the Clever CLI: `setupCleverSandbox()`, `CleverFsMock`, `assertCleverResult()` |
+| `test/fixtures/` | Shared API payloads of the command tests, one file per entity, see [Fixtures](#fixtures) |
 
 ### Shape of a test
 
@@ -42,15 +43,15 @@ describe('clever stop', () => {
   const { apiMock, fsMock, runClever } = setupCleverSandbox();
 
   it('with the linked application, should stop the application and print the success message', async () => {
-    fsMock.writeAppConfigFile('myapp', { apps: [LINKED_APP] });
-    await apiMock.respond('DELETE', `/v2/organisations/${USER_ID}/applications/${APP_ID}/instances`, 204);
+    fsMock.writeAppConfigFile('myapp', { apps: [LINKED_APP_NODE] });
+    await apiMock.respond('DELETE', `/v2/organisations/${APP_NODE.ownerId}/applications/${APP_NODE.id}/instances`, 204);
     fsMock.setCwd('myapp');
 
     const result = await runClever(['stop']);
 
     assertCleverResult(result, { exitCode: 0, stdoutText: '✓ Application successfully stopped!' });
     assertApiCalls(await apiMock.getCalls(), [
-      { method: 'DELETE', path: `/v2/organisations/${USER_ID}/applications/${APP_ID}/instances` },
+      { method: 'DELETE', path: `/v2/organisations/${APP_NODE.ownerId}/applications/${APP_NODE.id}/instances` },
     ]);
   });
 });
@@ -109,7 +110,61 @@ A test must read without scrolling up, nor knowing hidden setup.
 
 - No `beforeEach` that sets up data.
 - A Given of several lines can move to a private function inside the `describe`, called explicitly in each test.
-- Values are written literally in the test that uses them, an expected value always stays literal in the test that checks it.
+- Users, organisations and applications given to `apiMock` come from `test/fixtures/` (see [Fixtures](#fixtures)), the test only spells out what it relies on, as a spread: `{ ...ORGANISATION_FOO, canPay: false }`. Other bodies (errors, small or one-off payloads) stay literal in the test.
+- In expected values (printed text, JSON, file), write literally what the user reads and interpolate what designates an entity:
+  - What the user reads (names, labels, formatting, order) stays literal: it is what the test checks, and a fixture change can't change both the input and the expectation unnoticed.
+  - What designates an entity of the fixtures, its ID, is interpolated from its constant (`${ORGANISATION_FOO.id}`), in paths and expected values alike: the test checks which entity is used, not how its opaque value is spelled, and every entity having its own UUID, the wrong one still fails the test.
+
+### Fixtures
+
+`test/fixtures/` holds the API payloads shared by the command tests, one file per entity: `user.ts`, `organisation.ts`, `app.ts`, `flavor.ts`, `deployment.ts`, `instance.ts`, plus `summary.ts`. Add only what a test uses.
+
+- **Fixtures look like the real API**: same keys, types, `null`s and ID formats as a real response of the endpoint they stand for (an instance ID is a bare UUID, a deployment `id` a number and its `uuid` a `deployment_<uuid>`), only the values are made up. Check a new fixture against a real response (`clever curl`, GET only).
+- **One constant per entity**, shaped like the response of its own endpoint (`USER_SELF` like `GET /v2/self`, `ORGANISATION_FOO` like `GET /v2/organisations/{id}`). An entity the API returns in several shapes holds every field of all of them (`INSTANCE_NODE_1`). Each entity is written in full, never as a spread of another one, so that two entities can't be confused. A spread only makes a variant of the same entity (`APP_NODE_SCALABLE`, or in a test `{ ...ORGANISATION_FOO, canPay: false }`).
+- **A function only to keep an invariant or to project entities** onto an endpoint that lists them in another shape: `rawSummary()` for `GET /v2/summary`, `rawMembers()` for `GET /v2/organisations/{id}/members`, `rawInstances()` for `GET /v2/organisations/{id}/applications/{id}/instances` and `rawOrchestrationInstances()` for `GET /v4/orchestration/organisations/{id}/applications/{id}/instances`, which list the same instances (same UUIDs and names): v4 flags the build VM (`isBuildVm`) and also returns the deleted instances, v2 lists the build VM like any other instance. They take the constants and keep the fields of the endpoint. `rawSummary()` also keeps the invariant of the real API: the personal space shows up in `user`, with its resources, and first in `organisations`, without any. It is the only way to build a summary, and no test builds one without the personal space: never override `organisations` by hand to remove it, the real API always lists it.
+- **A list only holds what the API would return in it**: `GET /v2/organisations/{id}/applications` only lists the applications of that owner (`[APP_NODE, APP_GO]` for `ORGANISATION_SELF`, `[APP_PHP, APP_JAVA]` for `ORGANISATION_FOO`).
+- **Nullable fields are set to `null`, never removed**: an instance never deployed from a commit has `commit: null`, e.g. `{ ...INSTANCE_NODE_1, commit: null }`.
+- **A relation is written in the test**: a role belongs to a user in an organisation, not to the user nor to the organisation, e.g. `rawMembers([{ user: USER_GIULIA, role: 'DEVELOPER' }])`.
+- **Every entity has its own UUID**, `00000000-0000-4000-8000-000000000NNN`, so that an ID used in place of another one fails the test. The hundreds of `NNN` give the type: `1xx` users, `2xx` organisations, `3xx` applications, `4xx` deployments (their `uuid`), `5xx` instances.
+- **Applications are named after their runtime** (`APP_NODE`, `APP_GO`, `APP_PHP`, `APP_JAVA`, `APP_PYTHON`): a test that needs another runtime adds its own application, e.g. `APP_RUBY`.
+- **An ID is taken from what it designates in the request**, even when two constants share its value:
+  - the owner of an application in its path (`/v2/organisations/{owner}/applications/{app}`): `${APP_NODE.ownerId}`;
+  - an organisation designated as such (the `organisations` commands, `--org`, `GET /v2/organisations/{id}`): `${ORGANISATION_SELF.id}`, `${ORGANISATION_FOO.id}`…;
+  - a user or a member (`/v2/self`, members): `${USER_SELF.id}`.
+
+The identity shared by all tests, to write literally in expected values:
+
+| Constant | ID | Name |
+|---|---|---|
+| `USER_SELF` (current user) | `user_...100` | `Marie Dubois` (`marie.dubois@example.com`) |
+| `USER_GIULIA`, `USER_LUKAS`, `USER_JAN` | `user_...101`, `102`, `103` | `Giulia Rossi`, `Lukas Schmidt`, `Jan Kowalski` |
+| `ORGANISATION_SELF` (personal space of `USER_SELF`, distinct from the organisations they are a member of) | `user_...100` | `Marie Dubois` |
+| `ORGANISATION_FOO`, `ORGANISATION_BAR` | `orga_...200`, `201` | `Foo Inc`, `Bar Inc` |
+| `APP_NODE` (Node.js, owned by `USER_SELF`) | `app_...300` | `my-node-app`, alias `my-node-alias` |
+| `APP_PHP` (PHP, owned by `Foo Inc`) | `app_...301` | `my-php-app`, alias `my-php-alias` |
+| `APP_PYTHON` (Python, owned by `Bar Inc`, zone `rbx`) | `app_...302` | `my-python-app` |
+| `APP_GO` (Go, owned by `USER_SELF`) | `app_...303` | `my-go-app` |
+| `APP_JAVA` (Java + JAR, owned by `Foo Inc`) | `app_...304` | `my-java-app` |
+| `DEPLOYMENT_NODE_OK`, `DEPLOYMENT_NODE_WIP` (of `APP_NODE`) | `id` `1`, `2`, `uuid` `deployment_...400`, `401` | |
+| `INSTANCE_NODE_1`, `_2`, `_3`, `INSTANCE_NODE_BUILD` (build VM, `DEPLOYING`), `INSTANCE_NODE_DELETED` (`DELETED`, v4 history) (of `APP_NODE`) | `...500` to `504` | `Calm Fox`, `Bold Owl`, `Brave Lynx`, `Quiet Otter`, `Old Heron` |
+
+```ts
+await apiMock.respond(
+  'GET',
+  '/v2/summary',
+  200,
+  rawSummary({ organisations: [{ organisation: ORGANISATION_FOO, role: 'ADMIN' }] }),
+);
+await apiMock.respond(
+  'GET',
+  `/v2/organisations/${ORGANISATION_FOO.id}/members`,
+  200,
+  rawMembers([
+    { user: USER_SELF, role: 'ADMIN' },
+    { user: { ...USER_GIULIA, name: null }, role: 'DEVELOPER', job: 'CTO' },
+  ]),
+);
+```
 
 ### Checking a test
 
