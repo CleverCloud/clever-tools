@@ -76,6 +76,9 @@ export function setupCleverSandbox(): CleverSandbox {
       LANG: 'en_US.UTF-8',
       NO_UPDATE_NOTIFIER: '1',
       NO_COLOR: '1',
+      // Without a terminal, Inquirer wraps prompts at 80 columns (cli-width) unless CLI_WIDTH says otherwise: a wide
+      // but realistic terminal keeps the echo of an answer on one line.
+      CLI_WIDTH: '200',
       // Node reuses the bytecode of the files it already compiled. It is outside the temporary directory of `fsMock`,
       // which is recreated before each test, so the following runs of the suite start with a warm cache.
       ...(COMPILE_CACHE_DIR != null ? { NODE_COMPILE_CACHE: COMPILE_CACHE_DIR } : {}),
