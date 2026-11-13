@@ -78,15 +78,24 @@ describe('clever features', () => {
 A test name uses `should` followed by an observable result: what is printed, the files written, the exit code. Never an implementation detail.
 
 - The root `describe` is the command as the user types it: `clever features enable`.
-- The second level is the category: `Happy path`, `CLI errors` (arguments and options), `Environment errors` (files, env vars).
+- The second level is the category, by source of what the test varies:
+  - `Happy path`: the command does what was asked, exit code 0, even when there is nothing to do (`with the application already as default, should leave .clever.json unchanged`).
+  - `CLI errors`: arguments and options.
+  - `Environment errors`: files (`.clever.json`, config), env vars, the terminal.
+  - `HTTP errors`: the API answers an error (4xx, 5xx).
+  - `Blocking API state`: the API answers fine (2xx), but the state it returns makes the command decline, with a non-zero exit code (no ongoing deployment to cancel, no application matching a name).
+
+  The status of the mocked response decides between the last two: an application looked up in a list that does not hold it is `Blocking API state`, a `GET /…/{id}` answering 404 is `HTTP errors`.
 - The condition always comes before `should`: `with no format, should print the human format`. A condition shared by several tests goes in a `describe('with …')`, a condition specific to one test is a prefix of its name.
 - Tests that only differ by the output format end with `in human format` / `in json format`.
 
 ### Given
 
 - Only flat calls: `apiMock.respond*()`, `fsMock.write*()`, `fsMock.setCwd()`, `envMock.set()`.
+- Always in this order: `fsMock.write*()`, then `fsMock.setCwd()`, then `envMock.*()`, then `apiMock.respond*()`.
 - Everything explicit: no default method or status.
 - `apiMock.respond*()` takes positional values or a single object, same values in the same order. `delay` is in milliseconds before the response. `:name` in a path matches one segment.
+- A mock that the test does not assert uses the exact path, IDs interpolated: a call with other IDs gets a 404 and fails the command, so the path checks the IDs. A mock whose calls the test asserts can use path placeholders (`/v2/organisations/:ownerId/applications/:appId/…`): it answers whatever the IDs, and the assertion checks the path that was called, or that there was no call.
 - `fsMock` holds one temporary directory, the `HOME` and the default working directory of the CLI. By convention, config files go in `config/` (see `CLEVER_FILES`) and apps in `<app>/` (e.g. `myapp/.clever.json`). Use `fsMock.setCwd('myapp')` to run the CLI elsewhere, never an option of `runClever()`.
 - Clever files go through the typed helpers when one exists (`fsMock.writeConfigFile()`, `fsMock.writeAppConfigFile(appDir, …)`, `fsMock.writeExperimentalFeaturesFile()`), invalid contents included: a helper also accepts a string or any object (unknown key, broken JSON), so there is no raw variant. Add one to `CleverFsMock` once a test needs another file.
 - `envMock.set()` and `envMock.unset()` change the env vars of the CLI, on top of the hermetic env (`HOME`, `NO_COLOR`, `LANG`, `CLI_WIDTH` at 200 columns for the prompts, the API hosts on `apiMock`…).
@@ -101,15 +110,29 @@ A test name uses `should` followed by an observable result: what is printed, the
 - `assertCleverResult()` always states `exitCode`. An omitted output (`stdout*` or `stderr*`) must be empty.
 - Prefer the exact text (`stdoutText`, `stdoutJson`) to a regex. Keep `stdoutMatch` for what is really unpredictable.
 - Argument and option errors use `usageError`: only the error lines printed before the help are compared.
-- `assertApiCalls()` lists every expected call, in order, `[]` included when no call is expected. An omitted `query` or `body` must be absent, `headers` are only checked when listed.
+- Only assert the calls the command is about (the write it sends, the call it must not send), not every read it makes on the way: how it fetches what it needs is an implementation detail.
+  - A read-only command does not assert its reads when the output already proves them: the exact path of the mocks checks the IDs.
+  - A command that never calls the API asserts `assertApiCalls(await apiMock.getCalls(), [])` in every test.
+  - Every failing test of a command that writes (CLI, environment, HTTP, blocking state) mocks the write and asserts it was not sent.
+- `assertApiCalls()` lists every expected call, in order, `[]` included when no call is expected. An omitted `query` or `body` must be absent, `headers` are only checked when listed. Narrow the calls first with `calls.filter({ method, path })` to assert only some of them.
+- `calls.filter({ method, path })` only keeps the calls answered by a mock: a call that no mock answered is left out. To check that a call was not sent, mock its path with placeholders first, then assert that the filtered calls are empty. Two private functions keep the pair readable, e.g. `mockDeleteInstances()` and `assertNoDeleteInstances()` sharing a `DELETE_INSTANCES_PATH` constant.
 - Files: `assertJsonFile(path, value)` or `assertFile(path, text)` check a whole file, `assertNoFile(path)` checks that a file was not written. To check only a part, read it (`fsMock.read()`) and assert on the value.
+- Assert the end state of a file only when the command can write it, unchanged included after an error. Leave alone the files it never touches (`.clever.json` for `clever status`, `ids-cache.json`).
+
+### What to cover
+
+- A command that targets an application gets one happy path with `--alias` (one of several linked applications) and one with `--app` (an application that is not linked), to check it passes them on. The resolution of the application itself (default application, ambiguous name, `--app` and `--alias` together, unknown alias) is shared by every command and is tested once, not in every command. Same for how an alias is matched (case, name instead of alias), done by `findApp()` for every command.
+- A command that calls the API gets at least one `HTTP errors` test, with the error body of the real API: `{ id, message, type: 'error' }`.
+- Responses the real API never produces (a `null` body, an object instead of a list, a missing field, lowercase enum values) are not tested: the CLI trusts the API contract, a defensive pass will come later. A value the `Raw*` type of a fixture refuses (`null` on a non-nullable field) is one of them. Same for a `.clever.json` edited by hand or invalid, which a schema validation of the file will cover.
+- One test per branch of the code: two tests that only differ by a value going through the same branch are one too many, keep one. Exceptions: a bound (`1` and `20`), and options that each have their own wiring to the same parser. A human and json pair is kept only when the json output goes through its own branch.
+- A surprising behaviour that is kept starts its test with a `// current behavior: ...` comment. A bug is never pinned: it is an `it.todo` with a `// blocked: bug, ...` comment.
 
 ### Sharing between tests
 
 A test must read without scrolling up, nor knowing hidden setup.
 
 - No `beforeEach` that sets up data.
-- A Given of several lines can move to a private function inside the `describe`, called explicitly in each test.
+- A Given of several lines can move to a private function inside the `describe`, called explicitly in each test. It only answers API mocks (no file written behind the test's back), has a one-line JSDoc saying what it answers, and takes the entities as parameters typed with the `Raw*` types of the fixtures (`mockGetApplications(owner, applications)`), never `unknown`, rather than one function per case.
 - Users, organisations and applications given to `apiMock` come from `test/fixtures/` (see [Fixtures](#fixtures)), the test only spells out what it relies on, as a spread: `{ ...ORGANISATION_FOO, canPay: false }`. Other bodies (errors, small or one-off payloads) stay literal in the test.
 - In expected values (printed text, JSON, file), write literally what the user reads and interpolate what designates an entity:
   - What the user reads (names, labels, formatting, order) stays literal: it is what the test checks, and a fixture change can't change both the input and the expectation unnoticed.
@@ -125,7 +148,8 @@ A test must read without scrolling up, nor knowing hidden setup.
 - **A list only holds what the API would return in it**: `GET /v2/organisations/{id}/applications` only lists the applications of that owner (`[APP_NODE, APP_GO]` for `ORGANISATION_SELF`, `[APP_PHP, APP_JAVA]` for `ORGANISATION_FOO`).
 - **Nullable fields are set to `null`, never removed**: an instance never deployed from a commit has `commit: null`, e.g. `{ ...INSTANCE_NODE_1, commit: null }`.
 - **A relation is written in the test**: a role belongs to a user in an organisation, not to the user nor to the organisation, e.g. `rawMembers([{ user: USER_GIULIA, role: 'DEVELOPER' }])`.
-- **Every entity has its own UUID**, `00000000-0000-4000-8000-000000000NNN`, so that an ID used in place of another one fails the test. The hundreds of `NNN` give the type: `1xx` users, `2xx` organisations, `3xx` applications, `4xx` deployments (their `uuid`), `5xx` instances.
+- **Every entity has its own UUID**, `00000000-0000-4000-8000-000000000NNN`, so that an ID used in place of another one fails the test. The hundreds of `NNN` give the type: `1xx` users, `2xx` organisations, `3xx` applications, `4xx` deployments (their `uuid`), `5xx` instances. An ID that must match no entity (an unknown application) takes a free `NNN` in the range of its type (`app_...399`), never the one of a fixture.
+- **Every shape has an exported `Raw*` type** (`RawApplication`, `RawInstance`, `RawSummary`…), for the parameters of the Given functions.
 - **Applications are named after their runtime** (`APP_NODE`, `APP_GO`, `APP_PHP`, `APP_JAVA`, `APP_PYTHON`): a test that needs another runtime adds its own application, e.g. `APP_RUBY`.
 - **An ID is taken from what it designates in the request**, even when two constants share its value:
   - the owner of an application in its path (`/v2/organisations/{owner}/applications/{app}`): `${APP_NODE.ownerId}`;
