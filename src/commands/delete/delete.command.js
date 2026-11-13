@@ -35,9 +35,11 @@ export const deleteCommand = defineCommand({
     Logger.printSuccess(`Application ${styleText('green', styleText('bold', `${app.name}`))} successfully deleted!`);
     Logger.println(`  ${styleText('grey', '•')} Application ID: ${styleText('grey', app.id)}`);
 
-    const wasUnlinked = await CleverJson.removeLinkedApplication({ appId, alias });
-    if (wasUnlinked) {
-      Logger.println(`  ${styleText('blue', '→')} Local alias ${styleText('blue', alias || app.name)} unlinked`);
+    const unlinkedApp = await CleverJson.removeLinkedApplication({ appId, alias });
+    if (unlinkedApp != null) {
+      Logger.println(
+        `  ${styleText('blue', '→')} Local alias ${styleText('blue', unlinkedApp.alias ?? app.name)} unlinked`,
+      );
     }
   },
 });
