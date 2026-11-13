@@ -3320,6 +3320,184 @@ clever open [options]
     --app <app-id|app-name>    Application to manage by its ID (or name, if unambiguous)
 ```
 
+## organisations
+
+**Description:** Manage organisations
+
+**Since:** Unreleased
+
+**Usage**
+```
+clever organisations
+```
+
+### organisations get
+
+**Description:** Get the details of an organisation
+
+**Since:** Unreleased
+
+**Usage**
+```
+clever organisations get <org-id|org-name> [options]
+```
+
+**Arguments**
+```
+org-id|org-name          Organisation ID (or exact name, if unambiguous)
+```
+
+**Options**
+```
+-F, --format <format>    Output format (human, json) (default: human)
+```
+
+### organisations list
+
+**Description:** List the organisations you are a member of, your personal space included
+
+**Since:** Unreleased
+
+**Usage**
+```
+clever organisations list [options]
+```
+
+**Options**
+```
+-F, --format <format>    Output format (human, json) (default: human)
+```
+
+### organisations members
+
+**Description:** Manage the members of an organisation
+
+**Since:** Unreleased
+
+**Usage**
+```
+clever organisations members
+```
+
+#### organisations members invite
+
+**Description:** Invite someone to join an organisation, by email
+
+**Since:** Unreleased
+
+**Usage**
+```
+clever organisations members invite <org-id|org-name> <email> [options]
+```
+
+**Arguments**
+```
+org-id|org-name      Organisation ID (or exact name, if unambiguous)
+email                Email address of the person to invite
+```
+
+**Options**
+```
+    --role <role>    Role of the new member (admin, manager, developer, accounting) (default: developer)
+```
+
+#### organisations members list
+
+**Description:** List the members of an organisation
+
+**Since:** Unreleased
+
+**Usage**
+```
+clever organisations members list <org-id|org-name> [options]
+```
+
+**Arguments**
+```
+org-id|org-name          Organisation ID (or exact name, if unambiguous)
+```
+
+**Options**
+```
+-F, --format <format>    Output format (human, json) (default: human)
+    --role <role>        Only list the members with this role (admin, manager, developer, accounting)
+    --without-2fa        Only list the members without two-factor authentication enabled
+```
+
+#### organisations members remove
+
+**Description:** Remove a member from an organisation, or leave it when the member is yourself
+
+**Since:** Unreleased
+
+**Usage**
+```
+clever organisations members remove <org-id|org-name> <member-id|email> [options]
+```
+
+**Arguments**
+```
+org-id|org-name    Organisation ID (or exact name, if unambiguous)
+member-id|email    Member ID (user_...) or email address
+```
+
+**Options**
+```
+-y, --yes          Skip confirmation prompts
+```
+
+#### organisations members update
+
+**Description:** Update the role of a member of an organisation
+
+**Since:** Unreleased
+
+**Usage**
+```
+clever organisations members update --role <role> <org-id|org-name> <member-id|email> [options]
+```
+
+**Arguments**
+```
+org-id|org-name      Organisation ID (or exact name, if unambiguous)
+member-id|email      Member ID (user_...) or email address
+```
+
+**Options**
+```
+    --role <role>    New role of the member (admin, manager, developer, accounting) (required)
+```
+
+### organisations update
+
+**Description:** Update the details of an organisation
+
+**Since:** Unreleased
+
+**Usage**
+```
+clever organisations update <org-id|org-name> [options]
+```
+
+**Arguments**
+```
+org-id|org-name                        Organisation ID (or exact name, if unambiguous)
+```
+
+**Options**
+```
+    --address <address>                Billing address. An empty value clears it
+    --billing-email <billing-email>    Email address receiving the invoices. An empty value clears it
+    --billing-name <billing-name>      Full name of the billing contact. An empty value clears it
+    --city <city>                      Billing city. An empty value clears it
+    --company <company>                Company name, for a business. An empty value clears it
+    --country <country-code>           Billing country, as a two-letter ISO code (for example FR). Required when the organisation already has a country. An empty value clears it
+    --description <description>        Description of the organisation
+    --name <name>                      Name of the organisation
+    --vat-number <vat-number>          VAT number of the company, requires a company. An empty value clears it
+    --zipcode <zipcode>                Billing zipcode. An empty value clears it
+```
+
 ## otoroshi
 
 **Description:** Manage Clever Cloud Otoroshi services

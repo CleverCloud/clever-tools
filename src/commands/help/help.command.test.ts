@@ -48,6 +48,7 @@ describe('clever help', () => {
             notify-email             Manage email notifications
             oauth-consumers          Manage OAuth consumers used with a Clever Cloud login
             open                     Open an application in the Console
+            organisations            Manage organisations
             profile                  Display the profile of the current user
             published-config         Manage the configuration made available to other applications by this application
             restart                  Start or restart an application
@@ -163,6 +164,7 @@ describe('clever help', () => {
             notify-email             Manage email notifications
             oauth-consumers          Manage OAuth consumers used with a Clever Cloud login
             open                     Open an application in the Console
+            organisations            Manage organisations
             profile                  Display the profile of the current user
             published-config         Manage the configuration made available to other applications by this application
             restart                  Start or restart an application
@@ -291,6 +293,7 @@ describe('clever help', () => {
             notify-email             Manage email notifications
             oauth-consumers          Manage OAuth consumers used with a Clever Cloud login
             open                     Open an application in the Console
+            organisations            Manage organisations
             otoroshi                 Manage Clever Cloud Otoroshi services [BETA]
             profile                  Display the profile of the current user
             published-config         Manage the configuration made available to other applications by this application
@@ -359,6 +362,7 @@ describe('clever help', () => {
             notify-email             Manage email notifications
             oauth-consumers          Manage OAuth consumers used with a Clever Cloud login
             open                     Open an application in the Console
+            organisations            Manage organisations
             profile                  Display the profile of the current user
             published-config         Manage the configuration made available to other applications by this application
             restart                  Start or restart an application

@@ -151,6 +151,15 @@ import { oauthConsumersListCommand } from './oauth-consumers/oauth-consumers.lis
 import { oauthConsumersOpenCommand } from './oauth-consumers/oauth-consumers.open.command.js';
 import { oauthConsumersUpdateCommand } from './oauth-consumers/oauth-consumers.update.command.js';
 import { openCommand } from './open/open.command.js';
+import { organisationsCommand } from './organisations/organisations.command.js';
+import { organisationsGetCommand } from './organisations/organisations.get.command.js';
+import { organisationsListCommand } from './organisations/organisations.list.command.js';
+import { organisationsMembersCommand } from './organisations/organisations.members.command.js';
+import { organisationsMembersInviteCommand } from './organisations/organisations.members.invite.command.js';
+import { organisationsMembersListCommand } from './organisations/organisations.members.list.command.js';
+import { organisationsMembersRemoveCommand } from './organisations/organisations.members.remove.command.js';
+import { organisationsMembersUpdateCommand } from './organisations/organisations.members.update.command.js';
+import { organisationsUpdateCommand } from './organisations/organisations.update.command.js';
 import { otoroshiCommand } from './otoroshi/otoroshi.command.js';
 import { otoroshiDisableNgCommand } from './otoroshi/otoroshi.disable-ng.command.js';
 import { otoroshiEnableNgCommand } from './otoroshi/otoroshi.enable-ng.command.js';
@@ -476,6 +485,23 @@ export const globalCommands = {
     },
   ],
   open: openCommand,
+  organisations: [
+    organisationsCommand,
+    {
+      get: organisationsGetCommand,
+      list: organisationsListCommand,
+      members: [
+        organisationsMembersCommand,
+        {
+          invite: organisationsMembersInviteCommand,
+          list: organisationsMembersListCommand,
+          remove: organisationsMembersRemoveCommand,
+          update: organisationsMembersUpdateCommand,
+        },
+      ],
+      update: organisationsUpdateCommand,
+    },
+  ],
   otoroshi: [
     otoroshiCommand,
     {
