@@ -61,11 +61,15 @@ export async function addLinkedApplication(appData, alias, ignoreParentConfig) {
   });
 }
 
+/**
+ * Removes the first entry of `.clever.json` matching the app ID or the alias.
+ * @returns the removed entry, or `null` if none matched
+ */
 export async function removeLinkedApplication({ appId, alias }) {
   const currentConfig = await loadApplicationConf();
   const appToUnlink = currentConfig.apps.find((a) => a.app_id === appId || a.alias === alias);
   if (appToUnlink == null) {
-    return false;
+    return null;
   }
   const newConfig = {
     ...currentConfig,
@@ -78,7 +82,7 @@ export async function removeLinkedApplication({ appId, alias }) {
   }
 
   await writeJson(config.get('APP_CONFIGURATION_FILE'), newConfig);
-  return true;
+  return appToUnlink;
 }
 
 export function findApp(appConfig, alias) {
