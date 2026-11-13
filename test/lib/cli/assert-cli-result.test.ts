@@ -140,4 +140,32 @@ describe('assertCliResult', () => {
       );
     });
   });
+  describe('terminal', () => {
+    const terminalResult = { exitCode: 1, stdout: '', stderr: '', output: '? Name: ab^C', terminal: true };
+
+    it('with outputText, should compare the screen of the terminal', () => {
+      assertCliResult(terminalResult, { exitCode: 1, outputText: '? Name: ab^C' });
+    });
+
+    it('with a different screen, should fail', () => {
+      assert.throws(
+        () => assertCliResult(terminalResult, { exitCode: 1, outputText: '? Name:' }),
+        assert.AssertionError,
+      );
+    });
+
+    it('with stdoutText on a run in a terminal, should fail and point to outputText', () => {
+      assert.throws(
+        () => assertCliResult(terminalResult, { exitCode: 1, stdoutText: '? Name: ab^C' }),
+        (error: Error) => error instanceof assert.AssertionError && error.message.includes('assert outputText'),
+      );
+    });
+
+    it('with outputText on a run with pipes, should fail and point to stdout and stderr', () => {
+      assert.throws(
+        () => assertCliResult({ exitCode: 0, stdout: 'done', stderr: '' }, { exitCode: 0, outputText: 'done' }),
+        (error: Error) => error instanceof assert.AssertionError && error.message.includes('assert stdout and stderr'),
+      );
+    });
+  });
 });

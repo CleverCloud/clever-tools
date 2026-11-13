@@ -2,9 +2,12 @@ import assert from 'node:assert/strict';
 import { type ContentExpectation, toComparable } from '../common/content-expectation.ts';
 import type { RunCliResult } from './run-cli.ts';
 
-/** The part of `RunCliResult` the assertions read. `timedOut` is optional, an absent value counts as no timeout. */
+/**
+ * The part of `RunCliResult` the assertions read. `timedOut`, `terminal` and `output` are optional: an absent
+ * `timedOut` counts as no timeout, an absent `terminal` as a run with pipes.
+ */
 export type AssertableCliResult = Pick<RunCliResult, 'exitCode' | 'stdout' | 'stderr'> &
-  Partial<Pick<RunCliResult, 'timedOut'>>;
+  Partial<Pick<RunCliResult, 'timedOut' | 'terminal' | 'output'>>;
 
 type StdoutExpectation =
   | { stdoutText: string; stdoutJson?: never; stdoutMatch?: never }
@@ -18,11 +21,26 @@ type StderrExpectation =
   | { stderrText?: never; stderrJson?: never; stderrMatch: RegExp }
   | { stderrText?: never; stderrJson?: never; stderrMatch?: never };
 
+/** A run with pipes: stdout and stderr are checked apart. */
+type PipesExpectation = StdoutExpectation & StderrExpectation & { outputText?: never };
+
+/** A run in a terminal (a key was sent): its single output, the screen it leaves, is checked as a whole. */
+type TerminalExpectation = {
+  outputText: string;
+  stdoutText?: never;
+  stdoutJson?: never;
+  stdoutMatch?: never;
+  stderrText?: never;
+  stderrJson?: never;
+  stderrMatch?: never;
+};
+
 /**
- * Expected result of a CLI run. Each output takes the forms of `ContentExpectation` (`*Text`, `*Json`, `*Match`).
- * An omitted output (no `stdout*` or no `stderr*` key) must be empty.
+ * Expected result of a CLI run. With pipes, each output takes the forms of `ContentExpectation` (`*Text`, `*Json`,
+ * `*Match`), and an omitted output (no `stdout*` or no `stderr*` key) must be empty. In a terminal, `outputText` is
+ * the screen the command leaves.
  */
-export type CliResultExpectation = { exitCode: number } & StdoutExpectation & StderrExpectation;
+export type CliResultExpectation = { exitCode: number } & (PipesExpectation | TerminalExpectation);
 
 /**
  * Assert the exit code, then stderr, then stdout of a CLI run, each with its own message.
@@ -30,10 +48,24 @@ export type CliResultExpectation = { exitCode: number } & StdoutExpectation & St
  * often explains a wrong stdout. Texts are compared line by line for a readable diff.
  * @param result - Result of `runCli()`
  * @param expected - `exitCode`, plus at most one of `stdoutText`, `stdoutJson`, `stdoutMatch` and one of `stderrText`,
- *   `stderrJson`, `stderrMatch`. An omitted output must be empty
+ *   `stderrJson`, `stderrMatch`. An omitted output must be empty. For a run in a terminal, `outputText` only
  */
 export function assertCliResult(result: AssertableCliResult, expected: CliResultExpectation): void {
   assertExitCode(result, expected.exitCode);
+  const { outputText } = expected;
+  if (outputText != null) {
+    assert.ok(
+      result.terminal === true,
+      'outputText is for a run in a terminal (a key sent in interactions), assert stdout and stderr instead',
+    );
+    const comparable = toComparable(result.output ?? '', { text: outputText });
+    assert.deepEqual(comparable.actual, comparable.expected, 'output does not match outputText');
+    return;
+  }
+  assert.ok(
+    result.terminal !== true,
+    'this run used a terminal (a key was sent in interactions): stdout and stderr are merged, assert outputText',
+  );
   assertOutput('stderr', result.stderr, expected);
   assertOutput('stdout', result.stdout, expected);
 }

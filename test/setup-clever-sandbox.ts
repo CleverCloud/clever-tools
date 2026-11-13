@@ -35,9 +35,13 @@ export interface CleverSandbox {
   envMock: EnvMock;
   /**
    * Run `bin/clever.js` in the cwd of `fsMock`, with `HOME` in its temporary directory, `API_HOST` on `apiMock`,
-   * `AUTH_BRIDGE_HOST` on a closed port, and the vars of `envMock`.
+   * `AUTH_BRIDGE_HOST` on a closed port, and the vars of `envMock`. `interactions` answer its prompts, in a terminal
+   * when a key is sent (see `runCli()`).
    */
-  runClever: (args: string[], options?: Partial<Pick<RunCliOptions, 'timeout' | 'stdin'>>) => Promise<RunCliResult>;
+  runClever: (
+    args: string[],
+    options?: Partial<Pick<RunCliOptions, 'timeout' | 'stdin' | 'interactions'>>,
+  ) => Promise<RunCliResult>;
 }
 
 /**
@@ -90,7 +94,7 @@ export function setupCleverSandbox(): CleverSandbox {
     fsMock.stop();
   });
 
-  function runClever(args: string[], options: Partial<Pick<RunCliOptions, 'timeout' | 'stdin'>> = {}) {
+  function runClever(args: string[], options: Partial<Pick<RunCliOptions, 'timeout' | 'stdin' | 'interactions'>> = {}) {
     return runCli(process.execPath, [CLEVER_BIN, ...args], {
       ...options,
       env: envMock.toEnv(),
