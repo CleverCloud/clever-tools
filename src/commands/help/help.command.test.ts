@@ -50,6 +50,7 @@ describe('clever help', () => {
             open                     Open an application in the Console
             profile                  Display the profile of the current user
             published-config         Manage the configuration made available to other applications by this application
+            rebuild                  Restart an application without using cache
             restart                  Start or restart an application
             scale                    Change scalability of an application
             service                  Manage service dependencies
@@ -165,6 +166,7 @@ describe('clever help', () => {
             open                     Open an application in the Console
             profile                  Display the profile of the current user
             published-config         Manage the configuration made available to other applications by this application
+            rebuild                  Restart an application without using cache
             restart                  Start or restart an application
             scale                    Change scalability of an application
             service                  Manage service dependencies
@@ -294,6 +296,7 @@ describe('clever help', () => {
             otoroshi                 Manage Clever Cloud Otoroshi services [BETA]
             profile                  Display the profile of the current user
             published-config         Manage the configuration made available to other applications by this application
+            rebuild                  Restart an application without using cache
             restart                  Start or restart an application
             scale                    Change scalability of an application
             service                  Manage service dependencies
@@ -361,6 +364,7 @@ describe('clever help', () => {
             open                     Open an application in the Console
             profile                  Display the profile of the current user
             published-config         Manage the configuration made available to other applications by this application
+            rebuild                  Restart an application without using cache
             restart                  Start or restart an application
             scale                    Change scalability of an application
             service                  Manage service dependencies
