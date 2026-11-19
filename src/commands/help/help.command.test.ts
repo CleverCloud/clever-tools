@@ -45,9 +45,11 @@ describe('clever help', () => {
             logout                   Logout from Clever Cloud
             logs                     Fetch application logs, continuously
             make-default             Make a linked application the default one
+            members                  Manage the members of an organisation
             notify-email             Manage email notifications
             oauth-consumers          Manage OAuth consumers used with a Clever Cloud login
             open                     Open an application in the Console
+            orgs                     Manage organisations
             profile                  Display the profile of the current user
             published-config         Manage the configuration made available to other applications by this application
             rebuild                  Restart an application without using cache
@@ -161,9 +163,11 @@ describe('clever help', () => {
             logout                   Logout from Clever Cloud
             logs                     Fetch application logs, continuously
             make-default             Make a linked application the default one
+            members                  Manage the members of an organisation
             notify-email             Manage email notifications
             oauth-consumers          Manage OAuth consumers used with a Clever Cloud login
             open                     Open an application in the Console
+            orgs                     Manage organisations
             profile                  Display the profile of the current user
             published-config         Manage the configuration made available to other applications by this application
             rebuild                  Restart an application without using cache
@@ -288,11 +292,13 @@ describe('clever help', () => {
             logs                     Fetch application logs, continuously
             make-default             Make a linked application the default one
             matomo                   Manage Clever Cloud Matomo services [BETA]
+            members                  Manage the members of an organisation
             metabase                 Manage Clever Cloud Metabase services [BETA]
             ng                       List Network Groups [BETA]
             notify-email             Manage email notifications
             oauth-consumers          Manage OAuth consumers used with a Clever Cloud login
             open                     Open an application in the Console
+            orgs                     Manage organisations
             otoroshi                 Manage Clever Cloud Otoroshi services [BETA]
             profile                  Display the profile of the current user
             published-config         Manage the configuration made available to other applications by this application
@@ -359,9 +365,11 @@ describe('clever help', () => {
             logout                   Logout from Clever Cloud
             logs                     Fetch application logs, continuously
             make-default             Make a linked application the default one
+            members                  Manage the members of an organisation
             notify-email             Manage email notifications
             oauth-consumers          Manage OAuth consumers used with a Clever Cloud login
             open                     Open an application in the Console
+            orgs                     Manage organisations
             profile                  Display the profile of the current user
             published-config         Manage the configuration made available to other applications by this application
             rebuild                  Restart an application without using cache

@@ -1064,7 +1064,7 @@ clever domain favourite unset [options]
 
 ### domain overview
 
-**Description:** Get an overview of all your domains (all orgas, all apps)
+**Description:** Get an overview of all your domains (all orgs, all apps)
 
 **Since:** 3.9.0
 
@@ -2701,6 +2701,106 @@ clever matomo restart <addon-id|addon-name>
 addon-id|addon-name    Add-on ID (or name, if unambiguous)
 ```
 
+## members
+
+**Description:** Manage the members of an organisation
+
+**Since:** Unreleased
+
+**Usage**
+```
+clever members
+```
+
+### members invite
+
+**Description:** Invite someone to an organisation
+
+**Since:** Unreleased
+
+**Usage**
+```
+clever members invite --role <role> <org-id|org-name> <email> [options]
+```
+
+**Arguments**
+```
+org-id|org-name      Organisation ID (or exact name, if unambiguous)
+email                Email address of the person to invite
+```
+
+**Options**
+```
+    --role <role>    Role of the new member (admin, manager, developer, accounting) (required)
+```
+
+### members list
+
+**Description:** List the members of an organisation
+
+**Since:** Unreleased
+
+**Usage**
+```
+clever members list <org-id|org-name> [options]
+```
+
+**Arguments**
+```
+org-id|org-name          Organisation ID (or exact name, if unambiguous)
+```
+
+**Options**
+```
+-F, --format <format>    Output format (human, json) (default: human)
+    --role <role>        Only list the members with this role (admin, manager, developer, accounting)
+    --without-2fa        Only list the members without 2FA
+```
+
+### members remove
+
+**Description:** Remove a member from an organisation
+
+**Since:** Unreleased
+
+**Usage**
+```
+clever members remove <org-id|org-name> <member-id|email> [options]
+```
+
+**Arguments**
+```
+org-id|org-name    Organisation ID (or exact name, if unambiguous)
+member-id|email    Member ID (user_...) or email address
+```
+
+**Options**
+```
+-y, --yes          Skip confirmation prompts
+```
+
+### members update
+
+**Description:** Update the role of a member of an organisation
+
+**Since:** Unreleased
+
+**Usage**
+```
+clever members update --role <role> <org-id|org-name> <member-id|email> [options]
+```
+
+**Arguments**
+```
+org-id|org-name      Organisation ID (or exact name, if unambiguous)
+member-id|email      Member ID (user_...) or email address
+```
+
+**Options**
+```
+    --role <role>    New role of the member (admin, manager, developer, accounting) (required)
+```
+
 ## metabase
 
 **Description:** Manage Clever Cloud Metabase services
@@ -3318,6 +3418,84 @@ clever open [options]
 ```
 -a, --alias <alias>            Short name for the application
     --app <app-id|app-name>    Application to manage by its ID (or name, if unambiguous)
+```
+
+## orgs
+
+**Description:** Manage organisations
+
+**Since:** Unreleased
+
+**Usage**
+```
+clever orgs
+```
+
+### orgs get
+
+**Description:** Get the details of an organisation
+
+**Since:** Unreleased
+
+**Usage**
+```
+clever orgs get <org-id|org-name> [options]
+```
+
+**Arguments**
+```
+org-id|org-name          Organisation ID (or exact name, if unambiguous)
+```
+
+**Options**
+```
+-F, --format <format>    Output format (human, json) (default: human)
+```
+
+### orgs list
+
+**Description:** List your organisations
+
+**Since:** Unreleased
+
+**Usage**
+```
+clever orgs list [options]
+```
+
+**Options**
+```
+-F, --format <format>    Output format (human, json) (default: human)
+```
+
+### orgs update
+
+**Description:** Update the details of an organisation
+
+**Since:** Unreleased
+
+**Usage**
+```
+clever orgs update <org-id|org-name> [options]
+```
+
+**Arguments**
+```
+org-id|org-name                        Organisation ID (or exact name, if unambiguous)
+```
+
+**Options**
+```
+    --address <address>                Billing address
+    --billing-email <billing-email>    Email receiving the invoices
+    --billing-name <billing-name>      Billing contact name
+    --city <city>                      Billing city
+    --company <company>                Company name
+    --country <country-code>           Billing country, as a two-letter ISO code (e.g.: FR)
+    --description <description>        Organisation description
+    --name <name>                      Organisation name
+    --vat-number <vat-number>          VAT number, requires a company
+    --zipcode <zipcode>                Billing zipcode
 ```
 
 ## otoroshi

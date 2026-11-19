@@ -276,6 +276,38 @@ clever ssh-keys remove-all
 clever ssh-keys remove-all --yes
 ```
 
+## orgs
+
+To list the organisations you are a member of, your personal space included, and get the details of one of them, use:
+
+```
+clever orgs list
+clever orgs get orga_xxx
+clever orgs get "My organisation" -F json
+```
+
+To update the details of an organisation (name, description, billing details), use the options of the fields to change. An empty value clears a field. Without any option, in a terminal, the command asks for each field:
+
+```
+clever orgs update orga_xxx --billing-email billing@example.com --country FR
+clever orgs update user_xxx --billing-name "Jane Doe"
+clever orgs update orga_xxx
+```
+
+## members
+
+To manage the members of an organisation, use:
+
+```
+clever members list orga_xxx
+clever members list orga_xxx --role admin --without-2fa
+clever members invite orga_xxx email@example.com --role developer
+clever members update orga_xxx email@example.com --role manager
+clever members remove orga_xxx email@example.com
+```
+
+Removing yourself from an organisation means leaving it.
+
 ## curl
 
 To use our public API, you need to be authenticated for most endpoints. If you're logged in through Clever Tools, there is a simple way to make any request you want: `clever curl`. It's `curl`, but in an authenticated context for Clever Cloud API.

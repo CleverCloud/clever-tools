@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { defineArgument } from '../lib/define-argument.js';
-import { addonIdOrName, appIdOrName } from '../parsers.js';
+import { addonIdOrName, appIdOrName, orgaIdOrName } from '../parsers.js';
 
 export const addonIdOrNameArg = defineArgument({
   schema: z.string().transform(addonIdOrName),
@@ -42,4 +42,10 @@ export const notificationIdArg = defineArgument({
   schema: z.string(),
   description: 'Notification ID',
   placeholder: 'notification-id',
+});
+
+export const orgaIdOrNameArg = defineArgument({
+  schema: z.string().min(1, 'Cannot be empty').transform(orgaIdOrName),
+  description: 'Organisation ID (or exact name, if unambiguous)',
+  placeholder: 'org-id|org-name',
 });

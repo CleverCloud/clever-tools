@@ -227,11 +227,30 @@ clever create --type <type> <name>
 clever delete
 ```
 
+### Organisations and Members
+
+```bash
+# List your organisations (personal space included) with your role, get the details of one
+clever orgs list
+clever orgs get <org-id|org-name> --format json
+
+# Update the details of an organisation: only the given options change, "" clears a field.
+clever orgs update <org-id|org-name> --billing-email billing@example.com --country FR
+
+# List the members, invite someone (role: admin, manager, developer, accounting)
+clever members list <org-id|org-name> --without-2fa
+clever members invite <org-id|org-name> <email> --role developer
+
+# Change the role of a member, remove a member (yourself to leave the organisation)
+clever members update <org-id|org-name> <member-id|email> --role manager
+clever members remove <org-id|org-name> <member-id|email> --yes
+```
+
 ## Using from an Agent or a Script
 
 Some commands open a browser, ask for a confirmation or print secrets. From an agent or a script:
 
-- **Confirmations**: add `--yes` to `clever addon create` (paid plans), `clever addon delete` and `clever delete`, once the user has agreed.
+- **Confirmations**: add `--yes` to `clever addon create` (paid plans), `clever addon delete`, `clever delete` and `clever members remove`, once the user has agreed.
 - **Secrets**: `clever env`, `clever addon env`, `clever profile` and `clever profile list` can print secrets (passwords, API keys, an OAuth consumer secret set with `clever login --oauth-consumer-secret`). Run them only when needed, and never copy their output into an issue, a pull request or a commit.
 - **Check the result**: `clever open` and `clever console` open a browser, on the application and on its Console page. Get the URL with `clever domain` instead, then query it, for example with `curl -i https://<domain>/`.
 

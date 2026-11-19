@@ -120,6 +120,11 @@ import { matomoOpenLogsCommand } from './matomo/matomo.open.logs.command.js';
 import { matomoOpenWebuiCommand } from './matomo/matomo.open.webui.command.js';
 import { matomoRebuildCommand } from './matomo/matomo.rebuild.command.js';
 import { matomoRestartCommand } from './matomo/matomo.restart.command.js';
+import { membersCommand } from './members/members.command.js';
+import { membersInviteCommand } from './members/members.invite.command.js';
+import { membersListCommand } from './members/members.list.command.js';
+import { membersRemoveCommand } from './members/members.remove.command.js';
+import { membersUpdateCommand } from './members/members.update.command.js';
 import { metabaseCommand } from './metabase/metabase.command.js';
 import { metabaseGetCommand } from './metabase/metabase.get.command.js';
 import { metabaseOpenCommand } from './metabase/metabase.open.command.js';
@@ -151,6 +156,10 @@ import { oauthConsumersListCommand } from './oauth-consumers/oauth-consumers.lis
 import { oauthConsumersOpenCommand } from './oauth-consumers/oauth-consumers.open.command.js';
 import { oauthConsumersUpdateCommand } from './oauth-consumers/oauth-consumers.update.command.js';
 import { openCommand } from './open/open.command.js';
+import { orgsCommand } from './orgs/orgs.command.js';
+import { orgsGetCommand } from './orgs/orgs.get.command.js';
+import { orgsListCommand } from './orgs/orgs.list.command.js';
+import { orgsUpdateCommand } from './orgs/orgs.update.command.js';
 import { otoroshiCommand } from './otoroshi/otoroshi.command.js';
 import { otoroshiDisableNgCommand } from './otoroshi/otoroshi.disable-ng.command.js';
 import { otoroshiEnableNgCommand } from './otoroshi/otoroshi.enable-ng.command.js';
@@ -414,6 +423,15 @@ export const globalCommands = {
       restart: matomoRestartCommand,
     },
   ],
+  members: [
+    membersCommand,
+    {
+      invite: membersInviteCommand,
+      list: membersListCommand,
+      remove: membersRemoveCommand,
+      update: membersUpdateCommand,
+    },
+  ],
   metabase: [
     metabaseCommand,
     {
@@ -477,6 +495,14 @@ export const globalCommands = {
     },
   ],
   open: openCommand,
+  orgs: [
+    orgsCommand,
+    {
+      get: orgsGetCommand,
+      list: orgsListCommand,
+      update: orgsUpdateCommand,
+    },
+  ],
   otoroshi: [
     otoroshiCommand,
     {

@@ -46,11 +46,13 @@ These options are available for all commands:
 |[`clever logs`](./logs/logs.docs.md)|Fetch application logs, continuously|
 |[`clever make-default`](./make-default/make-default.docs.md)|Make a linked application the default one|
 |[`clever matomo`](./matomo/matomo.docs.md)|Manage Clever Cloud Matomo services|
+|[`clever members`](./members/members.docs.md)|Manage the members of an organisation|
 |[`clever metabase`](./metabase/metabase.docs.md)|Manage Clever Cloud Metabase services|
 |[`clever ng`](./ng/ng.docs.md)|List Network Groups|
 |[`clever oauth-consumers`](./oauth-consumers/oauth-consumers.docs.md)|Manage OAuth consumers used with a Clever Cloud login|
 |[`clever notify-email`](./notify-email/notify-email.docs.md)|Manage email notifications|
 |[`clever open`](./open/open.docs.md)|Open an application in the Console|
+|[`clever orgs`](./orgs/orgs.docs.md)|Manage organisations|
 |[`clever otoroshi`](./otoroshi/otoroshi.docs.md)|Manage Clever Cloud Otoroshi services|
 |[`clever profile`](./profile/profile.docs.md)|Display the profile of the current user|
 |[`clever published-config`](./published-config/published-config.docs.md)|Manage the configuration made available to other applications by this application|

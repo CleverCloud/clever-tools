@@ -63,6 +63,16 @@ export function promptTextOption(option, defaultValue) {
 }
 
 /**
+ * Prompt the user for a free text value.
+ * @param {string} message
+ * @param {(value: string) => true | string} [validate] Returns `true` when valid, an error message otherwise
+ * @returns {Promise<string>}
+ */
+export function promptText(message, validate) {
+  return input({ message, validate }).catch(exitOnPromptError);
+}
+
+/**
  * Throw an explicit error when no interactive terminal is available.
  *
  * Raw-mode prompts (select, checkbox) need a TTY on stdin. Without one (CI, scripts,
@@ -71,7 +81,7 @@ export function promptTextOption(option, defaultValue) {
  * user pressing Ctrl+C. Guarding up front lets us surface a clear message instead.
  * @param {string} [hint] How to achieve the same result without a prompt (e.g. an option to use)
  */
-function assertInteractiveTerminal(hint) {
+export function assertInteractiveTerminal(hint) {
   if (!process.stdin.isTTY) {
     const suffix = hint != null ? ` ${hint}` : '';
     throw new Error(`This command requires an interactive terminal.${suffix}`);

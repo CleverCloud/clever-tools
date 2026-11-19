@@ -108,7 +108,7 @@ clever domain favourite unset [options]
 
 ## ➡️ `clever domain overview` <kbd>Since 3.9.0</kbd>
 
-Get an overview of all your domains (all orgas, all apps)
+Get an overview of all your domains (all orgs, all apps)
 
 ```bash
 clever domain overview [options]

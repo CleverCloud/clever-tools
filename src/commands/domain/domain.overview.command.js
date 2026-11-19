@@ -49,7 +49,7 @@ function recursiveDisplay(obj, indentLevel = 0) {
 }
 
 export const domainOverviewCommand = defineCommand({
-  description: 'Get an overview of all your domains (all orgas, all apps)',
+  description: 'Get an overview of all your domains (all orgs, all apps)',
   since: '3.9.0',
   options: {
     filter: defineOption({
