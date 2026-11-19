@@ -1064,7 +1064,7 @@ clever domain favourite unset [options]
 
 ### domain overview
 
-**Description:** Get an overview of all your domains (all orgas, all apps)
+**Description:** Get an overview of all your domains (all orgs, all apps)
 
 **Since:** 3.9.0
 
