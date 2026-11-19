@@ -1,6 +1,6 @@
 # 📖 `clever members` command reference
 
-## ➡️ `clever members` <kbd>Unreleased</kbd>
+## ➡️ `clever members` <kbd>Since 5.5.0</kbd>
 
 Manage the members of an organisation
 
@@ -8,7 +8,7 @@ Manage the members of an organisation
 clever members
 ```
 
-## ➡️ `clever members invite` <kbd>Unreleased</kbd>
+## ➡️ `clever members invite` <kbd>Since 5.5.0</kbd>
 
 Invite someone to an organisation
 
@@ -43,7 +43,7 @@ clever members invite orga_00000000-0000-4000-8000-000000000200 giulia.rossi@exa
 * The invitation is sent by email. Inviting the same address again replaces the previous invitation.
 * The API limits invitations to 4 per hour per recipient and 11 per hour per sender.
 
-## ➡️ `clever members list` <kbd>Unreleased</kbd>
+## ➡️ `clever members list` <kbd>Since 5.5.0</kbd>
 
 List the members of an organisation
 
@@ -80,7 +80,7 @@ Get the emails of the members without two-factor authentication, to use them in 
 clever members list orga_00000000-0000-4000-8000-000000000200 --without-2fa -F json | jq -r '.[].email'
 ```
 
-## ➡️ `clever members remove` <kbd>Unreleased</kbd>
+## ➡️ `clever members remove` <kbd>Since 5.5.0</kbd>
 
 Remove a member from an organisation
 
@@ -121,7 +121,7 @@ clever members remove orga_00000000-0000-4000-8000-000000000200 marie.dubois@exa
 * The API refuses to remove the last admin of an organisation.
 * When your role does not allow listing the members, give the member by ID (`user_...`): an email cannot be resolved.
 
-## ➡️ `clever members update` <kbd>Unreleased</kbd>
+## ➡️ `clever members update` <kbd>Since 5.5.0</kbd>
 
 Update the role of a member of an organisation
 

@@ -34,7 +34,7 @@ const DIFF_FIELDS = [
 
 export const orgsUpdateCommand = defineCommand({
   description: 'Update the details of an organisation',
-  since: null,
+  since: '5.5.0',
   options: {
     name: defineOption({
       name: 'name',

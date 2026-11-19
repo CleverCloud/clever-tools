@@ -15,7 +15,7 @@ import { ROLES_LIST, roleSchema } from './members.options.js';
 
 export const membersInviteCommand = defineCommand({
   description: 'Invite someone to an organisation',
-  since: null,
+  since: '5.5.0',
   options: {
     role: defineOption({
       name: 'role',

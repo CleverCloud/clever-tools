@@ -14,7 +14,7 @@ import { memberIdOrEmailArg } from './members.args.js';
 
 export const membersRemoveCommand = defineCommand({
   description: 'Remove a member from an organisation',
-  since: null,
+  since: '5.5.0',
   options: {
     skipConfirmation: skipConfirmationOption,
   },
