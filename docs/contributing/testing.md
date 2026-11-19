@@ -32,7 +32,7 @@ The sandbox points `API_HOST` at `apiMock`, started on a random port. A call no 
 
 | Path | Content |
 |---|---|
-| `test/lib/` | Generic helpers, nothing specific to Clever: `runCli()`, `assertCliResult()`, the file system and env mocks, the file assertions (`assertFile()`, `assertJsonFile()`, `assertNoFile()`) and `assertApiCalls()` |
+| `test/lib/` | Generic helpers, nothing specific to Clever: `runCli()` (and its `KEYS`, `renderTerminalScreen()`), `assertCliResult()`, the file system and env mocks, the file assertions (`assertFile()`, `assertJsonFile()`, `assertNoFile()`) and `assertApiCalls()` |
 | `test/` (root) | Everything specific to the Clever CLI: `setupCleverSandbox()`, `CleverFsMock`, `assertCleverResult()` |
 | `test/fixtures/` | Shared API payloads of the command tests, one file per entity, see [Fixtures](#fixtures) |
 
@@ -103,12 +103,15 @@ A test name uses `should` followed by an observable result: what is printed, the
 ### When
 
 - One `await runClever([...])` per test, without env, cwd or expected exit code: those belong to the Given or the Then.
-- stdin can be piped as a string: `runClever(args, { stdin: '...' })` (not a terminal).
+- Prompts are answered with `interactions`: `runClever(args, { interactions: [{ waitFor: 'please type my-app to confirm:', send: 'my-app\n' }] })`. Each answer is typed once the output shows its `waitFor` (a text or a regex), after the previous answer. A prompt that does not show up within 5 s, or a command that exits before it, fails the test with the output so far. stdin stays a pipe, closed after the last answer.
+- `send` takes a text, a key of `KEYS` (`test/lib/cli/keys.ts`: `ENTER`, `SPACE`, `UP`, `DOWN`, `CTRL_C`) or a list of both, typed in a row (`['my-a', KEYS.CTRL_C]`). An empty list (`send: []`) types nothing: as the last interaction, it closes stdin once the prompt shows, to test a prompt left without an answer. Sending a key runs the command in a terminal (`node-pty`): the way to interrupt a prompt with Ctrl+C and to drive the prompts that read keys (select, checkbox). Without a key, the run keeps its pipes, which keep stdout and stderr apart.
+- `stdin: '...'` pipes a text upfront and closes stdin, for a command that reads its input (not a terminal), not for a prompt.
 
 ### Then
 
 - `assertCleverResult()` always states `exitCode`. An omitted output (`stdout*` or `stderr*`) must be empty.
 - Prefer the exact text (`stdoutText`, `stdoutJson`) to a regex. Keep `stdoutMatch` for what is really unpredictable.
+- With `interactions`, `stdout` and `stderr` are the screens the command leaves (`renderTerminalScreen()`): a prompt redrawn on each typed character ends up as its final line (`✔ … confirm: my-app`), so `stdoutText` stays exact. In a terminal, stdout and stderr are a single output: assert it with `outputText`, `assertCleverResult()` refuses `stdout*` and `stderr*` there, and the other way round.
 - Argument and option errors use `usageError`: only the error lines printed before the help are compared.
 - Only assert the calls the command is about (the write it sends, the call it must not send), not every read it makes on the way: how it fetches what it needs is an implementation detail.
   - A read-only command does not assert its reads when the output already proves them: the exact path of the mocks checks the IDs.
@@ -199,6 +202,7 @@ await apiMock.respond(
 - `stdoutText` is dedented, and `dedent` ignores the lines in column 0 when computing the common indentation: an interpolated text mixing lines in column 0 and indented lines loses the indentation of the latter.
 - doublure does not match a static path holding a reserved character (`;,@&=+$`) once encoded (`/emails/a%40b.com`), and rejects such a mock: mock a templated path (`/v2/self/emails/:email`), set the decoded value in `pathParams` if needed, and check the exact encoded path with `assertApiCalls()`.
 - A crash of the CLI only shows its message, not its stack trace (it needs `CLEVER_VERBOSE`, which also prints debug lines on stdout).
+- `node-pty` is a native module, built on install: with `ignore-scripts` set in the npm config, it is not, and a run in a terminal fails with `Failed to load native module: pty.node`. Build it once with `npm rebuild node-pty --ignore-scripts=false`.
 - Windows is not handled yet: the env is hermetic, so the CLI lacks the OS vars it needs there (`SystemRoot`, `windir`, `TEMP`, `TMP`, `PATH`, `PATHEXT`, `COMSPEC`).
 
 ## Unit tests
