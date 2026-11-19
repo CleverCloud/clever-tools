@@ -2705,7 +2705,7 @@ addon-id|addon-name    Add-on ID (or name, if unambiguous)
 
 **Description:** Manage the members of an organisation
 
-**Since:** Unreleased
+**Since:** 5.5.0
 
 **Usage**
 ```
@@ -2716,7 +2716,7 @@ clever members
 
 **Description:** Invite someone to an organisation
 
-**Since:** Unreleased
+**Since:** 5.5.0
 
 **Usage**
 ```
@@ -2738,7 +2738,7 @@ email                Email address of the person to invite
 
 **Description:** List the members of an organisation
 
-**Since:** Unreleased
+**Since:** 5.5.0
 
 **Usage**
 ```
@@ -2761,7 +2761,7 @@ org-id|org-name          Organisation ID (or exact name, if unambiguous)
 
 **Description:** Remove a member from an organisation
 
-**Since:** Unreleased
+**Since:** 5.5.0
 
 **Usage**
 ```
@@ -2783,7 +2783,7 @@ member-id|email    Member ID (user_...) or email address
 
 **Description:** Update the role of a member of an organisation
 
-**Since:** Unreleased
+**Since:** 5.5.0
 
 **Usage**
 ```
@@ -3424,7 +3424,7 @@ clever open [options]
 
 **Description:** Manage organisations
 
-**Since:** Unreleased
+**Since:** 5.5.0
 
 **Usage**
 ```
@@ -3435,7 +3435,7 @@ clever orgs
 
 **Description:** Get the details of an organisation
 
-**Since:** Unreleased
+**Since:** 5.5.0
 
 **Usage**
 ```
@@ -3456,7 +3456,7 @@ org-id|org-name          Organisation ID (or exact name, if unambiguous)
 
 **Description:** List your organisations
 
-**Since:** Unreleased
+**Since:** 5.5.0
 
 **Usage**
 ```
@@ -3472,7 +3472,7 @@ clever orgs list [options]
 
 **Description:** Update the details of an organisation
 
-**Since:** Unreleased
+**Since:** 5.5.0
 
 **Usage**
 ```
@@ -3887,7 +3887,7 @@ variable-value                 Value of the environment variable
 
 **Description:** Restart an application without using cache
 
-**Since:** Unreleased
+**Since:** 5.5.0
 
 **Usage**
 ```

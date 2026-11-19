@@ -6,7 +6,7 @@ import { humanJsonOutputFormatOption } from '../global.options.js';
 
 export const orgsListCommand = defineCommand({
   description: 'List your organisations',
-  since: null,
+  since: '5.5.0',
   options: {
     format: humanJsonOutputFormatOption,
   },

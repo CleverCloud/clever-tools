@@ -13,7 +13,7 @@ import { ROLES_LIST, roleSchema } from './members.options.js';
 
 export const membersUpdateCommand = defineCommand({
   description: 'Update the role of a member of an organisation',
-  since: null,
+  since: '5.5.0',
   options: {
     role: defineOption({
       name: 'role',

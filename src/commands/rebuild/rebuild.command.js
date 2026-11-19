@@ -11,7 +11,7 @@ import {
 
 export const rebuildCommand = defineCommand({
   description: 'Restart an application without using cache',
-  since: null,
+  since: '5.5.0',
   options: {
     commit: restartCommitOption,
     alias: aliasOption,

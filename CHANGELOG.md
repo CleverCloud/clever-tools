@@ -1,5 +1,25 @@
 # clever-tools changelog
 
+## [5.5.0](https://github.com/CleverCloud/clever-tools/compare/5.4.0...5.5.0) (2026-11-19)
+
+
+### 🚀 Features
+
+* **members:** add the invite subcommand ([0ddd174](https://github.com/CleverCloud/clever-tools/commit/0ddd17416d27602fbfff41a32be18800c26e2d36))
+* **members:** add the list subcommand ([d8e1c10](https://github.com/CleverCloud/clever-tools/commit/d8e1c102b8dafbe6fbadab8578409268d7cb34c9))
+* **members:** add the remove subcommand ([b0cd55d](https://github.com/CleverCloud/clever-tools/commit/b0cd55d8ca01ca9d611be18fb42692c990095b31))
+* **members:** add the update subcommand ([6113a10](https://github.com/CleverCloud/clever-tools/commit/6113a102a6ef093420981f2fb157df42a7eb00a6))
+* **orgs:** add the get subcommand ([553f51c](https://github.com/CleverCloud/clever-tools/commit/553f51cd6140bb12d590c9a3b122e5b4b4bc252a))
+* **orgs:** add the list subcommand ([9aac436](https://github.com/CleverCloud/clever-tools/commit/9aac436df4d9eff58c8c983c678d67aaabc89a68))
+* **orgs:** add the orgs command group ([4af0485](https://github.com/CleverCloud/clever-tools/commit/4af0485ee12e5311cab0fcb1ecac22f0375d561d))
+* **orgs:** add the update subcommand ([703cfe1](https://github.com/CleverCloud/clever-tools/commit/703cfe13b88db94378dce9035d8fa0bfea78abee))
+* **rebuild:** add the rebuild command, same as restart --without-cache ([8e1acc8](https://github.com/CleverCloud/clever-tools/commit/8e1acc8b283815643c3b4cce0ba054fc4d3d63df))
+
+
+### 🐛 Bug Fixes
+
+* **logout:** don't announce a profile switch when the active profile comes from the environment ([0c7bd25](https://github.com/CleverCloud/clever-tools/commit/0c7bd25e6029cdbb43ffd7972eacd34cbb5b7fa6))
+
 ## [5.4.0](https://github.com/CleverCloud/clever-tools/compare/5.3.0...5.4.0) (2026-11-05)
 
 

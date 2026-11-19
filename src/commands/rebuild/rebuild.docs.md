@@ -1,6 +1,6 @@
 # 📖 `clever rebuild` command reference
 
-## ➡️ `clever rebuild` <kbd>Unreleased</kbd>
+## ➡️ `clever rebuild` <kbd>Since 5.5.0</kbd>
 
 Restart an application without using cache
 

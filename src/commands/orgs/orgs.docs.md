@@ -1,6 +1,6 @@
 # 📖 `clever orgs` command reference
 
-## ➡️ `clever orgs` <kbd>Unreleased</kbd>
+## ➡️ `clever orgs` <kbd>Since 5.5.0</kbd>
 
 Manage organisations
 
@@ -8,7 +8,7 @@ Manage organisations
 clever orgs
 ```
 
-## ➡️ `clever orgs get` <kbd>Unreleased</kbd>
+## ➡️ `clever orgs get` <kbd>Since 5.5.0</kbd>
 
 Get the details of an organisation
 
@@ -48,7 +48,7 @@ clever orgs get orga_00000000-0000-4000-8000-000000000200 -F json | jq -r '.bill
 * `membersCount` and `adminsCount` are `null` for the personal space, and when your role does not allow listing the members (the human output prints `Members: -`).
 * `country` is the name of the country (for example `FRANCE`) and `countryCode` its ISO code (for example `FR`).
 
-## ➡️ `clever orgs list` <kbd>Unreleased</kbd>
+## ➡️ `clever orgs list` <kbd>Since 5.5.0</kbd>
 
 List your organisations
 
@@ -70,7 +70,7 @@ List the IDs of the organisations where you are an admin:
 clever orgs list -F json | jq -r '.[] | select(.role == "ADMIN") | .id'
 ```
 
-## ➡️ `clever orgs update` <kbd>Unreleased</kbd>
+## ➡️ `clever orgs update` <kbd>Since 5.5.0</kbd>
 
 Update the details of an organisation
 

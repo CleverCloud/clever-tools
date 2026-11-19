@@ -11,7 +11,7 @@ import { humanJsonOutputFormatOption } from '../global.options.js';
 
 export const orgsGetCommand = defineCommand({
   description: 'Get the details of an organisation',
-  since: null,
+  since: '5.5.0',
   options: {
     format: humanJsonOutputFormatOption,
   },
