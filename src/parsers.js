@@ -53,11 +53,13 @@ export function futureDateOrDuration(dateString) {
   return new Date(Date.now() + seconds * 1000);
 }
 
+// The ID patterns ignore the case, but the API only knows lowercase IDs and answers 404 to any other case,
+// so a matching ID is sent in lowercase. Names keep the case they were typed with.
 const appIdRegex = /^app_[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 export function appIdOrName(string) {
   if (string.match(appIdRegex)) {
-    return { app_id: string };
+    return { app_id: string.toLowerCase() };
   }
   return { app_name: string };
 }
@@ -66,7 +68,7 @@ const orgaIdRegex = /^(user_|orga_)[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89a
 
 export function orgaIdOrName(string) {
   if (string.match(orgaIdRegex)) {
-    return { orga_id: string };
+    return { orga_id: string.toLowerCase() };
   }
   return { orga_name: string };
 }
@@ -82,9 +84,13 @@ const kubernetesIdRegex =
 
 export function addonIdOrName(string) {
   if (string.match(addonIdRegex)) {
-    return { addon_id: string };
+    return { addon_id: string.toLowerCase() };
   }
-  if (string.match(operatorIdRegex) || string.match(kubernetesIdRegex)) {
+  if (string.match(operatorIdRegex)) {
+    return { operator_id: string.toLowerCase() };
+  }
+  // Legacy Kubernetes IDs carry an uppercase ULID, so they are kept as typed
+  if (string.match(kubernetesIdRegex)) {
     return { operator_id: string };
   }
   return { addon_name: string };
