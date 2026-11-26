@@ -2,11 +2,13 @@ import {
   get as getAddon,
   getAllTags as getAddonTags,
   addTag as putAddonTag,
+  removeTag as removeAddonTag,
 } from '@clevercloud/client/esm/api/v2/addon.js';
 import {
   get as getApplication,
   getAllTags as getApplicationTags,
   updateTag as putApplicationTag,
+  removeTag as removeApplicationTag,
 } from '@clevercloud/client/esm/api/v2/application.js';
 import { getSummary } from '@clevercloud/client/esm/api/v2/user.js';
 import { getNetworkGroup } from '@clevercloud/client/esm/api/v4/network-group.js';
@@ -130,6 +132,40 @@ export async function addTag(target, tag) {
       const tags = target.tags ?? [];
       if (!tags.includes(tag)) {
         await updateK8sCluster({ ownerId, clusterId: id }, { tags: [...tags, tag] }).then(sendToApi);
+      }
+      return;
+    }
+    default:
+      assertTagsCanBeChanged(id);
+  }
+}
+
+/**
+ * @param {TagTarget} target
+ * @param {string} tag
+ * @returns {Promise<void>}
+ */
+export async function removeTag(target, tag) {
+  const { type, ownerId, id } = target;
+  switch (type) {
+    case 'application':
+      await removeApplicationTag({ id: ownerId, appId: id, tag: encodeURIComponent(tag) }).then(sendToApi);
+      return;
+    case 'addon':
+      await removeAddonTag({ id: ownerId, addonId: id, tag: encodeURIComponent(tag) })
+        .then(sendToApi)
+        .catch((error) => {
+          // Unlike applications, add-ons answer 404 for a tag they don't have (an unknown add-on gets a 403):
+          // removing it is a no-op, not an error
+          if (error.response?.status !== 404) {
+            throw error;
+          }
+        });
+      return;
+    case 'kubernetes': {
+      const tags = target.tags ?? [];
+      if (tags.includes(tag)) {
+        await updateK8sCluster({ ownerId, clusterId: id }, { tags: tags.filter((t) => t !== tag) }).then(sendToApi);
       }
       return;
     }

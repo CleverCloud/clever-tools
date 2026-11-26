@@ -4240,6 +4240,23 @@ resource-id              Resource ID: application (app_xxx), add-on (addon_xxx o
 -F, --format <format>    Output format (human, json) (default: human)
 ```
 
+### tags remove
+
+**Description:** Remove a tag from a resource (and from the FS bucket add-on of an SFTP application)
+
+**Since:** Unreleased
+
+**Usage**
+```
+clever tags remove <resource-id> <tag>
+```
+
+**Arguments**
+```
+resource-id    Resource ID: application (app_xxx), add-on (addon_xxx or real ID), Kubernetes cluster or Network Group
+tag            Tag
+```
+
 ## tcp-redirs
 
 **Description:** Control the TCP redirections from reverse proxies to your application

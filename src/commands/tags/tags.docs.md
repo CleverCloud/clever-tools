@@ -46,3 +46,18 @@ clever tags add <resource-id> <tag>
 |---|---|
 |`resource-id`|Resource ID: application (app_xxx), add-on (addon_xxx or real ID), Kubernetes cluster or Network Group|
 |`tag`|Tag|
+
+## ➡️ `clever tags remove` <kbd>Unreleased</kbd>
+
+Remove a tag from a resource (and from the FS bucket add-on of an SFTP application)
+
+```bash
+clever tags remove <resource-id> <tag>
+```
+
+### 📥 Arguments
+
+|Name|Description|
+|---|---|
+|`resource-id`|Resource ID: application (app_xxx), add-on (addon_xxx or real ID), Kubernetes cluster or Network Group|
+|`tag`|Tag|
