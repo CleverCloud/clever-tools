@@ -4202,6 +4202,27 @@ clever stop [options]
 clever tags
 ```
 
+### tags list
+
+**Description:** List the tags of a resource
+
+**Since:** Unreleased
+
+**Usage**
+```
+clever tags list <resource-id> [options]
+```
+
+**Arguments**
+```
+resource-id              Resource ID: application (app_xxx), add-on (addon_xxx or real ID), Kubernetes cluster or Network Group
+```
+
+**Options**
+```
+-F, --format <format>    Output format (human, json) (default: human)
+```
+
 ## tcp-redirs
 
 **Description:** Control the TCP redirections from reverse proxies to your application

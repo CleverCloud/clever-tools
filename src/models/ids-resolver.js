@@ -46,6 +46,23 @@ export async function resolveAddon(addonIdOrRealId) {
   return result;
 }
 
+/**
+ * Resolve the owner of an application, add-on or real add-on ID, with the IDs of the add-on known under this ID.
+ * An SFTP application comes with an FS bucket add-on whose add-on ID and real ID are the application ID: `addon` is
+ * this add-on.
+ * @param {string} id An application, add-on or real add-on ID
+ * @returns {Promise<{ ownerId: string, addon: { addonId: string, realId: string }|null }|null>} null if no owner is found
+ */
+export async function resolveOwnerIdWithAddon(id) {
+  return getIdFromCacheOrSummary((ids) => {
+    const ownerId = ids.owners[id];
+    if (ownerId == null) {
+      return null;
+    }
+    return { ownerId, addon: ids.addons[id] ?? null };
+  });
+}
+
 async function getIdFromCacheOrSummary(callback) {
   const idsFromCache = await loadIdsCache();
   const idFromCache = callback(idsFromCache);
