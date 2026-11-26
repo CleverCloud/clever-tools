@@ -820,6 +820,7 @@ app-name                                Application name (current directory name
     --github <owner/repo>               GitHub application to use for deployments
 -o, --org, --owner <org-id|org-name>    Organisation to target by its ID (or name, if unambiguous)
 -r, --region <zone>                     Region, can be 'par', 'parhds', 'grahds', 'rbx', 'rbxhds', 'scw', 'ldn', 'mtl', 'sgp', 'syd', 'wsw' (default: par)
+    --tag <tag>                         Tag to set, repeat --tag to set several tags (experimental, enable with `clever features enable tags`)
 -T, --task <command>                    The application launch as a task executing the given command, then stopped
 ```
 

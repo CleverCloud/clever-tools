@@ -83,7 +83,7 @@ async function getInstanceType(type) {
   return instanceVariant;
 }
 
-export async function create(name, typeName, region, orgaIdOrName, github, isTask, envVars) {
+export async function create(name, typeName, region, orgaIdOrName, github, isTask, envVars, tags) {
   Logger.debug('Create the application…');
 
   const ownerId = orgaIdOrName != null ? await Organisation.getId(orgaIdOrName) : await User.getCurrentId();
@@ -105,6 +105,10 @@ export async function create(name, typeName, region, orgaIdOrName, github, isTas
     instanceLifetime: isTask ? 'TASK' : 'REGULAR',
     env: envVars,
   };
+
+  if (tags != null) {
+    newApp.tags = tags;
+  }
 
   if (github != null) {
     newApp.oauthService = 'github';

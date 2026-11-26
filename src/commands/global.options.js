@@ -213,3 +213,10 @@ export const tagsFilterOption = defineOption({
   description: 'Only list the resources with this tag, repeat --tag to require several tags',
   placeholder: 'tag',
 });
+
+export const tagsOption = defineOption({
+  name: 'tag',
+  schema: repeatableTagsSchema,
+  description: 'Tag to set, repeat --tag to set several tags',
+  placeholder: 'tag',
+});
