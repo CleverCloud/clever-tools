@@ -23,7 +23,9 @@ export interface ConfigFileProfile {
 }
 
 /** Experimental features file of the CLI (`EXPERIMENTAL_FEATURES_FILE`), as written by `clever features enable`. */
-export type ExperimentalFeaturesFile = Partial<Record<'system-git' | 'k8s' | 'ng' | 'operators', boolean>>;
+export type ExperimentalFeaturesFile = Partial<
+  Record<'system-git' | 'k8s' | 'ng' | 'operators' | 'tags' | 'terraform', boolean>
+>;
 
 /** `.clever.json` of an application directory, with the linked applications. */
 export interface AppConfigFile {

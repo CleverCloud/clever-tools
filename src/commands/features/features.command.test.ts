@@ -21,6 +21,7 @@ describe('clever features', () => {
             k8s         beta    Deploy and manage Kubernetes clusters on Clever Cloud                                              false
             ng          beta    Manage Network Groups to manage applications, add-ons, external peers through a WireGuard network  false
             operators   beta    Manage operators and their features such as Keycloak, Matomo, Metabase, Otoroshi                   false
+            tags        beta    Manage the tags of applications, add-ons, Kubernetes clusters and Network Groups                   false
             terraform   beta    Generate Terraform import blocks for existing applications and add-ons                             false
           `,
         });
@@ -59,6 +60,12 @@ describe('clever features', () => {
               enabled: false,
             },
             {
+              id: 'tags',
+              status: 'beta',
+              description: 'Manage the tags of applications, add-ons, Kubernetes clusters and Network Groups',
+              enabled: false,
+            },
+            {
               id: 'terraform',
               status: 'beta',
               description: 'Generate Terraform import blocks for existing applications and add-ons',
@@ -82,6 +89,7 @@ describe('clever features', () => {
           k8s         beta    Deploy and manage Kubernetes clusters on Clever Cloud                                              false
           ng          beta    Manage Network Groups to manage applications, add-ons, external peers through a WireGuard network  false
           operators   beta    Manage operators and their features such as Keycloak, Matomo, Metabase, Otoroshi                   false
+          tags        beta    Manage the tags of applications, add-ons, Kubernetes clusters and Network Groups                   false
           terraform   beta    Generate Terraform import blocks for existing applications and add-ons                             false
         `,
       });
@@ -100,6 +108,7 @@ describe('clever features', () => {
           k8s         beta    Deploy and manage Kubernetes clusters on Clever Cloud                                              true
           ng          beta    Manage Network Groups to manage applications, add-ons, external peers through a WireGuard network  false
           operators   beta    Manage operators and their features such as Keycloak, Matomo, Metabase, Otoroshi                   false
+          tags        beta    Manage the tags of applications, add-ons, Kubernetes clusters and Network Groups                   false
           terraform   beta    Generate Terraform import blocks for existing applications and add-ons                             false
         `,
       });
@@ -118,6 +127,7 @@ describe('clever features', () => {
           k8s         beta    Deploy and manage Kubernetes clusters on Clever Cloud                                              false
           ng          beta    Manage Network Groups to manage applications, add-ons, external peers through a WireGuard network  true
           operators   beta    Manage operators and their features such as Keycloak, Matomo, Metabase, Otoroshi                   false
+          tags        beta    Manage the tags of applications, add-ons, Kubernetes clusters and Network Groups                   false
           terraform   beta    Generate Terraform import blocks for existing applications and add-ons                             false
         `,
       });
@@ -136,6 +146,7 @@ describe('clever features', () => {
           k8s         beta    Deploy and manage Kubernetes clusters on Clever Cloud                                              false
           ng          beta    Manage Network Groups to manage applications, add-ons, external peers through a WireGuard network  false
           operators   beta    Manage operators and their features such as Keycloak, Matomo, Metabase, Otoroshi                   true
+          tags        beta    Manage the tags of applications, add-ons, Kubernetes clusters and Network Groups                   false
           terraform   beta    Generate Terraform import blocks for existing applications and add-ons                             false
         `,
       });

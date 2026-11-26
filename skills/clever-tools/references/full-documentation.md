@@ -233,7 +233,7 @@ Applications deployment zones (region): `par`, `parhds`, `fr-north-hds`, `grahds
 ## Add-on providers, plans and zones (region)
 
 - `addon-matomo`:
-  - plans: `beta`
+  - plans: `base`
   - zones: `par`, `mtl`, `rbx`, `scw`, `sgp`, `syd`, `wsw`
 
 - `addon-pulsar`:
@@ -4189,6 +4189,17 @@ clever stop [options]
 ```
 -a, --alias <alias>            Short name for the application
     --app <app-id|app-name>    Application to manage by its ID (or name, if unambiguous)
+```
+
+## tags
+
+**Description:** Manage the tags of applications, add-ons, Kubernetes clusters and Network Groups
+
+**Since:** Unreleased
+
+**Usage**
+```
+clever tags
 ```
 
 ## tcp-redirs

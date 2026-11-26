@@ -198,6 +198,7 @@ import { sshKeysRemoveCommand } from './ssh-keys/ssh-keys.remove.command.js';
 import { sshCommand } from './ssh/ssh.command.js';
 import { statusCommand } from './status/status.command.js';
 import { stopCommand } from './stop/stop.command.js';
+import { tagsCommand } from './tags/tags.command.js';
 import { tcpRedirsAddCommand } from './tcp-redirs/tcp-redirs.add.command.js';
 import { tcpRedirsCommand } from './tcp-redirs/tcp-redirs.command.js';
 import { tcpRedirsListNamespacesCommand } from './tcp-redirs/tcp-redirs.list-namespaces.command.js';
@@ -569,6 +570,7 @@ export const globalCommands = {
   ],
   status: statusCommand,
   stop: stopCommand,
+  tags: [tagsCommand, {}],
   'tcp-redirs': [
     tcpRedirsCommand,
     {
