@@ -267,6 +267,9 @@ function getCommandSection(heading, path, definition) {
       if (opt.deprecated) {
         description += ` ${opt.deprecated}`;
       }
+      if (opt.experimental) {
+        description += ` (experimental, enable with \`clever features enable ${opt.experimental}\`)`;
+      }
       if (opt.required) {
         description += ` ${opt.required}`;
       }

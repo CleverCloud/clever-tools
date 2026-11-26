@@ -133,8 +133,8 @@ function buildCommand(name, commandEntry) {
     }
   }
 
-  // Build the command
-  const command = convertCommand(name, commandDef, subcommands);
+  // Build the command, without the options of disabled features
+  const command = convertCommand(name, withoutDisabledOptions(commandDef), subcommands);
 
   // Add experimental styling if needed
   if (commandDef.isExperimental && commandDef.featureFlag) {
@@ -146,6 +146,23 @@ function buildCommand(name, commandEntry) {
   }
 
   return command;
+}
+
+/**
+ * Remove the options behind a disabled feature flag, so that neither cliparse nor the help know them
+ * @param {CommandDefinition} commandDef - Command definition object
+ * @returns {CommandDefinition} The definition, with only the enabled options
+ */
+function withoutDisabledOptions(commandDef) {
+  if (commandDef.options == null) {
+    return commandDef;
+  }
+  const options = Object.fromEntries(
+    Object.entries(commandDef.options).filter(
+      ([, option]) => option.featureFlag == null || isFeatureEnabled(option.featureFlag),
+    ),
+  );
+  return { ...commandDef, options };
 }
 
 /**

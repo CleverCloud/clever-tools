@@ -113,6 +113,7 @@ When the handler runs, `blend` matches the regex, `shots` is an integer between 
 | `placeholder` | Shown after the name in the help: `--size <size>`. |
 | `complete` | Optional shell completion function, sync or async. |
 | `deprecated` | `true`, or a string with migration instructions. |
+| `featureFlag` | Hide the option until `clever features enable <flag>`, for an option of a command that is not behind a flag itself. The flag must be declared in `EXPERIMENTAL_FEATURES` (`src/config/features.js`), and the schema must accept a missing value: the handler gets `undefined` while the flag is disabled. The generated docs list the option with the flag to enable. |
 
 An option is required unless its schema is `.optional()`, `.nullable()` or has a `.default()` (`isRequired` in `src/lib/zod-utils.js`).
 
