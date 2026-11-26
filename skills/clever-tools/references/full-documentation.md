@@ -3001,6 +3001,7 @@ clever ng [options]
 ```
 -F, --format <format>                   Output format (human, json) (default: human)
 -o, --org, --owner <org-id|org-name>    Organisation to target by its ID (or name, if unambiguous)
+    --tag <tag>                         Only list the resources with this tag, repeat --tag to require several tags
 ```
 
 ### ng create

@@ -119,6 +119,9 @@ export const EXPERIMENTAL_FEATURES = {
       The type of the resource is detected from its ID. On an SFTP application,
       add, remove and remove-all also change the tags of its FS bucket add-on.
       Tags of Network Groups can only be listed for now.
+
+      This flag only shows --tag on applications list, addon list and create:
+      the k8s and ng commands, behind their own flags, already have it.
     `,
   },
   terraform: {

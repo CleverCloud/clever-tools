@@ -1,8 +1,9 @@
 import { defineCommand } from '../../lib/define-command.js';
 import { styleText } from '../../lib/style-text.js';
+import { formatTagsFilter, hasAllTags } from '../../lib/tags.js';
 import { Logger } from '../../logger.js';
 import * as networkGroup from '../../models/ng.js';
-import { humanJsonOutputFormatOption, orgaIdOrNameOption } from '../global.options.js';
+import { humanJsonOutputFormatOption, orgaIdOrNameOption, tagsFilterOption } from '../global.options.js';
 
 export const ngCommand = defineCommand({
   description: 'List Network Groups',
@@ -12,12 +13,14 @@ export const ngCommand = defineCommand({
   options: {
     org: orgaIdOrNameOption,
     format: humanJsonOutputFormatOption,
+    tags: tagsFilterOption,
   },
   args: [],
   async handler(options) {
-    const { org, format } = options;
+    const { org, format, tags } = options;
 
-    const ngs = await networkGroup.getAllNGs(org);
+    const allNgs = await networkGroup.getAllNGs(org);
+    const ngs = tags == null ? allNgs : allNgs.filter((ng) => hasAllTags(ng.tags ?? [], tags));
 
     switch (format) {
       case 'json': {
@@ -26,6 +29,10 @@ export const ngCommand = defineCommand({
       }
       case 'human':
       default: {
+        if (tags != null && !ngs.length) {
+          Logger.println(`🔎 No Network Group found with the ${formatTagsFilter(tags)}`);
+          return;
+        }
         if (!ngs.length) {
           Logger.println(`ℹ️ No Network Group found, create one with ${styleText('blue', 'clever ng create')} command`);
           return;
