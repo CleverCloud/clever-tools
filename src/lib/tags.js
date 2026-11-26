@@ -72,10 +72,11 @@ export function hasAllTags(resourceTags, requiredTags) {
 /**
  * Format tags for the user, e.g. "foo", "bar": quoted so a comma or a space inside a tag stays readable
  * @param {Array<string>} tags
+ * @param {{ color?: boolean }} [options] color: false for console.table(), which escapes ANSI codes
  * @returns {string}
  */
-export function formatTags(tags) {
-  return tags.map((tag) => styleText('green', `"${tag}"`)).join(', ');
+export function formatTags(tags, { color = true } = {}) {
+  return tags.map((tag) => (color ? styleText('green', `"${tag}"`) : `"${tag}"`)).join(', ');
 }
 
 /**
