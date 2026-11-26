@@ -23,7 +23,11 @@ export const k8sUpdateCommand = defineCommand({
       description: 'Free-form cluster description',
       placeholder: 'description',
     }),
-    tags: { ...tagsOption, description: 'Tag to set in place of the current ones, repeat --tag to set several tags' },
+    tags: {
+      ...tagsOption,
+      description: 'Tag to set in place of the current ones, repeat --tag to set several tags',
+      deprecated: 'use clever tags add, remove or remove-all, behind the tags feature flag',
+    },
     autoscaling: defineOption({
       name: 'autoscaling',
       schema: z.boolean().default(false),

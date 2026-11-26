@@ -329,7 +329,7 @@ clever k8s update <cluster-id|cluster-name> [options]
 |`--disable-autoscaling`|Disable the cluster autoscaler|
 |`--name` `<name>`|Rename the cluster|
 |`-o`, `--org`, `--owner` `<org-id\|org-name>`|Organisation to target by its ID (or name, if unambiguous)|
-|`--tag` `<tag>`|Tag to set in place of the current ones, repeat --tag to set several tags|
+|`--tag` `<tag>`|Tag to set in place of the current ones, repeat --tag to set several tags *(deprecated, use clever tags add, remove or remove-all, behind the tags feature flag)*|
 
 ## ➡️ `clever k8s version` <kbd>Since 4.9.0</kbd>
 
