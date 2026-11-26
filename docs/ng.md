@@ -57,7 +57,7 @@ clever ng create myNG --link app_xxx,postgresql_xxx
 You can add a description and tags:
 
 ```
-clever ng create myNG --description "My first NG" --tags test,ng
+clever ng create myNG --description "My first NG" --tag test --tag ng
 ```
 
 ## Delete Network Groups

@@ -34,6 +34,7 @@ export const ngCreateCommand = defineCommand({
       schema: z.string().transform(tags).optional(),
       description: 'List of tags, separated by a comma',
       placeholder: 'tags',
+      deprecated: 'use --tag, repeat it to set several tags',
     }),
     org: orgaIdOrNameOption,
   },
