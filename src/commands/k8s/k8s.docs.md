@@ -161,6 +161,7 @@ clever k8s list [options]
 |---|---|
 |`-F`, `--format` `<format>`|Output format (human, json) (default: human)|
 |`-o`, `--org`, `--owner` `<org-id\|org-name>`|Organisation to target by its ID (or name, if unambiguous)|
+|`--tag` `<tag>`|Only list the resources with this tag, repeat --tag to require several tags|
 
 ## ➡️ `clever k8s nodegroups` <kbd>Since 4.9.0</kbd>
 
