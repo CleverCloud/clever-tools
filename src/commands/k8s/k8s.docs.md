@@ -80,7 +80,7 @@ clever k8s create <cluster-name> [options]
 |`-o`, `--org`, `--owner` `<org-id\|org-name>`|Organisation to target by its ID (or name, if unambiguous)|
 |`--persistent-storage`|Enable persistent storage (Ceph CSI)|
 |`--replication-factor` `<replication-factor>`|Control plane replication factor|
-|`--tag` `<tag[,tag...]>`|Semantic tags (comma-separated, e.g.: env:prod,team:platform)|
+|`--tag` `<tag>`|Tag to set, repeat --tag to set several tags|
 |`--topology` `<topology>`|Cluster topology (must be set with --flavor and --replication-factor)|
 |`-w`, `--watch`|Watch the deployment until the cluster is deployed|
 |`-y`, `--yes`|Skip confirmation prompts|
@@ -161,6 +161,7 @@ clever k8s list [options]
 |---|---|
 |`-F`, `--format` `<format>`|Output format (human, json) (default: human)|
 |`-o`, `--org`, `--owner` `<org-id\|org-name>`|Organisation to target by its ID (or name, if unambiguous)|
+|`--tag` `<tag>`|Only list the resources with this tag, repeat --tag to require several tags|
 
 ## ➡️ `clever k8s nodegroups` <kbd>Since 4.9.0</kbd>
 
@@ -328,7 +329,7 @@ clever k8s update <cluster-id|cluster-name> [options]
 |`--disable-autoscaling`|Disable the cluster autoscaler|
 |`--name` `<name>`|Rename the cluster|
 |`-o`, `--org`, `--owner` `<org-id\|org-name>`|Organisation to target by its ID (or name, if unambiguous)|
-|`--tag` `<tag[,tag...]>`|Replace tags (comma-separated, e.g.: env:prod,team:platform)|
+|`--tag` `<tag>`|Tag to set in place of the current ones, repeat --tag to set several tags *(deprecated, use clever tags add, remove or remove-all, behind the tags feature flag)*|
 
 ## ➡️ `clever k8s version` <kbd>Since 4.9.0</kbd>
 

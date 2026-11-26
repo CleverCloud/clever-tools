@@ -233,7 +233,7 @@ Applications deployment zones (region): `par`, `parhds`, `fr-north-hds`, `grahds
 ## Add-on providers, plans and zones (region)
 
 - `addon-matomo`:
-  - plans: `beta`
+  - plans: `base`
   - zones: `par`, `mtl`, `rbx`, `scw`, `sgp`, `syd`, `wsw`
 
 - `addon-pulsar`:
@@ -362,6 +362,7 @@ clever addon [options]
 ```
 -F, --format <format>                   Output format (human, json) (default: human)
 -o, --org, --owner <org-id|org-name>    Organisation to target by its ID (or name, if unambiguous)
+    --tag <tag>                         Only list the resources with this tag, repeat --tag to require several tags (experimental, enable with `clever features enable tags`)
 ```
 
 ### addon create
@@ -452,6 +453,7 @@ clever addon list [options]
 ```
 -F, --format <format>                   Output format (human, json) (default: human)
 -o, --org, --owner <org-id|org-name>    Organisation to target by its ID (or name, if unambiguous)
+    --tag <tag>                         Only list the resources with this tag, repeat --tag to require several tags (experimental, enable with `clever features enable tags`)
 ```
 
 ### addon providers
@@ -547,6 +549,7 @@ clever applications list [options]
 ```
 -F, --format <format>                   Output format (human, json) (default: human)
 -o, --org, --owner <org-id|org-name>    Organisation to target by its ID (or name, if unambiguous)
+    --tag <tag>                         Only list the resources with this tag, repeat --tag to require several tags (experimental, enable with `clever features enable tags`)
 ```
 
 ## cancel-deploy
@@ -819,6 +822,7 @@ app-name                                Application name (current directory name
     --github <owner/repo>               GitHub application to use for deployments
 -o, --org, --owner <org-id|org-name>    Organisation to target by its ID (or name, if unambiguous)
 -r, --region <zone>                     Region, can be 'par', 'parhds', 'grahds', 'rbx', 'rbxhds', 'scw', 'ldn', 'mtl', 'sgp', 'syd', 'wsw' (default: par)
+    --tag <tag>                         Tag to set, repeat --tag to set several tags (experimental, enable with `clever features enable tags`)
 -T, --task <command>                    The application launch as a task executing the given command, then stopped
 ```
 
@@ -1914,7 +1918,7 @@ cluster-name                                     Kubernetes cluster name
 -o, --org, --owner <org-id|org-name>             Organisation to target by its ID (or name, if unambiguous)
     --persistent-storage                         Enable persistent storage (Ceph CSI)
     --replication-factor <replication-factor>    Control plane replication factor
-    --tag <tag[,tag...]>                         Semantic tags (comma-separated, e.g.: env:prod,team:platform)
+    --tag <tag>                                  Tag to set, repeat --tag to set several tags
     --topology <topology>                        Cluster topology (must be set with --flavor and --replication-factor)
 -w, --watch                                      Watch the deployment until the cluster is deployed
 -y, --yes                                        Skip confirmation prompts
@@ -2000,6 +2004,7 @@ clever k8s list [options]
 ```
 -F, --format <format>                   Output format (human, json) (default: human)
 -o, --org, --owner <org-id|org-name>    Organisation to target by its ID (or name, if unambiguous)
+    --tag <tag>                         Only list the resources with this tag, repeat --tag to require several tags
 ```
 
 ### k8s nodegroups
@@ -2178,7 +2183,7 @@ cluster-id|cluster-name                 Kubernetes cluster ID or name
     --disable-autoscaling               Disable the cluster autoscaler
     --name <name>                       Rename the cluster
 -o, --org, --owner <org-id|org-name>    Organisation to target by its ID (or name, if unambiguous)
-    --tag <tag[,tag...]>                Replace tags (comma-separated, e.g.: env:prod,team:platform)
+    --tag <tag>                         Tag to set in place of the current ones, repeat --tag to set several tags (deprecated, use clever tags add, remove or remove-all, behind the tags feature flag)
 ```
 
 ### k8s version
@@ -2996,6 +3001,7 @@ clever ng [options]
 ```
 -F, --format <format>                   Output format (human, json) (default: human)
 -o, --org, --owner <org-id|org-name>    Organisation to target by its ID (or name, if unambiguous)
+    --tag <tag>                         Only list the resources with this tag, repeat --tag to require several tags
 ```
 
 ### ng create
@@ -3019,7 +3025,8 @@ ng-label                                Network Group label
     --description <description>         Network Group description
     --link <members-ids>                Comma separated list of members IDs to link to a Network Group (app_xxx, external_xxx, mysql_xxx, postgresql_xxx, redis_xxx, etc.)
 -o, --org, --owner <org-id|org-name>    Organisation to target by its ID (or name, if unambiguous)
-    --tags <tags>                       List of tags, separated by a comma
+    --tag <tag>                         Tag to set, repeat --tag to set several tags
+    --tags <tags>                       List of tags, separated by a comma (deprecated, use --tag, repeat it to set several tags)
 ```
 
 #### ng create external
@@ -4189,6 +4196,93 @@ clever stop [options]
 ```
 -a, --alias <alias>            Short name for the application
     --app <app-id|app-name>    Application to manage by its ID (or name, if unambiguous)
+```
+
+## tags
+
+**Description:** Manage the tags of applications, add-ons, Kubernetes clusters and Network Groups
+
+**Since:** Unreleased
+
+**Usage**
+```
+clever tags
+```
+
+### tags add
+
+**Description:** Add a tag to a resource (and to the FS bucket add-on of an SFTP application)
+
+**Since:** Unreleased
+
+**Usage**
+```
+clever tags add <resource-id> <tag>
+```
+
+**Arguments**
+```
+resource-id    Resource ID: application (app_xxx), add-on (addon_xxx or real ID), Kubernetes cluster or Network Group
+tag            Tag
+```
+
+### tags list
+
+**Description:** List the tags of a resource
+
+**Since:** Unreleased
+
+**Usage**
+```
+clever tags list <resource-id> [options]
+```
+
+**Arguments**
+```
+resource-id              Resource ID: application (app_xxx), add-on (addon_xxx or real ID), Kubernetes cluster or Network Group
+```
+
+**Options**
+```
+-F, --format <format>    Output format (human, json) (default: human)
+```
+
+### tags remove
+
+**Description:** Remove a tag from a resource (and from the FS bucket add-on of an SFTP application)
+
+**Since:** Unreleased
+
+**Usage**
+```
+clever tags remove <resource-id> <tag>
+```
+
+**Arguments**
+```
+resource-id    Resource ID: application (app_xxx), add-on (addon_xxx or real ID), Kubernetes cluster or Network Group
+tag            Tag
+```
+
+### tags remove-all
+
+**Description:** Remove all the tags of a resource (and of the FS bucket add-on of an SFTP application)
+
+**Since:** Unreleased
+
+**Usage**
+```
+clever tags remove-all <resource-id> [options]
+```
+
+**Arguments**
+```
+resource-id    Resource ID: application (app_xxx), add-on (addon_xxx or real ID), Kubernetes cluster or Network Group
+```
+
+**Options**
+```
+-y, --yes      Skip confirmation prompts
 ```
 
 ## tcp-redirs

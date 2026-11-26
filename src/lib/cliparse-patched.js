@@ -122,6 +122,10 @@ cliparseCommandModule.help = function (context) {
       if (opt.deprecated) {
         description += ` ${styleText('dim', opt.deprecated)}`;
       }
+      if (opt.experimental) {
+        // shown only once the flag is enabled
+        description += ` ${styleText('dim', '(experimental)')}`;
+      }
       if (opt.required) {
         description += ` ${styleText('dim', opt.required)}`;
       }

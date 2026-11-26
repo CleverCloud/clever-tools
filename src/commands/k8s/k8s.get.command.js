@@ -1,6 +1,7 @@
 import { defineCommand } from '../../lib/define-command.js';
 import { getK8sCluster } from '../../lib/k8s.js';
 import { styleText } from '../../lib/style-text.js';
+import { formatTags } from '../../lib/tags.js';
 import { Logger } from '../../logger.js';
 import { humanJsonOutputFormatOption, orgaIdOrNameOption } from '../global.options.js';
 import { k8sIdOrNameArg } from './k8s.args.js';
@@ -35,7 +36,7 @@ export const k8sGetCommand = defineCommand({
           'Persistent storage': k8sInfo.features?.csi != null ? 'enabled' : 'disabled',
         };
         if (k8sInfo.tags?.length) {
-          overview.Tags = k8sInfo.tags.join(', ');
+          overview.Tags = formatTags(k8sInfo.tags, { color: false });
         }
         if (k8sInfo.description) {
           overview.Description = k8sInfo.description;

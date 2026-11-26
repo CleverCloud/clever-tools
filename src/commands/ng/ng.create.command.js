@@ -6,7 +6,7 @@ import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
 import * as networkGroup from '../../models/ng.js';
 import { ngResourceType, tags } from '../../parsers.js';
-import { orgaIdOrNameOption } from '../global.options.js';
+import { orgaIdOrNameOption, tagsOption } from '../global.options.js';
 
 export const ngCreateCommand = defineCommand({
   description: 'Create a Network Group',
@@ -28,11 +28,13 @@ export const ngCreateCommand = defineCommand({
       description: 'Network Group description',
       placeholder: 'description',
     }),
-    tags: defineOption({
+    tags: tagsOption,
+    commaSeparatedTags: defineOption({
       name: 'tags',
       schema: z.string().transform(tags).optional(),
       description: 'List of tags, separated by a comma',
       placeholder: 'tags',
+      deprecated: 'use --tag, repeat it to set several tags',
     }),
     org: orgaIdOrNameOption,
   },
@@ -45,7 +47,11 @@ export const ngCreateCommand = defineCommand({
   ],
   async handler(options, ngLabel) {
     const label = ngLabel.ngResourceLabel;
-    const { description, link: membersIds, org, tags } = options;
+    const { description, link: membersIds, org, commaSeparatedTags } = options;
+    const tags =
+      options.tags != null || commaSeparatedTags != null
+        ? [...(options.tags ?? []), ...(commaSeparatedTags ?? [])]
+        : undefined;
 
     await networkGroup.create(label, description, tags, membersIds, org);
 

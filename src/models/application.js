@@ -83,7 +83,7 @@ async function getInstanceType(type) {
   return instanceVariant;
 }
 
-export async function create(name, typeName, region, orgaIdOrName, github, isTask, envVars) {
+export async function create(name, typeName, region, orgaIdOrName, github, isTask, envVars, tags) {
   Logger.debug('Create the application…');
 
   const ownerId = orgaIdOrName != null ? await Organisation.getId(orgaIdOrName) : await User.getCurrentId();
@@ -105,6 +105,10 @@ export async function create(name, typeName, region, orgaIdOrName, github, isTas
     instanceLifetime: isTask ? 'TASK' : 'REGULAR',
     env: envVars,
   };
+
+  if (tags != null) {
+    newApp.tags = tags;
+  }
 
   if (github != null) {
     newApp.oauthService = 'github';
@@ -128,8 +132,12 @@ export async function deleteApp(app, skipConfirmation) {
   return removeApplication({ id: app.ownerId, appId: app.id }).then(sendToApi);
 }
 
-export async function getAllApps(ownerId) {
-  const summary = await getSummary().then(sendToApi);
+/**
+ * @param {string|null} ownerId Only list the applications of this owner
+ * @param {any} [summary] A summary already fetched by the caller, fetched here when missing
+ */
+export async function getAllApps(ownerId, summary) {
+  summary ??= await getSummary().then(sendToApi);
 
   const orgaWithApps = await Promise.all(
     summary.organisations

@@ -6,8 +6,8 @@ import { defineOption } from '../../lib/define-option.js';
 import { getK8sCluster, k8sCreate, k8sGetProduct } from '../../lib/k8s.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
-import { flavorCount, tags } from '../../parsers.js';
-import { orgaIdOrNameOption, skipConfirmationOption } from '../global.options.js';
+import { flavorCount } from '../../parsers.js';
+import { orgaIdOrNameOption, skipConfirmationOption, tagsOption } from '../global.options.js';
 
 const DEPLOY_POLL_DELAY_MS = 10000;
 
@@ -31,12 +31,7 @@ export const k8sCreateCommand = defineCommand({
       description: 'Free-form cluster description',
       placeholder: 'description',
     }),
-    tag: defineOption({
-      name: 'tag',
-      schema: z.string().transform(tags).optional(),
-      description: 'Semantic tags (comma-separated, e.g.: env:prod,team:platform)',
-      placeholder: 'tag[,tag...]',
-    }),
+    tags: tagsOption,
     autoscaling: defineOption({
       name: 'autoscaling',
       schema: z.boolean().default(false),
@@ -110,7 +105,7 @@ export const k8sCreateCommand = defineCommand({
       const cluster = await k8sCreate(clusterName, orgIdOrName, {
         version: options.clusterVersion,
         description: options.description,
-        tags: options.tag,
+        tags: options.tags,
         autoscaling: options.autoscaling,
         persistentStorage: options.persistentStorage,
         topology: options.topology,

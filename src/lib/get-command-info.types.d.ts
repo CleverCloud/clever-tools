@@ -28,6 +28,8 @@ export interface OptionInfo {
   placeholder: string | null;
   /** '(deprecated)', '(deprecated, with message)' or null */
   deprecated: string | null;
+  /** Feature flag hiding the option, or null */
+  experimental: string | null;
   /** '(required)' or null */
   required: string | null;
   /** '(default: value)' or null */

@@ -64,6 +64,7 @@ These options are available for all commands:
 |[`clever ssh-keys`](./ssh-keys/ssh-keys.docs.md)|Manage SSH keys of the current user|
 |[`clever status`](./status/status.docs.md)|See the status of an application|
 |[`clever stop`](./stop/stop.docs.md)|Stop a running application|
+|[`clever tags`](./tags/tags.docs.md)|Manage the tags of applications, add-ons, Kubernetes clusters and Network Groups|
 |[`clever tcp-redirs`](./tcp-redirs/tcp-redirs.docs.md)|Control the TCP redirections from reverse proxies to your application|
 |[`clever terraform`](./terraform/terraform.docs.md)|Terraform commands|
 |[`clever tokens`](./tokens/tokens.docs.md)|Manage API tokens to query Clever Cloud API from https://api-bridge.clever-cloud.com|

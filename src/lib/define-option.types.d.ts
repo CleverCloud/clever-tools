@@ -26,4 +26,10 @@ export interface OptionDefinition<S extends z.ZodType = z.ZodType> {
 
   /** Mark as deprecated. `true` for generic warning, or a string with migration instructions. */
   deprecated?: boolean | string;
+
+  /**
+   * Hide the option until `clever features enable <flag>`. The flag must be declared in `EXPERIMENTAL_FEATURES`.
+   * The schema must accept a missing value, which the handler gets while the flag is disabled.
+   */
+  featureFlag?: string;
 }

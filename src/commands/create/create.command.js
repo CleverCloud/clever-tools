@@ -5,13 +5,14 @@ import { defineArgument } from '../../lib/define-argument.js';
 import { defineCommand } from '../../lib/define-command.js';
 import { defineOption } from '../../lib/define-option.js';
 import { styleText } from '../../lib/style-text.js';
+import { formatTags } from '../../lib/tags.js';
 import { Logger } from '../../logger.js';
 import * as Application from '../../models/application.js';
 import { AVAILABLE_ZONES, listAvailableTypes, listAvailableZones } from '../../models/application.js';
 import * as CleverJson from '../../models/clever-json.js';
 import { Git } from '../../models/git.js';
 import { LinkedWorktreeNotSupportedError } from '../../models/linked-worktree-error.js';
-import { aliasCreationOption, humanJsonOutputFormatOption, orgaIdOrNameOption } from '../global.options.js';
+import { aliasCreationOption, humanJsonOutputFormatOption, orgaIdOrNameOption, tagsOption } from '../global.options.js';
 
 function getGithubDetails(githubOwnerRepo) {
   if (githubOwnerRepo != null) {
@@ -24,7 +25,7 @@ function getCurrentDirectoryName() {
   return path.basename(process.cwd());
 }
 
-async function displayAppCreation(app, alias, github, taskCommand) {
+async function displayAppCreation(app, alias, github, taskCommand, tags) {
   Logger.printSuccess(`Application ${styleText('green', app.name)} successfully created!`);
 
   const hasDistinctAlias = alias != null && alias !== app.name;
@@ -40,6 +41,7 @@ async function displayAppCreation(app, alias, github, taskCommand) {
     Alias: hasDistinctAlias && alias,
     Zone: app.zone,
     Task: isTask && `"${taskCommand}"`,
+    Tags: tags != null && formatTags(tags),
   });
 
   Logger.println();
@@ -135,6 +137,7 @@ export const createCommand = defineCommand({
     org: orgaIdOrNameOption,
     alias: aliasCreationOption,
     format: humanJsonOutputFormatOption,
+    tags: { ...tagsOption, featureFlag: 'tags' },
   },
   args: [
     defineArgument({
@@ -146,7 +149,7 @@ export const createCommand = defineCommand({
   async handler(options, rawName) {
     const { type: typeName } = options;
 
-    const { org: orgaIdOrName, alias, region, github: githubOwnerRepo, format, task: taskCommand } = options;
+    const { org: orgaIdOrName, alias, region, github: githubOwnerRepo, format, task: taskCommand, tags } = options;
     const { apps } = await CleverJson.loadApplicationConf();
 
     // Application name is optionnal, use current directory name if not specified (empty string)
@@ -158,7 +161,7 @@ export const createCommand = defineCommand({
     CleverJson.checkAlreadyLinked(apps, name, alias);
 
     const github = getGithubDetails(githubOwnerRepo);
-    const app = await Application.create(name, typeName, region, orgaIdOrName, github, isTask, envVars);
+    const app = await Application.create(name, typeName, region, orgaIdOrName, github, isTask, envVars, tags);
     await CleverJson.addLinkedApplication(app, alias);
 
     switch (format) {
@@ -169,13 +172,15 @@ export const createCommand = defineCommand({
           executedAs: app.instance.lifetime,
           env: app.env,
           deployUrl: app.deployUrl,
+          // The creation response doesn't hold the tags
+          ...(tags != null ? { tags } : {}),
         });
         break;
       }
 
       case 'human':
       default:
-        await displayAppCreation(app, alias, github, taskCommand);
+        await displayAppCreation(app, alias, github, taskCommand, tags);
     }
   },
 });

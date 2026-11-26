@@ -23,7 +23,17 @@ export interface ConfigFileProfile {
 }
 
 /** Experimental features file of the CLI (`EXPERIMENTAL_FEATURES_FILE`), as written by `clever features enable`. */
-export type ExperimentalFeaturesFile = Partial<Record<'system-git' | 'k8s' | 'ng' | 'operators', boolean>>;
+export type ExperimentalFeaturesFile = Partial<
+  Record<'system-git' | 'k8s' | 'ng' | 'operators' | 'tags' | 'terraform', boolean>
+>;
+
+/** IDs cache of the CLI (`IDS_CACHE_FILE`), built from `/v2/summary`. */
+export interface IdsCacheFile {
+  /** Owner ID of each application, add-on, real add-on and OAuth consumer ID. */
+  owners: Record<string, string>;
+  /** Both IDs of each add-on, keyed by its add-on ID and by its real ID. */
+  addons: Record<string, { addonId: string; realId: string }>;
+}
 
 /** `.clever.json` of an application directory, with the linked applications. */
 export interface AppConfigFile {
@@ -85,6 +95,20 @@ export class CleverFsMock extends FsMock {
   /** Absolute path of the experimental features file, e.g. for `assertJsonFile()`. */
   experimentalFeaturesFilePath(): string {
     return this.getPath(CLEVER_FILES.experimentalFeatures);
+  }
+
+  /**
+   * Write the IDs cache file. A string is written as is, an object as indented JSON.
+   * `string` and `object` let a test write an invalid file (broken JSON, missing key): they also accept any object, so
+   * a typo in a valid file is not caught at compile time.
+   */
+  writeIdsCacheFile(content: IdsCacheFile | string | object): void {
+    this.write(CLEVER_FILES.idsCache, content);
+  }
+
+  /** Absolute path of the IDs cache file, e.g. for `assertJsonFile()`. */
+  idsCacheFilePath(): string {
+    return this.getPath(CLEVER_FILES.idsCache);
   }
 
   /**

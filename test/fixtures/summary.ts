@@ -1,3 +1,4 @@
+import type { RawAddon } from './addon.ts';
 import type { RawApplication } from './application.ts';
 import { ORGANISATION_SELF, type RawOrganisation } from './organisation.ts';
 import { USER_SELF } from './user.ts';
@@ -18,6 +19,17 @@ export interface RawSummaryApplication {
   customerTags: Array<string>;
 }
 
+/** Raw entry of `addons` in `GET /v2/summary`, as returned by the API. */
+export interface RawSummaryAddon {
+  id: string;
+  name: string;
+  realId: string;
+  providerId: string;
+  logoUrl: string;
+  systemTags: Array<string>;
+  customerTags: Array<string>;
+}
+
 /**
  * Raw `user` of `GET /v2/summary`, as returned by the API: the current user and the resources of their personal space.
  */
@@ -34,7 +46,7 @@ export interface RawSummaryUser {
   partnerName: string;
   partnerConsoleUrl: string;
   applications: Array<RawSummaryApplication>;
-  addons: Array<unknown>;
+  addons: Array<RawSummaryAddon>;
   consumers: Array<unknown>;
 }
 
@@ -45,7 +57,7 @@ export interface RawSummaryOrganisation {
   role: string;
   avatar: string | null;
   applications: Array<RawSummaryApplication>;
-  addons: Array<unknown>;
+  addons: Array<RawSummaryAddon>;
   consumers: Array<unknown>;
   providers: Array<unknown>;
   contextFlags: Array<string>;
@@ -81,8 +93,13 @@ export function rawSummary({
   user = {},
   organisations = [],
 }: {
-  user?: { applications?: Array<RawApplication> };
-  organisations?: Array<{ organisation: RawOrganisation; role: string }>;
+  user?: { applications?: Array<RawApplication>; addons?: Array<RawAddon> };
+  organisations?: Array<{
+    organisation: RawOrganisation;
+    role: string;
+    applications?: Array<RawApplication>;
+    addons?: Array<RawAddon>;
+  }>;
 } = {}): RawSummary {
   return {
     user: {
@@ -98,12 +115,14 @@ export function rawSummary({
       partnerName: USER_SELF.partnerName,
       partnerConsoleUrl: USER_SELF.partnerConsoleUrl,
       applications: (user.applications ?? []).map(summaryApplication),
-      addons: [],
+      addons: (user.addons ?? []).map(summaryAddon),
       consumers: [],
     },
     organisations: [
       summaryOrganisation(ORGANISATION_SELF, 'ADMIN'),
-      ...organisations.map(({ organisation, role }) => summaryOrganisation(organisation, role)),
+      ...organisations.map(({ organisation, role, applications = [], addons = [] }) =>
+        summaryOrganisation(organisation, role, applications, addons),
+      ),
     ],
   };
 }
@@ -125,14 +144,31 @@ function summaryApplication(application: RawApplication): RawSummaryApplication 
   };
 }
 
-function summaryOrganisation(organisation: RawOrganisation, role: string): RawSummaryOrganisation {
+function summaryAddon(addon: RawAddon): RawSummaryAddon {
+  return {
+    id: addon.id,
+    name: addon.name,
+    realId: addon.realId,
+    providerId: addon.provider.id,
+    logoUrl: addon.provider.logoUrl,
+    systemTags: [],
+    customerTags: [],
+  };
+}
+
+function summaryOrganisation(
+  organisation: RawOrganisation,
+  role: string,
+  applications: Array<RawApplication> = [],
+  addons: Array<RawAddon> = [],
+): RawSummaryOrganisation {
   return {
     id: organisation.id,
     name: organisation.name,
     role,
     avatar: organisation.avatar,
-    applications: [],
-    addons: [],
+    applications: applications.map(summaryApplication),
+    addons: addons.map(summaryAddon),
     consumers: [],
     providers: [],
     contextFlags: organisation.contextFlags,

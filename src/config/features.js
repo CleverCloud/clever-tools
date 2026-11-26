@@ -102,6 +102,28 @@ export const EXPERIMENTAL_FEATURES = {
       clever otoroshi open logs myOtoroshi
     `,
   },
+  tags: {
+    status: 'beta',
+    defaultValue: false,
+    description: 'Manage the tags of applications, add-ons, Kubernetes clusters and Network Groups',
+    instructions: dedent`
+      - List the tags of a resource:
+          clever tags list app_xxx
+          clever tags list addon_xxx
+      - Add or remove a tag:
+          clever tags add app_xxx myTag
+          clever tags remove kubernetes_xxx myTag
+      - Remove all the tags of a resource:
+          clever tags remove-all postgresql_xxx
+
+      The type of the resource is detected from its ID. On an SFTP application,
+      add, remove and remove-all also change the tags of its FS bucket add-on.
+      Tags of Network Groups can only be listed for now.
+
+      This flag only shows --tag on applications list, addon list and create:
+      the k8s and ng commands, behind their own flags, already have it.
+    `,
+  },
   terraform: {
     status: 'beta',
     defaultValue: false,

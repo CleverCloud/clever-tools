@@ -140,7 +140,7 @@ A test must read without scrolling up, nor knowing hidden setup.
 
 ### Fixtures
 
-`test/fixtures/` holds the API payloads shared by the command tests, one file per entity: `user.ts`, `organisation.ts`, `application.ts`, `flavor.ts`, `deployment.ts`, `instance.ts`, plus `summary.ts`. Add only what a test uses.
+`test/fixtures/` holds the API payloads shared by the command tests, one file per entity: `user.ts`, `organisation.ts`, `application.ts`, `addon.ts`, `kubernetes.ts`, `network-group.ts`, `flavor.ts`, `deployment.ts`, `instance.ts`, plus `summary.ts`. Add only what a test uses.
 
 - **Fixtures look like the real API**: same keys, types, `null`s and ID formats as a real response of the endpoint they stand for (an instance ID is a bare UUID, a deployment `id` a number and its `uuid` a `deployment_<uuid>`), only the values are made up. Check a new fixture against a real response (`clever curl`, GET only).
 - **One constant per entity**, shaped like the response of its own endpoint (`USER_SELF` like `GET /v2/self`, `ORGANISATION_FOO` like `GET /v2/organisations/{id}`). An entity the API returns in several shapes holds every field of all of them (`INSTANCE_NODE_1`). Each entity is written in full, never as a spread of another one, so that two entities can't be confused. A spread only makes a variant of the same entity (`APP_NODE_SCALABLE`, or in a test `{ ...ORGANISATION_FOO, canPay: false }`).
@@ -148,7 +148,7 @@ A test must read without scrolling up, nor knowing hidden setup.
 - **A list only holds what the API would return in it**: `GET /v2/organisations/{id}/applications` only lists the applications of that owner (`[APP_NODE, APP_GO]` for `ORGANISATION_SELF`, `[APP_PHP, APP_JAVA]` for `ORGANISATION_FOO`).
 - **Nullable fields are set to `null`, never removed**: an instance never deployed from a commit has `commit: null`, e.g. `{ ...INSTANCE_NODE_1, commit: null }`.
 - **A relation is written in the test**: a role belongs to a user in an organisation, not to the user nor to the organisation, e.g. `rawMembers([{ user: USER_GIULIA, role: 'DEVELOPER' }])`.
-- **Every entity has its own UUID**, `00000000-0000-4000-8000-000000000NNN`, so that an ID used in place of another one fails the test. The hundreds of `NNN` give the type: `1xx` users, `2xx` organisations, `3xx` applications, `4xx` deployments (their `uuid`), `5xx` instances. An ID that must match no entity (an unknown application) takes a free `NNN` in the range of its type (`app_...399`), never the one of a fixture.
+- **Every entity has its own UUID**, `00000000-0000-4000-8000-000000000NNN`, so that an ID used in place of another one fails the test. The hundreds of `NNN` give the type: `1xx` users, `2xx` organisations, `3xx` applications, `4xx` deployments (their `uuid`), `5xx` instances, `6xx` add-ons (their real ID shares the UUID), `7xx` Kubernetes clusters, `8xx` Network Groups. The FS bucket add-on of an SFTP application is the only exception: like the real API, its add-on ID and its real ID are the ID of its application. An ID that must match no entity (an unknown application) takes a free `NNN` in the range of its type (`app_...399`), never the one of a fixture.
 - **Every shape has an exported `Raw*` type** (`RawApplication`, `RawInstance`, `RawSummary`…), for the parameters of the Given functions.
 - **Applications are named after their runtime** (`APP_NODE`, `APP_GO`, `APP_PHP`, `APP_JAVA`, `APP_PYTHON`): a test that needs another runtime adds its own application, e.g. `APP_RUBY`.
 - **An ID is taken from what it designates in the request**, even when two constants share its value:
@@ -171,6 +171,10 @@ The identity shared by all tests, to write literally in expected values:
 | `APP_JAVA` (Java + JAR, owned by `Foo Inc`) | `app_...304` | `my-java-app` |
 | `DEPLOYMENT_NODE_OK`, `DEPLOYMENT_NODE_WIP` (of `APP_NODE`) | `id` `1`, `2`, `uuid` `deployment_...400`, `401` | |
 | `INSTANCE_NODE_1`, `_2`, `_3`, `INSTANCE_NODE_BUILD` (build VM, `DEPLOYING`), `INSTANCE_NODE_DELETED` (`DELETED`, v4 history) (of `APP_NODE`) | `...500` to `504` | `Calm Fox`, `Bold Owl`, `Brave Lynx`, `Quiet Otter`, `Old Heron` |
+| `ADDON_POSTGRESQL` (PostgreSQL) | `addon_...600`, real ID `postgresql_...600` | `my-postgresql-addon` |
+| `ADDON_FS_BUCKET_PHP` (FS bucket of `APP_PHP` as an SFTP application) | `app_...301` (add-on and real ID) | `FS - my-php-app` |
+| `KUBERNETES_CLUSTER` (owned by `USER_SELF`) | `kubernetes_...700` | `my-cluster` |
+| `NETWORK_GROUP` (owned by `USER_SELF`) | `ng_...800` | `my-network-group` |
 
 ```ts
 await apiMock.respond(

@@ -79,6 +79,7 @@ export function getCommandInfo(path, definition) {
                 : option.deprecated === true
                   ? '(deprecated)'
                   : null,
+            experimental: option.featureFlag ?? null,
             required: isRequired(option.schema) ? '(required)' : null,
             default: defaultValue ? `(default: ${defaultValue})` : null,
             enumValues: getEnumValues(option.schema) ?? null,
