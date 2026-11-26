@@ -1,10 +1,19 @@
-import { get as getAddon, getAllTags as getAddonTags } from '@clevercloud/client/esm/api/v2/addon.js';
-import { get as getApplication, getAllTags as getApplicationTags } from '@clevercloud/client/esm/api/v2/application.js';
+import {
+  get as getAddon,
+  getAllTags as getAddonTags,
+  addTag as putAddonTag,
+} from '@clevercloud/client/esm/api/v2/addon.js';
+import {
+  get as getApplication,
+  getAllTags as getApplicationTags,
+  updateTag as putApplicationTag,
+} from '@clevercloud/client/esm/api/v2/application.js';
 import { getSummary } from '@clevercloud/client/esm/api/v2/user.js';
 import { getNetworkGroup } from '@clevercloud/client/esm/api/v4/network-group.js';
-import { getK8sAddon as getK8sCluster } from '../clever-client/k8s.js';
+import { getK8sAddon as getK8sCluster, updateK8sCluster } from '../clever-client/k8s.js';
 import { resolveOwnerIdWithAddon } from '../models/ids-resolver.js';
 import { sendToApi } from '../models/send-to-api.js';
+import { styleText } from './style-text.js';
 
 /**
  * @typedef {'application'|'addon'|'kubernetes'|'network-group'} TagTargetType
@@ -35,6 +44,19 @@ const TYPE_LABELS = {
  */
 export function formatTagTarget(target) {
   return `${TYPE_LABELS[target.type]} ${target.name} (${target.id})`;
+}
+
+/**
+ * Fail before any API call when the tags of this ID cannot be changed
+ * @param {string} id
+ * @throws {Error} For a Network Group, the API has no endpoint to change its tags yet
+ */
+export function assertTagsCanBeChanged(id) {
+  if (id.startsWith('ng_')) {
+    throw new Error(
+      `Tags of Network Groups cannot be changed yet, only ${styleText('blue', 'clever tags list')} works on them`,
+    );
+  }
 }
 
 /**
@@ -87,6 +109,32 @@ export async function getTags(target) {
       return getAddonTags({ id: ownerId, addonId: id }).then(sendToApi);
     default:
       return target.tags ?? [];
+  }
+}
+
+/**
+ * @param {TagTarget} target
+ * @param {string} tag
+ * @returns {Promise<void>}
+ */
+export async function addTag(target, tag) {
+  const { type, ownerId, id } = target;
+  switch (type) {
+    case 'application':
+      await putApplicationTag({ id: ownerId, appId: id, tag: encodeURIComponent(tag) }).then(sendToApi);
+      return;
+    case 'addon':
+      await putAddonTag({ id: ownerId, addonId: id, tag: encodeURIComponent(tag) }).then(sendToApi);
+      return;
+    case 'kubernetes': {
+      const tags = target.tags ?? [];
+      if (!tags.includes(tag)) {
+        await updateK8sCluster({ ownerId, clusterId: id }, { tags: [...tags, tag] }).then(sendToApi);
+      }
+      return;
+    }
+    default:
+      assertTagsCanBeChanged(id);
   }
 }
 

@@ -31,3 +31,18 @@ clever tags list <resource-id> [options]
 |Name|Description|
 |---|---|
 |`-F`, `--format` `<format>`|Output format (human, json) (default: human)|
+
+## ➡️ `clever tags add` <kbd>Unreleased</kbd>
+
+Add a tag to a resource (and to the FS bucket add-on of an SFTP application)
+
+```bash
+clever tags add <resource-id> <tag>
+```
+
+### 📥 Arguments
+
+|Name|Description|
+|---|---|
+|`resource-id`|Resource ID: application (app_xxx), add-on (addon_xxx or real ID), Kubernetes cluster or Network Group|
+|`tag`|Tag|

@@ -4202,6 +4202,23 @@ clever stop [options]
 clever tags
 ```
 
+### tags add
+
+**Description:** Add a tag to a resource (and to the FS bucket add-on of an SFTP application)
+
+**Since:** Unreleased
+
+**Usage**
+```
+clever tags add <resource-id> <tag>
+```
+
+**Arguments**
+```
+resource-id    Resource ID: application (app_xxx), add-on (addon_xxx or real ID), Kubernetes cluster or Network Group
+tag            Tag
+```
+
 ### tags list
 
 **Description:** List the tags of a resource
