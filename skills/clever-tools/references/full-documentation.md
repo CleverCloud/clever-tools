@@ -1918,7 +1918,7 @@ cluster-name                                     Kubernetes cluster name
 -o, --org, --owner <org-id|org-name>             Organisation to target by its ID (or name, if unambiguous)
     --persistent-storage                         Enable persistent storage (Ceph CSI)
     --replication-factor <replication-factor>    Control plane replication factor
-    --tag <tag[,tag...]>                         Semantic tags (comma-separated, e.g.: env:prod,team:platform)
+    --tag <tag>                                  Tag to set, repeat --tag to set several tags
     --topology <topology>                        Cluster topology (must be set with --flavor and --replication-factor)
 -w, --watch                                      Watch the deployment until the cluster is deployed
 -y, --yes                                        Skip confirmation prompts
@@ -2183,7 +2183,7 @@ cluster-id|cluster-name                 Kubernetes cluster ID or name
     --disable-autoscaling               Disable the cluster autoscaler
     --name <name>                       Rename the cluster
 -o, --org, --owner <org-id|org-name>    Organisation to target by its ID (or name, if unambiguous)
-    --tag <tag[,tag...]>                Replace tags (comma-separated, e.g.: env:prod,team:platform)
+    --tag <tag>                         Tag to set in place of the current ones, repeat --tag to set several tags
 ```
 
 ### k8s version

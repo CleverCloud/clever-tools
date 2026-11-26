@@ -4,8 +4,7 @@ import { defineOption } from '../../lib/define-option.js';
 import { k8sUpdate } from '../../lib/k8s.js';
 import { styleText } from '../../lib/style-text.js';
 import { Logger } from '../../logger.js';
-import { tags } from '../../parsers.js';
-import { orgaIdOrNameOption } from '../global.options.js';
+import { orgaIdOrNameOption, tagsOption } from '../global.options.js';
 import { k8sIdOrNameArg } from './k8s.args.js';
 
 export const k8sUpdateCommand = defineCommand({
@@ -24,12 +23,7 @@ export const k8sUpdateCommand = defineCommand({
       description: 'Free-form cluster description',
       placeholder: 'description',
     }),
-    tag: defineOption({
-      name: 'tag',
-      schema: z.string().transform(tags).optional(),
-      description: 'Replace tags (comma-separated, e.g.: env:prod,team:platform)',
-      placeholder: 'tag[,tag...]',
-    }),
+    tags: { ...tagsOption, description: 'Tag to set in place of the current ones, repeat --tag to set several tags' },
     autoscaling: defineOption({
       name: 'autoscaling',
       schema: z.boolean().default(false),
@@ -57,8 +51,8 @@ export const k8sUpdateCommand = defineCommand({
     if (options.description != null) {
       updates.description = options.description;
     }
-    if (options.tag != null) {
-      updates.tags = options.tag;
+    if (options.tags != null) {
+      updates.tags = options.tags;
     }
 
     const features = {};
