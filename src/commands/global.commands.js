@@ -201,6 +201,7 @@ import { stopCommand } from './stop/stop.command.js';
 import { tagsAddCommand } from './tags/tags.add.command.js';
 import { tagsCommand } from './tags/tags.command.js';
 import { tagsListCommand } from './tags/tags.list.command.js';
+import { tagsRemoveAllCommand } from './tags/tags.remove-all.command.js';
 import { tagsRemoveCommand } from './tags/tags.remove.command.js';
 import { tcpRedirsAddCommand } from './tcp-redirs/tcp-redirs.add.command.js';
 import { tcpRedirsCommand } from './tcp-redirs/tcp-redirs.command.js';
@@ -579,6 +580,7 @@ export const globalCommands = {
       list: tagsListCommand,
       add: tagsAddCommand,
       remove: tagsRemoveCommand,
+      'remove-all': tagsRemoveAllCommand,
     },
   ],
   'tcp-redirs': [

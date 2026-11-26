@@ -4257,6 +4257,27 @@ resource-id    Resource ID: application (app_xxx), add-on (addon_xxx or real ID)
 tag            Tag
 ```
 
+### tags remove-all
+
+**Description:** Remove all the tags of a resource (and of the FS bucket add-on of an SFTP application)
+
+**Since:** Unreleased
+
+**Usage**
+```
+clever tags remove-all <resource-id> [options]
+```
+
+**Arguments**
+```
+resource-id    Resource ID: application (app_xxx), add-on (addon_xxx or real ID), Kubernetes cluster or Network Group
+```
+
+**Options**
+```
+-y, --yes      Skip confirmation prompts
+```
+
 ## tcp-redirs
 
 **Description:** Control the TCP redirections from reverse proxies to your application

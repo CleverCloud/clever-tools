@@ -3,6 +3,7 @@ import {
   getAllTags as getAddonTags,
   addTag as putAddonTag,
   removeTag as removeAddonTag,
+  replaceAddonTags,
 } from '@clevercloud/client/esm/api/v2/addon.js';
 import {
   get as getApplication,
@@ -10,6 +11,7 @@ import {
   updateTag as putApplicationTag,
   removeTag as removeApplicationTag,
 } from '@clevercloud/client/esm/api/v2/application.js';
+import { updateApplicationTags } from '@clevercloud/client/esm/api/v2/organisation.js';
 import { getSummary } from '@clevercloud/client/esm/api/v2/user.js';
 import { getNetworkGroup } from '@clevercloud/client/esm/api/v4/network-group.js';
 import { getK8sAddon as getK8sCluster, updateK8sCluster } from '../clever-client/k8s.js';
@@ -169,6 +171,27 @@ export async function removeTag(target, tag) {
       }
       return;
     }
+    default:
+      assertTagsCanBeChanged(id);
+  }
+}
+
+/**
+ * @param {TagTarget} target
+ * @returns {Promise<void>}
+ */
+export async function removeAllTags(target) {
+  const { type, ownerId, id } = target;
+  switch (type) {
+    case 'application':
+      await updateApplicationTags({ id: ownerId, appId: id }, []).then(sendToApi);
+      return;
+    case 'addon':
+      await replaceAddonTags({ id: ownerId, addonId: id }, []).then(sendToApi);
+      return;
+    case 'kubernetes':
+      await updateK8sCluster({ ownerId, clusterId: id }, { tags: [] }).then(sendToApi);
+      return;
     default:
       assertTagsCanBeChanged(id);
   }
