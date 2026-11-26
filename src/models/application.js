@@ -128,8 +128,12 @@ export async function deleteApp(app, skipConfirmation) {
   return removeApplication({ id: app.ownerId, appId: app.id }).then(sendToApi);
 }
 
-export async function getAllApps(ownerId) {
-  const summary = await getSummary().then(sendToApi);
+/**
+ * @param {string|null} ownerId Only list the applications of this owner
+ * @param {any} [summary] A summary already fetched by the caller, fetched here when missing
+ */
+export async function getAllApps(ownerId, summary) {
+  summary ??= await getSummary().then(sendToApi);
 
   const orgaWithApps = await Promise.all(
     summary.organisations

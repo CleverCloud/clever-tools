@@ -42,6 +42,52 @@ const TYPE_LABELS = {
 };
 
 /**
+ * Read the tags of every application and add-on of the user, from the summary: the only endpoint listing them.
+ * Applications and add-ons get separate maps: the FS bucket add-on of an SFTP application carries the same ID as it.
+ * @param {any} [summary] A summary already fetched by the caller, fetched here when missing
+ * @returns {Promise<{ applications: Map<string, Array<string>>, addons: Map<string, Array<string>> }>} The tags, by ID
+ */
+export async function getTagsFromSummary(summary) {
+  summary ??= await getSummary().then(sendToApi);
+  // The personal space resources are in `user`
+  const owners = [summary.user, ...summary.organisations];
+  /** @param {Array<{ id: string, customerTags?: Array<string> }>} resources */
+  const toTagsPerId = (resources) => new Map(resources.map((resource) => [resource.id, resource.customerTags ?? []]));
+  return {
+    applications: toTagsPerId(owners.flatMap((owner) => owner.applications ?? [])),
+    addons: toTagsPerId(owners.flatMap((owner) => owner.addons ?? [])),
+  };
+}
+
+/**
+ * Tell whether a resource carries every required tag
+ * @param {Array<string>} resourceTags
+ * @param {Array<string>} requiredTags
+ * @returns {boolean}
+ */
+export function hasAllTags(resourceTags, requiredTags) {
+  return requiredTags.every((tag) => resourceTags.includes(tag));
+}
+
+/**
+ * Format tags for the user, e.g. "foo", "bar": quoted so a comma or a space inside a tag stays readable
+ * @param {Array<string>} tags
+ * @returns {string}
+ */
+export function formatTags(tags) {
+  return tags.map((tag) => styleText('green', `"${tag}"`)).join(', ');
+}
+
+/**
+ * Describe a tags filter for the user, e.g. tag "foo" or tags "foo", "bar"
+ * @param {Array<string>} tags
+ * @returns {string}
+ */
+export function formatTagsFilter(tags) {
+  return `tag${tags.length > 1 ? 's' : ''} ${formatTags(tags)}`;
+}
+
+/**
  * Describe a target for the user, e.g. "application my-app (app_xxx)"
  * @param {TagTarget} target
  * @returns {string}

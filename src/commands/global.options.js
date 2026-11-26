@@ -200,3 +200,16 @@ export const verboseOption = defineOption({
   description: 'Verbose output',
   aliases: ['v'],
 });
+
+// Repeatable: a single `--tag` gives a string, several give an array. The API accepts any tag, commas included
+const repeatableTagsSchema = z
+  .union([z.string().min(1, 'Tag must not be empty'), z.array(z.string().min(1, 'Tag must not be empty'))])
+  .transform((value) => [value].flat())
+  .optional();
+
+export const tagsFilterOption = defineOption({
+  name: 'tag',
+  schema: repeatableTagsSchema,
+  description: 'Only list the resources with this tag, repeat --tag to require several tags',
+  placeholder: 'tag',
+});
