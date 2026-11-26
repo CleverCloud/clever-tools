@@ -3025,6 +3025,7 @@ ng-label                                Network Group label
     --description <description>         Network Group description
     --link <members-ids>                Comma separated list of members IDs to link to a Network Group (app_xxx, external_xxx, mysql_xxx, postgresql_xxx, redis_xxx, etc.)
 -o, --org, --owner <org-id|org-name>    Organisation to target by its ID (or name, if unambiguous)
+    --tag <tag>                         Tag to set, repeat --tag to set several tags
     --tags <tags>                       List of tags, separated by a comma
 ```
 
